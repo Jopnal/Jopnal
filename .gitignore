@@ -1,3 +1,6 @@
+# Project folders
+extlibs/*/
+
 # Compiled Object files
 *.slo
 *.lo
