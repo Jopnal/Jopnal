@@ -1,17 +1,69 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Root">
+      <UniqueIdentifier>{98b129d1-5fc3-466a-8382-cad252e11cb6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Root\Headers">
+      <UniqueIdentifier>{45766c9e-4d81-46b0-ac22-7aea7491bf38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Root\Source">
+      <UniqueIdentifier>{b4fd0e46-d6c2-4595-a085-b9f07a35c85e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{2f436188-fb35-4928-bc31-81311d4a8ba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{610b67f5-348f-4421-909d-2134e83012d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{a724f1aa-7b91-4fe5-a825-f845619017d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{a5c7c9cd-5b47-4d7a-8b25-103ad1803ddb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Headers">
+      <UniqueIdentifier>{b86baf58-d317-4468-ae33-7c33728a457c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Source">
+      <UniqueIdentifier>{bffc58fe-5e8c-4764-971f-77a55805638f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Headers">
+      <UniqueIdentifier>{9e48100c-f223-452f-a6c4-f51c9cad4208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Source">
+      <UniqueIdentifier>{c82fce22-7d71-4047-b713-ee20b6721f22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio\Headers">
+      <UniqueIdentifier>{9b5a64e1-66b2-4f7c-8bea-7aa15991803f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio\Source">
+      <UniqueIdentifier>{9dea65b3-e88a-44ab-8bb0-9a98f7dc1610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Headers">
+      <UniqueIdentifier>{47f6ab00-6717-42b3-a090-a86f85524b41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Source">
+      <UniqueIdentifier>{84932558-c9d2-4406-a0e3-eb8942c96069}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Jopnal\Config.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Header.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Jopnal\Precompiled.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\OS.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
+      <Filter>Root\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
