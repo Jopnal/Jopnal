@@ -29,6 +29,11 @@
 
 namespace jop
 {
+    Window::Window()
+    {
+
+    }
+
 
 
 }

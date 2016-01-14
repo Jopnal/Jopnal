@@ -23,12 +23,17 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Window/Desktop/WindowDesktop.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
+    WindowDesktop::WindowDesktop()
+    {
+
+    }
 
 
-}
+}}

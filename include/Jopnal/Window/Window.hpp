@@ -26,22 +26,28 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <memory>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    namespace detail
+    {
+        class WindowImpl;
+    }
+
     class Window
     {
     public:
 
-
+		Window();
 
 
     private:
 
-
+        std::unique_ptr<detail::WindowImpl> m_impl;
 
     };
 }
