@@ -66,6 +66,7 @@
       <PreprocessorDefinitions>JOP_DEBUG;JOP_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
