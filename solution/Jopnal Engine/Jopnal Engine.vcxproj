@@ -15,6 +15,7 @@
     <ClInclude Include="..\..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\..\src\Jopnal\Precompiled.hpp" />
+    <ClInclude Include="Component.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
