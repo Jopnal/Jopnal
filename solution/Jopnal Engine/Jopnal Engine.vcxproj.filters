@@ -49,11 +49,14 @@
     <Filter Include="Window\Source\Desktop">
       <UniqueIdentifier>{500da4b2-ba2c-40a2-a2d3-bd4a52d67f3d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{b85b92fb-61cf-4543-bc5b-3aef2fa88601}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Utility\Headers">
-      <UniqueIdentifier>{42d84f7d-a730-4f49-b822-dc291238b408}</UniqueIdentifier>
+      <UniqueIdentifier>{94dac91f-2c18-4ff0-8c04-f66e93fdead4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utility\Source">
-      <UniqueIdentifier>{c0fff2d8-a682-414c-8e5c-8a9336653963}</UniqueIdentifier>
+      <UniqueIdentifier>{fc074942-05b2-4205-b1de-d1efb9873f36}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

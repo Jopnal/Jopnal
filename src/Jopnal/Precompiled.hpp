@@ -55,14 +55,6 @@
 // Utility
 
 // Window
-
-// Audio
-
-// Core
-
-// Graphics
-
-// Window
 #include <Jopnal/Window/Window.hpp>
 
 #endif
