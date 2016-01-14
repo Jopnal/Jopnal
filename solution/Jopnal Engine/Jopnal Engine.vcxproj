@@ -14,13 +14,17 @@
     <ClInclude Include="..\..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\..\include\Jopnal\OS.hpp" />
+    <ClInclude Include="..\..\include\Jopnal\Window\Window.hpp" />
     <ClInclude Include="..\..\src\Jopnal\Precompiled.hpp" />
+    <ClInclude Include="..\..\src\Jopnal\Window\Desktop\WindowDesktop.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Window\Desktop\WindowDesktop.cpp" />
+    <ClCompile Include="..\..\src\Jopnal\Window\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>

@@ -21,34 +21,29 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_WINDOW_HPP
+#define JOP_WINDOW_HPP
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
+//////////////////////////////////////////////
 
-// GLFW
-#include <GLFW/glfw3.h>
 
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
+namespace jop
+{
+    class Window
+    {
+    public:
 
-// Standard headers
-#include <iostream>
 
-//** Jopnal **\\
 
-// Audio
 
-// Core
+    private:
 
-// Graphics
 
-// Window
-#include <Jopnal/Window/Window.hpp>
+
+    };
+}
 
 #endif
