@@ -49,6 +49,12 @@
     <Filter Include="Window\Source\Desktop">
       <UniqueIdentifier>{500da4b2-ba2c-40a2-a2d3-bd4a52d67f3d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\Headers">
+      <UniqueIdentifier>{42d84f7d-a730-4f49-b822-dc291238b408}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Source">
+      <UniqueIdentifier>{c0fff2d8-a682-414c-8e5c-8a9336653963}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Jopnal\Config.hpp">
