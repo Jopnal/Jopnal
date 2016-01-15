@@ -28,11 +28,12 @@
 #include <Jopnal/Header.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
+#include <string>
 
 //////////////////////////////////////////////
 
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace jop
 {
@@ -56,7 +57,7 @@ namespace jop
 
         struct Settings
         {
-            glm::u32vec2 size;
+            glm::uvec2 size;
             std::string title;
             DisplayMode displayMode;
             bool visible;
@@ -71,6 +72,8 @@ namespace jop
         Window(Window&& other);
 
         Window& operator =(Window&& other);
+
+        ~Window();
 
 
         void open(const Settings& settings);

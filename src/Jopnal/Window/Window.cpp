@@ -54,6 +54,13 @@ namespace jop
     Window& Window::operator=(Window&& other)
     {
         m_impl = std::move(other.m_impl);
+
+        return *this;
+    }
+
+    Window::~Window()
+    {
+        // Destructor needed that m_impl can be deleted (header has an incomplete type)
     }
 
     //////////////////////////////////////////////
@@ -83,6 +90,8 @@ namespace jop
     {
         if (isOpen())
             return m_impl->getLibraryHandle();
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////

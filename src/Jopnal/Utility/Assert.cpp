@@ -31,17 +31,20 @@ namespace jop
 {
     void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
     {
-    #if defined(JOP_OS_WINDOWS)
+        if (!expression)
+        {
+        #if defined(JOP_OS_WINDOWS)
 
-        std::string newStr = "Assertion failed in file ";
-        newStr += file;
-        newStr += ", on line ";
-        newStr += std::to_string(line);
-        newStr += "\n\n";
-        newStr += message;
+            std::string newStr = "Assertion failed in file ";
+            newStr += file;
+            newStr += ", on line ";
+            newStr += std::to_string(line);
+            newStr += "\n\n";
+            newStr += message;
 
-        MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+            MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 
-    #endif
+        #endif
+        }
     }
 }
