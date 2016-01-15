@@ -21,41 +21,55 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Precompiled.hpp>
 
-//******** HEADERS ********//
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
-#include <string>
-
-//** Jopnal **\
-
-// Audio
-
-// Core
-#include <Jopnal/Core/ResourceManager.h>
-
-// Graphics
-
-// Utility
-
-// Window
-
-
-#endif
+namespace jop
+{
+	Resource* ResourceManager::getResource(std::string name)
+	{
+		auto it = m_resources.find(name);
+		if (it == m_resources.end())
+		{
+			std::cout << "Error 404: Resource not found." << std::endl;
+			return 0;
+		}
+		else
+		{
+			return it->second;
+		}
+	}
+	Resource* ResourceManager::loadResource(std::string path, std::string name)
+	{
+		Resource* res;
+		/*
+		Resource* res = fileLManager.read(path);
+		if(res != nullptr)
+		{
+			*/
+			m_resources.insert(std::make_pair(name, res));
+			return res;
+			/*
+		}
+		*/
+		std::cout << "Can't load resource \"" << name << "\"" << std::endl;
+		return nullptr;
+	}
+	bool ResourceManager::unloadResource(std::string name)
+	{
+		auto it = m_resources.find(name);
+		if (it == m_resources.end())
+		{
+			std::cout << "Error 404: Resource not found." << std::endl;
+			return false;
+		}
+		else
+		{
+			//it->second->getSelfDestructButton().activate(time::seconds(10));
+			m_resources.erase(it);
+			return true;
+		}
+	}
+}

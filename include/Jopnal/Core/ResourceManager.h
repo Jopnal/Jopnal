@@ -21,41 +21,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_RESPURCEMANAGER_H
+#define JOP_RESPURCEMANAGER_H
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
+#include <unordered_map>
+#include <Jopnal/core/Resource.h>
+//#include <Jopnal/Core/FileManager.h>
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
+//////////////////////////////////////////////
 
-// OpenGL
-#include <GL/GL.hpp>
+namespace jop
+{
+	class ResourceManager
+	{
+	public:
+		ResourceManager()
+		{
 
-// GLFW
-#include <GLFW/glfw3.h>
+		}
+		~ResourceManager()
+		{
+			m_resources.clear();
+		}
 
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
+		Resource* getResource(std::string name);
+		Resource* loadResource(std::string path, std::string name);
+		bool unloadResource(std::string name);
+	private:
 
-// Standard headers
-#include <iostream>
-#include <string>
-
-//** Jopnal **\
-
-// Audio
-
-// Core
-#include <Jopnal/Core/ResourceManager.h>
-
-// Graphics
-
-// Utility
-
-// Window
-
+		std::unordered_map < std::string, Resource* > m_resources;
+	};
+}
 
 #endif

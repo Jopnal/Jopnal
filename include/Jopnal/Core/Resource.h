@@ -21,41 +21,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_RESPURCE_H
+#define JOP_RESPURCE_H
 
-//******** HEADERS ********//
+// Headers
+#include <jopnal/Header.hpp>
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
+namespace jop
+{
+	//this is the base class for all resources that are loaded from files:
+	//sprites, sounds, scene data...
+	//processed for use
+	class Resource
+	{
+	public:
 
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
-#include <string>
-
-//** Jopnal **\
-
-// Audio
-
-// Core
-#include <Jopnal/Core/ResourceManager.h>
-
-// Graphics
-
-// Utility
-
-// Window
-
+	private:
+		
+	};
+}
 
 #endif

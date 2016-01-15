@@ -69,10 +69,19 @@
     <ClInclude Include="..\..\include\Jopnal\OS.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\ResourceManager.h">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\Resource.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <Filter>Root\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Core\RecourceManager.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
