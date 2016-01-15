@@ -53,7 +53,7 @@
 // Core
 #include <Jopnal\Core\Object.hpp>
 #include <Jopnal\Core\Component.hpp>
-
+#include <Jopnal\Core\Message.hpp>
 // Graphics
 
 // Utility

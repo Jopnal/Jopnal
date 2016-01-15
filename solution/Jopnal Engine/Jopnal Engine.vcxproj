@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\Component.hpp" />
+    <ClInclude Include="..\..\include\Jopnal\Core\Message.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\Object.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\..\include\Jopnal\OS.hpp" />
