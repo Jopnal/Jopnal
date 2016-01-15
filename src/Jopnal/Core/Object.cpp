@@ -52,7 +52,16 @@ namespace jop
     }
 
     //////////////////////////////////////////////
+	//virtual void sendMessage(Message *message, int payload);
+	//{
+	//	for (int i = 0; i < components.size; i++)
+	//	{
+	//		components.at(i)->//broadcast message to components
+	//	}
+	//	
+	//}
 
+	/////////////////////////////////////////////
   //  Component Object::*getComponent(CompID ID)
   //  {
 		//for (int i = 0; i < components.size; i++)
