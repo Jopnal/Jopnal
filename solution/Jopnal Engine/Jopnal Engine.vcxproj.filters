@@ -104,6 +104,8 @@
     <ClCompile Include="..\..\src\Jopnal\Utility\Clock.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Jopnal\Utility\Assert.cpp" />
+    <ClCompile Include="..\..\src\Jopnal\Utility\Assert.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
