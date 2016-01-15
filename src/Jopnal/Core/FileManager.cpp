@@ -60,7 +60,7 @@ void FileManager::deinit()
 
 
 
-long FileManager::getSize(const char* fileName)
+long long FileManager::getSize(const char* fileName)
 {
 	if (!PHYSFS_exists(fileName))
 	{
@@ -75,7 +75,7 @@ long FileManager::getSize(const char* fileName)
 			std::cout << "\nError in reading " << fileName << "file\n";
 		}
 
-
+	
 	}
 	else
 	{

@@ -36,7 +36,7 @@ public:
 
 	static void deinit();
 
-	static long getSize(const char* fileName);
+	static long long getSize(const char* fileName);
 
 	static void read(void* data, const char* fileName,int size);
 
