@@ -31,7 +31,7 @@
 
     #pragma warning(disable : 4251)
 
-    #define JOP_OS_WINDOWS
+    #define GP_OS_WINDOWS
 
 #else
 
