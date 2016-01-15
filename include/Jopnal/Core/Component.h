@@ -25,8 +25,42 @@
 #define JOP_COMPONENT_HPP
 
 // Headers
-//#include <Jopnal/Core/Object.hpp> // Comment - Always include the generic header file first
+//#include <Jopnal/Core/Object.hpp> 
+#include <iostream>
 //////////////////////////////////////////////
+
+namespace jop
+{
+	class Component
+	{
+	public:
+		virtual ~Component();//virtual destructor
+
+		virtual void SendMessage(std::string message);//Send messages
+
+		virtual void Update(float deltaTime);
+		virtual void Init(void);
+		virtual void Uninit(void);
+
+		bool isActive(void) const;//Check if active - false means it will be deleted
+
+	private:
+		int compID = 0; // each component type has unique ID
+	};
+
+	class TestComponent : public Component
+	{
+	public:
+		TestComponent();
+		//base functions for component
+		bool IsWorking();
+		int GetValues(){ return x; };
+	private:
+		int x = 2;
+		
+	};
+}
+
 
 
 
