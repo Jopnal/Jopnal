@@ -21,44 +21,58 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_COMPONENT_HPP // Comment - Include guard format: JOP_FILENAME_FILEEXTENSION
+#define JOP_COMPONENT_HPP
 
-//******** HEADERS ********//
-
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
+// Headers
+#include <Jopnal\Header.hpp>
+//#include <Jopnal/Core/Object.hpp> 
 #include <iostream>
-#include <vector>
-#include <memory>
+//////////////////////////////////////////////
 
 
-//** Jopnal **\
 
-// Audio
+namespace jop
+{
+    enum CompID
+    {
+        TSprite = 0,
+        Type2 = 1,
 
-// Core
-#include <Jopnal\Core\Object.hpp>
-#include <Jopnal\Core\Component.hpp>
 
-// Graphics
+    };
 
-// Utility
 
-// Window
+	class Component
+	{
+	public:
+		virtual ~Component();// Virtual destructor
 
+		virtual void SendMessage(std::string message);// Send messages
+
+		virtual void Update(float deltaTime);
+		virtual void Init(void);
+		virtual void Uninit(void);
+
+		bool isActive(void) const; // Check if active - false means it will be deleted
+
+	private:
+        CompID m_ID; // Component type
+
+	};
+
+	class TestComponent : public Component
+	{
+	public:
+        TestComponent() { m_ID = TSprite; };
+		// Base functions for component
+		bool IsWorking();
+		int GetValues(){ return x; };
+	private:
+        CompID m_ID;
+		int x = 2;
+		
+	};
+}
 
 #endif
