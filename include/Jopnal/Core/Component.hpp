@@ -25,43 +25,54 @@
 #define JOP_COMPONENT_HPP
 
 // Headers
+#include <Jopnal\Header.hpp>
 //#include <Jopnal/Core/Object.hpp> 
 #include <iostream>
 //////////////////////////////////////////////
 
+
+
 namespace jop
 {
+    enum CompID
+    {
+        TSprite = 0,
+        Type2 = 1,
+
+
+    };
+
+
 	class Component
 	{
 	public:
-		virtual ~Component();//virtual destructor
+		virtual ~Component();// Virtual destructor
 
-		virtual void SendMessage(std::string message);//Send messages
+		virtual void SendMessage(std::string message);// Send messages
 
 		virtual void Update(float deltaTime);
 		virtual void Init(void);
 		virtual void Uninit(void);
 
-		bool isActive(void) const;//Check if active - false means it will be deleted
+		bool isActive(void) const; // Check if active - false means it will be deleted
 
 	private:
-		int compID = 0; // each component type has unique ID
+        CompID m_ID; // Component type
+
 	};
 
 	class TestComponent : public Component
 	{
 	public:
-		TestComponent();
-		//base functions for component
+        TestComponent() { m_ID = TSprite; };
+		// Base functions for component
 		bool IsWorking();
 		int GetValues(){ return x; };
 	private:
+        CompID m_ID;
 		int x = 2;
 		
 	};
 }
-
-
-
 
 #endif

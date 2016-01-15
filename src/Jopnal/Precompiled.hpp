@@ -43,6 +43,7 @@
 // Standard headers
 #include <iostream>
 #include <vector>
+#include <memory>
 
 
 //** Jopnal **\
@@ -51,6 +52,7 @@
 
 // Core
 #include <Jopnal\Core\Object.hpp>
+#include <Jopnal\Core\Component.hpp>
 
 // Graphics
 

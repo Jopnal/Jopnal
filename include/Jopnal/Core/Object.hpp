@@ -25,23 +25,28 @@
 #define OBJECT_HPP
 
 //Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal\Header.hpp>
 
 //////////////////////////////////////////////
 
-
-class Object
+namespace jop
 {
-public:
-    ~Object(void);
+    class Object
+    {
+    public:
+        Object();
+        ~Object();
 
-    virtual bool CheckComponent(int ID);
-    virtual void AddComponent(int ID /*Component *c*/);
-    void Update(float DeltaTime);
-    int GetComponent(int ID);
+        virtual bool checkComponent(CompID ID) const; // Check if requested component exists
+        virtual void addComponent(CompID ID, Component *c); // Adds component to vector
 
-private:
-    std::vector<int> ComponentsTest;
-};
+        void update(float DeltaTime);
+
+        Component *getComponent(void); // Fetches the requested component from map
+
+    private:
+        std::vector<Component *> components;
+    };
+}
 
 #endif

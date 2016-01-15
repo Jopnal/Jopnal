@@ -26,47 +26,35 @@
 
 //////////////////////////////////////////////
 
-
-void Object::AddComponent(int ID)
+namespace jop
 {
-    ComponentsTest.push_back(ID);
-}
-
-//////////////////////////////////////////////
-
-bool Object::CheckComponent(int ID)
-{
-    if (std::find(ComponentsTest.begin(), ComponentsTest.end(), ID) != ComponentsTest.end())
+    void Object::addComponent(CompID ID, Component *c)
     {
-        std::cout << "Loyty sun iidees, tyhma. Se on " << ID << std::endl;
-        return true;
+        components.push_back(c);
     }
 
-    else
+    //////////////////////////////////////////////
+
+    bool Object::checkComponent(CompID ID) const
     {
-        std::cout << "Ei loytyny. Mee roskii." << std::endl;
-        return false;
+        for (int i = 0; i < components.size)
     }
-}
 
-//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-void Object::Update(float DT)
-{
-    /*
-    Do stuff
-    */
-}
-
-//////////////////////////////////////////////
-
-int Object::GetComponent(int ID)
-{
-    for (int i = 0; i < ComponentsTest.size(); i++)
+    Component Object::*getComponent(void)
     {
-        if (ComponentsTest[i] == ID)// if(ComponentTest[i].type == ID)
-            return ComponentsTest[i];
+        /*
+        ...
+        */
     }
-    std::cout << "Ei loytyny. Fuufuu!" << std::endl;
-    return 0;
+
+    //////////////////////////////////////////////
+
+    void Object::update(float DT)
+    {
+        /*
+        ...
+        */
+    } 
 }
