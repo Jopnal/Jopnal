@@ -46,6 +46,15 @@
     <Filter Include="Window\Source">
       <UniqueIdentifier>{84932558-c9d2-4406-a0e3-eb8942c96069}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{8a650463-ff12-4e16-8005-c6b65489f0a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Headers">
+      <UniqueIdentifier>{42d84f7d-a730-4f49-b822-dc291238b408}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Source">
+      <UniqueIdentifier>{c0fff2d8-a682-414c-8e5c-8a9336653963}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Jopnal\Config.hpp">
@@ -60,7 +69,7 @@
     <ClInclude Include="..\..\include\Jopnal\OS.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Jopnal\Core\Component.h">
+    <ClInclude Include="..\..\include\Jopnal\Core\Object.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,7 +77,7 @@
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <Filter>Root\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Jopnal\Core\Component.cpp">
+    <ClCompile Include="..\..\src\Jopnal\Core\Object.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>

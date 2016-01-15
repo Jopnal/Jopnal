@@ -29,6 +29,9 @@
 // Needed for configuration
 #include <Jopnal/Config.hpp>
 
+// OpenGL
+#include <GL/GL.hpp>
+
 // GLFW
 #include <GLFW/glfw3.h>
 
@@ -39,9 +42,21 @@
 
 // Standard headers
 #include <iostream>
+#include <vector>
 
-// Jopnal
-#include <Jopnal/Test/Test.hpp>
+
+//** Jopnal **\
+
+// Audio
+
+// Core
+#include <Jopnal\Core\Object.hpp>
+
+// Graphics
+
+// Utility
+
+// Window
 
 
 #endif
