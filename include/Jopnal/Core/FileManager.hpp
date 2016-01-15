@@ -21,44 +21,29 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef FILE_MANAGER_HPP
+#define FILE_MANAGER_HPP
 
-//******** HEADERS ********//
-
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// PhysFS
-#include<PhysicsFS\physfs.h>
-
-// Standard headers
-#include <iostream>
+/////////////////////////////////////////////
 
 
-//** Jopnal **\
 
-// Audio
 
-// Core
-#include<Jopnal\Core\FileManager.hpp>
+class FileManager
+{
+public:
+	FileManager() = delete;
 
-// Graphics
+	static void init();
 
-// Utility
+	static void deinit();
 
-// Window
+	static int getSize(const char* fileName);
 
+	static void read(void* data, const char* fileName,int size);
+
+	static void write(const char* fileName,const char* filePath, char* fileBuffer);
+
+};
 
 #endif
