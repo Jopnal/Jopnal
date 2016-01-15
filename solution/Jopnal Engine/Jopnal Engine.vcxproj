@@ -68,6 +68,7 @@
       <PreprocessorDefinitions>JOP_DEBUG;JOP_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -75,7 +76,11 @@
       <AdditionalDependencies>glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
+<<<<<<< HEAD
       <AdditionalDependencies>glfw3d.lib;physfsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+=======
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+>>>>>>> refs/remotes/origin/master
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -103,7 +108,11 @@
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
+<<<<<<< HEAD
       <AdditionalDependencies>glfw3.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+=======
+      <AdditionalDependencies>ogl.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+>>>>>>> refs/remotes/origin/master
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
