@@ -21,13 +21,31 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_HEADER_HPP
-#define JOP_HEADER_HPP
+#ifndef JOP_TYPES_HPP
+#define JOP_TYPES_HPP
 
-// Headers
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-#include <Jopnal/HelperMacros.hpp>
-#include <Jopnal/Types.hpp>
+//////////////////////////////////////////////
+
+
+namespace jop
+{
+    // Float (32 bit)
+    typedef float float32;
+
+    // Float (64 bit)
+    typedef double float64;
+
+    // Ints (8, 16, 32 64 bit)
+    typedef signed char int8;
+    typedef signed short int16;
+    typedef signed int int32;
+    typedef signed long long int64;
+
+    // Uints (8, 16, 32, 64 bit)
+    typedef unsigned char uint8;
+    typedef unsigned short uint16;
+    typedef unsigned int uint32;
+    typedef unsigned long long uint64;
+}
 
 #endif

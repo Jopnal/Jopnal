@@ -21,13 +21,22 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_HEADER_HPP
-#define JOP_HEADER_HPP
+#ifndef JOP_HELPERMACROS_HPP
+#define JOP_HELPERMACROS_HPP
 
-// Headers
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-#include <Jopnal/HelperMacros.hpp>
-#include <Jopnal/Types.hpp>
+//////////////////////////////////////////////
+
+
+// Copy/move constructor deletion
+#define JOP_DISALLOW_COPY(className) className##(const className &) = delete; \
+                                     void operator =(const className &) = delete;
+
+#define JOP_DISALLOW_MOVE(className) className##(className &&) = delete; \
+                                     void operator =(className &&) = delete;
+
+#define JOP_DISALLOW_COPY_MOVE(className) JOP_DISALLOW_COPY(className) \
+                                          JOP_DISALLOW_MOVE(className)
+
+
 
 #endif
