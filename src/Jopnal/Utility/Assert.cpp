@@ -21,60 +21,27 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Precompiled.hpp>
 
-//******** HEADERS ********//
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
+namespace jop
+{
+    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
+    {
+    #if defined(JOP_OS_WINDOWS)
 
-    #ifndef NOMINMAX
-        #define NOMINMAX
+        std::string newStr = "Assertion failed in file ";
+        newStr += file;
+        newStr += ", on line ";
+        newStr += std::to_string(line);
+        newStr += "\n\n";
+        newStr += message;
+
+        MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+
     #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
-
-
-//** Jopnal **\
-
-// Audio
-
-// Core
-
-// Graphics
-
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-
-// Window
-#include <Jopnal/Window/Window.hpp>
-
-#endif
+    }
+}

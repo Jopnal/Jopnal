@@ -21,30 +21,50 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <GLFW/glfw3.h>
+#include <Jopnal/Precompiled.hpp>
+
+#if defined(JOP_OS_WINDOWS)
+
+#include <Jopnal/Window/Desktop/WindowImpl.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop { namespace detail
 {
-    class WindowDesktop
+    WindowImpl::WindowImpl(const Window::Settings& settings)
     {
-    public:
+        glfwWindowHint(GLFW_RESIZABLE, 0);
+        glfwWindowHint(GLFW_VISIBLE, settings.visible);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        WindowDesktop();
+        m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode == Window::DisplayMode::Fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
+        JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
+    }
 
-    private:
+    WindowImpl::~WindowImpl()
+    {
+        if (m_window)
+            glfwDestroyWindow(m_window);
+    }
 
-        GLFWwindow* m_window;
+    //////////////////////////////////////////////
 
-    };
+    GLFWwindow* WindowImpl::getLibraryHandle()
+    {
+        return m_window;
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::pollEvents()
+    {
+        glfwPollEvents();
+    }
 }}
 
 #endif

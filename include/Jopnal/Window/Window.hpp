@@ -26,10 +26,13 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
 
+
+class GLFWwindow;
 
 namespace jop
 {
@@ -42,8 +45,43 @@ namespace jop
     {
     public:
 
-		Window();
+        JOP_DISALLOW_COPY(Window);
 
+        enum class DisplayMode
+        {
+            Windowed,
+            Borderless,
+            Fullscreen
+        };
+
+        struct Settings
+        {
+            glm::u32vec2 size;
+            std::string title;
+            DisplayMode displayMode;
+            bool visible;
+        };
+
+    public:
+
+        Window();
+
+        Window(const Settings& settings);
+
+        Window(Window&& other);
+
+        Window& operator =(Window&& other);
+
+
+        void open(const Settings& settings);
+
+        void close();
+
+        bool isOpen() const;
+
+        GLFWwindow* getLibraryHandle();
+
+        static void pollEvents();
 
     private:
 

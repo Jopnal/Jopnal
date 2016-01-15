@@ -24,16 +24,71 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+#if defined(JOP_OS_WINDOWS)
+    #include <Jopnal/Window/Desktop/WindowImpl.hpp>
+#endif
+
 //////////////////////////////////////////////
 
 
 namespace jop
 {
     Window::Window()
+        : m_impl()
     {
 
     }
 
+    Window::Window(const Settings& settings)
+        : m_impl()
+    {
+        open(settings);
+    }
 
+    Window::Window(Window&& other)
+        : m_impl(std::move(other.m_impl))
+    {
 
+    }
+
+    Window& Window::operator=(Window&& other)
+    {
+        m_impl = std::move(other.m_impl);
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::open(const Settings& settings)
+    {
+        m_impl = std::make_unique<detail::WindowImpl>(settings);
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::close()
+    {
+        m_impl.reset();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Window::isOpen() const
+    {
+        return m_impl.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    GLFWwindow* Window::getLibraryHandle()
+    {
+        if (isOpen())
+            return m_impl->getLibraryHandle();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::pollEvents()
+    {
+        detail::WindowImpl::pollEvents();
+    }
 }

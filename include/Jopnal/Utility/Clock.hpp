@@ -21,60 +21,58 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_CLOCK_HPP
+#define JOP_CLOCK_HPP
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
+#include <chrono>
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
+//////////////////////////////////////////////
 
 
-//** Jopnal **\
+namespace jop
+{
+    class Clock
+    {
+    public:
 
-// Audio
+        struct Time
+        {
+            Time(const uint64 nsec);
 
-// Core
 
-// Graphics
+            float64 asSeconds() const;
 
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
+            uint32 asMilliseconds() const;
 
-// Window
-#include <Jopnal/Window/Window.hpp>
+            uint64 asMicroseconds() const;
+
+            uint64 asNanoseconds() const;
+
+
+        private:
+
+            uint64 m_nanoseconds;
+
+        };
+
+    public:
+
+        Clock();
+
+
+        Time reset();
+
+        Time getElapsedTime() const;
+
+    private:
+
+        std::chrono::high_resolution_clock m_clock;
+        std::chrono::time_point<decltype(m_clock)> m_lastTime;
+
+    };
+
+}
 
 #endif

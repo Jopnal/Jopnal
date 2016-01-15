@@ -21,19 +21,25 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_ASSERT_HPP
+#define JOP_ASSERT_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
-#include <Jopnal/Window/Desktop/WindowDesktop.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop
 {
-    WindowDesktop::WindowDesktop()
-    {
+    #ifdef JOP_ASSERTS
+        #define JOP_ASSERT(expression, message) jop::assertion((expression), __FILE__, __LINE__, (message))
+    #else
+        #define JOP_ASSERT(expression, message)
+    #endif
 
-    }
+    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
+}
 
-
-}}
+#endif

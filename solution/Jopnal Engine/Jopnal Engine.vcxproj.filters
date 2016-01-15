@@ -72,22 +72,38 @@
     <ClInclude Include="..\..\include\Jopnal\OS.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Jopnal\Window\Desktop\WindowDesktop.hpp">
-      <Filter>Window\Source\Desktop</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Jopnal\Window\Window.hpp">
       <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Jopnal\Window\Desktop\WindowImpl.hpp">
+      <Filter>Window\Source\Desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\HelperMacros.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Utility\Clock.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Types.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Utility\Assert.hpp">
+      <Filter>Utility\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <Filter>Root\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Jopnal\Window\Desktop\WindowDesktop.cpp">
-      <Filter>Window\Source\Desktop</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\Jopnal\Window\Window.cpp">
       <Filter>Window\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Window\Desktop\WindowImpl.cpp">
+      <Filter>Window\Source\Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Utility\Clock.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Utility\Assert.cpp" />
   </ItemGroup>
 </Project>

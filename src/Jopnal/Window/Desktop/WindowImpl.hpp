@@ -21,60 +21,41 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_WINDOWDESKTOP_HPP
+#define JOP_WINDOWDESKTOP_HPP
 
-//******** HEADERS ********//
-
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Window/Window.hpp>
 #include <GLFW/glfw3.h>
 
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
+//////////////////////////////////////////////
 
 
-//** Jopnal **\
+namespace jop { namespace detail
+{
+    class WindowImpl
+    {
+    private:
 
-// Audio
+        JOP_DISALLOW_COPY_MOVE(WindowImpl);
+    
+    public:
 
-// Core
+        WindowImpl(const Window::Settings& settings);
 
-// Graphics
+        ~WindowImpl();
 
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
 
-// Window
-#include <Jopnal/Window/Window.hpp>
+        GLFWwindow* getLibraryHandle();
+
+        static void pollEvents();
+
+    private:
+
+        GLFWwindow* m_window;
+
+    };
+}}
 
 #endif
