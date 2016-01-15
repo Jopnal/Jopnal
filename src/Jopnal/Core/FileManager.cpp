@@ -25,11 +25,11 @@
 
 //////////////////////////////////////////////
 
-void FileManager::init()
+void FileManager::init(const char * argv)
 {
-	if (!PHYSFS_init)
+	if (!PHYSFS_isInit())
 	{
-		PHYSFS_init(nullptr);
+		PHYSFS_init(argv);
 		if (!PHYSFS_addToSearchPath("Jopnal", 0));
 		else
 		{
@@ -60,7 +60,7 @@ void FileManager::deinit()
 
 
 
-int FileManager::getSize(const char* fileName)
+long FileManager::getSize(const char* fileName)
 {
 	if (!PHYSFS_exists(fileName))
 	{
@@ -68,7 +68,7 @@ int FileManager::getSize(const char* fileName)
 		{
 			PHYSFS_file* inputFile = PHYSFS_openRead(fileName);
 			PHYSFS_close(inputFile);
-			return   PHYSFS_fileLength(inputFile);
+			return PHYSFS_fileLength(inputFile);
 		}
 		else
 		{

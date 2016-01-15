@@ -27,23 +27,22 @@
 /////////////////////////////////////////////
 
 
-
-
 class FileManager
 {
 public:
 	FileManager() = delete;
 
-	static void init();
+	static void init(const char * argv);
 
 	static void deinit();
 
-	static int getSize(const char* fileName);
+	static long getSize(const char* fileName);
 
 	static void read(void* data, const char* fileName,int size);
 
 	static void write(const char* fileName,const char* filePath, char* fileBuffer);
-
+	
 };
+
 
 #endif
