@@ -42,6 +42,7 @@
 
 // Standard headers
 #include <iostream>
+#include <vector>
 
 
 //** Jopnal **\
@@ -49,6 +50,7 @@
 // Audio
 
 // Core
+#include <Jopnal\Core\Object.hpp>
 
 // Graphics
 
