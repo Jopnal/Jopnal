@@ -60,13 +60,16 @@
     <ClInclude Include="..\..\include\Jopnal\OS.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
+    <ClInclude Include="..\..\include\Jopnal\Core\Component.h">
       <Filter>Core\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <Filter>Root\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Core\Component.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
