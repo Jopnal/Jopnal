@@ -35,8 +35,10 @@ namespace jop
 {
     #ifdef JOP_ENABLE_ASSERTS
         #define JOP_ASSERT(expression, message) jop::assertion((expression), __FILE__, __LINE__, (message))
+        #define JOP_ASSERT_EVAL(expression, message) JOP_ASSERT(expression, message)
     #else
         #define JOP_ASSERT(expression, message)
+        #define JOP_ASSERT_EVAL(expression, message) (expression)
     #endif
 
     void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
