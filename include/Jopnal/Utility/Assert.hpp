@@ -33,7 +33,7 @@
 
 namespace jop
 {
-    #ifdef JOP_ASSERTS
+    #ifdef JOP_ENABLE_ASSERTS
         #define JOP_ASSERT(expression, message) jop::assertion((expression), __FILE__, __LINE__, (message))
     #else
         #define JOP_ASSERT(expression, message)

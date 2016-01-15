@@ -33,10 +33,12 @@
 #define JOP_OPENGL_VERSION_MINOR 3
 #define JOP_OPENGL_VERSION_REV 0
 
-// Debug (defined in project settings)
-//#define JOP_DEBUG 
+// Debug
+#ifdef _DEBUG
+    #define JOP_DEBUG_MODE
+#endif
 
-// Asserts (defined in project settings)
-//#define JOP_ASSERTS
+// Asserts
+#define JOP_ENABLE_ASSERTS
 
 #endif
