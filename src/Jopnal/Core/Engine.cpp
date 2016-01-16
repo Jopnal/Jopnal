@@ -21,61 +21,28 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Precompiled.hpp>
 
-//******** HEADERS ********//
-
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
+//////////////////////////////////////////////
 
 
-//** Jopnal **\
+namespace jop
+{
+    Engine::Engine()
+    {
 
-// Audio
+    }
 
-// Core
-#include <Jopnal/Core/Engine.hpp>
+    Engine::~Engine()
+    {
 
-// Graphics
+    }
 
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Window
-#include <Jopnal/Window/Window.hpp>
+    int Engine::runMainLoop()
+    {
 
-#endif
+    }
+}

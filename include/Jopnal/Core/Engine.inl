@@ -21,61 +21,11 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
 
-//******** HEADERS ********//
+template<typename T, typename ... Args>
+T& Engine::createScene(Args... args)
+{
+    m_scenes.emplace_back(std::make_unique<T>(args...));
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
-
-
-//** Jopnal **\
-
-// Audio
-
-// Core
-#include <Jopnal/Core/Engine.hpp>
-
-// Graphics
-
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-
-// Window
-#include <Jopnal/Window/Window.hpp>
-
-#endif
+    return *m_scenes.back();
+}

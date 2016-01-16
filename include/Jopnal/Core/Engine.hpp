@@ -21,61 +21,43 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_ENGINE_HPP
+#define JOP_ENGINE_HPP
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
+#include <memory>
+#include <vector>
 
-// Needed for configuration
-#include <Jopnal/Config.hpp>
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
-#pragma warning(pop)
-
-// Standard headers
-#include <iostream>
+//////////////////////////////////////////////
 
 
-//** Jopnal **\
+namespace jop
+{
+    class Scene;
 
-// Audio
+    class Engine
+    {
+    public:
 
-// Core
-#include <Jopnal/Core/Engine.hpp>
+        Engine();
 
-// Graphics
+        ~Engine();
 
-// Utility
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
 
-// Window
-#include <Jopnal/Window/Window.hpp>
+        int runMainLoop();
+
+        template<typename T, typename ... Args>
+        T& createScene(Args... args);
+
+    private:
+
+        std::vector<std::unique_ptr<Scene>> m_scenes;
+
+    };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Engine.inl>
+}
 
 #endif

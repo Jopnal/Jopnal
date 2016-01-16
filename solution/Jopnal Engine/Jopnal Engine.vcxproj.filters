@@ -90,6 +90,9 @@
     <ClInclude Include="..\..\include\Jopnal\Utility\Assert.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\Engine.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
@@ -107,5 +110,13 @@
     <ClCompile Include="..\..\src\Jopnal\Utility\Assert.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Core\Engine.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\include\Jopnal\Core\Engine.inl">
+      <Filter>Core\Headers</Filter>
+    </None>
   </ItemGroup>
 </Project>
