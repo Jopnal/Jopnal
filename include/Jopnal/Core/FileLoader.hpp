@@ -21,16 +21,16 @@
 
 //////////////////////////////////////////////
 
-#ifndef FILE_MANAGER_HPP
-#define FILE_MANAGER_HPP
+#ifndef FILE_LOADER_HPP
+#define FILE_LOADER_HPP
 
 /////////////////////////////////////////////
 
 
-class FileManager
+class FileLoader
 {
 public:
-	FileManager() = delete;
+	FileLoader() = delete;
 
 	static void init(const char * argv);
 

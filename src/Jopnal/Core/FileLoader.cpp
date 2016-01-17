@@ -25,32 +25,29 @@
 
 //////////////////////////////////////////////
 
-void FileManager::init(const char * argv)
+void FileLoader::init(const char * argv)
 {
 	if (!PHYSFS_isInit())
 	{
 		PHYSFS_init(argv);
 		if (!PHYSFS_addToSearchPath("Jopnal", 0));
 		else
-		{
-			std::cout << "\nError in PHYSFS_addToSearchPath()\n";
-		}
+		std::cout << "\nError in PHYSFS_addToSearchPath()\n";
+		
 		if (!PHYSFS_exists("PhysicsFs License.txt"));
 		else
-		{
-			std::cout << "\nError in file reading check(PHYSFS_exists())\n";
-		}
+		std::cout << "\nError in file reading check(PHYSFS_exists())\n";
+		
 	}
 	else
-	{
-		std::cout << "\nPhysicsFs is already initialized\n";
-	}
+	std::cout << "\nPhysicsFs is already initialized\n";
+	
 	
 }
 
 //////////////////////////////////////////////
 
-void FileManager::deinit()
+void FileLoader::deinit()
 {
 	PHYSFS_deinit();
 }
@@ -60,7 +57,7 @@ void FileManager::deinit()
 
 
 
-long long FileManager::getSize(const char* fileName)
+long long FileLoader::getSize(const char* fileName)
 {
 	if (!PHYSFS_exists(fileName))
 	{
@@ -71,23 +68,19 @@ long long FileManager::getSize(const char* fileName)
 			return PHYSFS_fileLength(inputFile);
 		}
 		else
-		{
-			std::cout << "\nError in reading " << fileName << "file\n";
-		}
-
+        std::cout << "\nError in reading " << fileName << "file\n";
 	
 	}
 	else
-	{
-		std::cout << "\nError can't find " << fileName << "file\n";
-	}
+    std::cout << "\nError can't find " << fileName << "file\n";
+	
 
 	return -1;
 }
 
 //////////////////////////////////////////////
 
-void FileManager::read(void* data, const char* fileName,int size)
+void FileLoader::read(void* data, const char* fileName, int size)
 {
 	PHYSFS_exists(fileName);
 	if (!PHYSFS_openRead(fileName))
@@ -97,9 +90,7 @@ void FileManager::read(void* data, const char* fileName,int size)
 	PHYSFS_close(inputFile);
 	}
 	else
-	{
-		std::cout << "\nError in reading " << fileName << "file\n";
-	}
+	std::cout << "\nError in reading " << fileName << "file\n";
 	
 }
 
