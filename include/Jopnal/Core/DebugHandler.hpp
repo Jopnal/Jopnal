@@ -34,9 +34,9 @@
 
 namespace jop
 {
-    #define JOP_DEBUG_ERROR(stream)   jop::DebugHandler::getInstance() << jop::Color::Red << jop::DebugHandler::Severity::Error << (stream) << std::endl;
-    #define JOP_DEBUG_WARNING(stream) jop::DebugHandler::getInstance() << jop::Color::Yellow << jop::DebugHandler::Severity::Warning << (stream) << std::endl;
-    #define JOP_DEBUG_INFO(stream)    jop::DebugHandler::getInstance() << jop::Color::White << jop::DebugHandler::Severity::Info << (stream) << std::endl;
+    #define JOP_DEBUG_ERROR(stream)   {jop::DebugHandler::getInstance() << jop::Color::Red << jop::DebugHandler::Severity::Error << stream << std::endl;}
+    #define JOP_DEBUG_WARNING(stream) {jop::DebugHandler::getInstance() << jop::Color::Yellow << jop::DebugHandler::Severity::Warning << stream << std::endl;}
+    #define JOP_DEBUG_INFO(stream)    {jop::DebugHandler::getInstance() << jop::Color::White << jop::DebugHandler::Severity::Info << stream << std::endl;}
 
     class JOP_API DebugHandler
     {
@@ -54,7 +54,7 @@ namespace jop
 
         friend class Engine;
 
-        /// \brief The severity levels
+        /// The severity levels
         ///
         enum class Severity
         {
@@ -72,7 +72,6 @@ namespace jop
         /// \brief Check if the console is enabled
         ///
         static bool isConsoleEnabled();
-
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -95,6 +94,15 @@ namespace jop
         template<typename T>
         DebugHandler& operator <<(const T& data);
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/DebugHandler.inl>
 }
 
 #endif
+
+/// \class DebugHandler
+/// \brief A class to handle debug output
+/// \addtogroup Core
+///
+/// #TODO Detailed description

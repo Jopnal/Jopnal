@@ -41,6 +41,15 @@ namespace jop
         #define JOP_ASSERT_EVAL(expression, message) (expression)
     #endif
 
+    /// \brief Custom assertion function
+    ///
+    /// This function, should the assertion fail, opens a customized message box and exits the program.
+    ///
+    /// \param expression The expression to be tested
+    /// \param file File name
+    /// \param line The line number
+    /// \param message Description of the error
+    ///
     JOP_API void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
 }
 

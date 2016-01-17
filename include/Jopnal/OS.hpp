@@ -33,6 +33,7 @@
     #pragma warning(disable: 4201)
 
     #define JOP_OS_WINDOWS
+    #define JOP_OS_DESKTOP
 
 #else
 

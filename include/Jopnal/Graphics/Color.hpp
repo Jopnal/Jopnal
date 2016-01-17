@@ -46,8 +46,6 @@ namespace jop
 
         /// \brief Overloaded constructor
         ///
-        /// Values must be between 0 and 255.
-        ///
         /// \param _r The red value
         /// \param _g The green value
         /// \param _b The blue value
@@ -115,3 +113,9 @@ namespace jop
 }
 
 #endif
+
+/// \class Color
+/// \brief Class representing a 32-bit RGBA color
+/// \addtogroup Graphics
+///
+/// #TODO Detailed description

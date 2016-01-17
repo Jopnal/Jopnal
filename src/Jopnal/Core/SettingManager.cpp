@@ -225,20 +225,78 @@ namespace jop
 
     void SettingManager::reload()
     {
-        // #TODO
+        // #TODO Move the file reading/writing to the dedicated file class
+
+        PHYSFS_File* file = PHYSFS_openRead("config.json");
+
+        if (!file)
+        {
+            JOP_DEBUG_ERROR("Couldn't read the config file. Default settings will be used");
+            return;
+        }
+
+        int size = static_cast<int>(PHYSFS_fileLength(file));
+
+        if (size != -1)
+        {
+            std::string buf(size, 0);
+            PHYSFS_read(file, &buf[0], 1, size);
+            ns_document.Parse<0>(buf.c_str());
+
+            if (ns_document.HasParseError())
+                JOP_DEBUG_ERROR("Config file has a parse error at " << ns_document.GetErrorOffset());
+        }
+
+        PHYSFS_close(file);
     }
 
     //////////////////////////////////////////////
 
+    std::string fullPath;
+
     void SettingManager::save()
     {
-        // #TODO
+        rj::StringBuffer buffer;
+        rj::PrettyWriter<rj::StringBuffer> writer(buffer);
+        ns_document.Accept(writer);
+
+        PHYSFS_setWriteDir(fullPath.c_str());
+        PHYSFS_File* file = PHYSFS_openWrite("config.json");
+
+        if (file)
+            PHYSFS_write(file, buffer.GetString(), 1, buffer.GetSize());
+
+        PHYSFS_close(file);
     }
 
     //////////////////////////////////////////////
 
     void SettingManager::initialize()
     {
-        // #TODO
+        if (!PHYSFS_isInit())
+            PHYSFS_init(0);
+
+        const std::string docDir("Documents");
+
+        fullPath = PHYSFS_getUserDir();
+        fullPath += docDir + PHYSFS_getDirSeparator() + getProjectName();
+
+        if (!PHYSFS_mount(fullPath.c_str(), NULL, 0))
+        {
+            // Create the directory
+            JOP_ASSERT_EVAL(PHYSFS_setWriteDir((PHYSFS_getUserDir() + docDir).c_str()) != 0, "Failed to set write directory!");
+            JOP_ASSERT_EVAL(PHYSFS_mkdir(getProjectName().c_str()) != 0, "Failed to create config directory!");
+
+            // Try to mount again
+            PHYSFS_mount(fullPath.c_str(), NULL, 0);
+        }
+        else if (PHYSFS_exists("config.json"))
+        {
+            reload();
+            return;
+        }
+
+        ns_document.SetObject();
+        save();
     }
 }

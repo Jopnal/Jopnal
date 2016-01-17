@@ -34,27 +34,21 @@ namespace jop
           g(255),
           b(255),
           a(255)
-    {
-        
-    }
+    {}
 
     Color::Color(const jop::uint8 _r, const jop::uint8 _g, const jop::uint8 _b, const jop::uint8 _a)
         : r(_r),
           g(_g),
           b(_b),
           a(_a)
-    {
-    
-    }
+    {}
 
     Color::Color(const jop::uint32 colors)
         : r(static_cast<jop::uint8>(colors >> 24)),
           g(static_cast<jop::uint8>(colors >> 16)),
           b(static_cast<jop::uint8>(colors >> 8)),
           a(static_cast<jop::uint8>(colors))
-    {
-        // Nothing more to do here
-    }
+    {}
 
     Color::Color(const std::string& hexString)
     {

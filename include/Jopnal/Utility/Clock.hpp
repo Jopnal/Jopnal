@@ -37,42 +37,85 @@ namespace jop
     {
     public:
 
-        struct Time
+        class Time
         {
+        public:
+
+            /// \brief Constructor
+            ///
+            /// \param nsec The initial time value in nanoseconds
+            ///
             Time(const uint64 nsec);
 
 
+            /// \brief Get the time value as seconds
+            ///
+            /// \return The time value as seconds
+            ///
             float64 asSeconds() const;
 
+            /// \brief Get the time value as milliseconds
+            ///
+            /// \return The time value as milliseconds
+            ///
             uint32 asMilliseconds() const;
 
+            /// \brief Get the time value as microseconds
+            ///
+            /// \return The time value as microseconds
+            ///
             uint64 asMicroseconds() const;
 
+            /// \brief Get the time value as nanoseconds
+            ///
+            /// \return The time value as nanoseconds
+            ///
             uint64 asNanoseconds() const;
-
 
         private:
 
-            uint64 m_nanoseconds;
+            uint64 m_nanoseconds; ///< The internal time value in nanoseconds
 
         };
 
+        /// \class Time
+        /// \brief Class to store a time value
+        ///
+        /// #TODO Detailed description
+
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Sets the initial time to zero and starts counting.
+        ///
         Clock();
 
 
+        /// \brief Reset the clock
+        ///
+        /// \return The elapsed time since last reset
+        ///
         Time reset();
 
+        /// \brief Get the elapsed time
+        ///
+        /// \return The elapsed time since last reset
+        ///
         Time getElapsedTime() const;
 
     private:
 
-        std::chrono::high_resolution_clock m_clock;
-        std::chrono::time_point<decltype(m_clock)> m_lastTime;
+        std::chrono::high_resolution_clock m_clock;             ///< The standard clock object
+        std::chrono::time_point<decltype(m_clock)> m_lastTime;  ///< The time point of the last reset
 
     };
-
 }
 
 #endif
+
+/// \class Clock
+/// \brief Class for counting elapsed time
+/// \addtogroup Utility
+///
+/// #TODO Detailed description

@@ -31,7 +31,6 @@
 // OpenGL
 #define JOP_OPENGL_VERSION_MAJOR 3
 #define JOP_OPENGL_VERSION_MINOR 3
-#define JOP_OPENGL_VERSION_REV 0
 
 // Debug
 #ifdef _DEBUG

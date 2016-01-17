@@ -46,25 +46,26 @@ namespace
 
     void openConsoleWindow()
     {
-        if (GetConsoleWindow())
-            return;
-        else if (!AllocConsole())
+        if (!checkConsoleWindow())
         {
-            JOP_ASSERT(false, "Failed to allocate console window!");
-            return;
+            if (!AllocConsole())
+            {
+                JOP_ASSERT(false, "Failed to allocate console window!");
+                return;
+            }
+
+            _open_osfhandle(INT_PTR(GetStdHandle(STD_INPUT_HANDLE)), _O_TEXT);
+            _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
+            ns_oldInBuffer = *stdin;
+            ns_oldOutBuffer = *stdout;
+
+            FILE* pCout = nullptr;
+            freopen_s(&pCout, "CONOUT$", "w", stdout);
+            freopen_s(&pCout, "CONIN$", "r", stdin);
         }
 
         SetConsoleCtrlHandler(handleConsoleEvent, TRUE);
         EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE), SC_CLOSE, MF_GRAYED);
-
-        _open_osfhandle(INT_PTR(GetStdHandle(STD_INPUT_HANDLE)), _O_TEXT);
-        _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
-        ns_oldInBuffer = *stdin;
-        ns_oldOutBuffer = *stdout;
-
-        FILE* pCout = nullptr;
-        freopen_s(&pCout, "CONOUT$", "w", stdout);
-        freopen_s(&pCout, "CONIN$", "r", stdin);
 
         // Set custom color table
         COLORREF table[] =

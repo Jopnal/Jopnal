@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Config.hpp>
+#include <Jopnal/OS.hpp>
 #include <Jopnal/Export.hpp>
 #include <Jopnal/HelperMacros.hpp>
 #include <Jopnal/Types.hpp>

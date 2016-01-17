@@ -59,10 +59,16 @@
 #include <glm/glm.hpp>
 
 // RapidJSON
+#pragma warning(push)
+#pragma warning(disable: 4244)
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
+#pragma warning(pop)
+
+// PhysicsFS
+#include <PhysicsFS/physfs.h>
 
 // Standard headers
 #include <algorithm>

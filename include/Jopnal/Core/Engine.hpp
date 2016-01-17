@@ -34,21 +34,52 @@
 
 namespace jop
 {
-    class Scene;
-
     class JOP_API Engine
     {
     public:
 
-        Engine();
+        /// \brief Constructor
+        ///
+        /// This will initialize the engine and all associated systems.
+        /// Project name must not be empty, as it will be used to create
+        /// the necessary config directories.
+        ///
+        /// \param projectName The project name
+        ///
+        Engine(const std::string& projectName);
 
+        /// \brief Destructor
+        ///
+        /// This will deinitialize the engine, so that the program can exit.
+        /// Alternatively, a new jop::Engine object can be created.
+        ///
         ~Engine();
 
 
+        /// \brief Run the main loop
+        ///
+        /// The main loop will run until exit() is called.
+        ///
+        /// \return An integer return value. To be used as the main() return value
+        ///
         int runMainLoop();
 
+        /// \brief Create a scene
+        ///
+        /// \param args The arguments to be used in the scene's construction
+        ///
+        /// \return A reference to the newly created scene
+        ///
         template<typename T, typename ... Args>
         T& createScene(Args... args);
+
+        /// \brief Exit the main loop
+        ///
+        /// This function will have no effect if no jop::Engine exits at the
+        /// time of the call. The main loop returns only after the current
+        /// frame has been processed.
+        ///
+        static void exit();
 
     private:
 
@@ -57,8 +88,20 @@ namespace jop
 
     };
 
+    /// \brief Get the project name
+    ///
+    /// \return A reference to the internal string containing the project name
+    ///
+    JOP_API const std::string& getProjectName();
+
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>
 }
 
 #endif
+
+/// \class Engine
+/// \brief Engine class takes care of engine (de)initialization and running the main game loop
+/// \addtogroup Core
+///
+/// #TODO Detailed description

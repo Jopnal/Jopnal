@@ -44,15 +44,24 @@ namespace jop
 
     class JOP_API Window
     {
-    public:
+    private:
 
         JOP_DISALLOW_COPY(Window);
 
+        friend class Engine;
+
+        static void initialize();
+
+        static void deInitialize();
+
+    public:
+
+        /// Display modes
         enum class DisplayMode
         {
-            Windowed,
-            Borderless,
-            Fullscreen
+            Windowed,   ///< Windowed with decorations
+            Borderless, ///< Windowed without decorations
+            Fullscreen  ///< Full screen
         };
 
         struct Settings
@@ -65,32 +74,73 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Does not open a window.
+        ///
         Window();
 
+        /// \brief Overloaded constructor
+        ///
+        /// Calls open() using the given settings
+        ///
+        /// \param settings The window settings
+        ///
         Window(const Settings& settings);
 
+        /// \brief Move constructor
         Window(Window&& other);
 
+        /// \brief Move assignment operator
+        ///
         Window& operator =(Window&& other);
 
+        /// \brief Destructor
+        ///
         ~Window();
 
 
+        /// \brief Open this window
+        ///
+        /// This will create a new window. If one already exists, it will be replaced.
+        ///
+        /// \param settings The window settings
+        ///
         void open(const Settings& settings);
 
+        /// \brief Destroy this window
+        ///
         void close();
 
+        /// \brief Check if this window is open
+        ///
+        /// \return True if window is open
+        ///
         bool isOpen() const;
 
+        /// \brief Get the GLFW library window handle
+        ///
+        /// \return A pointer to the handle. Nullptr if window hasn't been created
+        ///
         GLFWwindow* getLibraryHandle();
 
+        /// \brief Poll the events of all open windows
+        ///
+        /// This will poll all events and invoke the appropriate callbacks.
+        ///
         static void pollEvents();
 
     private:
 
-        std::unique_ptr<detail::WindowImpl> m_impl;
+        std::unique_ptr<detail::WindowImpl> m_impl; ///< The implementation object
 
     };
 }
 
 #endif
+
+/// \class Window
+/// \brief Class for housing & managing a window
+/// \addtogroup Window
+///
+/// #TODO Detailed description

@@ -24,7 +24,7 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-#if defined(JOP_OS_WINDOWS)
+#if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/WindowImpl.hpp>
 #endif
 
@@ -33,11 +33,21 @@
 
 namespace jop
 {
+    void Window::initialize()
+    {
+        JOP_ASSERT_EVAL(glfwInit() == gl::TRUE_, "Failed to initialize GLFW!");
+    }
+
+    void Window::deInitialize()
+    {
+        glfwTerminate();
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
     Window::Window()
         : m_impl()
-    {
-
-    }
+    {}
 
     Window::Window(const Settings& settings)
         : m_impl()
@@ -47,20 +57,17 @@ namespace jop
 
     Window::Window(Window&& other)
         : m_impl(std::move(other.m_impl))
-    {
+    {}
 
-    }
-
-    Window& Window::operator=(Window&& other)
+    Window& Window::operator =(Window&& other)
     {
         m_impl = std::move(other.m_impl);
-
         return *this;
     }
 
     Window::~Window()
     {
-        // Destructor needed that m_impl can be deleted (header has an incomplete type)
+        // Destructor needed that m_impl can be deleted (header has the incomplete type)
     }
 
     //////////////////////////////////////////////

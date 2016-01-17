@@ -37,6 +37,8 @@ namespace jop
     {
     private:
 
+        SettingManager() = delete;
+
         friend class Engine;
 
     public:
@@ -157,3 +159,9 @@ namespace jop
 }
 
 #endif
+
+/// \class SettingManager
+/// \brief SettingManager handles loading and saving the engine settings
+/// \addtogroup Core
+///
+/// #TODO Detailed description

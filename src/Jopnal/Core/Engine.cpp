@@ -27,23 +27,42 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    std::string ns_projectName;
+    jop::Engine* ns_engineObject;
+}
+
 namespace jop
 {
-    Engine::Engine()
+    Engine::Engine(const std::string& name)
+        : m_running(true)
     {
-        
+        JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
+        JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
+
+        ns_projectName = name;
+        ns_engineObject = this;
+
+        SettingManager::initialize();
+        DebugHandler::getInstance(); // Getting the instance the first time initializes it
+        Window::initialize();
     }
 
     Engine::~Engine()
     {
+        Window::deInitialize();
+        SettingManager::save();
 
+        ns_projectName = std::string();
+        ns_engineObject = nullptr;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
-        const double timeStep = 1.0 / 60;
+        const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
         float64 accumulator = 0.0;
 
         Clock frameClock;
@@ -52,25 +71,39 @@ namespace jop
         {
             float64 frameTime = frameClock.reset().asSeconds();
 
-            //Scene* currentScene = ;
-
-            while (accumulator >= timeStep)
-            {
-                //currentScene->fixedUpdate(timeStep);
-                accumulator -= timeStep;
-            }
+            if (frameTime > 0.1)
+                frameTime = 0.1;
 
             accumulator += frameTime;
 
-            // Scene update
-            //currentScene->update(ns_frameTime);
+            while (accumulator >= timeStep)
+            {
+                // Scene fixed update here
+                accumulator -= timeStep;
+            }
 
-            // Scene draw
-            //window->clear();
-            //currentScene->draw();
-            //window->display();
+            // Scene update here
+            
+            // Scene draw here
         }
 
+        // #TODO Threaded event loop
+
         return EXIT_SUCCESS;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Engine::exit()
+    {
+        if (ns_engineObject)
+            ns_engineObject->m_running = false;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    const std::string& getProjectName()
+    {
+        return ns_projectName;
     }
 }
