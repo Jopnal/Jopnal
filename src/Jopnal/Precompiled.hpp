@@ -44,6 +44,8 @@
     #endif
 
     #include <Windows.h>
+    #include <io.h>
+    #include <fcntl.h>
 
 #endif
 
@@ -54,12 +56,18 @@
 #include <GLFW/glfw3.h>
 
 // GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
 #include <glm/glm.hpp>
-#pragma warning(pop)
+
+// RapidJSON
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/stringbuffer.h>
 
 // Standard headers
+#include <algorithm>
 #include <iostream>
+#include <sstream>
 
 
 //** Jopnal **\
@@ -67,9 +75,12 @@
 // Audio
 
 // Core
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Core/Engine.hpp>
+#include <Jopnal/Core/SettingManager.hpp>
 
 // Graphics
+#include <Jopnal/Graphics/Color.hpp>
 
 // Utility
 #include <Jopnal/Utility/Assert.hpp>

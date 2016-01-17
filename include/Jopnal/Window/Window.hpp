@@ -42,7 +42,7 @@ namespace jop
         class WindowImpl;
     }
 
-    class Window
+    class JOP_API Window
     {
     public:
 

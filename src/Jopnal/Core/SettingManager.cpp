@@ -1,0 +1,244 @@
+// Jopnal Engine C++ Library
+// Copyright(c) 2016 Team Jopnal
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+//////////////////////////////////////////////
+
+// Headers
+#include <Jopnal/Precompiled.hpp>
+
+//////////////////////////////////////////////
+
+
+namespace
+{
+    namespace rj = rapidjson;
+
+    rj::Document ns_document;
+
+    rj::Value& getRJValue(const std::string& name)
+    {
+        if (!ns_document.HasMember(name.c_str()))
+            ns_document.AddMember(rj::Value(name.c_str(), ns_document.GetAllocator()), rj::Value(rj::kNullType), ns_document.GetAllocator());
+
+        return ns_document[name.c_str()];
+    }
+
+    #pragma region ValueCasters
+
+    template<typename T = void>
+    T getCastValue(const rj::Value& val)
+    {
+        static_assert(!std::is_void<T>::value, "Setting type not specialized");
+    }
+
+    template<>
+    int getCastValue<int>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an int)");
+        return val.GetInt();
+    }
+
+    template<>
+    unsigned int getCastValue<unsigned int>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an unsigned int)");
+        return val.GetUint();
+    }
+
+    template<>
+    float getCastValue<float>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a float)");
+        return static_cast<float>(val.GetDouble());
+    }
+
+    template<>
+    double getCastValue<double>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a double)");
+        return val.GetDouble();
+    }
+
+    template<>
+    bool getCastValue<bool>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsBool(), "Setting type not convertible! (asked for a bool)");
+        return val.GetBool();
+    }
+
+    template<>
+    std::string getCastValue<std::string>(const rj::Value& val)
+    {
+        JOP_ASSERT(val.IsString(), "Setting type not convertible! (asked for an string)");
+        return std::string(val.GetString());
+    }
+
+    #pragma endregion ValueCasters
+
+    #pragma region ValueSetters
+
+    template<typename T>
+    void setRJValue(rj::Value& val, const T& newVal)
+    {
+        val = rj::Value(newVal);
+    }
+
+    template<>
+    void setRJValue<std::string>(rj::Value& val, const std::string& newVal)
+    {
+        val = rj::Value(newVal.c_str(), ns_document.GetAllocator());
+    }
+
+    #pragma endregion ValueSetters
+
+    template<typename T>
+    T getSetting(const std::string& name, const T& defaultValue)
+    {
+        if (name.empty())
+            return defaultValue;
+
+        rj::Value& val = getRJValue(name);
+
+        if (val.IsNull())
+        {
+            setRJValue(val, defaultValue);
+            return defaultValue;
+        }
+
+        return getCastValue<T>(val);
+    }
+
+    template<typename T>
+    void setSetting(const std::string& name, const T& newValue)
+    {
+        if (name.empty())
+            return;
+
+        rj::Value& val = getRJValue(name);
+        setRJValue(val, newValue);
+    }
+}
+
+namespace jop
+{
+    int SettingManager::getInt(const std::string& name, const int defaultValue)
+    {
+        return getSetting<int>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int SettingManager::getUint(const std::string& name, const unsigned int defaultValue)
+    {
+        return getSetting<unsigned int>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    float SettingManager::getFloat(const std::string& name, const float defaultValue)
+    {
+        return getSetting<float>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    double SettingManager::getDouble(const std::string& name, const double defaultValue)
+    {
+        return getSetting<double>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    bool SettingManager::getBool(const std::string& name, const bool defaultValue)
+    {
+        return getSetting<bool>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    std::string SettingManager::getString(const std::string& name, const std::string& defaultValue)
+    {
+        return getSetting<std::string>(name, defaultValue);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setInt(const std::string& name, const int value)
+    {
+        setSetting<int>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setUint(const std::string& name, const unsigned int value)
+    {
+        setSetting<unsigned int>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setFloat(const std::string& name, const float value)
+    {
+        setSetting<float>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setDouble(const std::string& name, const double value)
+    {
+        setSetting<double>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setBool(const std::string& name, const bool value)
+    {
+        setSetting<bool>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setString(const std::string& name, const std::string& value)
+    {
+        setSetting<std::string>(name, value);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::reload()
+    {
+        // #TODO
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::save()
+    {
+        // #TODO
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::initialize()
+    {
+        // #TODO
+    }
+}

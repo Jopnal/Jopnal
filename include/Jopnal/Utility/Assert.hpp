@@ -41,7 +41,7 @@ namespace jop
         #define JOP_ASSERT_EVAL(expression, message) (expression)
     #endif
 
-    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
+    JOP_API void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
 }
 
 #endif

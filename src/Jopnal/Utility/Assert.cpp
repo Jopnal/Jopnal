@@ -44,6 +44,8 @@ namespace jop
 
             MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 
+            std::exit(EXIT_FAILURE);
+
         #endif
         }
     }

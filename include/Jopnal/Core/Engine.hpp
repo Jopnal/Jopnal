@@ -36,7 +36,7 @@ namespace jop
 {
     class Scene;
 
-    class Engine
+    class JOP_API Engine
     {
     public:
 
@@ -52,12 +52,13 @@ namespace jop
 
     private:
 
-        std::vector<std::unique_ptr<Scene>> m_scenes;
+        //std::vector<std::unique_ptr<Scene>> m_scenes;
+        bool m_running;
 
     };
 
     // Include the template implementation file
-    #include <Jopnal/Core/Engine.inl>
+    #include <Jopnal/Core/Inl/Engine.inl>
 }
 
 #endif

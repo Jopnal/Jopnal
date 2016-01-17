@@ -31,7 +31,7 @@ namespace jop
 {
     Engine::Engine()
     {
-
+        
     }
 
     Engine::~Engine()
@@ -43,6 +43,34 @@ namespace jop
 
     int Engine::runMainLoop()
     {
+        const double timeStep = 1.0 / 60;
+        float64 accumulator = 0.0;
 
+        Clock frameClock;
+
+        while (m_running)
+        {
+            float64 frameTime = frameClock.reset().asSeconds();
+
+            //Scene* currentScene = ;
+
+            while (accumulator >= timeStep)
+            {
+                //currentScene->fixedUpdate(timeStep);
+                accumulator -= timeStep;
+            }
+
+            accumulator += frameTime;
+
+            // Scene update
+            //currentScene->update(ns_frameTime);
+
+            // Scene draw
+            //window->clear();
+            //currentScene->draw();
+            //window->display();
+        }
+
+        return EXIT_SUCCESS;
     }
 }

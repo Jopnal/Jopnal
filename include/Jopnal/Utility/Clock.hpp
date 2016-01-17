@@ -33,7 +33,7 @@
 
 namespace jop
 {
-    class Clock
+    class JOP_API Clock
     {
     public:
 
