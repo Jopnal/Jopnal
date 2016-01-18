@@ -115,7 +115,6 @@ namespace jop
 #endif
 
 /// \class Color
-/// \brief Class representing a 32-bit RGBA color
-/// \addtogroup Graphics
+/// \ingroup graphics
 ///
 /// #TODO Detailed description

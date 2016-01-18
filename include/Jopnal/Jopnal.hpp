@@ -21,60 +21,22 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Audio.hpp>
+#include <Jopnal/Core.hpp>
+#include <Jopnal/Graphics.hpp>
+#include <Jopnal/Utility.hpp>
+#include <Jopnal/Window.hpp>
 
-//******** HEADERS ********//
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <glm/glm.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
-
-#endif
+/// \mainpage Jopnal %Engine Documentation
+///
+/// \section intro_sec Introduction
+///
+/// [Introduction text here]
+///
+/// \section starting_sec Getting started
+///
+/// \subsection start_step1 Step 1: Just do it!
+/// Blah blah blah...

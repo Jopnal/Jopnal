@@ -31,25 +31,91 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    unsigned int ns_windowCount = 0;
+
+    void errorCallback(int code, const char* message)
+    {
+        const std::string msgStr(message);
+
+        switch (code)
+        {
+            case GLFW_NOT_INITIALIZED:
+                JOP_ASSERT(false, "GLFW not initialized!\n\nDetails: " + msgStr);
+                break;
+            case GLFW_API_UNAVAILABLE:
+                JOP_ASSERT(false, "The requested OpenGL API is not available!\n\nDetails: " + msgStr);
+                break;
+            case GLFW_VERSION_UNAVAILABLE:
+                JOP_ASSERT(false, "The requested OpenGL version is not available on this system!\n\nDetails: " + msgStr);
+                break;
+            case GLFW_PLATFORM_ERROR:
+                JOP_ASSERT(false, "GLFW reported a platform error!\n\nDetails: " + msgStr);
+        }
+
+        JOP_DEBUG_ERROR(msgStr);
+    }
+
+    void initialize()
+    {
+        if (ns_windowCount++ == 0)
+        {
+            glfwSetErrorCallback(errorCallback);
+            glfwInit();
+        }
+    }
+
+    void deInitialize()
+    {
+        if (--ns_windowCount == 0)
+            glfwTerminate();
+    }
+
+    void initExtensions()
+    {
+        static bool init = false;
+        
+        if (!init)
+        {
+            auto result = gl::sys::LoadFunctions();
+
+            JOP_ASSERT(result, "Failed to load OpenGL extensions!");
+
+            if (result.GetNumMissing() > 0)
+                JOP_DEBUG_WARNING("Some requested OpenGL extensions failed to load. Missing extensions: " << result.GetNumMissing());
+
+            init = true;
+        }
+    }
+}
+
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings)
     {
+        initialize();
+
         glfwWindowHint(GLFW_RESIZABLE, 0);
         glfwWindowHint(GLFW_VISIBLE, settings.visible);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+        
         m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode == Window::DisplayMode::Fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
+
+        glfwMakeContextCurrent(m_window);
+
+        initExtensions();
     }
 
     WindowImpl::~WindowImpl()
     {
-        if (m_window)
-            glfwDestroyWindow(m_window);
+        // There should always be a valid window
+        glfwDestroyWindow(m_window);
+        deInitialize();
     }
 
     //////////////////////////////////////////////

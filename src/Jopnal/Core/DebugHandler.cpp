@@ -110,6 +110,12 @@ namespace
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
     }
 
+    void closeConsoleWindow()
+    {
+        if (checkConsoleWindow())
+            FreeConsole();
+    }
+
     void setConsoleColor(const jop::Color& color)
     {
         using jop::Color;
@@ -157,8 +163,18 @@ namespace jop
 
         if (ns_consoleEnabled)
             openConsoleWindow();
+        else
+            closeConsoleWindow();
 
-        ns_displaySeverity = static_cast<Severity>(std::min(static_cast<unsigned int>(Severity::Info), SettingManager::getUint("uConsoleVerbosity", 0)));
+        const unsigned int defaultVerbosity =
+
+        #ifdef JOP_DEBUG_MODE
+            2;      
+        #else
+            0;
+        #endif
+
+        ns_displaySeverity = static_cast<Severity>(std::min(static_cast<unsigned int>(Severity::Info), SettingManager::getUint("uConsoleVerbosity", defaultVerbosity)));
     }
 
     //////////////////////////////////////////////
@@ -198,12 +214,11 @@ namespace jop
         if (isConsoleEnabled() && ns_lastSeverity <= ns_displaySeverity)
         {
             std::cout << ns_stream.str() << '\n' << std::endl;
+            setConsoleColor(Color::White);
         }
         
         ns_stream.str("");
         ns_stream.clear();
-
-        setConsoleColor(Color::White);
 
         return *this;
     }

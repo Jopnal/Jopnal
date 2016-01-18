@@ -161,7 +161,6 @@ namespace jop
 #endif
 
 /// \class SettingManager
-/// \brief SettingManager handles loading and saving the engine settings
-/// \addtogroup Core
+/// \ingroup core
 ///
 /// #TODO Detailed description

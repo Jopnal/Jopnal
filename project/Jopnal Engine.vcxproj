@@ -11,19 +11,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Jopnal\Audio.hpp" />
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
+    <ClInclude Include="..\include\Jopnal\Jopnal.hpp" />
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp" />
   </ItemGroup>
@@ -44,6 +51,7 @@
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
+    <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>
@@ -99,7 +107,7 @@
       <AdditionalDependencies>glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -127,7 +135,7 @@
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

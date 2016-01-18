@@ -36,7 +36,7 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name)
-        : m_running(true)
+        : m_running(false)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -46,12 +46,10 @@ namespace jop
 
         SettingManager::initialize();
         DebugHandler::getInstance(); // Getting the instance the first time initializes it
-        Window::initialize();
     }
 
     Engine::~Engine()
     {
-        Window::deInitialize();
         SettingManager::save();
 
         ns_projectName = std::string();

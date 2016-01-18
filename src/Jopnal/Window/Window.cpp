@@ -33,18 +33,6 @@
 
 namespace jop
 {
-    void Window::initialize()
-    {
-        JOP_ASSERT_EVAL(glfwInit() == gl::TRUE_, "Failed to initialize GLFW!");
-    }
-
-    void Window::deInitialize()
-    {
-        glfwTerminate();
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-
     Window::Window()
         : m_impl()
     {}

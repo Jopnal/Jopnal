@@ -102,7 +102,6 @@ namespace jop
 #endif
 
 /// \class DebugHandler
-/// \brief A class to handle debug output
-/// \addtogroup Core
+/// \ingroup core
 ///
 /// #TODO Detailed description

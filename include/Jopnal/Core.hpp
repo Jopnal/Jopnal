@@ -21,60 +21,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Core/Engine.hpp>
+#include <Jopnal/Core/SettingManager.hpp>
 
-//******** HEADERS ********//
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <glm/glm.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
-
-#endif
+/// \defgroup core Core
+///
+/// #TODO Detailed decription

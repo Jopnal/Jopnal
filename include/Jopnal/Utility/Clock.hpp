@@ -115,7 +115,6 @@ namespace jop
 #endif
 
 /// \class Clock
-/// \brief Class for counting elapsed time
-/// \addtogroup Utility
+/// \ingroup utility
 ///
 /// #TODO Detailed description

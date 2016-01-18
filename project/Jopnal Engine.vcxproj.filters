@@ -108,6 +108,27 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Jopnal.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
@@ -144,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp">
       <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp">
+      <Filter>Window\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

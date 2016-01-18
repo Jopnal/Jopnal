@@ -48,15 +48,10 @@ namespace jop
 
         JOP_DISALLOW_COPY(Window);
 
-        friend class Engine;
-
-        static void initialize();
-
-        static void deInitialize();
-
     public:
 
         /// Display modes
+        ///
         enum class DisplayMode
         {
             Windowed,   ///< Windowed with decorations
@@ -64,6 +59,8 @@ namespace jop
             Fullscreen  ///< Full screen
         };
 
+        /// Window settings
+        ///
         struct Settings
         {
             glm::uvec2 size;
@@ -140,7 +137,6 @@ namespace jop
 #endif
 
 /// \class Window
-/// \brief Class for housing & managing a window
-/// \addtogroup Window
+/// \ingroup window
 ///
 /// #TODO Detailed description

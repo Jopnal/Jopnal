@@ -101,7 +101,6 @@ namespace jop
 #endif
 
 /// \class Engine
-/// \brief Engine class takes care of engine (de)initialization and running the main game loop
-/// \addtogroup Core
+/// \ingroup core
 ///
 /// #TODO Detailed description
