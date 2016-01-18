@@ -129,6 +129,9 @@
     <ClInclude Include="..\include\Jopnal\Window.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\SubSystem.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
@@ -169,5 +172,6 @@
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp">
       <Filter>Window\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SubSystem.cpp" />
   </ItemGroup>
 </Project>
