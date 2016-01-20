@@ -38,6 +38,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Subsystem::preFixedUpdate(const double)
+    {}
+
+    void Subsystem::postFixedUpdate(const double)
+    {}
+
+    //////////////////////////////////////////////
+
     void Subsystem::preUpdate(const double)
     {}
 

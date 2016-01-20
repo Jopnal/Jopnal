@@ -60,10 +60,26 @@ namespace jop
         ///
         virtual void preUpdate(const double dt);
 
+        /// \brief Pre-fixed update
+        ///
+        /// This will be called before the engine calls the scene's fixedUpdate.
+        ///
+        /// \param ts Time step
+        ///
+        virtual void preFixedUpdate(const double ts);
+
+        /// \brief Post-fixed update
+        ///
+        /// This will be called after the engine calls the scene's fixedUpdate.
+        ///
+        /// \param ts Time step
+        ///
+        virtual void postFixedUpdate(const double ts);
+
         /// \brief Post-update
         ///
         /// This will be called after the engine calls the scene's update.
-        /// This function can also be used as pre-draw.
+        /// This function can also be used as a pre-draw function.
         ///
         /// \param dt Delta time
         ///

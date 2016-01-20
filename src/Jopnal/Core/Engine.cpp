@@ -90,7 +90,14 @@ namespace jop
 
             while (accumulator >= timeStep)
             {
+                for (auto& i : m_subsystems)
+                    i->preFixedUpdate(timeStep);
+
                 // Scene fixed update here
+
+                for (auto& i : m_subsystems)
+                    i->postFixedUpdate(timeStep);
+
                 accumulator -= timeStep;
             }
 
