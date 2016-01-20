@@ -98,6 +98,12 @@ namespace jop
         ///
         Subsystem* getSubsystem(const std::string& name);
 
+        /// \brief Remove a subsystem
+        ///
+        /// \param name Name of the subsystem to be removed
+        ///
+        bool removeSubsystem(const std::string& name);
+
         /// \brief Exit the main loop
         ///
         /// This function will have no effect if no jop::Engine exits at the

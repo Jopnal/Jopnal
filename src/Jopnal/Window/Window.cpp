@@ -86,6 +86,11 @@ namespace jop
     {
         if (isOpen())
             m_impl->swapBuffers();
+
+        // Poll window events here instead of the main loop.
+        // This causes the events to be polled multiple times if there
+        // are multiple windows but we don't really need to care about that.
+        pollEvents();
     }
 
     //////////////////////////////////////////////

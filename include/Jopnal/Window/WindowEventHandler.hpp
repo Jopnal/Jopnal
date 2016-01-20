@@ -150,7 +150,7 @@ namespace jop
 
     protected:
 
-        Window& m_windowRef;    ///< Reference to the window
+        Window& m_windowRef; ///< Reference to the window
         
     };
 }

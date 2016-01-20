@@ -36,7 +36,7 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name, int, char**)
-        : m_running(false)
+        : m_running(true)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -131,6 +131,22 @@ namespace jop
         }
 
         return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::removeSubsystem(const std::string& name)
+    {
+        for (auto itr = m_subsystems.begin(); itr != m_subsystems.end(); ++itr)
+        {
+            if ((*itr)->getName() == name)
+            {
+                m_subsystems.erase(itr);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
