@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
@@ -37,12 +38,14 @@ struct GLFWwindow;
 
 namespace jop
 {
+    class WindowEventHandler;
+
     namespace detail
     {
         class WindowImpl;
     }
 
-    class JOP_API Window
+    class JOP_API Window final : public Subsystem
     {
     private:
 
@@ -94,8 +97,20 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~Window();
+        ~Window() override;
 
+
+        /// \brief The post-update function
+        ///
+        /// This clears the OpenGL front buffer
+        ///
+        void postUpdate(const double dt) override;
+
+        /// \brief The post-draw function
+        ///
+        /// This swaps the OpenGL buffers
+        ///
+        void postDraw() override;
 
         /// \brief Open this window
         ///
@@ -115,6 +130,29 @@ namespace jop
         ///
         bool isOpen() const;
 
+        /// \brief Set the clear color
+        ///
+        /// \param color The new color
+        ///
+        void setClearColor(const Color& color);
+
+        /// \brief Set the event handler
+        ///
+        /// \param args The arguments to use with construction
+        ///
+        template<typename T, typename ... Args>
+        T& setEventHandler(Args&... args);
+
+        /// \brief Get the event handler
+        ///
+        /// \return Pointer to the event handler. NUllptr if none exists
+        ///
+        WindowEventHandler* getEventHandler();
+
+        /// \brief Remove the event handler
+        ///
+        void removeEventHandler();
+
         /// \brief Get the GLFW library window handle
         ///
         /// \return A pointer to the handle. Nullptr if window hasn't been created
@@ -129,9 +167,14 @@ namespace jop
 
     private:
 
-        std::unique_ptr<detail::WindowImpl> m_impl; ///< The implementation object
+        Color m_clearColor;                                 ///< The color to use when clearing the buffer
+        std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
+        std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
 
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Window/Inl/Window.inl>
 }
 
 #endif

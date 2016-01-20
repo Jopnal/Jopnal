@@ -34,6 +34,8 @@
 
 namespace jop
 {
+    class Subsystem;
+
     class JOP_API Engine
     {
     public:
@@ -45,8 +47,10 @@ namespace jop
         /// the necessary config directories.
         ///
         /// \param projectName The project name
+        /// \param argc Number of arguments passed from main()
+        /// \param argv The argument array passed from main()
         ///
-        Engine(const std::string& projectName);
+        Engine(const std::string& projectName, int argc, char* argv[]);
 
         /// \brief Destructor
         ///
@@ -55,6 +59,10 @@ namespace jop
         ///
         ~Engine();
 
+
+        /// \brief Load the default subsystem configuration
+        ///
+        void loadDefaultSubsystems();
 
         /// \brief Run the main loop
         ///
@@ -70,8 +78,25 @@ namespace jop
         ///
         /// \return A reference to the newly created scene
         ///
+        //template<typename T, typename ... Args>
+        //T& createScene(Args&... args);
+
+        /// \brief Create a subsystem
+        ///
+        /// \param args The arguments to be used in the subsystem's construction
+        ///
+        /// \return A reference to the newly created subsystem
+        ///
         template<typename T, typename ... Args>
-        T& createScene(Args... args);
+        T& createSubsystem(Args&... args);
+
+        /// \brief Get a subsystem
+        ///
+        /// \param name Name of the subsystem
+        ///
+        /// \return A pointer to the subsystem. Nullptr if none found
+        ///
+        Subsystem* getSubsystem(const std::string& name);
 
         /// \brief Exit the main loop
         ///
@@ -83,8 +108,8 @@ namespace jop
 
     private:
 
-        //std::vector<std::unique_ptr<Scene>> m_scenes;
-        bool m_running;
+        std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        bool m_running;                                       ///< A boolean telling if the engine is running
 
     };
 

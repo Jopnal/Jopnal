@@ -34,17 +34,22 @@
 namespace jop
 {
     Window::Window()
-        : m_impl()
+        : Subsystem         ("Window"),
+          m_impl            (),
+          m_eventHandler    ()
     {}
 
     Window::Window(const Settings& settings)
-        : m_impl()
+        : Subsystem         ("Window"),
+          m_impl            (),
+          m_eventHandler    ()
     {
         open(settings);
     }
 
     Window::Window(Window&& other)
-        : m_impl(std::move(other.m_impl))
+        : Subsystem ("Window"),
+          m_impl    (std::move(other.m_impl))
     {}
 
     Window& Window::operator =(Window&& other)
@@ -55,7 +60,32 @@ namespace jop
 
     Window::~Window()
     {
-        // Destructor needed that m_impl can be deleted (header has the incomplete type)
+        // The event handler needs to be reset before the window itself
+        m_eventHandler.reset();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::postUpdate(const double)
+    {
+        if (isOpen())
+        {
+            auto c = m_clearColor.asFloatVector();
+
+            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
+            glCheck(gl::ClearDepth(static_cast<GLdouble>(1.f)));
+            glCheck(gl::ClearStencil(static_cast<GLint>(0)));
+
+            glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::postDraw()
+    {
+        if (isOpen())
+            m_impl->swapBuffers();
     }
 
     //////////////////////////////////////////////
@@ -81,10 +111,33 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Window::setClearColor(const Color& color)
+    {
+        m_clearColor = color;
+    }
+
+    //////////////////////////////////////////////
+
+    WindowEventHandler* Window::getEventHandler()
+    {
+        return m_eventHandler.get();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::removeEventHandler()
+    {
+        m_eventHandler.reset();
+    }
+
+    //////////////////////////////////////////////
+
     GLFWwindow* Window::getLibraryHandle()
     {
+    #ifdef JOP_OS_DESKTOP
         if (isOpen())
             return m_impl->getLibraryHandle();
+    #endif
 
         return nullptr;
     }

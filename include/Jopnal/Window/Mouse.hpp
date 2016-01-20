@@ -21,43 +21,41 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
+#ifndef JOP_MOUSE_HPP
+#define JOP_MOUSE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop
 {
-    class WindowImpl
+    class Mouse
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(WindowImpl);
-    
     public:
 
-        WindowImpl(const Window::Settings& settings);
-
-        ~WindowImpl();
-
-
-        void swapBuffers();
-
-        GLFWwindow* getLibraryHandle();
-
-        static void pollEvents();
-
-    private:
-
-        GLFWwindow* m_window;
-
+        /// Mouse buttons
+        ///
+        enum Button
+        {
+            Unknown,
+            Left,
+            Right,
+            Middle,
+            X1,
+            X2,
+            X3,
+            X4,
+            X5
+        };
     };
-}}
+}
 
 #endif
+
+/// \class Mouse
+/// \ingroup window
+///
+/// #TODO Detailed description

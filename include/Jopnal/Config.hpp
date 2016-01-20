@@ -32,6 +32,9 @@
 #define JOP_OPENGL_VERSION_MAJOR 3
 #define JOP_OPENGL_VERSION_MINOR 3
 
+// Define to enable gl error checks
+#define JOP_OPENGL_ERROR_CHECKS
+
 // Debug
 #ifdef _DEBUG
     #define JOP_DEBUG_MODE

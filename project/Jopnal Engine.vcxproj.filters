@@ -61,6 +61,9 @@
     <Filter Include="Core\Inl">
       <UniqueIdentifier>{6090c775-a218-4bae-8dc2-3f0b8a1e7265}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window\Inl">
+      <UniqueIdentifier>{cfdcf1ee-84a0-4bc0-89b1-0d0b3038ef40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -102,9 +105,6 @@
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp">
       <Filter>Window\Source\Desktop</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Jopnal\Precompiled.hpp">
-      <Filter>Root\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
@@ -129,8 +129,20 @@
     <ClInclude Include="..\include\Jopnal\Window.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\SubSystem.hpp">
+    <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp">
       <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Precompiled.hpp">
+      <Filter>Root\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp">
+      <Filter>Window\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp">
+      <Filter>Window\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +151,9 @@
     </None>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
       <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Window\Inl\Window.inl">
+      <Filter>Window\Inl</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +187,11 @@
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp">
       <Filter>Window\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Core\SubSystem.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp">
+      <Filter>Window\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

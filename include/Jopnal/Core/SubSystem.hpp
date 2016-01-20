@@ -26,20 +26,70 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API SubSystem
+    class JOP_API Subsystem
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Subsystem);
+
     public:
 
-        SubSystem();
+        /// \brief Constructor
+        ///
+        /// \param name Name of this subsystem
+        ///
+        Subsystem(const std::string& name);
 
-        virtual ~SubSystem();
+        /// Virtual destructor
+        ///
+        virtual ~Subsystem() = 0;
 
+
+        /// \brief Pre-update
+        ///
+        /// This will be called before the engine calls the scene's update.
+        ///
+        /// \param dt Delta time
+        ///
+        virtual void preUpdate(const double dt);
+
+        /// \brief Post-update
+        ///
+        /// This will be called after the engine calls the scene's update.
+        /// This function can also be used as pre-draw.
+        ///
+        /// \param dt Delta time
+        ///
+        virtual void postUpdate(const double dt);
+
+        /// \brief Post-draw
+        ///
+        /// This will be called after the engine calls the scene's draw.
+        ///
+        virtual void postDraw();
+
+        /// \brief Set the name
+        ///
+        /// \param name The new name to be set
+        ///
+        void setName(const std::string& name);
+
+        /// \brief Get the name
+        ///
+        /// \return Reference to the name string
+        ///
+        const std::string& getName() const;
+
+    private:
+
+        std::string m_name; ///< This subsystem's name
 
     };
 }

@@ -29,6 +29,37 @@
 
 namespace jop
 {
+    Subsystem::Subsystem(const std::string& name)
+        : m_name(name)
+    {}
 
+    Subsystem::~Subsystem()
+    {}
 
+    //////////////////////////////////////////////
+
+    void Subsystem::preUpdate(const double)
+    {}
+
+    void Subsystem::postUpdate(const double)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Subsystem::postDraw()
+    {}
+
+    //////////////////////////////////////////////
+
+    void Subsystem::setName(const std::string& name)
+    {
+        m_name = name;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::string& Subsystem::getName() const
+    {
+        return m_name;
+    }
 }

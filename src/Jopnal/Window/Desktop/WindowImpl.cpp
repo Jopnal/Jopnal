@@ -101,8 +101,11 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        // Decorated window
+        glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
         
-        m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode == Window::DisplayMode::Fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+        m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode == Window::DisplayMode::Windowed ? NULL : glfwGetPrimaryMonitor(), NULL);
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
 
@@ -116,6 +119,13 @@ namespace jop { namespace detail
         // There should always be a valid window
         glfwDestroyWindow(m_window);
         deInitialize();
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::swapBuffers()
+    {
+        glfwSwapBuffers(m_window);
     }
 
     //////////////////////////////////////////////

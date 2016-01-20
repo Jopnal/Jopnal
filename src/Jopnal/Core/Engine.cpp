@@ -35,7 +35,7 @@ namespace
 
 namespace jop
 {
-    Engine::Engine(const std::string& name)
+    Engine::Engine(const std::string& name, int, char**)
         : m_running(false)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
@@ -45,15 +45,29 @@ namespace jop
         ns_engineObject = this;
 
         SettingManager::initialize();
-        DebugHandler::getInstance(); // Getting the instance the first time initializes it
     }
 
     Engine::~Engine()
     {
+        m_subsystems.clear();
+
         SettingManager::save();
 
         ns_projectName = std::string();
         ns_engineObject = nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::loadDefaultSubsystems()
+    {
+        Window::Settings s;
+        s.displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
+        s.size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); s.size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
+        s.title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
+        s.visible = true;
+
+        createSubsystem<Window>(s);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,14 +94,36 @@ namespace jop
                 accumulator -= timeStep;
             }
 
+            for (auto& i : m_subsystems)
+                i->preUpdate(frameTime);
+
             // Scene update here
+
+            for (auto& i : m_subsystems)
+                i->postUpdate(frameTime);
             
             // Scene draw here
+
+            for (auto& i : m_subsystems)
+                i->postDraw();
         }
 
         // #TODO Threaded event loop
 
         return EXIT_SUCCESS;
+    }
+
+    //////////////////////////////////////////////
+
+    Subsystem* Engine::getSubsystem(const std::string& name)
+    {
+        for (auto& i : m_subsystems)
+        {
+            if (i->getName() == name)
+                return i.get();
+        }
+
+        return nullptr;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////

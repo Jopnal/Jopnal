@@ -22,10 +22,22 @@
 //////////////////////////////////////////////
 
 
-template<typename T, typename ... Args>
-T& Engine::createScene(Args... args)
-{
-    m_scenes.emplace_back(std::make_unique<T>(args...));
+//template<typename T, typename ... Args>
+//T& Engine::createScene(Args&... args)
+//{
+//    static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create an object which is not derived from jop::Scene");
+//
+//    m_scenes.emplace_back(std::make_unique<T>(args...));
+//    return *m_scenes.back();
+//}
 
-    return *m_scenes.back();
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Engine::createSubsystem(Args&... args)
+{
+    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create an object which is not derived from jop::Subsystem");
+
+    m_subsystems.emplace_back(std::make_unique<T>(args...));
+    return static_cast<T&>(*m_subsystems.back());
 }

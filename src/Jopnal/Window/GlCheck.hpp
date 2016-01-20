@@ -21,43 +21,35 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
+#ifndef JOP_GLCHECK_HPP
+#define JOP_GLCHECK_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
 
 
 namespace jop { namespace detail
 {
-    class WindowImpl
-    {
-    private:
+#ifdef JOP_OPENGL_ERROR_CHECKS
 
-        JOP_DISALLOW_COPY_MOVE(WindowImpl);
-    
-    public:
+    #define glCheck(glFunction) glFunction; jop::detail::openGlCheck(#glFunction, __FILE__, __LINE__)
 
-        WindowImpl(const Window::Settings& settings);
+    /// \brief Check a gl function call for errors
+    ///
+    /// \param func The function signature
+    /// \param file The file in which the function was called
+    /// \param line The line number where the function was called
+    ///
+    void openGlCheck(const char* func, const char* file, const unsigned int line);
 
-        ~WindowImpl();
+#else
 
+    #define glCheck(glFunction) glFunction
 
-        void swapBuffers();
+#endif
 
-        GLFWwindow* getLibraryHandle();
-
-        static void pollEvents();
-
-    private:
-
-        GLFWwindow* m_window;
-
-    };
 }}
 
 #endif

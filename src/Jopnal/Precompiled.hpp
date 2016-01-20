@@ -50,6 +50,7 @@
 
 // OpenGL
 #include <GL/GL.hpp>
+#include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW
 #include <GLFW/glfw3.h>

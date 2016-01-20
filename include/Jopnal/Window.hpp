@@ -23,6 +23,9 @@
 
 // Headers
 #include <Jopnal/Window/Window.hpp>
+#include <Jopnal/Window/WindowEventHandler.hpp>
+#include <Jopnal/Window/Keyboard.hpp>
+#include <Jopnal/Window/Mouse.hpp>
 
 //////////////////////////////////////////////
 

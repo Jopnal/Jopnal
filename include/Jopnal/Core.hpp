@@ -22,6 +22,7 @@
 //////////////////////////////////////////////
 
 // Headers
+#include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Core/Engine.hpp>
 #include <Jopnal/Core/SettingManager.hpp>

@@ -21,43 +21,12 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <GLFW/glfw3.h>
-
-//////////////////////////////////////////////
-
-
-namespace jop { namespace detail
+template<typename T, typename ... Args>
+T& Window::setEventHandler(Args&... args)
 {
-    class WindowImpl
-    {
-    private:
+    static_assert(std::is_base_of<WindowEventHandler, T>::value, "jop::Window::setEventHandler(): Attempted to create an object which is not derived from jop::WindowEventHandler");
 
-        JOP_DISALLOW_COPY_MOVE(WindowImpl);
-    
-    public:
-
-        WindowImpl(const Window::Settings& settings);
-
-        ~WindowImpl();
-
-
-        void swapBuffers();
-
-        GLFWwindow* getLibraryHandle();
-
-        static void pollEvents();
-
-    private:
-
-        GLFWwindow* m_window;
-
-    };
-}}
-
-#endif
+    m_eventHandler = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_eventHandler);
+}
