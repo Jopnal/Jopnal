@@ -21,37 +21,43 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESPURCEMANAGER_H
-#define JOP_RESPURCEMANAGER_H
+#ifndef JOP_RESPURCE_H
+#define JOP_RESPURCE_H
 
 // Headers
-#include <Jopnal/Header.hpp>
-#include <unordered_map>
-#include <Jopnal/core/Resource.h>
-//#include <Jopnal/Core/FileLoader.h>
-
+#include <jopnal/Header.hpp>
+#include <string>
 //////////////////////////////////////////////
 
 namespace jop
 {
-	class ResourceManager
+	//this is the base class for all resources that are loaded from files:
+	//sprites, sounds, scene data...
+	//processed for use
+	class Resource
 	{
 	public:
-		ResourceManager()
-		{
-
-		}
-		~ResourceManager()
-		{
-			m_resources.clear();
-		}
-
-		Resource* getResource(std::string name);
-		Resource* loadResource(std::string path, std::string name);
-		bool unloadResource(std::string name);
+		virtual bool load(std::string path) = 0;
 	private:
+	};
 
-		std::unordered_map < std::string, Resource* > m_resources;
+	class TextResource : public jop::Resource
+	{
+	public:
+		bool load(std::string path)override
+		{
+			const char * charPath = path.c_str();
+			long long size = FileLoader::getSize(charPath);
+			char* resBuf = new char[size+1];
+			FileLoader::read(resBuf, charPath, size);
+			resBuf[size] = '\0';
+			text = std::string(resBuf);
+
+			return true;
+		}
+		void write(){ JOP_DEBUG_INFO(text); }
+	private:
+		std::string text;
 	};
 }
 

@@ -26,7 +26,9 @@
 #include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Core/Engine.hpp>
 #include <Jopnal/Core/SettingManager.hpp>
-
+#include <Jopnal/Core/FileLoader.hpp>
+#include <Jopnal/Core/ResourceManager.hpp>
+#include <Jopnal/Core/Resource.hpp>
 //////////////////////////////////////////////
 
 /// \defgroup core Core

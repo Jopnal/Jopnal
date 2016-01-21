@@ -22,7 +22,6 @@
 //////////////////////////////////////////////
 
 #include <Jopnal\Precompiled.hpp>
-
 //////////////////////////////////////////////
 
 void FileLoader::init(const char * argv)
@@ -30,18 +29,17 @@ void FileLoader::init(const char * argv)
 	if (!PHYSFS_isInit())
 	{
 		PHYSFS_init(argv);
-		if (!PHYSFS_addToSearchPath("Jopnal", 0));
-		else
-		std::cout << "\nError in PHYSFS_addToSearchPath()\n";
 		
-		if (!PHYSFS_exists("PhysicsFs License.txt"));
-		else
-		std::cout << "\nError in file reading check(PHYSFS_exists())\n";
 		
 	}
 	else
-	std::cout << "\nPhysicsFs is already initialized\n";
+		JOP_DEBUG_ERROR("\nPhysicsFs is already initialized\n");
 	
+	if (!PHYSFS_addToSearchPath("Jopnal", 0))
+		JOP_DEBUG_ERROR( "\nError in PHYSFS_addToSearchPath()\n");
+		
+	if (!PHYSFS_exists("PhysicsFs License.txt"))
+		JOP_DEBUG_ERROR( "\nError in file reading check(PHYSFS_exists())\n");
 	
 }
 
@@ -59,20 +57,19 @@ void FileLoader::deinit()
 
 long long FileLoader::getSize(const char* fileName)
 {
-	if (!PHYSFS_exists(fileName))
+	if (PHYSFS_exists(fileName))
 	{
-		if (!PHYSFS_openRead(fileName))
+		if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
 		{
-			PHYSFS_file* inputFile = PHYSFS_openRead(fileName);
-			PHYSFS_close(inputFile);
-			return PHYSFS_fileLength(inputFile);
+         long long i = PHYSFS_fileLength(inputFile);
+		 PHYSFS_close(inputFile);
+		 return i;
 		}
-		else
-        std::cout << "\nError in reading " << fileName << "file\n";
-	
+		JOP_DEBUG_ERROR("\nError can't load " << fileName << "file\n");
+		return -1;
 	}
 	else
-    std::cout << "\nError can't find " << fileName << "file\n";
+		JOP_DEBUG_ERROR( "\nError can't find " << fileName << "file\n");
 	
 
 	return -1;
@@ -82,15 +79,19 @@ long long FileLoader::getSize(const char* fileName)
 
 void FileLoader::read(void* data, const char* fileName, int size)
 {
-	PHYSFS_exists(fileName);
-	if (!PHYSFS_openRead(fileName))
+	
+	if (PHYSFS_exists(fileName))
 	{
-	PHYSFS_file* inputFile = PHYSFS_openRead(fileName);	
-	PHYSFS_read(inputFile, data, 1, size);
-	PHYSFS_close(inputFile);
+		if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
+		{
+			PHYSFS_read(inputFile, data, 1, size);
+			PHYSFS_close(inputFile);
+		}
+		else
+			JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << "file\n");
 	}
 	else
-	std::cout << "\nError in reading " << fileName << "file\n";
+	JOP_DEBUG_ERROR("\nError in reading " << fileName << "file\n");
 	
 }
 

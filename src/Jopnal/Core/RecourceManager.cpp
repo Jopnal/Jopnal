@@ -23,53 +23,28 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Core.hpp>
 
 //////////////////////////////////////////////
 
 namespace jop
 {
-	Resource* ResourceManager::getResource(std::string name)
+	bool ResourceManager::unloadResource(const std::string& path)
 	{
-		auto it = m_resources.find(name);
+		auto it = m_resources.find(path);
 		if (it == m_resources.end())
 		{
-			std::cout << "Error 404: Resource not found." << std::endl;
-			return 0;
-		}
-		else
-		{
-			return it->second;
-		}
-	}
-	Resource* ResourceManager::loadResource(std::string path, std::string name)
-	{
-		Resource* res;
-		/*
-		Resource* res = fileLManager.read(path);
-		if(res != nullptr)
-		{
-			*/
-			m_resources.insert(std::make_pair(name, res));
-			return res;
-			/*
-		}
-		*/
-		std::cout << "Can't load resource \"" << name << "\"" << std::endl;
-		return nullptr;
-	}
-	bool ResourceManager::unloadResource(std::string name)
-	{
-		auto it = m_resources.find(name);
-		if (it == m_resources.end())
-		{
-			std::cout << "Error 404: Resource not found." << std::endl;
+			JOP_DEBUG_ERROR("Error 404: Resource not found.");
 			return false;
 		}
 		else
 		{
-			//it->second->getSelfDestructButton().activate(time::seconds(10));
 			m_resources.erase(it);
 			return true;
 		}
+	}
+	void ResourceManager::unloadAll()
+	{
+		m_resources.clear();
 	}
 }

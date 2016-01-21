@@ -21,25 +21,67 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESPURCE_H
-#define JOP_RESPURCE_H
+#ifndef JOP_RESPURCEMANAGER_H
+#define JOP_RESPURCEMANAGER_H
 
 // Headers
-#include <jopnal/Header.hpp>
+#include <Jopnal/Header.hpp>
+#include <unordered_map>
+
+
 //////////////////////////////////////////////
 
 namespace jop
 {
-	//this is the base class for all resources that are loaded from files:
-	//sprites, sounds, scene data...
-	//processed for use
-	class Resource
+	class Resource;
+
+	class ResourceManager
 	{
 	public:
+		ResourceManager()
+		{
 
+		}
+		~ResourceManager()
+		{
+			m_resources.clear();
+		}
+
+		template<typename T> T* getResource(const std::string& path);
+		bool unloadResource(const std::string& path);
+		void unloadAll();
 	private:
-		
+		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;
 	};
+}
+
+//////////////////////////////////////////////
+
+template<typename T> T* jop::ResourceManager::getResource(const std::string& path)
+{
+	auto it = m_resources.find(path);
+	if (it == m_resources.end())
+	{
+		auto res = std::make_unique<T>();
+		if (res->load(path))
+		{
+			m_resources[path] = std::move(res);
+			return static_cast<T*>(m_resources[path].get());
+		}
+		JOP_DEBUG_ERROR("Can't load resource data");
+		return nullptr;
+	}
+	else
+	{
+		if (typeid(T) == typeid(*it->second.get()))
+			return static_cast<T*>(it->second.get());
+		else
+		{
+			JOP_DEBUG_ERROR("Resource is not compatible");
+			return nullptr;
+		}
+			
+	}
 }
 
 #endif

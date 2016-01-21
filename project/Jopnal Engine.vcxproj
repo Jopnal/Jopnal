@@ -17,8 +17,8 @@
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\FileLoader.hpp" />
-    <ClInclude Include="..\include\Jopnal\Core\Resource.h" />
-    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.h" />
+    <ClInclude Include="..\include\Jopnal\Core\Resource.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />

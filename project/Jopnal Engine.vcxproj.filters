@@ -147,10 +147,10 @@
     <ClInclude Include="..\include\Jopnal\Core\FileLoader.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\Resource.h">
+    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.h">
+    <ClInclude Include="..\include\Jopnal\Core\Resource.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
   </ItemGroup>
