@@ -31,12 +31,16 @@
 // OpenGL
 #define JOP_OPENGL_VERSION_MAJOR 3
 #define JOP_OPENGL_VERSION_MINOR 3
-#define JOP_OPENGL_VERSION_REV 0
 
-// Debug (defined in project settings)
-//#define JOP_DEBUG 
+// Define to enable gl error checks
+#define JOP_OPENGL_ERROR_CHECKS
 
-// Asserts (defined in project settings)
-//#define JOP_ASSERTS
+// Debug
+#ifdef _DEBUG
+    #define JOP_DEBUG_MODE
+#endif
+
+// Asserts
+#define JOP_ENABLE_ASSERTS
 
 #endif
