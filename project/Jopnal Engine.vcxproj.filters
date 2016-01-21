@@ -164,6 +164,9 @@
     <None Include="..\include\Jopnal\Window\Inl\Window.inl">
       <Filter>Window\Inl</Filter>
     </None>
+    <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -206,6 +209,9 @@
       <Filter>Core\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Resource.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>

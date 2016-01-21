@@ -24,73 +24,72 @@
 #include <Jopnal\Precompiled.hpp>
 //////////////////////////////////////////////
 
-void FileLoader::init(const char * argv)
+namespace jop
 {
-	if (!PHYSFS_isInit())
+	void FileLoader::init(const char * argv)
 	{
-		PHYSFS_init(argv);
-		
-		
-	}
-	else
-	    JOP_DEBUG_ERROR("\nPhysicsFs is already initialized\n");
-	
-	if (!PHYSFS_addToSearchPath("Jopnal", 0))
-	    JOP_DEBUG_ERROR( "\nError in PHYSFS_addToSearchPath()\n");
-		
-	if (!PHYSFS_exists("PhysicsFs License.txt"))
-	    JOP_DEBUG_ERROR( "\nError in file reading check(PHYSFS_exists())\n");
-	
-}
-
-//////////////////////////////////////////////
-
-void FileLoader::deinit()
-{
-	PHYSFS_deinit();
-}
-
-//////////////////////////////////////////////
-//////////////////////////////////////////////
-
-
-
-long long FileLoader::getSize(const char* fileName)
-{
-	if (PHYSFS_exists(fileName))
-	{
-		if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
+		if (!PHYSFS_isInit())
 		{
-         long long size = PHYSFS_fileLength(inputFile);
-		 PHYSFS_close(inputFile);
-		 return size;
-		}
-		    JOP_DEBUG_ERROR("\nError can't load " << fileName << "file\n");
-		return -1;
-	}
-		JOP_DEBUG_ERROR( "\nError can't find " << fileName << "file\n");
-	return -1;
-}
+			PHYSFS_init(argv);
 
-//////////////////////////////////////////////
 
-void FileLoader::read(void* data, const char* fileName, int size)
-{
-	
-	if (PHYSFS_exists(fileName))
-	{
-		if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
-		{
-			PHYSFS_read(inputFile, data, 1, size);
-			PHYSFS_close(inputFile);
 		}
 		else
-		    JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << "file\n");
+			JOP_DEBUG_ERROR("\nPhysicsFs is already initialized\n");
+
+		if (!PHYSFS_addToSearchPath("Jopnal", 0))
+			JOP_DEBUG_ERROR("\nError in PHYSFS_addToSearchPath()\n");
+
+		if (!PHYSFS_exists("PhysicsFs License.txt"))
+			JOP_DEBUG_ERROR("\nError in file reading check(PHYSFS_exists())\n");
+
 	}
-	else
-	    JOP_DEBUG_ERROR("\nError in reading " << fileName << "file\n");
-	
+
+	//////////////////////////////////////////////
+
+	void FileLoader::deinit()
+	{
+		PHYSFS_deinit();
+	}
+
+	//////////////////////////////////////////////
+	//////////////////////////////////////////////
+
+
+
+	long long FileLoader::getSize(const char* fileName)
+	{
+		if (PHYSFS_exists(fileName))
+		{
+			if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
+			{
+				long long size = PHYSFS_fileLength(inputFile);
+				PHYSFS_close(inputFile);
+				return size;
+			}
+			JOP_DEBUG_ERROR("\nError can't load " << fileName << "file\n");
+			return -1;
+		}
+		JOP_DEBUG_ERROR("\nError can't find " << fileName << "file\n");
+		return -1;
+	}
+
+	//////////////////////////////////////////////
+
+	void FileLoader::read(void* data, const char* fileName, int size)
+	{
+
+		if (PHYSFS_exists(fileName))
+		{
+			if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
+			{
+				PHYSFS_read(inputFile, data, 1, size);
+				PHYSFS_close(inputFile);
+			}
+			else
+				JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << "file\n");
+		}
+		else
+			JOP_DEBUG_ERROR("\nError in reading " << fileName << "file\n");
+	}
 }
-
-
-

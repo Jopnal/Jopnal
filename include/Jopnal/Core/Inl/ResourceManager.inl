@@ -21,39 +21,30 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
-
-// Headers
-#include <jopnal/Header.hpp>
-#include <string>
-
-//////////////////////////////////////////////
-
-namespace jop
+template<typename T> 
+T* ResourceManager::getResource(const std::string& path)
 {
-	class Resource
+	auto it = m_resources.find(path);
+	if (it == m_resources.end())
 	{
-	public:
+		auto res = std::make_unique<T>();
+		if (res->load(path))
+		{
+			m_resources[path] = std::move(res);
+			return static_cast<T*>(m_resources[path].get());
+		}
+		JOP_DEBUG_ERROR("Can't load resource data");
+		return nullptr;
+	}
+	else
+	{
+		if (typeid(T) == typeid(*it->second.get()))
+			return static_cast<T*>(it->second.get());
+		else
+		{
+			JOP_DEBUG_ERROR("Resource is not compatible");
+			return nullptr;
+		}
 
-		/// \brief Virtual destructor
-		///
-		virtual ~Resource() = 0;
-
-		/// \brief Virtual method for using Fileloader to load new resource from file
-		///
-		/// \param Name or path for wanted resource
-		///
-		virtual bool load(const std::string& path) = 0;
-	};
-
+	}
 }
-
-#endif
-
-/// \class Resource
-/// \ingroup core
-
-//this is the base class for all resources that are loaded from files:
-//sprites, sounds, scene data...
-//processed for use

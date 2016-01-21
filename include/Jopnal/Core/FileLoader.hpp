@@ -21,28 +21,55 @@
 
 //////////////////////////////////////////////
 
-#ifndef FILE_LOADER_HPP
-#define FILE_LOADER_HPP
+#ifndef JOP_FILELOADER_HPP
+#define JOP_FILELOADER_HPP
+
+// Headers
+#include <Jopnal/Jopnal.hpp>
+#include <string>
 
 /////////////////////////////////////////////
 
 
-class FileLoader
+namespace jop
 {
-public:
-	FileLoader() = delete;
+	class FileLoader
+	{
+	public:
 
-	static void init(const char * argv);
+		/// \brief Initializes PhysicsFs filesystem
+		///
+		/// \param Unix-like systems such as Linux needs to pass argv[0] from main()
+		///
+		/// otherwise can be set to null
+		///
+		static void init(const char * argv);
 
-	static void deinit();
+		/// \brief Deinitializes PhysicsFs filesystem
+		///
+		/// releases used memory
+		///
+		static void deinit();
 
-	static long long getSize(const char* fileName);
+		/// \brief getSize returns size needed for data arrays buffer
+		///
+		/// \param Name or path for wanted resource
+		///
+		static long long getSize(const char* fileName);
 
-	static void read(void* data, const char* fileName,int size);
+		/// \brief Reads data from file into buffer
+		///
+		/// \param pointer to premade data array
+		///
+		/// name or path for wanted resource
+		///
+		/// size needed for data arrays buffer
+		/// 
+		static void read(void* data, const char* fileName, int size);
 
-	static void write(const char* fileName,const char* filePath, char* fileBuffer);
-	
-};
-
-
+	};
+}
 #endif
+
+/// \class FileLoader
+/// \ingroup core

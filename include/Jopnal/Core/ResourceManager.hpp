@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESPURCEMANAGER_H
-#define JOP_RESPURCEMANAGER_H
+#ifndef JOP_RESOURCEMANAGER_HPP
+#define JOP_RESOURCEMANAGER_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -33,55 +33,44 @@
 
 namespace jop
 {
+	/// \forward declaration for Resource class
+	///
 	class Resource;
 
 	class ResourceManager
 	{
 	public:
-		ResourceManager()
-		{
 
-		}
-		~ResourceManager()
-		{
-			m_resources.clear();
-		}
+		/// \brief Default constructor
+		///
+		ResourceManager();
 
+		/// \brief Default destructor
+		///
+		~ResourceManager();
+
+		/// \brief Template function finds resource
+		///
+		/// if resource is not found it makes new one
+		///
+		/// \param Name or path for wanted resource
+		///
 		template<typename T> T* getResource(const std::string& path);
+
+		/// \brief Deletes resource from memory
+		///
+		/// \param Name or path for wanted resource
+		///
 		bool unloadResource(const std::string& path);
+
+		/// \brief Deletes all resources from memory
+		///
 		void unloadAll();
 	private:
-		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;
+		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;///< Container holds resources
 	};
 }
-
-//////////////////////////////////////////////
-
-template<typename T> T* jop::ResourceManager::getResource(const std::string& path)
-{
-	auto it = m_resources.find(path);
-	if (it == m_resources.end())
-	{
-		auto res = std::make_unique<T>();
-		if (res->load(path))
-		{
-			m_resources[path] = std::move(res);
-			return static_cast<T*>(m_resources[path].get());
-		}
-		JOP_DEBUG_ERROR("Can't load resource data");
-		return nullptr;
-	}
-	else
-	{
-		if (typeid(T) == typeid(*it->second.get()))
-			return static_cast<T*>(it->second.get());
-		else
-		{
-			JOP_DEBUG_ERROR("Resource is not compatible");
-			return nullptr;
-		}
-			
-	}
-}
-
 #endif
+
+///\class ResourceManager
+/// \ingroup core

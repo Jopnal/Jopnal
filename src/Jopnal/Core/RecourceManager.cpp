@@ -23,12 +23,17 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
-#include <Jopnal/Core.hpp>
 
 //////////////////////////////////////////////
 
 namespace jop
 {
+	ResourceManager::ResourceManager()
+	{}
+	
+	ResourceManager::~ResourceManager()
+	{}
+
 	bool ResourceManager::unloadResource(const std::string& path)
 	{
 		auto it = m_resources.find(path);
