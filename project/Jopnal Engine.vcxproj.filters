@@ -144,6 +144,9 @@
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\MathInclude.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\Engine.inl">

@@ -24,6 +24,7 @@
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
     <ClInclude Include="..\include\Jopnal\Jopnal.hpp" />
+    <ClInclude Include="..\include\Jopnal\MathInclude.hpp" />
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
