@@ -25,26 +25,33 @@
 
 #include "Jopnal\Header.hpp"
 #include <vector>
+#include <memory>
 
 class Scene
 {
 public:
 	Scene();
 	~Scene();
-	typedef std::vector<Object> ObjectList;
+	typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
-	virtual bool checkobject();
-	virtual void addObject(Object* ExistingObject); //create object from existing object class
-	virtual void deleteObject(Object* ExistingObject); //sets created object to remove pile
-	virtual void deleteUnNeededObjects(); //deletes objects from pile
-	virtual void deleteAllobjects(Object* ExistingObject);
+	bool hasObject() const;
 
-	virtual void update(float deltaTime) = 0;
+	Object& createObject(const std::string& ID); //create object from existing object class
+	void deleteObject(const std::string& ID); //sets created object to remove pile
+	void clearObjects();
+
+	void updateBase(const double deltaTime);
+
+
+
+	virtual void preUpdate(const double deltaTime);
+
+	virtual void postUpdate(const double deltaTime);
 
 private:
 
-	ObjectList m_Objects;
-	ObjectList m_ObjectsToDelete;
+	ObjectList m_objects;
+	
 
 };
 

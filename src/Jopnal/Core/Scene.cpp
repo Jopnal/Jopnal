@@ -29,59 +29,40 @@
 /////////////////////////////////////////////
 
 
-void Scene::addObject(Object* ExistingObject)
+Object& Scene::createObject(const std::string& ID)
 {
 	
-	m_Objects.push_back(Object);
+	m_objects.emplace_back(std::make_unique<Object>());
+	return *m_objects.back();
+}
+
+bool Scene::hasObject() const
+{
 	
 }
 
-bool Scene::checkObject()
+void Scene::deleteObject(const std::string& ID)
 {
-	
-}
-
-void Scene::deleteObject(Object* ExistingObject)
-{
-	for (int i = 0; i < m_Objects.size(); i++)
+	for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
 	{
-		if (m_Objects[i].ptr() == ExistingObject)
-		{
-			m_ObjectsToDelete.push_back(ExistingObject);
-			return;
-		}
-	}
-}
-
-void Scene::deleteUnNeededObjects()
-{
-	for (int i = 0; i < m_ObjectsToDelete.size(); i++)
-	{
-		for (int j = 0; j < m_Objects.size(); j++)
-		{
-			if (m_ObjectsToDelete[i] == m_Objects[j])
-			{
-				m_Objects.erase(m_Objects.begin() + j);
-			}
-		}
-
-		m_ObjectsToDelete[i] = 0;
-	}
-	m_ObjectsToDelete.clear();
+		if ((*itr)->getID() == ID)
+			m_objects.erase(itr);
+	
 		
+	}
 }
 
-void Scene::deleteAllobjects(Object* ExistingObject)
+void Scene::clearObjects()
 {
-	for (int i = 0; i < m_Objects.size(); i++)
-	{
-		if (m_Objects.size > 0)
-		{
-			m_Objects.erase(m_Objects.size);
-		}
-		else
-		{
-			return;
-		}
-	}
+	m_objects.clear();
+}
+
+void Scene::updateBase(const double deltaTime)
+{
+	preUpdate(deltaTime);
+
+	for (auto& i : m_objects)
+		i->update(deltaTime);
+
+	postUpdate(deltaTime);
 }
