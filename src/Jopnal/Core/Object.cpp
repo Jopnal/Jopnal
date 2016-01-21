@@ -67,14 +67,12 @@ namespace jop
 			components.at(i)->listenMessage(message, ptr);
 		}
 	}
-
+	/*
 	Component Object::checkComponentType()
 	{
 		for (int i = 0; i < components.size; i++)
 		{
-			
-
-			if (typeid(components.at(i)) == /*haluttu tyyppi*/)
+			if (typeid(components.at(i)) == /*haluttu tyyppi))
 			{
 				//return component(s)
 			}
@@ -83,6 +81,9 @@ namespace jop
 				//component of given type not found
 			}
 		}
+		
 	}
+	*/
+	
 }
 /////////////////////////////////////////////

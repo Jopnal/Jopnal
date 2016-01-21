@@ -34,32 +34,24 @@ namespace jop
     class Object
     {
     public:
-        Object();
+		Object(int ID) { m_ID = ID; };
         ~Object();
 
 		//virtual void sendMessage(Message *message, int payload);
-        virtual bool checkComponent(CompID ID) const; // Check if requested component exists
-        virtual void addComponent(Component *c); // Adds component to vector
+        virtual bool checkComponent(int ID) const; // Check if requested component exists
+		virtual Component createComponent(int ID); // Adds component to vector
+		//virtual Component checkComponentType();
 
-        void update(float deltaTime); // Forwards update to components
+		virtual void sendMessage(std::string* message, void* ptr);
 
-		enum MessageID
-		{
-			Test = 1,
-		};
+        void update(double timeStep); // Forwards update to components
 
-		struct ObjectMessage : public Message
-		{
-			void fuu()
-			{
-				id = Test;
-			}
-		};
 
         //Component *getComponent(void); // Fetches the requested component from map
 
     private:
         std::vector<Component *> components;
+		int m_ID; //Unique object identifier
     };
 }
 
