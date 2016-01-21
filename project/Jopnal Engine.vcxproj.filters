@@ -144,6 +144,9 @@
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\Jopnal\MathInclude.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
@@ -195,6 +198,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp">
       <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
