@@ -43,9 +43,7 @@ namespace jop
 	//////////////////////////////////////////////
 
 	void Component::sendMessage(const std::string& message, void* ptr)
-	{
-		/// \brief Mitäs tänne?
-	}
+	{}
 
 	//////////////////////////////////////////////
 
@@ -75,6 +73,4 @@ namespace jop
 	{
 		return m_ID;
 	}
-
-	//////////////////////////////////////////////
 }

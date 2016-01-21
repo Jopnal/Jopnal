@@ -21,20 +21,17 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COMPONENT_HPP // Comment - Include guard format: JOP_FILENAME_FILEEXTENSION
+#ifndef JOP_COMPONENT_HPP
 #define JOP_COMPONENT_HPP
 
 // Headers
 #include <Jopnal\Header.hpp>
-//////////////////////////////////////////////
 
+//////////////////////////////////////////////
 
 
 namespace jop
 {
-
-	/// \brief Component class
-	///
 	class Component
 	{
 	public:
@@ -92,3 +89,6 @@ namespace jop
 }
 
 #endif
+
+/// \class Component
+/// \ingroup core

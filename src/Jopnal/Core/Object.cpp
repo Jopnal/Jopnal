@@ -33,49 +33,42 @@ namespace jop
 		: m_ID(ID)
 	{}
 	
-	
 	Object::~Object()
 	{}
 
-//////////////////////////////////////////////
+	//////////////////////////////////////////////
 
 	bool Object::hasComponent(const std::string& ID) const
     {
 		for (auto& i : m_components)
 		{
 			if (i->getID() == ID)
-			{
 				return true;
-			}
 		}
 		return false;
     }
 
-/////////////////////////////////////////////
+	/////////////////////////////////////////////
 
     void Object::update(const double deltaTime)
     {
 		for (auto& i : m_components)
-		{
 			i->update(deltaTime);
-		}
     } 
 
-/////////////////////////////////////////////
+	/////////////////////////////////////////////
 
 	void removeComponents(const std::string& ID)
 	{
-
+		///to do implement
 	}
 
-/////////////////////////////////////////////
+	/////////////////////////////////////////////
 
 	void Object::sendMessage(const std::string& message, void* ptr)
 	{
 		for (auto& i: m_components)
-		{
 			i->sendMessage(message, ptr);
-		}
 	}
 
 	/////////////////////////////////////////////
@@ -83,9 +76,7 @@ namespace jop
 	void Object::fixedUpdate(const double timeStep)
 	{
 		for (auto& i : m_components)
-		{
 			i->fixedUpdate(timeStep);
-		}
 	}
 
 	/////////////////////////////////////////////
@@ -93,20 +84,20 @@ namespace jop
 	void Object::draw()
 	{
 		for (auto& i : m_components)
-		{
 			i->draw();
-		}
 	}
 
 	/////////////////////////////////////////////
 
-	const std::string& Object::getID()
+	const std::string& Object::getID() const
 	{
 		return m_ID;
 	}
 
 	/////////////////////////////////////////////
+
+	void Object::setID(const std::string& ID)
+	{
+		m_ID = ID;
+	}
 }
-
-
-

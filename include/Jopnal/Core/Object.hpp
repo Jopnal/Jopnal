@@ -21,12 +21,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef OBJECT_HPP
-#define OBJECT_HPP
+#ifndef JOP_OBJECT_HPP
+#define JOP_OBJECT_HPP
 
 //Headers
 #include <Jopnal\Header.hpp>
 #include <memory>
+
 //////////////////////////////////////////////
 
 
@@ -34,8 +35,6 @@ namespace jop
 {
 	class Component;
 
-	/// \ brief Object class
-	///
     class Object
     {
     public:
@@ -84,7 +83,13 @@ namespace jop
 
 		/// \brief Method for getting m_ID
 		///
-		const std::string& getID();
+		const std::string& getID() const;
+
+		/// \brief method for setting the ID
+		///
+		/// \param ID unique object identifier
+		///
+		void setID(const std::string& ID);
 
 		/// \brief Update method for object - forwarded for its components
 		///
@@ -105,12 +110,13 @@ namespace jop
     private:
 
 		std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
-
-		std::string m_ID; ///< Unique object identifier
+		std::string m_ID;									  ///< Unique object identifier
     };
 
-#include <Jopnal/Core/Inl/Object.inl>
-
+	#include <Jopnal/Core/Inl/Object.inl>
 }
 
 #endif
+
+/// \class Object 
+/// \ingroup graphics

@@ -21,6 +21,9 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_SCENE_HPP
+#define JOP_SCENE_HPP
+
 // Headers
 #include <Jopnal/Header.hpp>
 #include <vector>
@@ -33,10 +36,14 @@ namespace jop
 {
 	class Object;
 
-	/// \brief scene class
-	///
 	class Scene 
 	{
+	public:
+
+		/// \brief Container holding Objects
+		///
+		typedef std::vector<std::unique_ptr<Object>> ObjectList;
+
 	public:
 
 		/// \brief Constructor for scene class
@@ -48,10 +55,6 @@ namespace jop
 		/// \brief Destructor for scene class
 		///
 		virtual ~Scene();
-
-		/// \brief Container holding Objects
-		///
-		typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
 		/// \brief method for checking if object with 'ID' exists
 		///
@@ -126,7 +129,11 @@ namespace jop
 	private:
 
 		ObjectList m_objects; ///< container holding objects
-
-		std::string m_name; ///< string holdign unique scene name
+		std::string m_name;   ///< string holdign unique scene name
 	};
 }
+
+#endif
+
+/// \class Scene
+/// \ingroup core
