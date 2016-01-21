@@ -28,7 +28,7 @@
 #include <Jopnal/Header.hpp>
 #include <unordered_map>
 #include <Jopnal/core/Resource.h>
-//#include <Jopnal/Core/FileManager.h>
+//#include <Jopnal/Core/FileLoader.h>
 
 //////////////////////////////////////////////
 

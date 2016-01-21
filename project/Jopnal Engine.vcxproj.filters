@@ -144,6 +144,15 @@
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\FileLoader.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Resource.h">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.h">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
@@ -192,6 +201,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp">
       <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

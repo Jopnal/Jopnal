@@ -67,13 +67,11 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
-<<<<<<< HEAD
 // PhysFS
 #include<PhysicsFS\physfs.h>
-=======
+
 // PhysicsFS
 #include <PhysicsFS/physfs.h>
->>>>>>> master
 
 // Standard headers
 #include <algorithm>
@@ -81,10 +79,7 @@
 #include <sstream>
 #include <string>
 
-<<<<<<< HEAD
-=======
 // Jopnal
 #include <Jopnal/Jopnal.hpp>
->>>>>>> master
 
 #endif
