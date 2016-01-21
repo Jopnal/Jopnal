@@ -21,70 +21,55 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+// Headers
+#include <Jopnal/Precompiled.hpp>
 
-//******** HEADERS ********//
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
-
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <glm/glm.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-<<<<<<< HEAD
-// PhysFS
-#include<PhysicsFS\physfs.h>
-=======
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
->>>>>>> master
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <string>
-
-<<<<<<< HEAD
-=======
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
->>>>>>> master
-
-#endif
+namespace jop
+{
+	Resource* ResourceManager::getResource(std::string name)
+	{
+		auto it = m_resources.find(name);
+		if (it == m_resources.end())
+		{
+			std::cout << "Error 404: Resource not found." << std::endl;
+			return 0;
+		}
+		else
+		{
+			return it->second;
+		}
+	}
+	Resource* ResourceManager::loadResource(std::string path, std::string name)
+	{
+		Resource* res;
+		/*
+		Resource* res = fileLManager.read(path);
+		if(res != nullptr)
+		{
+			*/
+			m_resources.insert(std::make_pair(name, res));
+			return res;
+			/*
+		}
+		*/
+		std::cout << "Can't load resource \"" << name << "\"" << std::endl;
+		return nullptr;
+	}
+	bool ResourceManager::unloadResource(std::string name)
+	{
+		auto it = m_resources.find(name);
+		if (it == m_resources.end())
+		{
+			std::cout << "Error 404: Resource not found." << std::endl;
+			return false;
+		}
+		else
+		{
+			//it->second->getSelfDestructButton().activate(time::seconds(10));
+			m_resources.erase(it);
+			return true;
+		}
+	}
+}

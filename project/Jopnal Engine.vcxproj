@@ -14,12 +14,15 @@
 <<<<<<< HEAD:solution/Jopnal Engine/Jopnal Engine.vcxproj
     <ClInclude Include="..\..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\FileLoader.hpp" />
+    <ClInclude Include="..\..\include\Jopnal\Core\Resource.h" />
+    <ClInclude Include="..\..\include\Jopnal\Core\ResourceManager.h" />
     <ClInclude Include="..\..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\..\src\Jopnal\Precompiled.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Core\FileLoader.cpp" />
+    <ClCompile Include="..\..\src\Jopnal\Core\RecourceManager.cpp" />
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
 =======
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />

@@ -21,70 +21,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_RESPURCEMANAGER_H
+#define JOP_RESPURCEMANAGER_H
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
+#include <unordered_map>
+#include <Jopnal/core/Resource.h>
+//#include <Jopnal/Core/FileManager.h>
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+//////////////////////////////////////////////
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
+namespace jop
+{
+	class ResourceManager
+	{
+	public:
+		ResourceManager()
+		{
 
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
+		}
+		~ResourceManager()
+		{
+			m_resources.clear();
+		}
 
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
+		Resource* getResource(std::string name);
+		Resource* loadResource(std::string path, std::string name);
+		bool unloadResource(std::string name);
+	private:
 
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <glm/glm.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-<<<<<<< HEAD
-// PhysFS
-#include<PhysicsFS\physfs.h>
-=======
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
->>>>>>> master
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <string>
-
-<<<<<<< HEAD
-=======
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
->>>>>>> master
+		std::unordered_map < std::string, Resource* > m_resources;
+	};
+}
 
 #endif

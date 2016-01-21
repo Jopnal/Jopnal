@@ -21,70 +21,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_RESPURCE_H
+#define JOP_RESPURCE_H
 
-//******** HEADERS ********//
+// Headers
+#include <jopnal/Header.hpp>
+//////////////////////////////////////////////
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+namespace jop
+{
+	//this is the base class for all resources that are loaded from files:
+	//sprites, sounds, scene data...
+	//processed for use
+	class Resource
+	{
+	public:
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <glm/glm.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-<<<<<<< HEAD
-// PhysFS
-#include<PhysicsFS\physfs.h>
-=======
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
->>>>>>> master
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <string>
-
-<<<<<<< HEAD
-=======
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
->>>>>>> master
+	private:
+		
+	};
+}
 
 #endif
