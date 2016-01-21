@@ -28,15 +28,8 @@
 
 namespace jop
 {
-    void Object::addComponent(Component *c)
-    {
-		//Do something with ID?
-        components.push_back(c);
-    }
-
-    //////////////////////////////////////////////
-
-    bool Object::checkComponent(CompID ID) const
+//////////////////////////////////////////////
+    bool Object::checkComponent(int ID) const
     {
 		for (int i = 0; i < components.size; i++)
 		{
@@ -50,39 +43,46 @@ namespace jop
 			}
 		}
     }
-
-    //////////////////////////////////////////////
-	//virtual void sendMessage(Message *message, int payload);
-	//{
-	//	for (int i = 0; i < components.size; i++)
-	//	{
-	//		components.at(i)->//broadcast message to components
-	//	}
-	//	
-	//}
-
-	/////////////////////////////////////////////
-  //  Component Object::*getComponent(CompID ID)
-  //  {
-		//for (int i = 0; i < components.size; i++)
-		//{
-		//	if (components.at(i)->getID() == ID)
-		//	{
-		//		return components.at(i);
-		//	}
-		//	else
-		//	{
-		//		//not found
-		//	}
-  //  }
-
-    //////////////////////////////////////////////
-
-    void Object::update(float deltaTime)
+/////////////////////////////////////////////
+    void Object::update(double timeStep)
     {
 		for (int i = 0; i < components.size; i++)
 		{
-			components.at(i)->update(deltaTime);
+			components.at(i)->update(timeStep);
 		}
     } 
+/////////////////////////////////////////////
+	Component Object::createComponent(int ID)
+	{
+		Component *c;
+		c = new Component();
+		c->setID(ID);
+		components.push_back(c);
+	}
+/////////////////////////////////////////////
+	void Object::sendMessage(std::string* message, void* ptr)
+	{
+		for (int i = 0; i < components.size; i++)
+		{
+			components.at(i)->listenMessage(message, ptr);
+		}
+	}
+
+	Component Object::checkComponentType()
+	{
+		for (int i = 0; i < components.size; i++)
+		{
+			
+
+			if (typeid(components.at(i)) == /*haluttu tyyppi*/)
+			{
+				//return component(s)
+			}
+			else
+			{
+				//component of given type not found
+			}
+		}
+	}
 }
+/////////////////////////////////////////////
