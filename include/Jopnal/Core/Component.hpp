@@ -36,7 +36,7 @@ namespace jop
 {
     enum CompID
     {
-        TSprite = 0,
+        SpriteComponent = 0,
         Type2 = 1,
 
 
@@ -46,13 +46,15 @@ namespace jop
 	class Component
 	{
 	public:
+
 		virtual ~Component();// Virtual destructor
 
-		virtual void SendMessage(std::string message);// Send messages
+		virtual void sendMessage(const std::string& message, void* ptr);// Send messages
 
-		virtual void Update(float deltaTime);
-		virtual void Init(void);
-		virtual void Uninit(void);
+		virtual void update(float deltaTime);
+		virtual void init(void);
+		virtual void uninit(void);
+		virtual CompID getID() { return m_ID; };
 
 		bool isActive(void) const; // Check if active - false means it will be deleted
 
@@ -64,7 +66,7 @@ namespace jop
 	class TestComponent : public Component
 	{
 	public:
-        TestComponent() { m_ID = TSprite; };
+        TestComponent() { m_ID = SpriteComponent; };
 		// Base functions for component
 		bool IsWorking();
 		int GetValues(){ return x; };

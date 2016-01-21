@@ -28,8 +28,9 @@
 
 namespace jop
 {
-    void Object::addComponent(CompID ID, Component *c)
+    void Object::addComponent(Component *c)
     {
+		//Do something with ID?
         components.push_back(c);
     }
 
@@ -37,24 +38,42 @@ namespace jop
 
     bool Object::checkComponent(CompID ID) const
     {
-        for (int i = 0; i < components.size)
+		for (int i = 0; i < components.size; i++)
+		{
+			if (components.at(i)->getID() == ID)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
     }
 
     //////////////////////////////////////////////
 
-    Component Object::*getComponent(void)
-    {
-        /*
-        ...
-        */
-    }
+  //  Component Object::*getComponent(CompID ID)
+  //  {
+		//for (int i = 0; i < components.size; i++)
+		//{
+		//	if (components.at(i)->getID() == ID)
+		//	{
+		//		return components.at(i);
+		//	}
+		//	else
+		//	{
+		//		//not found
+		//	}
+  //  }
 
     //////////////////////////////////////////////
 
-    void Object::update(float DT)
+    void Object::update(float deltaTime)
     {
-        /*
-        ...
-        */
+		for (int i = 0; i < components.size; i++)
+		{
+			components.at(i)->update(deltaTime);
+		}
     } 
 }

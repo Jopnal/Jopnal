@@ -26,26 +26,29 @@
 
 //Headers
 #include <Jopnal\Header.hpp>
-
+#include <Jopnal/Core/Message.hpp>
 //////////////////////////////////////////////
 
 namespace jop
 {
+
     class Object
     {
     public:
         Object();
         ~Object();
 
+		//virtual void sendMessage(Message *message, int payload);
         virtual bool checkComponent(CompID ID) const; // Check if requested component exists
-        virtual void addComponent(CompID ID, Component *c); // Adds component to vector
+        virtual void addComponent(Component *c); // Adds component to vector
 
-        void update(float DeltaTime);
+        void update(float deltaTime); // Forwards update to components
 
-        Component *getComponent(void); // Fetches the requested component from map
+        //Component *getComponent(void); // Fetches the requested component from map
 
     private:
         std::vector<Component *> components;
+
     };
 }
 

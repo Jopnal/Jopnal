@@ -72,6 +72,15 @@
     <ClInclude Include="..\..\include\Jopnal\Core\Scene.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\Message.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\Object.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Jopnal\Core\Component.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">

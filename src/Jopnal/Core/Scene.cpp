@@ -22,47 +22,110 @@
 //////////////////////////////////////////////
 
 //headers
-#include "Jopnal\Precompiled.hpp"
-#include "Jopnal\Core\Scene.hpp"
+#include <Jopnal/Precompiled.hpp>
 
 
 /////////////////////////////////////////////
 
-
-Object& Scene::createObject(const std::string& ID)
+namespace jop
 {
-	
-	m_objects.emplace_back(std::make_unique<Object>());
-	return *m_objects.back();
-}
 
-bool Scene::hasObject() const
-{
-	
-}
+	Scene::Scene()
+	{}
 
-void Scene::deleteObject(const std::string& ID)
-{
-	for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
+	Scene::~Scene()
+	{}
+	//////////////////////////////////////////////
+
+	Object& Scene::createObject(const std::string& ID)
 	{
-		if ((*itr)->getID() == ID)
-			m_objects.erase(itr);
-	
-		
+
+		m_objects.emplace_back(std::make_unique<Object>());
+		return *m_objects.back();
 	}
-}
 
-void Scene::clearObjects()
-{
-	m_objects.clear();
-}
+	//////////////////////////////////////////////
 
-void Scene::updateBase(const double deltaTime)
-{
-	preUpdate(deltaTime);
+	bool Scene::hasObject(const std::string& ID) const
+	{
+		for (auto i = m_objects.begin(); i != m_objects.end(); i++)
+		{
+			if ((*i)->getID() == ID)
+			{
+				return true;
+			}
+			else if ((*i) - getID() != ID)
+			{
+				return false;
+			}
+		}
+	}
 
-	for (auto& i : m_objects)
-		i->update(deltaTime);
+	//////////////////////////////////////////////
 
-	postUpdate(deltaTime);
+	void Scene::deleteObject(const std::string& ID)
+	{
+		for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
+		{
+			if ((*itr)->getID() == ID)
+				m_objects.erase(itr);
+		}
+	}
+
+
+	//////////////////////////////////////////////
+
+	void Scene::clearObjects()
+	{
+		m_objects.clear();
+	}
+	//////////////////////////////////////////////
+
+	void Scene::updateBase(const double deltaTime)
+	{
+		preUpdate(deltaTime);
+
+		for (auto& i : m_objects)
+			i->update(deltaTime);
+
+		postUpdate(deltaTime);
+	}
+
+	//////////////////////////////////////////////
+
+	void preUpdate(const double deltaTime)
+	{
+	}
+
+	//////////////////////////////////////////////
+
+	void postUpdate(const double deltaTime)
+	{
+	}
+
+	//////////////////////////////////////////////
+
+	void preFixedUpdate(const double)
+	{
+	}
+
+	//////////////////////////////////////////////
+
+	void postFixedUpdate(const double)
+	{
+	}
+
+	//////////////////////////////////////////////
+
+	void preDraw()
+	{
+	}
+
+	//////////////////////////////////////////////
+
+	void postDraw()
+	{
+	}
+
+	//////////////////////////////////////////////
 }

@@ -23,42 +23,49 @@
 
 //headers
 
-#include "Jopnal\Header.hpp"
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Object.hpp>
 #include <vector>
 #include <memory>
 
-class Scene
+//////////////////////////////////////////////
+
+
+namespace jop
 {
-public:
-	Scene();
-	~Scene();
-	typedef std::vector<std::unique_ptr<Object>> ObjectList;
+	class Scene
+	{
+	public:
+		Scene();
+		~Scene();
+		typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
-	bool hasObject() const;
+		bool hasObject(const std::string& ID) const;
 
-	Object& createObject(const std::string& ID); //create object from existing object class
-	void deleteObject(const std::string& ID); //sets created object to remove pile
-	void clearObjects();
+		Object& createObject(const std::string& ID); //create object from existing object class
+		void deleteObject(const std::string& ID); //sets created object to remove pile
+		void clearObjects(); //clears m_objects vector
 
-	void updateBase(const double deltaTime);
+		void updateBase(const double deltaTime);
+
+		
+		virtual void preUpdate(const double deltaTime);
+
+		virtual void postUpdate(const double deltaTime);
+
+		virtual void preFixedUpdate(const double);
+
+		virtual void postFixedUpdate(const double);
+
+		virtual void preDraw();
+
+		virtual void postDraw();
+
+	private:
+
+		ObjectList m_objects;
 
 
+	};
 
-	virtual void preUpdate(const double deltaTime);
-
-	virtual void postUpdate(const double deltaTime);
-
-private:
-
-	ObjectList m_objects;
-	
-
-};
-
-Scene::Scene()
-{
-}
-
-Scene::~Scene()
-{
 }
