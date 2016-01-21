@@ -55,6 +55,9 @@
     <Filter Include="Utility\Source">
       <UniqueIdentifier>{c0fff2d8-a682-414c-8e5c-8a9336653963}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Inl">
+      <UniqueIdentifier>{ffa137c2-36f1-4686-9381-9c3506a5ce06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Jopnal\Config.hpp">
@@ -72,9 +75,6 @@
     <ClInclude Include="..\..\include\Jopnal\Core\Scene.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Jopnal\Core\Message.hpp">
-      <Filter>Core\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Jopnal\Core\Object.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
@@ -89,5 +89,16 @@
     <ClCompile Include="..\..\src\Jopnal\Core\Scene.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Core\Object.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Jopnal\Core\Component.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\include\Jopnal\Core\Inl\Object.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
   </ItemGroup>
 </Project>

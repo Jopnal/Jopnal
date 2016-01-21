@@ -26,63 +26,87 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
+	Object::Object(const std::string& ID)
+		: m_ID(ID)
+	{}
+	
+	
+	Object::~Object()
+	{}
+
 //////////////////////////////////////////////
-    bool Object::checkComponent(int ID) const
+
+	bool Object::hasComponent(const std::string& ID) const
     {
-		for (int i = 0; i < components.size; i++)
+		for (auto& i : m_components)
 		{
-			if (components.at(i)->getID() == ID)
+			if (i->getID() == ID)
 			{
 				return true;
 			}
-			else
-			{
-				return false;
-			}
 		}
+		return false;
     }
+
 /////////////////////////////////////////////
-    void Object::update(double timeStep)
+
+    void Object::update(const double deltaTime)
     {
-		for (int i = 0; i < components.size; i++)
+		for (auto& i : m_components)
 		{
-			components.at(i)->update(timeStep);
+			i->update(deltaTime);
 		}
     } 
+
 /////////////////////////////////////////////
-	Component Object::createComponent(int ID)
+
+	void removeComponents(const std::string& ID)
 	{
-		Component *c;
-		c = new Component();
-		c->setID(ID);
-		components.push_back(c);
+
 	}
+
 /////////////////////////////////////////////
-	void Object::sendMessage(std::string* message, void* ptr)
+
+	void Object::sendMessage(const std::string& message, void* ptr)
 	{
-		for (int i = 0; i < components.size; i++)
+		for (auto& i: m_components)
 		{
-			components.at(i)->listenMessage(message, ptr);
+			i->sendMessage(message, ptr);
 		}
 	}
 
-	Component Object::checkComponentType()
-	{
-		for (int i = 0; i < components.size; i++)
-		{
-			
+	/////////////////////////////////////////////
 
-			if (typeid(components.at(i)) == /*haluttu tyyppi*/)
-			{
-				//return component(s)
-			}
-			else
-			{
-				//component of given type not found
-			}
+	void Object::fixedUpdate(const double timeStep)
+	{
+		for (auto& i : m_components)
+		{
+			i->fixedUpdate(timeStep);
 		}
 	}
+
+	/////////////////////////////////////////////
+
+	void Object::draw()
+	{
+		for (auto& i : m_components)
+		{
+			i->draw();
+		}
+	}
+
+	/////////////////////////////////////////////
+
+	const std::string& Object::getID()
+	{
+		return m_ID;
+	}
+
+	/////////////////////////////////////////////
 }
-/////////////////////////////////////////////
+
+
+

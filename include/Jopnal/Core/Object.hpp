@@ -26,29 +26,91 @@
 
 //Headers
 #include <Jopnal\Header.hpp>
+#include <memory>
 //////////////////////////////////////////////
+
 
 namespace jop
 {
+	class Component;
 
+	/// \ brief Object class
+	///
     class Object
     {
     public:
-        Object();
-        ~Object();
 
-		//virtual void sendMessage(Message *message, int payload);
-        virtual bool checkComponent(CompID ID) const; // Check if requested component exists
-        virtual void addComponent(Component *c); // Adds component to vector
+		/// \brief Default constructor
+		///
+		Object();
 
-        void update(float deltaTime); // Forwards update to components
+		/// \brief Constructor
+		///
+		/// \param ID Unique object identifier m_ID
+		///
+		Object(const std::string& ID) ;
 
-        //Component *getComponent(void); // Fetches the requested component from map
+		/// \brief Object deconstructor
+		///
+		~Object();
+
+		/// \brief Check if component exists
+		///
+		/// \param ID Unique object identifier m_ID
+		///
+		bool hasComponent(const std::string& ID) const; 
+
+		/// \brief Template function to create components
+		///
+		/// \param Args User determined arguments
+		///
+		template<typename T, typename ... Args>
+		T& createComponent(Args& ... args); 
+
+		/// \brief Method to remove components with 'ID'
+		/// 
+		/// \param ID Unique object identifier m_ID
+		///
+		void removeComponents(const std::string& ID);
+
+		/// \brief Method to send messages
+		///
+		/// Forwards messages to Objects components
+		///
+		/// \param message String holding message
+		/// \param ptr Pointer to hold extra data
+		///
+		void sendMessage(const std::string& message, void* ptr);
+
+		/// \brief Method for getting m_ID
+		///
+		const std::string& getID();
+
+		/// \brief Update method for object - forwarded for its components
+		///
+		/// \param deltaTime Double holding delta time
+		///
+        void update(const double deltaTime); 
+
+		/// \brief Fixed Update method for object - forwarded for its components
+		///
+		/// \param timeStep Double holding time step
+		///
+		void fixedUpdate(const double timeStep);
+
+		/// \brief Draw method for objects - forwarded to its components
+		///
+		void draw();
 
     private:
-        std::vector<Component *> components;
 
+		std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
+
+		std::string m_ID; ///< Unique object identifier
     };
+
+#include <Jopnal/Core/Inl/Object.inl>
+
 }
 
 #endif

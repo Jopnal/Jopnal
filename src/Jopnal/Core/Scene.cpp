@@ -21,25 +21,25 @@
 
 //////////////////////////////////////////////
 
-//headers
+// Headers
 #include <Jopnal/Precompiled.hpp>
-
 
 /////////////////////////////////////////////
 
+
 namespace jop
 {
-
-	Scene::Scene()
+	Scene::Scene(const std::string& name)
+		: m_name(name)
 	{}
 
 	Scene::~Scene()
 	{}
+
 	//////////////////////////////////////////////
 
 	Object& Scene::createObject(const std::string& ID)
 	{
-
 		m_objects.emplace_back(std::make_unique<Object>());
 		return *m_objects.back();
 	}
@@ -51,14 +51,9 @@ namespace jop
 		for (auto i = m_objects.begin(); i != m_objects.end(); i++)
 		{
 			if ((*i)->getID() == ID)
-			{
 				return true;
-			}
-			else if ((*i)->getID() != ID)
-			{
-				return false;
-			}
 		}
+		return false;
 	}
 
 	//////////////////////////////////////////////
@@ -72,13 +67,13 @@ namespace jop
 		}
 	}
 
-
 	//////////////////////////////////////////////
 
 	void Scene::clearObjects()
 	{
 		m_objects.clear();
 	}
+
 	//////////////////////////////////////////////
 
 	void Scene::updateBase(const double deltaTime)
@@ -93,39 +88,55 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	void preUpdate(const double deltaTime)
+	void Scene::preUpdate(const double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::postUpdate(const double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::preFixedUpdate(const double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::postFixedUpdate(const double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::preDraw()
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::postDraw()
+	{}
+
+	//////////////////////////////////////////////
+
+	void Scene::fixedUpdateBase(const double timeStep)
 	{
+		preFixedUpdate(timeStep);
+
+		for (auto& i : m_objects)
+			i->fixedUpdate(timeStep);
+
+		postFixedUpdate(timeStep);
 	}
 
 	//////////////////////////////////////////////
 
-	void postUpdate(const double deltaTime)
+	void Scene::drawBase()
 	{
+		preDraw();
+
+		for (auto& i : m_objects)
+			i->draw();
+
+		postDraw();
 	}
-
-	//////////////////////////////////////////////
-
-	void preFixedUpdate(const double)
-	{
-	}
-
-	//////////////////////////////////////////////
-
-	void postFixedUpdate(const double)
-	{
-	}
-
-	//////////////////////////////////////////////
-
-	void preDraw()
-	{
-	}
-
-	//////////////////////////////////////////////
-
-	void postDraw()
-	{
-	}
-
-	//////////////////////////////////////////////
 }

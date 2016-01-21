@@ -32,34 +32,62 @@
 
 namespace jop
 {
+
+	/// \brief Component class
+	///
 	class Component
 	{
 	public:
 
-		virtual ~Component();// Virtual destructor
+		/// \brief Default constructor
+		///
+		Component();
 
-		virtual void sendMessage(std::string* message, void* ptr);// Send message
-		virtual void listenMessage(std::string* message, void* ptr);//Listen to message
+		/// \brief Constructor
+		///
+		/// \param ID Unique component identifier
+		///
+		Component(const std::string& ID);
 
-		virtual void update(double timeStep);
-		virtual int getID() { return m_ID; };
-		virtual int setID(int ID) { m_ID = ID; }
-		bool isActive() const; // Check if active - false means it will be deleted
+		/// \brief Virtual deconstructor
+		///
+		virtual ~Component() = 0;
+
+		/// \brief Funktion to handle messages
+		///
+		/// \param message String holding message data
+		/// \param ptr Pointer
+		///
+		virtual void sendMessage(const std::string& message, void* ptr);
+
+		/// \brief Update function for component
+		///
+		/// \param deltaTime Double holding delta time
+		///
+		virtual void update(const double deltaTime);
+
+		/// \brief Fixed update function for component
+		///
+		/// \param timeStep Double holding time step
+		///
+		virtual void fixedUpdate(const double timeStep);
+
+		/// \brief Draw function for component
+		///
+		virtual void draw();
+
+		/// \brief Function to get components unique identifier m_ID
+		///
+		const std::string& getID();
+
+		/// \brief Function to set components unique identifier m_ID
+		///
+		void setID(const std::string& ID);
+		
 
 	private:
-        int m_ID; // Unique component identifier - to seperate components of the same type (typeid)
-	};
 
-	class TestComponent : public Component
-	{
-	public:
-        TestComponent(int x) { m_ID = x; };
-		// Base functions for component
-		bool IsWorking();
-		int GetValues(){ return x; };
-	private:
-		int m_ID; // Unique component identifier - to seperate components of the same type (typeid)
-		int x = 2;	
+        std::string m_ID; ///< Unique component identifier
 	};
 }
 

@@ -21,10 +21,8 @@
 
 //////////////////////////////////////////////
 
-//headers
-
+// Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Object.hpp>
 #include <vector>
 #include <memory>
 
@@ -33,39 +31,102 @@
 
 namespace jop
 {
-	class Scene
+	class Object;
+
+	/// \brief scene class
+	///
+	class Scene 
 	{
 	public:
-		Scene();
-		~Scene();
+
+		/// \brief Constructor for scene class
+		///
+		/// \param name String holding unique name for scene
+		///
+		Scene(const std::string& name);
+
+		/// \brief Destructor for scene class
+		///
+		virtual ~Scene();
+
+		/// \brief Container holding Objects
+		///
 		typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
+		/// \brief method for checking if object with 'ID' exists
+		///
+		/// \param ID unique Object identifier  
+		///
 		bool hasObject(const std::string& ID) const;
 
-		Object& createObject(const std::string& ID); //create object from existing object class
-		void deleteObject(const std::string& ID); //sets created object to remove pile
-		void clearObjects(); //clears m_objects vector
+		/// \brief method that creates object
+		///
+		/// \param ID unique Object identifier 
+		///
+		Object& createObject(const std::string& ID);
 
+		/// \brief method for deleting object 
+		///
+		/// \param ID unique Object identifier 
+		///
+		void deleteObject(const std::string& ID); 
+
+		/// \brief method for clearing m_objects 
+		///
+		void clearObjects(); 
+
+		/// \brief update method for scene
+		///
+		/// \param deltaTime double holding delta time
+		///
 		void updateBase(const double deltaTime);
 
+		/// \brief update method for dixed scene
+		///
+		/// \param deltaTime double holding delta time
+		///
+		void fixedUpdateBase(const double deltaTime);
+
+		/// \brief method for drawing
+		///
+		void drawBase();
 		
+		/// \brief method for pre updating
+		///
+		/// \param deltaTime double hodling delta time
+		///
 		virtual void preUpdate(const double deltaTime);
 
+		/// \brief method for doing post update stuff
+		///
+		/// \param deltaTime double hodling delta time
+		///
 		virtual void postUpdate(const double deltaTime);
 
-		virtual void preFixedUpdate(const double);
+		/// \brief method for pre fixed updating
+		///
+		/// \param deltaTime double hodling delta time
+		///
+		virtual void preFixedUpdate(const double timeStep);
 
-		virtual void postFixedUpdate(const double);
-
+		/// \brief method for doing post fixed updating stuff
+		///
+		/// \param deltaTime double hodling delta time
+		///
+		virtual void postFixedUpdate(const double timeStep);
+		
+		/// \brief method for pre drawign 
+		///
 		virtual void preDraw();
 
+		/// \brief method for post drawing
+		///
 		virtual void postDraw();
 
 	private:
 
-		ObjectList m_objects;
+		ObjectList m_objects; ///< container holding objects
 
-
+		std::string m_name; ///< string holdign unique scene name
 	};
-
 }

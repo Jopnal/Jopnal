@@ -14,18 +14,22 @@
     <ClInclude Include="..\..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\Scene.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\Component.hpp" />
-    <ClInclude Include="..\..\include\Jopnal\Core\Message.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Core\Object.hpp" />
     <ClInclude Include="..\..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\..\src\Jopnal\Precompiled.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\Jopnal\Core\Component.cpp" />
+    <ClCompile Include="..\..\src\Jopnal\Core\Object.cpp" />
     <ClCompile Include="..\..\src\Jopnal\Core\Scene.cpp" />
     <ClCompile Include="..\..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\include\Jopnal\Core\Inl\Object.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>
