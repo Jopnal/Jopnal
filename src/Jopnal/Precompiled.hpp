@@ -27,38 +27,55 @@
 //******** HEADERS ********//
 
 // Needed for configuration
-#include <Jopnal/Config.hpp>
+#include <Jopnal/OS.hpp>
+
+// Windows
+#if defined(JOP_OS_WINDOWS)
+
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef VC_EXTRALEAN
+        #define VC_EXTRALEAN
+    #endif
+
+    #include <Windows.h>
+    #include <io.h>
+    #include <fcntl.h>
+
+#endif
 
 // OpenGL
 #include <GL/GL.hpp>
+#include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW
 #include <GLFW/glfw3.h>
 
 // GLM
-#pragma warning(push, 0) // GLM produces warnings which need to be ignored
-#include <glm/glm.hpp>
+#include <Jopnal/MathInclude.hpp>
+
+// RapidJSON
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
+// PhysicsFS
+#include <PhysicsFS/physfs.h>
+
 // Standard headers
+#include <algorithm>
 #include <iostream>
-#include <vector>
-#include <memory>
-#include <typeinfo>
+#include <sstream>
 
-//** Jopnal **\
-
-// Audio
-
-// Core
-#include <Jopnal\Core\Object.hpp>
-#include <Jopnal\Core\Component.hpp>
-#include <Jopnal\Core\Scene.hpp>
-// Graphics
-
-// Utility
-
-// Window
-
+// Jopnal
+#include <Jopnal/Jopnal.hpp>
 
 #endif

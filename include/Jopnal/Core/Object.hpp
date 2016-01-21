@@ -35,7 +35,7 @@ namespace jop
 {
 	class Component;
 
-    class Object
+    class JOP_API Object
     {
     public:
 
@@ -47,24 +47,25 @@ namespace jop
 		///
 		/// \param ID Unique object identifier m_ID
 		///
-		Object(const std::string& ID) ;
+		Object(const std::string& ID);
 
-		/// \brief Object deconstructor
+		/// \brief Object destructor
 		///
 		~Object();
+
 
 		/// \brief Check if component exists
 		///
 		/// \param ID Unique object identifier m_ID
 		///
-		bool hasComponent(const std::string& ID) const; 
+		bool hasComponent(const std::string& ID) const;
 
 		/// \brief Template function to create components
 		///
-		/// \param Args User determined arguments
+		/// \param args User determined arguments
 		///
 		template<typename T, typename ... Args>
-		T& createComponent(Args& ... args); 
+		T& createComponent(Args& ... args);
 
 		/// \brief Method to remove components with 'ID'
 		/// 
@@ -74,9 +75,9 @@ namespace jop
 
 		/// \brief Method to send messages
 		///
-		/// Forwards messages to Objects components
+		/// Forwards messages to this object's components
 		///
-		/// \param message String holding message
+		/// \param message String holding the message
 		/// \param ptr Pointer to hold extra data
 		///
 		void sendMessage(const std::string& message, void* ptr);
@@ -113,6 +114,7 @@ namespace jop
 		std::string m_ID;									  ///< Unique object identifier
     };
 
+    // Include the template implementation file
 	#include <Jopnal/Core/Inl/Object.inl>
 }
 

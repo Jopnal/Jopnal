@@ -26,13 +26,14 @@
 
 // Headers
 #include <Jopnal\Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-	class Component
+	class JOP_API Component
 	{
 	public:
 
@@ -46,14 +47,15 @@ namespace jop
 		///
 		Component(const std::string& ID);
 
-		/// \brief Virtual deconstructor
+		/// \brief Virtual destructor
 		///
 		virtual ~Component() = 0;
 
-		/// \brief Funktion to handle messages
-		///
-		/// \param message String holding message data
-		/// \param ptr Pointer
+
+		/// \brief Function to handle messages
+        ///
+        /// \param message String holding the message
+        /// \param ptr Pointer to hold extra data
 		///
 		virtual void sendMessage(const std::string& message, void* ptr);
 
@@ -81,7 +83,6 @@ namespace jop
 		///
 		void setID(const std::string& ID);
 		
-
 	private:
 
         std::string m_ID; ///< Unique component identifier

@@ -25,7 +25,8 @@
 template<typename T, typename ... Args>
 T& Object::createComponent(Args& ... args)
 {
-	static_assert(std::is_base_of<Component, T>::value, "Component/not Component");
-	components.emplace_back(std::make_unique<T>(args ...));
-	return static_cast<T&>(*components.back());
+	static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
+
+	m_components.emplace_back(std::make_unique<T>(args ...));
+	return static_cast<T&>(*m_components.back());
 }

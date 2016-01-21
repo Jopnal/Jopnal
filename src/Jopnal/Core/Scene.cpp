@@ -30,7 +30,8 @@
 namespace jop
 {
 	Scene::Scene(const std::string& name)
-		: m_name(name)
+		: m_objects (),
+          m_name    (name)
 	{}
 
 	Scene::~Scene()
@@ -38,23 +39,23 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	Object& Scene::createObject(const std::string& ID)
-	{
-		m_objects.emplace_back(std::make_unique<Object>());
-		return *m_objects.back();
-	}
-
-	//////////////////////////////////////////////
-
 	bool Scene::hasObject(const std::string& ID) const
 	{
-		for (auto i = m_objects.begin(); i != m_objects.end(); i++)
+		for (auto& i : m_objects)
 		{
-			if ((*i)->getID() == ID)
+			if (i->getID() == ID)
 				return true;
 		}
 		return false;
-	}
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Scene::createObject(const std::string& ID)
+    {
+        m_objects.emplace_back(std::make_unique<Object>(ID));
+        return *m_objects.back();
+    }
 
 	//////////////////////////////////////////////
 
@@ -74,7 +75,15 @@ namespace jop
 		m_objects.clear();
 	}
 
-	//////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Scene::sendMessage(const std::string& message, void* ptr)
+    {
+        for (auto& i : m_objects)
+            i->sendMessage(message, ptr);
+    }
+
+    //////////////////////////////////////////////
 
 	void Scene::updateBase(const double deltaTime)
 	{
@@ -84,7 +93,31 @@ namespace jop
 			i->update(deltaTime);
 
 		postUpdate(deltaTime);
-	}
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::fixedUpdateBase(const double timeStep)
+    {
+        preFixedUpdate(timeStep);
+
+        for (auto& i : m_objects)
+            i->fixedUpdate(timeStep);
+
+        postFixedUpdate(timeStep);
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::drawBase()
+    {
+        preDraw();
+
+        for (auto& i : m_objects)
+            i->draw();
+
+        postDraw();
+    }
 
 	//////////////////////////////////////////////
 
@@ -115,28 +148,4 @@ namespace jop
 
 	void Scene::postDraw()
 	{}
-
-	//////////////////////////////////////////////
-
-	void Scene::fixedUpdateBase(const double timeStep)
-	{
-		preFixedUpdate(timeStep);
-
-		for (auto& i : m_objects)
-			i->fixedUpdate(timeStep);
-
-		postFixedUpdate(timeStep);
-	}
-
-	//////////////////////////////////////////////
-
-	void Scene::drawBase()
-	{
-		preDraw();
-
-		for (auto& i : m_objects)
-			i->draw();
-
-		postDraw();
-	}
 }

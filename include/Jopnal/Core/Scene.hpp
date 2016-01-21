@@ -36,7 +36,7 @@ namespace jop
 {
 	class Object;
 
-	class Scene 
+	class JOP_API Scene 
 	{
 	public:
 
@@ -48,7 +48,7 @@ namespace jop
 
 		/// \brief Constructor for scene class
 		///
-		/// \param name String holding unique name for scene
+		/// \param name String holding name for scene
 		///
 		Scene(const std::string& name);
 
@@ -56,80 +56,103 @@ namespace jop
 		///
 		virtual ~Scene();
 
-		/// \brief method for checking if object with 'ID' exists
+
+		/// \brief Method for checking if object with 'ID' exists
 		///
-		/// \param ID unique Object identifier  
+		/// \param ID Object identifier  
 		///
 		bool hasObject(const std::string& ID) const;
 
-		/// \brief method that creates object
+		/// \brief Method that creates object
 		///
-		/// \param ID unique Object identifier 
+		/// \param ID Object identifier
 		///
 		Object& createObject(const std::string& ID);
 
-		/// \brief method for deleting object 
+		/// \brief Method for deleting object 
 		///
-		/// \param ID unique Object identifier 
+		/// \param ID Object identifier 
 		///
 		void deleteObject(const std::string& ID); 
 
-		/// \brief method for clearing m_objects 
+		/// \brief Method for clearing m_objects 
 		///
 		void clearObjects(); 
 
-		/// \brief update method for scene
-		///
-		/// \param deltaTime double holding delta time
-		///
-		void updateBase(const double deltaTime);
+        /// \brief Send a message to this scene
+        ///
+        /// If overloading this function, make sure to call jop::Scene::sendMessage()
+        /// should you wish to forward the message to all objects.
+        ///
+        /// \param message String holding message
+        /// \param ptr Pointer to hold extra data
+        ///
+        virtual void sendMessage(const std::string& message, void* ptr);
 
-		/// \brief update method for dixed scene
+		/// \brief Update method for scene
 		///
-		/// \param deltaTime double holding delta time
+		/// \param deltaTime Double holding time step
 		///
-		void fixedUpdateBase(const double deltaTime);
+		void updateBase(const double timeStep);
 
-		/// \brief method for drawing
+		/// \brief fixedUpdate method for scene
+		///
+		/// \param deltaTime Double holding time step
+		///
+		void fixedUpdateBase(const double timeStep);
+
+		/// \brief Method for drawing
 		///
 		void drawBase();
 		
-		/// \brief method for pre updating
+		/// \brief Method for pre-updating
+        ///
+        /// This will be called before objects are updated.
 		///
-		/// \param deltaTime double hodling delta time
+		/// \param deltaTime Double holding delta time
 		///
 		virtual void preUpdate(const double deltaTime);
 
-		/// \brief method for doing post update stuff
+		/// \brief Method for post-updating
+        ///
+        /// This will be called after objects are updated.
 		///
-		/// \param deltaTime double hodling delta time
+		/// \param deltaTime double holding delta time
 		///
 		virtual void postUpdate(const double deltaTime);
 
-		/// \brief method for pre fixed updating
+        /// \brief Method for pre-fixed updating
+        ///
+        /// This will be called before objects are updated.
 		///
-		/// \param deltaTime double hodling delta time
+		/// \param deltaTime Double holding delta time
 		///
 		virtual void preFixedUpdate(const double timeStep);
 
-		/// \brief method for doing post fixed updating stuff
+        /// \brief Method for post-fixed updating
+        ///
+        /// This will be called after objects are updated.
 		///
-		/// \param deltaTime double hodling delta time
+		/// \param deltaTime Double holding delta time
 		///
 		virtual void postFixedUpdate(const double timeStep);
 		
-		/// \brief method for pre drawign 
+        /// \brief Method for pre-drawing
+        ///
+        /// This will be called before objects are drawn.
 		///
 		virtual void preDraw();
 
-		/// \brief method for post drawing
+        /// \brief Method for post drawing
+        ///
+        /// This will be called after objects are drawn.
 		///
 		virtual void postDraw();
 
 	private:
 
-		ObjectList m_objects; ///< container holding objects
-		std::string m_name;   ///< string holdign unique scene name
+		ObjectList m_objects; ///< Container holding objects
+		std::string m_name;   ///< String holding scene name
 	};
 }
 

@@ -29,8 +29,14 @@
 
 namespace jop
 {
+    Object::Object()
+        : m_components  (),
+          m_ID          ()
+    {}
+
 	Object::Object(const std::string& ID)
-		: m_ID(ID)
+		: m_components  (),
+          m_ID          (ID)
 	{}
 	
 	Object::~Object()
@@ -58,9 +64,13 @@ namespace jop
 
 	/////////////////////////////////////////////
 
-	void removeComponents(const std::string& ID)
+	void Object::removeComponents(const std::string& ID)
 	{
-		///to do implement
+        m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
+        {
+            return comp->getID() == ID;
+
+        }), m_components.end());
 	}
 
 	/////////////////////////////////////////////

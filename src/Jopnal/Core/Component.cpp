@@ -42,17 +42,17 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	void Component::sendMessage(const std::string& message, void* ptr)
+	void Component::sendMessage(const std::string&, void*)
 	{}
 
 	//////////////////////////////////////////////
 
-	void Component::update(double deltaTime)
+	void Component::update(double)
 	{}
 
 	//////////////////////////////////////////////
 
-	void Component::fixedUpdate(const double timeStep)
+	void Component::fixedUpdate(const double)
 	{}
 
 	//////////////////////////////////////////////
