@@ -29,24 +29,24 @@
 
 namespace jop
 {
-	Scene::Scene(const std::string& name)
-		: m_objects (),
+    Scene::Scene(const std::string& name)
+        : m_objects (),
           m_name    (name)
-	{}
+    {}
 
-	Scene::~Scene()
-	{}
+    Scene::~Scene()
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool Scene::hasObject(const std::string& ID) const
-	{
-		for (auto& i : m_objects)
-		{
-			if (i->getID() == ID)
-				return true;
-		}
-		return false;
+    bool Scene::hasObject(const std::string& ID) const
+    {
+        for (auto& i : m_objects)
+        {
+            if (i->getID() == ID)
+                return true;
+        }
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -57,23 +57,23 @@ namespace jop
         return *m_objects.back();
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::deleteObject(const std::string& ID)
-	{
-		for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
-		{
-			if ((*itr)->getID() == ID)
-				m_objects.erase(itr);
-		}
-	}
+    void Scene::deleteObject(const std::string& ID)
+    {
+        for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
+        {
+            if ((*itr)->getID() == ID)
+                m_objects.erase(itr);
+        }
+    }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::clearObjects()
-	{
-		m_objects.clear();
-	}
+    void Scene::clearObjects()
+    {
+        m_objects.clear();
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,14 +85,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-	void Scene::updateBase(const double deltaTime)
-	{
-		preUpdate(deltaTime);
+    void Scene::updateBase(const double deltaTime)
+    {
+        preUpdate(deltaTime);
 
-		for (auto& i : m_objects)
-			i->update(deltaTime);
+        for (auto& i : m_objects)
+            i->update(deltaTime);
 
-		postUpdate(deltaTime);
+        postUpdate(deltaTime);
     }
 
     //////////////////////////////////////////////
@@ -119,33 +119,33 @@ namespace jop
         postDraw();
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::preUpdate(const double)
-	{}
+    void Scene::preUpdate(const double)
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::postUpdate(const double)
-	{}
+    void Scene::postUpdate(const double)
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::preFixedUpdate(const double)
-	{}
+    void Scene::preFixedUpdate(const double)
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::postFixedUpdate(const double)
-	{}
+    void Scene::postFixedUpdate(const double)
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::preDraw()
-	{}
+    void Scene::preDraw()
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void Scene::postDraw()
-	{}
+    void Scene::postDraw()
+    {}
 }

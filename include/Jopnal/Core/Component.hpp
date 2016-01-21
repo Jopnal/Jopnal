@@ -33,60 +33,60 @@
 
 namespace jop
 {
-	class JOP_API Component
-	{
-	public:
+    class JOP_API Component
+    {
+    public:
 
-		/// \brief Default constructor
-		///
-		Component();
+        /// \brief Default constructor
+        ///
+        Component();
 
-		/// \brief Constructor
-		///
-		/// \param ID Unique component identifier
-		///
-		Component(const std::string& ID);
+        /// \brief Constructor
+        ///
+        /// \param ID Unique component identifier
+        ///
+        Component(const std::string& ID);
 
-		/// \brief Virtual destructor
-		///
-		virtual ~Component() = 0;
+        /// \brief Virtual destructor
+        ///
+        virtual ~Component() = 0;
 
 
-		/// \brief Function to handle messages
+        /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
-		///
-		virtual void sendMessage(const std::string& message, void* ptr);
+        ///
+        virtual void sendMessage(const std::string& message, void* ptr);
 
-		/// \brief Update function for component
-		///
-		/// \param deltaTime Double holding delta time
-		///
-		virtual void update(const double deltaTime);
+        /// \brief Update function for component
+        ///
+        /// \param deltaTime Double holding delta time
+        ///
+        virtual void update(const double deltaTime);
 
-		/// \brief Fixed update function for component
-		///
-		/// \param timeStep Double holding time step
-		///
-		virtual void fixedUpdate(const double timeStep);
+        /// \brief Fixed update function for component
+        ///
+        /// \param timeStep Double holding time step
+        ///
+        virtual void fixedUpdate(const double timeStep);
 
-		/// \brief Draw function for component
-		///
-		virtual void draw();
+        /// \brief Draw function for component
+        ///
+        virtual void draw();
 
-		/// \brief Function to get components unique identifier m_ID
-		///
-		const std::string& getID();
+        /// \brief Function to get components unique identifier m_ID
+        ///
+        const std::string& getID();
 
-		/// \brief Function to set components unique identifier m_ID
-		///
-		void setID(const std::string& ID);
-		
-	private:
+        /// \brief Function to set components unique identifier m_ID
+        ///
+        void setID(const std::string& ID);
+        
+    private:
 
         std::string m_ID; ///< Unique component identifier
-	};
+    };
 }
 
 #endif

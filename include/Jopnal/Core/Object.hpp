@@ -33,89 +33,89 @@
 
 namespace jop
 {
-	class Component;
+    class Component;
 
     class JOP_API Object
     {
     public:
 
-		/// \brief Default constructor
-		///
-		Object();
+        /// \brief Default constructor
+        ///
+        Object();
 
-		/// \brief Constructor
-		///
-		/// \param ID Unique object identifier m_ID
-		///
-		Object(const std::string& ID);
+        /// \brief Constructor
+        ///
+        /// \param ID Unique object identifier m_ID
+        ///
+        Object(const std::string& ID);
 
-		/// \brief Object destructor
-		///
-		~Object();
+        /// \brief Object destructor
+        ///
+        ~Object();
 
 
-		/// \brief Check if component exists
-		///
-		/// \param ID Unique object identifier m_ID
-		///
-		bool hasComponent(const std::string& ID) const;
+        /// \brief Check if component exists
+        ///
+        /// \param ID Unique object identifier m_ID
+        ///
+        bool hasComponent(const std::string& ID) const;
 
-		/// \brief Template function to create components
-		///
-		/// \param args User determined arguments
-		///
-		template<typename T, typename ... Args>
-		T& createComponent(Args& ... args);
+        /// \brief Template function to create components
+        ///
+        /// \param args User determined arguments
+        ///
+        template<typename T, typename ... Args>
+        T& createComponent(Args& ... args);
 
-		/// \brief Method to remove components with 'ID'
-		/// 
-		/// \param ID Unique object identifier m_ID
-		///
-		void removeComponents(const std::string& ID);
+        /// \brief Method to remove components with 'ID'
+        /// 
+        /// \param ID Unique object identifier m_ID
+        ///
+        void removeComponents(const std::string& ID);
 
-		/// \brief Method to send messages
-		///
-		/// Forwards messages to this object's components
-		///
-		/// \param message String holding the message
-		/// \param ptr Pointer to hold extra data
-		///
-		void sendMessage(const std::string& message, void* ptr);
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        /// \param ptr Pointer to hold extra data
+        ///
+        void sendMessage(const std::string& message, void* ptr);
 
-		/// \brief Method for getting m_ID
-		///
-		const std::string& getID() const;
+        /// \brief Method for getting m_ID
+        ///
+        const std::string& getID() const;
 
-		/// \brief method for setting the ID
-		///
-		/// \param ID unique object identifier
-		///
-		void setID(const std::string& ID);
+        /// \brief method for setting the ID
+        ///
+        /// \param ID unique object identifier
+        ///
+        void setID(const std::string& ID);
 
-		/// \brief Update method for object - forwarded for its components
-		///
-		/// \param deltaTime Double holding delta time
-		///
+        /// \brief Update method for object - forwarded for its components
+        ///
+        /// \param deltaTime Double holding delta time
+        ///
         void update(const double deltaTime); 
 
-		/// \brief Fixed Update method for object - forwarded for its components
-		///
-		/// \param timeStep Double holding time step
-		///
-		void fixedUpdate(const double timeStep);
+        /// \brief Fixed Update method for object - forwarded for its components
+        ///
+        /// \param timeStep Double holding time step
+        ///
+        void fixedUpdate(const double timeStep);
 
-		/// \brief Draw method for objects - forwarded to its components
-		///
-		void draw();
+        /// \brief Draw method for objects - forwarded to its components
+        ///
+        void draw();
 
     private:
 
-		std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
-		std::string m_ID;									  ///< Unique object identifier
+        std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
+        std::string m_ID;                                      ///< Unique object identifier
     };
 
     // Include the template implementation file
-	#include <Jopnal/Core/Inl/Object.inl>
+    #include <Jopnal/Core/Inl/Object.inl>
 }
 
 #endif

@@ -34,80 +34,80 @@ namespace jop
           m_ID          ()
     {}
 
-	Object::Object(const std::string& ID)
-		: m_components  (),
+    Object::Object(const std::string& ID)
+        : m_components  (),
           m_ID          (ID)
-	{}
-	
-	Object::~Object()
-	{}
+    {}
+    
+    Object::~Object()
+    {}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool Object::hasComponent(const std::string& ID) const
+    bool Object::hasComponent(const std::string& ID) const
     {
-		for (auto& i : m_components)
-		{
-			if (i->getID() == ID)
-				return true;
-		}
-		return false;
+        for (auto& i : m_components)
+        {
+            if (i->getID() == ID)
+                return true;
+        }
+        return false;
     }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
     void Object::update(const double deltaTime)
     {
-		for (auto& i : m_components)
-			i->update(deltaTime);
+        for (auto& i : m_components)
+            i->update(deltaTime);
     } 
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	void Object::removeComponents(const std::string& ID)
-	{
+    void Object::removeComponents(const std::string& ID)
+    {
         m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
         {
             return comp->getID() == ID;
 
         }), m_components.end());
-	}
+    }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	void Object::sendMessage(const std::string& message, void* ptr)
-	{
-		for (auto& i: m_components)
-			i->sendMessage(message, ptr);
-	}
+    void Object::sendMessage(const std::string& message, void* ptr)
+    {
+        for (auto& i: m_components)
+            i->sendMessage(message, ptr);
+    }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	void Object::fixedUpdate(const double timeStep)
-	{
-		for (auto& i : m_components)
-			i->fixedUpdate(timeStep);
-	}
+    void Object::fixedUpdate(const double timeStep)
+    {
+        for (auto& i : m_components)
+            i->fixedUpdate(timeStep);
+    }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	void Object::draw()
-	{
-		for (auto& i : m_components)
-			i->draw();
-	}
+    void Object::draw()
+    {
+        for (auto& i : m_components)
+            i->draw();
+    }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	const std::string& Object::getID() const
-	{
-		return m_ID;
-	}
+    const std::string& Object::getID() const
+    {
+        return m_ID;
+    }
 
-	/////////////////////////////////////////////
+    /////////////////////////////////////////////
 
-	void Object::setID(const std::string& ID)
-	{
-		m_ID = ID;
-	}
+    void Object::setID(const std::string& ID)
+    {
+        m_ID = ID;
+    }
 }
