@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Root">
+      <UniqueIdentifier>{98b129d1-5fc3-466a-8382-cad252e11cb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Root\Headers">
+      <UniqueIdentifier>{45766c9e-4d81-46b0-ac22-7aea7491bf38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Root\Source">
+      <UniqueIdentifier>{b4fd0e46-d6c2-4595-a085-b9f07a35c85e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{2f436188-fb35-4928-bc31-81311d4a8ba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{610b67f5-348f-4421-909d-2134e83012d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{a724f1aa-7b91-4fe5-a825-f845619017d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{a5c7c9cd-5b47-4d7a-8b25-103ad1803ddb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Headers">
+      <UniqueIdentifier>{b86baf58-d317-4468-ae33-7c33728a457c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Source">
+      <UniqueIdentifier>{bffc58fe-5e8c-4764-971f-77a55805638f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Headers">
+      <UniqueIdentifier>{9e48100c-f223-452f-a6c4-f51c9cad4208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Source">
+      <UniqueIdentifier>{c82fce22-7d71-4047-b713-ee20b6721f22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio\Headers">
+      <UniqueIdentifier>{9b5a64e1-66b2-4f7c-8bea-7aa15991803f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio\Source">
+      <UniqueIdentifier>{9dea65b3-e88a-44ab-8bb0-9a98f7dc1610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Headers">
+      <UniqueIdentifier>{47f6ab00-6717-42b3-a090-a86f85524b41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Source">
+      <UniqueIdentifier>{84932558-c9d2-4406-a0e3-eb8942c96069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Source\Desktop">
+      <UniqueIdentifier>{500da4b2-ba2c-40a2-a2d3-bd4a52d67f3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{b85b92fb-61cf-4543-bc5b-3aef2fa88601}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Headers">
+      <UniqueIdentifier>{94dac91f-2c18-4ff0-8c04-f66e93fdead4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Source">
+      <UniqueIdentifier>{fc074942-05b2-4205-b1de-d1efb9873f36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Inl">
+      <UniqueIdentifier>{6090c775-a218-4bae-8dc2-3f0b8a1e7265}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Inl">
+      <UniqueIdentifier>{cfdcf1ee-84a0-4bc0-89b1-0d0b3038ef40}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Engine.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Window.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Config.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Export.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Header.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\HelperMacros.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\OS.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Types.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp">
+      <Filter>Window\Source\Desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Jopnal.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Precompiled.hpp">
+      <Filter>Root\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp">
+      <Filter>Window\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Window\Inl\Window.inl">
+      <Filter>Window\Inl</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Engine.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\Window.cpp">
+      <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp">
+      <Filter>Window\Source\Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
+      <Filter>Root\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp">
+      <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp">
+      <Filter>Window\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
