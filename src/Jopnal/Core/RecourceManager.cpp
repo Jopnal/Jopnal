@@ -43,6 +43,9 @@ namespace jop
 			return true;
 		}
 	}
+
+//////////////////////////////////////////////
+
 	void ResourceManager::unloadAll()
 	{
 		m_resources.clear();

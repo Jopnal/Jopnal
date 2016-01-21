@@ -41,6 +41,8 @@ namespace jop
 	private:
 	};
 
+	//////////////////////////////////////////////
+
 	class TextResource : public jop::Resource
 	{
 	public:
