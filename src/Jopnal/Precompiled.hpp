@@ -44,7 +44,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-
+#include <typeinfo>
 
 //** Jopnal **\
 
@@ -53,7 +53,6 @@
 // Core
 #include <Jopnal\Core\Object.hpp>
 #include <Jopnal\Core\Component.hpp>
-#include <Jopnal\Core\Message.hpp>
 #include <Jopnal\Core\Scene.hpp>
 // Graphics
 

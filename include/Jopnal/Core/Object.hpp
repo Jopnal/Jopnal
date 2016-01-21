@@ -26,7 +26,6 @@
 
 //Headers
 #include <Jopnal\Header.hpp>
-#include <Jopnal/Core/Message.hpp>
 //////////////////////////////////////////////
 
 namespace jop

@@ -26,54 +26,40 @@
 
 // Headers
 #include <Jopnal\Header.hpp>
-//#include <Jopnal/Core/Object.hpp> 
-#include <iostream>
 //////////////////////////////////////////////
 
 
 
 namespace jop
 {
-    enum CompID
-    {
-        SpriteComponent = 0,
-        Type2 = 1,
-
-
-    };
-
-
 	class Component
 	{
 	public:
 
 		virtual ~Component();// Virtual destructor
 
-		virtual void sendMessage(const std::string& message, void* ptr);// Send messages
+		virtual void sendMessage(std::string* message, void* ptr);// Send message
+		virtual void listenMessage(std::string* message, void* ptr);//Listen to message
 
-		virtual void update(float deltaTime);
-		virtual void init(void);
-		virtual void uninit(void);
-		virtual CompID getID() { return m_ID; };
-
-		bool isActive(void) const; // Check if active - false means it will be deleted
+		virtual void update(double timeStep);
+		virtual int getID() { return m_ID; };
+		virtual int setID(int ID) { m_ID = ID; }
+		bool isActive() const; // Check if active - false means it will be deleted
 
 	private:
-        CompID m_ID; // Component type
-
+        int m_ID; // Unique component identifier - to seperate components of the same type (typeid)
 	};
 
 	class TestComponent : public Component
 	{
 	public:
-        TestComponent() { m_ID = SpriteComponent; };
+        TestComponent(int x) { m_ID = x; };
 		// Base functions for component
 		bool IsWorking();
 		int GetValues(){ return x; };
 	private:
-        CompID m_ID;
-		int x = 2;
-		
+		int m_ID; // Unique component identifier - to seperate components of the same type (typeid)
+		int x = 2;	
 	};
 }
 

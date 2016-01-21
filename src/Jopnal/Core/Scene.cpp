@@ -54,7 +54,7 @@ namespace jop
 			{
 				return true;
 			}
-			else if ((*i) - getID() != ID)
+			else if ((*i)->getID() != ID)
 			{
 				return false;
 			}
