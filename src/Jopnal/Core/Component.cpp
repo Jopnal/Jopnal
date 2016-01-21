@@ -22,16 +22,55 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+	Component::Component()
+		: m_ID()
+	{}
+
+	Component::Component(const std::string& ID)
+		: m_ID(ID)
+	{}
+
+	Component::~Component()
+	{}
+
+	//////////////////////////////////////////////
+
+	void Component::sendMessage(const std::string&, void*)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Component::update(double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Component::fixedUpdate(const double)
+	{}
+
+	//////////////////////////////////////////////
+
+	void Component::draw()
+	{}
+
+	//////////////////////////////////////////////
+
+	void Component::setID(const std::string& ID)
+	{
+		m_ID = ID;
+	}
+
+	//////////////////////////////////////////////
+
+	const std::string& Component::getID()
+	{
+		return m_ID;
+	}
+}

@@ -138,6 +138,9 @@ namespace jop
 
         /// \brief Set the event handler
         ///
+        /// This function will automatically pass a reference of this
+        /// window into the handler's constructor.
+        ///
         /// \param args The arguments to use with construction
         ///
         template<typename T, typename ... Args>

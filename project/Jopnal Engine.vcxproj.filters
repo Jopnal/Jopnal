@@ -69,9 +69,6 @@
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp">
-      <Filter>Core\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
@@ -83,9 +80,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp">
       <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Config.hpp">
-      <Filter>Root\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Export.hpp">
       <Filter>Root\Headers</Filter>
@@ -115,9 +109,6 @@
       <Filter>Root\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Audio.hpp">
-      <Filter>Root\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics.hpp">
@@ -150,17 +141,24 @@
     <ClInclude Include="..\include\Jopnal\MathInclude.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
-      <Filter>Core\Inl</Filter>
-    </None>
-    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
-      <Filter>Core\Inl</Filter>
-    </None>
-    <None Include="..\include\Jopnal\Window\Inl\Window.inl">
-      <Filter>Window\Inl</Filter>
-    </None>
+    <ClInclude Include="..\include\Jopnal\Core\Component.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Object.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Scene.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Config.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -202,5 +200,28 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Component.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Object.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Scene.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\Object.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Window\Inl\Window.inl">
+      <Filter>Window\Inl</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -74,6 +74,8 @@ namespace jop
 
     int Engine::runMainLoop()
     {
+        JOP_ASSERT(ns_engineObject->m_currentScene.operator bool(), "No scene has been loaded!");
+
         const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
         float64 accumulator = 0.0;
 
@@ -93,7 +95,7 @@ namespace jop
                 for (auto& i : m_subsystems)
                     i->preFixedUpdate(timeStep);
 
-                // Scene fixed update here
+                m_currentScene->fixedUpdateBase(timeStep);
 
                 for (auto& i : m_subsystems)
                     i->postFixedUpdate(timeStep);
@@ -104,12 +106,12 @@ namespace jop
             for (auto& i : m_subsystems)
                 i->preUpdate(frameTime);
 
-            // Scene update here
+            m_currentScene->updateBase(frameTime);
 
             for (auto& i : m_subsystems)
                 i->postUpdate(frameTime);
             
-            // Scene draw here
+            m_currentScene->drawBase();
 
             for (auto& i : m_subsystems)
                 i->postDraw();
@@ -155,6 +157,14 @@ namespace jop
     {
         if (ns_engineObject)
             ns_engineObject->m_running = false;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Engine::sendMessage(const std::string& message, void* ptr)
+    {
+        if (ns_engineObject && ns_engineObject->m_currentScene)
+            ns_engineObject->m_currentScene->sendMessage(message, ptr);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -35,6 +35,7 @@
 namespace jop
 {
     class Subsystem;
+    class Scene;
 
     class JOP_API Engine
     {
@@ -74,12 +75,17 @@ namespace jop
 
         /// \brief Create a scene
         ///
+        /// This function will construct the scene and then set it as active.
+        /// The previously active scene will be discarded.
+        ///
+        /// TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
+        ///
         /// \param args The arguments to be used in the scene's construction
         ///
         /// \return A reference to the newly created scene
         ///
-        //template<typename T, typename ... Args>
-        //T& createScene(Args&... args);
+        template<typename T, typename ... Args>
+        T& createScene(Args&... args);
 
         /// \brief Create a subsystem
         ///
@@ -112,9 +118,17 @@ namespace jop
         ///
         static void exit();
 
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
+        /// \param ptr Pointer to hold extra data
+        ///
+        static void sendMessage(const std::string& message, void* ptr);
+
     private:
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         bool m_running;                                       ///< A boolean telling if the engine is running
 
     };

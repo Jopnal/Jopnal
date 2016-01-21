@@ -22,14 +22,14 @@
 //////////////////////////////////////////////
 
 
-//template<typename T, typename ... Args>
-//T& Engine::createScene(Args&... args)
-//{
-//    static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create an object which is not derived from jop::Scene");
-//
-//    m_scenes.emplace_back(std::make_unique<T>(args...));
-//    return *m_scenes.back();
-//}
+template<typename T, typename ... Args>
+T& Engine::createScene(Args&... args)
+{
+    static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create an object which is not derived from jop::Scene");
+
+    m_currentScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_currentScene);
+}
 
 //////////////////////////////////////////////
 

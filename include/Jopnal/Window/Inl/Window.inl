@@ -27,6 +27,6 @@ T& Window::setEventHandler(Args&... args)
 {
     static_assert(std::is_base_of<WindowEventHandler, T>::value, "jop::Window::setEventHandler(): Attempted to create an object which is not derived from jop::WindowEventHandler");
 
-    m_eventHandler = std::make_unique<T>(args...);
+    m_eventHandler = std::make_unique<T>(*this, args...);
     return static_cast<T&>(*m_eventHandler);
 }

@@ -15,6 +15,9 @@
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Scene.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Component.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Object.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
@@ -41,9 +44,9 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl" />
-    <None Include="..\include\Jopnal\Core\Inl\Engine.inl" />
-    <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
+    <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp" />
@@ -62,6 +65,12 @@
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\Engine.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
+    <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>
