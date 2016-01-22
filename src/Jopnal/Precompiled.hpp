@@ -58,6 +58,9 @@
 // GLM
 #include <glm/glm.hpp>
 
+// STB
+#include <stb/stb_truetype.h>
+
 // RapidJSON
 #pragma warning(push)
 #pragma warning(disable: 4244)
