@@ -25,8 +25,8 @@
 #define JOP_OBJECT_HPP
 
 //Headers
-#include <Jopnal\Header.hpp>
-#include <Jopnal\Graphics\Transform.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
 //////////////////////////////////////////////

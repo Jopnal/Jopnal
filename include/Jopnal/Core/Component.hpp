@@ -25,7 +25,7 @@
 #define JOP_COMPONENT_HPP
 
 // Headers
-#include <Jopnal\Header.hpp>
+#include <Jopnal/Header.hpp>
 #include <string>
 
 //////////////////////////////////////////////
