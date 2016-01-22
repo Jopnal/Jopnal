@@ -27,6 +27,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/stb/stb_truetype.h>
 
 //////////////////////////////////////////////
 
@@ -36,20 +37,10 @@ namespace jop
         :public Resource
 	{
 	public:
-		Font();
-		~Font();
         bool load(std::string path)override;
 	private:
-
+        stbtt_fontinfo m_info;
 	};
-
-	Font::Font()
-	{
-	}
-
-	Font::~Font()
-	{
-	}
 }
 
 #endif

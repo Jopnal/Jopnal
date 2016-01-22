@@ -59,7 +59,7 @@
 #include <glm/glm.hpp>
 
 // STB
-#include <stb/stb_truetype.h>
+#include <Jopnal/Graphics/stb/stb_truetype.h>
 
 // RapidJSON
 #pragma warning(push)

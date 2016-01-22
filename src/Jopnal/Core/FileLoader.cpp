@@ -34,13 +34,10 @@ void FileLoader::init(const char * argv)
 	}
 	else
 	    JOP_DEBUG_ERROR("\nPhysicsFs is already initialized\n");
-	
-	if (!PHYSFS_addToSearchPath("Jopnal", 0))
-	    JOP_DEBUG_ERROR( "\nError in PHYSFS_addToSearchPath()\n");
+    JOP_ASSERT_EVAL(PHYSFS_mount("Jopnal", "/", 0), "Error in PHYSFS_addToSearchPath()");
 		
 	if (!PHYSFS_exists("PhysicsFs License.txt"))
 	    JOP_DEBUG_ERROR( "\nError in file reading check(PHYSFS_exists())\n");
-	
 }
 
 //////////////////////////////////////////////
@@ -65,10 +62,10 @@ long long FileLoader::getSize(const char* fileName)
 		 PHYSFS_close(inputFile);
 		 return size;
 		}
-		    JOP_DEBUG_ERROR("\nError can't load " << fileName << "file\n");
+		    JOP_DEBUG_ERROR("\nError can't load " << fileName << " file\n");
 		return -1;
 	}
-		JOP_DEBUG_ERROR( "\nError can't find " << fileName << "file\n");
+		JOP_DEBUG_ERROR( "\nError can't find " << fileName << " file\n");
 	return -1;
 }
 
@@ -85,10 +82,10 @@ void FileLoader::read(void* data, const char* fileName, int size)
 			PHYSFS_close(inputFile);
 		}
 		else
-		    JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << "file\n");
+		    JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << " file\n");
 	}
 	else
-	    JOP_DEBUG_ERROR("\nError in reading " << fileName << "file\n");
+	    JOP_DEBUG_ERROR("\nError in reading " << fileName << " file\n");
 	
 }
 

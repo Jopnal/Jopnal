@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#define STB_TRUETYPE_IMPLEMENTATION
+
 //////////////////////////////////////////////
 
 // Headers
@@ -26,18 +28,21 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     bool Font::load(std::string path)
     {
+        //load font data from file
         const char * charPath = path.c_str();
         long long size = FileLoader::getSize(charPath);
-        char* resBuf = new char[size + 1];
+        unsigned char* resBuf = new unsigned char[size + 1];
         FileLoader::read(resBuf, charPath, size);
         resBuf[size] = '\0';
 
-
-        return true;
+        //save data
+        bool success = stbtt_InitFont(&m_info, resBuf, 0);
+        JOP_ASSERT(success, "Font failed!");
+        
+        return success;
     }
 }
