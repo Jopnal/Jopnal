@@ -153,6 +153,9 @@
     <ClInclude Include="..\include\Jopnal\Core\Resource.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\Engine.inl">
@@ -207,6 +210,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp">
       <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

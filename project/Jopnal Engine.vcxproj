@@ -24,6 +24,7 @@
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
     <ClInclude Include="..\include\Jopnal\Jopnal.hpp" />
@@ -54,6 +55,7 @@
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

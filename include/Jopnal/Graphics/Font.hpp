@@ -21,12 +21,36 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_FONT_HPP
+#define JOP_FONT_HPP
+
 // Headers
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Font.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+namespace jop
+{
+	class Font
+        :public Resource
+	{
+	public:
+		Font();
+		~Font();
+        bool load(std::string path)override;
+	private:
+
+	};
+
+	Font::Font()
+	{
+	}
+
+	Font::~Font()
+	{
+	}
+}
+
+#endif
+

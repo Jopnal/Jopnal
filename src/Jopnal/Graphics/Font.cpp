@@ -22,11 +22,22 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Font.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    bool Font::load(std::string path)
+    {
+        const char * charPath = path.c_str();
+        long long size = FileLoader::getSize(charPath);
+        char* resBuf = new char[size + 1];
+        FileLoader::read(resBuf, charPath, size);
+        resBuf[size] = '\0';
+
+
+        return true;
+    }
+}
