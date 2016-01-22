@@ -51,13 +51,17 @@ namespace jop
             long long size = FileLoader::getSize(path.c_str());
             std::vector<unsigned char> buf(size);
             FileLoader::read(buf.data(), path.c_str(), size);
-            //textureBuffer[size] = '\0';
-
-            //stbi_uc stbBuffer = textureBuffer[size];
-            
+          
             //auto pixBuf = stbi_info_from_memory(&stbBuffer, size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel);
             unsigned char* colorData = stbi_load_from_memory(buf.data(), size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
 
+            if (colorData != NULL)
+            {
+                for (int i = 0; i < sizeof(colorData); i += 4)
+                {
+                    std::cout << &colorData[i] << " " << &colorData[i + 1] << " " << &colorData[i + 2] << " " << &colorData[i + 3] << "\n";
+                };
+            }
             return true;
     }
 
