@@ -73,13 +73,18 @@
 // PhysicsFS
 #include <PhysicsFS/physfs.h>
 
+// Tinyobjloader
+#include <tinyobjloader/tiny_obj_loader.h>
+
 // Standard headers
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Core/Model.hpp>
 
 #endif
