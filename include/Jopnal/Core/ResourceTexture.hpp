@@ -21,17 +21,51 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RESOURCETEXTURE_HPP
+#define JOP_RESOURCETEXTURE_HPP
+
 // Headers
-#include <Jopnal/Core/SubSystem.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/ResourceTexture.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
+
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+namespace jop
+{
+	class ResourceTexture:public Resource
+	{
+	public:
+
+        /// \brief Constructor
+        ///
+        ResourceTexture();
+
+		/// \brief Destructor
+		///
+		~ResourceTexture();
+
+		/// \brief Method for using Fileloader to load new resource from file
+		///
+		/// \param Name or path for wanted resource
+		///
+		bool load(const std::string& path);
+
+        /// \brief Returns image's size and bits per pixel value
+        ///
+        int getTextureSizeAndBpp();
+
+    private:
+      int m_textureWidth;
+      int m_textureHeight;
+      int m_bitsPerPixel;
+    };
+}
+
+#endif
+
+/// \class ResourceTexture
+/// \ingroup core
+
+//this is the base class for all resources that are loaded from files:
+//sprites, sounds, scene data...
+//processed for use

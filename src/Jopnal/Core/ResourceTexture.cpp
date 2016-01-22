@@ -22,16 +22,48 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/SubSystem.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/ResourceTexture.hpp>
+#include <Jopnal/Precompiled.hpp>
+
+//STB
+#define STB_IMAGE_IMPLEMENTATION
+#pragma warning(push, 0)
+#include <stb/stb_image.h>
+#pragma warning(pop)
+
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+namespace jop
+{
+    ResourceTexture::ResourceTexture()
+    {
+        m_textureWidth=NULL;
+        m_textureHeight=NULL;
+        m_bitsPerPixel=NULL;
+    }
+
+	ResourceTexture::~ResourceTexture()
+	{   }
+
+
+    bool ResourceTexture::load(const std::string& path)
+    {
+ 
+            long long size = FileLoader::getSize(path.c_str());
+            std::vector<unsigned char> buf(size);
+            FileLoader::read(buf.data(), path.c_str(), size);
+            //textureBuffer[size] = '\0';
+
+            //stbi_uc stbBuffer = textureBuffer[size];
+            
+            //auto pixBuf = stbi_info_from_memory(&stbBuffer, size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel);
+            unsigned char* colorData = stbi_load_from_memory(buf.data(), size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
+
+            return true;
+    }
+
+    int ResourceTexture::getTextureSizeAndBpp()
+    {
+        return (m_textureWidth, m_textureHeight, m_bitsPerPixel);
+    }
+    
+}
