@@ -90,7 +90,10 @@ namespace jop
         preUpdate(deltaTime);
 
         for (auto& i : m_objects)
+        {
             i->update(deltaTime);
+            i->updateTransformTree(nullptr, false);
+        }
 
         postUpdate(deltaTime);
     }

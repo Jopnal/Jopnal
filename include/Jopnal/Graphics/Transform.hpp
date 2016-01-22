@@ -180,7 +180,7 @@ namespace jop
         ///
         static const glm::mat4 IdentityMatrix;
 
-    private:
+    protected:
 
         mutable glm::mat4 m_transform;
         mutable glm::mat4 m_invTransform;
@@ -197,7 +197,7 @@ namespace jop
     ///
     /// \return A glm::mat4 with the combined transformation
     ///
-    glm::mat4 operator *(const Transform& left, const Transform& right);
+    JOP_API glm::mat4 operator *(const Transform& left, const Transform& right);
 }
 
 #endif
