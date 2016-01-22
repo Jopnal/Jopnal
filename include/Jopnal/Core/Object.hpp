@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal\Header.hpp>
+#include <Jopnal\Graphics\Transform.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -35,7 +36,7 @@ namespace jop
 {
     class Component;
 
-    class JOP_API Object
+    class JOP_API Object : public Transform
     {
     public:
 
@@ -73,6 +74,32 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        /// \brief Create a new child
+        ///
+        /// \param ID Id for the new object
+        ///
+        /// \return Reference to the newly created child
+        ///
+        Object& createChild(const std::string& ID);
+
+        /// \brief Get a child with the given id
+        ///
+        /// \param ID The id to search with
+        ///
+        /// \return Pointer to the child if found, nullptr otherwise
+        ///
+        Object* getChild(const std::string& ID);
+
+        /// \brief Remove children with the given id
+        ///
+        /// \param ID The id to search with
+        ///
+        void removeChildren(const std::string& ID);
+
+        /// \brief Remove all children
+        ///
+        void clearChildren();
+
         /// \brief Method to send messages
         ///
         /// Forwards messages to this object's components
@@ -108,10 +135,17 @@ namespace jop
         ///
         void draw();
 
+        /// \brief Update the transformation tree
+        ///
+        /// This is automatically called by Scene
+        ///
+        void updateTransformTree(const Object* parent, bool parentUpdated);
+
     private:
 
+        std::vector<std::unique_ptr<Object>> m_children;      ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
-        std::string m_ID;                                      ///< Unique object identifier
+        std::string m_ID;                                     ///< Unique object identifier
     };
 
     // Include the template implementation file

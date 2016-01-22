@@ -30,7 +30,8 @@
 namespace jop
 {
     Object::Object()
-        : m_components  (),
+        : Transform     (),
+          m_components  (),
           m_ID          ()
     {}
 
@@ -51,16 +52,9 @@ namespace jop
             if (i->getID() == ID)
                 return true;
         }
+
         return false;
     }
-
-    /////////////////////////////////////////////
-
-    void Object::update(const double deltaTime)
-    {
-        for (auto& i : m_components)
-            i->update(deltaTime);
-    } 
 
     /////////////////////////////////////////////
 
@@ -73,12 +67,65 @@ namespace jop
         }), m_components.end());
     }
 
+    //////////////////////////////////////////////
+
+    Object& Object::createChild(const std::string& ID)
+    {
+        m_children.emplace_back(std::make_unique<Object>(ID));
+        return *m_children.back();
+    }
+
+    //////////////////////////////////////////////
+
+    Object* Object::getChild(const std::string& ID)
+    {
+        for (auto& i : m_children)
+        {
+            if (i->getID() == ID)
+                return i.get();
+        }
+
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::removeChildren(const std::string& ID)
+    {
+        m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [&ID](const std::unique_ptr<Object>& obj)
+        {
+            return obj->getID() == ID;
+
+        }), m_children.end());
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::clearChildren()
+    {
+        m_children.clear();
+    }
+
     /////////////////////////////////////////////
 
     void Object::sendMessage(const std::string& message, void* ptr)
     {
         for (auto& i: m_components)
             i->sendMessage(message, ptr);
+
+        for (auto& i : m_children)
+            i->sendMessage(message, ptr);
+    }
+
+    /////////////////////////////////////////////
+
+    void Object::update(const double deltaTime)
+    {
+        for (auto& i : m_components)
+            i->update(deltaTime);
+
+        for (auto& i : m_children)
+            i->update(deltaTime);
     }
 
     /////////////////////////////////////////////
@@ -87,6 +134,9 @@ namespace jop
     {
         for (auto& i : m_components)
             i->fixedUpdate(timeStep);
+
+        for (auto& i : m_children)
+            i->fixedUpdate(timeStep);
     }
 
     /////////////////////////////////////////////
@@ -94,6 +144,9 @@ namespace jop
     void Object::draw()
     {
         for (auto& i : m_components)
+            i->draw();
+
+        for (auto& i : m_children)
             i->draw();
     }
 
@@ -109,5 +162,24 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::updateTransformTree(const Object* parent, bool parentUpdated)
+    {
+        if (parent)
+        {
+            if (m_transformNeedUpdate || ((m_transformNeedUpdate = parentUpdated) == true))
+            {
+                parentUpdated = true;
+                m_transform = parent->getMatrix() * getMatrix();
+            }
+        }
+        else if (m_transformNeedUpdate)
+            parentUpdated = true;
+
+        for (auto& i : m_children)
+            i->updateTransformTree(this, parentUpdated);
     }
 }
