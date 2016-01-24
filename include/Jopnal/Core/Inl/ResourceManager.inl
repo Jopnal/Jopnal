@@ -21,20 +21,30 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
+template<typename T> 
+T* ResourceManager::getResource(const std::string& path)
+{
+	auto it = m_resources.find(path);
+	if (it == m_resources.end())
+	{
+		auto res = std::make_unique<T>();
+		if (res->load(path))
+		{
+			m_resources[path] = std::move(res);
+			return static_cast<T*>(m_resources[path].get());
+		}
+		JOP_DEBUG_ERROR("Can't load resource data");
+		return nullptr;
+	}
+	else
+	{
+		if (typeid(T) == typeid(*it->second.get()))
+			return static_cast<T*>(it->second.get());
+		else
+		{
+			JOP_DEBUG_ERROR("Resource is not compatible");
+			return nullptr;
+		}
 
-//////////////////////////////////////////////
-
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+	}
+}

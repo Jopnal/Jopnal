@@ -67,6 +67,9 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
+// PhysFS
+#include<PhysicsFS\physfs.h>
+
 // PhysicsFS
 #include <PhysicsFS/physfs.h>
 
@@ -75,6 +78,7 @@
 #include <iostream>
 #include <sstream>
 #include <array>
+#include <string>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

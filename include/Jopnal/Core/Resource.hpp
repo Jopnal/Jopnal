@@ -21,20 +21,39 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RESOURCE_HPP
+#define JOP_RESOURCE_HPP
+
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+namespace jop
+{
+	class Resource
+	{
+	public:
+
+		/// \brief Virtual destructor
+		///
+		virtual ~Resource() = 0;
+
+		/// \brief Virtual method for using Fileloader to load new resource from file
+		///
+		/// \param Name or path for wanted resource
+		///
+		virtual bool load(const std::string& path) = 0;
+	};
+
+}
+
+#endif
+
+/// \class Resource
+/// \ingroup core
+
+//this is the base class for all resources that are loaded from files:
+//sprites, sounds, scene data...
+//processed for use

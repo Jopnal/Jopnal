@@ -22,19 +22,37 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+namespace jop
+{
+	ResourceManager::ResourceManager()
+	{}
+	
+	ResourceManager::~ResourceManager()
+	{}
+
+	bool ResourceManager::unloadResource(const std::string& path)
+	{
+		auto it = m_resources.find(path);
+		if (it == m_resources.end())
+		{
+			JOP_DEBUG_ERROR("Error 404: Resource not found.");
+			return false;
+		}
+		else
+		{
+			m_resources.erase(it);
+			return true;
+		}
+	}
+
+//////////////////////////////////////////////
+
+	void ResourceManager::unloadAll()
+	{
+		m_resources.clear();
+	}
+}

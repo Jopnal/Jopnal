@@ -21,20 +21,56 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RESOURCEMANAGER_HPP
+#define JOP_RESOURCEMANAGER_HPP
+
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Header.hpp>
+#include <unordered_map>
+
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+namespace jop
+{
+	/// \forward declaration for Resource class
+	///
+	class Resource;
+
+	class ResourceManager
+	{
+	public:
+
+		/// \brief Default constructor
+		///
+		ResourceManager();
+
+		/// \brief Default destructor
+		///
+		~ResourceManager();
+
+		/// \brief Template function finds resource
+		///
+		/// if resource is not found it makes new one
+		///
+		/// \param Name or path for wanted resource
+		///
+		template<typename T> T* getResource(const std::string& path);
+
+		/// \brief Deletes resource from memory
+		///
+		/// \param Name or path for wanted resource
+		///
+		bool unloadResource(const std::string& path);
+
+		/// \brief Deletes all resources from memory
+		///
+		void unloadAll();
+	private:
+		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;///< Container holds resources
+	};
+}
+#endif
+
+///\class ResourceManager
+/// \ingroup core

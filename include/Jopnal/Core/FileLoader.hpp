@@ -21,20 +21,55 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_FILELOADER_HPP
+#define JOP_FILELOADER_HPP
+
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Jopnal.hpp>
+#include <string>
 
-//////////////////////////////////////////////
+/////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+	class FileLoader
+	{
+	public:
+
+		/// \brief Initializes PhysicsFs filesystem
+		///
+		/// \param Unix-like systems such as Linux needs to pass argv[0] from main()
+		///
+		/// otherwise can be set to null
+		///
+		static void init(const char * argv);
+
+		/// \brief Deinitializes PhysicsFs filesystem
+		///
+		/// releases used memory
+		///
+		static void deinit();
+
+		/// \brief getSize returns size needed for data arrays buffer
+		///
+		/// \param Name or path for wanted resource
+		///
+		static long long getSize(const char* fileName);
+
+		/// \brief Reads data from file into buffer
+		///
+		/// \param pointer to premade data array
+		///
+		/// name or path for wanted resource
+		///
+		/// size needed for data arrays buffer
+		/// 
+		static void read(void* data, const char* fileName, int size);
+
+	};
+}
+#endif
+
+/// \class FileLoader
+/// \ingroup core
