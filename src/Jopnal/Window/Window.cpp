@@ -93,7 +93,7 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getBool("bConstrollerInput", true);
+            static const bool controllers = SettingManager::getBool("bControllerInput", true);
 
             pollEvents();
 
