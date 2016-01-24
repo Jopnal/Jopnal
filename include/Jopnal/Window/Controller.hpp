@@ -21,62 +21,58 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_CONTROLLER_HPP
+#define JOP_CONTROLLER_HPP
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+//////////////////////////////////////////////
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
 
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
+namespace jop
+{
+    class Controller
+    {
+    public:
 
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
+        /// X-Box controller buttons
+        ///
+        struct XBox
+        {
+            enum Button
+            {
+                A,
+                B,
+                X,
+                Y,
+                LShoulder,
+                RShoulder,
+                Back,
+                Start,
+                LStick,
+                RStick,
+                PadUp,
+                PadRight,
+                PadDown,
+                PadLeft,
+            };
 
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
+            enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                Triggers,
+                RightStickY,
+                RightStickX
+            };
+        };
+    };
+}
 
 #endif
+
+/// \class Controller
+/// \ingroup window
+///
+/// #TODO Detailed description

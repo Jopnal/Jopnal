@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
@@ -39,6 +40,8 @@ namespace jop
     private:
 
         JOP_DISALLOW_COPY_MOVE(WindowEventHandler);
+
+        friend class Window;
 
     public:
     
@@ -147,6 +150,47 @@ namespace jop
         ///
         virtual void mouseScrolled(const float x, const float y);
 
+        /// \brief Controller connected callback
+        ///
+        /// This will be called when a controller or a joystick is connected.
+        ///
+        /// \param index Index of the new controller
+        /// \param name Name of the controller
+        ///
+        virtual void controllerConnected(const int index, const std::string& name);
+
+        /// \brief Controller disconnected callback
+        ///
+        /// \param index Index of the controller
+        ///
+        virtual void controllerDisconnected(const int index);
+
+        /// \brief Controller axis callback
+        ///
+        /// \param index Index of the controller
+        /// \param shift Shift of the axis
+        ///
+        virtual void controllerAxisShifted(const int index, const int axisIndex, const float shift);
+
+        /// \brief Controller button pressed callback
+        ///
+        /// \param index Index of the controller
+        /// \param button The button that was pressed
+        ///
+        virtual void controllerButtonPressed(const int index, const int button);
+
+        /// \brief Controller button released callback
+        ///
+        /// \param index Index of the controller
+        /// \param button The button that was released
+        ///
+        virtual void controllerButtonReleased(const int index, const int button);
+
+    private:
+
+        /// \brief Internal function to invoke controller callbacks
+        ///
+        void handleControllerInput();
 
     protected:
 

@@ -35,6 +35,7 @@
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />

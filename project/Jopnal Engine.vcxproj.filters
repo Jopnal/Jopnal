@@ -159,6 +159,9 @@
     <ClInclude Include="..\include\Jopnal\Config.hpp">
       <Filter>Root\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\Controller.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
