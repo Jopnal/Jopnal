@@ -21,6 +21,7 @@
 
 //////////////////////////////////////////////
 
+
 template<typename T> 
 T* ResourceManager::getResource(const std::string& path)
 {

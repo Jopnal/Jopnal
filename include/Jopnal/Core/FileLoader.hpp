@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
 #include <string>
 
 /////////////////////////////////////////////

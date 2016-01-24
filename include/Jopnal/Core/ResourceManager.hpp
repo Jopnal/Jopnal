@@ -55,7 +55,8 @@ namespace jop
 		///
 		/// \param Name or path for wanted resource
 		///
-		template<typename T> T* getResource(const std::string& path);
+		template<typename T>
+        T* getResource(const std::string& path);
 
 		/// \brief Deletes resource from memory
 		///
@@ -70,7 +71,8 @@ namespace jop
 		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;///< Container holds resources
 	};
 }
+
 #endif
 
-///\class ResourceManager
+/// \class ResourceManager
 /// \ingroup core

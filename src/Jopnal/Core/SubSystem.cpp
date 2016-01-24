@@ -57,6 +57,11 @@ namespace jop
     void Subsystem::postDraw()
     {}
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Subsystem::sendMessage(const std::string&, void*)
+    {}
+
     //////////////////////////////////////////////
 
     void Subsystem::setName(const std::string& name)

@@ -22,6 +22,7 @@
 //////////////////////////////////////////////
 
 #include <Jopnal\Precompiled.hpp>
+
 //////////////////////////////////////////////
 
 namespace jop
@@ -29,19 +30,10 @@ namespace jop
 	void FileLoader::init(const char * argv)
 	{
 		if (!PHYSFS_isInit())
-		{
 			PHYSFS_init(argv);
-
-
-		}
-		else
-			JOP_DEBUG_ERROR("\nPhysicsFs is already initialized\n");
 
 		if (!PHYSFS_addToSearchPath("Jopnal", 0))
 			JOP_DEBUG_ERROR("\nError in PHYSFS_addToSearchPath()\n");
-
-		if (!PHYSFS_exists("PhysicsFs License.txt"))
-			JOP_DEBUG_ERROR("\nError in file reading check(PHYSFS_exists())\n");
 
 	}
 
@@ -53,9 +45,6 @@ namespace jop
 	}
 
 	//////////////////////////////////////////////
-	//////////////////////////////////////////////
-
-
 
 	long long FileLoader::getSize(const char* fileName)
 	{
@@ -78,7 +67,6 @@ namespace jop
 
 	void FileLoader::read(void* data, const char* fileName, int size)
 	{
-
 		if (PHYSFS_exists(fileName))
 		{
 			if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))

@@ -165,6 +165,8 @@ namespace jop
     {
         if (ns_engineObject && ns_engineObject->m_currentScene)
             ns_engineObject->m_currentScene->sendMessage(message, ptr);
+
+        message.find(
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////

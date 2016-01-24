@@ -91,6 +91,13 @@ namespace jop
         ///
         virtual void postDraw();
 
+        /// \brief Function to handle messages
+        ///
+        /// \param message String holding the message
+        /// \param ptr Pointer to hold extra data
+        ///
+        virtual void sendMessage(const std::string& message, void* ptr);
+
         /// \brief Set the name
         ///
         /// \param name The new name to be set
