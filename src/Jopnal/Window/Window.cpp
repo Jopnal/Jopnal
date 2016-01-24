@@ -31,6 +31,11 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    bool ns_eventsPolled = false;
+}
+
 namespace jop
 {
     Window::Window()
@@ -47,21 +52,17 @@ namespace jop
         open(settings);
     }
 
-    Window::Window(Window&& other)
-        : Subsystem ("Window"),
-          m_impl    (std::move(other.m_impl))
-    {}
-
-    Window& Window::operator =(Window&& other)
-    {
-        m_impl = std::move(other.m_impl);
-        return *this;
-    }
-
     Window::~Window()
     {
         // The event handler needs to be reset before the window itself
         m_eventHandler.reset();
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Window::preUpdate(const double)
+    {
+        ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////
@@ -87,10 +88,20 @@ namespace jop
         if (isOpen())
             m_impl->swapBuffers();
 
-        // Poll window events here instead of the main loop.
-        // This causes the events to be polled multiple times if there
-        // are multiple windows but we don't really need to care about that.
-        pollEvents();
+        // Only poll the events if they haven't yet been during this frame.
+        // We care about this because we don't want to invoke controller
+        // callbacks multiple times.
+        if (!ns_eventsPolled)
+        {
+            static const bool controllers = SettingManager::getBool("bConstrollerInput", true);
+
+            pollEvents();
+
+            if (controllers && m_eventHandler.operator bool())
+                m_eventHandler->handleControllerInput();
+
+            ns_eventsPolled = true;
+        }
     }
 
     //////////////////////////////////////////////
