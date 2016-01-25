@@ -48,8 +48,6 @@ namespace jop
         /// \return True if symbol was found
         static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
-        
-
     };
 }
 

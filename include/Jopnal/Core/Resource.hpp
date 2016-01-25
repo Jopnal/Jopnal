@@ -55,6 +55,4 @@ namespace jop
 /// \class Resource
 /// \ingroup core
 ///
-/// this is the base class for all resources that are loaded from files:
-/// sprites, sounds, scene data...
-/// processed for use
+/// This is the base class for all resources that are loaded from files

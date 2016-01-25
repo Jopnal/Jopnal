@@ -52,7 +52,7 @@
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
-    <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\ResourceManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Resource.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Scene.cpp" />
   </ItemGroup>

@@ -227,14 +227,14 @@
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp">
-      <Filter>Core\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\Resource.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp">
       <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\ResourceManager.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
