@@ -35,28 +35,28 @@
 
 namespace jop
 {
-	class Resource;
+    class Resource;
 
-	class ResourceManager : public Subsystem
-	{
-	public:
+    class ResourceManager : public Subsystem
+    {
+    public:
 
-		/// \brief Default constructor
-		///
-		ResourceManager();
+        /// \brief Default constructor
+        ///
+        ResourceManager();
 
-		/// \brief Destructor
-		///
-		~ResourceManager() override;
+        /// \brief Destructor
+        ///
+        ~ResourceManager() override;
 
 
-		/// \brief Template function finds resource
-		///
-		/// If resource is not found this creates a new one
-		///
-		/// \param Name or path for wanted resource
-		///
-		template<typename T>
+        /// \brief Template function finds resource
+        ///
+        /// If resource is not found this creates a new one
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        template<typename T>
         std::weak_ptr<T> getResource(const std::string& path);
 
         /// \brief Check if a particular resource exists and is loaded
@@ -67,21 +67,21 @@ namespace jop
         ///
         bool resourceLoaded(const std::string& path);
 
-		/// \brief Deletes resource from memory
-		///
-		/// \param Name or path for wanted resource
-		///
-		void unloadResource(const std::string& path);
+        /// \brief Deletes resource from memory
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        void unloadResource(const std::string& path);
 
-		/// \brief Deletes all resources from memory
-		///
-		void unloadResources();
+        /// \brief Deletes all resources from memory
+        ///
+        void unloadResources();
 
-	private:
+    private:
 
-		std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
+        std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
 
-	};
+    };
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/ResourceManager.inl>

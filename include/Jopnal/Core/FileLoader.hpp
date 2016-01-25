@@ -35,32 +35,32 @@
 
 namespace jop
 {
-	class FileLoader : public Subsystem
-	{
-	public:
+    class FileLoader : public Subsystem
+    {
+    public:
 
         /// \brief Constructor
         ///
-		/// Initializes the PhysicsFs file system
-		///
-		/// \param argv The first element of the char* array passed from main()
-		///
-		FileLoader(const char* argv);
+        /// Initializes the PhysicsFs file system
+        ///
+        /// \param argv The first element of the char* array passed from main()
+        ///
+        FileLoader(const char* argv);
 
-		/// \brief Destructor
+        /// \brief Destructor
         ///
         /// Deinitializes the PhysicsFs file system
-		///
-		~FileLoader() override;
+        ///
+        ~FileLoader() override;
 
 
-		/// \brief Reads data from file into a buffer
-		///
-		/// \param pointer to premade data array
-		/// 
-		static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
+        /// \brief Reads data from file into a buffer
+        ///
+        /// \param pointer to premade data array
+        /// 
+        static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
 
-	};
+    };
 }
 #endif
 

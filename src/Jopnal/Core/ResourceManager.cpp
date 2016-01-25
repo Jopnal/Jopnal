@@ -29,11 +29,11 @@
 
 namespace jop
 {
-	ResourceManager::ResourceManager()
+    ResourceManager::ResourceManager()
         : Subsystem("Resource Manager")
-	{}
-	
-	ResourceManager::~ResourceManager()
+    {}
+    
+    ResourceManager::~ResourceManager()
     {}
 
     //////////////////////////////////////////////
@@ -45,15 +45,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-	void ResourceManager::unloadResource(const std::string& path)
-	{
-		m_resources.erase(path);
-	}
+    void ResourceManager::unloadResource(const std::string& path)
+    {
+        m_resources.erase(path);
+    }
 
     //////////////////////////////////////////////
 
-	void ResourceManager::unloadResources()
-	{
-		m_resources.clear();
-	}
+    void ResourceManager::unloadResources()
+    {
+        m_resources.clear();
+    }
 }
