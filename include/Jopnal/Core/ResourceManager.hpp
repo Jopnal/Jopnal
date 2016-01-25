@@ -26,18 +26,18 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <unordered_map>
-
+#include <memory>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-	/// \forward declaration for Resource class
-	///
 	class Resource;
 
-	class ResourceManager
+	class ResourceManager : public Subsystem
 	{
 	public:
 
@@ -45,31 +45,46 @@ namespace jop
 		///
 		ResourceManager();
 
-		/// \brief Default destructor
+		/// \brief Destructor
 		///
-		~ResourceManager();
+		~ResourceManager() override;
+
 
 		/// \brief Template function finds resource
 		///
-		/// if resource is not found it makes new one
+		/// If resource is not found this creates a new one
 		///
 		/// \param Name or path for wanted resource
 		///
 		template<typename T>
-        T* getResource(const std::string& path);
+        std::weak_ptr<T> getResource(const std::string& path);
+
+        /// \brief Check if a particular resource exists and is loaded
+        ///
+        /// \param path Path to resource
+        ///
+        /// \return True if resource is loaded
+        ///
+        bool resourceLoaded(const std::string& path);
 
 		/// \brief Deletes resource from memory
 		///
 		/// \param Name or path for wanted resource
 		///
-		bool unloadResource(const std::string& path);
+		void unloadResource(const std::string& path);
 
 		/// \brief Deletes all resources from memory
 		///
-		void unloadAll();
+		void unloadResources();
+
 	private:
-		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;///< Container holds resources
+
+		std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
+
 	};
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/ResourceManager.inl>
 }
 
 #endif

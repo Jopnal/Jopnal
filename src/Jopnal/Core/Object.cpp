@@ -110,7 +110,7 @@ namespace jop
 
     void Object::sendMessage(const std::string& message, void* ptr)
     {
-        for (auto& i: m_components)
+        for (auto& i : m_components)
             i->sendMessage(message, ptr);
 
         for (auto& i : m_children)
@@ -173,7 +173,7 @@ namespace jop
             if (m_transformNeedUpdate || ((m_transformNeedUpdate = parentUpdated) == true))
             {
                 parentUpdated = true;
-                m_transform = parent->getMatrix() * getMatrix();
+                m_transform = parent->getMatrix() * this->getMatrix();
             }
         }
         else if (m_transformNeedUpdate)

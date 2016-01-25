@@ -314,6 +314,13 @@ namespace jop
     SettingManager::~SettingManager()
     {
         save();
+
+        if (PHYSFS_isInit())
+        {
+            if (!PHYSFS_deinit())
+                JOP_DEBUG_ERROR("Could not deinitialize PhysicsFS. Some file handles might be left open.");
+        }
+
         ns_init = false;
     }
 }

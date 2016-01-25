@@ -139,6 +139,15 @@ namespace jop
     ///
     JOP_API const std::string& getProjectName();
 
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message String holding message
+    /// \param ptr Pointer to hold extra data
+    ///
+    JOP_API void broadcast(const std::string& message, void* ptr);
+
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>
 }

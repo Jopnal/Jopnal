@@ -75,11 +75,11 @@ namespace jop
         m_objects.clear();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Scene::sendMessage(const std::string& message, void* ptr)
     {
-        //message.find(
+        sendMessageImpl(message, ptr);
 
         for (auto& i : m_objects)
             i->sendMessage(message, ptr);
@@ -154,7 +154,7 @@ namespace jop
     void Scene::postDraw()
     {}
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Scene::sendMessageImpl(const std::string&, void*)
     {}

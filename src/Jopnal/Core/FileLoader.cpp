@@ -33,40 +33,23 @@ namespace
 
 namespace jop
 {
-	long long FileLoader::getSize(const char* fileName)
-	{
-		if (PHYSFS_exists(fileName))
-		{
-			if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
-			{
-				long long size = PHYSFS_fileLength(inputFile);
-				PHYSFS_close(inputFile);
-				return size;
-			}
-			JOP_DEBUG_ERROR("\nError can't load " << fileName << "file\n");
-			return -1;
-		}
-		JOP_DEBUG_ERROR("\nError can't find " << fileName << "file\n");
-		return -1;
-	}
-
-    //////////////////////////////////////////////
-
     FileLoader::FileLoader(const char* argv)
         : Subsystem("File Loader")
     {
         JOP_ASSERT(!ns_init, "There must not be more than one jop::FileLoader!");
 
-        // Physfs init is called from SettingManager but just to make sure
+        // PhysFS init is called from SettingManager but just to make sure
         if (!PHYSFS_isInit())
             PHYSFS_init(argv);
 
-        JOP_ASSERT_EVAL(PHYSFS_mount(SettingManager::getString("sResourceDirectory", "Resources").c_str(), NULL, 0) != 0, "Failed to mount resource directory!");
+        static const std::string path = SettingManager::getString("sResourceDirectory", "Resources");
+        
+        JOP_ASSERT_EVAL(PHYSFS_mount(path.c_str(), NULL, 0) != 0, "Failed to mount resource directory! Make sure you've created a folder named \"" + path + "\" in the working directory.");
     }
 
     FileLoader::~FileLoader()
     {
-
+        // SettingManager will deinitialize PhysFS
     }
 
     //////////////////////////////////////////////

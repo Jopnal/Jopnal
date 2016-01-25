@@ -24,6 +24,7 @@
 // Headers
 #include <Jopnal/Utility/Assert.hpp>
 #include <Jopnal/Utility/Clock.hpp>
+#include <Jopnal/Utility/MessageUtil.hpp>
 
 //////////////////////////////////////////////
 

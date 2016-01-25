@@ -25,7 +25,7 @@
 #define JOP_RESOURCE_HPP
 
 // Headers
-#include <jopnal/Header.hpp>
+#include <Jopnal/Header.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -40,20 +40,21 @@ namespace jop
 		///
 		virtual ~Resource() = 0;
 
-		/// \brief Virtual method for using Fileloader to load new resource from file
+
+		/// \brief Virtual method for using FileLoader to load new resource from file
 		///
-		/// \param Name or path for wanted resource
+		/// \param path Name or path for wanted resource
 		///
 		virtual bool load(const std::string& path) = 0;
-	};
 
+	};
 }
 
 #endif
 
 /// \class Resource
 /// \ingroup core
-
-//this is the base class for all resources that are loaded from files:
-//sprites, sounds, scene data...
-//processed for use
+///
+/// this is the base class for all resources that are loaded from files:
+/// sprites, sounds, scene data...
+/// processed for use

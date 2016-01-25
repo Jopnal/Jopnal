@@ -21,39 +21,39 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_MESSAGEUTIL_HPP
+#define JOP_MESSAGEUTIL_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-	ResourceManager::ResourceManager()
-        : Subsystem("Resource Manager")
-	{}
-	
-	ResourceManager::~ResourceManager()
-    {}
-
-    //////////////////////////////////////////////
-
-    bool ResourceManager::resourceLoaded(const std::string& path)
+    class MessageUtil
     {
-        return m_resources.find(path) != m_resources.end();
-    }
+    public:
 
-    //////////////////////////////////////////////
+        /// \brief Check if the message has the given filter symbol
+        ///
+        /// This function is used to check how a message should be filtered.
+        /// If the message doesn't contain a proper filtering field, this test will pass.
+        ///
+        /// \param message The message in its entirety
+        /// \param symbol The filter symbol to check
+        ///
+        /// \return True if symbol was found
+        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
-	void ResourceManager::unloadResource(const std::string& path)
-	{
-		m_resources.erase(path);
-	}
+        
 
-    //////////////////////////////////////////////
-
-	void ResourceManager::unloadResources()
-	{
-		m_resources.clear();
-	}
+    };
 }
+
+#endif
+
+/// \class Resource
+/// \ingroup utility

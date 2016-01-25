@@ -67,13 +67,18 @@ namespace jop
         // Setting manager
         createSubsystem<SettingManager>();
 
+        // File loader
+        createSubsystem<FileLoader>(ns_argv[0]);
 
+        // Resource manager
+        createSubsystem<ResourceManager>();
 
         // Main window
-        createSubsystem<Window>(Window::Settings(true));
+        const Window::Settings wSettings(true);
+        createSubsystem<Window>(wSettings);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
@@ -154,7 +159,7 @@ namespace jop
         return false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Engine::exit()
     {
@@ -162,20 +167,34 @@ namespace jop
             ns_engineObject->m_running = false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Engine::sendMessage(const std::string& message, void* ptr)
     {
-        if (ns_engineObject && ns_engineObject->m_currentScene)
-            ns_engineObject->m_currentScene->sendMessage(message, ptr);
+        if (ns_engineObject)
+        {
+            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
+                ns_engineObject->m_currentScene->sendMessage(message, ptr);
 
-        //message.find(
+            if (MessageUtil::hasFilterSymbol(message, "Su"))
+            {
+                for (auto& i : ns_engineObject->m_subsystems)
+                    i->sendMessage(message, ptr);
+            }
+        }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     const std::string& getProjectName()
     {
         return ns_projectName;
+    }
+
+    //////////////////////////////////////////////
+
+    void broadcast(const std::string& message, void* ptr)
+    {
+        Engine::sendMessage(message, ptr);
     }
 }

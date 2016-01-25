@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
@@ -68,6 +69,7 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
