@@ -162,6 +162,18 @@
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\ResourceManager.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\FileLoader.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Resource.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -212,6 +224,18 @@
     <ClCompile Include="..\src\Jopnal\Core\Scene.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Resource.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\ResourceManager.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -225,6 +249,9 @@
     </None>
     <None Include="..\include\Jopnal\Window\Inl\Window.inl">
       <Filter>Window\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl">
+      <Filter>Core\Inl</Filter>
     </None>
   </ItemGroup>
 </Project>

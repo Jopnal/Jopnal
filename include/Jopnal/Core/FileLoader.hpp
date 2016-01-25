@@ -21,58 +21,48 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+#ifndef JOP_FILELOADER_HPP
+#define JOP_FILELOADER_HPP
 
-//////////////////////////////////////////////
+// Headers
+#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <string>
+#include <vector>
+
+/////////////////////////////////////////////
 
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& name)
-        : m_name(name)
-    {}
+	class FileLoader : public Subsystem
+	{
+	public:
 
-    Subsystem::~Subsystem()
-    {}
+        /// \brief Constructor
+        ///
+		/// Initializes the PhysicsFs file system
+		///
+		/// \param argv The first element of the char* array passed from main()
+		///
+		FileLoader(const char* argv);
 
-    //////////////////////////////////////////////
+		/// \brief Destructor
+        ///
+        /// Deinitializes the PhysicsFs file system
+		///
+		~FileLoader() override;
 
-    void Subsystem::preFixedUpdate(const double)
-    {}
 
-    void Subsystem::postFixedUpdate(const double)
-    {}
+		/// \brief Reads data from file into a buffer
+		///
+		/// \param pointer to premade data array
+		/// 
+		static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
 
-    //////////////////////////////////////////////
-
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::postDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setName(const std::string& name)
-    {
-        m_name = name;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::string& Subsystem::getName() const
-    {
-        return m_name;
-    }
+	};
 }
+#endif
+
+/// \class FileLoader
+/// \ingroup core

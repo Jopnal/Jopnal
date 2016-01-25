@@ -79,15 +79,15 @@ namespace jop
         ///
         void clearObjects(); 
 
-        /// \brief Send a message to this scene
+        /// \brief Base sendMessage function
         ///
-        /// If overloading this function, make sure to call jop::Scene::sendMessage()
-        /// should you wish to forward the message to all objects.
+        /// This will handle message filtering and forwarding
+        /// to the objects
         ///
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual void sendMessage(const std::string& message, void* ptr);
+        void sendMessage(const std::string& message, void* ptr);
 
         /// \brief Update method for scene
         ///
@@ -150,6 +150,13 @@ namespace jop
         virtual void postDraw();
 
     private:
+
+        /// \brief Send a message to this scene
+        ///
+        /// \param message String holding message
+        /// \param ptr Pointer to hold extra data
+        ///
+        virtual void sendMessageImpl(const std::string& message, void* ptr);
 
         ObjectList m_objects; ///< Container holding objects
         std::string m_name;   ///< String holding scene name

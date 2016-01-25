@@ -21,58 +21,38 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RESOURCE_HPP
+#define JOP_RESOURCE_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& name)
-        : m_name(name)
-    {}
+	class Resource
+	{
+	public:
 
-    Subsystem::~Subsystem()
-    {}
+		/// \brief Virtual destructor
+		///
+		virtual ~Resource() = 0;
 
-    //////////////////////////////////////////////
 
-    void Subsystem::preFixedUpdate(const double)
-    {}
+		/// \brief Virtual method for using FileLoader to load new resource from file
+		///
+		/// \param path Name or path for wanted resource
+		///
+		virtual bool load(const std::string& path) = 0;
 
-    void Subsystem::postFixedUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::postDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setName(const std::string& name)
-    {
-        m_name = name;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::string& Subsystem::getName() const
-    {
-        return m_name;
-    }
+	};
 }
+
+#endif
+
+/// \class Resource
+/// \ingroup core
+///
+/// This is the base class for all resources that are loaded from files

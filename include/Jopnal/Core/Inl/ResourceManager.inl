@@ -21,58 +21,33 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
 
-//////////////////////////////////////////////
-
-
-namespace jop
+template<typename T> 
+std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
 {
-    Subsystem::Subsystem(const std::string& name)
-        : m_name(name)
-    {}
+    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
 
-    Subsystem::~Subsystem()
-    {}
+	auto it = m_resources.find(path);
 
-    //////////////////////////////////////////////
+	if (it == m_resources.end())
+	{
+		auto res = std::make_shared<T>();
 
-    void Subsystem::preFixedUpdate(const double)
-    {}
+		if (res->load(path))
+		{
+            m_resources[path] = std::move(res);
+			return std::weak_ptr<T>(static_pointer_cast<T>(m_resources[path]));
+		}
 
-    void Subsystem::postFixedUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::postDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setName(const std::string& name)
-    {
-        m_name = name;
+		JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+	}
+	else
+	{
+		if (typeid(T) == typeid(*it->second.get()))
+			return std::weak_ptr<T>(static_pointer_cast<T*>(it->second));
+		else
+			JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
     }
 
-    //////////////////////////////////////////////
-
-    const std::string& Subsystem::getName() const
-    {
-        return m_name;
-    }
+    return std::weak_ptr<T>();
 }

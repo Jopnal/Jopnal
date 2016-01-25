@@ -29,6 +29,9 @@
 #include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/SettingManager.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/FileLoader.hpp>
+#include <Jopnal/Core/ResourceManager.hpp>
+#include <Jopnal/Core/Resource.hpp>
 
 //////////////////////////////////////////////
 

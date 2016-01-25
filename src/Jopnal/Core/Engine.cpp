@@ -31,11 +31,14 @@ namespace
 {
     std::string ns_projectName;
     jop::Engine* ns_engineObject;
+
+    int ns_argc;
+    char** ns_argv;
 }
 
 namespace jop
 {
-    Engine::Engine(const std::string& name, int, char**)
+    Engine::Engine(const std::string& name, int argc, char* argv[])
         : m_running(true)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
@@ -44,14 +47,14 @@ namespace jop
         ns_projectName = name;
         ns_engineObject = this;
 
-        SettingManager::initialize();
+        ns_argc = argc;
+        ns_argv = argv;
     }
 
     Engine::~Engine()
     {
+        m_currentScene.reset();
         m_subsystems.clear();
-
-        SettingManager::save();
 
         ns_projectName = std::string();
         ns_engineObject = nullptr;
@@ -61,16 +64,21 @@ namespace jop
 
     void Engine::loadDefaultSubsystems()
     {
-        Window::Settings s;
-        s.displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
-        s.size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); s.size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
-        s.title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
-        s.visible = true;
+        // Setting manager
+        createSubsystem<SettingManager>();
 
-        createSubsystem<Window>(s);
+        // File loader
+        createSubsystem<FileLoader>(ns_argv[0]);
+
+        // Resource manager
+        createSubsystem<ResourceManager>();
+
+        // Main window
+        const Window::Settings wSettings(true);
+        createSubsystem<Window>(wSettings);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
@@ -151,7 +159,7 @@ namespace jop
         return false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Engine::exit()
     {
@@ -159,18 +167,34 @@ namespace jop
             ns_engineObject->m_running = false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Engine::sendMessage(const std::string& message, void* ptr)
     {
-        if (ns_engineObject && ns_engineObject->m_currentScene)
-            ns_engineObject->m_currentScene->sendMessage(message, ptr);
+        if (ns_engineObject)
+        {
+            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
+                ns_engineObject->m_currentScene->sendMessage(message, ptr);
+
+            if (MessageUtil::hasFilterSymbol(message, "Su"))
+            {
+                for (auto& i : ns_engineObject->m_subsystems)
+                    i->sendMessage(message, ptr);
+            }
+        }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     const std::string& getProjectName()
     {
         return ns_projectName;
+    }
+
+    //////////////////////////////////////////////
+
+    void broadcast(const std::string& message, void* ptr)
+    {
+        Engine::sendMessage(message, ptr);
     }
 }

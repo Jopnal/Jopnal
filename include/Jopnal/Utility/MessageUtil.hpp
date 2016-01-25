@@ -21,58 +21,37 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_MESSAGEUTIL_HPP
+#define JOP_MESSAGEUTIL_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& name)
-        : m_name(name)
-    {}
-
-    Subsystem::~Subsystem()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preFixedUpdate(const double)
-    {}
-
-    void Subsystem::postFixedUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::postDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setName(const std::string& name)
+    class MessageUtil
     {
-        m_name = name;
-    }
+    public:
 
-    //////////////////////////////////////////////
+        /// \brief Check if the message has the given filter symbol
+        ///
+        /// This function is used to check how a message should be filtered.
+        /// If the message doesn't contain a proper filtering field, this test will pass.
+        ///
+        /// \param message The message in its entirety
+        /// \param symbol The filter symbol to check
+        ///
+        /// \return True if symbol was found
+        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
-    const std::string& Subsystem::getName() const
-    {
-        return m_name;
-    }
+    };
 }
+
+#endif
+
+/// \class Resource
+/// \ingroup utility
