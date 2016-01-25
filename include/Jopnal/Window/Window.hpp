@@ -66,6 +66,8 @@ namespace jop
         ///
         struct Settings
         {
+            Settings(const bool loadSettings);
+
             glm::uvec2 size;
             std::string title;
             DisplayMode displayMode;

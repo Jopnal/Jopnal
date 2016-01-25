@@ -25,27 +25,14 @@
 
 //////////////////////////////////////////////
 
+
+namespace
+{
+    bool ns_init = false;
+}
+
 namespace jop
 {
-	void FileLoader::init(const char * argv)
-	{
-		if (!PHYSFS_isInit())
-			PHYSFS_init(argv);
-
-		if (!PHYSFS_addToSearchPath("Jopnal", 0))
-			JOP_DEBUG_ERROR("\nError in PHYSFS_addToSearchPath()\n");
-
-	}
-
-	//////////////////////////////////////////////
-
-	void FileLoader::deinit()
-	{
-		PHYSFS_deinit();
-	}
-
-	//////////////////////////////////////////////
-
 	long long FileLoader::getSize(const char* fileName)
 	{
 		if (PHYSFS_exists(fileName))
@@ -63,21 +50,54 @@ namespace jop
 		return -1;
 	}
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	void FileLoader::read(void* data, const char* fileName, int size)
-	{
-		if (PHYSFS_exists(fileName))
-		{
-			if (PHYSFS_file* inputFile = PHYSFS_openRead(fileName))
-			{
-				PHYSFS_read(inputFile, data, 1, size);
-				PHYSFS_close(inputFile);
-			}
-			else
-				JOP_DEBUG_ERROR("\nError can't fill buffer" << fileName << "file\n");
-		}
-		else
-			JOP_DEBUG_ERROR("\nError in reading " << fileName << "file\n");
-	}
+    FileLoader::FileLoader(const char* argv)
+        : Subsystem("File Loader")
+    {
+        JOP_ASSERT(!ns_init, "There must not be more than one jop::FileLoader!");
+
+        // Physfs init is called from SettingManager but just to make sure
+        if (!PHYSFS_isInit())
+            PHYSFS_init(argv);
+
+        JOP_ASSERT_EVAL(PHYSFS_mount(SettingManager::getString("sResourceDirectory", "Resources").c_str(), NULL, 0) != 0, "Failed to mount resource directory!");
+    }
+
+    FileLoader::~FileLoader()
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
+    bool FileLoader::read(const std::string& filePath, std::vector<unsigned char>& buffer)
+    {
+        if (PHYSFS_exists(filePath.c_str()))
+        {
+            if (PHYSFS_file* file = PHYSFS_openRead(filePath.c_str()))
+            {
+                auto size = PHYSFS_fileLength(file);
+
+                if (size > 0)
+                {
+                    buffer.resize(static_cast<std::size_t>(size));
+
+                    if (PHYSFS_read(file, buffer.data(), 1, static_cast<PHYSFS_uint32>(size)) != size)
+                        JOP_DEBUG_WARNING("Amount of bytes read from file not matched with size: " << filePath);
+
+                    if (!PHYSFS_close(file))
+                        JOP_DEBUG_ERROR("Couldn't close file: " << filePath);
+
+                    return true;
+                }
+
+                JOP_DEBUG_ERROR("Couldn't determine file size: " << filePath);
+                return false;
+            }
+        }
+
+        JOP_DEBUG_ERROR("File not found: " << filePath);
+        return false;
+    }
 }

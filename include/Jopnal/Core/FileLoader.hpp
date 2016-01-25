@@ -28,45 +28,37 @@
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <string>
+#include <vector>
 
 /////////////////////////////////////////////
 
 
 namespace jop
 {
-	class FileLoader
+	class FileLoader : public Subsystem
 	{
 	public:
 
-		/// \brief Initializes PhysicsFs filesystem
+        /// \brief Constructor
+        ///
+		/// Initializes the PhysicsFs file system
 		///
-		/// \param Unix-like systems such as Linux needs to pass argv[0] from main()
+		/// \param argv The first element of the char* array passed from main()
 		///
-		/// otherwise can be set to null
-		///
-		static void init(const char * argv);
+		FileLoader(const char* argv);
 
-		/// \brief Deinitializes PhysicsFs filesystem
+		/// \brief Destructor
+        ///
+        /// Deinitializes the PhysicsFs file system
 		///
-		/// releases used memory
-		///
-		static void deinit();
+		~FileLoader() override;
 
-		/// \brief getSize returns size needed for data arrays buffer
-		///
-		/// \param Name or path for wanted resource
-		///
-		static long long getSize(const char* fileName);
 
-		/// \brief Reads data from file into buffer
+		/// \brief Reads data from file into a buffer
 		///
 		/// \param pointer to premade data array
-		///
-		/// name or path for wanted resource
-		///
-		/// size needed for data arrays buffer
 		/// 
-		static void read(void* data, const char* fileName, int size);
+		static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
 
 	};
 }

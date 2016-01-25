@@ -79,7 +79,7 @@ namespace jop
 
     void Scene::sendMessage(const std::string& message, void* ptr)
     {
-        message.find(
+        //message.find(
 
         for (auto& i : m_objects)
             i->sendMessage(message, ptr);
