@@ -179,17 +179,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::mat4& Transform::operator *=(const Transform& right)
+    void Transform::lookAt(const glm::vec3& point)
     {
-        getMatrix();
-        return m_transform *= right.getMatrix();
-    }
+        static const glm::vec3 upVec(0.f, 1.f, 0.f);
 
-    //////////////////////////////////////////////
-
-    glm::mat4 operator *(const Transform& left, const Transform& right)
-    {
-        return left.getMatrix() * right.getMatrix();
+        m_invTransform = glm::lookAt(m_position, point, upVec);
+        m_transform = glm::inverse(m_invTransform);
+        m_transformNeedUpdate = false;
+        m_invTransformNeedsUpdate = false;
     }
 
     //////////////////////////////////////////////

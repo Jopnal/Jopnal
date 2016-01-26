@@ -70,10 +70,7 @@ namespace jop
     }
 
     Window::~Window()
-    {
-        // The event handler needs to be reset before the window itself
-        m_eventHandler.reset();
-    }
+    {}
 
     //////////////////////////////////////////////
 

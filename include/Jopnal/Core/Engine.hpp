@@ -63,7 +63,7 @@ namespace jop
 
         /// \brief Load the default subsystem configuration
         ///
-        void loadDefaultSubsystems();
+        void loadDefaultConfiguration();
 
         /// \brief Run the main loop
         ///
@@ -78,7 +78,7 @@ namespace jop
         /// This function will construct the scene and then set it as active.
         /// The previously active scene will be discarded.
         ///
-        /// TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
+        /// #TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
         ///
         /// \param args The arguments to be used in the scene's construction
         ///
