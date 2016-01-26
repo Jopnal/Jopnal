@@ -40,6 +40,8 @@ namespace jop
     {
     public:
 
+        JOP_DISALLOW_COPY_MOVE(Scene);
+
         /// \brief Container holding Objects
         ///
         typedef std::vector<std::unique_ptr<Object>> ObjectList;
@@ -61,13 +63,24 @@ namespace jop
         ///
         /// \param ID Object identifier  
         ///
-        bool hasObject(const std::string& ID) const;
+        Object* getObject(const std::string& ID);
 
         /// \brief Method that creates object
         ///
         /// \param ID Object identifier
         ///
         Object& createObject(const std::string& ID);
+
+        /// \brief Clone an object with the given id
+        ///
+        /// The object, if successfully cloned, will be added to the internal array
+        /// and then returned.
+        ///
+        /// \param ID The id to search with
+        ///
+        /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
+        ///
+        Object* cloneObject(const std::string& ID);
 
         /// \brief Method for deleting object 
         ///

@@ -38,6 +38,12 @@ namespace jop
 
     class JOP_API Object : public Transform
     {
+    private:
+
+        JOP_DISALLOW_MOVE(Object);
+
+        void operator =(const Object&) = delete;
+
     public:
 
         /// \brief Default constructor
@@ -49,6 +55,10 @@ namespace jop
         /// \param ID Unique object identifier m_ID
         ///
         Object(const std::string& ID);
+
+        /// \brief Copy constructor
+        ///
+        Object(const Object& other);
 
 
         /// \brief Check if component exists
@@ -85,6 +95,17 @@ namespace jop
         /// \return Pointer to the child if found, nullptr otherwise
         ///
         Object* getChild(const std::string& ID);
+
+        /// \brief Clone a child with the given id
+        ///
+        /// The child object, if successfully cloned, will be added to the internal array
+        /// and then returned.
+        ///
+        /// \param ID The id to search with
+        ///
+        /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
+        ///
+        Object* cloneChild(const std::string& ID);
 
         /// \brief Remove children with the given id
         ///

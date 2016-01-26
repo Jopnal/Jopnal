@@ -39,14 +39,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Scene::hasObject(const std::string& ID) const
+    Object* Scene::getObject(const std::string& ID)
     {
         for (auto& i : m_objects)
         {
             if (i->getID() == ID)
-                return true;
+                return i.get();
         }
-        return false;
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////
@@ -55,6 +56,21 @@ namespace jop
     {
         m_objects.emplace_back(std::make_unique<Object>(ID));
         return *m_objects.back();
+    }
+
+    //////////////////////////////////////////////
+
+    Object* Scene::cloneObject(const std::string& ID)
+    {
+        auto ptr = getObject(ID);
+
+        if (ptr)
+        {
+            m_objects.emplace_back(std::make_unique<Object>(*ptr));
+            return m_objects.back().get();
+        }
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////
