@@ -38,13 +38,17 @@ namespace jop
 
     Object::Object(const Object& other)
         : Transform     (other),
-          m_children    (other.m_children),
+          m_children    (),
           m_components  (),
           m_ID          (other.m_ID)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
             m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+
+        m_children.reserve(other.m_children.size());
+        for (auto& i : other.m_children)
+            m_children.emplace_back(std::make_unique<Object>(*i));
     }
 
     Object::Object(const std::string& ID)

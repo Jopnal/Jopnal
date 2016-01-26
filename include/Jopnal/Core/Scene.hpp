@@ -40,6 +40,8 @@ namespace jop
     {
     public:
 
+        JOP_DISALLOW_COPY_MOVE(Scene);
+
         /// \brief Container holding Objects
         ///
         typedef std::vector<std::unique_ptr<Object>> ObjectList;
