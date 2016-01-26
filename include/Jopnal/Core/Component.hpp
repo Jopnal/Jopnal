@@ -39,7 +39,15 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(Component);
+        JOP_DISALLOW_MOVE(Component);
+
+        void operator =(const Component&) = delete;
+
+    protected:
+
+        /// \brief Copy constructor
+        ///
+        Component(const Component& other);
 
     public:
 
@@ -52,6 +60,11 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Component() = 0;
+
+
+        /// \brief Copy this component
+        ///
+        virtual Component* clone() const = 0;
 
 
         /// \brief Function to handle messages

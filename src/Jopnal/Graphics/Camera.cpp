@@ -55,8 +55,25 @@ namespace jop
         }
     }
 
+    Camera::Camera(const Camera& other)
+        : Component                 (other),
+          m_projectionMatrix        (other.m_projectionMatrix),
+          m_projData                (other.m_projData),
+          m_clippingPlanes          (other.m_clippingPlanes),
+          m_mode                    (other.m_mode),
+          m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
+    {}
+
     Camera::~Camera()
     {}
+
+    //////////////////////////////////////////////
+
+    Camera* Camera::clone() const
+    {
+        auto ptr = std::make_unique<Camera>(*this);
+        return ptr.release();
+    }
 
     //////////////////////////////////////////////
 

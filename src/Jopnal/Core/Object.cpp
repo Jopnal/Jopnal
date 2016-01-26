@@ -31,12 +31,26 @@ namespace jop
 {
     Object::Object()
         : Transform     (),
+          m_children    (),
           m_components  (),
           m_ID          ()
     {}
 
+    Object::Object(const Object& other)
+        : Transform     (other),
+          m_children    (other.m_children),
+          m_components  (),
+          m_ID          (other.m_ID)
+    {
+        m_components.reserve(other.m_components.size());
+        for (auto& i : other.m_components)
+            m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+    }
+
     Object::Object(const std::string& ID)
-        : m_components  (),
+        : Transform     (),
+          m_children    (),
+          m_components  (),
           m_ID          (ID)
     {}
 
@@ -80,6 +94,21 @@ namespace jop
         {
             if (i->getID() == ID)
                 return i.get();
+        }
+
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    Object* Object::cloneChild(const std::string& ID)
+    {
+        auto ptr = getChild(ID);
+
+        if (ptr)
+        {
+            m_children.emplace_back(std::make_unique<Object>(*ptr));
+            return m_children.back().get();
         }
 
         return nullptr;

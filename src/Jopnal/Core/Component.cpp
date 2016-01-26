@@ -29,6 +29,11 @@
 
 namespace jop
 {
+    Component::Component(const Component& other)
+        : m_objectRef   (other.m_objectRef),
+          m_ID          (other.m_ID)
+    {}
+
     Component::Component(Object& object, const std::string& ID)
         : m_objectRef   (object),
           m_ID          (ID)

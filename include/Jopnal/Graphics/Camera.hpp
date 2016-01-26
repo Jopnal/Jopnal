@@ -36,6 +36,12 @@ namespace jop
 {
     class Camera final : public Component
     {
+    private:
+
+        JOP_DISALLOW_MOVE(Camera);
+
+        void operator =(const Camera&) = delete;
+
     public:
 
         typedef std::pair<float, float> ClippingPlanes;
@@ -70,9 +76,20 @@ namespace jop
         ///
         Camera(Object& object, const Projection mode);
 
+        /// \brief Copy constructor
+        ///
+        Camera(const Camera& other);
+
         /// \brief Destructor
         ///
         ~Camera() override;
+
+
+        /// \brief Clone this camera
+        ///
+        /// \return Pointer to the newly cloned Camera
+        ///
+        Camera* clone() const override;
 
 
         /// \brief Get the projection matrix
