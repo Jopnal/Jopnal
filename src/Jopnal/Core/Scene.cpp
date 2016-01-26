@@ -29,9 +29,9 @@
 
 namespace jop
 {
-    Scene::Scene(const std::string& name)
+    Scene::Scene(const std::string& ID)
         : m_objects (),
-          m_name    (name)
+          m_ID      (ID)
     {}
 
     Scene::~Scene()
@@ -73,6 +73,20 @@ namespace jop
     void Scene::clearObjects()
     {
         m_objects.clear();
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::setID(const std::string& ID)
+    {
+        m_ID = ID;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::string& Scene::getID() const
+    {
+        return m_ID;
     }
 
     //////////////////////////////////////////////

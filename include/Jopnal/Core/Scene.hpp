@@ -48,9 +48,9 @@ namespace jop
 
         /// \brief Constructor for scene class
         ///
-        /// \param name String holding name for scene
+        /// \param ID String holding name for scene
         ///
-        Scene(const std::string& name);
+        Scene(const std::string& ID);
 
         /// \brief Destructor for scene class
         ///
@@ -78,6 +78,18 @@ namespace jop
         /// \brief Method for clearing m_objects 
         ///
         void clearObjects(); 
+
+        /// \brief Set the ID of this scene
+        ///
+        /// \param ID The new identifier
+        ///
+        void setID(const std::string& ID);
+
+        /// \brief Get the ID of this scene
+        ///
+        /// \return Reference to the internal string with the id
+        ///
+        const std::string& getID() const;
 
         /// \brief Base sendMessage function
         ///
@@ -159,7 +171,7 @@ namespace jop
         virtual void sendMessageImpl(const std::string& message, void* ptr);
 
         ObjectList m_objects; ///< Container holding objects
-        std::string m_name;   ///< String holding scene name
+        std::string m_ID;   ///< String holding scene identifier
     };
 }
 

@@ -29,12 +29,9 @@
 
 namespace jop
 {
-    Component::Component()
-        : m_ID()
-    {}
-
-    Component::Component(const std::string& ID)
-        : m_ID(ID)
+    Component::Component(Object& object, const std::string& ID)
+        : m_objectRef   (object),
+          m_ID          (ID)
     {}
 
     Component::~Component()
@@ -62,6 +59,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const std::string& Component::getID() const
+    {
+        return m_ID;
+    }
+
+    //////////////////////////////////////////////
+
     void Component::setID(const std::string& ID)
     {
         m_ID = ID;
@@ -69,8 +73,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::string& Component::getID()
+    Object& Component::getObject()
     {
-        return m_ID;
+        return m_objectRef;
+    }
+
+    //////////////////////////////////////////////
+
+    const Object& Component::getObject() const
+    {
+        return m_objectRef;
     }
 }

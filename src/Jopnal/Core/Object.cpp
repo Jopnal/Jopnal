@@ -39,9 +39,6 @@ namespace jop
         : m_components  (),
           m_ID          (ID)
     {}
-    
-    Object::~Object()
-    {}
 
     //////////////////////////////////////////////
 

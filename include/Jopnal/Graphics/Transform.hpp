@@ -169,11 +169,14 @@ namespace jop
         const glm::vec3& getPosition() const;
 
 
-        /// \brief Multiplication operator
+        /// \brief Set this transform to look at a certain point
         ///
-        /// \return A glm::nat4 with the combined transformation
+        /// This function will override the position, scale and rotation until
+        /// changed again.
         ///
-        const glm::mat4& operator *=(const Transform& right);
+        /// \param point The point to look at
+        ///
+        void lookAt(const glm::vec3& point);
 
 
         /// The identity matrix
@@ -192,12 +195,6 @@ namespace jop
         mutable bool m_invTransformNeedsUpdate;
         
     };
-
-    /// \brief Multiplication operator
-    ///
-    /// \return A glm::mat4 with the combined transformation
-    ///
-    JOP_API glm::mat4 operator *(const Transform& left, const Transform& right);
 }
 
 #endif

@@ -33,19 +33,21 @@
 
 namespace jop
 {
+    class Object;
+
     class JOP_API Component
     {
-    public:
+    private:
 
-        /// \brief Default constructor
-        ///
-        Component();
+        JOP_DISALLOW_COPY_MOVE(Component);
+
+    public:
 
         /// \brief Constructor
         ///
         /// \param ID Unique component identifier
         ///
-        Component(const std::string& ID);
+        Component(Object& object, const std::string& ID);
 
         /// \brief Virtual destructor
         ///
@@ -77,15 +79,26 @@ namespace jop
 
         /// \brief Function to get components unique identifier m_ID
         ///
-        const std::string& getID();
+        const std::string& getID() const;
 
         /// \brief Function to set components unique identifier m_ID
         ///
         void setID(const std::string& ID);
+
+        /// \brief Get the object this component is bound to
+        ///
+        /// \return Reference to the object
+        ///
+        Object& getObject();
+
+        /// \copydoc jop::Component::getObject()
+        ///
+        const Object& getObject() const;
         
     private:
 
-        std::string m_ID; ///< Unique component identifier
+        std::string m_ID;       ///< Unique component identifier
+        Object& m_objectRef;    ///< Reference to the object this component is bound to
     };
 }
 

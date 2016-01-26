@@ -50,10 +50,6 @@ namespace jop
         ///
         Object(const std::string& ID);
 
-        /// \brief Object destructor
-        ///
-        ~Object();
-
 
         /// \brief Check if component exists
         ///

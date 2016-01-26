@@ -22,6 +22,7 @@
 //////////////////////////////////////////////
 
 // Headers
+#include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 

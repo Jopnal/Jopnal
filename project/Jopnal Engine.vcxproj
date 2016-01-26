@@ -26,6 +26,7 @@
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
@@ -61,6 +62,7 @@
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">

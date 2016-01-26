@@ -62,7 +62,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Engine::loadDefaultSubsystems()
+    void Engine::loadDefaultConfiguration()
     {
         // Setting manager
         createSubsystem<SettingManager>();
