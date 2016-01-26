@@ -21,15 +21,57 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_LAYER_HPP
+#define JOP_LAYER_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
+
+namespace jop
+{
+    class Drawable;
+    class Camera;
+    class RenderTexture;
+
+    class JOP_API Layer : public Subsystem, public std::enable_shared_from_this<Layer>
+    {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Layer);
+
+    public:
+    
+        Layer();
+
+        virtual ~Layer() override;
+
+
+        void addDrawable(const Drawable& drawable);
+
+        void bindOtherLayer(Layer& layer);
+
+
+
+
+    private:
+
+        std::vector<std::weak_ptr<Drawable const>> m_drawList;
+        std::vector<std::weak_ptr<Layer>> m_boundLayers;
+        std::weak_ptr<Camera> m_camera;
+        std::weak_ptr<RenderTexture> m_renderTexture;
+
+    };
+}
+
+#endif
+
+/// \class Layer
+/// \ingroup graphics
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

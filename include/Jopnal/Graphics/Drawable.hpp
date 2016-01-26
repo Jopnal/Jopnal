@@ -21,15 +21,62 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_DRAWABLE_HPP
+#define JOP_DRAWABLE_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Component.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
+
+namespace jop
+{
+    class Layer;
+
+    class JOP_API Drawable : public Component
+    {
+    private:
+
+        JOP_DISALLOW_MOVE(Drawable);
+
+        void operator =(const Drawable&) = delete;
+
+    public:
+    
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param layer Reference to the layer this drawable will be bound to
+        /// \param ID Unique component identifier
+        ///
+        Drawable(Object& object, Layer& layer, const std::string& ID);
+
+        /// \brief Copy constructor
+        ///
+        Drawable(const Drawable& other);
+
+        /// \brief Virtual destructor
+        ///
+        virtual ~Drawable() = 0;
+
+
+        /// \copydoc jop::Component::clone()
+        ///
+        virtual Drawable* clone() const override = 0;
+
+
+        /// \brief Draw function
+        ///
+        virtual void draw() = 0;
+        
+    };
+}
+
+#endif
+
+/// \class Drawable
+/// \ingroup graphics
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

@@ -113,6 +113,9 @@ namespace jop
 
         for (auto& i : m_objects)
             i->sendMessage(message, ptr);
+
+        for (auto& i : m_layers)
+            i->sendMessage(message, ptr);
     }
 
     //////////////////////////////////////////////
@@ -121,11 +124,17 @@ namespace jop
     {
         preUpdate(deltaTime);
 
+        for (auto& i : m_layers)
+            i->preUpdate(deltaTime);
+
         for (auto& i : m_objects)
         {
             i->update(deltaTime);
             i->updateTransformTree(nullptr, false);
         }
+
+        for (auto& i : m_layers)
+            i->postUpdate(deltaTime);
 
         postUpdate(deltaTime);
     }
@@ -136,8 +145,14 @@ namespace jop
     {
         preFixedUpdate(timeStep);
 
+        for (auto& i : m_layers)
+            i->preFixedUpdate(timeStep);
+
         for (auto& i : m_objects)
             i->fixedUpdate(timeStep);
+
+        for (auto& i : m_layers)
+            i->postFixedUpdate(timeStep);
 
         postFixedUpdate(timeStep);
     }
@@ -148,8 +163,8 @@ namespace jop
     {
         preDraw();
 
-        for (auto& i : m_objects)
-            i->draw();
+        for (auto& i : m_layers)
+            i->postDraw();
 
         postDraw();
     }

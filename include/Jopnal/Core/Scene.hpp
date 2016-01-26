@@ -35,16 +35,13 @@
 namespace jop
 {
     class Object;
+    class Layer;
 
     class JOP_API Scene 
     {
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);
-
-        /// \brief Container holding Objects
-        ///
-        typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
     public:
 
@@ -183,8 +180,10 @@ namespace jop
         ///
         virtual void sendMessageImpl(const std::string& message, void* ptr);
 
-        ObjectList m_objects; ///< Container holding objects
-        std::string m_ID;   ///< String holding scene identifier
+
+        std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects
+        std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
+        std::string m_ID;                               ///< String holding scene identifier
     };
 }
 

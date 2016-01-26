@@ -22,14 +22,38 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    Layer::Layer()
+        : Subsystem                             ("Layer"),
+          std::enable_shared_from_this<Layer>   (),
+          m_drawList                            (),
+          m_boundLayers                         (),
+          m_camera                              (),
+          m_renderTexture                       ()
+    {}
+
+    Layer::~Layer()
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::addDrawable(const Drawable& drawable)
+    {
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable const>(drawable.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::bindOtherLayer(Layer& layer)
+    {
+        m_boundLayers.emplace_back(layer.shared_from_this());
+    }
+}

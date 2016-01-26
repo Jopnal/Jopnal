@@ -177,6 +177,12 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -240,6 +246,12 @@
       <Filter>Core\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
