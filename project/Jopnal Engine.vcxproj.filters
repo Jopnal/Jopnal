@@ -271,5 +271,8 @@
     <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl">
       <Filter>Core\Inl</Filter>
     </None>
+    <None Include="..\include\Jopnal\Core\Inl\Scene.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
   </ItemGroup>
 </Project>

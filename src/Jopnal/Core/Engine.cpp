@@ -39,7 +39,10 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
-        : m_running(true)
+        : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+          m_subsystems      (),
+          m_currentScene    (),
+          m_running         (true)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -54,6 +57,7 @@ namespace jop
     Engine::~Engine()
     {
         m_currentScene.reset();
+        m_sharedScene.reset();
         m_subsystems.clear();
 
         ns_projectName = std::string();
@@ -76,13 +80,16 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
+
+        // Shared scene set-up
+        //m_sharedScene.createLayer<>();
     }
 
     //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
-        JOP_ASSERT(ns_engineObject->m_currentScene.operator bool(), "No scene has been loaded!");
+        JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
         const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
         float64 accumulator = 0.0;
@@ -96,30 +103,45 @@ namespace jop
             if (frameTime > 0.1)
                 frameTime = 0.1;
 
-            accumulator += frameTime;
-
-            while (accumulator >= timeStep)
+            // Fixed update
             {
-                for (auto& i : m_subsystems)
-                    i->preFixedUpdate(timeStep);
+                accumulator += frameTime;
 
-                m_currentScene->fixedUpdateBase(timeStep);
+                while (accumulator >= timeStep)
+                {
+                    for (auto& i : m_subsystems)
+                        i->preFixedUpdate(timeStep);
 
-                for (auto& i : m_subsystems)
-                    i->postFixedUpdate(timeStep);
+                    if (m_currentScene)
+                        m_currentScene->fixedUpdateBase(timeStep);
 
-                accumulator -= timeStep;
+                    m_sharedScene->fixedUpdateBase(timeStep);
+
+                    for (auto& i : m_subsystems)
+                        i->postFixedUpdate(timeStep);
+
+                    accumulator -= timeStep;
+                }
             }
 
-            for (auto& i : m_subsystems)
-                i->preUpdate(frameTime);
+            // Update
+            {
+                for (auto& i : m_subsystems)
+                    i->preUpdate(frameTime);
 
-            m_currentScene->updateBase(frameTime);
+                if (m_currentScene)
+                    m_currentScene->updateBase(frameTime);
 
-            for (auto& i : m_subsystems)
-                i->postUpdate(frameTime);
+                m_sharedScene->updateBase(frameTime);
+
+                for (auto& i : m_subsystems)
+                    i->postUpdate(frameTime);
+            }
             
-            m_currentScene->drawBase();
+            if (m_currentScene)
+                m_currentScene->drawBase();
+
+            m_sharedScene->drawBase();
 
             for (auto& i : m_subsystems)
                 i->postDraw();
@@ -132,11 +154,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& name)
+    Subsystem* Engine::getSubsystem(const std::string& ID)
     {
         for (auto& i : m_subsystems)
         {
-            if (i->getName() == name)
+            if (i->getID() == ID)
                 return i.get();
         }
 
@@ -145,11 +167,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Engine::removeSubsystem(const std::string& name)
+    bool Engine::removeSubsystem(const std::string& ID)
     {
         for (auto itr = m_subsystems.begin(); itr != m_subsystems.end(); ++itr)
         {
-            if ((*itr)->getName() == name)
+            if ((*itr)->getID() == ID)
             {
                 m_subsystems.erase(itr);
                 return true;
@@ -157,6 +179,13 @@ namespace jop
         }
 
         return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::isRunning()
+    {
+        return ns_engineObject && ns_engineObject->m_running;
     }
 
     //////////////////////////////////////////////
@@ -182,6 +211,14 @@ namespace jop
                     i->sendMessage(message, ptr);
             }
         }
+    }
+
+    //////////////////////////////////////////////
+
+    Scene& Engine::getSharedScene()
+    {
+        JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::getSharedScene()!");
+        return *ns_engineObject->m_sharedScene;
     }
 
     //////////////////////////////////////////////

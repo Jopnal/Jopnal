@@ -111,6 +111,8 @@ namespace jop
         ///
         /// You need to accompany this call with calls to set the camera
         /// properties, as they won't be set to defaults automatically.
+        /// Failing to set the properties will cause the projection to
+        /// malfunction.
         ///
         /// \param mode The mode to be set
         ///

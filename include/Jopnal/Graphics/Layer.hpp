@@ -47,7 +47,7 @@ namespace jop
 
     public:
     
-        Layer();
+        Layer(const std::string& ID);
 
         virtual ~Layer() override;
 

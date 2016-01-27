@@ -21,58 +21,15 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-//////////////////////////////////////////////
-
-
-namespace jop
+template<typename T, typename ... Args>
+T& Scene::createLayer(Args... args)
 {
-    Subsystem::Subsystem(const std::string& ID)
-        : m_ID(ID)
-    {}
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
-    Subsystem::~Subsystem()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preFixedUpdate(const double)
-    {}
-
-    void Subsystem::postFixedUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::postDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setID(const std::string& ID)
-    {
-        m_ID = ID;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::string& Subsystem::getID() const
-    {
-        return m_ID;
-    }
+    m_layers.emplace_back(std::make_unique<T>(args...));
+    return static_cast<T&>(*m_layers.back());
 }
+
+#endif

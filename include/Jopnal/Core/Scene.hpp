@@ -56,11 +56,13 @@ namespace jop
         virtual ~Scene();
 
 
-        /// \brief Method for checking if object with 'ID' exists
+        /// \brief Get an object with the given id
         ///
-        /// \param ID Object identifier  
+        /// \param ID Object identifier
         ///
-        Object* getObject(const std::string& ID);
+        /// \return Pointer to the object if found, empty otherwise
+        ///
+        std::weak_ptr<Object> getObject(const std::string& ID);
 
         /// \brief Method that creates object
         ///
@@ -77,17 +79,46 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        Object* cloneObject(const std::string& ID);
+        std::weak_ptr<Object> cloneObject(const std::string& ID);
 
         /// \brief Method for deleting object 
         ///
         /// \param ID Object identifier 
         ///
-        void deleteObject(const std::string& ID); 
+        void deleteObject(const std::string& ID);
 
         /// \brief Method for clearing m_objects 
         ///
-        void clearObjects(); 
+        void clearObjects();
+
+
+        /// \brief Get a layer with the given id
+        ///
+        /// \param ID The identifier to search with
+        ///
+        /// \return Pointer to the layer if found, empty otherwise
+        ///
+        std::weak_ptr<Layer> getLayer(const std::string& ID);
+
+        /// \brief Create a new layer
+        ///
+        /// \param args Arguments to pass into the constructor
+        ///
+        /// \return Reference to the newly created layer
+        ///
+        template<typename T, typename ... Args>
+        T& createLayer(Args... args);
+
+        /// \brief Delete a layer with the given id
+        ///
+        /// \param ID The id to search with
+        ///
+        void deleteLayer(const std::string& ID);
+
+        /// \brief Delete all layers
+        ///
+        void clearLayers();
+
 
         /// \brief Set the ID of this scene
         ///
@@ -101,6 +132,7 @@ namespace jop
         ///
         const std::string& getID() const;
 
+
         /// \brief Base sendMessage function
         ///
         /// This will handle message filtering and forwarding
@@ -110,6 +142,7 @@ namespace jop
         /// \param ptr Pointer to hold extra data
         ///
         void sendMessage(const std::string& message, void* ptr);
+
 
         /// \brief Update method for scene
         ///
@@ -127,6 +160,7 @@ namespace jop
         ///
         void drawBase();
         
+
         /// \brief Method for pre-updating
         ///
         /// This will be called before objects are updated.
@@ -185,6 +219,9 @@ namespace jop
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
         std::string m_ID;                               ///< String holding scene identifier
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/Scene.inl>
 }
 
 #endif

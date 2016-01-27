@@ -29,8 +29,8 @@
 
 namespace jop
 {
-    Layer::Layer()
-        : Subsystem                             ("Layer"),
+    Layer::Layer(const std::string& ID)
+        : Subsystem                             (ID),
           std::enable_shared_from_this<Layer>   (),
           m_drawList                            (),
           m_boundLayers                         (),

@@ -21,6 +21,7 @@
 
 //////////////////////////////////////////////
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template<typename T, typename ... Args>
 T& Engine::createScene(Args&... args)
@@ -41,3 +42,5 @@ T& Engine::createSubsystem(Args&... args)
     m_subsystems.emplace_back(std::make_unique<T>(args...));
     return static_cast<T&>(*m_subsystems.back());
 }
+
+#endif

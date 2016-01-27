@@ -39,15 +39,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object* Scene::getObject(const std::string& ID)
+    std::weak_ptr<Object> Scene::getObject(const std::string& ID)
     {
         for (auto& i : m_objects)
         {
             if (i->getID() == ID)
-                return i.get();
+                return std::weak_ptr<Object>(i);
         }
 
-        return nullptr;
+        return std::weak_ptr<Object>();
     }
 
     //////////////////////////////////////////////
@@ -60,17 +60,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object* Scene::cloneObject(const std::string& ID)
+    std::weak_ptr<Object> Scene::cloneObject(const std::string& ID)
     {
         auto ptr = getObject(ID);
 
-        if (ptr)
+        if (!ptr.expired())
         {
-            m_objects.emplace_back(std::make_unique<Object>(*ptr));
-            return m_objects.back().get();
+            m_objects.emplace_back(std::make_unique<Object>(*ptr.lock()));
+            return std::weak_ptr<Object>(m_objects.back());
         }
 
-        return nullptr;
+        return std::weak_ptr<Object>();
     }
 
     //////////////////////////////////////////////
@@ -80,7 +80,10 @@ namespace jop
         for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
         {
             if ((*itr)->getID() == ID)
+            {
                 m_objects.erase(itr);
+                return;
+            }
         }
     }
 
@@ -89,6 +92,40 @@ namespace jop
     void Scene::clearObjects()
     {
         m_objects.clear();
+    }
+
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Layer> Scene::getLayer(const std::string& ID)
+    {
+        for (auto& i : m_layers)
+        {
+            if (i->getID() == ID)
+                return std::weak_ptr<Layer>(i);
+        }
+
+        return std::weak_ptr<Layer>();
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::deleteLayer(const std::string& ID)
+    {
+        for (auto itr = m_layers.begin(); itr != m_layers.end(); ++itr)
+        {
+            if ((*itr)->getID() == ID)
+            {
+                m_layers.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::clearLayers()
+    {
+        m_layers.clear();
     }
 
     //////////////////////////////////////////////

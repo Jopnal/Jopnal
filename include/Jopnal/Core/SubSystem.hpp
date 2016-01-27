@@ -43,9 +43,9 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param name Name of this subsystem
+        /// \param ID Identifier of this subsystem
         ///
-        Subsystem(const std::string& name);
+        Subsystem(const std::string& ID);
 
         /// Virtual destructor
         ///
@@ -100,19 +100,19 @@ namespace jop
 
         /// \brief Set the name
         ///
-        /// \param name The new name to be set
+        /// \param ID The new id to be set
         ///
-        void setName(const std::string& name);
+        void setID(const std::string& ID);
 
         /// \brief Get the name
         ///
         /// \return Reference to the name string
         ///
-        const std::string& getName() const;
+        const std::string& getID() const;
 
     private:
 
-        std::string m_name; ///< This subsystem's name
+        std::string m_ID; ///< This subsystem's name
 
     };
 }

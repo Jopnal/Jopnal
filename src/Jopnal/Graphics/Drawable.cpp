@@ -30,13 +30,13 @@
 namespace jop
 {
     Drawable::Drawable(Object& object, Layer& layer, const std::string& ID)
-        : Component     (object, ID)
+        : Component(object, ID)
     {
         layer.addDrawable(*this);
     }
 
     Drawable::Drawable(const Drawable& other)
-        : Component     (other)
+        : Component(other)
     {}
 
     Drawable::~Drawable()
