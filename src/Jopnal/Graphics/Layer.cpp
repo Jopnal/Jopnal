@@ -39,26 +39,58 @@ namespace jop
     {}
 
     Layer::~Layer()
-    {
-
-    }
-
-    //////////////////////////////////////////////
-
-    void Layer::draw()
     {}
 
     //////////////////////////////////////////////
 
-    void Layer::addDrawable(const Drawable& drawable)
+    void Layer::draw()
     {
-        m_drawList.emplace_back(std::static_pointer_cast<Drawable const>(drawable.shared_from_this()));
+        if (m_camera.expired())
+        {
+            JOP_DEBUG_ERROR("Layer \"" << getID() << "\": No camera bound");
+            return;
+        }
+
+        auto cam = m_camera.lock();
+        auto rt = m_renderTexture.lock();
+
+        for (auto& i : m_boundLayers)
+        {
+            if (!i.expired())
+            {
+                for (auto& j : i.lock()->m_drawList)
+                {
+                    if (!j.expired())
+                        j.lock()->draw(*cam, rt.get());
+                }
+            }
+        }
+
+        for (auto& i : m_drawList)
+        {
+            if (!i.expired())
+                i.lock()->draw(*cam, rt.get());
+        }
     }
 
     //////////////////////////////////////////////
 
-    void Layer::bindOtherLayer(const Layer& layer)
+    void Layer::addDrawable(Drawable& drawable)
+    {
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::bindOtherLayer(Layer& layer)
     {
         m_boundLayers.emplace_back(layer.shared_from_this());
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::setCamera(const Camera& camera)
+    {
+        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
     }
 }

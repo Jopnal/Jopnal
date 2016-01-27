@@ -28,8 +28,19 @@ T& Scene::createLayer(Args&... args)
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
-    m_layers.emplace_back(std::make_unique<T>(args...));
+    m_layers.emplace_back(std::make_shared<T>(args...));
     return static_cast<T&>(*m_layers.back());
+}
+
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Scene::setDefaultLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_defaultLayer = std::make_shared<T>(args...);
+    return static_cast<T&>(*m_defaultLayer);
 }
 
 #endif

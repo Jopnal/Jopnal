@@ -34,6 +34,8 @@
 namespace jop
 {
     class Layer;
+    class Camera;
+    class RenderTexture;
 
     class JOP_API Drawable : public Component
     {
@@ -68,7 +70,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw() = 0;
+        virtual void draw(const Camera&, RenderTexture* renderTexture) = 0;
         
     };
 }

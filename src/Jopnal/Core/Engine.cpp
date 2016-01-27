@@ -141,13 +141,16 @@ namespace jop
                     i->postUpdate(frameTime);
             }
             
-            if (m_currentScene)
-                m_currentScene->drawBase();
+            // Draw
+            {
+                if (m_currentScene)
+                    m_currentScene->drawBase();
 
-            m_sharedScene->drawBase();
+                m_sharedScene->drawBase();
 
-            for (auto& i : m_subsystems)
-                i->draw();
+                for (auto& i : m_subsystems)
+                    i->draw();
+            }
         }
 
         // #TODO Threaded event loop

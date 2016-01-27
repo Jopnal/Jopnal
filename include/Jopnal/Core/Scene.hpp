@@ -125,6 +125,12 @@ namespace jop
         template<typename T, typename ... Args>
         T& setDefaultLayer(Args&... args);
 
+        /// \brief Get the default layer
+        ///
+        /// \return Reference to the default layer
+        ///
+        Layer& getDefaultLayer();
+
 
         /// \brief Set the ID of this scene
         ///

@@ -41,6 +41,10 @@ namespace jop
 
     class JOP_API Layer : public Subsystem, public std::enable_shared_from_this<Layer>
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Layer);
+
     public:
     
         /// \brief Constructor
@@ -56,27 +60,42 @@ namespace jop
 
         /// \brief Draw function
         ///
+        /// The default version of this function simply iterates through the
+        /// local & bound draw lists and calls draw() on the drawables.
+        ///
         virtual void draw() override;
 
         /// \brief Add a new drawable component to the draw list
         ///
         /// \param drawable Reference to the drawable to be added
         ///
-        void addDrawable(const Drawable& drawable);
+        void addDrawable(Drawable& drawable);
 
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \brief layer Reference to the layer to be bound
         ///
-        void bindOtherLayer(const Layer& layer);
+        void bindOtherLayer(Layer& layer);
+
+        /// \brief Set the camera
+        ///
+        /// \param camera Reference to the camera to be set
+        ///
+        void setCamera(const Camera& camera);
+
+        /// \brief Set a RenderTexture
+        ///
+        /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
+        ///
+        //void setRenderTexture(RenderTexture* renderTexture);
 
 
     protected:
 
-        std::vector<std::weak_ptr<const Drawable>> m_drawList;
-        std::vector<std::weak_ptr<const Layer>> m_boundLayers;
-        std::weak_ptr<Camera> m_camera;
-        std::weak_ptr<RenderTexture> m_renderTexture;
+        std::vector<std::weak_ptr<Drawable>> m_drawList;  ///< The local draw list
+        std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
+        std::weak_ptr<const Camera> m_camera;             ///< Bound camera
+        std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
 
     };
 }
