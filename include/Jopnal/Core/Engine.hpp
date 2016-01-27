@@ -37,7 +37,7 @@ namespace jop
     class Subsystem;
     class Scene;
 
-    class JOP_API Engine
+    class JOP_API Engine final
     {
     public:
 
@@ -73,6 +73,7 @@ namespace jop
         ///
         int runMainLoop();
 
+
         /// \brief Create a scene
         ///
         /// This function will construct the scene and then set it as active.
@@ -87,6 +88,7 @@ namespace jop
         template<typename T, typename ... Args>
         T& createScene(Args&... args);
 
+
         /// \brief Create a subsystem
         ///
         /// \param args The arguments to be used in the subsystem's construction
@@ -96,11 +98,18 @@ namespace jop
         template<typename T, typename ... Args>
         T& createSubsystem(Args&... args);
 
+        /// \brief Get a subsystem using type info
+        ///
+        /// \return Pointer to the subsystem. Nullptr if not found
+        ///
+        template<typename T>
+        T* getSubsystem();
+
         /// \brief Get a subsystem
         ///
         /// \param ID Identifier of the subsystem
         ///
-        /// \return A pointer to the subsystem. Nullptr if none found
+        /// \return Pointer to the subsystem. Nullptr if not found
         ///
         Subsystem* getSubsystem(const std::string& ID);
 
@@ -109,6 +118,7 @@ namespace jop
         /// \param ID Identifier of the subsystem to be removed
         ///
         bool removeSubsystem(const std::string& ID);
+
 
         /// \brief Check if the engine is running
         ///

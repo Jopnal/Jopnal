@@ -69,6 +69,13 @@ namespace jop
         ///
         std::weak_ptr<Component> getComponent(const std::string& ID);
 
+        /// \brief Get a component using type info
+        ///
+        /// \return Pointer to the component. Empty if not found
+        ///
+        template<typename T>
+        std::weak_ptr<T> getComponent();
+
         /// \brief Template function to create components
         ///
         /// \param args User determined arguments
@@ -81,6 +88,7 @@ namespace jop
         /// \param ID Unique object identifier m_ID
         ///
         void removeComponents(const std::string& ID);
+
 
         /// \brief Create a new child
         ///
@@ -119,6 +127,7 @@ namespace jop
         ///
         void clearChildren();
 
+
         /// \brief Method to send messages
         ///
         /// Forwards messages to this object's components
@@ -127,6 +136,7 @@ namespace jop
         /// \param ptr Pointer to hold extra data
         ///
         void sendMessage(const std::string& message, void* ptr);
+
 
         /// \brief Method for getting m_ID
         ///
@@ -137,6 +147,7 @@ namespace jop
         /// \param ID unique object identifier
         ///
         void setID(const std::string& ID);
+
 
         /// \brief Update method for object - forwarded for its components
         ///

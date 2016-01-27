@@ -23,6 +23,24 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+template<typename T>
+std::weak_ptr<T> Scene::getLayer()
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_layers)
+    {
+        if (typeid(*i) == ti)
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+    }
+
+    return std::weak_ptr<T>();
+}
+
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
 T& Scene::createLayer(Args&... args)
 {

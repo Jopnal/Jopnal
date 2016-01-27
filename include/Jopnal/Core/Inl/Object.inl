@@ -22,6 +22,26 @@
 //////////////////////////////////////////////
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+template<typename T>
+std::weak_ptr<T> Object::getComponent()
+{
+    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_components)
+    {
+        if (typeid(*i) == ti)
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+    }
+
+    return std::weak_ptr<T>();
+}
+
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
 T& Object::createComponent(Args& ... args)
 {
@@ -30,3 +50,5 @@ T& Object::createComponent(Args& ... args)
     m_components.emplace_back(std::make_unique<T>(*this, args...));
     return static_cast<T&>(*m_components.back());
 }
+
+#endif

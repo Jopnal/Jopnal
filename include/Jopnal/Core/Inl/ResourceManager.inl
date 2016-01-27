@@ -22,6 +22,8 @@
 //////////////////////////////////////////////
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 template<typename T> 
 std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
 {
@@ -51,3 +53,5 @@ std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
 
     return std::weak_ptr<T>();
 }
+
+#endif

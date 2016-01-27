@@ -100,6 +100,13 @@ namespace jop
         ///
         std::weak_ptr<Layer> getLayer(const std::string& ID);
 
+        /// \brief Get a layer using type info
+        ///
+        /// \return Pointer to the layer. Empty if not found
+        ///
+        template<typename T>
+        std::weak_ptr<T> getLayer();
+
         /// \brief Create a new layer
         ///
         /// \param args Arguments to pass into the constructor
