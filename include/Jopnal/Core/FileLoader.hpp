@@ -35,7 +35,7 @@
 
 namespace jop
 {
-    class FileLoader : public Subsystem
+    class JOP_API FileLoader : public Subsystem
     {
     public:
 

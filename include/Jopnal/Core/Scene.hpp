@@ -107,7 +107,7 @@ namespace jop
         /// \return Reference to the newly created layer
         ///
         template<typename T, typename ... Args>
-        T& createLayer(Args... args);
+        T& createLayer(Args&... args);
 
         /// \brief Delete a layer with the given id
         ///
@@ -118,6 +118,12 @@ namespace jop
         /// \brief Delete all layers
         ///
         void clearLayers();
+
+
+        /// \brief Replace the default layer
+        ///
+        template<typename T, typename ... Args>
+        T& setDefaultLayer(Args&... args);
 
 
         /// \brief Set the ID of this scene
@@ -217,6 +223,7 @@ namespace jop
 
         std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
+        std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
         std::string m_ID;                               ///< String holding scene identifier
     };
 

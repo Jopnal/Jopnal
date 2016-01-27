@@ -97,7 +97,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::postDraw()
+    void Window::draw()
     {
         if (isOpen())
             m_impl->swapBuffers();

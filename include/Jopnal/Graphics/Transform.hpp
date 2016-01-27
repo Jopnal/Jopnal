@@ -33,7 +33,7 @@
 
 namespace jop
 {
-    class Transform
+    class JOP_API Transform
     {
     public:
     

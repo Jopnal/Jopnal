@@ -89,7 +89,7 @@ namespace jop
         ///
         /// This will be called after the engine calls the scene's draw.
         ///
-        virtual void postDraw();
+        virtual void draw();
 
         /// \brief Function to handle messages
         ///

@@ -33,7 +33,7 @@
 
 namespace jop
 {
-    class MessageUtil
+    class JOP_API MessageUtil
     {
     public:
 

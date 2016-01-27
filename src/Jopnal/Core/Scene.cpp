@@ -201,7 +201,7 @@ namespace jop
         preDraw();
 
         for (auto& i : m_layers)
-            i->postDraw();
+            i->draw();
 
         postDraw();
     }

@@ -66,7 +66,6 @@ namespace jop
         ///
         virtual Drawable* clone() const override = 0;
 
-
         /// \brief Draw function
         ///
         virtual void draw() = 0;

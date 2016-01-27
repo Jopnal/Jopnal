@@ -24,7 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template<typename T, typename ... Args>
-T& Scene::createLayer(Args... args)
+T& Scene::createLayer(Args&... args)
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
 

@@ -41,28 +41,40 @@ namespace jop
 
     class JOP_API Layer : public Subsystem, public std::enable_shared_from_this<Layer>
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(Layer);
-
     public:
     
+        /// \brief Constructor
+        ///
+        /// \param ID Identifier of this layer
+        ///
         Layer(const std::string& ID);
 
+        /// \brief Virtual destructor
+        ///
         virtual ~Layer() override;
 
 
+        /// \brief Draw function
+        ///
+        virtual void draw() override;
+
+        /// \brief Add a new drawable component to the draw list
+        ///
+        /// \param drawable Reference to the drawable to be added
+        ///
         void addDrawable(const Drawable& drawable);
 
-        void bindOtherLayer(Layer& layer);
+        /// \brief Bind a layer's draw list into this layer
+        ///
+        /// \brief layer Reference to the layer to be bound
+        ///
+        void bindOtherLayer(const Layer& layer);
 
 
+    protected:
 
-
-    private:
-
-        std::vector<std::weak_ptr<Drawable const>> m_drawList;
-        std::vector<std::weak_ptr<Layer>> m_boundLayers;
+        std::vector<std::weak_ptr<const Drawable>> m_drawList;
+        std::vector<std::weak_ptr<const Layer>> m_boundLayers;
         std::weak_ptr<Camera> m_camera;
         std::weak_ptr<RenderTexture> m_renderTexture;
 

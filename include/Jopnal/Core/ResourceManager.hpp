@@ -37,7 +37,7 @@ namespace jop
 {
     class Resource;
 
-    class ResourceManager : public Subsystem
+    class JOP_API ResourceManager : public Subsystem
     {
     public:
 

@@ -45,6 +45,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::draw()
+    {}
+
+    //////////////////////////////////////////////
+
     void Layer::addDrawable(const Drawable& drawable)
     {
         m_drawList.emplace_back(std::static_pointer_cast<Drawable const>(drawable.shared_from_this()));
@@ -52,7 +57,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::bindOtherLayer(Layer& layer)
+    void Layer::bindOtherLayer(const Layer& layer)
     {
         m_boundLayers.emplace_back(layer.shared_from_this());
     }

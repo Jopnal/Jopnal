@@ -34,7 +34,7 @@
 
 namespace jop
 {
-    class Camera final : public Component
+    class JOP_API Camera final : public Component
     {
     private:
 

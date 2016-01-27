@@ -133,6 +133,10 @@ namespace jop
 
         /// \brief Get the shared scene
         ///
+        /// The shared scene exists for the purpose of being able to have layers & objects
+        /// that are shared between scenes. This makes it possible to have general-purpose
+        /// functionality without having to take care of it in every scene separately.
+        ///
         /// The existence of the shared scene will not be checked. Only
         /// call this function when you know there exists a valid jop::Engine
         /// object. If necessary, you can check by using jop::Engine::isRunning().
