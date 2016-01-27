@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class Resource
+    class JOP_API Resource
     {
     public:
 

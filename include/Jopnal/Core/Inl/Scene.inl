@@ -21,37 +21,26 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+template<typename T, typename ... Args>
+T& Scene::createLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_layers.emplace_back(std::make_shared<T>(args...));
+    return static_cast<T&>(*m_layers.back());
+}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T, typename ... Args>
+T& Scene::setDefaultLayer(Args&... args)
 {
-    class JOP_API MessageUtil
-    {
-    public:
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
-
-    };
+    m_defaultLayer = std::make_shared<T>(args...);
+    return static_cast<T&>(*m_defaultLayer);
 }
 
 #endif
-
-/// \class Resource
-/// \ingroup utility

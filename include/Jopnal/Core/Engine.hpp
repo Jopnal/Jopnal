@@ -98,17 +98,23 @@ namespace jop
 
         /// \brief Get a subsystem
         ///
-        /// \param name Name of the subsystem
+        /// \param ID Identifier of the subsystem
         ///
         /// \return A pointer to the subsystem. Nullptr if none found
         ///
-        Subsystem* getSubsystem(const std::string& name);
+        Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
-        /// \param name Name of the subsystem to be removed
+        /// \param ID Identifier of the subsystem to be removed
         ///
-        bool removeSubsystem(const std::string& name);
+        bool removeSubsystem(const std::string& ID);
+
+        /// \brief Check if the engine is running
+        ///
+        /// \return True if an engine object exists & m_running is true
+        ///
+        static bool isRunning();
 
         /// \brief Exit the main loop
         ///
@@ -125,10 +131,26 @@ namespace jop
         ///
         static void sendMessage(const std::string& message, void* ptr);
 
+        /// \brief Get the shared scene
+        ///
+        /// The shared scene exists for the purpose of being able to have layers & objects
+        /// that are shared between scenes. This makes it possible to have general-purpose
+        /// functionality without having to take care of it in every scene separately.
+        ///
+        /// The existence of the shared scene will not be checked. Only
+        /// call this function when you know there exists a valid jop::Engine
+        /// object. If necessary, you can check by using jop::Engine::isRunning().
+        ///
+        /// \return Reference to the shared scene
+        ///
+        static Scene& getSharedScene();
+
+
     private:
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
+        std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running
 
     };

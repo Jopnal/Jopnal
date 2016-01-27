@@ -30,52 +30,55 @@
 namespace jop
 {
     Object::Object()
-        : Transform     (),
-          m_children    (),
-          m_components  (),
-          m_ID          ()
+        : Transform                             (),
+          std::enable_shared_from_this<Object>  (),
+          m_children                            (),
+          m_components                          (),
+          m_ID                                  ()
     {}
 
     Object::Object(const Object& other)
-        : Transform     (other),
-          m_children    (),
-          m_components  (),
-          m_ID          (other.m_ID)
+        : Transform                             (other),
+          std::enable_shared_from_this<Object>  (other),
+          m_children                            (),
+          m_components                          (),
+          m_ID                                  (other.m_ID)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
-            m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+            m_components.emplace_back(std::shared_ptr<Component>(i->clone()));
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
-            m_children.emplace_back(std::make_unique<Object>(*i));
+            m_children.emplace_back(std::make_shared<Object>(*i));
     }
 
     Object::Object(const std::string& ID)
-        : Transform     (),
-          m_children    (),
-          m_components  (),
-          m_ID          (ID)
+        : Transform                             (),
+          std::enable_shared_from_this<Object>  (),
+          m_children                            (),
+          m_components                          (),
+          m_ID                                  (ID)
     {}
 
     //////////////////////////////////////////////
 
-    bool Object::hasComponent(const std::string& ID) const
+    std::weak_ptr<Component> Object::getComponent(const std::string& ID)
     {
         for (auto& i : m_components)
         {
             if (i->getID() == ID)
-                return true;
+                return std::weak_ptr<Component>(i);
         }
 
-        return false;
+        return std::weak_ptr<Component>();
     }
 
     /////////////////////////////////////////////
 
     void Object::removeComponents(const std::string& ID)
     {
-        m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
+        m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::shared_ptr<Component>& comp)
         {
             return comp->getID() == ID;
 
@@ -92,37 +95,37 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object* Object::getChild(const std::string& ID)
+    std::weak_ptr<Object> Object::getChild(const std::string& ID)
     {
         for (auto& i : m_children)
         {
             if (i->getID() == ID)
-                return i.get();
+                return std::weak_ptr<Object>(i);
         }
 
-        return nullptr;
+        return std::weak_ptr<Object>();
     }
 
     //////////////////////////////////////////////
 
-    Object* Object::cloneChild(const std::string& ID)
+    std::weak_ptr<Object> Object::cloneChild(const std::string& ID)
     {
         auto ptr = getChild(ID);
 
-        if (ptr)
+        if (!ptr.expired())
         {
-            m_children.emplace_back(std::make_unique<Object>(*ptr));
-            return m_children.back().get();
+            m_children.emplace_back(std::make_shared<Object>(*ptr.lock()));
+            return std::weak_ptr<Object>(m_children.back());
         }
 
-        return nullptr;
+        return std::weak_ptr<Object>();
     }
 
     //////////////////////////////////////////////
 
     void Object::removeChildren(const std::string& ID)
     {
-        m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [&ID](const std::unique_ptr<Object>& obj)
+        m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [&ID](const std::shared_ptr<Object>& obj)
         {
             return obj->getID() == ID;
 
@@ -167,17 +170,6 @@ namespace jop
 
         for (auto& i : m_children)
             i->fixedUpdate(timeStep);
-    }
-
-    /////////////////////////////////////////////
-
-    void Object::draw()
-    {
-        for (auto& i : m_components)
-            i->draw();
-
-        for (auto& i : m_children)
-            i->draw();
     }
 
     /////////////////////////////////////////////

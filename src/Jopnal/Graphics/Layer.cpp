@@ -29,50 +29,68 @@
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& ID)
-        : m_ID(ID)
+    Layer::Layer(const std::string& ID)
+        : Subsystem                             (ID),
+          std::enable_shared_from_this<Layer>   (),
+          m_drawList                            (),
+          m_boundLayers                         (),
+          m_camera                              (),
+          m_renderTexture                       ()
     {}
 
-    Subsystem::~Subsystem()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preFixedUpdate(const double)
-    {}
-
-    void Subsystem::postFixedUpdate(const double)
+    Layer::~Layer()
     {}
 
     //////////////////////////////////////////////
 
-    void Subsystem::preUpdate(const double)
-    {}
-
-    void Subsystem::postUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::draw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::setID(const std::string& ID)
+    void Layer::draw()
     {
-        m_ID = ID;
+        if (m_camera.expired())
+        {
+            JOP_DEBUG_ERROR("Layer \"" << getID() << "\": No camera bound");
+            return;
+        }
+
+        auto cam = m_camera.lock();
+        auto rt = m_renderTexture.lock();
+
+        for (auto& i : m_boundLayers)
+        {
+            if (!i.expired())
+            {
+                for (auto& j : i.lock()->m_drawList)
+                {
+                    if (!j.expired())
+                        j.lock()->draw(*cam, rt.get());
+                }
+            }
+        }
+
+        for (auto& i : m_drawList)
+        {
+            if (!i.expired())
+                i.lock()->draw(*cam, rt.get());
+        }
     }
 
     //////////////////////////////////////////////
 
-    const std::string& Subsystem::getID() const
+    void Layer::addDrawable(Drawable& drawable)
     {
-        return m_ID;
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::bindOtherLayer(Layer& layer)
+    {
+        m_boundLayers.emplace_back(layer.shared_from_this());
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::setCamera(const Camera& camera)
+    {
+        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
     }
 }

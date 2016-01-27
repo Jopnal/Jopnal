@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <memory>
 #include <string>
 
 //////////////////////////////////////////////
@@ -35,7 +36,7 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component
+    class JOP_API Component : public std::enable_shared_from_this<Component>
     {
     private:
 
@@ -53,6 +54,7 @@ namespace jop
 
         /// \brief Constructor
         ///
+        /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
         Component(Object& object, const std::string& ID);
@@ -85,10 +87,6 @@ namespace jop
         /// \param timeStep Double holding time step
         ///
         virtual void fixedUpdate(const double timeStep);
-
-        /// \brief Draw function for component
-        ///
-        virtual void draw();
 
         /// \brief Function to get components unique identifier m_ID
         ///

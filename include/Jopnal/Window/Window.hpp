@@ -112,7 +112,7 @@ namespace jop
         ///
         /// This swaps the OpenGL buffers
         ///
-        void postDraw() override;
+        void draw() override;
 
         /// \brief Open this window
         ///

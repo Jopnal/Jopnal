@@ -36,7 +36,7 @@ namespace jop
 {
     class Component;
 
-    class JOP_API Object : public Transform
+    class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
     {
     private:
 
@@ -61,11 +61,13 @@ namespace jop
         Object(const Object& other);
 
 
-        /// \brief Check if component exists
+        /// \brief Get a component with the given id
         ///
-        /// \param ID Unique object identifier m_ID
+        /// \param ID Component identifier to search with
         ///
-        bool hasComponent(const std::string& ID) const;
+        /// \return std::weak_ptr with the component, empty if the component wasn't found
+        ///
+        std::weak_ptr<Component> getComponent(const std::string& ID);
 
         /// \brief Template function to create components
         ///
@@ -94,7 +96,7 @@ namespace jop
         ///
         /// \return Pointer to the child if found, nullptr otherwise
         ///
-        Object* getChild(const std::string& ID);
+        std::weak_ptr<Object> getChild(const std::string& ID);
 
         /// \brief Clone a child with the given id
         ///
@@ -105,7 +107,7 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        Object* cloneChild(const std::string& ID);
+        std::weak_ptr<Object> cloneChild(const std::string& ID);
 
         /// \brief Remove children with the given id
         ///
@@ -148,10 +150,6 @@ namespace jop
         ///
         void fixedUpdate(const double timeStep);
 
-        /// \brief Draw method for objects - forwarded to its components
-        ///
-        void draw();
-
         /// \brief Update the transformation tree
         ///
         /// This is automatically called by Scene
@@ -160,8 +158,8 @@ namespace jop
 
     private:
 
-        std::vector<std::unique_ptr<Object>> m_children;      ///< Container holding this object's children
-        std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
+        std::vector<std::shared_ptr<Object>> m_children;      ///< Container holding this object's children
+        std::vector<std::shared_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
     };
 

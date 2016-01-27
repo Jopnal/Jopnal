@@ -30,13 +30,15 @@
 namespace jop
 {
     Component::Component(const Component& other)
-        : m_objectRef   (other.m_objectRef),
-          m_ID          (other.m_ID)
+        : std::enable_shared_from_this<Component>   (other),
+          m_objectRef                               (other.m_objectRef),
+          m_ID                                      (other.m_ID)
     {}
 
     Component::Component(Object& object, const std::string& ID)
-        : m_objectRef   (object),
-          m_ID          (ID)
+        : std::enable_shared_from_this<Component>   (),
+          m_objectRef                               (object),
+          m_ID                                      (ID)
     {}
 
     Component::~Component()
@@ -55,11 +57,6 @@ namespace jop
     //////////////////////////////////////////////
 
     void Component::fixedUpdate(const double)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Component::draw()
     {}
 
     //////////////////////////////////////////////

@@ -21,37 +21,24 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API MessageUtil
+    Drawable::Drawable(Object& object, Layer& layer, const std::string& ID)
+        : Component(object, ID)
     {
-    public:
+        layer.addDrawable(*this);
+    }
 
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+    Drawable::Drawable(const Drawable& other)
+        : Component(other)
+    {}
 
-    };
+    Drawable::~Drawable()
+    {}
 }
-
-#endif
-
-/// \class Resource
-/// \ingroup utility

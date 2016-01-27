@@ -35,16 +35,13 @@
 namespace jop
 {
     class Object;
+    class Layer;
 
     class JOP_API Scene 
     {
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);
-
-        /// \brief Container holding Objects
-        ///
-        typedef std::vector<std::unique_ptr<Object>> ObjectList;
 
     public:
 
@@ -59,11 +56,13 @@ namespace jop
         virtual ~Scene();
 
 
-        /// \brief Method for checking if object with 'ID' exists
+        /// \brief Get an object with the given id
         ///
-        /// \param ID Object identifier  
+        /// \param ID Object identifier
         ///
-        Object* getObject(const std::string& ID);
+        /// \return Pointer to the object if found, empty otherwise
+        ///
+        std::weak_ptr<Object> getObject(const std::string& ID);
 
         /// \brief Method that creates object
         ///
@@ -80,17 +79,58 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        Object* cloneObject(const std::string& ID);
+        std::weak_ptr<Object> cloneObject(const std::string& ID);
 
         /// \brief Method for deleting object 
         ///
         /// \param ID Object identifier 
         ///
-        void deleteObject(const std::string& ID); 
+        void deleteObject(const std::string& ID);
 
         /// \brief Method for clearing m_objects 
         ///
-        void clearObjects(); 
+        void clearObjects();
+
+
+        /// \brief Get a layer with the given id
+        ///
+        /// \param ID The identifier to search with
+        ///
+        /// \return Pointer to the layer if found, empty otherwise
+        ///
+        std::weak_ptr<Layer> getLayer(const std::string& ID);
+
+        /// \brief Create a new layer
+        ///
+        /// \param args Arguments to pass into the constructor
+        ///
+        /// \return Reference to the newly created layer
+        ///
+        template<typename T, typename ... Args>
+        T& createLayer(Args&... args);
+
+        /// \brief Delete a layer with the given id
+        ///
+        /// \param ID The id to search with
+        ///
+        void deleteLayer(const std::string& ID);
+
+        /// \brief Delete all layers
+        ///
+        void clearLayers();
+
+
+        /// \brief Replace the default layer
+        ///
+        template<typename T, typename ... Args>
+        T& setDefaultLayer(Args&... args);
+
+        /// \brief Get the default layer
+        ///
+        /// \return Reference to the default layer
+        ///
+        Layer& getDefaultLayer();
+
 
         /// \brief Set the ID of this scene
         ///
@@ -104,6 +144,7 @@ namespace jop
         ///
         const std::string& getID() const;
 
+
         /// \brief Base sendMessage function
         ///
         /// This will handle message filtering and forwarding
@@ -113,6 +154,7 @@ namespace jop
         /// \param ptr Pointer to hold extra data
         ///
         void sendMessage(const std::string& message, void* ptr);
+
 
         /// \brief Update method for scene
         ///
@@ -130,6 +172,7 @@ namespace jop
         ///
         void drawBase();
         
+
         /// \brief Method for pre-updating
         ///
         /// This will be called before objects are updated.
@@ -183,9 +226,15 @@ namespace jop
         ///
         virtual void sendMessageImpl(const std::string& message, void* ptr);
 
-        ObjectList m_objects; ///< Container holding objects
-        std::string m_ID;   ///< String holding scene identifier
+
+        std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects
+        std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
+        std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
+        std::string m_ID;                               ///< String holding scene identifier
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/Scene.inl>
 }
 
 #endif

@@ -21,37 +21,63 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
+#ifndef JOP_DRAWABLE_HPP
+#define JOP_DRAWABLE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Core/Component.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API MessageUtil
+    class Layer;
+    class Camera;
+    class RenderTexture;
+
+    class JOP_API Drawable : public Component
     {
+    private:
+
+        JOP_DISALLOW_MOVE(Drawable);
+
+        void operator =(const Drawable&) = delete;
+
     public:
+    
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param layer Reference to the layer this drawable will be bound to
+        /// \param ID Unique component identifier
+        ///
+        Drawable(Object& object, Layer& layer, const std::string& ID);
 
-        /// \brief Check if the message has the given filter symbol
+        /// \brief Copy constructor
         ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+        Drawable(const Drawable& other);
 
+        /// \brief Virtual destructor
+        ///
+        virtual ~Drawable() = 0;
+
+
+        /// \copydoc jop::Component::clone()
+        ///
+        virtual Drawable* clone() const override = 0;
+
+        /// \brief Draw function
+        ///
+        virtual void draw(const Camera&, RenderTexture* renderTexture) = 0;
+        
     };
 }
 
 #endif
 
-/// \class Resource
-/// \ingroup utility
+/// \class Drawable
+/// \ingroup graphics
+///
+/// #TODO Detailed description
