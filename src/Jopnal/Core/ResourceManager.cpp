@@ -29,62 +29,31 @@
 
 namespace jop
 {
-    Clock::Time::Time(const uint64 nsec)
-        : m_nanoseconds(nsec)
+    ResourceManager::ResourceManager()
+        : Subsystem("Resource Manager")
+    {}
+    
+    ResourceManager::~ResourceManager()
     {}
 
     //////////////////////////////////////////////
 
-    float64 Clock::Time::asSeconds() const
+    bool ResourceManager::resourceLoaded(const std::string& path)
     {
-        return static_cast<float64>(m_nanoseconds) / 1000000000.0;
+        return m_resources.find(path) != m_resources.end();
     }
 
     //////////////////////////////////////////////
 
-    uint32 Clock::Time::asMilliseconds() const
+    void ResourceManager::unloadResource(const std::string& path)
     {
-        return static_cast<uint32>(m_nanoseconds / 1000000);
+        m_resources.erase(path);
     }
 
     //////////////////////////////////////////////
 
-    uint64 Clock::Time::asMicroseconds() const
+    void ResourceManager::unloadResources()
     {
-        return m_nanoseconds / 1000;
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asNanoseconds() const
-    {
-        return m_nanoseconds;
-    }
-
-
-    //////////////////////////////////////////////
-
-
-    Clock::Clock()
-        : m_clock(),
-          m_lastTime(m_clock.now())
-    {}
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::reset()
-    {
-        const Time time(getElapsedTime());
-
-        m_lastTime = m_clock.now();
-
-        return time;
-    }
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::getElapsedTime() const
-    {
-        return Time(static_cast<uint64>(std::chrono::nanoseconds(m_clock.now() - m_lastTime).count()));
+        m_resources.clear();
     }
 }

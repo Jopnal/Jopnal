@@ -21,38 +21,17 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
-
-// Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+#ifndef JOP_MATHINCLUDE_HPP
+#define JOP_MATHINCLUDE_HPP
 
 //////////////////////////////////////////////
 
-namespace jop
-{
-    class JOP_API Resource
-    {
-    public:
+// Include all the GLM headers here
+#define GLM_PRECISION_MEDIUMP_INT
+#define GLM_PRECISION_HIGHP_FLOAT
 
-        /// \brief Virtual destructor
-        ///
-        virtual ~Resource() = 0;
-
-
-        /// \brief Virtual method for using FileLoader to load new resource from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
-
-    };
-}
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #endif
-
-/// \class Resource
-/// \ingroup core
-///
-/// This is the base class for all resources that are loaded from files

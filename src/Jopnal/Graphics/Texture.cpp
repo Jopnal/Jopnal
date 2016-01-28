@@ -34,40 +34,49 @@
 
 namespace jop
 {
-    ResourceTexture::ResourceTexture()
+    Texture::Texture()
     {
         m_textureWidth=NULL;
         m_textureHeight=NULL;
         m_bitsPerPixel=NULL;
     }
 
-	ResourceTexture::~ResourceTexture()
+    //////////////////////////////////////////////
+
+	Texture::~Texture()
 	{   }
 
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-    bool ResourceTexture::load(const std::string& path)
+    bool Texture::load(const std::string& path)
     {
- 
-            long long size = FileLoader::getSize(path.c_str());
-            std::vector<unsigned char> buf(size);
-            FileLoader::read(buf.data(), path.c_str(), size);
+            std::vector<unsigned char> buf;
+            FileLoader::read(path,buf);
           
-            //auto pixBuf = stbi_info_from_memory(&stbBuffer, size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel);
-            unsigned char* colorData = stbi_load_from_memory(buf.data(), size, &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
-
-            if (colorData != NULL)
-            {
-                for (int i = 0; i < sizeof(colorData); i += 4)
-                {
-                    std::cout << &colorData[i] << " " << &colorData[i + 1] << " " << &colorData[i + 2] << " " << &colorData[i + 3] << "\n";
-                };
-            }
+            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
             return true;
     }
 
-    int ResourceTexture::getTextureSizeAndBpp()
+    //////////////////////////////////////////////
+
+    int Texture::getWidth()
     {
-        return (m_textureWidth, m_textureHeight, m_bitsPerPixel);
+        return m_textureWidth;
+    }
+
+    //////////////////////////////////////////////
+
+    int Texture::getHeight()
+    {
+        return  m_textureHeight;
+    }
+
+    //////////////////////////////////////////////
+
+    int Texture::getBpp()
+    {
+        return m_bitsPerPixel;
     }
     
 }

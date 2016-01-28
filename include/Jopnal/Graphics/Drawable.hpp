@@ -21,38 +21,63 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef JOP_DRAWABLE_HPP
+#define JOP_DRAWABLE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Core/Component.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    class JOP_API Resource
+    class Layer;
+    class Camera;
+    class RenderTexture;
+
+    class JOP_API Drawable : public Component
     {
+    private:
+
+        JOP_DISALLOW_MOVE(Drawable);
+
+        void operator =(const Drawable&) = delete;
+
     public:
+    
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param layer Reference to the layer this drawable will be bound to
+        /// \param ID Unique component identifier
+        ///
+        Drawable(Object& object, Layer& layer, const std::string& ID);
+
+        /// \brief Copy constructor
+        ///
+        Drawable(const Drawable& other);
 
         /// \brief Virtual destructor
         ///
-        virtual ~Resource() = 0;
+        virtual ~Drawable() = 0;
 
 
-        /// \brief Virtual method for using FileLoader to load new resource from file
+        /// \copydoc jop::Component::clone()
         ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
+        virtual Drawable* clone() const override = 0;
 
+        /// \brief Draw function
+        ///
+        virtual void draw(const Camera&, RenderTexture* renderTexture) = 0;
+        
     };
 }
 
 #endif
 
-/// \class Resource
-/// \ingroup core
+/// \class Drawable
+/// \ingroup graphics
 ///
-/// This is the base class for all resources that are loaded from files
+/// #TODO Detailed description

@@ -26,6 +26,13 @@
 
 //////////////////////////////////////////////
 
+
+namespace
+{
+    std::array<bool, 16> ns_controllersPresent;
+    std::array<std::vector<unsigned char>, 16> ns_controllerButtonStates;
+}
+
 namespace
 {
 #ifdef JOP_OS_DESKTOP
@@ -173,6 +180,18 @@ namespace jop
     WindowEventHandler::WindowEventHandler(Window& windowRef)
         : m_windowRef(windowRef)
     {
+        static bool init = false;
+
+        if (!init)
+        {
+            std::memset(ns_controllersPresent.data(), 0, ns_controllersPresent.size() * sizeof(bool));
+
+            for (auto& i : ns_controllerButtonStates)
+                i.resize(20, 0);
+
+            init = true;
+        }
+
     #ifdef JOP_OS_DESKTOP
 
         auto handle = windowRef.getLibraryHandle();
@@ -335,4 +354,94 @@ namespace jop
 
     void WindowEventHandler::mouseScrolled(const float, const float)
     {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::controllerConnected(const int, const std::string&)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::controllerDisconnected(const int)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::controllerAxisShifted(const int, const int, const float)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::controllerButtonPressed(const int, const int)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::controllerButtonReleased(const int, const int)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::handleControllerInput()
+    {
+    #ifdef JOP_OS_DESKTOP
+
+        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::getUint("uMaxControllers", 4)));
+        static const float deadzone = SettingManager::getFloat("fControllerDeadzone", 0.1f);
+        static unsigned int counter = 99;
+
+        // Query the presence of controllers and update states.
+        // We won't need to check the states every single frame,
+        // so we can do a little optimization using a counter.
+        for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
+        {
+            bool present = glfwJoystickPresent(i) == gl::TRUE_;
+
+            if (present != ns_controllersPresent[i])
+            {
+                ns_controllersPresent[i] = present;
+                present ? controllerConnected(i, std::string(glfwGetJoystickName(i))) : controllerDisconnected(i);
+            }
+        }
+
+        // Query controller axes
+        for (int i = 0; i < maxControllers; ++i)
+        {
+            if (ns_controllersPresent[i])
+            {
+                int n;
+                const float* axes = glfwGetJoystickAxes(i, &n);
+
+                for (int j = 0; j < n; ++j)
+                {
+                    if (axes[j] < -deadzone || axes[j] > deadzone)
+                        controllerAxisShifted(i, j, axes[j]);
+                }
+            }
+        }
+
+        // Query controller buttons
+        for (int i = 0; i < maxControllers; ++i)
+        {
+            if (ns_controllersPresent[i])
+            {
+                int n;
+                const unsigned char* buttons = glfwGetJoystickButtons(i, &n);
+
+                if (n > static_cast<int>(ns_controllerButtonStates[i].size()))
+                    ns_controllerButtonStates[i].resize(n, 0);
+
+                for (int j = 0; j < n; ++j)
+                {
+                    if (buttons[j] != ns_controllerButtonStates[i][j])
+                    {
+                        ns_controllerButtonStates[i][j] = buttons[j];
+                        buttons[j] ? controllerButtonPressed(i, j) : controllerButtonReleased(i, j);
+                    }
+                }
+            }
+        }
+
+    #endif
+    }
 }

@@ -48,11 +48,15 @@ namespace
     {
         if (!checkConsoleWindow())
         {
+            HWND foregroundWindow = GetForegroundWindow();
+
             if (!AllocConsole())
             {
                 JOP_ASSERT(false, "Failed to allocate console window!");
                 return;
             }
+
+            SetForegroundWindow(foregroundWindow);
 
             _open_osfhandle(INT_PTR(GetStdHandle(STD_INPUT_HANDLE)), _O_TEXT);
             _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
@@ -192,7 +196,7 @@ namespace jop
         return instance;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     bool DebugHandler::isConsoleEnabled()
     {

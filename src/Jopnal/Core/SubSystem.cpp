@@ -29,8 +29,8 @@
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& name)
-        : m_name(name)
+    Subsystem::Subsystem(const std::string& ID)
+        : m_ID(ID)
     {}
 
     Subsystem::~Subsystem()
@@ -54,20 +54,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::postDraw()
+    void Subsystem::draw()
     {}
 
     //////////////////////////////////////////////
 
-    void Subsystem::setName(const std::string& name)
+    void Subsystem::sendMessage(const std::string&, void*)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Subsystem::setID(const std::string& ID)
     {
-        m_name = name;
+        m_ID = ID;
     }
 
     //////////////////////////////////////////////
 
-    const std::string& Subsystem::getName() const
+    const std::string& Subsystem::getID() const
     {
-        return m_name;
+        return m_ID;
     }
 }

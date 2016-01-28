@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef JOP_TEXTURE_HPP
+#define JOP_TEXTURE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -32,27 +32,48 @@
 
 namespace jop
 {
-    class JOP_API Resource
-    {
-    public:
+	class Texture:public Resource
+	{
+	public:
 
-        /// \brief Virtual destructor
+        /// \brief Constructor
         ///
-        virtual ~Resource() = 0;
+        Texture();
 
+		/// \brief Destructor
+		///
+		~Texture();
 
-        /// \brief Virtual method for using FileLoader to load new resource from file
+		/// \brief Method for using Fileloader to load new resource from file
+		///
+		/// \param Name or path for wanted resource
+		///
+		bool load(const std::string& path);
+
+        /// \brief Returns image's width
         ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
+        int getWidth();
 
+        /// \brief Returns image's height
+        ///
+        int getHeight();
+
+        /// \brief Returns image's bits per pixel value
+        ///
+        int getBpp();
+
+    private:
+      int m_textureWidth;
+      int m_textureHeight;
+      int m_bitsPerPixel;
     };
 }
 
 #endif
 
-/// \class Resource
+/// \class Texture
 /// \ingroup core
-///
-/// This is the base class for all resources that are loaded from files
+
+//this is the base class for all resources that are loaded from files:
+//sprites, sounds, scene data...
+//processed for use

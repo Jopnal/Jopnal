@@ -29,62 +29,61 @@
 
 namespace jop
 {
-    Clock::Time::Time(const uint64 nsec)
-        : m_nanoseconds(nsec)
+    Component::Component(const Component& other)
+        : std::enable_shared_from_this<Component>   (other),
+          m_objectRef                               (other.m_objectRef),
+          m_ID                                      (other.m_ID)
+    {}
+
+    Component::Component(Object& object, const std::string& ID)
+        : std::enable_shared_from_this<Component>   (),
+          m_objectRef                               (object),
+          m_ID                                      (ID)
+    {}
+
+    Component::~Component()
     {}
 
     //////////////////////////////////////////////
 
-    float64 Clock::Time::asSeconds() const
-    {
-        return static_cast<float64>(m_nanoseconds) / 1000000000.0;
-    }
-
-    //////////////////////////////////////////////
-
-    uint32 Clock::Time::asMilliseconds() const
-    {
-        return static_cast<uint32>(m_nanoseconds / 1000000);
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asMicroseconds() const
-    {
-        return m_nanoseconds / 1000;
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asNanoseconds() const
-    {
-        return m_nanoseconds;
-    }
-
-
-    //////////////////////////////////////////////
-
-
-    Clock::Clock()
-        : m_clock(),
-          m_lastTime(m_clock.now())
+    void Component::sendMessage(const std::string&, void*)
     {}
 
     //////////////////////////////////////////////
 
-    Clock::Time Clock::reset()
+    void Component::update(double)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Component::fixedUpdate(const double)
+    {}
+
+    //////////////////////////////////////////////
+
+    const std::string& Component::getID() const
     {
-        const Time time(getElapsedTime());
-
-        m_lastTime = m_clock.now();
-
-        return time;
+        return m_ID;
     }
 
     //////////////////////////////////////////////
 
-    Clock::Time Clock::getElapsedTime() const
+    void Component::setID(const std::string& ID)
     {
-        return Time(static_cast<uint64>(std::chrono::nanoseconds(m_clock.now() - m_lastTime).count()));
+        m_ID = ID;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Component::getObject()
+    {
+        return m_objectRef;
+    }
+
+    //////////////////////////////////////////////
+
+    const Object& Component::getObject() const
+    {
+        return m_objectRef;
     }
 }

@@ -21,38 +21,24 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+extern int main(int argc, char* argv[]);
 
-//////////////////////////////////////////////
+#ifdef _WIN32
 
-namespace jop
-{
-    class JOP_API Resource
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef VC_EXTRALEAN
+        #define VC_EXTRALEAN
+    #endif
+
+    #include <Windows.h>
+    #include <cstdlib>
+
+    int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
     {
-    public:
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~Resource() = 0;
-
-
-        /// \brief Virtual method for using FileLoader to load new resource from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
-
-    };
-}
+        return main(__argc, __argv);
+    }
 
 #endif
-
-/// \class Resource
-/// \ingroup core
-///
-/// This is the base class for all resources that are loaded from files

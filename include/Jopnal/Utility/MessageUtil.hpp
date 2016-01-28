@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCETEXTURE_HPP
-#define JOP_RESOURCETEXTURE_HPP
+#ifndef JOP_MESSAGEUTIL_HPP
+#define JOP_MESSAGEUTIL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -30,42 +30,28 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-	class ResourceTexture:public Resource
-	{
-	public:
+    class JOP_API MessageUtil
+    {
+    public:
 
-        /// \brief Constructor
+        /// \brief Check if the message has the given filter symbol
         ///
-        ResourceTexture();
-
-		/// \brief Destructor
-		///
-		~ResourceTexture();
-
-		/// \brief Method for using Fileloader to load new resource from file
-		///
-		/// \param Name or path for wanted resource
-		///
-		bool load(const std::string& path);
-
-        /// \brief Returns image's size and bits per pixel value
+        /// This function is used to check how a message should be filtered.
+        /// If the message doesn't contain a proper filtering field, this test will pass.
         ///
-        int getTextureSizeAndBpp();
+        /// \param message The message in its entirety
+        /// \param symbol The filter symbol to check
+        ///
+        /// \return True if symbol was found
+        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
-    private:
-      int m_textureWidth;
-      int m_textureHeight;
-      int m_bitsPerPixel;
     };
 }
 
 #endif
 
-/// \class ResourceTexture
-/// \ingroup core
-
-//this is the base class for all resources that are loaded from files:
-//sprites, sounds, scene data...
-//processed for use
+/// \class Resource
+/// \ingroup utility

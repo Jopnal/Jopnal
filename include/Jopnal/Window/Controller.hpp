@@ -21,38 +21,58 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef JOP_CONTROLLER_HPP
+#define JOP_CONTROLLER_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <string>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    class JOP_API Resource
+    class Controller
     {
     public:
 
-        /// \brief Virtual destructor
+        /// X-Box controller buttons
         ///
-        virtual ~Resource() = 0;
+        struct XBox
+        {
+            enum Button
+            {
+                A,
+                B,
+                X,
+                Y,
+                LShoulder,
+                RShoulder,
+                Back,
+                Start,
+                LStick,
+                RStick,
+                PadUp,
+                PadRight,
+                PadDown,
+                PadLeft,
+            };
 
-
-        /// \brief Virtual method for using FileLoader to load new resource from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
-
+            enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                Triggers,
+                RightStickY,
+                RightStickX
+            };
+        };
     };
 }
 
 #endif
 
-/// \class Resource
-/// \ingroup core
+/// \class Controller
+/// \ingroup window
 ///
-/// This is the base class for all resources that are loaded from files
+/// #TODO Detailed description

@@ -43,4 +43,7 @@
 // Asserts
 #define JOP_ENABLE_ASSERTS
 
+// Dynamic build (.dll)
+//#define JOP_DYNAMIC
+
 #endif
