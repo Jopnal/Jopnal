@@ -35,8 +35,9 @@
 namespace jop
 {
     class Subsystem;
+    class Scene;
 
-    class JOP_API Engine
+    class JOP_API Engine final
     {
     public:
 
@@ -62,7 +63,7 @@ namespace jop
 
         /// \brief Load the default subsystem configuration
         ///
-        void loadDefaultSubsystems();
+        void loadDefaultConfiguration();
 
         /// \brief Run the main loop
         ///
@@ -72,14 +73,21 @@ namespace jop
         ///
         int runMainLoop();
 
+
         /// \brief Create a scene
+        ///
+        /// This function will construct the scene and then set it as active.
+        /// The previously active scene will be discarded.
+        ///
+        /// #TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
         ///
         /// \param args The arguments to be used in the scene's construction
         ///
         /// \return A reference to the newly created scene
         ///
-        //template<typename T, typename ... Args>
-        //T& createScene(Args&... args);
+        template<typename T, typename ... Args>
+        T& createScene(Args&... args);
+
 
         /// \brief Create a subsystem
         ///
@@ -90,19 +98,33 @@ namespace jop
         template<typename T, typename ... Args>
         T& createSubsystem(Args&... args);
 
+        /// \brief Get a subsystem using type info
+        ///
+        /// \return Pointer to the subsystem. Nullptr if not found
+        ///
+        template<typename T>
+        T* getSubsystem();
+
         /// \brief Get a subsystem
         ///
-        /// \param name Name of the subsystem
+        /// \param ID Identifier of the subsystem
         ///
-        /// \return A pointer to the subsystem. Nullptr if none found
+        /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        Subsystem* getSubsystem(const std::string& name);
+        Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
-        /// \param name Name of the subsystem to be removed
+        /// \param ID Identifier of the subsystem to be removed
         ///
-        bool removeSubsystem(const std::string& name);
+        bool removeSubsystem(const std::string& ID);
+
+
+        /// \brief Check if the engine is running
+        ///
+        /// \return True if an engine object exists & m_running is true
+        ///
+        static bool isRunning();
 
         /// \brief Exit the main loop
         ///
@@ -112,9 +134,33 @@ namespace jop
         ///
         static void exit();
 
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
+        /// \param ptr Pointer to hold extra data
+        ///
+        static void sendMessage(const std::string& message, void* ptr);
+
+        /// \brief Get the shared scene
+        ///
+        /// The shared scene exists for the purpose of being able to have layers & objects
+        /// that are shared between scenes. This makes it possible to have general-purpose
+        /// functionality without having to take care of it in every scene separately.
+        ///
+        /// The existence of the shared scene will not be checked. Only
+        /// call this function when you know there exists a valid jop::Engine
+        /// object. If necessary, you can check by using jop::Engine::isRunning().
+        ///
+        /// \return Reference to the shared scene
+        ///
+        static Scene& getSharedScene();
+
+
     private:
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        std::unique_ptr<Scene> m_currentScene;                ///< The current scene
+        std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running
 
     };
@@ -124,6 +170,15 @@ namespace jop
     /// \return A reference to the internal string containing the project name
     ///
     JOP_API const std::string& getProjectName();
+
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message String holding message
+    /// \param ptr Pointer to hold extra data
+    ///
+    JOP_API void broadcast(const std::string& message, void* ptr);
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>

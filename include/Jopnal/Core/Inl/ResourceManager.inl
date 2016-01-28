@@ -21,30 +21,37 @@
 
 //////////////////////////////////////////////
 
-template<typename T> 
-T* ResourceManager::getResource(const std::string& path)
-{
-	auto it = m_resources.find(path);
-	if (it == m_resources.end())
-	{
-		auto res = std::make_unique<T>();
-		if (res->load(path))
-		{
-			m_resources[path] = std::move(res);
-			return static_cast<T*>(m_resources[path].get());
-		}
-		JOP_DEBUG_ERROR("Can't load resource data");
-		return nullptr;
-	}
-	else
-	{
-		if (typeid(T) == typeid(*it->second.get()))
-			return static_cast<T*>(it->second.get());
-		else
-		{
-			JOP_DEBUG_ERROR("Resource is not compatible");
-			return nullptr;
-		}
 
-	}
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+template<typename T> 
+std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
+{
+    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+
+    auto it = m_resources.find(path);
+
+    if (it == m_resources.end())
+    {
+        auto res = std::make_shared<T>();
+
+        if (res->load(path))
+        {
+            m_resources[path] = std::move(res);
+            return std::weak_ptr<T>(static_pointer_cast<T>(m_resources[path]));
+        }
+
+        JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+    }
+    else
+    {
+        if (typeid(T) == typeid(*it->second.get()))
+            return std::weak_ptr<T>(static_pointer_cast<T*>(it->second));
+        else
+            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
+    }
+
+    return std::weak_ptr<T>();
 }
+
+#endif

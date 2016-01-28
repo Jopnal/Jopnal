@@ -21,59 +21,37 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_MESSAGEUTIL_HPP
+#define JOP_MESSAGEUTIL_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Model::Model()
-    {}
-
-    Model::~Model()
-    {}
-
-    bool Model::loadObject(const char* filepath)
+    class JOP_API MessageUtil
     {
-        std::string err;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-      bool ret = tinyobj::LoadObj(shapes,materials,err,filepath);
-      if (!err.empty())
-      {
-          std::cerr << err << std::endl;
-      }
-      if (!ret)
-          return false;
+    public:
 
-          positions = shapes.front().mesh.positions;
-          normals = shapes.front().mesh.normals;
-          texcoords = shapes.front().mesh.texcoords;
-          indices = shapes.front().mesh.indices;
-          //material_ids.emplace_back(it->mesh.material_ids);
-      
-      return true;
-    }
+        /// \brief Check if the message has the given filter symbol
+        ///
+        /// This function is used to check how a message should be filtered.
+        /// If the message doesn't contain a proper filtering field, this test will pass.
+        ///
+        /// \param message The message in its entirety
+        /// \param symbol The filter symbol to check
+        ///
+        /// \return True if symbol was found
+        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
-    const std::vector<unsigned int>& Model::getIndices()
-    {
-        return indices;
-    }
-
-    const std::vector<float>& Model::getVertexPositions()
-    {
-        return positions;
-    }
-
-    const std::vector<float>& Model::getNormals()
-    {
-        return normals;
-    }
-
-    const std::vector<float>& Model::getTexCoords()
-    {
-        return texcoords;
-    }
+    };
 }
+
+#endif
+
+/// \class Resource
+/// \ingroup utility

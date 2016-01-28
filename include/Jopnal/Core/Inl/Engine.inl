@@ -21,23 +21,44 @@
 
 //////////////////////////////////////////////
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-//template<typename T, typename ... Args>
-//T& Engine::createScene(Args&... args)
-//{
-//    static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create an object which is not derived from jop::Scene");
-//
-//    m_scenes.emplace_back(std::make_unique<T>(args...));
-//    return *m_scenes.back();
-//}
+template<typename T, typename ... Args>
+T& Engine::createScene(Args&... args)
+{
+    static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create a scene which is not derived from jop::Scene");
+
+    m_currentScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_currentScene);
+}
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
 T& Engine::createSubsystem(Args&... args)
 {
-    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create an object which is not derived from jop::Subsystem");
+    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create a subsystem which is not derived from jop::Subsystem");
 
     m_subsystems.emplace_back(std::make_unique<T>(args...));
     return static_cast<T&>(*m_subsystems.back());
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+T* Engine::getSubsystem()
+{
+    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_subsystems)
+    {
+        if (typeid(*i) == ti)
+            return static_cast<T*>(i.get());
+    }
+
+    return nullptr;
+}
+
+#endif

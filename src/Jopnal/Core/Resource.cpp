@@ -26,8 +26,9 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-	Resource::~Resource()
-	{}
+    Resource::~Resource()
+    {}
 }

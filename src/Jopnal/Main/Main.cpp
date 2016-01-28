@@ -21,20 +21,11 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
 
-//******** HEADERS ********//
+extern int main(int argc, char* argv[]);
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+#ifdef _WIN32
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
     #ifndef WIN32_LEAN_AND_MEAN
         #define WIN32_LEAN_AND_MEAN
     #endif
@@ -43,47 +34,11 @@
     #endif
 
     #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
+    #include <cstdlib>
 
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysFS
-#include<PhysicsFS\physfs.h>
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-#include <string>
-#include <vector>
-#include <streambuf>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
-
+    int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
+    {
+        return main(__argc, __argv);
+    }
 
 #endif

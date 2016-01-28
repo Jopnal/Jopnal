@@ -26,51 +26,68 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <unordered_map>
-
+#include <memory>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-	/// \forward declaration for Resource class
-	///
-	class Resource;
+    class Resource;
 
-	class ResourceManager
-	{
-	public:
+    class JOP_API ResourceManager : public Subsystem
+    {
+    public:
 
-		/// \brief Default constructor
-		///
-		ResourceManager();
+        /// \brief Default constructor
+        ///
+        ResourceManager();
 
-		/// \brief Default destructor
-		///
-		~ResourceManager();
+        /// \brief Destructor
+        ///
+        ~ResourceManager() override;
 
-		/// \brief Template function finds resource
-		///
-		/// if resource is not found it makes new one
-		///
-		/// \param Name or path for wanted resource
-		///
-		template<typename T> T* getResource(const std::string& path);
 
-		/// \brief Deletes resource from memory
-		///
-		/// \param Name or path for wanted resource
-		///
-		bool unloadResource(const std::string& path);
+        /// \brief Template function finds resource
+        ///
+        /// If resource is not found this creates a new one
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        template<typename T>
+        std::weak_ptr<T> getResource(const std::string& path);
 
-		/// \brief Deletes all resources from memory
-		///
-		void unloadAll();
-	private:
-		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;///< Container holds resources
-	};
+        /// \brief Check if a particular resource exists and is loaded
+        ///
+        /// \param path Path to resource
+        ///
+        /// \return True if resource is loaded
+        ///
+        bool resourceLoaded(const std::string& path);
+
+        /// \brief Deletes resource from memory
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        void unloadResource(const std::string& path);
+
+        /// \brief Deletes all resources from memory
+        ///
+        void unloadResources();
+
+    private:
+
+        std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
+
+    };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/ResourceManager.inl>
 }
+
 #endif
 
-///\class ResourceManager
+/// \class ResourceManager
 /// \ingroup core

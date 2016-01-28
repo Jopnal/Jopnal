@@ -23,10 +23,11 @@
 
 #ifndef RESOURCEMODEL_HPP
 #define RESOURCEMODEL_HPP
-#define TINYOBJLOADER_IMPLEMENTATION
+
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 
 //////////////////////////////////////////////
 
@@ -37,7 +38,7 @@ namespace jop
     ///
     /// NOTE: Currently only supports .obj format.
     ///
-    class JOP_API Model
+    class JOP_API Model : public Resource
     {
     public:
         Model();
@@ -47,7 +48,7 @@ namespace jop
         ///
         /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
         ///
-        bool loadObject(const char* filepath);
+        bool load(const std::string& filePath);
         /// \brief Method to get index values from container
         ///
         const std::vector<unsigned int>& getIndices();

@@ -21,38 +21,44 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-//////////////////////////////////////////////
-
-namespace jop
+template<typename T>
+std::weak_ptr<T> Scene::getLayer()
 {
-	ResourceManager::ResourceManager()
-	{}
-	
-	ResourceManager::~ResourceManager()
-	{}
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
 
-	bool ResourceManager::unloadResource(const std::string& path)
-	{
-		auto it = m_resources.find(path);
-		if (it == m_resources.end())
-		{
-			JOP_DEBUG_ERROR("Error 404: Resource not found.");
-			return false;
-		}
-		else
-		{
-			m_resources.erase(it);
-			return true;
-		}
-	}
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_layers)
+    {
+        if (typeid(*i) == ti)
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+    }
+
+    return std::weak_ptr<T>();
+}
 
 //////////////////////////////////////////////
 
-	void ResourceManager::unloadAll()
-	{
-		m_resources.clear();
-	}
+template<typename T, typename ... Args>
+T& Scene::createLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_layers.emplace_back(std::make_shared<T>(args...));
+    return static_cast<T&>(*m_layers.back());
 }
+
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Scene::setDefaultLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_defaultLayer = std::make_shared<T>(args...);
+    return static_cast<T&>(*m_defaultLayer);
+}
+
+#endif
