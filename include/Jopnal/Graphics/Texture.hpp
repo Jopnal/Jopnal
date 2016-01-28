@@ -50,6 +50,14 @@ namespace jop
 		///
 		bool load(const std::string& path);
 
+        /// \brief Creates flat/empty texture
+        ///
+        /// \param Takes width height and bits and sorts them with '!' mark
+        ///
+        /// Example: !800!600!4
+        ///
+        bool loadEmpty(const std::string& xyBpp);
+
         /// \brief Returns image's width
         ///
         int getWidth();

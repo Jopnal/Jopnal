@@ -51,11 +51,43 @@ namespace jop
 
     bool Texture::load(const std::string& path)
     {
+        if (path[0] == '!')
+              return loadEmpty(path);
+        else
+        {
             std::vector<unsigned char> buf;
-            FileLoader::read(path,buf);
-          
+            FileLoader::read(path, buf);
+
             unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
             return true;
+        }
+    }
+
+    //////////////////////////////////////////////
+ 
+    bool Texture::loadEmpty(const std::string& xyBpp)
+    {
+        std::string variable="";
+        for (int i = 1; i <= xyBpp.size(); i++)
+        {
+            if (xyBpp[i] != '!')
+                variable.insert(variable.end(), xyBpp[i]);
+            else
+            {
+                if (m_textureWidth == NULL)
+                    m_textureWidth = std::stoi(variable);
+                else if (m_textureHeight == NULL)
+                    m_textureHeight = std::stoi(variable);
+            }
+            if (xyBpp[i] == '!'&&xyBpp[i + 1] != NULL)
+                variable = "";
+        }
+        m_bitsPerPixel = std::stoi(variable);
+        if (m_textureWidth != NULL || m_textureHeight != NULL || m_bitsPerPixel != NULL/*glTexture2D*/)
+            return true;
+        else
+            JOP_DEBUG_ERROR("Couldn't create resource: " << xyBpp); 
+            return false;
     }
 
     //////////////////////////////////////////////
