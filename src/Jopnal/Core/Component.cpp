@@ -46,8 +46,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Component::sendMessage(const std::string&, void*)
-    {}
+    MessageResult Component::sendMessage(const std::string&, void*)
+    {
+        return MessageResult::Continue;
+    }
 
     //////////////////////////////////////////////
 

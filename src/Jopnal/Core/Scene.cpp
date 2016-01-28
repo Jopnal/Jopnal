@@ -144,15 +144,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessage(const std::string& message, void* ptr)
+    MessageResult Scene::sendMessage(const std::string& message, void* ptr)
     {
-        sendMessageImpl(message, ptr);
+        if (sendMessageImpl(message, ptr) == MessageResult::Escape)
+            return MessageResult::Escape;
 
         for (auto& i : m_objects)
-            i->sendMessage(message, ptr);
+        {
+            if (i->sendMessage(message, ptr) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
 
         for (auto& i : m_layers)
-            i->sendMessage(message, ptr);
+        {
+            if (i->sendMessage(message, ptr) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
+
+        return MessageResult::Continue;
     }
 
     //////////////////////////////////////////////
@@ -238,6 +247,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessageImpl(const std::string&, void*)
-    {}
+    MessageResult Scene::sendMessageImpl(const std::string&, void*)
+    {
+        return MessageResult::Continue;
+    }
 }

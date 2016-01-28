@@ -232,7 +232,7 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual void sendMessageImpl(const std::string& message, void* ptr);
+        virtual MessageResult sendMessageImpl(const std::string& message, void* ptr);
 
 
         std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects

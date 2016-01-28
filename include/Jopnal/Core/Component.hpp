@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/MessageUtil.hpp>
 #include <memory>
 #include <string>
 
@@ -74,7 +75,7 @@ namespace jop
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual void sendMessage(const std::string& message, void* ptr);
+        virtual MessageResult sendMessage(const std::string& message, void* ptr);
 
         /// \brief Update function for component
         ///

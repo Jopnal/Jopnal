@@ -135,7 +135,7 @@ namespace jop
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
         ///
-        void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, void* ptr);
 
 
         /// \brief Method for getting m_ID
