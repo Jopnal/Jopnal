@@ -56,7 +56,6 @@ namespace jop
             }
         };
 
-        
         std::string err;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -64,7 +63,6 @@ namespace jop
         std::iostream is();
         is().rdbuf()->pubsetbuf(reinterpret_cast<char*>(buffer[0]), buffer.size());
         
-       
         bool ret = tinyobj::LoadObj(shapes, materials, err, is(), MatRead());
       if (!err.empty())
       {

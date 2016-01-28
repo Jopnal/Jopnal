@@ -48,6 +48,8 @@ namespace jop
         ///
         /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
         ///
+        /// \param filePath The path to the file you want to load
+        ///
         bool load(const std::string& filePath);
         /// \brief Method to get index values from container
         ///
@@ -74,5 +76,5 @@ namespace jop
 
 #endif
 
-/// \class ResourceModel
-/// \ingroup core
+/// \class Model
+/// \ingroup graphics
