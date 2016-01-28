@@ -21,15 +21,24 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
 
-//////////////////////////////////////////////
+extern int main(int argc, char* argv[]);
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+#ifdef _WIN32
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef VC_EXTRALEAN
+        #define VC_EXTRALEAN
+    #endif
+
+    #include <Windows.h>
+    #include <cstdlib>
+
+    int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
+    {
+        return main(__argc, __argv);
+    }
+
+#endif

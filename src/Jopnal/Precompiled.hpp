@@ -56,7 +56,7 @@
 #include <GLFW/glfw3.h>
 
 // GLM
-#include <glm/glm.hpp>
+#include <Jopnal/MathInclude.hpp>
 
 // RapidJSON
 #pragma warning(push)
@@ -77,6 +77,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <array>
 #include <string>
 
 // Jopnal

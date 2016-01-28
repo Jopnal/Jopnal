@@ -49,7 +49,7 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_COPY(Window);
+        JOP_DISALLOW_COPY_MOVE(Window);
 
     public:
 
@@ -66,6 +66,8 @@ namespace jop
         ///
         struct Settings
         {
+            Settings(const bool loadSettings);
+
             glm::uvec2 size;
             std::string title;
             DisplayMode displayMode;
@@ -88,17 +90,17 @@ namespace jop
         ///
         Window(const Settings& settings);
 
-        /// \brief Move constructor
-        Window(Window&& other);
-
-        /// \brief Move assignment operator
-        ///
-        Window& operator =(Window&& other);
-
         /// \brief Destructor
         ///
         ~Window() override;
 
+        
+        /// \brief The pre-update function
+        ///
+        /// This will simply set an internal boolean flag so
+        /// we know when a new frame has begun.
+        ///
+        void preUpdate(const double dt) override;
 
         /// \brief The post-update function
         ///
@@ -110,7 +112,7 @@ namespace jop
         ///
         /// This swaps the OpenGL buffers
         ///
-        void postDraw() override;
+        void draw() override;
 
         /// \brief Open this window
         ///
@@ -137,6 +139,9 @@ namespace jop
         void setClearColor(const Color& color);
 
         /// \brief Set the event handler
+        ///
+        /// This function will automatically pass a reference of this
+        /// window into the handler's constructor.
         ///
         /// \param args The arguments to use with construction
         ///

@@ -21,28 +21,48 @@
 
 //////////////////////////////////////////////
 
-#ifndef FILE_LOADER_HPP
-#define FILE_LOADER_HPP
+#ifndef JOP_FILELOADER_HPP
+#define JOP_FILELOADER_HPP
+
+// Headers
+#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <string>
+#include <vector>
 
 /////////////////////////////////////////////
 
 
-class FileLoader
+namespace jop
 {
-public:
-	FileLoader() = delete;
+    class JOP_API FileLoader : public Subsystem
+    {
+    public:
 
-	static void init(const char * argv);
+        /// \brief Constructor
+        ///
+        /// Initializes the PhysicsFs file system
+        ///
+        /// \param argv The first element of the char* array passed from main()
+        ///
+        FileLoader(const char* argv);
 
-	static void deinit();
-
-	static long long getSize(const char* fileName);
-
-	static void read(void* data, const char* fileName,int size);
-
-	static void write(const char* fileName,const char* filePath, char* fileBuffer);
-	
-};
+        /// \brief Destructor
+        ///
+        /// Deinitializes the PhysicsFs file system
+        ///
+        ~FileLoader() override;
 
 
+        /// \brief Reads data from file into a buffer
+        ///
+        /// \param pointer to premade data array
+        /// 
+        static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
+
+    };
+}
 #endif
+
+/// \class FileLoader
+/// \ingroup core

@@ -29,62 +29,16 @@
 
 namespace jop
 {
-    Clock::Time::Time(const uint64 nsec)
-        : m_nanoseconds(nsec)
+    Drawable::Drawable(Object& object, Layer& layer, const std::string& ID)
+        : Component(object, ID)
+    {
+        layer.addDrawable(*this);
+    }
+
+    Drawable::Drawable(const Drawable& other)
+        : Component(other)
     {}
 
-    //////////////////////////////////////////////
-
-    float64 Clock::Time::asSeconds() const
-    {
-        return static_cast<float64>(m_nanoseconds) / 1000000000.0;
-    }
-
-    //////////////////////////////////////////////
-
-    uint32 Clock::Time::asMilliseconds() const
-    {
-        return static_cast<uint32>(m_nanoseconds / 1000000);
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asMicroseconds() const
-    {
-        return m_nanoseconds / 1000;
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asNanoseconds() const
-    {
-        return m_nanoseconds;
-    }
-
-
-    //////////////////////////////////////////////
-
-
-    Clock::Clock()
-        : m_clock(),
-          m_lastTime(m_clock.now())
+    Drawable::~Drawable()
     {}
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::reset()
-    {
-        const Time time(getElapsedTime());
-
-        m_lastTime = m_clock.now();
-
-        return time;
-    }
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::getElapsedTime() const
-    {
-        return Time(static_cast<uint64>(std::chrono::nanoseconds(m_clock.now() - m_lastTime).count()));
-    }
 }

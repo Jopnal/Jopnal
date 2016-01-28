@@ -21,15 +21,58 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_CONTROLLER_HPP
+#define JOP_CONTROLLER_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
+
+namespace jop
+{
+    class Controller
+    {
+    public:
+
+        /// X-Box controller buttons
+        ///
+        struct XBox
+        {
+            enum Button
+            {
+                A,
+                B,
+                X,
+                Y,
+                LShoulder,
+                RShoulder,
+                Back,
+                Start,
+                LStick,
+                RStick,
+                PadUp,
+                PadRight,
+                PadDown,
+                PadLeft,
+            };
+
+            enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                Triggers,
+                RightStickY,
+                RightStickX
+            };
+        };
+    };
+}
+
+#endif
+
+/// \class Controller
+/// \ingroup window
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

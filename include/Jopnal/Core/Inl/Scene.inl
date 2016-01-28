@@ -21,15 +21,44 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+template<typename T>
+std::weak_ptr<T> Scene::getLayer()
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_layers)
+    {
+        if (typeid(*i) == ti)
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+    }
+
+    return std::weak_ptr<T>();
+}
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+template<typename T, typename ... Args>
+T& Scene::createLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_layers.emplace_back(std::make_shared<T>(args...));
+    return static_cast<T&>(*m_layers.back());
+}
+
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Scene::setDefaultLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
+
+    m_defaultLayer = std::make_shared<T>(args...);
+    return static_cast<T&>(*m_defaultLayer);
+}
+
+#endif

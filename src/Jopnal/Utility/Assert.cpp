@@ -35,7 +35,9 @@ namespace jop
         {
         #if defined(JOP_OS_WINDOWS)
 
-            std::string newStr = "File: " + file;
+            auto slashPos = file.find_last_of("/\\");
+
+            std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
             newStr += "\nLine: " + std::to_string(line);
             newStr += "\n\n" + message;
 

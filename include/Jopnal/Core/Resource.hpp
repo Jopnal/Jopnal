@@ -21,46 +21,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESPURCE_H
-#define JOP_RESPURCE_H
+#ifndef JOP_RESOURCE_HPP
+#define JOP_RESOURCE_HPP
 
 // Headers
-#include <jopnal/Header.hpp>
+#include <Jopnal/Header.hpp>
 #include <string>
+
 //////////////////////////////////////////////
 
 namespace jop
 {
-	//this is the base class for all resources that are loaded from files:
-	//sprites, sounds, scene data...
-	//processed for use
-	class Resource
-	{
-	public:
-		virtual bool load(std::string path) = 0;
-	private:
-	};
+    class JOP_API Resource
+    {
+    public:
 
-	//////////////////////////////////////////////
+        /// \brief Virtual destructor
+        ///
+        virtual ~Resource() = 0;
 
-	class TextResource : public jop::Resource
-	{
-	public:
-		bool load(std::string path)override
-		{
-			const char * charPath = path.c_str();
-			long long size = FileLoader::getSize(charPath);
-			char* resBuf = new char[size+1];
-			FileLoader::read(resBuf, charPath, size);
-			resBuf[size] = '\0';
-			text = std::string(resBuf);
 
-			return true;
-		}
-		void write(){ JOP_DEBUG_INFO(text); }
-	private:
-		std::string text;
-	};
+        /// \brief Virtual method for using FileLoader to load new resource from file
+        ///
+        /// \param path Name or path for wanted resource
+        ///
+        virtual bool load(const std::string& path) = 0;
+
+    };
 }
 
 #endif
+
+/// \class Resource
+/// \ingroup core
+///
+/// This is the base class for all resources that are loaded from files

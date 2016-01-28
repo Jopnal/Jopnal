@@ -21,67 +21,73 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESPURCEMANAGER_H
-#define JOP_RESPURCEMANAGER_H
+#ifndef JOP_RESOURCEMANAGER_HPP
+#define JOP_RESOURCEMANAGER_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <unordered_map>
-
+#include <memory>
 
 //////////////////////////////////////////////
+
 
 namespace jop
 {
-	class Resource;
+    class Resource;
 
-	class ResourceManager
-	{
-	public:
-		ResourceManager()
-		{
+    class JOP_API ResourceManager : public Subsystem
+    {
+    public:
 
-		}
-		~ResourceManager()
-		{
-			m_resources.clear();
-		}
+        /// \brief Default constructor
+        ///
+        ResourceManager();
 
-		template<typename T> T* getResource(const std::string& path);
-		bool unloadResource(const std::string& path);
-		void unloadAll();
-	private:
-		std::unordered_map < std::string, std::unique_ptr<Resource>> m_resources;
-	};
-}
+        /// \brief Destructor
+        ///
+        ~ResourceManager() override;
 
-//////////////////////////////////////////////
 
-template<typename T> T* jop::ResourceManager::getResource(const std::string& path)
-{
-	auto it = m_resources.find(path);
-	if (it == m_resources.end())
-	{
-		auto res = std::make_unique<T>();
-		if (res->load(path))
-		{
-			m_resources[path] = std::move(res);
-			return static_cast<T*>(m_resources[path].get());
-		}
-		JOP_DEBUG_ERROR("Can't load resource data");
-		return nullptr;
-	}
-	else
-	{
-		if (typeid(T) == typeid(*it->second.get()))
-			return static_cast<T*>(it->second.get());
-		else
-		{
-			JOP_DEBUG_ERROR("Resource is not compatible");
-			return nullptr;
-		}
-			
-	}
+        /// \brief Template function finds resource
+        ///
+        /// If resource is not found this creates a new one
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        template<typename T>
+        std::weak_ptr<T> getResource(const std::string& path);
+
+        /// \brief Check if a particular resource exists and is loaded
+        ///
+        /// \param path Path to resource
+        ///
+        /// \return True if resource is loaded
+        ///
+        bool resourceLoaded(const std::string& path);
+
+        /// \brief Deletes resource from memory
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        void unloadResource(const std::string& path);
+
+        /// \brief Deletes all resources from memory
+        ///
+        void unloadResources();
+
+    private:
+
+        std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
+
+    };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/ResourceManager.inl>
 }
 
 #endif
+
+/// \class ResourceManager
+/// \ingroup core
