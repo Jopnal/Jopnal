@@ -1,5 +1,4 @@
 # Jopnal Engine
-***
 ### Description
 
 A simple component based 3D game engine.
