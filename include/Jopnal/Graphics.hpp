@@ -27,7 +27,7 @@
 #include <Jopnal/Graphics/Layer.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
-
+#include <Jopnal/Graphics/Shaders.hpp>
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics

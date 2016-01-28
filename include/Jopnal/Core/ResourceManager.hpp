@@ -25,12 +25,13 @@
 #define JOP_RESOURCEMANAGER_HPP
 
 // Headers
+
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
 #include <unordered_map>
 #include <memory>
-
 //////////////////////////////////////////////
+
 
 
 namespace jop
