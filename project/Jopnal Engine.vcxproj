@@ -15,25 +15,34 @@
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
-    <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\FileLoader.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Resource.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\ResourceManager.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Scene.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Component.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Object.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\Shaders.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
     <ClInclude Include="..\include\Jopnal\Jopnal.hpp" />
+    <ClInclude Include="..\include\Jopnal\MathInclude.hpp" />
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
@@ -43,29 +52,42 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl" />
-    <None Include="..\include\Jopnal\Core\Inl\Engine.inl" />
-    <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
+    <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\ResourceManager.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Resource.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
-    <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
-    <ClCompile Include="..\src\Jopnal\Core\RecourceManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\Shaders.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\Engine.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\Scene.inl" />
+    <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>
@@ -117,11 +139,11 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -145,8 +167,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
