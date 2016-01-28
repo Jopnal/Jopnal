@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/MessageUtil.hpp>
 #include <vector>
 #include <memory>
 
@@ -160,7 +161,7 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, void* ptr);
 
 
         /// \brief Update method for scene

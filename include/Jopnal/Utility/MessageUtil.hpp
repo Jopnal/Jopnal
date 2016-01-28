@@ -33,6 +33,12 @@
 
 namespace jop
 {
+    enum class MessageResult
+    {
+        Continue,
+        Escape
+    };
+
     class JOP_API MessageUtil
     {
     public:
