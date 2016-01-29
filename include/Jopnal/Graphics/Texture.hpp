@@ -80,6 +80,6 @@ namespace jop
 #endif
 
 /// \class Texture
-/// \ingroup core
+/// \ingroup graphics
 
 /// stores and creates image data
