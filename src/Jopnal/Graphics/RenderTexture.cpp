@@ -45,7 +45,15 @@ namespace jop
 
     //////////////////////////////////////////////
     //////////////////////////////////////////////
+
+    void RenderTexture::get()
+    {
+        init(0, 0);
+        bind();
+    }
     
+    //////////////////////////////////////////////
+
     void RenderTexture::deInit()
     {
   
@@ -62,29 +70,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RenderTexture::backBufferize()
+    void RenderTexture::unBind()
     {
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::render()
+    bool RenderTexture::init(int width,int height)
     {
-        /// \Render initialization flow
-
         gl::GenFramebuffers(1, &m_frameBuffer);
         gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer);
 
         gl::GenRenderbuffers(1, &idBase);
         gl::BindRenderbuffer(gl::RENDERBUFFER, idBase);
-        gl::RenderbufferStorage(gl::RENDERBUFFER, gl::RGBA8,m_texture->getWidth(),m_texture->getHeight());
+        gl::RenderbufferStorage(gl::RENDERBUFFER, gl::RGBA8,width,height);
         
         gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::RENDERBUFFER, idBase);
 
         gl::GenRenderbuffers(1, &m_depthBuffer);
         gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer);
-        gl::RenderbufferStorage(gl::RENDERBUFFER, gl::DEPTH_COMPONENT24, m_texture->getWidth(), m_texture->getHeight());
+        gl::RenderbufferStorage(gl::RENDERBUFFER, gl::DEPTH_COMPONENT24, width, height);
     
         gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer);
 
@@ -107,7 +113,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Texture> RenderTexture::getCopy()
+    std::weak_ptr<Texture> RenderTexture::get()
     {
         return m_texture;
     }

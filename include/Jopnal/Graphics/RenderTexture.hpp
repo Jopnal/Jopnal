@@ -39,16 +39,18 @@ namespace jop
         RenderTexture();
         ~RenderTexture();
 
-        void deInit();
-        void backBufferize();
+        void get();
 
-        bool render();
+        void deInit();
+        void unBind();
+
+        bool init(int width,int height);
         bool bind();
-        std::weak_ptr<Texture> getCopy();
+        std::weak_ptr<Texture> getTexture();
 
 
     private:
-        std::shared_ptr<Texture> m_texture;
+        std::weak_ptr<Texture> m_texture;
         GLuint idBase,
                m_frameBuffer,
                m_depthBuffer;
