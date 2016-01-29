@@ -51,8 +51,10 @@ namespace jop
 
     bool Texture::load(const std::string& path)
     {
+        /// \If exclamation mark is detected creates new flat texture
         if (path[0] == '!')
               return loadEmpty(path);
+        /// \If not new texture is loaded from file 
         else
         {
             std::vector<unsigned char> buf;
@@ -67,22 +69,30 @@ namespace jop
  
     bool Texture::loadEmpty(const std::string& xyBpp)
     {
+        //// \Temporary string for memory usage
         std::string variable="";
+        /// \Loop Reads param one character at time
         for (int i = 1; i <= xyBpp.size(); i++)
         {
+            /// \Reads character to string if exclamation mark	is not detected
             if (xyBpp[i] != '!')
                 variable.insert(variable.end(), xyBpp[i]);
             else
             {
+                /// \If width x param is fully readed it puts it in class's variable
                 if (m_textureWidth == NULL)
                     m_textureWidth = std::stoi(variable);
+                /// \If width y param is fully readed it puts it in class's variable
                 else if (m_textureHeight == NULL)
                     m_textureHeight = std::stoi(variable);
             }
+            /// \If exclamation mark is detected but it is not end of string temporary variable is reseted
             if (xyBpp[i] == '!'&&xyBpp[i + 1] != NULL)
                 variable = "";
         }
+        /// \Last param Bpp is taken to the class's variable after loop is ended
         m_bitsPerPixel = std::stoi(variable);
+        /// \Check for legible class's variables and for moving it in gpu memory
         if (m_textureWidth != NULL || m_textureHeight != NULL || m_bitsPerPixel != NULL/*glTexture2D*/)
             return true;
         else
