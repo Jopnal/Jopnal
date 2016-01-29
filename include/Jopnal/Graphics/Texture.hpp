@@ -82,6 +82,4 @@ namespace jop
 /// \class Texture
 /// \ingroup core
 
-//this is the base class for all resources that are loaded from files:
-//sprites, sounds, scene data...
-//processed for use
+/// stores and creates image data
