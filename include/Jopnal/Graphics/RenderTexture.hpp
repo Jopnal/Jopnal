@@ -58,6 +58,6 @@ namespace jop
 #endif
 
 /// \class RenderTexture
-/// \ingroup core
+/// \ingroup graphics
 
 /// renders texture without drawning
