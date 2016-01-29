@@ -21,37 +21,65 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_TEXTURE_HPP
+#define JOP_TEXTURE_HPP
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+// Headers
+#include <Jopnal/Header.hpp>
+#include <string>
 
-template<typename T> 
-std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
+//////////////////////////////////////////////
+
+namespace jop
 {
-    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+	class Texture:public Resource
+	{
+	public:
 
-    auto it = m_resources.find(path);
+        /// \brief Constructor
+        ///
+        Texture();
 
-    if (it == m_resources.end())
-    {
-        auto res = std::make_shared<T>();
+		/// \brief Destructor
+		///
+		~Texture();
 
-        if (res->load(path))
-        {
-            m_resources[path] = std::move(res);
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(m_resources[path]));
-        }
-        else
-            JOP_DEBUG_ERROR("Couldn't load resource: " << path);
-    }
-    else
-    {
-        if (typeid(T) == typeid(*it->second.get()))
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
-        else
-            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
-    }
+		/// \brief Method for using Fileloader to load new resource from file
+		///
+		/// \param Name or path for wanted resource
+		///
+		bool load(const std::string& path);
 
-    return std::weak_ptr<T>();
+        /// \brief Creates flat/empty texture
+        ///
+        /// \param Takes width height and bits and sorts them with '!' mark
+        ///
+        /// Example: !800!600!4
+        ///
+        bool loadEmpty(const std::string& xyBpp);
+
+        /// \brief Returns image's width
+        ///
+        int getWidth();
+
+        /// \brief Returns image's height
+        ///
+        int getHeight();
+
+        /// \brief Returns image's bits per pixel value
+        ///
+        int getBpp();
+
+    private:
+      int m_textureWidth;
+      int m_textureHeight;
+      int m_bitsPerPixel;
+    };
 }
 
 #endif
+
+/// \class Texture
+/// \ingroup core
+
+/// stores and creates image data
