@@ -42,9 +42,12 @@ namespace jop
         if (!PHYSFS_isInit())
             PHYSFS_init(argv);
 
-        static const std::string path = SettingManager::getString("sResourceDirectory", "Resources");
+        static const std::string folder = SettingManager::getString("sResourceDirectory", "Resources");
+
+        PHYSFS_setWriteDir(".");
+        PHYSFS_mkdir(folder.c_str());
         
-        JOP_ASSERT_EVAL(PHYSFS_mount(path.c_str(), NULL, 0) != 0, "Failed to mount resource directory! Make sure you've created a folder named \"" + path + "\" in the working directory.");
+        JOP_ASSERT_EVAL(PHYSFS_mount(folder.c_str(), NULL, 0) != 0, "Failed create/mount the resource directory! Try to create a folder named \"" + folder + "\" in the working directory");
     }
 
     FileLoader::~FileLoader()

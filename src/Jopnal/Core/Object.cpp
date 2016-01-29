@@ -141,13 +141,21 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::sendMessage(const std::string& message, void* ptr)
+    MessageResult Object::sendMessage(const std::string& message, void* ptr)
     {
         for (auto& i : m_components)
-            i->sendMessage(message, ptr);
+        {
+            if (i->sendMessage(message, ptr) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
 
         for (auto& i : m_children)
-            i->sendMessage(message, ptr);
+        {
+            if (i->sendMessage(message, ptr) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
+
+        return MessageResult::Continue;
     }
 
     /////////////////////////////////////////////

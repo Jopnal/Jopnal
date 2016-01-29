@@ -59,8 +59,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::sendMessage(const std::string&, void*)
-    {}
+    MessageResult Subsystem::sendMessage(const std::string&, void*)
+    {
+        return MessageResult::Continue;
+    }
 
     //////////////////////////////////////////////
 
