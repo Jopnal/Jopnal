@@ -87,6 +87,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Object::componentCount() const
+    {
+        return m_components.size();
+    }
+
+    //////////////////////////////////////////////
+
     Object& Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(std::make_unique<Object>(ID));
@@ -137,6 +144,26 @@ namespace jop
     void Object::clearChildren()
     {
         m_children.clear();
+    }
+
+    /////////////////////////////////////////////
+
+    unsigned int Object::childCount() const
+    {
+        return m_children.size();
+    }
+
+    /////////////////////////////////////////////
+
+    unsigned int Object::childCountRecursive() const
+    {
+        unsigned int count = childCount();;
+
+        for (auto& i : m_children)
+        {
+            count += i->childCountRecursive();
+        }
+        return count;
     }
 
     /////////////////////////////////////////////
