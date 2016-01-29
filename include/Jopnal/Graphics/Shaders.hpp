@@ -54,6 +54,9 @@ namespace jop
         ///
         bool load(const std::string& shaders) override;
 
+
+        void destroy();
+          
         ///\brief method setting matrix 4x4 with unique name
         ///
         ///\param name unique name
@@ -82,12 +85,27 @@ namespace jop
         ///
         void setUniform(const std::string& name, const jop::Texture& );
 
+        ///\brief method setting attributes
+        ///
+        ///\param name unique name
+        ///\param type GLenum type
+        ///\param amount attributes size Glint size
+        ///\param stride 
+        ///\param pointer void pointer
+        void setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const void* pointer);
 
+        ///\brief set gl::useprogram as m_shader
+        ///
+        void bind()const;
+
+        void unbind()const;
 	private:
+
+        int getAttributeLocation(const std::string& name); ///< get location of attribute by name
 
         int getUniformLocation(const std::string& name); ///< get location of uniform by name
         
-        unsigned int m_shader; ///< An internal Uint
+        unsigned int m_shaderProgram; ///< an internal Uint
                 
 	};
 }
