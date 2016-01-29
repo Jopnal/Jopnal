@@ -21,17 +21,43 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RENDERTEXTURE_HPP
+#define JOP_RENDERTEXTURE_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+namespace jop
+{
+    class Texture;
+    class RenderTexture
+    {
+    public:
+        RenderTexture();
+        ~RenderTexture();
+
+        void deInit();
+        void backBufferize();
+
+        bool render();
+        bool bind();
+        std::weak_ptr<Texture> getCopy();
+
+
+    private:
+        std::shared_ptr<Texture> m_texture;
+        GLuint idBase,
+               m_frameBuffer,
+               m_depthBuffer;
+    };
+}
+
+#endif
+
+/// \class RenderTexture
+/// \ingroup core
+
+/// renders texture without drawning
