@@ -21,14 +21,43 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_COMMANDHANDLER_HPP
+#define JOP_COMMANDHANDLER_HPP
+
 // Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/MessageUtil.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
+#include <Jopnal/Header.hpp>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
+
+namespace jop
+{
+    #define JOP_COMMAND_HANDLER(classType)
+    #define JOP_END_COMMAND_HANDLER }
+
+    #define JOP_BIND_MEMBER_COMMAND(function) 
+    #define JOP_BIND_COMMAND(function)
+
+
+    template<typename T>
+    class CommandHandler final
+    {
+    public:
+
+
+
+    private:
+
+        std::unordered_map<std::string, void (T::*)(T&, const std::string&)> m_memberParsers;
+        std::unordered_map<std::string, void (*)(const std::string&)> m_funcParsers;
+
+    };
+}
+
+#endif
+
+/// \class CommandHandler
+/// \ingroup utility
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

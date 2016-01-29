@@ -40,6 +40,7 @@
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />

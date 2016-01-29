@@ -64,6 +64,9 @@
     <Filter Include="Window\Inl">
       <UniqueIdentifier>{cfdcf1ee-84a0-4bc0-89b1-0d0b3038ef40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\Inl">
+      <UniqueIdentifier>{f994c5fc-c54d-4962-b0e9-356cbf5870d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -182,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp">
       <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp">
+      <Filter>Utility\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
