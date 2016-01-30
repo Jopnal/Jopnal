@@ -32,7 +32,7 @@
 
 namespace jop
 {
-	class Texture:public Resource
+	class Texture : public Resource
 	{
 	public:
 
@@ -43,6 +43,7 @@ namespace jop
 		/// \brief Destructor
 		///
 		~Texture();
+
 
 		/// \brief Method for using Fileloader to load new resource from file
 		///
@@ -58,22 +59,35 @@ namespace jop
         ///
         bool loadEmpty(const std::string& xyBpp);
 
+        ///
+        ///
+        bool loadFromPixels(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
+
+
+        void destroy();
+
+
         /// \brief Returns image's width
         ///
-        int getWidth();
+        int getWidth() const;
 
         /// \brief Returns image's height
         ///
-        int getHeight();
+        int getHeight() const;
 
-        /// \brief Returns image's bits per pixel value
+        /// \brief Returns image's bytes per pixel value
         ///
-        int getBpp();
+        int getDepth() const;
 
     private:
-      int m_textureWidth;
-      int m_textureHeight;
-      int m_bitsPerPixel;
+
+        bool checkDepthValid(const int depth) const;
+
+        int m_textureWidth;
+        int m_textureHeight;
+        int m_bytesPerPixel;
+        unsigned int m_texture;
+
     };
 }
 

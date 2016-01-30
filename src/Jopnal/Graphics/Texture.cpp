@@ -32,36 +32,40 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     Texture::Texture()
-    {
-        m_textureWidth=NULL;
-        m_textureHeight=NULL;
-        m_bitsPerPixel=NULL;
+        : m_textureWidth    (0),
+          m_textureHeight   (0),
+          m_bytesPerPixel    (0),
+          m_texture         (0)
+    {}
+
+	Texture::~Texture()
+	{
+        destroy();
     }
 
     //////////////////////////////////////////////
 
-	Texture::~Texture()
-	{   }
-
-    //////////////////////////////////////////////
-    //////////////////////////////////////////////
-
     bool Texture::load(const std::string& path)
     {
-        /// \If exclamation mark is detected creates new flat texture
+        // If exclamation mark is detected creates new flat texture
         if (path[0] == '!')
               return loadEmpty(path);
-        /// \If not new texture is loaded from file 
+
+        // If not new texture is loaded from file 
         else
         {
             std::vector<unsigned char> buf;
             FileLoader::read(path, buf);
 
-            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &m_textureWidth, &m_textureHeight, &m_bitsPerPixel, 4);
-            return true;
+            int x = 0, y = 0, bpp = 0;
+
+            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 3);
+
+            return loadFromPixels(x, y, bpp, colorData);
         }
     }
 
@@ -69,56 +73,100 @@ namespace jop
  
     bool Texture::loadEmpty(const std::string& xyBpp)
     {
-        //// \Temporary string for memory usage
-        std::string variable="";
-        /// \Loop Reads param one character at time
+        // Temporary string for memory usage
+        std::string variable;
+        int x = 0, y = 0, bpp = 0;
+
+        // Loop Reads param one character at time
         for (int i = 1; i <= xyBpp.size(); i++)
         {
-            /// \Reads character to string if exclamation mark	is not detected
+            // Reads character to string if exclamation mark is not detected
             if (xyBpp[i] != '!')
                 variable.insert(variable.end(), xyBpp[i]);
             else
             {
-                /// \If width x param is fully readed it puts it in class's variable
-                if (m_textureWidth == NULL)
-                    m_textureWidth = std::stoi(variable);
-                /// \If width y param is fully readed it puts it in class's variable
-                else if (m_textureHeight == NULL)
-                    m_textureHeight = std::stoi(variable);
+                // If width x param is fully read it puts it in class's variable
+                if (!m_textureWidth)
+                    x = std::stoi(variable);
+
+                // If width y param is fully read it puts it in class's variable
+                else if (!m_textureHeight)
+                    y = std::stoi(variable);
             }
-            /// \If exclamation mark is detected but it is not end of string temporary variable is reseted
-            if (xyBpp[i] == '!'&&xyBpp[i + 1] != NULL)
+
+            // If exclamation mark is detected but it is not end of string temporary variable is reset
+            if (xyBpp[i] == '!' && xyBpp[i + 1] != NULL)
                 variable = "";
         }
-        /// \Last param Bpp is taken to the class's variable after loop is ended
-        m_bitsPerPixel = std::stoi(variable);
-        /// \Check for legible class's variables and for moving it in gpu memory
-        if (m_textureWidth != NULL || m_textureHeight != NULL || m_bitsPerPixel != NULL/*glTexture2D*/)
-            return true;
-        else
-            JOP_DEBUG_ERROR("Couldn't create resource: " << xyBpp); 
-            return false;
+
+        // Last param bpp is taken to the class's variable after loop is ended
+        m_bytesPerPixel = std::stoi(variable);
+
+        // Check for legible class's variables and for moving it in gpu memory
+        return loadFromPixels(x, y, bpp, nullptr);
     }
 
     //////////////////////////////////////////////
 
-    int Texture::getWidth()
+    bool Texture::loadFromPixels(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels)
+    {
+        if (!x || !y)
+        {
+            JOP_DEBUG_ERROR("Couldn't load texture. One or both dimensions are less than 1");
+            return false;
+        }
+        else if (!checkDepthValid(bytesPerPixel))
+        {
+            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 3 or 4");
+            return false;
+        }
+
+
+
+        destroy();
+        glCheck(gl::GenTextures(1, &m_texture));
+
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::destroy()
+    {
+        if (m_texture)
+        {
+            glCheck(gl::DeleteTextures(1, &m_texture));
+            m_texture = 0;
+            m_textureWidth = 0;
+            m_textureHeight = 0;
+            m_bytesPerPixel = 0;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    int Texture::getWidth() const
     {
         return m_textureWidth;
     }
 
     //////////////////////////////////////////////
 
-    int Texture::getHeight()
+    int Texture::getHeight() const
     {
-        return  m_textureHeight;
+        return m_textureHeight;
     }
 
     //////////////////////////////////////////////
 
-    int Texture::getBpp()
+    int Texture::getDepth() const
     {
-        return m_bitsPerPixel;
+        return m_bytesPerPixel;
     }
-    
+
+    //////////////////////////////////////////////
+
+    bool Texture::checkDepthValid(const int depth) const
+    {
+        return depth == 3 || depth == 4;
+    }
 }
