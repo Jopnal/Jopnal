@@ -21,67 +21,21 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
 
-//******** HEADERS ********//
+template<typename F, typename Parser>
+void CommandHandler::bind(const std::string& commandName, const F& func, const Parser& parser)
+{
+    m_parsers[commandName] = std::bind(parser, func, std::placeholders::_1);
+}
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+template<typename ... Args>
+void CommandHandler::bind(const std::string& commandName, const std::function<void(Args...)>& func)
+{
+    bind(commandName, func, &detail::DefaultParser::parse<Args...>);
+}
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysFS
-#include<PhysicsFS\physfs.h>
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-#include <string>
-#include <cctype>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
-
-#endif
+template<typename ... Args>
+void CommandHandler::bind(const std::string& commandName, void(*func)(Args...))
+{
+    bind(commandName, func, &detail::DefaultParser::parse<Args...>);
+}

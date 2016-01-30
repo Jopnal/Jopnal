@@ -27,32 +27,56 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <unordered_map>
+#include <functional>
+#include <string>
+#include <tuple>
+#include <map>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    #define JOP_COMMAND_HANDLER(classType)
+    /*#define JOP_COMMAND_HANDLER(classType)
     #define JOP_END_COMMAND_HANDLER }
 
-    #define JOP_BIND_MEMBER_COMMAND(function) 
-    #define JOP_BIND_COMMAND(function)
+    #define JOP_BIND_MEMBER_COMMAND(function)
+    #define JOP_BIND_COMMAND(function)*/
 
 
-    template<typename T>
-    class CommandHandler final
+    namespace detail
+    {
+        JOP_API std::tuple<std::string, std::string> parseArgumentPair(const std::string& args);
+
+        #include <Jopnal/Utility/Inl/CommandParser.inl>
+    }
+
+    class JOP_API CommandHandler final
     {
     public:
 
+        CommandHandler();
+
+        template<typename F, typename Parser>
+        void bind(const std::string& commandName, const F& func, const Parser& parser);
+
+        template<typename ... Args>
+        void bind(const std::string& commandName, const std::function<void(Args...)>& func);
+
+        template<typename ... Args>
+        void bind(const std::string& commandName, void(*func)(Args...));
+
+        // bind member
 
 
     private:
 
-        std::unordered_map<std::string, void (T::*)(T&, const std::string&)> m_memberParsers;
-        std::unordered_map<std::string, void (*)(const std::string&)> m_funcParsers;
+        std::unordered_map<std::string, std::function<void(const std::string&)>> m_parsers;
 
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Utility/Inl/CommandHandler.inl>
 }
 
 #endif
