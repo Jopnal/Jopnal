@@ -79,7 +79,6 @@
 #include <sstream>
 #include <array>
 #include <string>
-#include <cctype>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

@@ -76,7 +76,6 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
-    <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
@@ -89,8 +88,6 @@
     <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
     <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl" />
-    <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl" />
-    <None Include="..\include\Jopnal\Utility\Inl\CommandParser.inl" />
     <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -152,10 +149,6 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -184,10 +177,6 @@
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
