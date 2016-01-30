@@ -23,7 +23,7 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
-// Tinyobjloader
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -32,7 +32,8 @@
 
 namespace jop
 {
-    Model::Model() : Resource()
+    Model::Model()
+        : Resource()
     {}
 
     Model::~Model()
@@ -64,11 +65,12 @@ namespace jop
         is().rdbuf()->pubsetbuf(reinterpret_cast<char*>(buffer[0]), buffer.size());
         
         bool ret = tinyobj::LoadObj(shapes, materials, err, is(), MatRead());
-      if (!err.empty())
-      {
+
+        if (!err.empty())
+        {
           std::cerr << err << std::endl;
-      }
-      if (!ret)
+        }
+        if (!ret)
           return false;
 
           positions = shapes.front().mesh.positions;

@@ -21,9 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef RESOURCEMODEL_HPP
-#define RESOURCEMODEL_HPP
-
+#ifndef JOP_MODEL_HPP
+#define JOP_MODEL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
