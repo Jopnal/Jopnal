@@ -21,24 +21,19 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
 
-//////////////////////////////////////////////
-
-
-namespace jop
+namespace detail
 {
-    bool MessageUtil::hasFilterSymbol(const std::string& message, const std::string& symbol)
+    template<typename T>
+    VoidWrapper::VoidWrapper(T* ptr)
+        : m_ptr(ptr),
+          m_type(typeid(T))
+    {}
+
+    template<typename T>
+    void VoidWrapper::operator =(T& data)
     {
-        if (message[0] != '[')
-            return true;
-
-        auto closingTag = message.find_first_of(']');
-
-        if (closingTag == std::string::npos)
-            return true;
-
-        return message.rfind(symbol, closingTag - 1) != std::string::npos;
+        JOP_ASSERT(typeid(T) == m_type, "VoidWrapper bad assignment!\n\n)";
+        m_ptr = &data;
     }
 }

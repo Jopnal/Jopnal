@@ -208,13 +208,13 @@ namespace jop
     {
         if (ns_engineObject)
         {
-            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
+            if (ns_engineObject->m_currentScene && Message::hasFilterSymbol(message, "Sc"))
             {
                 ns_engineObject->m_currentScene->sendMessage(message, ptr);
                 ns_engineObject->m_sharedScene->sendMessage(message, ptr);
             }
 
-            if (MessageUtil::hasFilterSymbol(message, "Su"))
+            if (Message::hasFilterSymbol(message, "Su"))
             {
                 for (auto& i : ns_engineObject->m_subsystems)
                     i->sendMessage(message, ptr);

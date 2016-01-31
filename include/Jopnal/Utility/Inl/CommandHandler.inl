@@ -21,14 +21,26 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/Message.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
+
+template<typename Func, typename Parser>
+void CommandHandler::bind(const std::string& command, const Func& func, const Parser& parser)
+{
+    JOP_ASSERT(!command.empty(), "Tried to register an empty command!");
+    m_funcParsers[command] = std::bind(parser, func, std::placeholders::_1);
+}
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+template<typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, const std::function<void(FuncArgs...)>& func)
+{
+    bind(command, func, &detail::DefaultParser::parse<FuncArgs...>);
+}
+
+//////////////////////////////////////////////
+
+template<typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, void(*func)(FuncArgs...))
+{
+    bind(command, func, &detail::DefaultParser::parse<FuncArgs...>);
+}

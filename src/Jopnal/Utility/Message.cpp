@@ -21,43 +21,34 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    enum class MessageResult
+    namespace detail
     {
-        Continue,
-        Escape
-    };
+        VoidWrapper::operator bool() const
+        {
+            return m_ptr != nullptr;
+        }
+    }
 
-    class JOP_API MessageUtil
+    //////////////////////////////////////////////
+
+    bool Message::hasFilterSymbol(const std::string& message, const std::string& symbol)
     {
-    public:
+        if (message[0] != '[')
+            return true;
 
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+        auto closingTag = message.find_first_of(']');
 
-    };
+        if (closingTag == std::string::npos)
+            return true;
+
+        return message.rfind(symbol, closingTag - 1) != std::string::npos;
+    }
 }
-
-#endif
-
-/// \class Resource
-/// \ingroup utility

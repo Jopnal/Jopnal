@@ -26,7 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/MessageUtil.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <string>
 
 //////////////////////////////////////////////
