@@ -66,18 +66,30 @@ namespace jop
         template<typename Ret, typename ... FuncArgs>
         void bind(const std::string& command, Ret (*func)(FuncArgs...));
 
-        //template<typename Func, typename Parser>
-        //void bindMember(const std::string& command, const Func& func, const Parser& parser);
+
+        template<typename Func, typename Parser>
+        void bindMember(const std::string& command, const Func& func, const Parser& parser);
+
+        template<typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, const std::function<Ret(Class&, FuncArgs...)>& func);
+
+        template<typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, Ret (Class::*func)(FuncArgs...));
+
 
         void execute(const std::string& command);
 
-        void execute(const std::string& command, detail::VoidWrapper& returnWrap);
+        void execute(const std::string& command, PtrWrapper returnWrap);
+
+        void executeMember(const std::string& command, PtrWrapper instance);
+
+        void executeMember(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap);
 
 
     private:
 
-        //std::unordered_map<std::string, std::function<void(const std::string&)>> m_memberParsers;
-        std::unordered_map<std::string, std::function<void(const std::string&, detail::VoidWrapper&)>> m_funcParsers;
+        std::unordered_map<std::string, std::function<void(const std::string&, PtrWrapper&, PtrWrapper&)>> m_memberParsers;
+        std::unordered_map<std::string, std::function<void(const std::string&, PtrWrapper&)>> m_funcParsers;
 
     };
 

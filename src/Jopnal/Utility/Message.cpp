@@ -36,6 +36,13 @@ namespace jop
               m_type    (typeid(std::nullptr_t))
         {}
 
+        VoidWrapper::VoidWrapper(const VoidWrapper& other)
+            : m_ptr(other.m_ptr),
+              m_type(other.m_type)
+        {
+
+        }
+
         //////////////////////////////////////////////
 
         VoidWrapper::operator bool() const

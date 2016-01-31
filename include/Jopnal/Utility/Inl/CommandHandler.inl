@@ -44,3 +44,29 @@ void CommandHandler::bind(const std::string& command, Ret(*func)(FuncArgs...))
 {
     bind(command, func, &detail::DefaultParser::parse<Ret, FuncArgs...>);
 }
+
+//////////////////////////////////////////////
+
+template<typename Func, typename Parser>
+void CommandHandler::bindMember(const std::string& command, const Func& func, const Parser& parser)
+{
+    JOP_ASSERT(!command.empty(), "Tried to register an empty member command!");
+    m_memberParsers[command] = std::bind(parser, func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename Class, typename ... FuncArgs>
+void CommandHandler::bindMember(const std::string& command, const std::function<Ret(Class&, FuncArgs...)>& func)
+{
+    bindMember(command, func, &detail::DefaultParser::parseMember<Ret, Class, FuncArgs...>);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename Class, typename ... FuncArgs>
+void CommandHandler::bindMember(const std::string& command, Ret(Class::*func)(FuncArgs...))
+{
+    // Have to use mem_fn due to a bug in VS
+    bindMember(command, std::mem_fn(func), &detail::DefaultParser::parseMember<Ret, Class, FuncArgs...>);
+}

@@ -183,6 +183,33 @@ namespace ArgumentApplier
     {
         return Helper<Ret, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, args);
     }
+
+    //////////////////////////////////////////////
+
+    template<typename Ret, typename T, std::size_t N>
+    struct MemberHelper
+    {
+        template<typename Func, typename Tuple, typename ... Args>
+        static Ret apply(const Func& func, T& instance, const Tuple& tuple, const Args&... args)
+        {
+            return MemberHelper<Ret, T, N - 1>::apply(func, instance, tuple, std::get<N - 1>(tuple), args...);
+        }
+    };
+    template<typename Ret, typename T>
+    struct MemberHelper<Ret, T, 0>
+    {
+        template<typename Func, typename Tuple, typename... Args>
+        static Ret apply(const Func& func, T& instance, const Tuple&, const Args&... args)
+        {
+            return func(instance, args...);
+        }
+    };
+
+    template<typename Ret, typename Func, typename T, typename ... Args>
+    Ret applyMember(const Func& func, T& instance, const std::tuple<Args...>& args)
+    {
+        return MemberHelper<Ret, T, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, instance, args);
+    }
 }
 
 //////////////////////////////////////////////
@@ -234,6 +261,39 @@ namespace DefaultParser
         {
             std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
             ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+        }
+    };
+
+    //////////////////////////////////////////////
+
+    template<typename Ret, typename T, typename ... Args>
+    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, VoidWrapper& returnWrap, VoidWrapper& instance)
+    {
+        JOP_ASSERT(instance == typeid(T*), "Called a member command with invalid instance type!");
+        MemberHelper<Ret, T, Args...>::parse(func, args, returnWrap, instance);
+    }
+
+    template<typename Ret, typename T, typename ... Args>
+    struct MemberHelper
+    {
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, VoidWrapper& returnWrap, VoidWrapper& instance)
+        {
+            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
+
+            if (returnWrap && returnWrap == typeid(Ret*))
+                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
+            else
+                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
+        }
+    };
+
+    template<typename T, typename ... Args>
+    struct MemberHelper<void, T, Args...>
+    {
+        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, VoidWrapper&, VoidWrapper& instance)
+        {
+            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
+            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
         }
     };
 }

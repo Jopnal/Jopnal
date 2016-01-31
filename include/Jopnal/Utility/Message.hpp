@@ -47,18 +47,24 @@ namespace jop
         {
         private:
 
-            JOP_DISALLOW_COPY_MOVE(VoidWrapper);
+            JOP_DISALLOW_MOVE(VoidWrapper);
+            void operator =(const VoidWrapper&) = delete;
 
         public:
 
             template<typename T>
             VoidWrapper(T* ptr);
 
+            VoidWrapper(const VoidWrapper& other);
+
             VoidWrapper(std::nullptr_t);
 
 
             template<typename T>
             VoidWrapper& operator =(const T& data);
+
+            template<typename T>
+            T* cast();
 
             operator bool() const;
 
@@ -71,6 +77,8 @@ namespace jop
 
         };
     }
+
+    typedef detail::VoidWrapper PtrWrapper;
 
     class JOP_API Message
     {

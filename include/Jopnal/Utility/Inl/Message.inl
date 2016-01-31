@@ -27,14 +27,21 @@ namespace detail
     template<typename T>
     VoidWrapper::VoidWrapper(T* ptr)
         : m_ptr(ptr),
-          m_type(typeid(T))
+          m_type(typeid(T*))
     {}
 
     template<typename T>
     VoidWrapper& VoidWrapper::operator =(const T& data)
     {
-        JOP_ASSERT(typeid(T) == m_type, "VoidWrapper bad cast!");
+        JOP_ASSERT(typeid(T*) == m_type, "VoidWrapper bad assignment!");
         *static_cast<T*>(m_ptr) = data;
         return *this;
+    }
+
+    template<typename T>
+    T* jop::detail::VoidWrapper::cast()
+    {
+        JOP_ASSERT(typeid(T*) == m_type, "VoidWrapper bad cast!");
+        return static_cast<T*>(m_ptr);
     }
 }

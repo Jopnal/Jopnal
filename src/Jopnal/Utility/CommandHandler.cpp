@@ -27,6 +27,24 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    void handleCommand(const std::string& orig, std::string& command, std::string& args)
+    {
+        std::size_t name_pos = orig.find_first_not_of(" \t\r\n");
+        std::size_t name_end = orig.find_first_of(" \t\r\n", name_pos);
+        std::size_t name_len = (name_pos != std::string::npos) ? ((name_end == std::string::npos ? orig.length() : name_end) - name_pos) : 0;
+
+        std::size_t args_pos = std::min(name_pos + name_len + 1, orig.length());
+        std::size_t args_end = orig.find_last_not_of(" \t\r\n");
+        std::size_t args_len = std::max(args_pos, args_end) - args_pos + 1;
+
+        // Values
+        command = (name_len > 0) ? orig.substr(name_pos, name_len) : "";
+        args = (name_len > 0) ? orig.substr(args_pos, args_len) : "";
+    }
+}
+
 namespace jop
 {
     std::tuple<std::string, std::string> detail::splitFirstArguments(const std::string& args)
@@ -73,26 +91,33 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, detail::VoidWrapper& returnWrap)
+    void CommandHandler::execute(const std::string& command, PtrWrapper returnWrap)
     {
-        // Command name
-        std::size_t name_pos = command.find_first_not_of(" \t\r\n");
-        std::size_t name_end = command.find_first_of(" \t\r\n", name_pos);
-        std::size_t name_len =
-            (name_pos != std::string::npos) ?
-            ((name_end == std::string::npos ? command.length() : name_end) - name_pos) : 0;
+        std::string comm, args;
+        handleCommand(command, comm, args);
 
-        // Arguments
-        std::size_t args_pos = std::min(name_pos + name_len + 1, command.length());
-        std::size_t args_end = command.find_last_not_of(" \t\r\n");
-        std::size_t args_len = std::max(args_pos, args_end) - args_pos + 1;
+        auto itr = m_funcParsers.find(comm);
+        if (itr != m_funcParsers.end())
+            itr->second(args, returnWrap);
+    }
 
-        // Values
-        std::string cmd_name = (name_len > 0) ? command.substr(name_pos, name_len) : "";
-        std::string cmd_args = (name_len > 0) ? command.substr(args_pos, args_len) : "";
+    //////////////////////////////////////////////
 
-        // Execution
-        if (m_funcParsers.count(cmd_name) > 0)
-            m_funcParsers[cmd_name](cmd_args, returnWrap);
+    void CommandHandler::executeMember(const std::string& command, PtrWrapper instance)
+    {
+        detail::VoidWrapper returnWrap(nullptr);
+        executeMember(command, instance, returnWrap);
+    }
+
+    //////////////////////////////////////////////
+
+    void CommandHandler::executeMember(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap)
+    {
+        std::string comm, args;
+        handleCommand(command, comm, args);
+
+        auto itr = m_memberParsers.find(comm);
+        if (itr != m_memberParsers.end())
+            itr->second(args, returnWrap, instance);
     }
 }
