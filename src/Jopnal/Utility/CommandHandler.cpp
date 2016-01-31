@@ -67,6 +67,14 @@ namespace jop
 
     void CommandHandler::execute(const std::string& command)
     {
+        detail::VoidWrapper returnWrap(nullptr);
+        execute(command, returnWrap);
+    }
+
+    //////////////////////////////////////////////
+
+    void CommandHandler::execute(const std::string& command, detail::VoidWrapper& returnWrap)
+    {
         // Command name
         std::size_t name_pos = command.find_first_not_of(" \t\r\n");
         std::size_t name_end = command.find_first_of(" \t\r\n", name_pos);
@@ -85,6 +93,6 @@ namespace jop
 
         // Execution
         if (m_funcParsers.count(cmd_name) > 0)
-            m_funcParsers[cmd_name](cmd_args);
+            m_funcParsers[cmd_name](cmd_args, returnWrap);
     }
 }

@@ -158,30 +158,30 @@ struct RealType<const std::string&, true>
 
 namespace ArgumentApplier
 {
-    template<std::size_t N>
+    template<typename Ret, std::size_t N>
     struct Helper
     {
         template<typename Func, typename Tuple, typename ... Args>
-        static void apply(const Func& func, const Tuple& tuple, const Args&... args)
+        static Ret apply(const Func& func, const Tuple& tuple, const Args&... args)
         {
-            Helper<N - 1>::apply(func, tuple, std::get<N - 1>(tuple), args...);
+            return Helper<Ret, N - 1>::apply(func, tuple, std::get<N - 1>(tuple), args...);
         }
     };
-    template<>
-    struct Helper<0>
+    template<typename Ret>
+    struct Helper<Ret, 0>
     {
-        template <typename Func, typename Tuple, typename... Args>
-        static void apply(const Func& func, const Tuple&, const Args&... args)
+        template<typename Func, typename Tuple, typename... Args>
+        static Ret apply(const Func& func, const Tuple&, const Args&... args)
         {
-            func(args...);
+            return func(args...);
         }
     };
 
 
-    template<typename Func, typename ... Args>
-    void apply(const Func& func, const std::tuple<Args...>& args)
+    template<typename Ret, typename Func, typename ... Args>
+    Ret apply(const Func& func, const std::tuple<Args...>& args)
     {
-        Helper<std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, args);
+        return Helper<Ret, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, args);
     }
 }
 
@@ -207,13 +207,33 @@ namespace ArgumentSplitter
 
 namespace DefaultParser
 {
-    template<typename ... Args>
-    void parse(const std::function<void(Args...)>& func, const std::string& args)
+    template<typename Ret, typename ... Args>
+    void parse(const std::function<Ret(Args...)>& func, const std::string& args, VoidWrapper& returnWrap)
     {
-        std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
-        ArgumentApplier::apply(func, tupledArgs);
+        Helper<Ret, Args...>::parse(func, args, returnWrap);
     }
 
+    template<typename Ret, typename ... Args>
+    struct Helper
+    {
+        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, VoidWrapper& returnWrap)
+        {
+            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
 
+            if (returnWrap && returnWrap == typeid(Ret))
+                returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+            else
+                ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+        }
+    };
 
+    template<typename ... Args>
+    struct Helper<void, Args...>
+    {
+        static void parse(const std::function<void(Args...)>& func, const std::string& args, VoidWrapper&)
+        {
+            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
+            ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+        }
+    };
 }

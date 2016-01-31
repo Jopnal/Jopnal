@@ -26,21 +26,21 @@ template<typename Func, typename Parser>
 void CommandHandler::bind(const std::string& command, const Func& func, const Parser& parser)
 {
     JOP_ASSERT(!command.empty(), "Tried to register an empty command!");
-    m_funcParsers[command] = std::bind(parser, func, std::placeholders::_1);
+    m_funcParsers[command] = std::bind(parser, func, std::placeholders::_1, std::placeholders::_2);
 }
 
 //////////////////////////////////////////////
 
-template<typename ... FuncArgs>
-void CommandHandler::bind(const std::string& command, const std::function<void(FuncArgs...)>& func)
+template<typename Ret, typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, const std::function<Ret(FuncArgs...)>& func)
 {
-    bind(command, func, &detail::DefaultParser::parse<FuncArgs...>);
+    bind(command, func, &detail::DefaultParser::parse<Ret, FuncArgs...>);
 }
 
 //////////////////////////////////////////////
 
-template<typename ... FuncArgs>
-void CommandHandler::bind(const std::string& command, void(*func)(FuncArgs...))
+template<typename Ret, typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, Ret(*func)(FuncArgs...))
 {
-    bind(command, func, &detail::DefaultParser::parse<FuncArgs...>);
+    bind(command, func, &detail::DefaultParser::parse<Ret, FuncArgs...>);
 }

@@ -21,11 +21,12 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
+#ifndef JOP_MESSAGE_HPP
+#define JOP_MESSAGE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Assert.hpp>
 #include <string>
 #include <typeinfo>
 
@@ -53,11 +54,15 @@ namespace jop
             template<typename T>
             VoidWrapper(T* ptr);
 
+            VoidWrapper(std::nullptr_t);
+
 
             template<typename T>
-            void operator =(T& data);
+            VoidWrapper& operator =(const T& data);
 
             operator bool() const;
+
+            bool operator ==(const std::type_info& otherType) const;
 
         private:
 
@@ -65,7 +70,7 @@ namespace jop
             const std::type_info& m_type;
 
         };
-}
+    }
 
     class JOP_API Message
     {
@@ -85,6 +90,8 @@ namespace jop
         static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
 
     };
+
+    #include <Jopnal/Utility/Inl/Message.inl>
 }
 
 #endif

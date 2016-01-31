@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <unordered_map>
 #include <functional>
 #include <string>
@@ -59,23 +60,24 @@ namespace jop
         template<typename Func, typename Parser>
         void bind(const std::string& command, const Func& func, const Parser& parser);
 
-        template<typename ... FuncArgs>
-        void bind(const std::string& command, const std::function<void(FuncArgs...)>& func);
+        template<typename Ret, typename ... FuncArgs>
+        void bind(const std::string& command, const std::function<Ret(FuncArgs...)>& func);
 
-        template<typename ... FuncArgs>
-        void bind(const std::string& command, void (*func)(FuncArgs...));
+        template<typename Ret, typename ... FuncArgs>
+        void bind(const std::string& command, Ret (*func)(FuncArgs...));
 
         //template<typename Func, typename Parser>
         //void bindMember(const std::string& command, const Func& func, const Parser& parser);
 
-
         void execute(const std::string& command);
+
+        void execute(const std::string& command, detail::VoidWrapper& returnWrap);
 
 
     private:
 
         //std::unordered_map<std::string, std::function<void(const std::string&)>> m_memberParsers;
-        std::unordered_map<std::string, std::function<void(const std::string&)>> m_funcParsers;
+        std::unordered_map<std::string, std::function<void(const std::string&, detail::VoidWrapper&)>> m_funcParsers;
 
     };
 

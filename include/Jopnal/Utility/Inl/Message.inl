@@ -31,9 +31,10 @@ namespace detail
     {}
 
     template<typename T>
-    void VoidWrapper::operator =(T& data)
+    VoidWrapper& VoidWrapper::operator =(const T& data)
     {
-        JOP_ASSERT(typeid(T) == m_type, "VoidWrapper bad assignment!\n\n)";
-        m_ptr = &data;
+        JOP_ASSERT(typeid(T) == m_type, "VoidWrapper bad cast!");
+        *static_cast<T*>(m_ptr) = data;
+        return *this;
     }
 }

@@ -31,9 +31,23 @@ namespace jop
 {
     namespace detail
     {
+        VoidWrapper::VoidWrapper(std::nullptr_t)
+            : m_ptr     (nullptr),
+              m_type    (typeid(std::nullptr_t))
+        {}
+
+        //////////////////////////////////////////////
+
         VoidWrapper::operator bool() const
         {
             return m_ptr != nullptr;
+        }
+
+        //////////////////////////////////////////////
+
+        bool VoidWrapper::operator ==(const std::type_info& otherType) const
+        {
+            return m_type == otherType;
         }
     }
 
