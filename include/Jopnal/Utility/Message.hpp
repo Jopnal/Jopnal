@@ -84,7 +84,7 @@ namespace jop
     {
     public:
 
-        Message(const std::string& message, detail::VoidWrapper& ptr);
+        Message(const std::string& message, PtrWrapper ptr);
 
         /// \brief Check if the message has the given filter symbol
         ///
@@ -96,6 +96,10 @@ namespace jop
         ///
         /// \return True if symbol was found
         static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+
+    private:
+
+        //const std::string& m_original;
 
     };
 

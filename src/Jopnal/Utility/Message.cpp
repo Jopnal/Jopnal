@@ -60,6 +60,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Message::Message(const std::string& message, PtrWrapper ptr)
+        
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
     bool Message::hasFilterSymbol(const std::string& message, const std::string& symbol)
     {
         if (message[0] != '[')

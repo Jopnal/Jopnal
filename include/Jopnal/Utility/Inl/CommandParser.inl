@@ -47,6 +47,14 @@ struct ArgumentConverter<std::reference_wrapper<T>>
     }
 };
 template<>
+struct ArgumentConverter<const char*>
+{
+    static const char* convert(const std::string& from)
+    {
+        return from.c_str();
+    }
+};
+template<>
 struct ArgumentConverter<char>
 {
     static char convert(const std::string& from)
@@ -245,12 +253,10 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(Args...)>& func, const std::string& args, VoidWrapper& returnWrap)
         {
-            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
-
             if (returnWrap && returnWrap == typeid(Ret))
-                returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+                returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
-                ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+                ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
@@ -259,8 +265,28 @@ namespace DefaultParser
     {
         static void parse(const std::function<void(Args...)>& func, const std::string& args, VoidWrapper&)
         {
-            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
-            ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, tupledArgs);
+            ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+        }
+    };
+
+    template<typename Ret>
+    struct Helper<Ret>
+    {
+        static void parse(const std::function<Ret()>& func, const std::string& args, VoidWrapper& returnWrap)
+        {
+            if (returnWrap && returnWrap == typeid(Ret))
+                returnWrap = func();
+            else
+                func();
+        }
+    };
+
+    template<>
+    struct Helper<void>
+    {
+        static void parse(const std::function<void(void)>& func, const std::string&, VoidWrapper&)
+        {
+            func();
         }
     };
 
@@ -269,7 +295,7 @@ namespace DefaultParser
     template<typename Ret, typename T, typename ... Args>
     void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, VoidWrapper& returnWrap, VoidWrapper& instance)
     {
-        JOP_ASSERT(instance == typeid(T*), "Called a member command with invalid instance type!");
+        JOP_ASSERT(instance && instance == typeid(T*), "Called a member command with invalid instance type!");
         MemberHelper<Ret, T, Args...>::parse(func, args, returnWrap, instance);
     }
 
@@ -278,12 +304,10 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, VoidWrapper& returnWrap, VoidWrapper& instance)
         {
-            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
-
             if (returnWrap && returnWrap == typeid(Ret*))
-                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
+                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
-                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
+                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
@@ -292,8 +316,28 @@ namespace DefaultParser
     {
         static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, VoidWrapper&, VoidWrapper& instance)
         {
-            std::tuple<typename RealType<Args>::type...> tupledArgs = ArgumentSplitter::split<typename RealType<Args>::type...>(args);
-            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), tupledArgs);
+            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+        }
+    };
+
+    template<typename Ret, typename T>
+    struct MemberHelper<Ret, T>
+    {
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, VoidWrapper& instance, VoidWrapper& returnWrap)
+        {
+            if (returnWrap && returnWrap == typeid(Ret*));
+                returnWrap = func(*(instance.cast<T>()));
+            else
+                func(*(instance.cast<T>()));
+        }
+    };
+
+    template<typename T>
+    struct MemberHelper<void, T>
+    {
+        static void parse(const std::function<void(T&)>& func, const std::string&, VoidWrapper& instance, VoidWrapper&)
+        {
+            func(*(instance.cast<T>()));
         }
     };
 }

@@ -37,13 +37,6 @@
 
 namespace jop
 {
-    #define JOP_COMMAND_HANDLER(classType)
-    #define JOP_END_COMMAND_HANDLER }
-
-    #define JOP_BIND_MEMBER_COMMAND(function) 
-    #define JOP_BIND_COMMAND(function)
-
-
     namespace detail
     {
         JOP_API std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
@@ -95,6 +88,22 @@ namespace jop
 
     #include <Jopnal/Utility/Inl/CommandHandler.inl>
 }
+
+#define JOP_REGISTER_COMMAND_HANDLER(className) jop::CommandHandler ns_##className##_commandHandler; \
+                                                struct ns_##className##_registrar{              \
+                                                ns_##className##_registrar(jop::CommandHandler& handler){
+
+#define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg(ns_##className##_commandHandler);
+
+
+#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, &function);
+
+
+#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, &function);
+
+
+#define JOP_EXECUTE_COMMAND(className, command, returnPtr) ns_##className##_commandHandler.execute(command, returnPtr)
+#define JOP_EXECUTE_MEMBER_COMMAND(className, command, instance, returnPtr) ns_##className##_commandHandler.executeMember(command, &instance, returnPtr)
 
 #endif
 

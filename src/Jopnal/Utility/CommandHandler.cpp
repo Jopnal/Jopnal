@@ -56,7 +56,10 @@ namespace jop
             ++pos1;
 
         if (pos1 == length)
+        {
+            JOP_DEBUG_WARNING("Last command didn't contain enough parameters to pass to the bound function");
             return std::make_tuple(std::string(), std::string());
+        }
 
 
         if (args[pos1] == '\"')
