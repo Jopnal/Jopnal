@@ -29,25 +29,27 @@
 
 namespace jop
 {
-    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
+    PtrWrapper::PtrWrapper(std::nullptr_t)
+        : m_ptr     (nullptr),
+          m_type    (typeid(std::nullptr_t))
+    {}
+
+    PtrWrapper::PtrWrapper(const PtrWrapper& other)
+        : m_ptr     (other.m_ptr),
+          m_type    (other.m_type)
+    {}
+
+    //////////////////////////////////////////////
+
+    PtrWrapper::operator bool() const
     {
-        if (!expression)
-        {
-        #if defined(JOP_OS_WINDOWS)
+        return m_ptr != nullptr;
+    }
 
-            auto slashPos = file.find_last_of("/\\");
+    //////////////////////////////////////////////
 
-            std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
-            newStr += "\nLine: " + std::to_string(line);
-            newStr += "\n\n" + message;
-
-            MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
-
-        #ifdef JOP_DEBUG_MODE
-            throw std::runtime_error(newStr);
-        #endif
-
-        #endif
-        }
+    bool PtrWrapper::operator ==(const std::type_info& otherType) const
+    {
+        return m_type == otherType;
     }
 }

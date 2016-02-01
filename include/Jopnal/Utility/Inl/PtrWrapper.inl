@@ -21,33 +21,30 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+
+template<typename T>
+PtrWrapper::PtrWrapper(T* ptr)
+    : m_ptr     (ptr),
+      m_type    (typeid(T*))
+{}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T>
+PtrWrapper& PtrWrapper::operator =(const T& data)
 {
-    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
-    {
-        if (!expression)
-        {
-        #if defined(JOP_OS_WINDOWS)
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad assignment!");
 
-            auto slashPos = file.find_last_of("/\\");
+    *static_cast<T*>(m_ptr) = data;
+    return *this;
+}
 
-            std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
-            newStr += "\nLine: " + std::to_string(line);
-            newStr += "\n\n" + message;
+//////////////////////////////////////////////
 
-            MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+template<typename T>
+T* PtrWrapper::cast()
+{
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad cast!\n\nAsked for \"" + std::string(typeid(T*).name()) + "\", was \"" + std::string(typeid(m_type).name()));
 
-        #ifdef JOP_DEBUG_MODE
-            throw std::runtime_error(newStr);
-        #endif
-
-        #endif
-        }
-    }
+    return static_cast<T*>(m_ptr);
 }

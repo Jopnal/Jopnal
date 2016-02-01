@@ -144,21 +144,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, void* ptr)
+    MessageResult Scene::sendMessage(const std::string& message, PtrWrapper returnWrap)
     {
-        if (sendMessageImpl(message, ptr) == MessageResult::Escape)
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Scene::sendMessage(const Message& message)
+    {
+        if (message.passFilter(Message::Custom, getID()) && sendMessageImpl(message) == MessageResult::Escape)
             return MessageResult::Escape;
 
-        for (auto& i : m_objects)
+        static const unsigned short objectField = Message::Object |
+                                                  Message::Component;
+
+        if (message.passFilter(objectField))
         {
-            if (i->sendMessage(message, ptr) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_objects)
+            {
+                if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
-        for (auto& i : m_layers)
+        if (message.passFilter(Message::Layer))
         {
-            if (i->sendMessage(message, ptr) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_layers)
+            {
+                if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
         return MessageResult::Continue;
@@ -247,7 +264,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessageImpl(const std::string&, void*)
+    MessageResult Scene::sendMessageImpl(const Message&)
     {
         return MessageResult::Continue;
     }

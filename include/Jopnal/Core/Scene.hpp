@@ -161,7 +161,9 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+
+        MessageResult sendMessage(const Message& message);
 
 
         /// \brief Update method for scene
@@ -232,7 +234,7 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual MessageResult sendMessageImpl(const std::string& message, void* ptr);
+        virtual MessageResult sendMessageImpl(const Message& message);
 
 
         std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects

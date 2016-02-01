@@ -21,33 +21,61 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_PTRWRAPPER_HPP
+#define JOP_PTRWRAPPER_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
+    class PtrWrapper
     {
-        if (!expression)
-        {
-        #if defined(JOP_OS_WINDOWS)
+    private:
 
-            auto slashPos = file.find_last_of("/\\");
+        JOP_DISALLOW_MOVE(PtrWrapper);
 
-            std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
-            newStr += "\nLine: " + std::to_string(line);
-            newStr += "\n\n" + message;
+        void operator =(const PtrWrapper&) = delete;
 
-            MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+    public:
 
-        #ifdef JOP_DEBUG_MODE
-            throw std::runtime_error(newStr);
-        #endif
+        ///
+        template<typename T>
+        PtrWrapper(T* ptr);
 
-        #endif
-        }
-    }
+        ///
+        PtrWrapper(const PtrWrapper& other);
+
+        ///
+        PtrWrapper(std::nullptr_t);
+
+
+        ///
+        template<typename T>
+        PtrWrapper& operator =(const T& data);
+
+        ///
+        template<typename T>
+        T* cast();
+
+        ///
+        operator bool() const;
+
+        ///
+        bool operator ==(const std::type_info& otherType) const;
+
+    private:
+
+        void* m_ptr;
+        const std::type_info& m_type;
+
+    };
+
+    // Include the template implementation file
+    #include <Jopnal/Utility/Inl/PtrWrapper.inl>
 }
+
+#endif

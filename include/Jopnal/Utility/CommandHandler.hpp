@@ -96,14 +96,14 @@ namespace jop
 #define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg(ns_##className##_commandHandler);
 
 
-#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, &function);
+#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, &function)
 
 
-#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, &function);
+#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, &function)
 
 
 #define JOP_EXECUTE_COMMAND(className, command, returnPtr) ns_##className##_commandHandler.execute(command, returnPtr)
-#define JOP_EXECUTE_MEMBER_COMMAND(className, command, instance, returnPtr) ns_##className##_commandHandler.executeMember(command, &instance, returnPtr)
+#define JOP_EXECUTE_MEMBER_COMMAND(className, command, instance, returnPtr) ns_##className##_commandHandler.executeMember(command, instance, returnPtr)
 
 #endif
 

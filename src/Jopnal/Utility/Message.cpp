@@ -29,55 +29,161 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        VoidWrapper::VoidWrapper(std::nullptr_t)
-            : m_ptr     (nullptr),
-              m_type    (typeid(std::nullptr_t))
-        {}
-
-        VoidWrapper::VoidWrapper(const VoidWrapper& other)
-            : m_ptr(other.m_ptr),
-              m_type(other.m_type)
-        {
-
-        }
-
-        //////////////////////////////////////////////
-
-        VoidWrapper::operator bool() const
-        {
-            return m_ptr != nullptr;
-        }
-
-        //////////////////////////////////////////////
-
-        bool VoidWrapper::operator ==(const std::type_info& otherType) const
-        {
-            return m_type == otherType;
-        }
-    }
-
-    //////////////////////////////////////////////
-
     Message::Message(const std::string& message, PtrWrapper ptr)
-        
+        : m_command(),
+          m_id(),
+          m_ptr(ptr),
+          m_filterBits(Filter::Global),
+          m_idMatchMethod(nullptr)
     {
-
+        if (!message.empty())
+        {
+            setFilter(message);
+            std::size_t startPos = message.find_first_of(']');
+            m_command << (startPos == std::string::npos ? message : message.substr(message.find_first_not_of(' ', startPos)));
+        }
     }
 
     //////////////////////////////////////////////
 
-    bool Message::hasFilterSymbol(const std::string& message, const std::string& symbol)
+    Message& Message::push(const std::string& str)
     {
-        if (message[0] != '[')
+        m_command << ' ' << str;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Message& Message::push(const char* str)
+    {
+        m_command << ' ' << str;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Message& Message::pushPointer(const void* ptrArg)
+    {
+        m_command << ' ' << std::hex << ptrArg;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    std::string Message::getString() const
+    {
+        return m_command.str();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Message::passFilter(const unsigned short filter, const std::string& id) const
+    {
+        return passFilter(filter) && passFilter(id);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Message::passFilter(const unsigned short filter) const
+    {
+        return (m_filterBits & filter) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Message::passFilter(const std::string& id) const
+    {
+        if (!m_idMatchMethod)
             return true;
 
-        auto closingTag = message.find_first_of(']');
+        return m_idMatchMethod(m_id, id);
+    }
 
-        if (closingTag == std::string::npos)
-            return true;
+    //////////////////////////////////////////////
 
-        return message.rfind(symbol, closingTag - 1) != std::string::npos;
+    Message& Message::setFilter(const std::string& filter)
+    {
+        m_filterBits = Filter::Global;
+        m_id = "";
+
+        if (filter.empty() || filter[0] != '[')
+            return *this;
+
+        std::size_t endPos = filter.find_first_of(']');
+
+        if (endPos == std::string::npos)
+        {
+            JOP_DEBUG_ERROR("Message filter bracket unmatched. Message: \"" << m_command.str() << "\"");
+            return *this;
+        }
+
+        // Id filtering
+        std::size_t fBegin = filter.find_last_of("=*", endPos);
+        if (fBegin != std::string::npos && (endPos - fBegin) > 1)
+        {
+            if (filter[fBegin] == '=')
+                m_idMatchMethod = [](const std::string& compAgainst, const std::string& comp) -> bool
+                {
+                    return compAgainst == comp;
+                };
+            else
+                m_idMatchMethod = [](const std::string& compAgainst, const std::string& comp) -> bool
+                {
+                    return compAgainst.find(comp) != std::string::npos;
+                };
+
+            m_id = filter.substr(fBegin + 1, endPos - fBegin - 1);
+        }
+
+        // Built-in/overridden filtering
+        fBegin = filter.find_last_of('-', endPos);
+        if (fBegin != std::string::npos && (endPos - fBegin) > 1)
+        {
+            if (filter[fBegin + 1] == 'c')
+                m_filterBits &= ~(Filter::Custom);
+            else if (filter[fBegin + 1] == 'm')
+                m_filterBits &= ~(Filter::Command);
+        }
+
+        // System filters
+        fBegin = fBegin == std::string::npos ? endPos - 1 : fBegin - 1;
+        if (filter[fBegin] != '[')
+        {
+            static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Engine | Subsystem | SharedScene | Scene | Layer | Object | Component));
+            m_filterBits &= systemBitsInv;
+
+            static const char* symbols[]
+            {
+                "En",
+                "Su",
+                "Sh",
+                "Sc",
+                "La",
+                "Ob",
+                "Co"
+            };
+
+            for (int i = 0; i < sizeof(symbols) / sizeof(symbols[0]); ++i)
+            {
+                if (filter.rfind(symbols[i], fBegin) != std::string::npos)
+                    m_filterBits |= (Filter::Engine << i);
+            }
+        }
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    PtrWrapper& Message::getReturnPointer() const
+    {
+        return m_ptr;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::operator bool() const
+    {
+        return m_command.rdbuf()->in_avail() > 0;
     }
 }

@@ -189,6 +189,9 @@
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\PtrWrapper.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -263,6 +266,7 @@
     <ClCompile Include="..\src\Jopnal\Utility\Message.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\PtrWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -290,6 +294,9 @@
       <Filter>Utility\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\Message.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\PtrWrapper.inl">
       <Filter>Utility\Inl</Filter>
     </None>
   </ItemGroup>

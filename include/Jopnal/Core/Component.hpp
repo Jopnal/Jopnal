@@ -75,7 +75,9 @@ namespace jop
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual MessageResult sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+
+        MessageResult sendMessage(const Message& message);
 
         /// \brief Update function for component
         ///
@@ -108,6 +110,8 @@ namespace jop
         const Object& getObject() const;
         
     private:
+
+        virtual MessageResult sendMessageImpl(const Message& message);
 
         std::string m_ID;       ///< Unique component identifier
         Object& m_objectRef;    ///< Reference to the object this component is bound to

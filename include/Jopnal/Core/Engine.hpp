@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <vector>
 
@@ -139,7 +140,9 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        static void sendMessage(const std::string& message, void* ptr);
+        static MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+
+        static MessageResult sendMessage(const Message& message);
 
         /// \brief Get the shared scene
         ///
@@ -178,7 +181,9 @@ namespace jop
     /// \param message String holding message
     /// \param ptr Pointer to hold extra data
     ///
-    JOP_API void broadcast(const std::string& message, void* ptr);
+    JOP_API MessageResult broadcast(const std::string& message, PtrWrapper returnWrap);
+
+    JOP_API MessageResult broadcast(const Message& message);
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>

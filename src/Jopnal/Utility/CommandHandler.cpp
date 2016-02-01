@@ -88,7 +88,7 @@ namespace jop
 
     void CommandHandler::execute(const std::string& command)
     {
-        detail::VoidWrapper returnWrap(nullptr);
+        PtrWrapper returnWrap(nullptr);
         execute(command, returnWrap);
     }
 
@@ -108,7 +108,7 @@ namespace jop
 
     void CommandHandler::executeMember(const std::string& command, PtrWrapper instance)
     {
-        detail::VoidWrapper returnWrap(nullptr);
+        PtrWrapper returnWrap(nullptr);
         executeMember(command, instance, returnWrap);
     }
 

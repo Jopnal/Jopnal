@@ -92,12 +92,16 @@ namespace jop
         ///
         virtual void draw();
 
+
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual MessageResult sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+
+        MessageResult sendMessage(const Message& message);
+
 
         /// \brief Set the name
         ///
@@ -110,6 +114,10 @@ namespace jop
         /// \return Reference to the name string
         ///
         const std::string& getID() const;
+
+    protected:
+
+        virtual MessageResult sendMessageImpl(const Message& message);
 
     private:
 

@@ -22,28 +22,18 @@
 //////////////////////////////////////////////
 
 
-namespace detail
+template<typename T>
+Message& Message::push(const T& arg)
 {
-    template<typename T>
-    VoidWrapper::VoidWrapper(T* ptr)
-        : m_ptr(ptr),
-          m_type(typeid(T*))
-    {}
+    m_command << ' ' << arg;
+    return *this;
+}
 
-    template<typename T>
-    VoidWrapper& VoidWrapper::operator =(const T& data)
-    {
-        JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad assignment!");
+//////////////////////////////////////////////
 
-        *static_cast<T*>(m_ptr) = data;
-        return *this;
-    }
-
-    template<typename T>
-    T* jop::detail::VoidWrapper::cast()
-    {
-        JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad cast!");
-
-        return static_cast<T*>(m_ptr);
-    }
+template<typename T>
+Message& Message::pushReference(const T& ref)
+{
+    m_command << ' ' << std::hex << reinterpret_cast<const void*>(&ref);
+    return *this;
 }
