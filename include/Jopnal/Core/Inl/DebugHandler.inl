@@ -22,13 +22,9 @@
 //////////////////////////////////////////////
 
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 template<typename T>
 DebugHandler& DebugHandler::operator <<(const T& data)
 {
     getStream() << data;
     return *this;
 }
-
-#endif

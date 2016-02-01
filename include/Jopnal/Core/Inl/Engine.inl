@@ -21,7 +21,6 @@
 
 //////////////////////////////////////////////
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template<typename T, typename ... Args>
 T& Engine::createScene(Args&... args)
@@ -60,5 +59,3 @@ T* Engine::getSubsystem()
 
     return nullptr;
 }
-
-#endif

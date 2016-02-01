@@ -151,18 +151,20 @@ namespace jop
 
     MessageResult Object::sendMessage(const Message& message)
     {
+        // check id filter when calling object's commands
+
         if (message.passFilter(Message::Component))
         {
             for (auto& i : m_components)
             {
-                if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                if (i->sendMessage(message) == MessageResult::Escape)
                     return MessageResult::Escape;
             }
         }
 
         for (auto& i : m_children)
         {
-            if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+            if (i->sendMessage(message) == MessageResult::Escape)
                 return MessageResult::Escape;
         }
 

@@ -154,6 +154,8 @@ namespace jop
 
     MessageResult Scene::sendMessage(const Message& message)
     {
+        // check id filter when calling scene's commands
+
         if (message.passFilter(Message::Custom, getID()) && sendMessageImpl(message) == MessageResult::Escape)
             return MessageResult::Escape;
 
@@ -164,7 +166,7 @@ namespace jop
         {
             for (auto& i : m_objects)
             {
-                if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                if (i->sendMessage(message) == MessageResult::Escape)
                     return MessageResult::Escape;
             }
         }
@@ -173,7 +175,7 @@ namespace jop
         {
             for (auto& i : m_layers)
             {
-                if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                if (i->sendMessage(message) == MessageResult::Escape)
                     return MessageResult::Escape;
             }
         }

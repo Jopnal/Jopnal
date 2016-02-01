@@ -101,7 +101,7 @@ namespace jop
     private:
 
         std::ostringstream m_command;
-        std::string m_id;
+        std::string m_idPattern;
         mutable PtrWrapper m_ptr;
         unsigned short m_filterBits;
         bool (*m_idMatchMethod)(const std::string&, const std::string&);

@@ -31,7 +31,7 @@ namespace jop
 {
     Message::Message(const std::string& message, PtrWrapper ptr)
         : m_command(),
-          m_id(),
+          m_idPattern(),
           m_ptr(ptr),
           m_filterBits(Filter::Global),
           m_idMatchMethod(nullptr)
@@ -96,7 +96,7 @@ namespace jop
         if (!m_idMatchMethod)
             return true;
 
-        return m_idMatchMethod(m_id, id);
+        return m_idMatchMethod(id, m_idPattern);
     }
 
     //////////////////////////////////////////////
@@ -104,7 +104,7 @@ namespace jop
     Message& Message::setFilter(const std::string& filter)
     {
         m_filterBits = Filter::Global;
-        m_id = "";
+        m_idPattern = "";
 
         if (filter.empty() || filter[0] != '[')
             return *this;
@@ -132,7 +132,7 @@ namespace jop
                     return compAgainst.find(comp) != std::string::npos;
                 };
 
-            m_id = filter.substr(fBegin + 1, endPos - fBegin - 1);
+            m_idPattern = filter.substr(fBegin + 1, endPos - fBegin - 1);
         }
 
         // Built-in/overridden filtering

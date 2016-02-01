@@ -227,7 +227,7 @@ namespace jop
 
             auto& s = ns_engineObject->m_currentScene;
 
-            if (s && message.passFilter(sceneField, s->getID()) && s->sendMessage(message) == MessageResult::Escape)
+            if (s && message.passFilter(sceneField) && s->sendMessage(message) == MessageResult::Escape)
                 return MessageResult::Escape;
 
             if (message.passFilter(Message::Subsystem))
