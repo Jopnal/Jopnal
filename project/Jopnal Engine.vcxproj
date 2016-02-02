@@ -30,7 +30,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\Shaders.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
@@ -69,7 +69,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\Shaders.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -54,58 +54,65 @@ namespace jop
         ///
         bool load(const std::string& shaders) override;
 
-
+        ///
         void destroy();
-          
-        ///\brief method setting matrix 4x4 with unique name
-        ///
-        ///\param name unique name
-        ///\param matrix 4x4 matrix
-        ///
-        void setUniform(const std::string& name, const glm::mat4& matrix);
 
-        ///\brief method setting 3x3 matrix with unique name
-        ///
-        ///\param name unique name
-        ///\param matrix 3x3 matrix
-        ///
-        void setUniform(const std::string& name, const glm::mat3& matrix);
-        
-        ///\brief method setting vector with 4 dimensions and unique name
-        ///
-        ///\param name unique name
-        ///\param vector 4 dimensional vector
-        ///
-        void setUniform(const std::string& name, const glm::vec4& vector);
-
-        ///\brief method setting texture with unique name and Uint
-        ///
-        ///\param name unique name
-        ///\param texture Uint 
-        ///
-        void setUniform(const std::string& name, const jop::Texture& );
-
-        ///\brief method setting attributes
-        ///
-        ///\param name unique name
-        ///\param type GLenum type
-        ///\param amount attributes size Glint size
-        ///\param stride 
-        ///\param pointer void pointer
-        void setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const void* pointer);
 
         ///\brief set gl::useprogram as m_shader
         ///
-        void bind()const;
+        bool bind() const;
 
-        void unbind()const;
-	private:
+        ///
+        static void unbind();
 
-        int getAttributeLocation(const std::string& name); ///< get location of attribute by name
+          
+        /// \brief method setting matrix 4x4 with unique name
+        ///
+        /// \param name unique name
+        /// \param matrix 4x4 matrix
+        ///
+        void setUniform(const std::string& name, const glm::mat4& matrix);
 
-        int getUniformLocation(const std::string& name); ///< get location of uniform by name
+        /// \brief method setting 3x3 matrix with unique name
+        ///
+        /// \param name unique name
+        /// \param matrix 3x3 matrix
+        ///
+        void setUniform(const std::string& name, const glm::mat3& matrix);
         
-        unsigned int m_shaderProgram; ///< an internal Uint
+        /// \brief method setting vector with 4 dimensions and unique name
+        ///
+        /// \param name unique name
+        /// \param vector 4 dimensional vector
+        ///
+        void setUniform(const std::string& name, const glm::vec4& vector);
+
+        /// \brief method setting texture with unique name and Uint
+        ///
+        /// \param name unique name
+        /// \param texture Uint 
+        ///
+        void setUniform(const std::string& name, const jop::Texture& );
+
+        /// \brief method setting attributes
+        ///
+        /// \param name unique name
+        /// \param type GLenum type
+        /// \param amount attributes size Glint size
+        /// \param stride 
+        /// \param pointer void pointer
+        ///
+        void setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const void* pointer);
+
+    private:
+
+        ///< get location of uniform by name
+        int getUniformLocation(const std::string& name);
+
+        ///< get location of attribute by name
+        int getAttributeLocation(const std::string& name);
+        
+        unsigned int m_shaderProgram; ///< The OpenGL shader handle
                 
 	};
 }
