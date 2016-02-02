@@ -21,33 +21,19 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+
+template<typename T>
+Message& Message::push(const T& arg)
+{
+    m_command << ' ' << arg;
+    return *this;
+}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T>
+Message& Message::pushReference(const T& ref)
 {
-    void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message)
-    {
-        if (!expression)
-        {
-        #if defined(JOP_OS_WINDOWS)
-
-            auto slashPos = file.find_last_of("/\\");
-
-            std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
-            newStr += "\nLine: " + std::to_string(line);
-            newStr += "\n\n" + message;
-
-            MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
-
-        #ifdef JOP_DEBUG_MODE
-            throw std::runtime_error(newStr);
-        #endif
-
-        #endif
-        }
-    }
+    m_command << ' ' << std::hex << reinterpret_cast<const void*>(&ref);
+    return *this;
 }

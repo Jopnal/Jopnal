@@ -21,24 +21,30 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+
+template<typename T>
+PtrWrapper::PtrWrapper(T* ptr)
+    : m_ptr     (ptr),
+      m_type    (typeid(T*))
+{}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T>
+PtrWrapper& PtrWrapper::operator =(const T& data)
 {
-    bool MessageUtil::hasFilterSymbol(const std::string& message, const std::string& symbol)
-    {
-        if (message[0] != '[')
-            return true;
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad assignment!");
 
-        auto closingTag = message.find_first_of(']');
+    *static_cast<T*>(m_ptr) = data;
+    return *this;
+}
 
-        if (closingTag == std::string::npos)
-            return true;
+//////////////////////////////////////////////
 
-        return message.rfind(symbol, closingTag - 1) != std::string::npos;
-    }
+template<typename T>
+T* PtrWrapper::cast()
+{
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad cast!\n\nAsked for \"" + std::string(typeid(T*).name()) + "\", was \"" + std::string(typeid(m_type).name()));
+
+    return static_cast<T*>(m_ptr);
 }

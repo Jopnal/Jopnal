@@ -21,37 +21,35 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API MessageUtil
+    PtrWrapper::PtrWrapper(std::nullptr_t)
+        : m_ptr     (nullptr),
+          m_type    (typeid(std::nullptr_t))
+    {}
+
+    PtrWrapper::PtrWrapper(const PtrWrapper& other)
+        : m_ptr     (other.m_ptr),
+          m_type    (other.m_type)
+    {}
+
+    //////////////////////////////////////////////
+
+    PtrWrapper::operator bool() const
     {
-    public:
+        return m_ptr != nullptr;
+    }
 
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+    //////////////////////////////////////////////
 
-    };
+    bool PtrWrapper::operator ==(const std::type_info& otherType) const
+    {
+        return m_type == otherType;
+    }
 }
-
-#endif
-
-/// \class Resource
-/// \ingroup utility

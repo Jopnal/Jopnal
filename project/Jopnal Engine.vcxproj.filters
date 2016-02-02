@@ -64,6 +64,9 @@
     <Filter Include="Window\Inl">
       <UniqueIdentifier>{cfdcf1ee-84a0-4bc0-89b1-0d0b3038ef40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\Inl">
+      <UniqueIdentifier>{f994c5fc-c54d-4962-b0e9-356cbf5870d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -171,9 +174,6 @@
     <ClInclude Include="..\include\Jopnal\Core\Resource.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp">
-      <Filter>Utility\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
@@ -183,8 +183,14 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp">
-      <Filter>Graphics\Headers</Filter>
+    <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Message.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\PtrWrapper.hpp">
+      <Filter>Utility\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -242,9 +248,6 @@
     <ClCompile Include="..\src\Jopnal\Core\Resource.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp">
-      <Filter>Utility\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\ResourceManager.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
@@ -257,8 +260,14 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp">
-      <Filter>Graphics\Source</Filter>
+    <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Message.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\PtrWrapper.cpp">
+      <Filter>Utility\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -279,6 +288,18 @@
     </None>
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl">
       <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\CommandParser.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\Message.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\PtrWrapper.inl">
+      <Filter>Utility\Inl</Filter>
     </None>
   </ItemGroup>
 </Project>

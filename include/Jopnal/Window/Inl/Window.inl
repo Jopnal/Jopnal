@@ -22,8 +22,6 @@
 //////////////////////////////////////////////
 
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 template<typename T, typename ... Args>
 T& Window::setEventHandler(Args&... args)
 {
@@ -32,5 +30,3 @@ T& Window::setEventHandler(Args&... args)
     m_eventHandler = std::make_unique<T>(*this, args...);
     return static_cast<T&>(*m_eventHandler);
 }
-
-#endif

@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -91,12 +92,20 @@ namespace jop
         ///
         virtual void draw();
 
+
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param ptr Pointer to hold extra data
         ///
-        virtual void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
+        MessageResult sendMessage(const Message& message);
+
 
         /// \brief Set the name
         ///
@@ -109,6 +118,12 @@ namespace jop
         /// \return Reference to the name string
         ///
         const std::string& getID() const;
+
+    protected:
+
+        /// \brief Virtual sendMessage
+        ///
+        virtual MessageResult sendMessageImpl(const Message& message);
 
     private:
 

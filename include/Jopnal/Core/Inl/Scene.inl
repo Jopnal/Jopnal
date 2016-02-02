@@ -21,7 +21,6 @@
 
 //////////////////////////////////////////////
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template<typename T>
 std::weak_ptr<T> Scene::getLayer()
@@ -60,5 +59,3 @@ T& Scene::setDefaultLayer(Args&... args)
     m_defaultLayer = std::make_shared<T>(args...);
     return static_cast<T&>(*m_defaultLayer);
 }
-
-#endif
