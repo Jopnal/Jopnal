@@ -36,9 +36,9 @@
 namespace jop
 {
     Texture::Texture()
-        : m_textureWidth    (0),
-          m_textureHeight   (0),
-          m_bytesPerPixel    (0),
+        : m_width           (0),
+          m_height          (0),
+          m_bytesPerPixel   (0),
           m_texture         (0)
     {}
 
@@ -51,6 +51,9 @@ namespace jop
 
     bool Texture::load(const std::string& path)
     {
+        if (path.empty())
+            return false;
+
         // If exclamation mark is detected creates new flat texture
         if (path[0] == '!')
               return loadEmpty(path);
@@ -63,7 +66,7 @@ namespace jop
 
             int x = 0, y = 0, bpp = 0;
 
-            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 3);
+            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
 
             return loadFromPixels(x, y, bpp, colorData);
         }
@@ -73,12 +76,15 @@ namespace jop
  
     bool Texture::loadEmpty(const std::string& xyBpp)
     {
+        if (xyBpp.empty())
+            return false;
+
         // Temporary string for memory usage
         std::string variable;
         int x = 0, y = 0, bpp = 0;
 
         // Loop Reads param one character at time
-        for (int i = 1; i <= xyBpp.size(); i++)
+        for (std::size_t i = 1; i <= xyBpp.size(); i++)
         {
             // Reads character to string if exclamation mark is not detected
             if (xyBpp[i] != '!')
@@ -86,11 +92,11 @@ namespace jop
             else
             {
                 // If width x param is fully read it puts it in class's variable
-                if (!m_textureWidth)
+                if (!m_width)
                     x = std::stoi(variable);
 
                 // If width y param is fully read it puts it in class's variable
-                else if (!m_textureHeight)
+                else if (!m_height)
                     y = std::stoi(variable);
             }
 
@@ -102,7 +108,6 @@ namespace jop
         // Last param bpp is taken to the class's variable after loop is ended
         m_bytesPerPixel = std::stoi(variable);
 
-        // Check for legible class's variables and for moving it in gpu memory
         return loadFromPixels(x, y, bpp, nullptr);
     }
 
@@ -115,17 +120,26 @@ namespace jop
             JOP_DEBUG_ERROR("Couldn't load texture. One or both dimensions are less than 1");
             return false;
         }
+        if (x > getMaximumSize() || y > getMaximumSize())
+        {
+            JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
+            return false;
+        }
         else if (!checkDepthValid(bytesPerPixel))
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 3 or 4");
             return false;
         }
 
-
-
         destroy();
         glCheck(gl::GenTextures(1, &m_texture));
 
+        m_width = x; m_height = y;
+        m_bytesPerPixel = bytesPerPixel;
+
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA8, x, y, 0, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -136,24 +150,41 @@ namespace jop
         {
             glCheck(gl::DeleteTextures(1, &m_texture));
             m_texture = 0;
-            m_textureWidth = 0;
-            m_textureHeight = 0;
+            m_width = 0;
+            m_height = 0;
             m_bytesPerPixel = 0;
         }
     }
 
     //////////////////////////////////////////////
 
+    bool Texture::bind(const unsigned int texUnit) const
+    {
+        if (m_texture)
+            glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+
+        return m_texture != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::unbind(const unsigned int texUnit)
+    {
+        glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, 0));
+    }
+
+    //////////////////////////////////////////////
+
     int Texture::getWidth() const
     {
-        return m_textureWidth;
+        return m_width;
     }
 
     //////////////////////////////////////////////
 
     int Texture::getHeight() const
     {
-        return m_textureHeight;
+        return m_height;
     }
 
     //////////////////////////////////////////////
@@ -161,6 +192,24 @@ namespace jop
     int Texture::getDepth() const
     {
         return m_bytesPerPixel;
+    }
+
+    //////////////////////////////////////////////
+
+    int Texture::getMaximumSize()
+    {
+        static int size = 0;
+        if (!size)
+            glCheck(gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, &size));
+
+        return size;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Texture::getHandle() const
+    {
+        return m_texture;
     }
 
     //////////////////////////////////////////////

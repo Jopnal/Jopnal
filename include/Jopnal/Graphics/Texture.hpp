@@ -31,6 +31,7 @@
 //////////////////////////////////////////////
 
 namespace jop
+
 {
 	class Texture : public Resource
 	{
@@ -67,6 +68,11 @@ namespace jop
         void destroy();
 
 
+        bool bind(const unsigned int texUnit = 0) const;
+
+        static void unbind(const unsigned int texUnit = 0);
+
+
         /// \brief Returns image's width
         ///
         int getWidth() const;
@@ -79,12 +85,16 @@ namespace jop
         ///
         int getDepth() const;
 
+        unsigned int getHandle() const;
+
+        static int getMaximumSize();
+
     private:
 
         bool checkDepthValid(const int depth) const;
 
-        int m_textureWidth;
-        int m_textureHeight;
+        int m_width;
+        int m_height;
         int m_bytesPerPixel;
         unsigned int m_texture;
 
