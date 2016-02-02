@@ -36,7 +36,7 @@ std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
         if (res->load(path))
         {
             m_resources[path] = std::move(res);
-            return std::weak_ptr<T>(static_pointer_cast<T>(m_resources[path]));
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(m_resources[path]));
         }
 
         JOP_DEBUG_ERROR("Couldn't load resource: " << path);
@@ -44,7 +44,7 @@ std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
     else
     {
         if (typeid(T) == typeid(*it->second.get()))
-            return std::weak_ptr<T>(static_pointer_cast<T*>(it->second));
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
         else
             JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
     }
