@@ -141,17 +141,30 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message, void* ptr)
+    MessageResult Object::sendMessage(const std::string& message, PtrWrapper returnWrap)
     {
-        for (auto& i : m_components)
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    /////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const Message& message)
+    {
+        // check id filter when calling object's commands
+
+        if (message.passFilter(Message::Component))
         {
-            if (i->sendMessage(message, ptr) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_components)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
         for (auto& i : m_children)
         {
-            if (i->sendMessage(message, ptr) == MessageResult::Escape)
+            if (i->sendMessage(message) == MessageResult::Escape)
                 return MessageResult::Escape;
         }
 

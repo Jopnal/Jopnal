@@ -46,8 +46,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Component::sendMessage(const std::string&, void*)
+    MessageResult Component::sendMessage(const std::string& message, PtrWrapper returnWrap)
     {
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    MessageResult Component::sendMessage(const Message& message)
+    {
+        if (message.passFilter(Message::Custom, getID()))
+            return sendMessageImpl(message);
+
         return MessageResult::Continue;
     }
 
@@ -87,5 +96,10 @@ namespace jop
     const Object& Component::getObject() const
     {
         return m_objectRef;
+    }
+
+    MessageResult Component::sendMessageImpl(const Message&)
+    {
+        return MessageResult::Continue;
     }
 }

@@ -21,43 +21,30 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+template<typename T>
+PtrWrapper::PtrWrapper(T* ptr)
+    : m_ptr     (ptr),
+      m_type    (typeid(T*))
+{}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T>
+PtrWrapper& PtrWrapper::operator =(const T& data)
 {
-    enum class MessageResult
-    {
-        Continue,
-        Escape
-    };
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad assignment!");
 
-    class JOP_API MessageUtil
-    {
-    public:
-
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
-
-    };
+    *static_cast<T*>(m_ptr) = data;
+    return *this;
 }
 
-#endif
+//////////////////////////////////////////////
 
-/// \class Resource
-/// \ingroup utility
+template<typename T>
+T* PtrWrapper::cast()
+{
+    JOP_ASSERT(typeid(T*) == m_type, "PtrWrapper bad cast!\n\nAsked for \"" + std::string(typeid(T*).name()) + "\", was \"" + std::string(typeid(m_type).name()));
+
+    return static_cast<T*>(m_ptr);
+}

@@ -29,16 +29,27 @@
 
 namespace jop
 {
-    bool MessageUtil::hasFilterSymbol(const std::string& message, const std::string& symbol)
+    PtrWrapper::PtrWrapper(std::nullptr_t)
+        : m_ptr     (nullptr),
+          m_type    (typeid(std::nullptr_t))
+    {}
+
+    PtrWrapper::PtrWrapper(const PtrWrapper& other)
+        : m_ptr     (other.m_ptr),
+          m_type    (other.m_type)
+    {}
+
+    //////////////////////////////////////////////
+
+    PtrWrapper::operator bool() const
     {
-        if (message[0] != '[')
-            return true;
+        return m_ptr != nullptr;
+    }
 
-        auto closingTag = message.find_first_of(']');
+    //////////////////////////////////////////////
 
-        if (closingTag == std::string::npos)
-            return true;
-
-        return message.rfind(symbol, closingTag - 1) != std::string::npos;
+    bool PtrWrapper::operator ==(const std::type_info& otherType) const
+    {
+        return m_type == otherType;
     }
 }

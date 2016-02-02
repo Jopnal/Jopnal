@@ -204,22 +204,46 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Engine::sendMessage(const std::string& message, void* ptr)
+    MessageResult Engine::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    {
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Engine::sendMessage(const Message& message)
     {
         if (ns_engineObject)
         {
-            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
-            {
-                ns_engineObject->m_currentScene->sendMessage(message, ptr);
-                ns_engineObject->m_sharedScene->sendMessage(message, ptr);
-            }
+            //if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            //    JOP_EXECUTE_MEMBER_COMMAND(Engine, message.getString(), ns_engineObject, message.getReturnPointer());
 
-            if (MessageUtil::hasFilterSymbol(message, "Su"))
+            static const unsigned short sceneField = Message::SharedScene |
+                                                     Message::Scene |
+                                                     Message::Layer |
+                                                     Message::Object |
+                                                     Message::Component;
+
+            if (message.passFilter(sceneField) && ns_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+
+            auto& s = ns_engineObject->m_currentScene;
+
+            if (s && message.passFilter(sceneField) && s->sendMessage(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+
+            if (message.passFilter(Message::Subsystem))
             {
                 for (auto& i : ns_engineObject->m_subsystems)
-                    i->sendMessage(message, ptr);
+                {
+                    if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                        return MessageResult::Escape;
+                }
             }
         }
+
+        return MessageResult::Escape;
     }
 
     //////////////////////////////////////////////
@@ -239,8 +263,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void broadcast(const std::string& message, void* ptr)
+    MessageResult broadcast(const std::string& message, PtrWrapper returnWrap)
     {
-        Engine::sendMessage(message, ptr);
+        const Message msg(message, returnWrap);
+        return Engine::sendMessage(msg);
+    }
+
+    MessageResult broadcast(const Message& message)
+    {
+        return Engine::sendMessage(message);
     }
 }
