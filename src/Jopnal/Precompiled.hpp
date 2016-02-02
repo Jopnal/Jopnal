@@ -68,7 +68,7 @@
 #pragma warning(pop)
 
 // PhysFS
-#include<PhysicsFS\physfs.h>
+#include <PhysicsFS/physfs.h>
 
 // PhysicsFS
 #include <PhysicsFS/physfs.h>
