@@ -129,7 +129,9 @@ namespace jop
 
         /// \brief Get a string with the command and arguments
         ///
-        std::string getString() const;;
+        /// \return A new string with the internal buffer's contents
+        ///
+        std::string getString() const;
 
 
         /// \brief Check if the given arguments should pass the filter
