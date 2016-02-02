@@ -55,12 +55,16 @@ namespace jop
         while (pos1 < length && std::isspace(args[pos1]))
             ++pos1;
 
-        if (pos1 == length)
+        auto errMessage = []()
         {
             JOP_DEBUG_WARNING("Last command didn't contain enough parameters to pass to the bound function");
+        };
+
+        if (pos1 == length)
+        {
+            errMessage();
             return std::make_tuple(std::string(), std::string());
         }
-
 
         if (args[pos1] == '\"')
         {
@@ -80,6 +84,9 @@ namespace jop
         pos3 = std::min(pos2 + 1, length);
         while (pos3 < length && isspace(args[pos3]))
             ++pos3;
+
+        if (pos3 == length)
+            errMessage();
 
         return std::make_tuple(args.substr(pos1, pos2 - pos1), args.substr(pos3));
     }
