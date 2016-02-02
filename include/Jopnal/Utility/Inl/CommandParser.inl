@@ -272,7 +272,7 @@ namespace DefaultParser
     template<typename Ret>
     struct Helper<Ret>
     {
-        static void parse(const std::function<Ret()>& func, const std::string& args, PtrWrapper& returnWrap)
+        static void parse(const std::function<Ret()>& func, const std::string&, PtrWrapper& returnWrap)
         {
             if (returnWrap && returnWrap == typeid(Ret))
                 returnWrap = func();
@@ -284,7 +284,7 @@ namespace DefaultParser
     template<>
     struct Helper<void>
     {
-        static void parse(const std::function<void(void)>& func, const std::string&, PtrWrapper&)
+        static void parse(const std::function<void(void)>& func, const std::string&, jop::PtrWrapper&)
         {
             func();
         }

@@ -59,3 +59,12 @@ T* Engine::getSubsystem()
 
     return nullptr;
 }
+
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Engine::setSharedScene(Args&... args)
+{
+    m_sharedScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_sharedScene);
+}

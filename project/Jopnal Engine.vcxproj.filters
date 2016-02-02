@@ -266,7 +266,9 @@
     <ClCompile Include="..\src\Jopnal\Utility\Message.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Utility\PtrWrapper.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\PtrWrapper.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

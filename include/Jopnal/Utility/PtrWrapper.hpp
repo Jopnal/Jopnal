@@ -42,35 +42,58 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param ptr The pointer to be assigned to the internal one
         ///
         template<typename T>
         PtrWrapper(T* ptr);
 
+        /// \brief Copy constructor
         ///
         PtrWrapper(const PtrWrapper& other);
 
+        /// \brief Constructor for nullptr initialization
         ///
         PtrWrapper(std::nullptr_t);
 
 
+        /// \brief Assign new data for this wrapper
+        ///
+        /// \data The data to assign
+        ///
+        /// \reference to this
         ///
         template<typename T>
         PtrWrapper& operator =(const T& data);
 
+        /// \brief Cast this object into a pointer of the given type
+        ///
+        /// This function will fail an assertion if the type is invalid.
+        ///
+        /// \return A cast pointer to the internal data
         ///
         template<typename T>
         T* cast();
 
+        /// \brief Check if this object has any associated data
+        ///
+        /// \return True if the internal pointer is not nullptr
         ///
         operator bool() const;
 
+        /// \brief Compare this object with type_info
+        ///
+        /// \param otherType The other type's info to compare against
+        ///
+        /// \return True if the types match
         ///
         bool operator ==(const std::type_info& otherType) const;
 
     private:
 
-        void* m_ptr;
-        const std::type_info& m_type;
+        void* m_ptr;                    ///< The pointer
+        const std::type_info& m_type;   ///< Type info
 
     };
 
@@ -79,3 +102,8 @@ namespace jop
 }
 
 #endif
+
+/// \class PtrWrapper
+/// \ingroup utility
+///
+/// Wrapper for void* with type info

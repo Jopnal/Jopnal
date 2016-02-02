@@ -77,6 +77,10 @@ namespace jop
         ///
         MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
 
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
         MessageResult sendMessage(const Message& message);
 
         /// \brief Update function for component
@@ -111,6 +115,8 @@ namespace jop
         
     private:
 
+        /// \brief Virtual sendMessage
+        ///
         virtual MessageResult sendMessageImpl(const Message& message);
 
         std::string m_ID;       ///< Unique component identifier

@@ -40,7 +40,7 @@ namespace jop
         {
             setFilter(message);
             std::size_t startPos = message.find_first_of(']');
-            m_command << (startPos == std::string::npos ? message : message.substr(message.find_first_not_of(' ', startPos)));
+            m_command << (startPos == std::string::npos ? message : message.substr(message.find_first_not_of(' ', startPos + 1)));
         }
     }
 

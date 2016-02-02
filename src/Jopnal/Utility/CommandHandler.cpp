@@ -86,41 +86,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command)
+    void CommandHandler::execute(const std::string& command, PtrWrapper instance)
     {
         PtrWrapper returnWrap(nullptr);
-        execute(command, returnWrap);
+        execute(command, instance, returnWrap);
     }
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, PtrWrapper returnWrap)
+    void CommandHandler::execute(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap)
     {
         std::string comm, args;
         handleCommand(command, comm, args);
 
-        auto itr = m_funcParsers.find(comm);
-        if (itr != m_funcParsers.end())
-            itr->second(args, returnWrap);
-    }
+        {
+            auto itr = m_funcParsers.find(comm);
+            if (itr != m_funcParsers.end())
+                itr->second(args, returnWrap);
+        }
 
-    //////////////////////////////////////////////
-
-    void CommandHandler::executeMember(const std::string& command, PtrWrapper instance)
-    {
-        PtrWrapper returnWrap(nullptr);
-        executeMember(command, instance, returnWrap);
-    }
-
-    //////////////////////////////////////////////
-
-    void CommandHandler::executeMember(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap)
-    {
-        std::string comm, args;
-        handleCommand(command, comm, args);
-
-        auto itr = m_memberParsers.find(comm);
-        if (itr != m_memberParsers.end())
-            itr->second(args, returnWrap, instance);
+        if (instance)
+        {
+            auto itr = m_memberParsers.find(comm);
+            if (itr != m_memberParsers.end())
+                itr->second(args, returnWrap, instance);
+        }
     }
 }

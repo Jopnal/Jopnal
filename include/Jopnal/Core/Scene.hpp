@@ -163,6 +163,10 @@ namespace jop
         ///
         MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
 
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
         MessageResult sendMessage(const Message& message);
 
 
@@ -229,10 +233,7 @@ namespace jop
 
     private:
 
-        /// \brief Send a message to this scene
-        ///
-        /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
+        /// \brief Virtual sendMessage
         ///
         virtual MessageResult sendMessageImpl(const Message& message);
 

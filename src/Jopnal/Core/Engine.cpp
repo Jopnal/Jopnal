@@ -216,6 +216,9 @@ namespace jop
     {
         if (ns_engineObject)
         {
+            //if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            //    JOP_EXECUTE_MEMBER_COMMAND(Engine, message.getString(), ns_engineObject, message.getReturnPointer());
+
             static const unsigned short sceneField = Message::SharedScene |
                                                      Message::Scene |
                                                      Message::Layer |

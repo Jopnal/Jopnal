@@ -135,6 +135,7 @@ namespace jop
         ///
         static void exit();
 
+
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
@@ -142,7 +143,12 @@ namespace jop
         ///
         static MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
 
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
         static MessageResult sendMessage(const Message& message);
+
 
         /// \brief Get the shared scene
         ///
@@ -157,6 +163,19 @@ namespace jop
         /// \return Reference to the shared scene
         ///
         static Scene& getSharedScene();
+
+        /// \brief Set the shared scene
+        ///
+        /// This will replace the previous shared scene with a new one of the given type.
+        /// This function is not static, as you're encouraged to set the shared scene
+        /// in the very beginning of the program.
+        ///
+        /// \param args Arguments to use in the scene's construction
+        ///
+        /// \return Reference to the new scene
+        ///
+        template<typename T, typename ... Args>
+        T& setSharedScene(Args&... args);
 
 
     private:
@@ -183,6 +202,12 @@ namespace jop
     ///
     JOP_API MessageResult broadcast(const std::string& message, PtrWrapper returnWrap);
 
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message The message
+    ///
     JOP_API MessageResult broadcast(const Message& message);
 
     // Include the template implementation file
