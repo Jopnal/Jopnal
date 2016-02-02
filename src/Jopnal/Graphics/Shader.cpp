@@ -29,7 +29,7 @@
 
 namespace
 {
-    static const int shaderTypes[] =
+    static const int ns_shaderTypes[] =
     {
         gl::VERTEX_SHADER,
         gl::GEOMETRY_SHADER,
@@ -54,6 +54,9 @@ namespace jop
 
     bool Shader::load(const std::string& shaders)
     {
+        destroy();
+        m_shaderProgram = glCheck(gl::CreateProgram());
+
         std::string shaderStr[3];
         std::size_t firstPos = shaders.find("v;");
 
@@ -87,7 +90,78 @@ namespace jop
             }
         };
 
-        for (int i = 0; i < sizeof(shaderTypes) / sizeof(shaderTypes[0]); i++)
+        auto handleShaderInfo = [](const unsigned int handle, const unsigned int shaderType) -> bool
+        {
+            GLint success;
+            glCheck(gl::GetShaderiv(handle, gl::COMPILE_STATUS, &success));
+
+            if (success == gl::FALSE_)
+            {
+                char log[1024];
+                glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
+
+                JOP_DEBUG_ERROR("Failed to compile " << (shaderType == 0 ? "vertex" : (shaderType == 1 ? "geometry" : "fragment")) << " shader:\n" << log);
+
+            }
+
+        #ifdef JOP_DEBUG_MODE
+
+            else
+            {
+                GLint len;
+                glCheck(gl::GetShaderiv(handle, gl::INFO_LOG_LENGTH, &len));
+
+                if (len > 0)
+                {
+                    char log[1024];
+                    glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
+
+                    if (std::strcmp(log, "No errors.") != 0)
+                        JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
+                }
+            }
+
+        #endif
+
+            return success == gl::TRUE_;
+        };
+        auto handleProgramInfo = [](const unsigned int program) -> bool
+        {
+            GLint success;
+            glCheck(gl::GetProgramiv(program, gl::LINK_STATUS, &success));
+
+            if (success == gl::FALSE_)
+            {
+                char log[1024];
+                glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
+
+                JOP_DEBUG_ERROR("Failed to link shader program:\n" << log);
+
+            }
+
+        #ifdef JOP_DEBUG_MODE
+
+            else
+            {
+                GLint len;
+                glCheck(gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &len));
+
+                if (len > 0)
+                {
+                    char log[1024];
+                    glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
+
+                    if (std::strcmp(log, "No errors.") != 0)
+                        JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
+                }
+            }
+
+        #endif
+
+            return success == gl::TRUE_;
+        };
+
+        for (int i = 0; i < sizeof(ns_shaderTypes) / sizeof(ns_shaderTypes[0]); i++)
         {
             if (shaderStr[i].empty())
                 continue;
@@ -97,22 +171,15 @@ namespace jop
 
             if (!buffer.empty())
             {
-                shaderHandles[i] = glCheck(gl::CreateShader(shaderTypes[i]));
+                shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
 
-                int size = buffer.size();
-                glCheck(gl::ShaderSource(shaderHandles[i], 1, reinterpret_cast<const char**>(buffer.data()), &size));
-
+                int size[] = {buffer.size()};
+                const char* source = reinterpret_cast<const char*>(buffer.data());
+                glCheck(gl::ShaderSource(shaderHandles[i], 1, &source, size));
                 glCheck(gl::CompileShader(shaderHandles[i]));
-                GLint compiled;
-                glCheck(gl::GetShaderiv(shaderHandles[i], gl::COMPILE_STATUS, &compiled));
 
-                if (compiled == gl::FALSE_)
+                if (!handleShaderInfo(shaderHandles[i], i))
                 {
-                    char log[1024];
-                    glCheck(gl::GetShaderInfoLog(shaderHandles[i], sizeof(log), 0, log));
-
-                    JOP_DEBUG_ERROR("Failed to compile " << (i == 0 ? "Vertex" : i == 1 ? "Geometry" : "Fragment") << " shader: "<< log);
-
                     deleteHandles(shaderHandles, 0);
                     destroy();
 
@@ -122,24 +189,19 @@ namespace jop
             }
         }
 
-       glCheck(gl::LinkProgram(m_shaderProgram));
+        glCheck(gl::LinkProgram(m_shaderProgram));
 
-       GLint linked;
-       glCheck(gl::GetProgramiv(m_shaderProgram, gl::LINK_STATUS, &linked));
-       if (linked == gl::FALSE_)
-       {
-           char log[1024];
-           glCheck(gl::GetProgramInfoLog(m_shaderProgram, sizeof(log), 0, log));
+        if (!handleProgramInfo(m_shaderProgram))
+        {
+            deleteHandles(shaderHandles, m_shaderProgram);
+            destroy();
 
-           JOP_DEBUG_ERROR("Failed to link shader: " << log);
+            return false;
+        }
 
-           deleteHandles(shaderHandles, m_shaderProgram);
-           destroy();
+        deleteHandles(shaderHandles, 0);
 
-           return false;
-       }
-
-       return true;
+        return true;
     }
 
     //////////////////////////////////////////////

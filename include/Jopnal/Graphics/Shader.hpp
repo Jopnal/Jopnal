@@ -21,11 +21,10 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SHADERS_HPP
-#define JOP_SHADERS_HPP
+#ifndef JOP_SHADER_HPP
+#define JOP_SHADER_HPP
 
 // Headers
-
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Core/Resource.hpp>
 
@@ -40,17 +39,24 @@ namespace jop
 	{
 	public:
 
-        ///\brief default constructor
+        /// \brief default constructor
         ///
 		Shader();
 
-        ///\brief default destructor
+        /// \brief default destructor
         ///
 		~Shader();
 
-        ///\brief Load method for loading shaders
+        /// \brief Load method for loading shaders
         ///
-        ///\param shaders takes a const string with all shader code inside
+        /// The format goes like this:
+        /// "v;pathToVertexShader|g;pathToGeometryShader|f;pathToFragmentShader"
+        ///
+        /// The paths must appear in this order (vertex, geometry, fragment).
+        /// If you have less than three shader types to compile, simply leave out
+        /// the ones you don't need. Example: "v;pathToVertexShader|f;pathToFragmentShader".
+        ///
+        /// \param shaders A correctly formatted string with the shader file paths
         ///
         bool load(const std::string& shaders) override;
 
@@ -58,15 +64,18 @@ namespace jop
         void destroy();
 
 
-        ///\brief set gl::useprogram as m_shader
+        /// \brief Bind this shader for use
+        ///
+        /// \return True if successful
         ///
         bool bind() const;
 
+        /// \brief Unbind the currently bound shader
         ///
         static void unbind();
 
           
-        /// \brief method setting matrix 4x4 with unique name
+        /// \brief method setting matrix 4x4
         ///
         /// \param name unique name
         /// \param matrix 4x4 matrix
