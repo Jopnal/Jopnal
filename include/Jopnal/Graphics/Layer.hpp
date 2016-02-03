@@ -88,9 +88,15 @@ namespace jop
 
         /// \brief Bind a layer's draw list into this layer
         ///
-        /// \brief layer Reference to the layer to be bound
+        /// \param layer Reference to the layer to be bound
         ///
         void bindOtherLayer(Layer& layer);
+
+        /// \brief Unbind a layer's draw list from this layer
+        ///
+        /// \param ID The layer's id
+        ///
+        void unbindOtherLayer(const std::string& ID);
 
         /// \brief Set the camera
         ///

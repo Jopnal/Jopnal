@@ -101,6 +101,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::unbindOtherLayer(const std::string& ID)
+    {
+        for (auto itr = m_boundLayers.begin(); itr != m_boundLayers.end(); ++itr)
+        {
+            if (!itr->expired() && itr->lock()->getID() == ID)
+            {
+                m_boundLayers.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
     void Layer::setCamera(const Camera& camera)
     {
         m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
