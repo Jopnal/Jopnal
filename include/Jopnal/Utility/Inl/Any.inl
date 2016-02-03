@@ -112,7 +112,7 @@ Any& Any::operator =(const T& data)
         static_cast<Data<T>*>(m_data.get())->getData() = data;
 
     else if (getType() == typeid(T*))
-        *(static_cast<Data<T>*>(m_data.get())->getData()) = data;
+        *(static_cast<Data<T*>*>(m_data.get())->getData()) = data;
 
     else
         m_data = std::make_unique<Data<T>>(data);
@@ -120,22 +120,22 @@ Any& Any::operator =(const T& data)
     return *this;
 }
 
-//template<typename T>
-//Any& Any::operator=(T&& data)
-//{
-//    if (getType() == typeid(T))
-//        static_cast<Data<T>*>(m_data.get())->getData() = std::move(data);
-//
-//    else if (getType() == typeid(T*))
-//        static_cast<T&>(static_cast<Data<T>*>(m_data.get())->getData()) = std::move(data);
-//
-//    else
-//    {
-//        auto newData = std::make_unique<Data<T>>();
-//        newData->getData() = std::move(data);
-//
-//        m_data = std::move(newData);
-//    }
-//
-//    return *this;
-//}
+template<typename T>
+Any& Any::operator=(T&& data)
+{
+    if (getType() == typeid(T))
+        static_cast<Data<T>*>(m_data.get())->getData() = std::move(data);
+
+    else if (getType() == typeid(T*))
+        *(static_cast<Data<T*>*>(m_data.get())->getData()) = std::move(data);
+
+    else
+    {
+        auto newData = std::make_unique<Data<T>>();
+        newData->getData() = std::move(data);
+
+        m_data = std::move(newData);
+    }
+
+    return *this;
+}

@@ -38,6 +38,8 @@ namespace jop
     {
     public:
 
+        /// Polymorphic base class for data
+        ///
         struct Concept
         {
             virtual ~Concept() = 0;
@@ -45,6 +47,8 @@ namespace jop
             virtual const std::type_info& getType() const = 0;
         };
 
+        /// Specialized class for storing any type.
+        ///
         template<typename T>
         class Data final : public Concept
         {
@@ -55,16 +59,11 @@ namespace jop
         public:
 
             Data() = default;
-
             Data(const T& data);
 
-
             Data* clone() const override;
-
             T& getData();
-
             const T& getData() const;
-
             const std::type_info& getType() const override;
 
         private:
@@ -74,44 +73,108 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Doesn't initialize any data.
+        ///
         Any() = default;
 
+        /// \brief Constructor for initialization
+        ///
+        /// \param data The data to be copied and stored
+        ///
         template<typename T>
         Any(const T& data);
 
+        /// \brief Constructor for use with nullptr
+        ///
+        /// This will do the same as the default constructor.
+        ///
         Any(std::nullptr_t);
 
+        /// \brief Copy constructor
+        ///
         Any(const Any& other);
 
+        /// \brief Copy assignment operator
+        ///
+        /// \return Reference to this
+        ///
         Any& operator =(const Any& other);
 
 
+        /// \brief Cast this object
+        ///
+        /// This function asserts that the data matches the type of the template argument.
+        /// If you're unsure, you should check the type before calling this.
+        ///
+        /// \return Reference to the internal data
+        ///
         template<typename T>
         T& cast();
 
+        /// \copydoc Any::cast()
+        ///
         template<typename T>
         const T& cast() const;
 
+        /// \brief Delete the contained data
+        ///
         void clear();
 
+        /// \brief Check if this object contains any data
+        ///
+        /// \return True if any data exits
+        ///
         bool isValid() const;
 
+        /// \copydoc Any::isValid()
+        ///
         operator bool() const;
 
+        /// \brief Get the type info of the contained object
+        ///
+        /// \return type_info of the object
+        ///
         const std::type_info& getType() const;
 
+        /// \brief Assign new data with an lvalue reference
+        ///
+        /// This function will assign the data normally if the type matches or the assignee is a
+        /// pointer of the same type. The data will be replaced with the new type if it doesn't match.
+        ///
+        /// \param data The data to be assigned
+        ///
+        /// \return Reference to this
+        ///
         template<typename T>
         Any& operator =(const T& data);
 
-        //template<typename T>
-        //Any& operator =(T&& data);
+        /// \brief Assign new data with an rvalue reference
+        ///
+        /// This function will assign the data normally if the type matches or the assignee is a
+        /// pointer of the same type. The data will be replaced with the new type if it doesn't match.
+        ///
+        /// \param data The data to be assigned
+        ///
+        /// \return Reference to this
+        ///
+        template<typename T>
+        Any& operator =(T&& data);
 
+        /// \brief Check this object against type_info
+        ///
+        /// Returns true if the given type matches the contained type exactly.
+        ///
+        /// \param type The type info to compare against
+        ///
+        /// \return True if the type matches and this object is not empty
+        ///
         bool operator ==(const std::type_info& type) const;
-
 
     private:
 
-        std::unique_ptr<Concept> m_data;
+        std::unique_ptr<Concept> m_data;    ///< Pointer holding the data
 
     };
 
