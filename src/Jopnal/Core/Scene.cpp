@@ -28,8 +28,10 @@
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : m_objects (),
-          m_ID      (ID)
+        : m_objects         (),
+          m_layers          (),
+          m_defaultLayer    (),
+          m_ID              (ID)
     {}
 
     Scene::~Scene()
