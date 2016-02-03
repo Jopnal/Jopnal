@@ -96,7 +96,7 @@ namespace jop
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
-        /// \param ptr Pointer to hold extra data
+        /// \param returnWrap Pointer to hold extra data
         ///
         MessageResult sendMessage(const std::string& message, Any returnWrap);
 

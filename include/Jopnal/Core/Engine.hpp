@@ -147,7 +147,7 @@ namespace jop
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
+        /// \param returnWrap Pointer to hold extra data
         ///
         static MessageResult sendMessage(const std::string& message, Any returnWrap);
 

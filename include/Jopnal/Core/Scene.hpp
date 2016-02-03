@@ -159,7 +159,7 @@ namespace jop
         /// to the objects
         ///
         /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
+        /// \param returnWrap Pointer to hold extra data
         ///
         MessageResult sendMessage(const std::string& message, Any returnWrap);
 

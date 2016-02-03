@@ -33,6 +33,8 @@
 
 namespace jop
 {
+    class TextureSampler;
+
     class Texture : public Resource
     {
     public:
@@ -95,6 +97,11 @@ namespace jop
         static void unbind(const unsigned int texUnit);
 
 
+        /// \brief Bind a texture sampler
+        ///
+        void setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler);
+
+
         /// \brief Returns image's width
         ///
         int getWidth() const;
@@ -122,10 +129,12 @@ namespace jop
         bool checkDepthValid(const int depth) const;
 
 
-        int m_width;            ///< Width of the texture
-        int m_height;           ///< Height of the texture
-        int m_bytesPerPixel;    ///< Byte depth of the texture
-        unsigned int m_texture; ///< The OpenGL handle
+        std::weak_ptr<const TextureSampler> m_sampler;          ///< Texture sampler
+        std::shared_ptr<const TextureSampler> m_defaultSampler; ///< Default sampler
+        int m_width;                                            ///< Width of the texture
+        int m_height;                                           ///< Height of the texture
+        int m_bytesPerPixel;                                    ///< Byte depth of the texture
+        unsigned int m_texture;                                 ///< The OpenGL handle
 
     };
 }

@@ -24,10 +24,10 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-//STB
+// STB
 #define STB_IMAGE_IMPLEMENTATION
 #pragma warning(push, 0)
-#include <stb/stb_image.h>
+#include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 
 //////////////////////////////////////////////
@@ -36,7 +36,9 @@
 namespace jop
 {
     Texture::Texture()
-        : m_width           (0),
+        : m_sampler         (),
+          m_defaultSampler  (TextureSampler::getDefaultSampler()),
+          m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
           m_texture         (0)
@@ -166,7 +168,14 @@ namespace jop
     bool Texture::bind(const unsigned int texUnit) const
     {
         if (m_texture)
+        {
             glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+
+            if (!m_sampler.expired())
+                m_sampler.lock()->bind(texUnit);
+            else
+                m_defaultSampler->bind(texUnit);
+        }
 
         return m_texture != 0;
     }
@@ -176,6 +185,13 @@ namespace jop
     void Texture::unbind(const unsigned int texUnit)
     {
         glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, 0));
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler)
+    {
+        m_sampler = sampler;
     }
 
     //////////////////////////////////////////////
