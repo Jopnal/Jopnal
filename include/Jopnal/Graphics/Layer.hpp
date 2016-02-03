@@ -65,6 +65,12 @@ namespace jop
         ///
         virtual void draw() override;
 
+
+        MessageResult sendMessage(const std::string& message, Any returnWrap);
+
+        MessageResult sendMessage(const Message& message);
+
+
         /// \brief Add a new drawable component to the draw list
         ///
         /// \param drawable Reference to the drawable to be added

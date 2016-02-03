@@ -75,6 +75,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    MessageResult Layer::sendMessage(const std::string& message, Any returnWrap)
+    {
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Layer::sendMessage(const Message& message)
+    {
+        if (message.passFilter(Message::Custom, getID()))
+            return sendMessageImpl(message);
+
+        return MessageResult::Continue;
+    }
+
+    //////////////////////////////////////////////
+
     void Layer::addDrawable(Drawable& drawable)
     {
         m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));

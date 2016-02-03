@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/Shader.hpp>
 
 //////////////////////////////////////////////
 

@@ -1,0 +1,72 @@
+// Jopnal Engine C++ Library
+// Copyright(c) 2016 Team Jopnal
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+//////////////////////////////////////////////
+
+
+template<typename Func, typename Parser>
+void CommandHandler::bind(const std::string& command, const Func& func, const Parser& parser)
+{
+    JOP_ASSERT(!command.empty(), "Tried to register an empty command!");
+    m_funcParsers[command] = std::bind(parser, func, std::placeholders::_1, std::placeholders::_2);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, const std::function<Ret(FuncArgs...)>& func)
+{
+    bind(command, func, &detail::DefaultParser::parse<Ret, FuncArgs...>);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename ... FuncArgs>
+void CommandHandler::bind(const std::string& command, Ret(*func)(FuncArgs...))
+{
+    bind(command, func, &detail::DefaultParser::parse<Ret, FuncArgs...>);
+}
+
+//////////////////////////////////////////////
+
+template<typename Func, typename Parser>
+void CommandHandler::bindMember(const std::string& command, const Func& func, const Parser& parser)
+{
+    JOP_ASSERT(!command.empty(), "Tried to register an empty member command!");
+    m_memberParsers[command] = std::bind(parser, func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename Class, typename ... FuncArgs>
+void CommandHandler::bindMember(const std::string& command, const std::function<Ret(Class&, FuncArgs...)>& func)
+{
+    bindMember(command, func, &detail::DefaultParser::parseMember<Ret, Class, FuncArgs...>);
+}
+
+//////////////////////////////////////////////
+
+template<typename Ret, typename Class, typename ... FuncArgs>
+void CommandHandler::bindMember(const std::string& command, Ret(Class::*func)(FuncArgs...))
+{
+    // Have to use mem_fn due to a bug in VS
+    bindMember(command, std::mem_fn(func), &detail::DefaultParser::parseMember<Ret, Class, FuncArgs...>);
+}

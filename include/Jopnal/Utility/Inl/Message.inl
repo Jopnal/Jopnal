@@ -21,24 +21,19 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+
+template<typename T>
+Message& Message::push(const T& arg)
+{
+    m_command << ' ' << arg;
+    return *this;
+}
 
 //////////////////////////////////////////////
 
-
-namespace jop
+template<typename T>
+Message& Message::pushReference(const T& ref)
 {
-    bool MessageUtil::hasFilterSymbol(const std::string& message, const std::string& symbol)
-    {
-        if (message[0] != '[')
-            return true;
-
-        auto closingTag = message.find_first_of(']');
-
-        if (closingTag == std::string::npos)
-            return true;
-
-        return message.rfind(symbol, closingTag - 1) != std::string::npos;
-    }
+    m_command << ' ' << std::hex << reinterpret_cast<const void*>(&ref);
+    return *this;
 }

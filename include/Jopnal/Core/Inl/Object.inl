@@ -22,8 +22,6 @@
 //////////////////////////////////////////////
 
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 template<typename T>
 std::weak_ptr<T> Object::getComponent()
 {
@@ -50,5 +48,3 @@ T& Object::createComponent(Args& ... args)
     m_components.emplace_back(std::make_unique<T>(*this, args...));
     return static_cast<T&>(*m_components.back());
 }
-
-#endif

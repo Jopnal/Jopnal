@@ -42,8 +42,8 @@ namespace jop
           m_texture         (0)
     {}
 
-	Texture::~Texture()
-	{
+    Texture::~Texture()
+    {
         destroy();
     }
 
@@ -68,7 +68,11 @@ namespace jop
 
             unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
 
-            return loadFromPixels(x, y, bpp, colorData);
+            const bool success = loadFromPixels(x, y, bpp, colorData);
+
+            stbi_image_free(colorData);
+
+            return success;
         }
     }
 
@@ -133,6 +137,7 @@ namespace jop
 
         destroy();
         glCheck(gl::GenTextures(1, &m_texture));
+        bind();
 
         m_width = x; m_height = y;
         m_bytesPerPixel = bytesPerPixel;
@@ -216,6 +221,6 @@ namespace jop
 
     bool Texture::checkDepthValid(const int depth) const
     {
-        return depth == 3 || depth == 4;
+        return /*depth == 3 || */depth == 4;
     }
 }

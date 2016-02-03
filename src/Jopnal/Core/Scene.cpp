@@ -144,15 +144,43 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessage(const std::string& message, void* ptr)
+    MessageResult Scene::sendMessage(const std::string& message, Any returnWrap)
     {
-        sendMessageImpl(message, ptr);
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
 
-        for (auto& i : m_objects)
-            i->sendMessage(message, ptr);
+    //////////////////////////////////////////////
 
-        for (auto& i : m_layers)
-            i->sendMessage(message, ptr);
+    MessageResult Scene::sendMessage(const Message& message)
+    {
+        // check id filter when calling scene's commands
+
+        if (message.passFilter(Message::Custom, getID()) && sendMessageImpl(message) == MessageResult::Escape)
+            return MessageResult::Escape;
+
+        static const unsigned short objectField = Message::Object |
+                                                  Message::Component;
+
+        if (message.passFilter(objectField))
+        {
+            for (auto& i : m_objects)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        if (message.passFilter(Message::Layer))
+        {
+            for (auto& i : m_layers)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        return MessageResult::Continue;
     }
 
     //////////////////////////////////////////////
@@ -238,6 +266,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessageImpl(const std::string&, void*)
-    {}
+    MessageResult Scene::sendMessageImpl(const Message&)
+    {
+        return MessageResult::Continue;
+    }
 }

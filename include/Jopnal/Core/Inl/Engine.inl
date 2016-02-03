@@ -21,7 +21,6 @@
 
 //////////////////////////////////////////////
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template<typename T, typename ... Args>
 T& Engine::createScene(Args&... args)
@@ -61,4 +60,11 @@ T* Engine::getSubsystem()
     return nullptr;
 }
 
-#endif
+//////////////////////////////////////////////
+
+template<typename T, typename ... Args>
+T& Engine::setSharedScene(Args&... args)
+{
+    m_sharedScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_sharedScene);
+}

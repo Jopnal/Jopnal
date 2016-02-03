@@ -30,47 +30,69 @@
 
 //////////////////////////////////////////////
 
-namespace jop
 
+namespace jop
 {
-	class Texture : public Resource
-	{
-	public:
+    class Texture : public Resource
+    {
+    public:
 
         /// \brief Constructor
         ///
         Texture();
 
-		/// \brief Destructor
-		///
-		~Texture();
+        /// \brief Destructor
+        ///
+        ~Texture() override;
 
 
-		/// \brief Method for using Fileloader to load new resource from file
-		///
-		/// \param Name or path for wanted resource
-		///
-		bool load(const std::string& path);
+        /// \brief Method for using file loader to load new resource from file
+        ///
+        /// \param Name or path for wanted resource
+        ///
+        /// \return True if loading was successful
+        ///
+        bool load(const std::string& path);
 
         /// \brief Creates flat/empty texture
         ///
+        /// Example: !800!600!4
+        ///
         /// \param Takes width height and bits and sorts them with '!' mark
         ///
-        /// Example: !800!600!4
+        /// \return True if loading was successful
         ///
         bool loadEmpty(const std::string& xyBpp);
 
+        /// \brief Create a texture from an array of pixels
         ///
+        /// \param x Width of the texture
+        /// \param y Height of the texture
+        /// \param bytesPerPixel The byte depth of the image
+        /// \param pixels Pointer to the beginning of the pixel array
+        ///
+        /// \return True if loading was successful
         ///
         bool loadFromPixels(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
 
-
+        /// \brief Destroy this texture, erasing it from video memory
+        ///
         void destroy();
 
 
+        /// \brief Bind this texture
+        ///
+        /// \param texUnit The texture unit to bind this texture to
+        ///
+        /// \return True if successful
+        ///
         bool bind(const unsigned int texUnit = 0) const;
 
-        static void unbind(const unsigned int texUnit = 0);
+        /// \brief Unbind the texture bound to the given texture unit
+        ///
+        /// \param texUnit The texture unit to unbind the texture from
+        ///
+        static void unbind(const unsigned int texUnit);
 
 
         /// \brief Returns image's width
@@ -85,18 +107,25 @@ namespace jop
         ///
         int getDepth() const;
 
+        /// \brief Get the OpenGL handle for this texture
+        ///
         unsigned int getHandle() const;
 
+        /// \brief Get the maximum supported texture size of this system
+        ///
         static int getMaximumSize();
 
     private:
 
+        /// \brief Check if a byte depth is valid
+        ///
         bool checkDepthValid(const int depth) const;
 
-        int m_width;
-        int m_height;
-        int m_bytesPerPixel;
-        unsigned int m_texture;
+
+        int m_width;            ///< Width of the texture
+        int m_height;           ///< Height of the texture
+        int m_bytesPerPixel;    ///< Byte depth of the texture
+        unsigned int m_texture; ///< The OpenGL handle
 
     };
 }

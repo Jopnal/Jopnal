@@ -68,7 +68,7 @@
 #pragma warning(pop)
 
 // PhysFS
-#include<PhysicsFS\physfs.h>
+#include <PhysicsFS/physfs.h>
 
 // PhysicsFS
 #include <PhysicsFS/physfs.h>
@@ -79,6 +79,7 @@
 #include <sstream>
 #include <array>
 #include <string>
+#include <cctype>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

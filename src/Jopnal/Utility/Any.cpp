@@ -21,37 +21,69 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MESSAGEUTIL_HPP
-#define JOP_MESSAGEUTIL_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API MessageUtil
+    Any::Concept::~Concept()
+    {}
+
+    //////////////////////////////////////////////
+
+    Any::Any(const Any& other)
+        : m_data()
     {
-    public:
+        *this = other;
+    }
 
-        /// \brief Check if the message has the given filter symbol
-        ///
-        /// This function is used to check how a message should be filtered.
-        /// If the message doesn't contain a proper filtering field, this test will pass.
-        ///
-        /// \param message The message in its entirety
-        /// \param symbol The filter symbol to check
-        ///
-        /// \return True if symbol was found
-        static bool hasFilterSymbol(const std::string& message, const std::string& symbol);
+    Any::Any(std::nullptr_t)
+        : m_data()
+    {}
 
-    };
+    Any& Any::operator =(const Any& other)
+    {
+        if (other.isValid())
+            m_data = std::unique_ptr<Concept>(other.m_data->clone());
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void Any::clear()
+    {
+        m_data.reset();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Any::isValid() const
+    {
+        return m_data.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    Any::operator bool() const
+    {
+        return isValid();
+    }
+
+    //////////////////////////////////////////////
+
+    const std::type_info& Any::getType() const
+    {
+        return isValid() ? m_data->getType() : typeid(void);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Any::operator ==(const std::type_info& type) const
+    {
+        return getType() == type;
+    }
 }
-
-#endif
-
-/// \class Resource
-/// \ingroup utility
