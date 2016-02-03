@@ -3,8 +3,6 @@
 
 A simple component based 3D game engine.
 
-### Operating system & compiler support
-
 Jopnal has been tested to work on these operating systems:  
 - Windows 7 & 10 (VC++ 12)
 
