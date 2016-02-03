@@ -25,8 +25,10 @@ T& Engine::createScene(Args&... args)
 {
     static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create a scene which is not derived from jop::Scene");
 
-    m_currentScene = std::make_unique<T>(args...);
-    return static_cast<T&>(*m_currentScene);
+    JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
+
+    m_engineObject->m_currentScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_engineObject->m_currentScene);
 }
 
 //////////////////////////////////////////////
@@ -36,8 +38,10 @@ T& Engine::createSubsystem(Args&... args)
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create a subsystem which is not derived from jop::Subsystem");
 
-    m_subsystems.emplace_back(std::make_unique<T>(args...));
-    return static_cast<T&>(*m_subsystems.back());
+    JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
+
+    m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(args...));
+    return static_cast<T&>(*m_engineObject->m_subsystems.back());
 }
 
 //////////////////////////////////////////////
@@ -47,12 +51,15 @@ T* Engine::getSubsystem()
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
 
-    const std::type_info& ti = typeid(T);
-
-    for (auto& i : m_subsystems)
+    if (m_engineObject)
     {
-        if (typeid(*i) == ti)
-            return static_cast<T*>(i.get());
+        const std::type_info& ti = typeid(T);
+
+        for (auto& i : m_engineObject->m_subsystems)
+        {
+            if (typeid(*i) == ti)
+                return static_cast<T*>(i.get());
+        }
     }
 
     return nullptr;
@@ -63,6 +70,8 @@ T* Engine::getSubsystem()
 template<typename T, typename ... Args>
 T& Engine::setSharedScene(Args&... args)
 {
-    m_sharedScene = std::make_unique<T>(args...);
-    return static_cast<T&>(*m_sharedScene);
+    JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_currentScene, "Tried to set the shared scene when it or the engine wasn't loaded!");
+
+    m_engineObject->m_sharedScene = std::make_unique<T>(args...);
+    return static_cast<T&>(*m_engineObject->m_sharedScene);
 }

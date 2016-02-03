@@ -27,6 +27,10 @@
 
 namespace jop
 {
+    Resource::Resource()
+        : std::enable_shared_from_this<Resource>()
+    {}
+
     Resource::~Resource()
     {}
 }

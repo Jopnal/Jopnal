@@ -25,14 +25,20 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <string>
+#include <memory>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    class JOP_API Resource
+    class JOP_API Resource : public std::enable_shared_from_this<Resource>
     {
     public:
+
+        /// \brief Constructor
+        ///
+        Resource();
 
         /// \brief Virtual destructor
         ///

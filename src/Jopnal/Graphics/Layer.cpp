@@ -29,7 +29,6 @@ namespace jop
 {
     Layer::Layer(const std::string& ID)
         : Subsystem                             (ID),
-          std::enable_shared_from_this<Layer>   (),
           m_drawList                            (),
           m_boundLayers                         (),
           m_camera                              (),
@@ -96,7 +95,21 @@ namespace jop
 
     void Layer::bindOtherLayer(Layer& layer)
     {
-        m_boundLayers.emplace_back(layer.shared_from_this());
+        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::unbindOtherLayer(const std::string& ID)
+    {
+        for (auto itr = m_boundLayers.begin(); itr != m_boundLayers.end(); ++itr)
+        {
+            if (!itr->expired() && itr->lock()->getID() == ID)
+            {
+                m_boundLayers.erase(itr);
+                return;
+            }
+        }
     }
 
     //////////////////////////////////////////////

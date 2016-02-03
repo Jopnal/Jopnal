@@ -38,11 +38,14 @@
     #define JOP_DEBUG_MODE
 #endif
 
-// Consone
+// Console
 #define JOP_ENABLE_CONSOLE
 
 // Asserts
 #define JOP_ENABLE_ASSERTS
+
+// Exceptions
+//#define JOP_ENABLE_EXCEPTIONS
 
 // Dynamic build (.dll)
 //#define JOP_DYNAMIC

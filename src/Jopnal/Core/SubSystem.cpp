@@ -28,7 +28,8 @@
 namespace jop
 {
     Subsystem::Subsystem(const std::string& ID)
-        : m_ID(ID)
+        : std::enable_shared_from_this<Subsystem>   (),
+          m_ID                                      (ID)
     {}
 
     Subsystem::~Subsystem()

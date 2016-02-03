@@ -41,10 +41,12 @@ namespace jop
 
             MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 
-        #ifdef JOP_DEBUG_MODE
-            throw std::runtime_error(newStr);
         #endif
 
+        #if defined(JOP_DEBUG_MODE) && defined(JOP_ENABLE_EXCEPTIONS)
+            throw std::runtime_error(newStr);
+        #else
+            std::exit(EXIT_FAILURE);
         #endif
         }
     }

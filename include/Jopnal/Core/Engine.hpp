@@ -46,6 +46,9 @@ namespace jop
         /// Project name must not be empty, as it will be used to create
         /// the necessary config directories.
         ///
+        /// The engine object must stay alive until exit is called and the
+        /// main loop is returned from.
+        ///
         /// \param projectName The project name
         /// \param argc Number of arguments passed from main()
         /// \param argv The argument array passed from main()
@@ -85,7 +88,7 @@ namespace jop
         /// \return A reference to the newly created scene
         ///
         template<typename T, typename ... Args>
-        T& createScene(Args&... args);
+        static T& createScene(Args&... args);
 
         /// \brief Get the current scene
         ///
@@ -103,14 +106,14 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        T& createSubsystem(Args&... args);
+        static T& createSubsystem(Args&... args);
 
         /// \brief Get a subsystem using type info
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        T* getSubsystem();
+        static T* getSubsystem();
 
         /// \brief Get a subsystem
         ///
@@ -118,13 +121,13 @@ namespace jop
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        Subsystem* getSubsystem(const std::string& ID);
+        static Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        bool removeSubsystem(const std::string& ID);
+        static bool removeSubsystem(const std::string& ID);
 
 
         /// \brief Check if the engine is running
@@ -173,18 +176,18 @@ namespace jop
         /// \brief Set the shared scene
         ///
         /// This will replace the previous shared scene with a new one of the given type.
-        /// This function is not static, as you're encouraged to set the shared scene
-        /// in the very beginning of the program.
         ///
         /// \param args Arguments to use in the scene's construction
         ///
         /// \return Reference to the new scene
         ///
         template<typename T, typename ... Args>
-        T& setSharedScene(Args&... args);
+        static T& setSharedScene(Args&... args);
 
 
     private:
+
+        static Engine* m_engineObject;                        ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
