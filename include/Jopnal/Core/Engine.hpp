@@ -141,7 +141,7 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        static MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+        static MessageResult sendMessage(const std::string& message, Any returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -200,7 +200,7 @@ namespace jop
     /// \param message String holding message
     /// \param ptr Pointer to hold extra data
     ///
-    JOP_API MessageResult broadcast(const std::string& message, PtrWrapper returnWrap);
+    JOP_API MessageResult broadcast(const std::string& message, Any returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///

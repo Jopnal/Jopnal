@@ -141,7 +141,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    MessageResult Object::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

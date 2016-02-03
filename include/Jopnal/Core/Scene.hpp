@@ -161,7 +161,7 @@ namespace jop
         /// \param message String holding message
         /// \param ptr Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+        MessageResult sendMessage(const std::string& message, Any returnWrap);
 
         /// \brief Function to handle messages
         ///

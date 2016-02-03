@@ -240,10 +240,17 @@ namespace ArgumentSplitter
 
 //////////////////////////////////////////////
 
+struct AppliedArgumentConverter
+{
+
+};
+
+//////////////////////////////////////////////
+
 namespace DefaultParser
 {
     template<typename Ret, typename ... Args>
-    void parse(const std::function<Ret(Args...)>& func, const std::string& args, PtrWrapper& returnWrap)
+    void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
     {
         Helper<Ret, Args...>::parse(func, args, returnWrap);
     }
@@ -251,9 +258,9 @@ namespace DefaultParser
     template<typename Ret, typename ... Args>
     struct Helper
     {
-        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, PtrWrapper& returnWrap)
+        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
         {
-            if (returnWrap && returnWrap == typeid(Ret))
+            if (returnWrap && returnWrap == typeid(Ret*))
                 returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
                 ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
@@ -263,7 +270,7 @@ namespace DefaultParser
     template<typename ... Args>
     struct Helper<void, Args...>
     {
-        static void parse(const std::function<void(Args...)>& func, const std::string& args, PtrWrapper&)
+        static void parse(const std::function<void(Args...)>& func, const std::string& args, Any&)
         {
             ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
@@ -272,9 +279,9 @@ namespace DefaultParser
     template<typename Ret>
     struct Helper<Ret>
     {
-        static void parse(const std::function<Ret()>& func, const std::string&, PtrWrapper& returnWrap)
+        static void parse(const std::function<Ret()>& func, const std::string&, Any& returnWrap)
         {
-            if (returnWrap && returnWrap == typeid(Ret))
+            if (returnWrap && returnWrap == typeid(Ret*))
                 returnWrap = func();
             else
                 func();
@@ -284,7 +291,7 @@ namespace DefaultParser
     template<>
     struct Helper<void>
     {
-        static void parse(const std::function<void(void)>& func, const std::string&, jop::PtrWrapper&)
+        static void parse(const std::function<void(void)>& func, const std::string&, jop::Any&)
         {
             func();
         }
@@ -293,7 +300,7 @@ namespace DefaultParser
     //////////////////////////////////////////////
 
     template<typename Ret, typename T, typename ... Args>
-    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, PtrWrapper& returnWrap, PtrWrapper& instance)
+    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
     {
         JOP_ASSERT(instance && instance == typeid(T*), "Called a member command with invalid instance type!");
         MemberHelper<Ret, T, Args...>::parse(func, args, returnWrap, instance);
@@ -302,42 +309,42 @@ namespace DefaultParser
     template<typename Ret, typename T, typename ... Args>
     struct MemberHelper
     {
-        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, PtrWrapper& returnWrap, PtrWrapper& instance)
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
         {
             if (returnWrap && returnWrap == typeid(Ret*))
-                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
-                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
     template<typename T, typename ... Args>
     struct MemberHelper<void, T, Args...>
     {
-        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, PtrWrapper&, PtrWrapper& instance)
+        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
         {
-            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
     template<typename Ret, typename T>
     struct MemberHelper<Ret, T>
     {
-        static void parse(const std::function<Ret(T&)>& func, const std::string&, PtrWrapper& returnWrap, PtrWrapper& instance)
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, Any& instance)
         {
             if (returnWrap && returnWrap == typeid(Ret*))
-                returnWrap = func(*(instance.cast<T>()));
+                returnWrap = func(*(instance.cast<T*>()));
             else
-                func(*(instance.cast<T>()));
+                func(*(instance.cast<T*>()));
         }
     };
 
     template<typename T>
     struct MemberHelper<void, T>
     {
-        static void parse(const std::function<void(T&)>& func, const std::string&, PtrWrapper&, PtrWrapper& instance)
+        static void parse(const std::function<void(T&)>& func, const std::string&, Any&, Any& instance)
         {
-            func(*(instance.cast<T>()));
+            func(*(instance.cast<T*>()));
         }
     };
 }

@@ -29,27 +29,61 @@
 
 namespace jop
 {
-    PtrWrapper::PtrWrapper(std::nullptr_t)
-        : m_ptr     (nullptr),
-          m_type    (typeid(std::nullptr_t))
-    {}
-
-    PtrWrapper::PtrWrapper(const PtrWrapper& other)
-        : m_ptr     (other.m_ptr),
-          m_type    (other.m_type)
+    Any::Concept::~Concept()
     {}
 
     //////////////////////////////////////////////
 
-    PtrWrapper::operator bool() const
+    Any::Any(const Any& other)
+        : m_data()
     {
-        return m_ptr != nullptr;
+        *this = other;
+    }
+
+    Any::Any(std::nullptr_t)
+        : m_data()
+    {}
+
+    Any& Any::operator =(const Any& other)
+    {
+        if (other.isValid())
+            m_data = std::unique_ptr<Concept>(other.m_data->clone());
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    bool PtrWrapper::operator ==(const std::type_info& otherType) const
+    void Any::clear()
     {
-        return m_type == otherType;
+        m_data.reset();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Any::isValid() const
+    {
+        return m_data.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    Any::operator bool() const
+    {
+        return isValid();
+    }
+
+    //////////////////////////////////////////////
+
+    const std::type_info& Any::getType() const
+    {
+        return isValid() ? m_data->getType() : typeid(void);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Any::operator ==(const std::type_info& type) const
+    {
+        return getType() == type;
     }
 }

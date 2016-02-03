@@ -29,7 +29,7 @@
 
 namespace jop
 {
-    Message::Message(const std::string& message, PtrWrapper ptr)
+    Message::Message(const std::string& message, Any ptr)
         : m_command(),
           m_idPattern(),
           m_ptr(ptr),
@@ -175,7 +175,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    PtrWrapper& Message::getReturnPointer() const
+    Any& Message::getReturnWrapper() const
     {
         return m_ptr;
     }
