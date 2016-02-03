@@ -46,7 +46,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Component::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    MessageResult Component::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

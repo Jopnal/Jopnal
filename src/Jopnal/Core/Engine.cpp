@@ -204,7 +204,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    MessageResult Engine::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -263,7 +263,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult broadcast(const std::string& message, PtrWrapper returnWrap)
+    MessageResult broadcast(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return Engine::sendMessage(msg);

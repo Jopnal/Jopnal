@@ -106,7 +106,7 @@ namespace jop
         /// \param command The command name
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         ///
-        void execute(const std::string& command, PtrWrapper instance);
+        void execute(const std::string& command, Any instance);
 
         /// \brief Execute a command and get the return value
         ///
@@ -114,13 +114,13 @@ namespace jop
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         /// \param returnWrap PtrWrapper to hold the return value
         ///
-        void execute(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap);
+        void execute(const std::string& command, Any instance, Any returnWrap);
 
 
     private:
 
-        std::unordered_map<std::string, std::function<void(const std::string&, PtrWrapper&, PtrWrapper&)>> m_memberParsers; ///< Parsers for member functions
-        std::unordered_map<std::string, std::function<void(const std::string&, PtrWrapper&)>> m_funcParsers;                ///< Parsers for free functions
+        std::unordered_map<std::string, std::function<void(const std::string&, Any&, Any&)>> m_memberParsers; ///< Parsers for member functions
+        std::unordered_map<std::string, std::function<void(const std::string&, Any&)>> m_funcParsers;         ///< Parsers for free functions
 
     };
 

@@ -73,6 +73,12 @@ namespace jop
             while (pos2 < length && args[pos2] != '\"')
                 ++pos2;
         }
+        else if (args[pos1] == '(')
+        {
+
+
+
+        }
         else
         {
             pos2 = pos1 + 1;
@@ -93,15 +99,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, PtrWrapper instance)
+    void CommandHandler::execute(const std::string& command, Any instance)
     {
-        PtrWrapper returnWrap(nullptr);
+        Any returnWrap(nullptr);
         execute(command, instance, returnWrap);
     }
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, PtrWrapper instance, PtrWrapper returnWrap)
+    void CommandHandler::execute(const std::string& command, Any instance, Any returnWrap)
     {
         std::string comm, args;
         handleCommand(command, comm, args);

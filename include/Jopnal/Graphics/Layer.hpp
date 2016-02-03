@@ -66,7 +66,7 @@ namespace jop
         virtual void draw() override;
 
 
-        MessageResult sendMessage(const std::string& message, PtrWrapper returnWrap);
+        MessageResult sendMessage(const std::string& message, Any returnWrap);
 
         MessageResult sendMessage(const Message& message);
 

@@ -27,7 +27,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/PtrWrapper.hpp>
+#include <Jopnal/Utility/Any.hpp>
 #include <string>
 #include <typeinfo>
 #include <sstream>
@@ -78,7 +78,7 @@ namespace jop
         ///                             in a separate context.
         /// \param ptr The return value pointer
         ///
-        Message(const std::string& message, PtrWrapper ptr);
+        Message(const std::string& message, Any ptr);
 
 
         /// \brief Push an argument value
@@ -171,7 +171,7 @@ namespace jop
         ///
         /// \return Reference to the internal return value pointer
         ///
-        PtrWrapper& getReturnPointer() const;
+        Any& getReturnWrapper() const;
 
         /// \brief Check the internal command/argument buffer
         ///
@@ -183,7 +183,7 @@ namespace jop
 
         std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
         std::string m_idPattern;                                            ///< The id filter to compare any passed ids against
-        mutable PtrWrapper m_ptr;                                           ///< A ptr to store a possible return value
+        mutable Any m_ptr;                                                  ///< Any object to store a possible return value
         unsigned short m_filterBits;                                        ///< Bit field with the system filter bits
         bool (*m_idMatchMethod)(const std::string&, const std::string&);    ///< Function to use in comparing the filter id and the passed id
 

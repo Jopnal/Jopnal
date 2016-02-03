@@ -59,7 +59,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    MessageResult Subsystem::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

@@ -144,7 +144,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, PtrWrapper returnWrap)
+    MessageResult Scene::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
