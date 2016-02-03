@@ -55,6 +55,16 @@ namespace jop
         ///
         Drawable(Object& object, Layer& layer, const std::string& ID);
 
+        /// \brief Contructor
+        ///
+        /// This doesn't take the layer as an argument. Instead it fetches the default layer
+        /// of the currently active scene.
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param ID Unique component identifier
+        ///
+        Drawable(Object& object, const std::string& ID);
+
         /// \brief Copy constructor
         ///
         Drawable(const Drawable& other);

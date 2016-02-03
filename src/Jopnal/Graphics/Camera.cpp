@@ -192,4 +192,14 @@ namespace jop
     {
         return m_projData.perspective.fov;
     }
+
+    //////////////////////////////////////////////
+
+    const Camera& Camera::getDefault()
+    {
+        static Object obj("Default Camera Object");
+        static const Camera& cam = obj.createComponent<Camera>(static_cast<const Projection>(std::max(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
+
+        return cam;
+    }
 }

@@ -89,6 +89,14 @@ namespace jop
         template<typename T, typename ... Args>
         T& createScene(Args&... args);
 
+        /// \brief Get the current scene
+        ///
+        /// This function asserts that the scene has been loaded first with createScene().
+        ///
+        /// \return Reference to the scene
+        ///
+        static Scene& getCurrentScene();
+
 
         /// \brief Create a subsystem
         ///

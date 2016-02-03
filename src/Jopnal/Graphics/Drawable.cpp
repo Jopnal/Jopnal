@@ -34,6 +34,12 @@ namespace jop
     {
         layer.addDrawable(*this);
     }
+    
+    Drawable::Drawable(Object& object, const std::string& ID)
+        : Component(object, ID)
+    {
+        Engine::getCurrentScene().getDefaultLayer().addDrawable(*this);
+    }
 
     Drawable::Drawable(const Drawable& other)
         : Component(other)

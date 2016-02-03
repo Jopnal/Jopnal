@@ -36,7 +36,9 @@ namespace jop
           m_boundLayers                         (),
           m_camera                              (),
           m_renderTexture                       ()
-    {}
+    {
+        setCamera(Camera::getDefault());
+    }
 
     Layer::~Layer()
     {}
@@ -45,12 +47,6 @@ namespace jop
 
     void Layer::draw()
     {
-        if (m_camera.expired())
-        {
-            JOP_DEBUG_ERROR("Layer \"" << getID() << "\": No camera bound");
-            return;
-        }
-
         auto cam = m_camera.lock();
         auto rt = m_renderTexture.lock();
 

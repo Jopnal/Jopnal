@@ -160,6 +160,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Scene& Engine::getCurrentScene()
+    {
+        JOP_ASSERT(ns_engineObject != nullptr && ns_engineObject->m_currentScene, "Tried to get the current scene when it wasn't loaded!");
+        return *ns_engineObject->m_currentScene;
+    }
+
+    //////////////////////////////////////////////
+
     Subsystem* Engine::getSubsystem(const std::string& ID)
     {
         for (auto& i : m_subsystems)
