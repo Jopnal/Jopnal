@@ -37,7 +37,7 @@ namespace jop
     class Camera;
     class RenderTexture;
 
-    class JOP_API Layer : public Subsystem, public std::enable_shared_from_this<Layer>
+    class JOP_API Layer : public Subsystem
     {
     private:
 
