@@ -89,6 +89,9 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        /// \brief Get amount of components
+        ///
+        unsigned int componentCount() const;
 
         /// \brief Create a new child
         ///
@@ -127,6 +130,16 @@ namespace jop
         ///
         void clearChildren();
 
+        /// \brief Get amount of children
+        ///
+        unsigned int childCount() const;
+
+        /// \brief Get amount of childrens recursively
+        ///
+        /// Goes throught the children and their children all the way down the tree
+        /// and return the total amount of childrens
+        ///
+        unsigned int childCountRecursive() const;
 
         /// \brief Method to send messages
         ///

@@ -48,34 +48,46 @@ namespace jop
         ~ResourceManager() override;
 
 
-        /// \brief Template function finds resource
+        /// \brief Load and get a resource
         ///
-        /// If resource is not found this creates a new one
+        /// If resource is not found this creates a new one. The first argument must be convertible
+        /// into std::string, as it's used as a hash map key.
         ///
-        /// \param Name or path for wanted resource
+        /// \param args Arguments passed to resource's constructor
         ///
-        template<typename T>
-        std::weak_ptr<T> getResource(const std::string& path);
+        /// \return Pointer to the resource. Empty if loading failed
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getResource(const Args&... args);
 
-        /// \brief Check if a particular resource exists and is loaded
+        /// \brief Get a named resource
         ///
-        /// \param path Path to resource
+        /// This is primarily used when the resource is not loaded from a file. After the resource
+        /// has been loaded once, it can be retrieved by using getResource().
         ///
-        /// \return True if resource is loaded
+        /// \param name Name for the resource
+        /// \param args Arguments passed to resource's constructor
         ///
-        bool resourceLoaded(const std::string& path);
+        /// \return Pointer to the resource. Empty if loading failed
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
+
 
         /// \brief Deletes resource from memory
         ///
         /// \param Name or path for wanted resource
         ///
-        void unloadResource(const std::string& path);
+        static void unloadResource(const std::string& path);
 
         /// \brief Deletes all resources from memory
         ///
-        void unloadResources();
+        static void unloadResources();
 
     private:
+
+        static ResourceManager* m_instance;                                     ///< Pointer to the single instance
+
 
         std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
 

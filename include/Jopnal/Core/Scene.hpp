@@ -90,6 +90,9 @@ namespace jop
         ///
         void clearObjects();
 
+        /// \brief Retun the amount of objects
+        ///
+        unsigned int objectCount() const;
 
         /// \brief Get a layer with the given id
         ///

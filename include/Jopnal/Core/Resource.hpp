@@ -43,14 +43,6 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Resource() = 0;
-
-
-        /// \brief Virtual method for using FileLoader to load new resource from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
-
     };
 }
 
