@@ -20,21 +20,34 @@
 //////////////////////////////////////////////
 
 
+namespace detail
+{
+
+}
+
 template<typename T> 
 std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
 {
     static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
 
-    auto it = m_resources.find(path);
+    if (!m_instance)
+    {
+        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
+        return std::weak_ptr<T>();
+    }
 
-    if (it == m_resources.end())
+    auto& inst = *m_instance;
+
+    auto it = inst.m_resources.find(path);
+
+    if (it == inst.m_resources.end())
     {
         auto res = std::make_shared<T>();
 
         if (res->load(path))
         {
-            m_resources[path] = std::move(res);
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(m_resources[path]));
+            inst.m_resources[path] = std::move(res);
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(inst.m_resources[path]));
         }
         else
             JOP_DEBUG_ERROR("Couldn't load resource: " << path);

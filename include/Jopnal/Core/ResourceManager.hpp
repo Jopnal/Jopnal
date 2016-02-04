@@ -55,27 +55,22 @@ namespace jop
         /// \param Name or path for wanted resource
         ///
         template<typename T>
-        std::weak_ptr<T> getResource(const std::string& path);
-
-        /// \brief Check if a particular resource exists and is loaded
-        ///
-        /// \param path Path to resource
-        ///
-        /// \return True if resource is loaded
-        ///
-        bool resourceLoaded(const std::string& path);
+        static std::weak_ptr<T> getResource(const std::string& path);
 
         /// \brief Deletes resource from memory
         ///
         /// \param Name or path for wanted resource
         ///
-        void unloadResource(const std::string& path);
+        static void unloadResource(const std::string& path);
 
         /// \brief Deletes all resources from memory
         ///
-        void unloadResources();
+        static void unloadResources();
 
     private:
+
+        static ResourceManager* m_instance;                                     ///< Pointer to the single instance
+
 
         std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
 
