@@ -20,21 +20,34 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    Vertex::Vertex(const glm::vec3& position)
+        : m_position        (position),
+          m_texCoords       (0, 0),
+          m_normalVector    (0, 0, 0)
+    {}
+
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords)
+        : m_position        (position),
+          m_texCoords       (texCoords),
+          m_normalVector    (0, 0, 0)
+    {}
+
+    Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector)
+        : m_position        (position),
+          m_texCoords       (0, 0),
+          m_normalVector    (normalVector)
+    {}
+
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector)
+        : m_position        (position),
+          m_texCoords       (texCoords),
+          m_normalVector    (normalVector)
+    {}
+}
