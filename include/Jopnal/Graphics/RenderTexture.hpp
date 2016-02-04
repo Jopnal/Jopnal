@@ -123,6 +123,11 @@ namespace jop
         ///
         const Texture& getTexture() const;
 
+        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
+
+        void setViewportRelative(const float x, const float y, const float width, const float height);
+
+
     private:
 
         Texture m_texture;              ///< The attached texture

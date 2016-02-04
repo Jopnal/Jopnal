@@ -264,4 +264,29 @@ namespace jop
     {
         return m_texture;
     }
+
+	//////////////////////////////////////////////
+
+    void RenderTexture::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
+	{
+        if (isValid())
+            glCheck(gl::Viewport(x, y, width, height));
+
+	}
+
+    //////////////////////////////////////////////
+
+    void RenderTexture::setViewportRelative(const float x, const float y, const float width, const float height)
+    {
+        if (isValid())
+        {
+            int windowX;
+            int windowY;
+
+            windowX = getSize().x;
+            windowY = getSize().y;
+
+            glCheck(gl::Viewport(x * windowX, y * windowY, width * windowX, height * windowY));
+        }
+    }
 }

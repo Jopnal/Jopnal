@@ -168,6 +168,16 @@ namespace jop
         ///
         static void pollEvents();
 
+        ///
+        ///
+        ///
+        ///
+        ///
+        ///
+		void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
+
+		void setViewportRelative(const float x, const float y, const float width, const float height);
+
     private:
 
         Color m_clearColor;                                 ///< The color to use when clearing the buffer
