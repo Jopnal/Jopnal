@@ -50,29 +50,11 @@ namespace jop
         /// \param filePath The path to the file you want to load
         ///
         bool load(const std::string& filePath);
-        /// \brief Method to get index values from container
-        ///
-        const std::vector<unsigned int>& getIndices();
-        /// \brief Method to get vertex position values from container
-        ///
-        const std::vector<float>& getVertexPositions();
-        /// \brief Method to get normal values from container
-        ///
-        const std::vector<float>& getNormals();
-        /// \brief Method to get texture coordinate (UV) values from container
-        ///
-        const std::vector<float>& getTexCoords();
 
     private:
         //m_indexbuffer
         //m_vertexbuffer
-        std::vector<float> positions;
-        std::vector<float> normals;
-        std::vector<float> texcoords;
-        std::vector<unsigned int> indices;
 
-
-        //std::vector<int> material_ids; ///< per-mesh material ID
     };
 }
 

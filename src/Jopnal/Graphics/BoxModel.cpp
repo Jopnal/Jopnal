@@ -28,8 +28,31 @@
 
 namespace jop
 {
-    BoxModel::BoxModel(/* indexbuffer* ib, vertexbuffer* vb*/)
-    {}
+    BoxModel::BoxModel()
+    {
+        /*
+        // Data here: pos, texcoord, normals
+        float positions[] = {};
+        float normals[] = {};
+        float texcoords[] = {};
+        int indices[] = {};
+
+        indexBuffer(indices, sizeof(indices))
+
+        numVertices =(sizeof(positions)/sizeof(positions[0])) / 3;
+
+        vertexArray[] = 
+        {
+        <vec3> positions, numVertices
+        <vec3> normals, numVertices
+        <vec3> texcoords, numVertices
+        }
+        vertexBuffer(vertexArray[0], sizeof(vertexArray)/sizeof(vertexArray[0]))
+
+
+
+        */
+    }
 
     BoxModel::~BoxModel()
     {}

@@ -45,8 +45,9 @@ namespace jop
 
     bool Model::load(const std::string& filepath)
     {
-        std::vector<unsigned char> buffer;
+        std::string buffer;
         FileLoader::read("cube.obj", buffer);
+        std::istringstream sstream(buffer);
 
         class MatRead : public tinyobj::MaterialReader
         {
@@ -59,15 +60,18 @@ namespace jop
             }
         };
 
+        std::vector<float> positions;
+        std::vector<float> normals;
+        std::vector<float> texcoords;
+        std::vector<unsigned int> indices;
+        //std::vector<int> material_ids; // per-mesh material ID
+
         std::string err;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-
-        std::stringstream sstream;
-        
-        sstream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buffer[0]), buffer.size());
         
         bool ret = tinyobj::LoadObj(shapes, materials, err, sstream, MatRead());
+
       if (!err.empty())
       {
           std::cerr << err << std::endl;
@@ -79,38 +83,27 @@ namespace jop
           normals = shapes.front().mesh.normals;
           texcoords = shapes.front().mesh.texcoords;
           indices = shapes.front().mesh.indices;
+
           //material_ids = shapes.front().mesh.material_ids);
-      
+          /*
 
-        //Return new model(indexbuffer, vertexbuffer);
+          IndexBuffer* ib = new IndexBuffer(indices);
+
+
+          std::vector<VertexArray*> vertArr;
+
+          vertArr.push_back(<vec3>(ATTRIBUTE_POSITION, positions));
+          
+          vertArr.push_back(<vec3>(ATTRIRBUTE_TEXCOORD, texcoords));
+
+          vertArr.push_back(<vec3>(ATTRIBUTE_NORMAL, normals));
+
+          m_vertexbuffer = new VertexBuffer(&vertArr[0], vertArr.size());
+          VertexBuffer* vb = new VertexBuffer(&vertArr[0], vertArr.size());
+          
+          */
+       
+
       return true;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::vector<unsigned int>& Model::getIndices()
-    {
-        return indices;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::vector<float>& Model::getVertexPositions()
-    {
-        return positions;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::vector<float>& Model::getNormals()
-    {
-        return normals;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::vector<float>& Model::getTexCoords()
-    {
-        return texcoords;
     }
 }
