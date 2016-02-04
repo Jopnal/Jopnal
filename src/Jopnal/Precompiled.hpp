@@ -32,6 +32,8 @@
 // Windows
 #if defined(JOP_OS_WINDOWS)
 
+    #define _CRT_SECURE_NO_WARNINGS
+
     #ifndef NOMINMAX
         #define NOMINMAX
     #endif
@@ -80,7 +82,6 @@
 #include <array>
 #include <string>
 #include <vector>
-#include <streambuf>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

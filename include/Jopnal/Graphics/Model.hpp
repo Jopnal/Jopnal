@@ -21,9 +21,14 @@
 
 //////////////////////////////////////////////
 
+<<<<<<< HEAD
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+=======
+#ifndef JOP_MODEL_HPP
+#define JOP_MODEL_HPP
+>>>>>>> 0825d3d88ddc8e9d8676eec5e84ee60ef35b6012
 
 // Headers
 #include <Jopnal/Header.hpp>
