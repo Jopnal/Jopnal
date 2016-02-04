@@ -20,14 +20,13 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal\Precompiled.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    
     Vertex::Vertex()
         : m_position        (0, 0, 0),
           m_texCoords       (0, 0),

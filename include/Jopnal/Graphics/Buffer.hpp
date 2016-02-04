@@ -62,27 +62,27 @@ namespace jop
         ///
         Buffer(const BufferType type);
 
-        /// \brief constructor to another buffer
+        /// \brief Constructor to another buffer
         ///
-        /// \param other reference to buffer constructor 
+        /// \param other Reference to buffer constructor 
         ///
         Buffer(const Buffer& other);
 
-        ///\brief operator to overload reference to buffer
+        /// \brief Overloads reference to buffer
         ///
-        ///\param other reference to buffer constructor
+        /// \param other Reference to buffer constructor
         ///
         Buffer& operator =(const Buffer& other);
 
-        ///\brief move constructor 
+        /// \brief Move constructor 
         ///
-        ///\param other 
+        /// \param other 
         ///
         Buffer(Buffer&& other);
 
-        ///\brief operator to overload move constructor
+        /// \brief Overloads move constructor
         ///
-        ///\param other 
+        /// \param other 
         ///
         Buffer& operator =(Buffer&& other);
 
@@ -91,33 +91,33 @@ namespace jop
         virtual ~Buffer() = 0;
 
 
-        ///\brief method to generate and bind buffers by its type
+        /// \brief Generates and binds buffers by its type
         ///
         void bind() const;
 
-        ///\brief static method to unbind buffer by its type
+        /// \brief Unbinds buffer by its type
         ///
-        ///\param type buffer type 
+        /// \param type Name of the type that is unbinded
         ///
         static void unbind(BufferType type);
 
-        ///\brief method to clear buffers
+        /// \brief Clears buffers
         ///
         void clear();
 
-        ///\brief method to destroy buffers
+        /// \brief Destroys buffers
         ///
         void destroy();
 
-        ///\brief method that returns m_bytesAllocated
+        /// \brief Returns m_bytesAllocated
         ///
         std::size_t getAllocatedSize()const;
 
     protected:
 
-        ///\brief method to unbind 
+        /// \brief Unbinds buffer
         ///
-        ///\param type const unsigned int 
+        /// \param type Name of the type that is unbinded
         ///
         static void unbind(const unsigned int& type);
   
@@ -131,4 +131,4 @@ namespace jop
 /// \class Buffer
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// do explanation about the class
