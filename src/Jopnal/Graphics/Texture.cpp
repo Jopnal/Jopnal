@@ -51,6 +51,7 @@ namespace jop
 
     bool Texture::load(const std::string& path)
     {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
         if (path.empty())
             return false;
 

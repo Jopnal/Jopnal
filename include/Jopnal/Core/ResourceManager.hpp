@@ -47,15 +47,14 @@ namespace jop
         ///
         ~ResourceManager() override;
 
-
         /// \brief Template function finds resource
         ///
         /// If resource is not found this creates a new one
         ///
         /// \param Name or path for wanted resource
         ///
-        template<typename T>
-        static std::weak_ptr<T> getResource(const std::string& path);
+        template<typename T, typename...Values>
+        static std::weak_ptr<T> getResoucre(const std::string& path,Values... values);
 
         /// \brief Deletes resource from memory
         ///

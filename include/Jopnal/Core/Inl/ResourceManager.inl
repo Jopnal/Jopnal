@@ -22,14 +22,42 @@
 
 namespace detail
 {
+    template<typename Ret, typename Class, typename ... Args>
+    void callLoad(Ret (Class::*func)(Args...), const Args&... args)
+    {
+        CallHelper<Args...>::callFunc(args...);
+    }
 
+    template<typename First, typename ... Rest>
+    struct CallHelper
+    {
+
+    };
+
+    template<typename ... Rest>
+    struct CallHelper < std::string, Rest... >
+    {
+        bool load()
+        {
+                auto res = std::make_shared<T>();
+     
+                if (Class->load(path))
+                {
+                    inst.m_resources[path] = std::move(res);
+                    return std::weak_ptr<T>(std::static_pointer_cast<T>(inst.m_resources[path]));
+                    return std::weak_ptr<T>();
+                }
+                else
+                    JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+
+        }
+    };
 }
 
-template<typename T> 
-std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
+template<typename T,typename... Values> 
+static std::weak_ptr<T> ResourceManager::getResoucre(const std::string& path, Values... values)
 {
     static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
-
     if (!m_instance)
     {
         JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
@@ -39,18 +67,18 @@ std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
     auto& inst = *m_instance;
 
     auto it = inst.m_resources.find(path);
-
+   
     if (it == inst.m_resources.end())
     {
-        auto res = std::make_shared<T>();
-
-        if (res->load(path))
-        {
-            inst.m_resources[path] = std::move(res);
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(inst.m_resources[path]));
-        }
-        else
-            JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+        //auto res = std::make_shared<T>();
+        if (!detail::callLoad(&T::load(), &T, values...));
+          //  if (res->load(path))
+           // {
+             //   inst.m_resources[path] = std::move(res);
+             //   return std::weak_ptr<T>(std::static_pointer_cast<T>(inst.m_resources[path]));
+           // }
+           // else
+             //   JOP_DEBUG_ERROR("Couldn't load resource: " << path);
     }
     else
     {
