@@ -174,103 +174,97 @@ namespace jop
         ///
         /// \param point The point to look at
         ///
-        void lookAt(const glm::vec3& point);
+        Transform& lookAt(const glm::vec3& point);
+
+
+        /// \brief Move this transform
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Transform& move(const float x, const float y, const float z);
+
+        /// \brief Move this transform
+        ///
+        /// This function will change the position, according given values
+        ///
+        /// \return Reference to self
+        ///
+        Transform& move(const glm::vec3& offset);
+
+
+        /// \brief Rotate this transform
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Transform& rotate(const float x, const float y, const float z);
+
+        /// \brief Rotate this transform
+        ///
+        /// This function will rotate the graphic, according given values
+        ///
+        /// \return Reference to self
+        ///
+        Transform& rotate(const glm::quat& rotation);
+
+        /// \brief Rotate this transform
+        ///
+        /// This function returns given rotation
+        ///
+        /// \return Reference to self
+        ///
+        Transform& rotate(const glm::vec3& rotation);
+        
+
+        /// \brief Scale this transform
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Transform& scale(const float x, const float y, const float z);
+
+        /// \brief Scale this transform
+        ///
+        /// This function will change scale of the given graphics, according
+        /// given values.
+        ///
+        /// \return Reference to self
+        ///
+        Transform& scale(const glm::vec3& scale);
+        
+
+        /// \brief Move this transform's origin
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Transform& moveOrigin(const float x, const float y, const float z);
+        
+        /// \brief Move this transform's origin
+        ///
+        /// This function will change the origin, according given values
+        ///
+        /// \return Reference to self
+        ///
+        Transform& moveOrigin(const glm::vec3& offset);
 
 
         /// The identity matrix
         ///
         static const glm::mat4 IdentityMatrix;
-
-		/// \brief Set the move
-		///
-		/// \param x The X conponent
-		/// \param y The Y component
-		/// \param z The Z component
-		///
-		/// \returns values in vec3
-		///
-		Transform& move(const float x, const float y, const float z);
-
-		///
-		/// \brief Get the move
-		///
-		/// This function will change the position, according given values
-		///
-		/// \return reference to self
-		///
-		Transform& move(const glm::vec3& move);
-
-
-
-		/// \brief Set the rotate
-		///
-		/// \param x The X conponent
-		/// \param y The Y component
-		/// \param z The Z component
-		///
-		/// \returns values in vec3
-		///
-		Transform& rotate(const float x, const float y, const float z);
-		///
-		/// \brief Get the move
-		///
-		/// This function will rotate the graphic, according given values
-		///
-		/// \return reference to self
-		///
-		Transform& rotate(const glm::quat& rotate);
-		///
-		/// \brief Get the move
-		///
-		/// This function returns given rotation
-		///
-		/// \return new rotation values
-		///
-		Transform& rotate(const glm::vec3& rotation);
-		
-
-
-		/// \brief Set the scale
-		///
-		/// \param x The X conponent
-		/// \param y The Y component
-		/// \param z The Z component
-		///
-		/// \returns values in vec3
-		///
-		Transform& scale(const float x, const float y, const float z);
-		///
-		/// \brief Get the move
-		///
-		/// This function will change scale of the given graphics, according
-		/// given values.
-		///
-		/// \return reference to self
-		///
-		Transform& scale(const glm::vec3& scale);
-		
-
-
-		/// \brief Set the moveOrigin
-		///
-		/// \param x The X conponent
-		/// \param y The Y component
-		/// \param z The Z component
-		///
-		/// \returns values in vec3
-		///
-		Transform& moveOrigin(const float x, const float y, const float z);
-		///
-		/// \brief Get the move
-		///
-		/// This function will change the origin, according given values
-		///
-		/// \return reference to self
-		///
-		Transform& moveOrigin(const glm::vec3& moveOrigin);
-
-
-
 
     protected:
 

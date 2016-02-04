@@ -177,7 +177,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Transform::lookAt(const glm::vec3& point)
+    Transform& Transform::lookAt(const glm::vec3& point)
     {
         static const glm::vec3 upVec(0.f, 1.f, 0.f);
 
@@ -185,6 +185,90 @@ namespace jop
         m_transform = glm::inverse(m_invTransform);
         m_transformNeedUpdate = false;
         m_invTransformNeedsUpdate = false;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::move(const float x, const float y, const float z)
+    {
+        return move(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::move(const glm::vec3& offset)
+    {
+        m_position += offset;
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const float x, const float y, const float z)
+    {
+        return rotate(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const glm::quat& rotation)
+    {
+        m_rotation *= rotation;
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+    
+    Transform& Transform::rotate(const glm::vec3& rotation)
+    {
+        return rotate(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::scale(const float x, const float y, const float z)
+    {
+        return scale(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::scale(const glm::vec3& scale)
+    {
+        m_scale.x *= scale.x;
+        m_scale.y *= scale.y;
+        m_scale.z *= scale.z;
+
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::moveOrigin(const float x, const float y, const float z)
+    {
+        return moveOrigin(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::moveOrigin(const glm::vec3& offset)
+    {
+        m_origin += offset;
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -196,94 +280,4 @@ namespace jop
         0.f, 0.f, 1.f, 0.f,
         0.f, 0.f, 0.f, 1.f
     );
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::move(const float x, const float y, const float z)
-	{
-		return move(glm::vec3(x, y, z));
-	}
-
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::move(const glm::vec3& move)
-	{
-
-		m_position += move;
-		m_transformNeedUpdate = true;
-		m_invTransformNeedsUpdate = true;
-
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-
-
-
-	Transform& Transform::rotate(const float x, const float y, const float z)
-	{
-		return rotate(glm::vec3(x, y, z));
-	}
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::rotate(const glm::quat& rotate)
-	{
-		m_rotation *= rotate;
-		m_transformNeedUpdate = true;
-		m_invTransformNeedsUpdate = true;
-
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-	
-	Transform& Transform::rotate(const glm::vec3& rotation)
-	{
-		return rotate(glm::quat(rotation));
-	}
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::scale(const float x, const float y, const float z)
-	{
-		return scale(glm::vec3(x, y, z));
-	}
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::scale(const glm::vec3& scale)
-	{
-		m_scale.x *= scale.x;
-		m_scale.y *= scale.y;
-		m_scale.z *= scale.z;
-		m_transformNeedUpdate = true;
-		m_invTransformNeedsUpdate = true;
-
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-
-
-
-	Transform& Transform::moveOrigin(const float x, const float y, const float z)
-	{
-		return moveOrigin(glm::vec3(x, y, z));
-	}
-
-	//////////////////////////////////////////////
-
-	Transform& Transform::moveOrigin(const glm::vec3& moveOrigin)
-	{
-		m_origin += moveOrigin;
-		m_transformNeedUpdate = true;
-		m_invTransformNeedsUpdate = true;
-
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-
 }
