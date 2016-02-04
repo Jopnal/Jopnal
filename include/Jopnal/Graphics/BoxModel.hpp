@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef BOXMODEL_HPP
-#define SPHEREMODEL_HPP
+#ifndef JOP_BOXMODEL_HPP
+#define JOP_BOXMODEL_HPP
 
 //Headers
 #include <Jopnal/Header.hpp>

@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef SPHEREMODEL_HPP
-#define SPHEREMODEL_HPP
+#ifndef JOP_SPHEREMODEL_HPP
+#define JOP_SPHEREMODEL_HPP
 
 //Headers
 #include <Jopnal/Header.hpp>
