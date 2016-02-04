@@ -41,7 +41,7 @@ namespace jop
 {
 
     Buffer::Buffer(BufferType type) 
-        : m_bytesAllocated  (),
+        : m_bytesAllocated  (0),
           m_buffer          (0),
           m_bufferType      (bt[static_cast<unsigned int>(type)])
     {}
@@ -137,7 +137,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::size_t Buffer::getAllocatedSize()const
+    std::size_t Buffer::getAllocatedSize() const
     {
         return m_bytesAllocated;
     }

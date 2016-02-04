@@ -77,7 +77,7 @@ namespace jop
 
         if (m_buffer && bytes > 0 && data)
         {
-            glCheck(gl::BufferData(m_bufferType, bytes, NULL, gl::DYNAMIC_DRAW));
+            glCheck(gl::BufferData(m_bufferType, bytes, NULL, gl::STATIC_DRAW));
             m_bytesAllocated = bytes;
             setSubData(data, 0, bytes);
             return;

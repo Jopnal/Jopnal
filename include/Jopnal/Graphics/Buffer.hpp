@@ -97,33 +97,33 @@ namespace jop
 
         /// \brief Unbinds buffer by its type
         ///
-        /// \param type Name of the type that is unbinded
+        /// \param type Name of the type that is unbound
         ///
         static void unbind(BufferType type);
 
-        /// \brief Clears buffers
+        /// \brief Clears this buffer
         ///
         void clear();
 
-        /// \brief Destroys buffers
+        /// \brief Destroys this buffer
         ///
         void destroy();
 
-        /// \brief Returns m_bytesAllocated
+        /// \brief Get the allocated size in bytes
         ///
-        std::size_t getAllocatedSize()const;
+        std::size_t getAllocatedSize() const;
 
     protected:
 
         /// \brief Unbinds buffer
         ///
-        /// \param type Name of the type that is unbinded
+        /// \param type Name of the type that is unbound
         ///
         static void unbind(const unsigned int& type);
   
-        std::size_t m_bytesAllocated;   
-        mutable unsigned int m_buffer;  
-        const int m_bufferType;          
+        std::size_t m_bytesAllocated;   ///< Size of the allocated buffer
+        mutable unsigned int m_buffer;  ///< Buffer's OpenGL handle
+        const int m_bufferType;         ///< Type of the buffer
     };
 }
 #endif
