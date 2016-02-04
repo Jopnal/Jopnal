@@ -46,20 +46,17 @@ namespace jop
         ~Shader() override;
 
 
-        /// \brief Load method for loading shaders
+        /// \brief Load a shader
         ///
-        /// The format goes like this:
-        /// "v;pathToVertexShader|g;pathToGeometryShader|f;pathToFragmentShader"
+        /// The arguments don't have to be paths. They may also contain the shader code.
         ///
-        /// The paths must appear in this order (vertex, geometry, fragment).
-        /// If you have less than three shader types to compile, simply leave out
-        /// the ones you don't need. Example: "v;pathToVertexShader|f;pathToFragmentShader".
-        ///
-        /// \param shaders A correctly formatted string with the shader file paths
+        /// \param vert Vertex shader path
+        /// \param geom Geometry shader path
+        /// \param frag Fragment shader path
         ///
         /// \return True if the shader was loaded, compiled and linked successfully
         ///
-        bool load(const std::string& shaders);
+        bool load(const std::string& vert, const std::string& geom, const std::string& frag);
 
         /// \brief Destroy this shader
         ///
