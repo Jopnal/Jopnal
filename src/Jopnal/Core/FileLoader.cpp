@@ -1,27 +1,25 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
-#include <Jopnal\Precompiled.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
@@ -42,9 +40,12 @@ namespace jop
         if (!PHYSFS_isInit())
             PHYSFS_init(argv);
 
-        static const std::string path = SettingManager::getString("sResourceDirectory", "Resources");
+        static const std::string folder = SettingManager::getString("sResourceDirectory", "Resources");
+
+        PHYSFS_setWriteDir(".");
+        PHYSFS_mkdir(folder.c_str());
         
-        JOP_ASSERT_EVAL(PHYSFS_mount(path.c_str(), NULL, 0) != 0, "Failed to mount resource directory! Make sure you've created a folder named \"" + path + "\" in the working directory.");
+        JOP_ASSERT_EVAL(PHYSFS_mount(folder.c_str(), NULL, 0) != 0, "Failed create/mount the resource directory! Try to create a folder named \"" + folder + "\" in the working directory");
     }
 
     FileLoader::~FileLoader()
@@ -82,5 +83,19 @@ namespace jop
 
         JOP_DEBUG_ERROR("File not found: " << filePath);
         return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool FileLoader::read(const std::string& filePath, std::string& buffer)
+    {
+        std::vector<unsigned char> buf;
+        if (!read(filePath, buf))
+            return false;
+
+        buf.push_back(static_cast<unsigned char>('\0'));
+        buffer = reinterpret_cast<const char*>(buf.data());
+
+        return true;
     }
 }

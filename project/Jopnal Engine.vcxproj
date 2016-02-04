@@ -33,6 +33,10 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp" />
     <ClInclude Include="..\include\Jopnal\Header.hpp" />
     <ClInclude Include="..\include\Jopnal\HelperMacros.hpp" />
@@ -43,7 +47,9 @@
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
-    <ClInclude Include="..\include\Jopnal\Utility\MessageUtil.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
@@ -74,6 +80,10 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\TextureSampler.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -81,7 +91,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
-    <ClCompile Include="..\src\Jopnal\Utility\MessageUtil.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Message.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
@@ -93,6 +105,10 @@
     <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
     <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\CommandParser.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\Message.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\Any.inl" />
     <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -142,6 +158,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -168,6 +185,7 @@
       <PreprocessorDefinitions>JOP_EXPORT_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
+      <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

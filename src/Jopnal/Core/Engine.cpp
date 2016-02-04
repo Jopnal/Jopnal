@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -30,7 +28,6 @@
 namespace
 {
     std::string ns_projectName;
-    jop::Engine* ns_engineObject;
 
     int ns_argc;
     char** ns_argv;
@@ -44,11 +41,11 @@ namespace jop
           m_currentScene    (),
           m_running         (true)
     {
-        JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
+        JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
 
         ns_projectName = name;
-        ns_engineObject = this;
+        m_engineObject = this;
 
         ns_argc = argc;
         ns_argv = argv;
@@ -61,7 +58,7 @@ namespace jop
         m_subsystems.clear();
 
         ns_projectName = std::string();
-        ns_engineObject = nullptr;
+        m_engineObject = nullptr;
     }
 
     //////////////////////////////////////////////
@@ -80,9 +77,6 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
-
-        // Shared scene set-up
-        //m_sharedScene.createLayer<>();
     }
 
     //////////////////////////////////////////////
@@ -160,12 +154,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Scene& Engine::getCurrentScene()
+    {
+        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_currentScene, "Tried to get the current scene when it or the engine wasn't loaded!");
+        return *m_engineObject->m_currentScene;
+    }
+
+    //////////////////////////////////////////////
+
     Subsystem* Engine::getSubsystem(const std::string& ID)
     {
-        for (auto& i : m_subsystems)
+        if (m_engineObject)
         {
-            if (i->getID() == ID)
-                return i.get();
+            for (auto& i : m_engineObject->m_subsystems)
+            {
+                if (i->getID() == ID)
+                    return i.get();
+            }
         }
 
         return nullptr;
@@ -175,12 +180,15 @@ namespace jop
 
     bool Engine::removeSubsystem(const std::string& ID)
     {
-        for (auto itr = m_subsystems.begin(); itr != m_subsystems.end(); ++itr)
+        if (m_engineObject)
         {
-            if ((*itr)->getID() == ID)
+            for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
             {
-                m_subsystems.erase(itr);
-                return true;
+                if ((*itr)->getID() == ID)
+                {
+                    m_engineObject->m_subsystems.erase(itr);
+                    return true;
+                }
             }
         }
 
@@ -191,35 +199,59 @@ namespace jop
 
     bool Engine::isRunning()
     {
-        return ns_engineObject && ns_engineObject->m_running;
+        return m_engineObject && m_engineObject->m_running;
     }
 
     //////////////////////////////////////////////
 
     void Engine::exit()
     {
-        if (ns_engineObject)
-            ns_engineObject->m_running = false;
+        if (m_engineObject)
+            m_engineObject->m_running = false;
     }
 
     //////////////////////////////////////////////
 
-    void Engine::sendMessage(const std::string& message, void* ptr)
+    MessageResult Engine::sendMessage(const std::string& message, Any returnWrap)
     {
-        if (ns_engineObject)
-        {
-            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
-            {
-                ns_engineObject->m_currentScene->sendMessage(message, ptr);
-                ns_engineObject->m_sharedScene->sendMessage(message, ptr);
-            }
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
 
-            if (MessageUtil::hasFilterSymbol(message, "Su"))
+    //////////////////////////////////////////////
+
+    MessageResult Engine::sendMessage(const Message& message)
+    {
+        if (m_engineObject)
+        {
+            //if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            //    JOP_EXECUTE_MEMBER_COMMAND(Engine, message.getString(), ns_engineObject, message.getReturnPointer());
+
+            static const unsigned short sceneField = Message::SharedScene |
+                                                     Message::Scene |
+                                                     Message::Layer |
+                                                     Message::Object |
+                                                     Message::Component;
+
+            if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+
+            auto& s = m_engineObject->m_currentScene;
+
+            if (s && message.passFilter(sceneField) && s->sendMessage(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+
+            if (message.passFilter(Message::Subsystem))
             {
-                for (auto& i : ns_engineObject->m_subsystems)
-                    i->sendMessage(message, ptr);
+                for (auto& i : m_engineObject->m_subsystems)
+                {
+                    if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                        return MessageResult::Escape;
+                }
             }
         }
+
+        return MessageResult::Escape;
     }
 
     //////////////////////////////////////////////
@@ -227,8 +259,12 @@ namespace jop
     Scene& Engine::getSharedScene()
     {
         JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::getSharedScene()!");
-        return *ns_engineObject->m_sharedScene;
+        return *m_engineObject->m_sharedScene;
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    Engine* Engine::m_engineObject = nullptr;
 
     //////////////////////////////////////////////
 
@@ -239,8 +275,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void broadcast(const std::string& message, void* ptr)
+    MessageResult broadcast(const std::string& message, Any returnWrap)
     {
-        Engine::sendMessage(message, ptr);
+        const Message msg(message, returnWrap);
+        return Engine::sendMessage(msg);
+    }
+
+    MessageResult broadcast(const Message& message)
+    {
+        return Engine::sendMessage(message);
     }
 }
