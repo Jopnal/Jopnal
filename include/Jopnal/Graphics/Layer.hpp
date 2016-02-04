@@ -114,7 +114,7 @@ namespace jop
         ///
         /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
         ///
-        //void setRenderTexture(RenderTexture* renderTexture);
+        void setRenderTexture(RenderTexture* renderTexture);
 
 
     protected:

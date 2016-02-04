@@ -42,10 +42,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::preDraw()
+    {}
+
+    //////////////////////////////////////////////
+
     void Layer::draw()
     {
+        if (m_camera.expired())
+            m_camera = std::static_pointer_cast<const Camera>(Camera::getDefault().shared_from_this());
+
         auto cam = m_camera.lock();
-        auto rt = m_renderTexture.lock();
+
+        if (!m_renderTexture.expired())
+            m_renderTexture.lock()->bind();
+        else
+            RenderTexture::unbind();
 
         for (auto& i : m_boundLayers)
         {
@@ -54,7 +66,7 @@ namespace jop
                 for (auto& j : i.lock()->m_drawList)
                 {
                     if (!j.expired())
-                        j.lock()->draw(*cam, rt.get());
+                        j.lock()->draw(*cam);
                 }
             }
         }
@@ -62,7 +74,7 @@ namespace jop
         for (auto& i : m_drawList)
         {
             if (!i.expired())
-                i.lock()->draw(*cam, rt.get());
+                i.lock()->draw(*cam);
         }
     }
 
@@ -121,4 +133,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::setRenderTexture(RenderTexture* renderTexture)
+    {
+        if (renderTexture)
+            m_renderTexture = std::static_pointer_cast<RenderTexture>(renderTexture->shared_from_this());
+        else
+            m_renderTexture.reset();
+    }
 }

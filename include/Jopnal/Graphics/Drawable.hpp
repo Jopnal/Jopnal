@@ -78,7 +78,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&, RenderTexture* renderTexture) = 0;
+        virtual void draw(const Camera&) = 0;
         
     };
 }
