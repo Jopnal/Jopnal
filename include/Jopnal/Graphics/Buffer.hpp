@@ -23,18 +23,18 @@
 #define JOP_BUFFER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
-    class Buffer
+    class JOP_API Buffer
     {
     public:
         
-        ///\brief enum class consisting of buffer types
+        /// \brief Enum class consisting of buffer types
         ///
         enum class BufferType
         {
@@ -45,7 +45,7 @@ namespace jop
             UniformBuffer
         };
 
-        ///\brief enum of usage types
+        /// \brief Enum of usage types
         ///
         enum UsageType
         {
@@ -56,28 +56,24 @@ namespace jop
 
     public:
 
-        ///\brief default constructor 
+        /// \brief Constructor 
         ///
-        ///\param type Buffer type 
+        /// \param type Buffer type 
         ///
-        Buffer(BufferType type);
+        Buffer(const BufferType type);
 
-        ///\brief default deconstructor
+        /// \brief constructor to another buffer
         ///
-        ~Buffer();
-
-        ///\brief constructor to another buffer
-        ///
-        ///\param other reference to buffer constructor 
+        /// \param other reference to buffer constructor 
         ///
         Buffer(const Buffer& other);
-           
+
         ///\brief operator to overload reference to buffer
         ///
         ///\param other reference to buffer constructor
         ///
         Buffer& operator =(const Buffer& other);
-        
+
         ///\brief move constructor 
         ///
         ///\param other 
@@ -90,9 +86,14 @@ namespace jop
         ///
         Buffer& operator =(Buffer&& other);
 
+        /// \brief Destructor
+        ///
+        virtual ~Buffer() = 0;
+
+
         ///\brief method to generate and bind buffers by its type
         ///
-        void bind()const;
+        void bind() const;
 
         ///\brief static method to unbind buffer by its type
         ///

@@ -23,14 +23,14 @@
 #define JOP_VERTEX_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
-    class Vertex
+    class JOP_API Vertex
     {
     public:
 

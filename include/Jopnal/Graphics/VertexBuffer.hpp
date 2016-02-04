@@ -23,14 +23,14 @@
 #define JOP_VERTEXBUFFER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
-#include <Jopnal\Graphics\Buffer.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
     class VertexBuffer : public Buffer
     {
     public:
@@ -40,10 +40,6 @@ namespace jop
         ///\param type Buffer type 
         ///
         VertexBuffer(BufferType type);
-
-        ///\brief default deconstructor
-        ///
-        ~VertexBuffer();
 
         ///\brief constructor to another vertex buffer
         ///
@@ -69,6 +65,7 @@ namespace jop
         ///
         VertexBuffer& operator =(VertexBuffer&& other);
 
+
         ///\brief method to set data by bytes
         ///
         ///\param data const void pointer to data
@@ -84,7 +81,6 @@ namespace jop
         ///
         void setSubData(const void* data, std::size_t offset, std::size_t size);
 
-    private:
     };
 }
 #endif

@@ -19,13 +19,11 @@
 
 //////////////////////////////////////////////
 
-
-
 // Headers
 #include <Jopnal/Precompiled.hpp>
-#include <Jopnal\Graphics\Buffer.hpp>
 
 //////////////////////////////////////////////
+
 
 namespace 
 {
@@ -43,12 +41,10 @@ namespace jop
 {
 
     Buffer::Buffer(BufferType type) 
-        : m_bytesAllocated(),
-          m_buffer(0),
-          m_bufferType(bt[static_cast<unsigned int>(type)])
+        : m_bytesAllocated  (),
+          m_buffer          (0),
+          m_bufferType      (bt[static_cast<unsigned int>(type)])
     {}
-
-    //////////////////////////////////////////////
 
     Buffer::Buffer(const Buffer& other)
         : m_bufferType(other.m_bufferType)
@@ -56,17 +52,14 @@ namespace jop
         *this = other;
     }
 
-    //////////////////////////////////////////////
-
     Buffer& Buffer::operator =(const Buffer& other)
     {
+        JOP_ASSERT(m_bufferType == other.m_bufferType, "Cannot assign a buffer of different type!");
+
         m_bytesAllocated = other.m_bytesAllocated;
-        m_buffer = 0;
 
         return *this;
     }
-
-    //////////////////////////////////////////////
 
     Buffer::Buffer(Buffer&& other)
         : m_bufferType(other.m_bufferType)
@@ -74,10 +67,10 @@ namespace jop
         *this = std::move(other);
     }
 
-    //////////////////////////////////////////////
-
     Buffer& Buffer::operator =(Buffer&& other)
     {
+        JOP_ASSERT(m_bufferType == other.m_bufferType, "Cannot assign a buffer of different type!");
+
         m_buffer = other.m_buffer;
         other.m_buffer = 0;
 
@@ -86,8 +79,6 @@ namespace jop
         return *this;
     }
 
-    //////////////////////////////////////////////
-
     Buffer::~Buffer()
     {
         destroy();
@@ -95,7 +86,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Buffer::bind()const
+    void Buffer::bind() const
     {
         if (!m_buffer)
             glCheck(gl::GenBuffers(1, &m_buffer));

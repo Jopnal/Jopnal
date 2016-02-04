@@ -19,35 +19,25 @@
 
 //////////////////////////////////////////////
 
-
 // Headers
 #include <Jopnal\Precompiled.hpp>
-#include <Jopnal\Graphics\VertexBuffer.hpp>
+
 //////////////////////////////////////////////
+
 
 namespace jop
 {
-
     VertexBuffer::VertexBuffer(BufferType type)
         : Buffer(type)
     {
-        JOP_ASSERT(type == BufferType::ArrayBuffer || type == BufferType::ElementArrayBuffer, "Invalid buffer type specified in veertexBuffer");
+        JOP_ASSERT(type == BufferType::ArrayBuffer || type == BufferType::ElementArrayBuffer, "Invalid buffer type specified in VertexBuffer. Must be either ArrayBuffer or IndexBuffer");
     }
 
-    //////////////////////////////////////////////
-
-    VertexBuffer::~VertexBuffer()
-    {}
-
-    //////////////////////////////////////////////
-    
     VertexBuffer::VertexBuffer(const VertexBuffer& other)
         : Buffer(other)
     {
         *this = other;
     }
-
-    //////////////////////////////////////////////
 
     VertexBuffer& VertexBuffer::operator =(const VertexBuffer& other)
     {
@@ -59,23 +49,23 @@ namespace jop
             gl::BindBuffer(gl::COPY_READ_BUFFER, other.m_buffer);
             gl::BindBuffer(gl::COPY_WRITE_BUFFER, m_buffer);
             gl::CopyBufferSubData(gl::COPY_READ_BUFFER, gl::COPY_WRITE_BUFFER, 0, 0, m_bytesAllocated);
+
+            Buffer::operator=(other);
         }
+
         return *this;
     }
 
-    //////////////////////////////////////////////
-
     VertexBuffer::VertexBuffer(VertexBuffer&& other)
-        :Buffer(std::move(other))
-    {
-        *this = std::move(other);
-    }
-
-    //////////////////////////////////////////////
+        : Buffer(std::move(other))
+    {}
 
     VertexBuffer& VertexBuffer::operator =(VertexBuffer&& other)
     {
         destroy();
+
+        Buffer::operator=(std::move(other));
+
         return *this;
     }
   
@@ -103,6 +93,4 @@ namespace jop
             glCheck(gl::BufferSubData(m_bufferType, offset, size, data));
         }
     }
-
-    //////////////////////////////////////////////
 }

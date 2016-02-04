@@ -19,61 +19,42 @@
 
 //////////////////////////////////////////////
 
-
 // Headers
 #include <Jopnal\Precompiled.hpp>
-#include <Jopnal\Graphics\Vertex.hpp>
+
 //////////////////////////////////////////////
+
 
 namespace jop
 {
     
-    Vertex::Vertex() :
-        m_position(0,0,0),
-        m_texCoords(0,0),
-        m_normalVector(0,0,0)
+    Vertex::Vertex()
+        : m_position        (0, 0, 0),
+          m_texCoords       (0, 0),
+          m_normalVector    (0, 0, 0)
     {}
 
-    //////////////////////////////////////////////
-
-    Vertex::Vertex(const glm::vec3& position) :
-        m_position(position),
-        m_texCoords(0, 0),
-        m_normalVector(0, 0, 0)
+    Vertex::Vertex(const glm::vec3& position)
+        : m_position        (position),
+          m_texCoords       (0, 0),
+          m_normalVector    (0, 0, 0)
     {}
 
-    //////////////////////////////////////////////
-
-    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords) :
-        m_position(position),
-        m_texCoords(texCoords),
-        m_normalVector(0, 0, 0)
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords)
+        : m_position        (position),
+          m_texCoords       (texCoords),
+          m_normalVector    (0, 0, 0)
     {}
 
-    //////////////////////////////////////////////
-
-    Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector) :
-        m_position(position),
-        m_texCoords(0,0),
-        m_normalVector(normalVector)
+    Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector)
+        : m_position        (position),
+          m_texCoords       (0, 0),
+          m_normalVector    (normalVector)
     {}
 
-    //////////////////////////////////////////////
-
-    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3 normalVector) :
-        m_position(position),
-        m_texCoords(texCoords),
-        m_normalVector(normalVector)
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3 normalVector)
+        : m_position        (position),
+          m_texCoords       (texCoords),
+          m_normalVector    (normalVector)
     {}
-
-    //////////////////////////////////////////////
-
-    Vertex::~Vertex()
-    {}
-
-
-
-
-
-
 }
