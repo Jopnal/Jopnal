@@ -43,8 +43,6 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Resource() = 0;
-
-        virtual bool load(const std::string& path);
     };
 }
 

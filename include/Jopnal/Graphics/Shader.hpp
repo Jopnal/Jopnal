@@ -59,7 +59,7 @@ namespace jop
         ///
         /// \return True if the shader was loaded, compiled and linked successfully
         ///
-        bool load(const std::string& shaders) override;
+        bool load(const std::string& shaders);
 
         /// \brief Destroy this shader
         ///
