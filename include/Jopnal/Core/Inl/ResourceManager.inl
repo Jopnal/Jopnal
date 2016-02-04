@@ -21,69 +21,37 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
 
-//******** HEADERS ********//
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+template<typename T> 
+std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
+{
+    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
+    auto it = m_resources.find(path);
 
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
+    if (it == m_resources.end())
+    {
+        auto res = std::make_shared<T>();
 
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
+        if (res->load(path))
+        {
+            m_resources[path] = std::move(res);
+            return std::weak_ptr<T>(static_pointer_cast<T>(m_resources[path]));
+        }
 
-#endif
+        JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+    }
+    else
+    {
+        if (typeid(T) == typeid(*it->second.get()))
+            return std::weak_ptr<T>(static_pointer_cast<T*>(it->second));
+        else
+            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
+    }
 
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// STB
-#include <Jopnal/Graphics/stb/stb_truetype.h>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysFS
-#include<PhysicsFS\physfs.h>
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-#include <string>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
+    return std::weak_ptr<T>();
+}
 
 #endif

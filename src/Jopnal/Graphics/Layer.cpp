@@ -29,62 +29,68 @@
 
 namespace jop
 {
-    Clock::Time::Time(const uint64 nsec)
-        : m_nanoseconds(nsec)
+    Layer::Layer(const std::string& ID)
+        : Subsystem                             (ID),
+          std::enable_shared_from_this<Layer>   (),
+          m_drawList                            (),
+          m_boundLayers                         (),
+          m_camera                              (),
+          m_renderTexture                       ()
+    {}
+
+    Layer::~Layer()
     {}
 
     //////////////////////////////////////////////
 
-    float64 Clock::Time::asSeconds() const
+    void Layer::draw()
     {
-        return static_cast<float64>(m_nanoseconds) / 1000000000.0;
+        if (m_camera.expired())
+        {
+            JOP_DEBUG_ERROR("Layer \"" << getID() << "\": No camera bound");
+            return;
+        }
+
+        auto cam = m_camera.lock();
+        auto rt = m_renderTexture.lock();
+
+        for (auto& i : m_boundLayers)
+        {
+            if (!i.expired())
+            {
+                for (auto& j : i.lock()->m_drawList)
+                {
+                    if (!j.expired())
+                        j.lock()->draw(*cam, rt.get());
+                }
+            }
+        }
+
+        for (auto& i : m_drawList)
+        {
+            if (!i.expired())
+                i.lock()->draw(*cam, rt.get());
+        }
     }
 
     //////////////////////////////////////////////
 
-    uint32 Clock::Time::asMilliseconds() const
+    void Layer::addDrawable(Drawable& drawable)
     {
-        return static_cast<uint32>(m_nanoseconds / 1000000);
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
     }
 
     //////////////////////////////////////////////
 
-    uint64 Clock::Time::asMicroseconds() const
+    void Layer::bindOtherLayer(Layer& layer)
     {
-        return m_nanoseconds / 1000;
+        m_boundLayers.emplace_back(layer.shared_from_this());
     }
 
     //////////////////////////////////////////////
 
-    uint64 Clock::Time::asNanoseconds() const
+    void Layer::setCamera(const Camera& camera)
     {
-        return m_nanoseconds;
-    }
-
-
-    //////////////////////////////////////////////
-
-
-    Clock::Clock()
-        : m_clock(),
-          m_lastTime(m_clock.now())
-    {}
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::reset()
-    {
-        const Time time(getElapsedTime());
-
-        m_lastTime = m_clock.now();
-
-        return time;
-    }
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::getElapsedTime() const
-    {
-        return Time(static_cast<uint64>(std::chrono::nanoseconds(m_clock.now() - m_lastTime).count()));
+        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
     }
 }

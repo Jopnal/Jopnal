@@ -26,6 +26,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -33,15 +34,22 @@
 
 namespace jop
 {
-    class JOP_API SettingManager
+    class JOP_API SettingManager : public Subsystem
     {
-    private:
-
-        SettingManager() = delete;
-
-        friend class Engine;
-
     public:
+
+        /// \brief Default constructor
+        ///
+        /// Loads all the existing settings from file.
+        ///
+        SettingManager();
+
+        /// \brief Destructor
+        ///
+        /// Saves the settings to file.
+        ///
+        ~SettingManager() override;
+
 
         /// \brief Get an integer setting
         ///
@@ -150,10 +158,6 @@ namespace jop
         /// \brief Save the settings to file
         ///
         static void save();
-
-    private:
-
-        static void initialize();
 
     };
 }

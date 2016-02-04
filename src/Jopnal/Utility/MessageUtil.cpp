@@ -29,62 +29,16 @@
 
 namespace jop
 {
-    Clock::Time::Time(const uint64 nsec)
-        : m_nanoseconds(nsec)
-    {}
-
-    //////////////////////////////////////////////
-
-    float64 Clock::Time::asSeconds() const
+    bool MessageUtil::hasFilterSymbol(const std::string& message, const std::string& symbol)
     {
-        return static_cast<float64>(m_nanoseconds) / 1000000000.0;
-    }
+        if (message[0] != '[')
+            return true;
 
-    //////////////////////////////////////////////
+        auto closingTag = message.find_first_of(']');
 
-    uint32 Clock::Time::asMilliseconds() const
-    {
-        return static_cast<uint32>(m_nanoseconds / 1000000);
-    }
+        if (closingTag == std::string::npos)
+            return true;
 
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asMicroseconds() const
-    {
-        return m_nanoseconds / 1000;
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Clock::Time::asNanoseconds() const
-    {
-        return m_nanoseconds;
-    }
-
-
-    //////////////////////////////////////////////
-
-
-    Clock::Clock()
-        : m_clock(),
-          m_lastTime(m_clock.now())
-    {}
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::reset()
-    {
-        const Time time(getElapsedTime());
-
-        m_lastTime = m_clock.now();
-
-        return time;
-    }
-
-    //////////////////////////////////////////////
-
-    Clock::Time Clock::getElapsedTime() const
-    {
-        return Time(static_cast<uint64>(std::chrono::nanoseconds(m_clock.now() - m_lastTime).count()));
+        return message.rfind(symbol, closingTag - 1) != std::string::npos;
     }
 }

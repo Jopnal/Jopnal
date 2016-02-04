@@ -27,19 +27,38 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <memory>
+
 #include <Jopnal/Graphics/stb/stb_truetype.h>
+#include <Jopnal/MathInclude.hpp>
+
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
+struct stbtt_fontinfo;
+
 namespace jop
 {
+    struct Bitmap
+    {
+        int width, height;
+        unsigned char* data;
+    };
+
 	class Font
         :public Resource
 	{
 	public:
-        bool load(std::string path)override;
+        bool load(const std::string& path)override;
+        std::pair<glm::ivec2, glm::ivec2> getBounds(const int codepoint);
+        int getKerning(const int codepoint1, const int codepoint2);
+        unsigned char* getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height);
+        ~Font();
 	private:
-        stbtt_fontinfo m_info;
+        std::unique_ptr<stbtt_fontinfo> m_info; //font info
+        //std::unordered_map <int, std::pair<unsigned char*, glm::uvec2> > m_bitmaps; //codepoint, data, size
+        std::unordered_map <int, Bitmap> m_bitmaps;
 	};
 }
 

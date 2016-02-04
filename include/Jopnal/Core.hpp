@@ -22,13 +22,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Core/Engine.hpp>
+#include <Jopnal/Core/Object.hpp>
+#include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/SettingManager.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Core/FileLoader.hpp>
 #include <Jopnal/Core/ResourceManager.hpp>
 #include <Jopnal/Core/Resource.hpp>
+
 //////////////////////////////////////////////
 
 /// \defgroup core Core

@@ -25,6 +25,7 @@
 #define JOP_EXPORT_HPP
 
 // Headers
+#include <Jopnal/Config.hpp>
 #include <Jopnal/OS.hpp>
 
 //////////////////////////////////////////////

@@ -31,12 +31,18 @@ namespace
 {
     std::string ns_projectName;
     jop::Engine* ns_engineObject;
+
+    int ns_argc;
+    char** ns_argv;
 }
 
 namespace jop
 {
-    Engine::Engine(const std::string& name, int, char**)
-        : m_running(true)
+    Engine::Engine(const std::string& name, int argc, char* argv[])
+        : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+          m_subsystems      (),
+          m_currentScene    (),
+          m_running         (true)
     {
         JOP_ASSERT(ns_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -44,14 +50,15 @@ namespace jop
         ns_projectName = name;
         ns_engineObject = this;
 
-        SettingManager::initialize();
+        ns_argc = argc;
+        ns_argv = argv;
     }
 
     Engine::~Engine()
     {
+        m_currentScene.reset();
+        m_sharedScene.reset();
         m_subsystems.clear();
-
-        SettingManager::save();
 
         ns_projectName = std::string();
         ns_engineObject = nullptr;
@@ -59,21 +66,32 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Engine::loadDefaultSubsystems()
+    void Engine::loadDefaultConfiguration()
     {
-        Window::Settings s;
-        s.displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
-        s.size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); s.size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
-        s.title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
-        s.visible = true;
+        // Setting manager
+        createSubsystem<SettingManager>();
 
-        createSubsystem<Window>(s);
+        // File loader
+        createSubsystem<FileLoader>(ns_argv[0]);
+
+        // Resource manager
+        createSubsystem<ResourceManager>();
+
+        // Main window
+        const Window::Settings wSettings(true);
+        createSubsystem<Window>(wSettings);
+
+        // Shared scene set-up
+        //m_sharedScene.createLayer<>();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
+        if (!m_currentScene)
+            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
+
         const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
         float64 accumulator = 0.0;
 
@@ -83,36 +101,56 @@ namespace jop
         {
             float64 frameTime = frameClock.reset().asSeconds();
 
+            // Clamp the delta time to a certain value. This is to prevent
+            // a "spiral of death" if fps goes below 10.
             if (frameTime > 0.1)
                 frameTime = 0.1;
 
-            accumulator += frameTime;
-
-            while (accumulator >= timeStep)
+            // Fixed update
             {
-                for (auto& i : m_subsystems)
-                    i->preFixedUpdate(timeStep);
+                accumulator += frameTime;
 
-                // Scene fixed update here
+                while (accumulator >= timeStep)
+                {
+                    for (auto& i : m_subsystems)
+                        i->preFixedUpdate(timeStep);
 
-                for (auto& i : m_subsystems)
-                    i->postFixedUpdate(timeStep);
+                    if (m_currentScene)
+                        m_currentScene->fixedUpdateBase(timeStep);
 
-                accumulator -= timeStep;
+                    m_sharedScene->fixedUpdateBase(timeStep);
+
+                    for (auto& i : m_subsystems)
+                        i->postFixedUpdate(timeStep);
+
+                    accumulator -= timeStep;
+                }
             }
 
-            for (auto& i : m_subsystems)
-                i->preUpdate(frameTime);
+            // Update
+            {
+                for (auto& i : m_subsystems)
+                    i->preUpdate(frameTime);
 
-            // Scene update here
+                if (m_currentScene)
+                    m_currentScene->updateBase(frameTime);
 
-            for (auto& i : m_subsystems)
-                i->postUpdate(frameTime);
+                m_sharedScene->updateBase(frameTime);
+
+                for (auto& i : m_subsystems)
+                    i->postUpdate(frameTime);
+            }
             
-            // Scene draw here
+            // Draw
+            {
+                if (m_currentScene)
+                    m_currentScene->drawBase();
 
-            for (auto& i : m_subsystems)
-                i->postDraw();
+                m_sharedScene->drawBase();
+
+                for (auto& i : m_subsystems)
+                    i->draw();
+            }
         }
 
         // #TODO Threaded event loop
@@ -122,11 +160,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& name)
+    Subsystem* Engine::getSubsystem(const std::string& ID)
     {
         for (auto& i : m_subsystems)
         {
-            if (i->getName() == name)
+            if (i->getID() == ID)
                 return i.get();
         }
 
@@ -135,11 +173,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Engine::removeSubsystem(const std::string& name)
+    bool Engine::removeSubsystem(const std::string& ID)
     {
         for (auto itr = m_subsystems.begin(); itr != m_subsystems.end(); ++itr)
         {
-            if ((*itr)->getName() == name)
+            if ((*itr)->getID() == ID)
             {
                 m_subsystems.erase(itr);
                 return true;
@@ -149,7 +187,14 @@ namespace jop
         return false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    bool Engine::isRunning()
+    {
+        return ns_engineObject && ns_engineObject->m_running;
+    }
+
+    //////////////////////////////////////////////
 
     void Engine::exit()
     {
@@ -157,10 +202,45 @@ namespace jop
             ns_engineObject->m_running = false;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    void Engine::sendMessage(const std::string& message, void* ptr)
+    {
+        if (ns_engineObject)
+        {
+            if (ns_engineObject->m_currentScene && MessageUtil::hasFilterSymbol(message, "Sc"))
+            {
+                ns_engineObject->m_currentScene->sendMessage(message, ptr);
+                ns_engineObject->m_sharedScene->sendMessage(message, ptr);
+            }
+
+            if (MessageUtil::hasFilterSymbol(message, "Su"))
+            {
+                for (auto& i : ns_engineObject->m_subsystems)
+                    i->sendMessage(message, ptr);
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    Scene& Engine::getSharedScene()
+    {
+        JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::getSharedScene()!");
+        return *ns_engineObject->m_sharedScene;
+    }
+
+    //////////////////////////////////////////////
 
     const std::string& getProjectName()
     {
         return ns_projectName;
+    }
+
+    //////////////////////////////////////////////
+
+    void broadcast(const std::string& message, void* ptr)
+    {
+        Engine::sendMessage(message, ptr);
     }
 }

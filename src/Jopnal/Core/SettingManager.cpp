@@ -32,6 +32,7 @@ namespace
     namespace rj = rapidjson;
 
     rj::Document ns_document;
+    bool ns_init = false;
 
     rj::Value& getRJValue(const std::string& name)
     {
@@ -231,7 +232,8 @@ namespace jop
 
         if (!file)
         {
-            JOP_DEBUG_ERROR("Couldn't read the config file. Default settings will be used");
+            // Not using DebugHandler here since it relies on the initialization of this class
+            std::cout << "Couldn't read the config file. Default settings will be used\n" << std::endl;
             return;
         }
 
@@ -244,7 +246,7 @@ namespace jop
             ns_document.Parse<0>(buf.c_str());
 
             if (ns_document.HasParseError())
-                JOP_DEBUG_ERROR("Config file has a parse error at " << ns_document.GetErrorOffset());
+                std::cout << "Config file has a parse error at " << ns_document.GetErrorOffset() << std::endl;
         }
 
         PHYSFS_close(file);
@@ -271,8 +273,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SettingManager::initialize()
+    SettingManager::SettingManager()
+        : Subsystem("Setting Manager")
     {
+        JOP_ASSERT(!ns_init, "There must not be more than one jop::SettingManager!");
+
         if (!PHYSFS_isInit())
             PHYSFS_init(0);
 
@@ -293,10 +298,29 @@ namespace jop
         else if (PHYSFS_exists("config.json"))
         {
             reload();
-            return;
+            goto Mark;
         }
 
         ns_document.SetObject();
         save();
+
+    Mark:
+
+        ns_init = true;
+    }
+
+    //////////////////////////////////////////////
+
+    SettingManager::~SettingManager()
+    {
+        save();
+
+        if (PHYSFS_isInit())
+        {
+            if (!PHYSFS_deinit())
+                JOP_DEBUG_ERROR("Could not deinitialize PhysicsFS. Some file handles might be left open.");
+        }
+
+        ns_init = false;
     }
 }

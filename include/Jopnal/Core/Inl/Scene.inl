@@ -21,38 +21,44 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <string>
+template<typename T>
+std::weak_ptr<T> Scene::getLayer()
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_layers)
+    {
+        if (typeid(*i) == ti)
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+    }
+
+    return std::weak_ptr<T>();
+}
 
 //////////////////////////////////////////////
 
-namespace jop
+template<typename T, typename ... Args>
+T& Scene::createLayer(Args&... args)
 {
-    class JOP_API Resource
-    {
-    public:
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
-        /// \brief Virtual destructor
-        ///
-        virtual ~Resource() = 0;
+    m_layers.emplace_back(std::make_shared<T>(args...));
+    return static_cast<T&>(*m_layers.back());
+}
 
+//////////////////////////////////////////////
 
-        /// \brief Virtual method for using FileLoader to load new resource from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        virtual bool load(const std::string& path) = 0;
+template<typename T, typename ... Args>
+T& Scene::setDefaultLayer(Args&... args)
+{
+    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
-    };
+    m_defaultLayer = std::make_shared<T>(args...);
+    return static_cast<T&>(*m_defaultLayer);
 }
 
 #endif
-
-/// \class Resource
-/// \ingroup core
-///
-/// This is the base class for all resources that are loaded from files

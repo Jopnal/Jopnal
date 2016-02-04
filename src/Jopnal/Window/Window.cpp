@@ -31,8 +31,30 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    bool ns_eventsPolled = false;
+}
+
 namespace jop
 {
+    Window::Settings::Settings(const bool loadSettings)
+        : size          (1u, 1u),
+          title         ("Window Title"),
+          displayMode   (DisplayMode::Windowed),
+          visible       (false)
+    {
+        if (loadSettings)
+        {
+            size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
+            title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
+            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
+            visible = true;
+        }
+    }
+
+    //////////////////////////////////////////////
+
     Window::Window()
         : Subsystem         ("Window"),
           m_impl            (),
@@ -47,21 +69,14 @@ namespace jop
         open(settings);
     }
 
-    Window::Window(Window&& other)
-        : Subsystem ("Window"),
-          m_impl    (std::move(other.m_impl))
+    Window::~Window()
     {}
 
-    Window& Window::operator =(Window&& other)
-    {
-        m_impl = std::move(other.m_impl);
-        return *this;
-    }
+    //////////////////////////////////////////////
 
-    Window::~Window()
+    void Window::preUpdate(const double)
     {
-        // The event handler needs to be reset before the window itself
-        m_eventHandler.reset();
+        ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////
@@ -82,15 +97,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::postDraw()
+    void Window::draw()
     {
         if (isOpen())
             m_impl->swapBuffers();
 
-        // Poll window events here instead of the main loop.
-        // This causes the events to be polled multiple times if there
-        // are multiple windows but we don't really need to care about that.
-        pollEvents();
+        // Only poll the events if they haven't yet been during this frame.
+        // We care about this because we don't want to invoke controller
+        // callbacks multiple times.
+        if (!ns_eventsPolled)
+        {
+            static const bool controllers = SettingManager::getBool("bControllerInput", true);
+
+            pollEvents();
+
+            if (controllers && m_eventHandler.operator bool())
+                m_eventHandler->handleControllerInput();
+
+            ns_eventsPolled = true;
+        }
     }
 
     //////////////////////////////////////////////

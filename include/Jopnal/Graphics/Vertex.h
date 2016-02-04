@@ -21,69 +21,29 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_FONT_HPP
+#define JOP_FONT_HPP
 
-//******** HEADERS ********//
+// Headers
+#include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+//////////////////////////////////////////////
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// STB
-#include <Jopnal/Graphics/stb/stb_truetype.h>
-
-// RapidJSON
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#pragma warning(pop)
-
-// PhysFS
-#include<PhysicsFS\physfs.h>
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-#include <string>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
+namespace jop
+{
+    struct Vertex
+    {
+    public:
+        Vertex(glm::vec3 vertex = glm::vec3(0), glm::vec2 texture = glm::vec2(0), glm::vec3 normal = glm::vec3(0))
+            :m_vertex(vertex),
+            m_texture(texture),
+            m_normal(normal) {}
+        glm::vec3 m_vertex = glm::vec3(0);
+        glm::vec2 m_texture = glm::vec2(0);
+        glm::vec3 m_normal = glm::vec3(0);
+    };
+}
 
 #endif
