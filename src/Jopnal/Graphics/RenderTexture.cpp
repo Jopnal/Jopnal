@@ -40,6 +40,7 @@ namespace jop
 
     RenderTexture::~RenderTexture()
     {
+        unBind();
         deInit();
     }
 
