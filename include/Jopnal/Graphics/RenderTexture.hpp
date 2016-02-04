@@ -123,7 +123,7 @@ namespace jop
         ///
         const Texture& getTexture() const;
 
-        /// \brief sets absolute Viewport for window
+        /// \brief sets absolute Viewport for frameBuffer
         ///
         /// \param x
         /// \param y
@@ -132,7 +132,7 @@ namespace jop
         ///
         void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
 
-        /// \brief sets relative Viewport for window
+        /// \brief sets relative Viewport for frameBuffer
         ///
         /// \param x
         /// \param y

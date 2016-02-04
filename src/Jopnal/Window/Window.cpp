@@ -202,7 +202,7 @@ namespace jop
 
             glfwGetWindowSize(getLibraryHandle(), &windowX, &windowY);
 
-            glCheck(gl::Viewport(x * windowX, y * windowY, width * windowX, height * windowY));
+            glCheck(gl::Viewport(static_cast<int>( x * windowX),static_cast<int>( y * windowY),static_cast<unsigned int>( width * windowX),static_cast<unsigned int> (height * windowY)));
         }
     }
 }

@@ -271,7 +271,6 @@ namespace jop
 	{
         if (isValid())
             glCheck(gl::Viewport(x, y, width, height));
-
 	}
 
     //////////////////////////////////////////////
@@ -280,13 +279,10 @@ namespace jop
     {
         if (isValid())
         {
-            int windowX;
-            int windowY;
+            float textureX = getSize().x;
+            float textureY = getSize().y;
 
-            windowX = getSize().x;
-            windowY = getSize().y;
-
-            glCheck(gl::Viewport(x * windowX, y * windowY, width * windowX, height * windowY));
+            glCheck(gl::Viewport(static_cast<int>(x * textureX), static_cast<int>(y * textureY), static_cast<unsigned int>(width * textureX), static_cast<unsigned int> (height * textureY)));
         }
     }
 }
