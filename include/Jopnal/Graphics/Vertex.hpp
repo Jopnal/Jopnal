@@ -64,7 +64,7 @@ namespace jop
         /// \param texCoords Vertex texture coordinates
         /// \param normalVector Vertex normal vector
         ///
-        Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3 normalVector);
+        Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector);
                 
     private:
 
