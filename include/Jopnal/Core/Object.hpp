@@ -81,7 +81,7 @@ namespace jop
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        T& createComponent(Args& ... args);
+        T& createComponent(Args&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -133,9 +133,15 @@ namespace jop
         /// Forwards messages to this object's components
         ///
         /// \param message String holding the message
-        /// \param ptr Pointer to hold extra data
+        /// \param returnWrap Pointer to hold extra data
         ///
-        void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message, Any returnWrap);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
+        MessageResult sendMessage(const Message& message);
 
 
         /// \brief Method for getting m_ID
