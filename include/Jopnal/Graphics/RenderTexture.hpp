@@ -26,34 +26,112 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    class Texture;
-    class RenderTexture
+    class JOP_API RenderTexture final : public Subsystem
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(RenderTexture);
+
     public:
+
+        /// \brief Constructor
+        ///
+        /// Doesn't initialize anything. To create the frame buffer, call create()
+        ///
         RenderTexture();
-        ~RenderTexture();
 
-        void get();
+        /// \brief Constructor for initialization
+        ///
+        /// \param size Size of the frame buffer texture
+        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
+        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
+        ///
+        RenderTexture(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
-        void deInit();
-        void unBind();
+        /// \brief Destructor
+        ///
+        ~RenderTexture() override;
 
-        bool init(int width,int height);
+
+        /// \brief Overridden postUpdate. Clears the frame buffer
+        ///
+        /// \param dt Delta time
+        ///
+        void postUpdate(const double dt) override;
+
+        /// \brief Initialize the frame buffer
+        ///
+        /// \param size Size of the frame buffer texture
+        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
+        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
+        ///
+        /// \return True if successful
+        ///
+        bool create(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+
+        /// \brief Destroy this frame buffer
+        ///
+        void destroy();
+
+        /// \brief Bind this frame buffer for drawing on
+        ///
+        /// \return True if successful
+        ///
         bool bind();
-        std::weak_ptr<Texture> getTexture();
 
+        /// \brief Unbind the currently bound frame buffer
+        ///
+        /// Rebinds the window as the frame buffer
+        ///
+        static void unbind();
+
+        /// \brief Get the frame buffer texture size
+        ///
+        glm::vec2 getSize() const;
+
+        /// \param Check if this frame buffer is valid
+        ///
+        /// \return True if valid
+        ///
+        bool isValid() const;
+
+        /// \brief Set the color buffer clear color
+        ///
+        /// \param color The new color
+        ///
+        void setClearColor(const Color& color);
+
+        /// \brief Get the color buffer clear color
+        ///
+        /// \return Reference to the color
+        ///
+        const Color& getClearColor() const;
+
+        /// \brief Get the texture
+        ///
+        /// \return Const reference to the internal texture
+        ///
+        const Texture& getTexture() const;
 
     private:
-        std::weak_ptr<Texture> m_texture;
-        GLuint idBase,
-               m_frameBuffer,
-               m_depthBuffer;
+
+        Texture m_texture;              ///< The attached texture
+        Color m_clearColor;             ///< The color to use when clearing the buffer
+        unsigned int m_frameBuffer;     ///< Handle for the frame buffer
+        unsigned int m_depthBuffer;     ///< Handle for the depth buffer
+        unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
+        bool m_colorChanged;            ///< Has the clear color been changed?
+
     };
 }
 
@@ -61,5 +139,4 @@ namespace jop
 
 /// \class RenderTexture
 /// \ingroup graphics
-
-/// renders texture without drawning
+///
