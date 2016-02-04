@@ -96,6 +96,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Scene::objectCount() const
+    {
+        return m_objects.size();
+    }
+
+    //////////////////////////////////////////////
+
     std::weak_ptr<Layer> Scene::getLayer(const std::string& ID)
     {
         for (auto& i : m_layers)

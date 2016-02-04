@@ -29,29 +29,34 @@ namespace jop
 {
     ResourceManager::ResourceManager()
         : Subsystem("Resource Manager")
-    {}
+    {
+        JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist st a time!");
+    
+        m_instance = this;
+    }
     
     ResourceManager::~ResourceManager()
-    {}
-
-    //////////////////////////////////////////////
-
-    bool ResourceManager::resourceLoaded(const std::string& path)
     {
-        return m_resources.find(path) != m_resources.end();
+        m_instance = nullptr;
     }
 
     //////////////////////////////////////////////
 
     void ResourceManager::unloadResource(const std::string& path)
     {
-        m_resources.erase(path);
+        if (m_instance)
+            m_instance->m_resources.erase(path);
     }
 
     //////////////////////////////////////////////
 
     void ResourceManager::unloadResources()
     {
-        m_resources.clear();
+        if (m_instance)
+            m_instance->m_resources.clear();
     }
+
+    //////////////////////////////////////////////
+
+    ResourceManager* ResourceManager::m_instance = nullptr;
 }

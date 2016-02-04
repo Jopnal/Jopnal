@@ -56,13 +56,15 @@ namespace jop
     Window::Window()
         : Subsystem         ("Window"),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_colorChanged    (true)
     {}
 
     Window::Window(const Settings& settings)
         : Subsystem         ("Window"),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_colorChanged    (true)
     {
         open(settings);
     }
@@ -83,11 +85,16 @@ namespace jop
     {
         if (isOpen())
         {
-            auto c = m_clearColor.asFloatVector();
+            if (m_colorChanged)
+            {
+                auto c = m_clearColor.asFloatVector();
 
-            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
-            glCheck(gl::ClearDepth(static_cast<GLdouble>(1.f)));
-            glCheck(gl::ClearStencil(static_cast<GLint>(0)));
+                glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
+                glCheck(gl::ClearDepth(1.0));
+                glCheck(gl::ClearStencil(0));
+
+                m_colorChanged = false;
+            }
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -142,6 +149,7 @@ namespace jop
     void Window::setClearColor(const Color& color)
     {
         m_clearColor = color;
+        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////

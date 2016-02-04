@@ -47,16 +47,26 @@ namespace jop
 
         /// \brief Destructor
         ///
-        /// Deinitializes the PhysicsFs file system
-        ///
         ~FileLoader() override;
 
 
         /// \brief Reads data from file into a buffer
         ///
-        /// \param pointer to premade data array
+        /// \param filePath Path to the file to load
+        /// \param buffer Reference to a data vector
         /// 
+        /// \return True if successful
+        ///
         static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
+
+        /// \brief Reads data from file into a string
+        ///
+        /// \param filePath Path to the file to load
+        /// \param buffer Reference to a string
+        ///
+        /// \return True if successful
+        ///
+        static bool read(const std::string& filePath, std::string& buffer);
 
     };
 }
