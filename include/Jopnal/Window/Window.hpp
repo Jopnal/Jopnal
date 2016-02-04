@@ -168,22 +168,23 @@ namespace jop
         ///
         static void pollEvents();
 
-        /// \brief sets absolute Viewport for window
+        /// \brief Set absolute Viewport for window
         ///
-        /// \param x
-        /// \param y
-        /// \param width
-        /// \param height
+        /// \param x The upper left x coordinate
+        /// \param y The upper left y coordinate
+        /// \param width Width of the view port in pixels
+        /// \param height Height of the view port in pixels
         ///
-		void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
-        /// \brief sets relative Viewport for window
+        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
+
+        /// \brief Sets relative Viewport for window
         ///
-        /// \param x
-        /// \param y
-        /// \param width
-        /// \param height
+        /// \param x The upper left relative x coordinate
+        /// \param y The upper left relative y coordinate
+        /// \param width Relative width of the view port in pixels
+        /// \param height Relative height of the view port in pixels
         ///
-		void setViewportRelative(const float x, const float y, const float width, const float height);
+        void setViewportRelative(const float x, const float y, const float width, const float height);
 
     private:
 
