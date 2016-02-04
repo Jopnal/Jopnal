@@ -19,11 +19,50 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Audio/AudioBuffer.hpp>
+#ifndef JOP_AUDIOBUFFER_HPP
+#define JOP_AUDIOBUFFER_HPP
 
+// Headers
+#include <Jopnal/Header.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <string>
 //////////////////////////////////////////////
 
-/// \defgroup audio Audio
+namespace jop
+{
+    class AudioBuffer : public Resource
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        AudioBuffer();
+
+        /// \brief Virtual destructor
+        ///
+       ~AudioBuffer();
+
+        /// \brief FileLoader to load new resource from file
+        ///
+        /// \param path Name or path for wanted resource
+        ///
+        bool load(const std::string& path);
+
+        bool load(const std::string& path,float time);
+
+        /// \brief Get pointer for buffer
+        ///
+        /// \param Weak_ptr to use as pointer
+        ///
+        bool load(sf::Sound sound);
+
+    private:
+        sf::SoundBuffer m_soundBuf;
+    };
+}
+#endif
+
+/// \class AudioBuffer
+/// \ingroup Audio
 ///
-/// #TODO Detailed decription
+/// Sound data storage

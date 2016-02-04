@@ -20,8 +20,8 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Audio.hpp>
 #include <Jopnal/Core.hpp>
+#include <Jopnal/Audio.hpp>
 #include <Jopnal/Graphics.hpp>
 #include <Jopnal/Utility.hpp>
 #include <Jopnal/Window.hpp>

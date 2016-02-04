@@ -20,10 +20,48 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Audio/AudioBuffer.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    AudioBuffer::AudioBuffer()
+    {}
+
+    //////////////////////////////////////////////
+
+    AudioBuffer::~AudioBuffer()
+    {}
+
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    bool AudioBuffer::load(const std::string& path)
+    {             
+        std::vector<unsigned char> buf;
+        FileLoader::read(path, buf);
+       // if (m_soundBuf.loadFromMemory(&buf, 665596));
+        m_soundBuf.loadFromFile("Jopnal/TestSound.wav");
+        return true;
+
+        JOP_DEBUG_ERROR("Error in AudioBuffer::load: "<<path)
+        return false;
+    }
+
+    
+    bool AudioBuffer::load(sf::Sound sound)
+    {
+        sound.setBuffer(m_soundBuf);
+        return true;
+    }
+
+    bool AudioBuffer::load(const std::string& path, float time)
+    {
+        sf::Sound sound;
+        sound.setBuffer(m_soundBuf);
+        sound.play();
+        return true;
+    }
+}

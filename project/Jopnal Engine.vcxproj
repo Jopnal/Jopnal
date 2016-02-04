@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\AudioBuffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Audio\AudioBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
@@ -148,7 +150,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <PreprocessorDefinitions>JOP_EXPORT_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
@@ -160,7 +162,7 @@
       <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -176,7 +178,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <PreprocessorDefinitions>JOP_EXPORT_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
@@ -189,7 +191,7 @@
       <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s.lib;sfml-audio-s.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
