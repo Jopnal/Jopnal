@@ -123,8 +123,22 @@ namespace jop
         ///
         const Texture& getTexture() const;
 
+        /// \brief sets absolute Viewport for window
+        ///
+        /// \param x
+        /// \param y
+        /// \param width
+        /// \param height
+        ///
         void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
 
+        /// \brief sets relative Viewport for window
+        ///
+        /// \param x
+        /// \param y
+        /// \param width
+        /// \param height
+        ///
         void setViewportRelative(const float x, const float y, const float width, const float height);
 
 
