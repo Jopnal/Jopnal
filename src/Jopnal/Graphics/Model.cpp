@@ -32,7 +32,10 @@
 
 namespace jop
 {
-    Model::Model() : Resource()
+    Model::Model(/*IndexBuffer* ib, VertexBuffer* vb*/) : 
+        Resource()
+        /*,m_ib(ib)
+        ,m_vb(vb)*/
     {}
 
     Model::~Model()
@@ -43,7 +46,7 @@ namespace jop
     bool Model::load(const std::string& filepath)
     {
         std::vector<unsigned char> buffer;
-        FileLoader::read(filepath, buffer);
+        FileLoader::read("cube.obj", buffer);
 
         class MatRead : public tinyobj::MaterialReader
         {
@@ -60,10 +63,11 @@ namespace jop
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
 
-        std::iostream is();
-        is().rdbuf()->pubsetbuf(reinterpret_cast<char*>(buffer[0]), buffer.size());
+        std::stringstream sstream;
         
-        bool ret = tinyobj::LoadObj(shapes, materials, err, is(), MatRead());
+        sstream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buffer[0]), buffer.size());
+        
+        bool ret = tinyobj::LoadObj(shapes, materials, err, sstream, MatRead());
       if (!err.empty())
       {
           std::cerr << err << std::endl;
@@ -77,6 +81,8 @@ namespace jop
           indices = shapes.front().mesh.indices;
           //material_ids = shapes.front().mesh.material_ids);
       
+
+        //Return new model(indexbuffer, vertexbuffer);
       return true;
     }
 

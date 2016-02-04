@@ -93,4 +93,7 @@ namespace jop
     {
         m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
     }
+
+    //////////////////////////////////////////////
+
 }

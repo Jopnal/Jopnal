@@ -21,8 +21,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef RESOURCEMODEL_HPP
-#define RESOURCEMODEL_HPP
+#ifndef MODEL_HPP
+#define MODEL_HPP
 
 
 // Headers
@@ -65,11 +65,14 @@ namespace jop
         const std::vector<float>& getTexCoords();
 
     private:
-
+        //m_indexbuffer
+        //m_vertexbuffer
         std::vector<float> positions;
         std::vector<float> normals;
         std::vector<float> texcoords;
         std::vector<unsigned int> indices;
+
+
         //std::vector<int> material_ids; ///< per-mesh material ID
     };
 }

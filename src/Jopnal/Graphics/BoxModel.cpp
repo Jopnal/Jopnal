@@ -22,17 +22,16 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Model.hpp>
-#include<Jopnal/Graphics/BoxModel.hpp>
-#include <Jopnal/Graphics/SphereModel.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+namespace jop
+{
+    BoxModel::BoxModel(/* indexbuffer* ib, vertexbuffer* vb*/)
+    {}
+
+    BoxModel::~BoxModel()
+    {}
+
+}
