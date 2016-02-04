@@ -201,6 +201,9 @@
     <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -285,6 +288,9 @@
       <Filter>Graphics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\TextureSampler.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>

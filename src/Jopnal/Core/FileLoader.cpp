@@ -84,4 +84,18 @@ namespace jop
         JOP_DEBUG_ERROR("File not found: " << filePath);
         return false;
     }
+
+    //////////////////////////////////////////////
+
+    bool FileLoader::read(const std::string& filePath, std::string& buffer)
+    {
+        std::vector<unsigned char> buf;
+        if (!read(filePath, buf))
+            return false;
+
+        buf.push_back(static_cast<unsigned char>('\0'));
+        buffer = reinterpret_cast<const char*>(buf.data());
+
+        return true;
+    }
 }
