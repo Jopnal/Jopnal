@@ -60,7 +60,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3 normalVector) :
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector) :
         m_position(position),
         m_texCoords(texCoords),
         m_normalVector(normalVector)

@@ -27,6 +27,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
 
 //////////////////////////////////////////////
 
@@ -41,6 +43,7 @@ namespace jop
     {
     public:
         Model();
+        Model(Buffer* ib, VertexBuffer* vb);
         ~Model();
 
         /// \brief Method to load .obj model
@@ -51,10 +54,13 @@ namespace jop
         ///
         bool load(const std::string& filePath);
 
-    private:
-        //m_indexbuffer
-        //m_vertexbuffer
+        const VertexBuffer& getIndexBuffer() const;
+        const VertexBuffer& getVertexBuffer() const;
 
+    private:
+        //std::unique_ptr<IndexBuffer> indexbuffer;
+        VertexBuffer m_vertexbuffer;
+        VertexBuffer m_indexbuffer;
     };
 }
 

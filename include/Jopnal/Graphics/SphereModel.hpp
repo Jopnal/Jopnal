@@ -26,7 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+
 
 //////////////////////////////////////////////
 

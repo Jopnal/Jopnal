@@ -23,7 +23,7 @@
 #define JOP_BUFFER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 

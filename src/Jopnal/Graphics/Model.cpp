@@ -32,11 +32,12 @@
 
 namespace jop
 {
-    Model::Model(/*IndexBuffer* ib, VertexBuffer* vb*/) : 
+    Model::Model() :
         Resource()
-        /*,m_ib(ib)
-        ,m_vb(vb)*/
+        , m_vertexbuffer(Buffer::BufferType::ArrayBuffer)
+        , m_indexbuffer(Buffer::BufferType::ElementArrayBuffer)
     {}
+
 
     Model::~Model()
     {}
@@ -83,27 +84,40 @@ namespace jop
           normals = shapes.front().mesh.normals;
           texcoords = shapes.front().mesh.texcoords;
           indices = shapes.front().mesh.indices;
-
-          //material_ids = shapes.front().mesh.material_ids);
-          /*
-
-          IndexBuffer* ib = new IndexBuffer(indices);
-
-
-          std::vector<VertexArray*> vertArr;
-
-          vertArr.push_back(<vec3>(ATTRIBUTE_POSITION, positions));
+          //material_ids = shapes.front().mesh.material_id
           
-          vertArr.push_back(<vec3>(ATTRIRBUTE_TEXCOORD, texcoords));
+          std::vector<Vertex> vertexArray;
+          vertexArray.reserve(positions.size() / 3);
 
-          vertArr.push_back(<vec3>(ATTRIBUTE_NORMAL, normals));
+          if (!texcoords.empty())
+          {
+              for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
+              {
+                  vertexArray.emplace_back
+                      (glm::vec3(positions[i], positions[i + 1], positions[i + 2]),
+                      glm::vec3(normals[i], normals[i + 1], normals[i + 2]));
+              }
+          }
+          //IF CHECKS FOR IF - no normals etc
 
-          m_vertexbuffer = new VertexBuffer(&vertArr[0], vertArr.size());
-          VertexBuffer* vb = new VertexBuffer(&vertArr[0], vertArr.size());
+          m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex)*vertexArray.size());
+
+          if (!indices.empty())
+          m_indexbuffer.setData(&indices[0], sizeof(unsigned int)*indices.size());
           
-          */
        
 
       return true;
     }
+
+    const VertexBuffer& Model::getIndexBuffer() const
+    {
+        return m_indexbuffer;
+    }
+
+    const VertexBuffer& Model::getVertexBuffer() const
+    {
+        return m_vertexbuffer;
+    }
+
 }

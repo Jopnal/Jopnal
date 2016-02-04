@@ -28,11 +28,21 @@
 
 namespace jop
 {
-    BoxModel::BoxModel()
+    BoxModel::BoxModel() : Model()
     {
         /*
         // Data here: pos, texcoord, normals
-        float positions[] = {};
+        float positions[] = 
+        {
+        0.0  0.0  0.0
+        v  0.0  0.0  1.0
+        v  0.0  1.0  0.0
+        v  0.0  1.0  1.0
+        v  1.0  0.0  0.0
+        v  1.0  0.0  1.0
+        v  1.0  1.0  0.0
+        v  1.0  1.0  1.0
+        };
         float normals[] = {};
         float texcoords[] = {};
         int indices[] = {};

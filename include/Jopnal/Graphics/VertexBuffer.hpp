@@ -23,8 +23,8 @@
 #define JOP_VERTEXBUFFER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
-#include <Jopnal\Graphics\Buffer.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
 
 //////////////////////////////////////////////
 
