@@ -48,8 +48,6 @@ namespace jop
         ///
         bool load(const std::string& path);
 
-        bool load(const std::string& path,float time);
-
         /// \brief Get pointer for buffer
         ///
         /// \param Weak_ptr to use as pointer
@@ -57,7 +55,7 @@ namespace jop
         bool load(sf::Sound sound);
 
     private:
-        sf::SoundBuffer m_soundBuf;
+         std::shared_ptr<sf::SoundBuffer> m_soundBuf;
     };
 }
 #endif

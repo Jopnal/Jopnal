@@ -39,29 +39,21 @@ namespace jop
     //////////////////////////////////////////////
 
     bool AudioBuffer::load(const std::string& path)
-    {             
+    { 
         std::vector<unsigned char> buf;
         FileLoader::read(path, buf);
-       // if (m_soundBuf.loadFromMemory(&buf, 665596));
-        m_soundBuf.loadFromFile("Jopnal/TestSound.wav");
+        if (m_soundBuf->loadFromMemory(buf.data(), buf.size()));
         return true;
 
         JOP_DEBUG_ERROR("Error in AudioBuffer::load: "<<path)
         return false;
     }
 
-    
+    //////////////////////////////////////////////
+
     bool AudioBuffer::load(sf::Sound sound)
     {
-        sound.setBuffer(m_soundBuf);
-        return true;
-    }
-
-    bool AudioBuffer::load(const std::string& path, float time)
-    {
-        sf::Sound sound;
-        sound.setBuffer(m_soundBuf);
-        sound.play();
+        sound.setBuffer(*m_soundBuf.get());
         return true;
     }
 }
