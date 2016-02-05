@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    /// \brief Class for 3D model loading and storing its data.
+    /// \brief Class for 3D model loading from file and memory.
     ///
     /// NOTE: Currently only supports .obj format.
     ///

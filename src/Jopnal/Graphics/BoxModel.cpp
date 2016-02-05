@@ -69,7 +69,7 @@ namespace jop
             Vertex(glm::vec3(-half, -half, half), glm::vec2(0.f, 1.f), glm::vec3(0.f, -1.f, 0.f)),  // 22, Left, Bottom, Front
             Vertex(glm::vec3(half, -half, half), glm::vec2(1.f, 1.f), glm::vec3(0.f, -1.f, 0.f))    // 23, Right, Bottom, Front
         };
-        const std::vector<unsigned int> m_indices
+        const std::vector<unsigned int> indices
             ({
             // Front
             0, 1, 2,
@@ -96,7 +96,7 @@ namespace jop
             22, 21, 23
         });
 
-        load(vertexArray, m_indices);
+        load(vertexArray, indices);
     }
 
 }

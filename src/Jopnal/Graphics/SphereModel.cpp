@@ -46,9 +46,9 @@ namespace jop
                 static const float pi1 = glm::pi<float>(); // pi
                 static const float pi2 = glm::half_pi<float>(); // half pi
 
-                float const y = sin(-pi2 + pi1 * r * R);
-                float const x = cos(2 * pi1 * s * S) * sin(pi1 * r * R);
-                float const z = sin(2 * pi1 * s * S) * sin(pi1 * r * R);
+                const float y = sin(-pi2 + pi1 * r * R);
+                const float x = cos(2 * pi1 * s * S) * sin(pi1 * r * R);
+                const float z = sin(2 * pi1 * s * S) * sin(pi1 * r * R);
 
                 itr->position.x = x * radius;
                 itr->position.y = y * radius;
