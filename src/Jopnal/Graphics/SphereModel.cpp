@@ -28,9 +28,26 @@
 
 namespace jop
 {
-    SphereModel::SphereModel(/* indexbuffer* ib, vertexbuffer* vb*/)
+    SphereModel::SphereModel() :
+        Model()
+        , m_vertexbuffer(Buffer::BufferType::ArrayBuffer)
     {}
 
     SphereModel::~SphereModel()
     {}
+
+    //////////////////////////////////////////////
+
+    const VertexBuffer& SphereModel::getVertexBuffer() const
+    {
+        return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::vector<Vertex>& SphereModel::getVertexArray() const
+    {
+        return m_vertexArray;
+    }
+
 }

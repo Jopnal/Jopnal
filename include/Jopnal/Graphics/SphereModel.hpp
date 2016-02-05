@@ -26,7 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-
+#include <Jopnal/Graphics/Model.hpp>
 
 //////////////////////////////////////////////
 
@@ -35,12 +35,15 @@ namespace jop
     class JOP_API SphereModel : public Model
     {
     public:
-        SphereModel(/* indexbuffer* ib, vertexbuffer* vb*/);
+        SphereModel();
         ~SphereModel();
 
+        const VertexBuffer& getVertexBuffer() const;
+        const std::vector<Vertex>& getVertexArray() const;
+
     private:
-        //m_indexbuffer
-        //m_vertexbuffer
+        std::vector<Vertex> m_vertexArray;
+        VertexBuffer m_vertexbuffer;
     };
 
 

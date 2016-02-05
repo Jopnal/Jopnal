@@ -26,7 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-
+#include <Jopnal/Graphics/Model.hpp>
 
 //////////////////////////////////////////////
 
@@ -35,16 +35,46 @@ namespace jop
     class JOP_API BoxModel : public Model
     {
     public:
-        BoxModel(/* indexbuffer* ib, vertexbuffer* vb*/);
+        BoxModel();
         ~BoxModel();
 
+        const VertexBuffer& getVertexBuffer() const;
+        const std::vector<Vertex>& getVertexArray() const;
+
     private:
-        //m_indexbuffer
-        //m_vertexbuffer
+        std::vector<Vertex> m_vertexArray;
+        VertexBuffer m_vertexbuffer;
 
+        const glm::vec3 m_positions[8] =
+        {
+            glm::vec3(0.0, 0.0, 0.0),
+            glm::vec3(0.0, 0.0, 1.0),
+            glm::vec3(0.0, 1.0, 0.0),
+            glm::vec3(0.0, 1.0, 1.0),
+            glm::vec3(1.0, 0.0, 0.0),
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 1.0, 0.0),
+            glm::vec3(1.0, 1.0, 1.0),
+        };
+
+        const glm::vec2 m_texcoords[4] =
+        {
+            glm::vec2(0.0, 0.0),
+            glm::vec2(1.0, 0.0),
+            glm::vec2(1.0, 1.0),
+            glm::vec2(0.0, 1.0),
+        };
+
+        const glm::vec3 m_normals[6] =
+        {
+            glm::vec3(0.0, 0.0, 1.0),
+            glm::vec3(0.0, 0.0, -1.0),
+            glm::vec3(0.0, 1.0, 0.0),
+            glm::vec3(0.0, -1.0, 0.0),
+            glm::vec3(1.0, 0.0, 0.0),
+            glm::vec3(-1.0, 0.0, 0.0),
+        };
     };
-
-
 }
 
 #endif

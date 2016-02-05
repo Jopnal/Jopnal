@@ -28,43 +28,30 @@
 
 namespace jop
 {
-    BoxModel::BoxModel() : Model()
+    BoxModel::BoxModel() : 
+        Model()
+        , m_vertexbuffer(Buffer::BufferType::ArrayBuffer)
     {
-        /*
-        // Data here: pos, texcoord, normals
-        float positions[] = 
-        {
-        0.0  0.0  0.0
-        v  0.0  0.0  1.0
-        v  0.0  1.0  0.0
-        v  0.0  1.0  1.0
-        v  1.0  0.0  0.0
-        v  1.0  0.0  1.0
-        v  1.0  1.0  0.0
-        v  1.0  1.0  1.0
-        };
-        float normals[] = {};
-        float texcoords[] = {};
-        int indices[] = {};
+        m_vertexArray.emplace_back(m_positions, m_texcoords, m_normals);
 
-        indexBuffer(indices, sizeof(indices))
-
-        numVertices =(sizeof(positions)/sizeof(positions[0])) / 3;
-
-        vertexArray[] = 
-        {
-        <vec3> positions, numVertices
-        <vec3> normals, numVertices
-        <vec3> texcoords, numVertices
-        }
-        vertexBuffer(vertexArray[0], sizeof(vertexArray)/sizeof(vertexArray[0]))
-
-
-
-        */
+        m_vertexbuffer.setData(&m_vertexArray[0], sizeof(Vertex)*m_vertexArray.size());
     }
 
     BoxModel::~BoxModel()
     {}
+
+    //////////////////////////////////////////////
+
+    const VertexBuffer& BoxModel::getVertexBuffer() const
+    {
+        return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::vector<Vertex>& BoxModel::getVertexArray() const
+    {
+        return m_vertexArray;
+    }
 
 }

@@ -28,6 +28,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 
 //////////////////////////////////////////////
@@ -53,6 +54,8 @@ namespace jop
         /// \param filePath The path to the file you want to load
         ///
         bool load(const std::string& filePath);
+
+        bool load(std::vector<Vertex> vertexArray);
 
         const VertexBuffer& getIndexBuffer() const;
         const VertexBuffer& getVertexBuffer() const;
