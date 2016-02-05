@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />
-    <ClInclude Include="..\include\Jopnal\Audio\AudioBuffer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
@@ -59,7 +59,7 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Jopnal\Audio\AudioBuffer.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />

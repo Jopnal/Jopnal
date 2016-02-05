@@ -19,41 +19,48 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_SoundBuffer_HPP
+#define JOP_SoundBuffer_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
-
+#include <Jopnal/Header.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <string>
 //////////////////////////////////////////////
-
 
 namespace jop
 {
-    AudioBuffer::AudioBuffer()
-    {}
-
-    //////////////////////////////////////////////
-
-    AudioBuffer::~AudioBuffer()
-    {}
-
-    //////////////////////////////////////////////
-    //////////////////////////////////////////////
-
-    bool AudioBuffer::load(const std::string& path)
-    { 
-        std::vector<unsigned char> buf;
-        FileLoader::read(path, buf);
-        if (m_soundBuf->loadFromMemory(buf.data(), buf.size()));
-        return true;
-
-        JOP_DEBUG_ERROR("Error in AudioBuffer::load: "<<path)
-        return false;
-    }
-
-    //////////////////////////////////////////////
-
-    bool AudioBuffer::load(sf::Sound sound)
+    class SoundBuffer : public Resource
     {
-        sound.setBuffer(*m_soundBuf.get());
-        return true;
-    }
+    public:
+
+        /// \brief Constructor
+        ///
+        SoundBuffer();
+
+        /// \brief Virtual destructor
+        ///
+       ~SoundBuffer();
+
+        /// \brief FileLoader to load new resource from file
+        ///
+        /// \param path Name or path for wanted resource
+        ///
+        bool load(const std::string& path);
+
+        /// \brief Get pointer for buffer
+        ///
+        /// \param Weak_ptr to use as pointer
+        ///
+        bool load(sf::Sound sound);
+
+    private:
+         std::shared_ptr<sf::SoundBuffer> m_soundBuf;
+    };
 }
+#endif
+
+/// \class SoundBuffer
+/// \ingroup Audio
+///
+/// Sound data storage
