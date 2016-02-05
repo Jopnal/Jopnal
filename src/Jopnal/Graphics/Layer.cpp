@@ -42,11 +42,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::preDraw()
-    {}
-
-    //////////////////////////////////////////////
-
     void Layer::draw()
     {
         if (m_camera.expired())

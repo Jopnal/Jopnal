@@ -56,12 +56,6 @@ namespace jop
         virtual ~Layer() override;
 
 
-        /// \brief Pre draw
-        ///
-        /// This will be called before draw(), allowing some setting-up if necessary.
-        ///
-        virtual void preDraw();
-
         /// \brief Draw function
         ///
         /// The default version of this function simply iterates through the
