@@ -19,35 +19,25 @@
 
 //////////////////////////////////////////////
 
-
 // Headers
-#include <Jopnal\Precompiled.hpp>
-#include <Jopnal\Graphics\VertexBuffer.hpp>
+#include <Jopnal/Precompiled.hpp>
+
 //////////////////////////////////////////////
+
 
 namespace jop
 {
-
     VertexBuffer::VertexBuffer(BufferType type)
         : Buffer(type)
     {
-        JOP_ASSERT(type == BufferType::ArrayBuffer || type == BufferType::ElementArrayBuffer, "Invalid buffer type specified in veertexBuffer");
+        JOP_ASSERT(type == BufferType::ArrayBuffer || type == BufferType::ElementArrayBuffer, "Invalid buffer type specified in VertexBuffer. Must be either ArrayBuffer or IndexBuffer");
     }
 
-    //////////////////////////////////////////////
-
-    VertexBuffer::~VertexBuffer()
-    {}
-
-    //////////////////////////////////////////////
-    
     VertexBuffer::VertexBuffer(const VertexBuffer& other)
         : Buffer(other)
     {
         *this = other;
     }
-
-    //////////////////////////////////////////////
 
     VertexBuffer& VertexBuffer::operator =(const VertexBuffer& other)
     {
@@ -59,23 +49,23 @@ namespace jop
             gl::BindBuffer(gl::COPY_READ_BUFFER, other.m_buffer);
             gl::BindBuffer(gl::COPY_WRITE_BUFFER, m_buffer);
             gl::CopyBufferSubData(gl::COPY_READ_BUFFER, gl::COPY_WRITE_BUFFER, 0, 0, m_bytesAllocated);
+
+            Buffer::operator=(other);
         }
+
         return *this;
     }
 
-    //////////////////////////////////////////////
-
     VertexBuffer::VertexBuffer(VertexBuffer&& other)
-        :Buffer(std::move(other))
-    {
-        *this = std::move(other);
-    }
-
-    //////////////////////////////////////////////
+        : Buffer(std::move(other))
+    {}
 
     VertexBuffer& VertexBuffer::operator =(VertexBuffer&& other)
     {
         destroy();
+
+        Buffer::operator=(std::move(other));
+
         return *this;
     }
   
@@ -87,7 +77,7 @@ namespace jop
 
         if (m_buffer && bytes > 0 && data)
         {
-            glCheck(gl::BufferData(m_bufferType, bytes, NULL, gl::DYNAMIC_DRAW));
+            glCheck(gl::BufferData(m_bufferType, bytes, NULL, gl::STATIC_DRAW));
             m_bytesAllocated = bytes;
             setSubData(data, 0, bytes);
             return;
@@ -103,6 +93,4 @@ namespace jop
             glCheck(gl::BufferSubData(m_bufferType, offset, size, data));
         }
     }
-
-    //////////////////////////////////////////////
 }

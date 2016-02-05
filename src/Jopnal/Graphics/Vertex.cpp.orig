@@ -39,10 +39,19 @@ namespace jop
           m_normalVector    (0, 0, 0)
     {}
 
+<<<<<<< HEAD
+    //////////////////////////////////////////////
+
+    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector) :
+        m_position(position),
+        m_texCoords(texCoords),
+        m_normalVector(normalVector)
+=======
     Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector)
         : m_position        (position),
           m_texCoords       (0, 0),
           m_normalVector    (normalVector)
+>>>>>>> 2eaf09df91a31dfab8f1f1cfb47ec21dda0cb8bb
     {}
 
     Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector)

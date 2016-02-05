@@ -32,8 +32,8 @@
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
 #include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
 
 //////////////////////////////////////////////

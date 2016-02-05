@@ -48,14 +48,31 @@ namespace jop
         ~ResourceManager() override;
 
 
-        /// \brief Template function finds resource
+        /// \brief Load and get a resource
         ///
-        /// If resource is not found this creates a new one
+        /// If resource is not found this creates a new one. The first argument must be convertible
+        /// into std::string, as it's used as a hash map key.
         ///
-        /// \param Name or path for wanted resource
+        /// \param args Arguments passed to resource's constructor
         ///
-        template<typename T>
-        static std::weak_ptr<T> getResource(const std::string& path);
+        /// \return Pointer to the resource. Empty if loading failed
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getResource(const Args&... args);
+
+        /// \brief Get a named resource
+        ///
+        /// This is primarily used when the resource is not loaded from a file. After the resource
+        /// has been loaded once, it can be retrieved by using getResource().
+        ///
+        /// \param name Name for the resource
+        /// \param args Arguments passed to resource's constructor
+        ///
+        /// \return Pointer to the resource. Empty if loading failed
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
+
 
         /// \brief Deletes resource from memory
         ///

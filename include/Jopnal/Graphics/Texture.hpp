@@ -56,13 +56,11 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// Example: !800!600!4
-        ///
-        /// \param Takes width height and bits and sorts them with '!' mark
+        /// \param 
         ///
         /// \return True if loading was successful
         ///
-        bool loadEmpty(const std::string& xyBpp);
+        bool load(const int x, const int y, const int bytesPerPixel);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -73,7 +71,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool loadFromPixels(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
+        bool load(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
 
         /// \brief Destroy this texture, erasing it from video memory
         ///

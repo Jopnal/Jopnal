@@ -23,58 +23,54 @@
 #define JOP_VERTEX_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
-    class Vertex
+    class JOP_API Vertex
     {
     public:
 
-        ///\brief default constructor
+        /// \brief Default constructor
         ///
-        Vertex();
+        Vertex() = default;
 
-        ///\brief default deconstructor
+        /// \brief Construct the vertex from its position
         ///
-        ~Vertex();
-
-        ///\brief construct the vertex from its position
-        ///
-        ///\param position Vertex position
+        /// \param position Vertex position
         ///
         Vertex(const glm::vec3& position);
 
-        ///\brief construct the vertex from its position and text coordinates
+        /// \brief Construct the vertex from its position and text coordinates
         ///
-        ///\param position vertex position
-        ///\param texCoords vertex texture coordinates
+        /// \param position Vertex position
+        /// \param texCoords Vertex texture coordinates
         ///
         Vertex(const glm::vec3& position, const glm::vec2& texCoords);
 
-        ///\brief construct the vertex from its position and normal vector 
+        /// \brief Construct the vertex from its position and normal vector 
         ///
-        ///\param position vertex position
-        ///\param normalVector vertex normal vector
+        /// \param position Vertex position
+        /// \param normalVector Vertex normal vector
         ///
         Vertex(const glm::vec3& position, const glm::vec3& normalVector);
 
-        ///\brief construct the vertex from its position, text coordinates and normal vector
+        /// \brief Construct the vertex from its position, text coordinates and normal vector
         ///
-        ///\param position vertex position
-        ///\param texCoords vertex texture coordinates
-        ///\param normalVector vertex normal vector
+        /// \param position Vertex position
+        /// \param texCoords Vertex texture coordinates
+        /// \param normalVector Vertex normal vector
         ///
         Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector);
                 
     private:
 
-        glm::vec3 m_position;       ///< 2D position of the vertex
-        glm::vec2 m_texCoords;      ///< coordinates of the texture's pixel to map to vertex
-        glm::vec3 m_normalVector;   ///< normal vector of the vertex 
+        glm::vec3 m_position;       ///< 3D position of the vertex
+        glm::vec2 m_texCoords;      ///< Coordinates of the texture's pixel to map to vertex
+        glm::vec3 m_normalVector;   ///< Normal vector of the vertex 
 
     };
 }

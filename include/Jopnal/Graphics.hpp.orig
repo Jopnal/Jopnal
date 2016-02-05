@@ -19,36 +19,27 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <string>
-#include <memory>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Layer.hpp>
+#include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
+#include <Jopnal/Graphics/TextureSampler.hpp>
+#include <Jopnal/Graphics/Shader.hpp>
+<<<<<<< HEAD
+#include <Jopnal/Graphics/Buffer.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
+=======
+#include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
+>>>>>>> 2eaf09df91a31dfab8f1f1cfb47ec21dda0cb8bb
+#include <Jopnal/Graphics/VertexBuffer.hpp>
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    class JOP_API Resource : public std::enable_shared_from_this<Resource>
-    {
-    public:
-
-        /// \brief Constructor
-        ///
-        Resource();
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~Resource() = 0;
-    };
-}
-
-#endif
-
-/// \class Resource
-/// \ingroup core
+/// \defgroup graphics Graphics
 ///
-/// This is the base class for all resources that are loaded from files
+/// #TODO Detailed decription

@@ -50,30 +50,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Shader::load(const std::string& shaders)
+    bool Shader::load(const std::string& vert, const std::string& geom, const std::string& frag)
     {
         static const int shaderAmount = sizeof(ns_shaderTypes) / sizeof(ns_shaderTypes[0]);
 
         destroy();
         m_shaderProgram = glCheck(gl::CreateProgram());
-
-        std::string shaderStr[shaderAmount];
-        std::size_t firstPos = shaders.find("v;");
-
-        if (firstPos != std::string::npos)
-        {
-            auto lastPos = shaders.find_first_of('|');
-            shaderStr[0] = shaders.substr(firstPos + 2, lastPos == std::string::npos ? std::string::npos : lastPos - firstPos - 2);
-        }
-
-        if ((firstPos = shaders.find("g;")) != std::string::npos)
-        {
-            auto lastPos = shaders.find_first_of('|', firstPos);
-            shaderStr[1] = shaders.substr(firstPos + 2, lastPos == std::string::npos ? std::string::npos : lastPos - firstPos - 2);
-        }
-
-        if ((firstPos = shaders.find("f;")) != std::string::npos)
-            shaderStr[2] = shaders.substr(firstPos + 2);
 
         unsigned int shaderHandles[shaderAmount] = {0u, 0u, 0u};
         auto deleteHandles = [](const unsigned int* handles, const unsigned int program)
@@ -163,30 +145,30 @@ namespace jop
 
         for (int i = 0; i < shaderAmount; i++)
         {
-            if (shaderStr[i].empty())
+            const std::string& shaderStr = i == 0 ? vert : i == 1 ? geom : frag;
+
+            if (shaderStr.empty())
                 continue;
 
-            std::vector<unsigned char> buffer;
-            FileLoader::read(shaderStr[i], buffer);
+            // #TODO Change to use FileLoader string function
+            std::vector<unsigned char> fileReadBuffer;
 
-            if (!buffer.empty())
+            const char* source = FileLoader::read(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str();
+
+            shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
+
+            int size = fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size();
+            glCheck(gl::ShaderSource(shaderHandles[i], 1, &source, &size));
+            glCheck(gl::CompileShader(shaderHandles[i]));
+
+            if (!handleShaderInfo(shaderHandles[i], i))
             {
-                shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
+                deleteHandles(shaderHandles, 0);
+                destroy();
 
-                int size[] = {buffer.size()};
-                const char* source = reinterpret_cast<const char*>(buffer.data());
-                glCheck(gl::ShaderSource(shaderHandles[i], 1, &source, size));
-                glCheck(gl::CompileShader(shaderHandles[i]));
-
-                if (!handleShaderInfo(shaderHandles[i], i))
-                {
-                    deleteHandles(shaderHandles, 0);
-                    destroy();
-
-                    return false;
-                }
-                glCheck(gl::AttachShader(m_shaderProgram, shaderHandles[i]));
+                return false;
             }
+            glCheck(gl::AttachShader(m_shaderProgram, shaderHandles[i]));
         }
 
         glCheck(gl::LinkProgram(m_shaderProgram));

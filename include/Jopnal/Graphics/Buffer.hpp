@@ -27,14 +27,14 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
-    class Buffer
+    class JOP_API Buffer
     {
     public:
         
-        ///\brief enum class consisting of buffer types
+        /// \brief Enum class consisting of buffer types
         ///
         enum class BufferType
         {
@@ -45,7 +45,7 @@ namespace jop
             UniformBuffer
         };
 
-        ///\brief enum of usage types
+        /// \brief Enum of usage types
         ///
         enum UsageType
         {
@@ -56,73 +56,74 @@ namespace jop
 
     public:
 
-        ///\brief default constructor 
+        /// \brief Constructor 
         ///
-        ///\param type Buffer type 
+        /// \param type Buffer type 
         ///
-        Buffer(BufferType type);
+        Buffer(const BufferType type);
 
-        ///\brief default deconstructor
+        /// \brief Constructor to another buffer
         ///
-        ~Buffer();
-
-        ///\brief constructor to another buffer
-        ///
-        ///\param other reference to buffer constructor 
+        /// \param other Reference to buffer constructor 
         ///
         Buffer(const Buffer& other);
-           
-        ///\brief operator to overload reference to buffer
+
+        /// \brief Overloads reference to buffer
         ///
-        ///\param other reference to buffer constructor
+        /// \param other Reference to buffer constructor
         ///
         Buffer& operator =(const Buffer& other);
-        
-        ///\brief move constructor 
+
+        /// \brief Move constructor 
         ///
-        ///\param other 
+        /// \param other 
         ///
         Buffer(Buffer&& other);
 
-        ///\brief operator to overload move constructor
+        /// \brief Overloads move constructor
         ///
-        ///\param other 
+        /// \param other 
         ///
         Buffer& operator =(Buffer&& other);
 
-        ///\brief method to generate and bind buffers by its type
+        /// \brief Destructor
         ///
-        void bind()const;
+        virtual ~Buffer() = 0;
 
-        ///\brief static method to unbind buffer by its type
+
+        /// \brief Generates and binds buffers by its type
         ///
-        ///\param type buffer type 
+        void bind() const;
+
+        /// \brief Unbinds buffer by its type
+        ///
+        /// \param type Name of the type that is unbound
         ///
         static void unbind(BufferType type);
 
-        ///\brief method to clear buffers
+        /// \brief Clears this buffer
         ///
         void clear();
 
-        ///\brief method to destroy buffers
+        /// \brief Destroys this buffer
         ///
         void destroy();
 
-        ///\brief method that returns m_bytesAllocated
+        /// \brief Get the allocated size in bytes
         ///
-        std::size_t getAllocatedSize()const;
+        std::size_t getAllocatedSize() const;
 
     protected:
 
-        ///\brief method to unbind 
+        /// \brief Unbinds buffer
         ///
-        ///\param type const unsigned int 
+        /// \param type Name of the type that is unbound
         ///
         static void unbind(const unsigned int& type);
   
-        std::size_t m_bytesAllocated;   
-        mutable unsigned int m_buffer;  
-        const int m_bufferType;          
+        std::size_t m_bytesAllocated;   ///< Size of the allocated buffer
+        mutable unsigned int m_buffer;  ///< Buffer's OpenGL handle
+        const int m_bufferType;         ///< Type of the buffer
     };
 }
 #endif
@@ -130,4 +131,4 @@ namespace jop
 /// \class Buffer
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// do explanation about the class

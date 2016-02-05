@@ -56,7 +56,7 @@ namespace jop
         /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
         /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
         ///
-        RenderTexture(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+        RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
         /// \brief Destructor
         ///
@@ -77,7 +77,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool create(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+        bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
         /// \brief Destroy this frame buffer
         ///

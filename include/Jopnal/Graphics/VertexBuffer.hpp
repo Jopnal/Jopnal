@@ -28,63 +28,59 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
-    class VertexBuffer : public Buffer
+    class JOP_API VertexBuffer : public Buffer
     {
     public:
 
-        ///\brief default constructor 
+        /// \brief Constructor 
         ///
-        ///\param type Buffer type 
+        /// \param type Buffer type 
         ///
         VertexBuffer(BufferType type);
 
-        ///\brief default deconstructor
+        /// \brief Constructor to another vertex buffer
         ///
-        ~VertexBuffer();
-
-        ///\brief constructor to another vertex buffer
-        ///
-        ///\param other reference to vertex buffer constructor 
+        /// \param other Reference to vertex buffer constructor 
         ///
         VertexBuffer(const VertexBuffer& other);
 
-        ///\brief operator to overload reference to vertex buffer
+        /// \brief Overloads reference to vertex buffer
         ///
-        ///\param other reference to vertex buffer constructor
+        /// \param other References to vertex buffer constructor
         ///
         VertexBuffer& operator =(const VertexBuffer& other);
 
-        ///\brief move constructor 
+        /// \brief Move constructor 
         ///
-        ///\param other 
+        /// \param other 
         ///
         VertexBuffer(VertexBuffer&& other);
 
-        ///\brief operator to overload move constructor
+        /// \brief Overloads move constructor
         ///
-        ///\param other 
+        /// \param other 
         ///
         VertexBuffer& operator =(VertexBuffer&& other);
 
-        ///\brief method to set data by bytes
+
+        /// \brief Sets data by bytes
         ///
-        ///\param data const void pointer to data
-        ///\param bytes unsigned int 
+        /// \param data Void pointer to data
+        /// \param bytes Size of the buffer data
         ///
         void setData(const void* data, std::size_t bytes);
-
-        ///\brief method to set sub data by size and and set offset 
+        
+        /// \brief Sets sub data by size and set offset 
         ///
-        ///\param data const void pointer to data
-        ///\param offset unsigned int 
-        ///\param size unsigned int
+        /// \param data Const void pointer to data
+        /// \param offset Size of the offset that is wanted 
+        /// \param size Size of the buffer subdata
         ///
         void setSubData(const void* data, std::size_t offset, std::size_t size);
 
-    private:
     };
 }
 #endif

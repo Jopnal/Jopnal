@@ -39,7 +39,7 @@ namespace jop
           m_texture ()
     {}
 
-    RenderTexture::RenderTexture(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+    RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
         : Subsystem("Render Texture")
     {
         create(size, depthBits, stencilBits);
@@ -73,7 +73,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+    bool RenderTexture::create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
     {
         auto getDepthEnum = [](const unsigned int bits) -> GLenum
         {
@@ -114,7 +114,7 @@ namespace jop
 
         destroy();
 
-        if (!m_texture.loadEmpty("!" + std::to_string(size.x) + "!" + std::to_string(size.y) + "!4"))
+        if (!m_texture.load(size.x, size.y, 4))
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
             return false;
