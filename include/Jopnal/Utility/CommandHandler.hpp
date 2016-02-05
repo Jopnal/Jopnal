@@ -133,13 +133,27 @@ namespace jop
 ///
 /// This macro must be followed with JOP_END_COMMAND_HANDLER
 ///
-#define JOP_REGISTER_COMMAND_HANDLER(className) jop::CommandHandler ns_##className##_commandHandler; \
-                                                struct ns_##className##_registrar{                   \
-                                                ns_##className##_registrar(jop::CommandHandler& handler){
+#define JOP_REGISTER_COMMAND_HANDLER(handlerName) jop::CommandHandler& ns_##handlerName##_getCommandHandler(){ \
+                                                  static jop::CommandHandler instance; return instance;}       \
+                                                  struct ns_##handlerName##_registrar{                         \
+                                                  ns_##handlerName##_registrar(){                              \
+                                                  jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
+
+/// \brief Register a derived command handler
+///
+/// This doesn't create a new handler, but rather fetches an existing one.
+/// This is primarily used to allow binding of derived class' methods to their
+/// base class' command handlers. This is the case with jop::Component and jop::Camera,
+/// for instance.
+///
+#define JOP_DERIVED_COMMAND_HANDLER(handlerName, className) extern jop::CommandHandler& ns_##handlerName##_getCommandHandler(); \
+                                                            struct ns_##className##_registrar{                                  \
+                                                            ns_##className##_registrar(){                                       \
+                                                            jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
 
 /// \brief End a command handler registration
 ///
-#define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg(ns_##className##_commandHandler);
+#define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg;
 
 /// \brief Bind a member command
 ///
