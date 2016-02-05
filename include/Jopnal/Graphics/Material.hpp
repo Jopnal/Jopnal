@@ -19,20 +19,52 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_MATERIAL_HPP
+#define JOP_MATERIAL_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Core/Resource.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+	class Shader;
+
+    class JOP_API Material : public Resource
+    {
+    public:
+        Material();
+        ~Material();
+
+        void sendToShader(Shader& shader);
+
+        Material& setAmbient(const Color& color);
+
+		const Color& getAmbient();
+
+        void setDiffuse(const Color& color);
+
+		const Color& getDiffuse();
+
+        void setSpecular(const Color& color);
+
+		const Color& getSpecular();
+
+        void setShininess(const float value);
+
+		const float getShininess();
+
+
+    private:
+
+        Color m_ambientRef;
+        Color m_diffuseRef;
+        Color m_specularRef;
+        float m_shininess;
+    };
+}
+#endif

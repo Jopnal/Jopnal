@@ -120,6 +120,8 @@ namespace jop
         ///
         void setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
 
+		void setUniform(const std::string& name, const float sfloat);
+
     private:
 
         /// \brief Get location of uniform by name

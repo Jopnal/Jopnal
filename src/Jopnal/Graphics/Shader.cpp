@@ -292,6 +292,16 @@ namespace jop
         }
     }
 
+	//////////////////////////////////////////////
+
+	void Shader::setUniform(const std::string& name, const float sfloat)
+	{
+		const int loc = getUniformLocation(name);
+
+		if (loc != -1)
+			glCheck(gl::Uniform1f(loc,sfloat));
+	}
+
     //////////////////////////////////////////////
 
     int Shader::getUniformLocation(const std::string& name)
@@ -322,7 +332,7 @@ namespace jop
 
             return location;
         }
-
+		
         return -1;
     }
 }
