@@ -207,6 +207,9 @@
     <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp">
       <Filter>Audio\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp">
+      <Filter>Audio\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -297,6 +300,9 @@
       <Filter>Graphics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp">
+      <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
   </ItemGroup>

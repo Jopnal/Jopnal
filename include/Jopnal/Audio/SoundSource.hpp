@@ -19,48 +19,67 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SoundBuffer_HPP
-#define JOP_SoundBuffer_HPP
+#ifndef JOP_SOUNDSOURCE_HPP
+#define JOP_SOUNDSOURCE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <string>
+
 //////////////////////////////////////////////
+
 namespace sf
 {
-    class SoundBuffer;
+    class Sound;
 }
 
 namespace jop
 {
-    class SoundBuffer : public Resource
+    class Object;
+
+    class SoundSource : public Component
     {
+    private:
+
+        JOP_DISALLOW_MOVE(SoundSource);
+
+        void operator =(const SoundSource&) = delete;
     public:
 
         /// \brief Constructor
         ///
-        SoundBuffer();
+        /// \param object Reference to the object this component will be bound to
+        /// \param ID Unique component identifier
+        ///
+        SoundSource(Object& object, const std::string& ID);
 
         /// \brief Virtual destructor
         ///
-       ~SoundBuffer();
+        ~SoundSource();
 
-        /// \brief FileLoader to load new buffer from file
-        ///
-        /// \param path Name or path for wanted resource
-        ///
-        bool load(const std::string& path);
 
-        const sf::SoundBuffer& getSfmlBuffer() const;
+        /// \brief Copy constructor
+        ///
+        SoundSource(const SoundSource& other);
+
+    
+        /// \brief setSound
+        ///
+        void setSound(const std::string& path);
+
+        /// \brief Set new sound from memory
+        ///
+
+        void toggleSoundLoop(bool loop);
 
     private:
-        std::unique_ptr<sf::SoundBuffer>m_soundBuf;
+        std::unique_ptr<sf::Sound> m_sound;      ///< Unique audio sample
     };
 }
+
 #endif
 
-/// \class SoundBuffer
+/// \class SoundSource
 /// \ingroup Audio
-///
-/// Sound data storage

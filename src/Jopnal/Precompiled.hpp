@@ -59,8 +59,6 @@
 #include <Jopnal/MathInclude.hpp>
 
 // SFML
-#include <SFML/Config.hpp>
-#include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 
 // RapidJSON

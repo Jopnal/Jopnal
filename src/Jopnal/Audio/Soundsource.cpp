@@ -20,11 +20,36 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Audio/SoundBuffer.hpp>
-#include <Jopnal/Audio/SoundSource.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription
+namespace jop
+{
+    SoundSource::SoundSource(Object& object, const std::string& ID)
+        :Component                                  (object,ID)
+    {}
+
+    //////////////////////////////////////////////
+
+    SoundSource::~SoundSource()
+    {}
+
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+
+    void SoundSource::setSound(const std::string& path)
+    {
+       m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).lock()->getSfmlBuffer());
+       m_sound->play();
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::toggleSoundLoop(bool loop)
+    {
+        m_sound->setLoop(loop);
+    }
+
+}

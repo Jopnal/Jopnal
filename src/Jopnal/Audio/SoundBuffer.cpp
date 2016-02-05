@@ -28,6 +28,7 @@
 namespace jop
 {
     SoundBuffer::SoundBuffer()
+        :m_soundBuf(std::make_unique<sf::SoundBuffer>())
     {}
 
     //////////////////////////////////////////////
@@ -39,10 +40,10 @@ namespace jop
     //////////////////////////////////////////////
 
     bool SoundBuffer::load(const std::string& path)
-    { 
+    {
         std::vector<unsigned char> buf;
         FileLoader::read(path, buf);
-        if (m_soundBuf->loadFromMemory(buf.data(), buf.size()));
+       if (m_soundBuf->loadFromMemory(buf.data(), buf.size()));
         return true;
 
         JOP_DEBUG_ERROR("Error in SoundBuffer::load: "<<path)
@@ -51,9 +52,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool SoundBuffer::load(sf::Sound sound)
+    const sf::SoundBuffer& SoundBuffer::getSfmlBuffer()const
     {
-        sound.setBuffer(*m_soundBuf.get());
-        return true;
+        return *m_soundBuf;
     }
 }
