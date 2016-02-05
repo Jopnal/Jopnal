@@ -25,9 +25,6 @@
 #include <Jopnal/Graphics/Layer.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Model.hpp>
-#include <Jopnal/Graphics/BoxModel.hpp>
-#include <Jopnal/Graphics/SphereModel.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
@@ -35,7 +32,9 @@
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
-
+#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/BoxModel.hpp>
+#include <Jopnal/Graphics/SphereModel.hpp>
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics

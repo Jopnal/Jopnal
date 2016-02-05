@@ -27,9 +27,9 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Graphics/VertexBuffer.hpp>
 
 //////////////////////////////////////////////
 

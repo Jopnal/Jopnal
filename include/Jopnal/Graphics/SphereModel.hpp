@@ -50,3 +50,8 @@ namespace jop
 }
 
 #endif
+
+/// \class SphereModel
+/// \ingroup Graphics
+///
+/// Do explanation about the class

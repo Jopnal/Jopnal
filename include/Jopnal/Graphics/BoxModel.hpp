@@ -78,3 +78,8 @@ namespace jop
 }
 
 #endif
+
+/// \class BoxModel
+/// \ingroup Graphics
+///
+/// Do explanation about the class
