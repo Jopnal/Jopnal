@@ -27,9 +27,6 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
 
 //////////////////////////////////////////////
 
@@ -47,21 +44,26 @@ namespace jop
         Model(Buffer* ib, VertexBuffer* vb);
         ~Model();
 
-        /// \brief Method to load .obj model
+        /// \brief Loads a .obj model from file
         ///
         /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
+        /// Assigns data to index and vertex buffers
         ///
         /// \param filePath The path to the file you want to load
         ///
         bool load(const std::string& filePath);
 
-        bool load(std::vector<Vertex> vertexArray);
+        /// \brief Loads model from memory
+        ///
+        /// \param vertexArray Container holding the vertex data
+        /// \param indices Container holding index data
+        ///
+        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indices);
 
         const VertexBuffer& getIndexBuffer() const;
         const VertexBuffer& getVertexBuffer() const;
 
     private:
-        //std::unique_ptr<IndexBuffer> indexbuffer;
         VertexBuffer m_vertexbuffer;
         VertexBuffer m_indexbuffer;
     };

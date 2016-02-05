@@ -88,34 +88,14 @@ namespace jop
           std::vector<Vertex> vertexArray;
           vertexArray.reserve(positions.size() / 3);
 
-          if (!texcoords.empty())
+          for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
           {
-              for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
-              {
-                  vertexArray.emplace_back
-                      (glm::vec3(positions[i], positions[i + 1], positions[i + 2]),
-                      glm::vec3(normals[i], normals[i + 1], normals[i + 2]));
-              }
-          }
-          else if (!normals.empty() && !texcoords.empty())
-          {
-              for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
-              {
-                  vertexArray.emplace_back
-                      (glm::vec3(positions[i], positions[i + 1], positions[i + 2]));
-
-              }
-          }
-          else
-          {
-              for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
-              {
-                  vertexArray.emplace_back
-                      (glm::vec3(positions[i], positions[i + 1], positions[i + 2]),
-                      glm::vec2(texcoords[i], texcoords[i+1]),
-                      glm::vec3(normals[i], normals[i + 1], normals[i + 2])
-                      );
-              }
+              vertexArray.emplace_back
+                  (
+                  glm::vec3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
+                  texcoords.size() > i * 2 ? glm::vec2(texcoords[i * 2], texcoords[i * 2 + 1]) : glm::vec2(),
+                  normals.size() > i * 3 ? glm::vec3(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]) : glm::vec3()
+                  );
           }
           
           m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex)*vertexArray.size());
@@ -128,13 +108,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Model::load(std::vector<Vertex> vertexArray)
+    bool Model::load(const std::vector<Vertex>& vertexArray,const std::vector<unsigned int>& indices)
     {
-       
-
         m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex)*vertexArray.size());
 
-        //m_indexbuffer.setData(&indices[0], sizeof(unsigned int)*indices.size());
+        if (!indices.empty())
+            m_indexbuffer.setData(&indices[0], sizeof(unsigned int)*indices.size());
 
         return true;
     }

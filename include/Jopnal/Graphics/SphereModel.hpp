@@ -32,21 +32,21 @@
 
 namespace jop
 {
+
     class JOP_API SphereModel : public Model
     {
     public:
-        SphereModel();
-        ~SphereModel();
-
-        const VertexBuffer& getVertexBuffer() const;
-        const std::vector<Vertex>& getVertexArray() const;
-
-    private:
-        std::vector<Vertex> m_vertexArray;
-        VertexBuffer m_vertexbuffer;
+        /// \brief Creates a 3D sphere
+        ///
+        /// High values for sectors and rings will result in better looking results, but will
+        /// affect performance heavily.
+        ///
+        /// \param radius The radius of the sphere
+        /// \param rings How many rings will the sphere have
+        /// \param sectors How many sectors the circle will get divided to
+        ///
+        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors);
     };
-
-
 }
 
 #endif
