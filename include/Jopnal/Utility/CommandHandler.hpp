@@ -101,6 +101,9 @@ namespace jop
 
         /// \brief Execute a command
         ///
+        /// You must use the other overload with the three arguments of you wish to get a return value, regardless
+        /// of whether you mean to call a free function or a member.
+        ///
         /// \param command The command name
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         ///
