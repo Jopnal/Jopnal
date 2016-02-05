@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        Object& createChild(const std::string& ID);
+        std::weak_ptr<Object> createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///
@@ -148,7 +148,7 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///

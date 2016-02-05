@@ -27,6 +27,15 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Subsystem)
+
+        JOP_BIND_MEMBER_COMMAND(&Subsystem::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Subsystem)
+}
+
+namespace jop
+{
     Subsystem::Subsystem(const std::string& ID)
         : std::enable_shared_from_this<Subsystem>   (),
           m_ID                                      (ID)
@@ -58,7 +67,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Subsystem::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

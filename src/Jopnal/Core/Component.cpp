@@ -27,6 +27,15 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Component)
+
+        JOP_BIND_MEMBER_COMMAND(&Component::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Component)
+}
+
+namespace jop
+{
     Component::Component(const Component& other)
         : std::enable_shared_from_this<Component>   (other),
           m_objectRef                               (other.m_objectRef),
@@ -44,7 +53,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Component::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Component::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

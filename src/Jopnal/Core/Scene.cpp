@@ -27,6 +27,16 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Scene)
+
+        JOP_BIND_MEMBER_COMMAND(&Scene::getObject, "getObject");
+    // #TODO The rest
+
+    JOP_END_COMMAND_HANDLER(Scene)
+}
+
+namespace jop
+{
     Scene::Scene(const std::string& ID)
         : m_objects         (),
           m_layers          (),
@@ -151,7 +161,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Scene::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);

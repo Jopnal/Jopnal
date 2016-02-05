@@ -107,7 +107,7 @@ namespace jop
         /// \param command The command name
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         ///
-        void execute(const std::string& command, Any instance);
+        void execute(const std::string& command, Any& instance);
 
         /// \brief Execute a command and get the return value
         ///
@@ -115,7 +115,7 @@ namespace jop
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         /// \param returnWrap PtrWrapper to hold the return value
         ///
-        void execute(const std::string& command, Any instance, Any returnWrap);
+        void execute(const std::string& command, Any& instance, Any& returnWrap);
 
 
     private:
@@ -157,19 +157,15 @@ namespace jop
 
 /// \brief Bind a member command
 ///
-#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, &function)
+#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, function)
 
 /// brief Bind a free function command
 ///
-#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, &function)
+#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, function)
 
 /// \brief Execute a free function command
 ///
-#define JOP_EXECUTE_COMMAND(className, command, returnPtr) ns_##className##_commandHandler.execute(command, nullptr, returnPtr)
-
-/// \brief Execute a member command
-///
-#define JOP_EXECUTE_MEMBER_COMMAND(className, command, instance, returnPtr) ns_##className##_commandHandler.execute(command, instance, returnPtr)
+#define JOP_EXECUTE_COMMAND(handlerName, command, instance, returnPtr) ns_##handlerName##_getCommandHandler().execute(command, instance, returnPtr)
 
 
 #endif

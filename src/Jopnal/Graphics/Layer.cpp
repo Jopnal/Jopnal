@@ -75,7 +75,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Layer::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
