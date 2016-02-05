@@ -9,6 +9,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <glm/vec3.hpp>
+#include <Jopnal/MathInclude.hpp>
 #include <string>
 
 ///////////////////////////////////////////
@@ -18,17 +19,26 @@ namespace jop
 {
     class JOP_API LightSource : public jop::Component
     {
-    private:
+    protected:
+         glm::vec3 diffuse;
+         glm::vec3 ambient;
+         glm::vec3 specular;
+         float shininess;
+         glm::mat4 modelViewMatrix;
+         glm::mat3 normalMatrix;
+         glm::mat4 mvp;
+        
+
 
 
     public:
         LightSource();
 
-        void lightDirection();
+    LightSource& lightDirection();
 
-        void lightPoint();
-
-        void spotLight();
+    LightSource& lightPoint();
+   
+    LightSource& spotLight();
 
         
 
