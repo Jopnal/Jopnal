@@ -22,9 +22,10 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-// STB
 #define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable: 4189)
+#pragma warning(disable: 4244)
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 

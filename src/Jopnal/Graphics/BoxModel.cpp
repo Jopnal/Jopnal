@@ -24,15 +24,16 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
     BoxModel::BoxModel(const float size) :
         Model()  
     {
         const float half = 0.5f * size;
 
-        const std::vector<Vertex> vertexArray = {
+        const std::vector<Vertex> vertexArray
+        ({
             // Front
             Vertex(glm::vec3(-half, -half, half), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 0, Left, Bottom, Front   
             Vertex(glm::vec3(half, -half, half), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)),  // 1, Right, Bottom, Front  
@@ -52,7 +53,7 @@ namespace jop
             Vertex(glm::vec3(-half, half, -half), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, -1.f)),  // 11, Left, Top, Rear    
 
             // Right
-            Vertex(glm::vec3(half, -half, half), glm::vec2(0.f, 0.f), glm::vec3(1.f, 0.f, 0.f)),    // 12, Right, Bottom, Fron
+            Vertex(glm::vec3(half, -half, half), glm::vec2(0.f, 0.f), glm::vec3(1.f, 0.f, 0.f)),    // 12, Right, Bottom, Front
             Vertex(glm::vec3(half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3(1.f, 0.f, 0.f)),   // 13, Right, Bottom, Rear
             Vertex(glm::vec3(half, half, half), glm::vec2(0.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),     // 14, Right, Top, Front  
             Vertex(glm::vec3(half, half, -half), glm::vec2(1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),    // 15, Right, Top, Rear   
@@ -68,9 +69,9 @@ namespace jop
             Vertex(glm::vec3(half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),  // 21, Right, Bottom, Rear
             Vertex(glm::vec3(-half, -half, half), glm::vec2(0.f, 1.f), glm::vec3(0.f, -1.f, 0.f)),  // 22, Left, Bottom, Front
             Vertex(glm::vec3(half, -half, half), glm::vec2(1.f, 1.f), glm::vec3(0.f, -1.f, 0.f))    // 23, Right, Bottom, Front
-        };
-        const std::vector<unsigned int> indices
-            ({
+        });
+        static const std::vector<unsigned int> indices
+        ({
             // Front
             0, 1, 2,
             2, 1, 3,
@@ -98,5 +99,4 @@ namespace jop
 
         load(vertexArray, indices);
     }
-
 }

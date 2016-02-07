@@ -28,12 +28,13 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-
     class JOP_API SphereModel : public Model
     {
     public:
+
         /// \brief Creates a 3D sphere
         ///
         /// High values for sectors and rings will result in better looking results, but may
@@ -44,6 +45,7 @@ namespace jop
         /// \param sectors How many sectors the circle will get divided to
         ///
         SphereModel(const float radius, const unsigned int rings, const unsigned int sectors);
+
     };
 }
 

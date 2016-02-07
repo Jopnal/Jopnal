@@ -31,15 +31,14 @@
 
 namespace jop
 {
-    /// \brief Class for 3D model loading from file and memory.
-    ///
-    /// NOTE: Currently only supports .obj format.
-    ///
     class JOP_API Model : public Resource
     {
     public:
+
+        /// \brief Default constructor
+        ///
         Model();
-        ~Model();
+
 
         /// \brief Loads a .obj model from file
         ///
@@ -55,7 +54,8 @@ namespace jop
         /// \param vertexArray Container holding the vertex data
         /// \param indices Container holding index data
         ///
-        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indices);
+        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
+
 
         /// \brief Returns index buffer
         ///
@@ -66,8 +66,9 @@ namespace jop
         const VertexBuffer& getVertexBuffer() const;
 
     private:
-        VertexBuffer m_vertexbuffer;
-        VertexBuffer m_indexbuffer;
+
+        VertexBuffer m_vertexbuffer;    ///< The vertex buffer
+        VertexBuffer m_indexbuffer;     ///< The index buffer
     };
 }
 
@@ -75,3 +76,5 @@ namespace jop
 
 /// \class Model
 /// \ingroup graphics
+///
+/// NOTE: Currently only supports .obj format.

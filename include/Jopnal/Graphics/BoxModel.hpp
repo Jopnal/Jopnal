@@ -22,17 +22,19 @@
 #ifndef JOP_BOXMODEL_HPP
 #define JOP_BOXMODEL_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 
 //////////////////////////////////////////////
+
 
 namespace jop
 {
     class JOP_API BoxModel : public Model
     {
     public:
+
         /// \brief Creates a cube model
         ///
         /// \param size Size of box (Default is 1.0f)

@@ -24,19 +24,17 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    SphereModel::SphereModel(const float radius, const unsigned int rings, const unsigned int sectors) :
-        Model()
+    SphereModel::SphereModel(const float radius, const unsigned int rings, const unsigned int sectors)
+        : Model()
     {
-        const float R = 1.0f / (float)(rings - 1.0f); // Rings
-        const float S = 1.0f / (float)(sectors - 1.0f); // Sectors
+        const float R = 1.0f / static_cast<float>(rings - 1); // Rings
+        const float S = 1.0f / static_cast<float>(sectors - 1); // Sectors
         std::size_t s, r;
 
-        std::vector<unsigned int> indices;
-
-        std::vector<Vertex> vertexArray;
-        vertexArray.resize(rings * sectors);
+        std::vector<Vertex> vertexArray(rings * sectors);
         auto itr = vertexArray.begin();
 
         for (r = 0; r < rings; ++r)
@@ -65,7 +63,7 @@ namespace jop
             }
         }
 
-        indices.resize(rings * sectors * 4);
+        std::vector<unsigned int> indices(rings * sectors * 4);
         std::vector<unsigned int>::iterator i = indices.begin();
         for (r = 0; r < rings - 1; ++r) 
         {
@@ -80,5 +78,4 @@ namespace jop
 
         load(vertexArray, indices);
     }
-
 }

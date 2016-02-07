@@ -21,22 +21,22 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
-// Tinyobjloader
+
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tinyobjloader/tiny_obj_loader.h>
+#pragma warning(push)
+#pragma warning(disable: 4706)
+#include <Jopnal/Graphics/tinyobjloader/tiny_obj_loader.h>
+#pragma warning(pop)
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Model::Model() :
-        Resource()
-        , m_vertexbuffer(Buffer::BufferType::ArrayBuffer)
-        , m_indexbuffer(Buffer::BufferType::ElementArrayBuffer)
-    {}
-
-    Model::~Model()
+    Model::Model()
+        : Resource          (),
+          m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
+          m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
     {}
 
     //////////////////////////////////////////////
@@ -45,73 +45,67 @@ namespace jop
     {
         std::string buffer;
         FileLoader::read(filepath, buffer);
-        std::istringstream sstream(buffer);
 
         class MatRead : public tinyobj::MaterialReader
         {
             bool operator()(const std::string&,
-                std::vector<tinyobj::material_t>&,
-                std::map<std::string, int>&,
-                std::string&)
+                            std::vector<tinyobj::material_t>&,
+                            std::map<std::string, int>&,
+                            std::string&)
             {
                 return true;
             }
         };
 
-        std::vector<float> positions;
-        std::vector<float> normals;
-        std::vector<float> texcoords;
-        std::vector<unsigned int> indices;
-        //std::vector<int> material_ids; // per-mesh material ID
-
         std::string err;
+        std::istringstream sstream(buffer);
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-        
-        bool ret = tinyobj::LoadObj(shapes, materials, err, sstream, MatRead());
+        MatRead matReader;
 
-      if (!err.empty())
-      {
-          std::cerr << err << std::endl;
-      }
-      if (!ret)
-          return false;
+        if (!tinyobj::LoadObj(shapes, materials, err, sstream, matReader))
+        {
+            JOP_DEBUG_ERROR("Couldn't load .obj model: " << err);
+            return false;
+        }
 
-          positions = shapes.front().mesh.positions;
-          normals = shapes.front().mesh.normals;
-          texcoords = shapes.front().mesh.texcoords;
-          indices = shapes.front().mesh.indices;
-          //material_ids = shapes.front().mesh.material_id
-          
-          std::vector<Vertex> vertexArray;
-          vertexArray.reserve(positions.size() / 3);
+        const auto& mesh = shapes.front().mesh;
 
-          for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
-          {
-              vertexArray.emplace_back
-                  (
-                  glm::vec3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
-                  texcoords.size() > i * 2 ? glm::vec2(texcoords[i * 2], texcoords[i * 2 + 1]) : glm::vec2(),
-                  normals.size() > i * 3 ? glm::vec3(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]) : glm::vec3()
-                  );
-          }
-          
-          m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex)*vertexArray.size());
+        auto posItr = mesh.positions.cbegin();
+        auto tcItr = mesh.texcoords.cbegin();
+        auto nItr = mesh.normals.cbegin();
 
-          if (!indices.empty())
-          m_indexbuffer.setData(&indices[0], sizeof(unsigned int)*indices.size());
-          
-      return true;
+        std::vector<Vertex> vertexArray;
+        vertexArray.reserve(shapes.front().mesh.positions.size() / 3);
+
+        for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
+        {
+            vertexArray.emplace_back
+            (
+                glm::vec3(*posItr, *(++posItr), *(++posItr)),
+                tcItr != mesh.texcoords.cend() ? glm::vec2(*tcItr, *(++tcItr)) : glm::vec2(),
+                nItr != mesh.normals.cend() ? glm::vec3(*nItr, *(++nItr), *(++nItr)) : glm::vec3()
+            );
+
+            ++posItr; ++tcItr; ++nItr;
+        }
+
+        m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex) * vertexArray.size());
+
+        if (!mesh.indices.empty())
+            m_indexbuffer.setData(mesh.indices.data(), sizeof(unsigned int) * mesh.indices.size());
+
+        return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::vector<Vertex>& vertexArray,const std::vector<unsigned int>& indices)
+    bool Model::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
     {
-        m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex)*vertexArray.size());
+        m_vertexbuffer.setData(vertexArray.data(), sizeof(Vertex) * vertexArray.size());
 
-        if (!indices.empty())
-            m_indexbuffer.setData(&indices[0], sizeof(unsigned int)*indices.size());
+        if (!indexArray.empty())
+            m_indexbuffer.setData(indexArray.data(), sizeof(unsigned int) * indexArray.size());
 
         return true;
     }
@@ -129,5 +123,4 @@ namespace jop
     {
         return m_vertexbuffer;
     }
-
 }
