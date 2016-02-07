@@ -26,14 +26,15 @@
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
+<<<<<<< HEAD
     <ClInclude Include="..\include\Jopnal\Graphics\BoxModel.hpp" />
+=======
+>>>>>>> 2eaf09df91a31dfab8f1f1cfb47ec21dda0cb8bb
     <ClInclude Include="..\include\Jopnal\Graphics\Buffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
@@ -76,14 +77,15 @@
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="..\src\Jopnal\Graphics\BoxModel.cpp" />
+=======
+>>>>>>> 2eaf09df91a31dfab8f1f1cfb47ec21dda0cb8bb
     <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />

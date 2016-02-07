@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
+//    in a product, an acknowledgment in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,25 +19,33 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_BOXMODEL_HPP
+#define JOP_BOXMODEL_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Model.hpp>
-#include <Jopnal/Graphics/BoxModel.hpp>
-#include <Jopnal/Graphics/SphereModel.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
+
+namespace jop
+{
+    class JOP_API BoxModel : public Model
+    {
+    public:
+
+        /// \brief Creates a cube model
+        ///
+        /// \param size Size of box (Default is 1.0f)
+        ///
+        BoxModel(const float size = 1.0f);
+    };
+}
+
+#endif
+
+/// \class BoxModel
+/// \ingroup Graphics
 ///
-/// #TODO Detailed decription
+/// Do explanation about the class
