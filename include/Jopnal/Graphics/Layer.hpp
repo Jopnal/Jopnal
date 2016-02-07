@@ -69,6 +69,14 @@ namespace jop
         /// Forwards messages to this object's components
         ///
         /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
         MessageResult sendMessage(const std::string& message, Any& returnWrap);
@@ -84,13 +92,13 @@ namespace jop
         ///
         /// \param drawable Reference to the drawable to be added
         ///
-        void addDrawable(Drawable& drawable);
+        void addDrawable(std::reference_wrapper<Drawable> drawable);
 
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
         ///
-        void bindOtherLayer(Layer& layer);
+        void bindOtherLayer(std::reference_wrapper<Layer> layer);
 
         /// \brief Unbind a layer's draw list from this layer
         ///
@@ -102,7 +110,7 @@ namespace jop
         ///
         /// \param camera Reference to the camera to be set
         ///
-        void setCamera(const Camera& camera);
+        void setCamera(std::reference_wrapper<const Camera> camera);
 
         /// \brief Set a RenderTexture
         ///

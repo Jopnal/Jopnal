@@ -53,6 +53,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    MessageResult Component::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
     MessageResult Component::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
@@ -61,8 +69,17 @@ namespace jop
 
     MessageResult Component::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Custom, getID()))
-            return sendMessageImpl(message);
+        if (message.passFilter(Message::Component, getID()))
+        {
+            if (message.passFilter(Message::Command))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Component, message.getString(), instance, message.getReturnWrapper());
+            }
+
+            if (message.passFilter(Message::Custom))
+                return sendMessageImpl(message);
+        }
 
         return MessageResult::Continue;
     }

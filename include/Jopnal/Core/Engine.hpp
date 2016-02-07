@@ -148,6 +148,12 @@ namespace jop
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
+        ///
+        static MessageResult sendMessage(const std::string& message);
+
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
         static MessageResult sendMessage(const std::string& message, Any& returnWrap);

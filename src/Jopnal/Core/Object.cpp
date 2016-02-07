@@ -185,6 +185,14 @@ namespace jop
         return count;
     }
 
+    //////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
     /////////////////////////////////////////////
 
     MessageResult Object::sendMessage(const std::string& message, Any& returnWrap)
@@ -197,7 +205,11 @@ namespace jop
 
     MessageResult Object::sendMessage(const Message& message)
     {
-        // check id filter when calling object's commands
+        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        {
+            Any instance(this);
+            JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper());
+        }
 
         if (message.passFilter(Message::Component))
         {
@@ -208,10 +220,13 @@ namespace jop
             }
         }
 
-        for (auto& i : m_children)
+        if (message.passFilter(Message::Object))
         {
-            if (i->sendMessage(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_children)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
         return MessageResult::Continue;

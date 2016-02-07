@@ -27,6 +27,19 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Layer)
+
+        JOP_BIND_MEMBER_COMMAND(&Layer::addDrawable, "addDrawable");
+        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "bindOtherLayer");
+        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "unbindOtherLayer");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setCamera, "setCamera");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setRenderTexture, "setRenderTexture");
+
+    JOP_END_COMMAND_HANDLER(Layer)
+}
+
+namespace jop
+{
     Layer::Layer(const std::string& ID)
         : Subsystem                             (ID),
           m_drawList                            (),
@@ -75,6 +88,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    MessageResult Layer::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
     MessageResult Layer::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
@@ -85,24 +106,33 @@ namespace jop
 
     MessageResult Layer::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Custom, getID()))
-            return sendMessageImpl(message);
+        if (message.passFilter(Message::Layer, getID()))
+        {
+            if (message.passFilter(Message::Command))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
+            }
+
+            if (message.passFilter(Message::Custom))
+                return sendMessageImpl(message);
+        }
 
         return MessageResult::Continue;
     }
 
-    //////////////////////////////////////////////
+//////////////////////////////////////////////
 
-    void Layer::addDrawable(Drawable& drawable)
+    void Layer::addDrawable(std::reference_wrapper<Drawable> drawable)
     {
-        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.get().shared_from_this()));
     }
 
     //////////////////////////////////////////////
 
-    void Layer::bindOtherLayer(Layer& layer)
+    void Layer::bindOtherLayer(std::reference_wrapper<Layer> layer)
     {
-        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.shared_from_this()));
+        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.get().shared_from_this()));
     }
 
     //////////////////////////////////////////////
@@ -121,9 +151,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::setCamera(const Camera& camera)
+    void Layer::setCamera(std::reference_wrapper<const Camera> camera)
     {
-        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
+        m_camera = std::static_pointer_cast<const Camera>(camera.get().shared_from_this());
     }
 
     //////////////////////////////////////////////

@@ -223,6 +223,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    MessageResult Engine::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
     MessageResult Engine::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
@@ -241,10 +249,10 @@ namespace jop
                 JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper());
             }
 
-            static const unsigned short sceneField = Message::SharedScene |
-                                                     Message::Scene |
-                                                     Message::Layer |
-                                                     Message::Object |
+            static const unsigned short sceneField = Message::SharedScene   |
+                                                     Message::Scene         |
+                                                     Message::Layer         |
+                                                     Message::Object        |
                                                      Message::Component;
 
             if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
@@ -259,13 +267,13 @@ namespace jop
             {
                 for (auto& i : m_engineObject->m_subsystems)
                 {
-                    if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                    if (i->sendMessage(message) == MessageResult::Escape)
                         return MessageResult::Escape;
                 }
             }
         }
 
-        return MessageResult::Escape;
+        return MessageResult::Continue;
     }
 
     //////////////////////////////////////////////
@@ -291,8 +299,7 @@ namespace jop
 
     MessageResult broadcast(const std::string& message)
     {
-        Any wrap;
-        return broadcast(message, wrap);
+        return Engine::sendMessage(message);
     }
 
     MessageResult broadcast(const std::string& message, Any& returnWrap)

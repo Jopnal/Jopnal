@@ -67,6 +67,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    MessageResult Subsystem::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
     MessageResult Subsystem::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
@@ -75,8 +83,17 @@ namespace jop
 
     MessageResult Subsystem::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Custom, getID()))
-            return sendMessageImpl(message);
+        if (message.passFilter(Message::Subsystem, getID()))
+        {
+            if (message.passFilter(Message::Command))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Subsystem, message.getString(), instance, message.getReturnWrapper());
+            }
+
+            if (message.passFilter(Message::Custom))
+                return sendMessageImpl(message);
+        }
 
         return MessageResult::Continue;
     }

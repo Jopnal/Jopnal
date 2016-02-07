@@ -134,12 +134,21 @@ namespace jop
         ///
         unsigned int childCount() const;
 
-        /// \brief Get amount of childrens recursively
+        /// \brief Get amount of children recursively
         ///
-        /// Goes throught the children and their children all the way down the tree
-        /// and return the total amount of childrens
+        /// Goes through the children and their children all the way down the tree
+        /// and return the total amount of children
         ///
         unsigned int childCountRecursive() const;
+
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
