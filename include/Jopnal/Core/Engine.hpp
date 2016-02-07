@@ -148,9 +148,15 @@ namespace jop
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
+        ///
+        static MessageResult sendMessage(const std::string& message);
+
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
-        static MessageResult sendMessage(const std::string& message, Any returnWrap);
+        static MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -207,9 +213,17 @@ namespace jop
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message String holding message
+    ///
+    JOP_API MessageResult broadcast(const std::string& message);
+
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message String holding message
     /// \param ptr Pointer to hold extra data
     ///
-    JOP_API MessageResult broadcast(const std::string& message, Any returnWrap);
+    JOP_API MessageResult broadcast(const std::string& message, Any& returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///

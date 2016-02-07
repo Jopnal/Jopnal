@@ -25,6 +25,16 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Subsystem, SettingManager)
+
+        JOP_BIND_COMMAND(&SettingManager::reload, "reloadSettings");
+        JOP_BIND_COMMAND(&SettingManager::save, "saveSettings");
+
+    JOP_END_COMMAND_HANDLER(SettingManager)
+}
+
 namespace
 {
     namespace rj = rapidjson;

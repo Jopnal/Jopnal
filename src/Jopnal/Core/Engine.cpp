@@ -25,6 +25,17 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_REGISTER_COMMAND_HANDLER(Engine)
+    
+        JOP_BIND_COMMAND(&Engine::getSubsystem, "getSubsystem");
+        JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::exit, "exit");
+
+    JOP_END_COMMAND_HANDLER(Engine)
+}
+
 namespace
 {
     std::string ns_projectName;
@@ -212,7 +223,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Engine::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Engine::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -224,13 +243,16 @@ namespace jop
     {
         if (m_engineObject)
         {
-            //if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
-            //    JOP_EXECUTE_MEMBER_COMMAND(Engine, message.getString(), ns_engineObject, message.getReturnPointer());
+            if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            {
+                Any engPtr(m_engineObject);
+                JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper());
+            }
 
-            static const unsigned short sceneField = Message::SharedScene |
-                                                     Message::Scene |
-                                                     Message::Layer |
-                                                     Message::Object |
+            static const unsigned short sceneField = Message::SharedScene   |
+                                                     Message::Scene         |
+                                                     Message::Layer         |
+                                                     Message::Object        |
                                                      Message::Component;
 
             if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
@@ -245,13 +267,13 @@ namespace jop
             {
                 for (auto& i : m_engineObject->m_subsystems)
                 {
-                    if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                    if (i->sendMessage(message) == MessageResult::Escape)
                         return MessageResult::Escape;
                 }
             }
         }
 
-        return MessageResult::Escape;
+        return MessageResult::Continue;
     }
 
     //////////////////////////////////////////////
@@ -275,7 +297,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult broadcast(const std::string& message, Any returnWrap)
+    MessageResult broadcast(const std::string& message)
+    {
+        return Engine::sendMessage(message);
+    }
+
+    MessageResult broadcast(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return Engine::sendMessage(msg);

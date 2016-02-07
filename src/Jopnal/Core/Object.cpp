@@ -29,6 +29,25 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Object)
+
+        // Transform
+
+        // Object
+        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::getComponent, "getComponent");
+        JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::getChild, "getChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Object)
+}
+
+namespace jop
+{
     Object::Object()
         : Transform                             (),
           std::enable_shared_from_this<Object>  (),
@@ -94,10 +113,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::createChild(const std::string& ID)
+    std::weak_ptr<Object> Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(std::make_unique<Object>(ID));
-        return *m_children.back();
+        return std::weak_ptr<Object>(m_children.back());
     }
 
     //////////////////////////////////////////////
@@ -166,9 +185,17 @@ namespace jop
         return count;
     }
 
+    //////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Object::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -178,7 +205,11 @@ namespace jop
 
     MessageResult Object::sendMessage(const Message& message)
     {
-        // check id filter when calling object's commands
+        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        {
+            Any instance(this);
+            JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper());
+        }
 
         if (message.passFilter(Message::Component))
         {
@@ -189,10 +220,13 @@ namespace jop
             }
         }
 
-        for (auto& i : m_children)
+        if (message.passFilter(Message::Object))
         {
-            if (i->sendMessage(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_children)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
         return MessageResult::Continue;

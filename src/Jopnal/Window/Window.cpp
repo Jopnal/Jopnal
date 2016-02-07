@@ -184,4 +184,26 @@ namespace jop
     {
         detail::WindowImpl::pollEvents();
     }
+
+    void Window::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
+    {
+        if (isOpen())
+            glCheck(gl::Viewport(x, y, width, height));
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setViewportRelative(const float x, const float y, const float width, const float height)
+    {
+        if (isOpen())
+        {
+            int windowX;
+            int windowY;
+
+            glfwGetWindowSize(getLibraryHandle(), &windowX, &windowY);
+
+            glCheck(gl::Viewport(static_cast<int>(x * windowX), static_cast<int>(y * windowY),
+                                 static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
+        }
+    }
 }

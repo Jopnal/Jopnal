@@ -160,9 +160,18 @@ namespace jop
         /// to the objects
         ///
         /// \param message String holding message
+        ///
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Base sendMessage function
+        ///
+        /// This will handle message filtering and forwarding
+        /// to the objects
+        ///
+        /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
