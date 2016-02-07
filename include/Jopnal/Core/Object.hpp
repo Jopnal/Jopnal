@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        Object& createChild(const std::string& ID);
+        std::weak_ptr<Object> createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///
@@ -134,12 +134,21 @@ namespace jop
         ///
         unsigned int childCount() const;
 
-        /// \brief Get amount of childrens recursively
+        /// \brief Get amount of children recursively
         ///
-        /// Goes throught the children and their children all the way down the tree
-        /// and return the total amount of childrens
+        /// Goes through the children and their children all the way down the tree
+        /// and return the total amount of children
         ///
         unsigned int childCountRecursive() const;
+
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -148,7 +157,7 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///

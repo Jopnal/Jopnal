@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 
-template<typename T>
+template<typename T, bool isEnum = std::is_enum<T>::value>
 struct ArgumentConverter
 {
     static T convert(const std::string& from)
@@ -29,7 +29,15 @@ struct ArgumentConverter
     }
 };
 template<typename T>
-struct ArgumentConverter<T*>
+struct ArgumentConverter<T, true>
+{
+    static T convert(const std::string& from)
+    {
+        return static_cast<T>(ArgumentConverter<int>::convert(from));
+    }
+};
+template<typename T>
+struct ArgumentConverter<T*, false>
 {
     static T* convert(const std::string& from)
     {
@@ -37,7 +45,7 @@ struct ArgumentConverter<T*>
     }
 };
 template<typename T>
-struct ArgumentConverter<std::reference_wrapper<T>>
+struct ArgumentConverter<std::reference_wrapper<T>, false>
 {
     static std::reference_wrapper<T> convert(const std::string& from)
     {
@@ -45,7 +53,7 @@ struct ArgumentConverter<std::reference_wrapper<T>>
     }
 };
 template<>
-struct ArgumentConverter<const char*>
+struct ArgumentConverter<const char*, false>
 {
     static const char* convert(const std::string& from)
     {
@@ -53,7 +61,7 @@ struct ArgumentConverter<const char*>
     }
 };
 template<>
-struct ArgumentConverter<char>
+struct ArgumentConverter<char, false>
 {
     static char convert(const std::string& from)
     {
@@ -62,7 +70,7 @@ struct ArgumentConverter<char>
     }
 };
 template<>
-struct ArgumentConverter<unsigned char>
+struct ArgumentConverter<unsigned char, false>
 {
     static unsigned char convert(const std::string& from)
     {
@@ -70,7 +78,7 @@ struct ArgumentConverter<unsigned char>
     }
 };
 template<>
-struct ArgumentConverter<unsigned int>
+struct ArgumentConverter<unsigned int, false>
 {
     static unsigned int convert(const std::string& from)
     {
@@ -78,7 +86,7 @@ struct ArgumentConverter<unsigned int>
     }
 };
 template<>
-struct ArgumentConverter<int>
+struct ArgumentConverter<int, false>
 {
     static int convert(const std::string& from)
     {
@@ -86,7 +94,7 @@ struct ArgumentConverter<int>
     }
 };
 template<>
-struct ArgumentConverter<unsigned long>
+struct ArgumentConverter<unsigned long, false>
 {
     static unsigned long convert(const std::string& from)
     {
@@ -94,7 +102,7 @@ struct ArgumentConverter<unsigned long>
     }
 };
 template<>
-struct ArgumentConverter<long>
+struct ArgumentConverter<long, false>
 {
     static long convert(const std::string& from)
     {
@@ -102,7 +110,7 @@ struct ArgumentConverter<long>
     }
 };
 template<>
-struct ArgumentConverter<unsigned long long>
+struct ArgumentConverter<unsigned long long, false>
 {
     static unsigned long long convert(const std::string& from)
     {
@@ -110,7 +118,7 @@ struct ArgumentConverter<unsigned long long>
     }
 };
 template<>
-struct ArgumentConverter<long long>
+struct ArgumentConverter<long long, false>
 {
     static long long convert(const std::string& from)
     {
@@ -118,7 +126,7 @@ struct ArgumentConverter<long long>
     }
 };
 template<>
-struct ArgumentConverter<float>
+struct ArgumentConverter<float, false>
 {
     static float convert(const std::string& from)
     {
@@ -126,7 +134,7 @@ struct ArgumentConverter<float>
     }
 };
 template<>
-struct ArgumentConverter<double>
+struct ArgumentConverter<double, false>
 {
     static double convert(const std::string& from)
     {
@@ -134,7 +142,7 @@ struct ArgumentConverter<double>
     }
 };
 template<>
-struct ArgumentConverter<long double>
+struct ArgumentConverter<long double, false>
 {
     static long double convert(const std::string& from)
     {
@@ -154,6 +162,11 @@ struct RealType<T, true>
 {
     typedef std::reference_wrapper<T> type;
 };
+//template<typename T>
+//struct RealType<std::weak_ptr<T>, false>
+//{
+//    typedef std::weak_ptr<T> type;
+//};
 template<>
 struct RealType<const std::string&, true>
 {
@@ -238,13 +251,6 @@ namespace ArgumentSplitter
 
 //////////////////////////////////////////////
 
-struct AppliedArgumentConverter
-{
-
-};
-
-//////////////////////////////////////////////
-
 namespace DefaultParser
 {
     template<typename Ret, typename ... Args>
@@ -258,7 +264,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
         {
-            if (returnWrap && returnWrap == typeid(Ret*))
+            if (returnWrap)
                 returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
                 ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
@@ -279,7 +285,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret()>& func, const std::string&, Any& returnWrap)
         {
-            if (returnWrap && returnWrap == typeid(Ret*))
+            if (returnWrap)
                 returnWrap = func();
             else
                 func();
@@ -309,7 +315,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
         {
-            if (returnWrap && returnWrap == typeid(Ret*))
+            if (returnWrap)
                 returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
                 ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
@@ -330,7 +336,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, Any& instance)
         {
-            if (returnWrap && returnWrap == typeid(Ret*))
+            if (returnWrap)
                 returnWrap = func(*(instance.cast<T*>()));
             else
                 func(*(instance.cast<T*>()));

@@ -27,6 +27,19 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, Camera)
+
+        JOP_BIND_MEMBER_COMMAND(&Camera::setProjectionMode, "setProjectionMode");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setClippingPlanes, "setClippingPlanes");
+        JOP_BIND_MEMBER_COMMAND((void (Camera::*)(const float, const float))&Camera::setSize, "setSize");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setAspectRatio, "setAspectRatio");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
+
+    JOP_END_COMMAND_HANDLER(Camera)
+}
+
+namespace jop
+{
     Camera::Camera(Object& object, const Projection mode)
         : Component                 (object, "Camera"),
           m_projectionMatrix        (),

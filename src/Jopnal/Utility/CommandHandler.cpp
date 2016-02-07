@@ -98,7 +98,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, Any instance)
+    void CommandHandler::execute(const std::string& command, Any& instance)
     {
         Any returnWrap(nullptr);
         execute(command, instance, returnWrap);
@@ -106,7 +106,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, Any instance, Any returnWrap)
+    void CommandHandler::execute(const std::string& command, Any& instance, Any& returnWrap)
     {
         std::string comm, args;
         handleCommand(command, comm, args);

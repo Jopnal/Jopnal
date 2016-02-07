@@ -101,10 +101,13 @@ namespace jop
 
         /// \brief Execute a command
         ///
+        /// You must use the other overload with the three arguments of you wish to get a return value, regardless
+        /// of whether you mean to call a free function or a member.
+        ///
         /// \param command The command name
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         ///
-        void execute(const std::string& command, Any instance);
+        void execute(const std::string& command, Any& instance);
 
         /// \brief Execute a command and get the return value
         ///
@@ -112,7 +115,7 @@ namespace jop
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         /// \param returnWrap PtrWrapper to hold the return value
         ///
-        void execute(const std::string& command, Any instance, Any returnWrap);
+        void execute(const std::string& command, Any& instance, Any& returnWrap);
 
 
     private:
@@ -130,29 +133,39 @@ namespace jop
 ///
 /// This macro must be followed with JOP_END_COMMAND_HANDLER
 ///
-#define JOP_REGISTER_COMMAND_HANDLER(className) jop::CommandHandler ns_##className##_commandHandler; \
-                                                struct ns_##className##_registrar{                   \
-                                                ns_##className##_registrar(jop::CommandHandler& handler){
+#define JOP_REGISTER_COMMAND_HANDLER(handlerName) jop::CommandHandler& ns_##handlerName##_getCommandHandler(){ \
+                                                  static jop::CommandHandler instance; return instance;}       \
+                                                  struct ns_##handlerName##_registrar{                         \
+                                                  ns_##handlerName##_registrar(){                              \
+                                                  jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
+
+/// \brief Register a derived command handler
+///
+/// This doesn't create a new handler, but rather fetches an existing one.
+/// This is primarily used to allow binding of derived class' methods to their
+/// base class' command handlers. This is the case with jop::Component and jop::Camera,
+/// for instance.
+///
+#define JOP_DERIVED_COMMAND_HANDLER(handlerName, className) extern jop::CommandHandler& ns_##handlerName##_getCommandHandler(); \
+                                                            struct ns_##className##_registrar{                                  \
+                                                            ns_##className##_registrar(){                                       \
+                                                            jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
 
 /// \brief End a command handler registration
 ///
-#define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg(ns_##className##_commandHandler);
+#define JOP_END_COMMAND_HANDLER(className) }}; static ns_##className##_registrar ns_##className##_reg;
 
 /// \brief Bind a member command
 ///
-#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, &function)
+#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, function)
 
 /// brief Bind a free function command
 ///
-#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, &function)
+#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, function)
 
 /// \brief Execute a free function command
 ///
-#define JOP_EXECUTE_COMMAND(className, command, returnPtr) ns_##className##_commandHandler.execute(command, nullptr, returnPtr)
-
-/// \brief Execute a member command
-///
-#define JOP_EXECUTE_MEMBER_COMMAND(className, command, instance, returnPtr) ns_##className##_commandHandler.execute(command, instance, returnPtr)
+#define JOP_EXECUTE_COMMAND(handlerName, command, instance, returnPtr) ns_##handlerName##_getCommandHandler().execute(command, instance, returnPtr)
 
 
 #endif
