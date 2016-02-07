@@ -45,10 +45,9 @@ namespace jop
           m_drawList                            (),
           m_boundLayers                         (),
           m_camera                              (),
-          m_renderTexture                       ()
-    {
-        setCamera(Camera::getDefault());
-    }
+          m_renderTexture                       (),
+          m_drawablesRemoved                    (false)
+    {}
 
     Layer::~Layer()
     {}
@@ -57,6 +56,9 @@ namespace jop
 
     void Layer::draw()
     {
+        glCheck(gl::Enable(gl::DEPTH_TEST));
+        glCheck(gl::DepthFunc(gl::LESS));
+
         if (m_camera.expired())
             m_camera = std::static_pointer_cast<const Camera>(Camera::getDefault().shared_from_this());
 
@@ -75,6 +77,8 @@ namespace jop
                 {
                     if (!j.expired())
                         j.lock()->draw(*cam);
+                    else
+                        m_drawablesRemoved = true;
                 }
             }
         }
@@ -83,6 +87,25 @@ namespace jop
         {
             if (!i.expired())
                 i.lock()->draw(*cam);
+            else
+                m_drawablesRemoved = true;
+        }
+
+        if (m_drawablesRemoved)
+        {
+            m_drawList.erase(std::remove_if(m_drawList.begin(), m_drawList.end(), [](const std::weak_ptr<Drawable>& drawable)
+            {
+                return drawable.expired();
+
+            }), m_drawList.end());
+
+            m_boundLayers.erase(std::remove_if(m_boundLayers.begin(), m_boundLayers.end(), [](const std::weak_ptr<Layer>& layer)
+            {
+                return layer.expired();
+
+            }), m_boundLayers.end());
+
+            m_drawablesRemoved = false;
         }
     }
 
@@ -121,7 +144,7 @@ namespace jop
         return MessageResult::Continue;
     }
 
-//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void Layer::addDrawable(std::reference_wrapper<Drawable> drawable)
     {

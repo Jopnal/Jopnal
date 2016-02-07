@@ -81,7 +81,6 @@ namespace jop
             }
         }
 
-        JOP_DEBUG_ERROR("File not found: " << filePath);
         return false;
     }
 

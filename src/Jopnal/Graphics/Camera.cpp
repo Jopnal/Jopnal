@@ -60,7 +60,7 @@ namespace jop
         else
         {
             setID("PerspCamera");
-            setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", FLT_MAX - 1.f));
+            setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
             setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 80.f));
             setSize(x, y);
         }
@@ -73,9 +73,6 @@ namespace jop
           m_clippingPlanes          (other.m_clippingPlanes),
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
-    {}
-
-    Camera::~Camera()
     {}
 
     //////////////////////////////////////////////

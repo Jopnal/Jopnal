@@ -36,7 +36,7 @@ namespace jop
 {
     Texture::Texture()
         : m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefaultSampler()),
+          m_defaultSampler  (std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this())),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
@@ -129,7 +129,8 @@ namespace jop
     {
         if (m_texture)
         {
-            glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+            glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
+            glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
                 m_sampler.lock()->bind(texUnit);
@@ -184,6 +185,25 @@ namespace jop
             glCheck(gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, &size));
 
         return size;
+    }
+
+    //////////////////////////////////////////////
+
+    const Texture& Texture::getDefault()
+    {
+        static const unsigned char pix[] =
+        {
+            255, 0, 0, 255,
+            0, 0, 255, 255,
+            0, 0, 255, 255,
+            255, 0, 0, 255
+        };
+
+        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", 2, 2, 4, pix);
+
+        JOP_ASSERT(!defTex.expired(), "Couldn't create default texture!");
+
+        return *defTex.lock();
     }
 
     //////////////////////////////////////////////

@@ -125,6 +125,7 @@ namespace jop
         std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
         std::weak_ptr<const Camera> m_camera;             ///< Bound camera
         std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
+        bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 
     };
 }

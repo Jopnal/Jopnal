@@ -27,8 +27,19 @@
 
 namespace jop
 {
-    BoxModel::BoxModel(const float size) :
-        Model()  
+    BoxModel::BoxModel()
+        : Model()
+    {}
+
+    BoxModel::BoxModel(const float size)
+        : Model()  
+    {
+        load(size);
+    }
+
+    //////////////////////////////////////////////
+
+    bool BoxModel::load(const float size)
     {
         const float half = 0.5f * size;
 
@@ -97,6 +108,6 @@ namespace jop
             22, 21, 23
         });
 
-        load(vertexArray, indices);
+        return Model::load(vertexArray, indices);
     }
 }

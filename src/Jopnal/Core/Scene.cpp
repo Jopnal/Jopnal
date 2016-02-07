@@ -44,7 +44,7 @@ namespace jop
     Scene::Scene(const std::string& ID)
         : m_objects         (),
           m_layers          (),
-          m_defaultLayer    (),
+          m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
           m_ID              (ID)
     {}
 
@@ -271,11 +271,18 @@ namespace jop
     {
         preDraw();
 
+        m_defaultLayer->draw();
+
         for (auto& i : m_layers)
             i->draw();
 
         postDraw();
     }
+
+    //////////////////////////////////////////////
+
+    void Scene::initialize()
+    {}
 
     //////////////////////////////////////////////
 

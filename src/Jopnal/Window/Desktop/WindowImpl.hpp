@@ -54,6 +54,7 @@ namespace jop { namespace detail
     private:
 
         GLFWwindow* m_window;
+        unsigned int m_vertexArray;
 
     };
 }}

@@ -195,6 +195,9 @@ namespace jop
         /// \brief Method for drawing
         ///
         void drawBase();
+
+
+        virtual void initialize();
         
 
         /// \brief Method for pre-updating

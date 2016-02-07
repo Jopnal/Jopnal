@@ -90,31 +90,6 @@ namespace jop
         const glm::quat& getRotation() const;
 
 
-        /// \brief Set the origin
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setOrigin(const float x, const float y, const float z);
-
-        /// \brief Set the origin
-        ///
-        /// \param origin Vector with the origin to set
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setOrigin(const glm::vec3& origin);
-
-        /// \brief Get the origin
-        ///
-        /// \return Vector with the origin
-        ///
-        const glm::vec3& getOrigin() const;
-
-
         /// \brief Set the scale
         ///
         /// 1.f means the original scale
@@ -134,6 +109,9 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& setScale(const glm::vec3& scale);
+
+        ///
+        Transform& setScale(const float delta);
 
         /// \brief Get the scale
         ///
@@ -241,25 +219,10 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& scale(const glm::vec3& scale);
-        
 
-        /// \brief Move this transform's origin
+        /// \brief Scale this transform
         ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \returns Reference to self
-        ///
-        Transform& moveOrigin(const float x, const float y, const float z);
-        
-        /// \brief Move this transform's origin
-        ///
-        /// This function will change the origin, according given values
-        ///
-        /// \return Reference to self
-        ///
-        Transform& moveOrigin(const glm::vec3& offset);
+        Transform& scale(const float delta);
 
 
         /// The identity matrix
@@ -271,7 +234,6 @@ namespace jop
         mutable glm::mat4 m_transform;
         mutable glm::mat4 m_invTransform;
         mutable glm::quat m_rotation;
-        glm::vec3 m_origin;
         glm::vec3 m_scale;
         glm::vec3 m_position;
         mutable bool m_transformNeedUpdate;

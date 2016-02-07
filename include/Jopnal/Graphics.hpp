@@ -35,6 +35,7 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/BoxModel.hpp>
 #include <Jopnal/Graphics/SphereModel.hpp>
+#include <Jopnal/Graphics/DefaultDrawable.hpp>
 
 //////////////////////////////////////////////
 

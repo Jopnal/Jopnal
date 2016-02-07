@@ -112,11 +112,11 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getBool("bControllerInput", true);
+            static const bool controllers = SettingManager::getUint("uMaxControllers", 4) > 0;
 
             pollEvents();
 
-            if (controllers && m_eventHandler.operator bool())
+            if (controllers && m_eventHandler)
                 m_eventHandler->handleControllerInput();
 
             ns_eventsPolled = true;
@@ -128,6 +128,10 @@ namespace jop
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
+        setViewportRelative(0.f, 0.f, 1.f, 1.f);
+
+        static const Color defColor(SettingManager::getUint("uDefaultWindowClearColor", 0x000000FF));
+        setClearColor(defColor);
     }
 
     //////////////////////////////////////////////

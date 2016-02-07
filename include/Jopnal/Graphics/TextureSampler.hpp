@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <memory>
 
@@ -32,7 +33,7 @@
 
 namespace jop
 {
-    class JOP_API TextureSampler
+    class JOP_API TextureSampler : public Resource
     {
     private:
 
@@ -81,6 +82,8 @@ namespace jop
         ~TextureSampler();
 
 
+        bool load(const Filter filterMode, const Repeat repeatMode, const float param = 1.f);
+
         /// \brief Bind this sampler
         ///
         /// \param textureUnit The texture unit to bind this sample into
@@ -124,7 +127,7 @@ namespace jop
 
         /// \brief Get the default sampler
         ///
-        static std::shared_ptr<const TextureSampler> getDefaultSampler();
+        static const TextureSampler& getDefault();
 
     private:
 

@@ -65,6 +65,11 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
+
+        ///
+        ///
+        static const Model& getDefault();
+
     private:
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer

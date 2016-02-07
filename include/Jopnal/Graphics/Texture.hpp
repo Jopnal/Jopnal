@@ -118,6 +118,8 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        static const Texture& getDefault();
+
     private:
 
         /// \brief Check if a byte depth is valid

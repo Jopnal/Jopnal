@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
+//    in a product, an acknowledgement in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,44 +19,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SPHEREMODEL_HPP
-#define JOP_SPHEREMODEL_HPP
+#ifndef JOP_DEFAULTDRAWABLE_HPP
+#define JOP_DEFAULTDRAWABLE_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API SphereModel : public Model
+    class JOP_API DefaultDrawable : public Drawable
     {
     public:
 
-        SphereModel();
-
-        /// \brief Creates a 3D sphere
+        /// \brief Constructor
         ///
-        /// High values for sectors and rings will result in better looking results, but may
-        /// affect performance heavily.
+        /// This doesn't take the layer as an argument. Instead it fetches the default layer
+        /// of the currently active scene.
         ///
-        /// \param radius The radius of the sphere
-        /// \param rings How many rings will the sphere have
-        /// \param sectors How many sectors the circle will get divided to
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param ID Unique component identifier
         ///
-        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors);
+        DefaultDrawable(Object& object, const std::string& ID);
 
 
-        bool load(const float radius, const unsigned int rings, const unsigned int sectors);
+        virtual DefaultDrawable* clone() const override;
+
+        virtual void draw(const Camera& camera) override;
 
     };
 }
 
 #endif
-
-/// \class SphereModel
-/// \ingroup Graphics
-///
-/// Do explanation about the class

@@ -91,6 +91,8 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings)
+        : m_window      (nullptr),
+          m_vertexArray (0)
     {
         initialize();
 
@@ -110,10 +112,16 @@ namespace jop { namespace detail
         glfwMakeContextCurrent(m_window);
 
         initExtensions();
+
+        glCheck(gl::GenVertexArrays(1, &m_vertexArray));
+        glCheck(gl::BindVertexArray(m_vertexArray));
     }
 
     WindowImpl::~WindowImpl()
     {
+        glCheck(gl::BindVertexArray(0));
+        glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
+
         // There should always be a valid window
         glfwDestroyWindow(m_window);
         deInitialize();

@@ -35,11 +35,16 @@ namespace jop
     {
     public:
 
+        BoxModel();
+
         /// \brief Creates a cube model
         ///
-        /// \param size Size of box (Default is 1.0f)
+        /// \param size Size of box
         ///
-        BoxModel(const float size = 1.0f);
+        BoxModel(const float size);
+
+
+        bool load(const float size);
     };
 }
 

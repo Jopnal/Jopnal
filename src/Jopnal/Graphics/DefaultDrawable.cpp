@@ -27,45 +27,39 @@
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, const std::string& ID)
-        : Component (object, ID),
-          m_model   (),
-          m_shader  (),
-          m_texture ()
-    {
-        setModel(Model::getDefault());
-        setShader(Shader::getDefault());
-        setTexture(Texture::getDefault());
-    }
-
-    Drawable::Drawable(const Drawable& other)
-        : Component (other),
-          m_model   (other.m_model),
-          m_shader  (other.m_shader),
-          m_texture (other.m_texture)
-    {}
-
-    Drawable::~Drawable()
+    DefaultDrawable::DefaultDrawable(Object& object, const std::string& ID)
+        : Drawable(object, ID)
     {}
 
     //////////////////////////////////////////////
 
-    void Drawable::setModel(const Model& model)
+    DefaultDrawable* DefaultDrawable::clone() const
     {
-        m_model = std::weak_ptr<const Model>(std::static_pointer_cast<const Model>(model.shared_from_this()));
+        return new DefaultDrawable(*this);
     }
 
     //////////////////////////////////////////////
 
-    void Drawable::setShader(Shader& shader)
+    void DefaultDrawable::draw(const Camera& camera)
     {
-        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
-    }
+        if (m_shader.expired() || m_model.expired())
+            return;
 
-    //////////////////////////////////////////////
+        auto& s = *m_shader.lock();
+        auto& m = *m_model.lock();
 
-    void Drawable::setTexture(const Texture& texture)
-    {
-        m_texture = std::weak_ptr<const Texture>(std::static_pointer_cast<const Texture>(texture.shared_from_this()));
+        m.getVertexBuffer().bind();
+
+        s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
+        s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
+
+        if (!m_texture.expired())
+        {
+            s.setUniform("tex", *m_texture.lock(), 0);
+            s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
+        }
+
+        m.getIndexBuffer().bind();
+        glCheck(gl::DrawElements(gl::TRIANGLES, m.getIndexBuffer().getAllocatedSize() / sizeof(unsigned int), gl::UNSIGNED_INT, (void*)0));
     }
 }

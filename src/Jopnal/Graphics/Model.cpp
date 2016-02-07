@@ -62,13 +62,13 @@ namespace jop
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         MatRead matReader;
-
+        
         if (!tinyobj::LoadObj(shapes, materials, err, sstream, matReader))
         {
             JOP_DEBUG_ERROR("Couldn't load .obj model: " << err);
             return false;
         }
-
+        
         const auto& mesh = shapes.front().mesh;
 
         auto posItr = mesh.positions.cbegin();
@@ -122,5 +122,16 @@ namespace jop
     const VertexBuffer& Model::getVertexBuffer() const
     {
         return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const Model& Model::getDefault()
+    {
+        auto defModel = ResourceManager::getNamedResource<BoxModel>("DefaultModel", 1.f);
+
+        JOP_ASSERT(!defModel.expired(), "Couldn't load default model!");
+
+        return *defModel.lock();
     }
 }
