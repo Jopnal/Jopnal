@@ -58,6 +58,7 @@ namespace jop
     {
         glCheck(gl::Enable(gl::DEPTH_TEST));
         glCheck(gl::DepthFunc(gl::LESS));
+        gl::Enable(gl::POLYGON_SMOOTH);
 
         if (m_camera.expired())
             m_camera = std::static_pointer_cast<const Camera>(Camera::getDefault().shared_from_this());

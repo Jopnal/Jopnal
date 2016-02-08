@@ -40,6 +40,7 @@ namespace jop
         : size          (1u, 1u),
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
+          samples       (0),
           visible       (false)
     {
         if (loadSettings)
@@ -47,6 +48,7 @@ namespace jop
             size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
+            samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = true;
         }
     }

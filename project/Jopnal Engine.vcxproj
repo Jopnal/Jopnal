@@ -32,6 +32,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\DefaultDrawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\DefaultDrawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp" />
@@ -104,6 +106,7 @@
     <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
+    <ClCompile Include="..\src\Jopnal\Window\Keyboard.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
   </ItemGroup>

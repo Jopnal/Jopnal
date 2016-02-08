@@ -98,7 +98,7 @@ namespace jop
                     char log[1024];
                     glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0)
+                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -133,7 +133,7 @@ namespace jop
                     char log[1024];
                     glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0)
+                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }

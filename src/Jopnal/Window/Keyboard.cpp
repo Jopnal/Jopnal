@@ -20,26 +20,19 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/Model.hpp>
-#include <Jopnal/Graphics/BoxModel.hpp>
-#include <Jopnal/Graphics/SphereModel.hpp>
-#include <Jopnal/Graphics/DefaultDrawable.hpp>
-#include <Jopnal/Graphics/GlState.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    std::string Keyboard::getKeyName(const int scanCode)
+    {
+        char str[64] = "UNKNOWN";
+
+        GetKeyNameTextA(scanCode, str, sizeof(str) / sizeof(str[0]));
+
+        return std::string(str);
+    }
+}
