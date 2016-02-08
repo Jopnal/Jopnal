@@ -57,7 +57,7 @@ namespace jop
 
         ns_projectName = name;
         m_engineObject = this;
-
+        
         ns_argc = argc;
         ns_argv = argv;
     }

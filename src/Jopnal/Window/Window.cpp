@@ -32,6 +32,12 @@
 namespace
 {
     bool ns_eventsPolled = false;
+
+    struct jop_DefaultEventHandler : jop::WindowEventHandler
+    {
+        jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
+        void closed() override {jop::Engine::exit();}
+    };
 }
 
 namespace jop
@@ -69,6 +75,7 @@ namespace jop
           m_colorChanged    (true)
     {
         open(settings);
+        setEventHandler<jop_DefaultEventHandler>();
     }
 
     Window::~Window()

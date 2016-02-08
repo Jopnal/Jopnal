@@ -46,10 +46,10 @@ namespace jop
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
         ///
-        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors);
+        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
 
-        bool load(const float radius, const unsigned int rings, const unsigned int sectors);
+        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
     };
 }

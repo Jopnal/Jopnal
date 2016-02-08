@@ -31,28 +31,31 @@ namespace jop
         : Model()
     {}
 
-    SphereModel::SphereModel(const float radius, const unsigned int rings, const unsigned int sectors)
+    SphereModel::SphereModel(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
         : Model()
     {
-        load(radius, rings, sectors);
+        load(radius, rings, sectors, normalizedTexCoords);
     }
 
     //////////////////////////////////////////////
 
-    bool SphereModel::load(const float radius, const unsigned int rings, const unsigned int sectors)
+    bool SphereModel::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
     {
-        const float R = 1.0f / static_cast<float>(rings - 1); // Rings
-        const float S = 1.0f / static_cast<float>(sectors - 1); // Sectors
+        const float R = 1.0f / static_cast<float>(rings - 1);
+        const float S = 1.0f / static_cast<float>(sectors - 1);
+
+        const unsigned int texCoordMultS = normalizedTexCoords ? 1u : sectors;
+        const unsigned int texCoordMultR = normalizedTexCoords ? 1u : rings;
 
         std::vector<Vertex> vertexArray(rings * sectors);
         auto itr = vertexArray.begin();
 
-        for (std::size_t r = 0; r < rings; ++r)
+        for (std::size_t s = 0; s < sectors; ++s)
         {
-            for (std::size_t s = 0; s < sectors; ++s)
+            for (std::size_t r = 0; r < rings; ++r)
             {
-                static const float pi1 = glm::pi<float>(); // pi
-                static const float pi2 = glm::half_pi<float>(); // half pi
+                static const float pi1 = glm::pi<float>();
+                static const float pi2 = glm::half_pi<float>();
 
                 const float y = sin(-pi2 + pi1 * r * R);
                 const float x = cos(2 * pi1 * s * S) * sin(pi1 * r * R);
@@ -62,8 +65,8 @@ namespace jop
                 itr->position.y = y * radius;
                 itr->position.z = z * radius;
 
-                itr->texCoords.x = sectors * s * S;
-                itr->texCoords.y = rings * r * R;
+                itr->texCoords.x = texCoordMultS * s * S;
+                itr->texCoords.y = texCoordMultR * r * R;
 
                 itr->normalVector.x = x;
                 itr->normalVector.y = y;

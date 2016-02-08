@@ -271,10 +271,10 @@ namespace jop
     {
         preDraw();
 
-        m_defaultLayer->draw();
+        m_defaultLayer->drawBase();
 
         for (auto& i : m_layers)
-            i->draw();
+            i->drawBase();
 
         postDraw();
     }

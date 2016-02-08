@@ -56,12 +56,14 @@ namespace jop
         virtual ~Layer() override;
 
 
+        void drawBase();
+
         /// \brief Draw function
         ///
         /// The default version of this function simply iterates through the
         /// local & bound draw lists and calls draw() on the drawables.
         ///
-        virtual void draw() override;
+        virtual void draw(const Camera& camera);
 
 
         /// \brief Method to send messages
@@ -117,6 +119,8 @@ namespace jop
         /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
         ///
         void setRenderTexture(RenderTexture* renderTexture);
+
+        void sweepRemoved();
 
 
     protected:

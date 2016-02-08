@@ -30,11 +30,16 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        class WindowImpl;
+    }
+
     class JOP_API GlState
     {
     private:
 
-        friend class Window;
+        friend class detail::WindowImpl;
 
         static void reset();
 
@@ -93,7 +98,7 @@ namespace jop
 
         static void setLineSmooth(const bool enable);
 
-        static void setLineWidth(const unsigned int width);
+        static void setLineWidth(const float width);
         
     };
 }
