@@ -37,17 +37,18 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// This doesn't take the layer as an argument. Instead it fetches the default layer
-        /// of the currently active scene.
-        ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param ID Unique component identifier
         ///
         DefaultDrawable(Object& object, const std::string& ID);
 
 
+        /// \copydoc jop::Component::clone()
+        ///
         virtual DefaultDrawable* clone() const override;
 
+        /// \brief Draw function
+        ///
         virtual void draw(const Camera& camera) override;
 
     };

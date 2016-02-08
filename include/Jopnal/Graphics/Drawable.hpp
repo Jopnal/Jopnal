@@ -73,23 +73,29 @@ namespace jop
         virtual void draw(const Camera&) = 0;
 
 
+        /// \brief Set the model
         ///
+        /// \param model Reference to the model
         ///
         void setModel(const Model& model);
 
+        /// \brief Set the shader
         ///
+        /// \param shader Reference to the shader
         ///
         void setShader(Shader& shader);
 
+        /// \brief Set the texture
         ///
+        /// \param texture Reference to the texture
         ///
         void setTexture(const Texture& texture);
 
     protected:
 
-        std::weak_ptr<const Model> m_model;
-        std::weak_ptr<Shader> m_shader;
-        std::weak_ptr<Texture> m_texture;
+        std::weak_ptr<const Model> m_model; ///< The bound model
+        std::weak_ptr<Shader> m_shader;     ///< The bound shader
+        std::weak_ptr<Texture> m_texture;   ///< The bound texture
         
     };
 }

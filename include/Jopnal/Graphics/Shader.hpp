@@ -120,8 +120,21 @@ namespace jop
         ///
         bool setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
 
+        /// \brief Set an attribute using the location
+        ///
+        /// \param loc Location
+        /// \param type The type
+        /// \param amount
+        /// \param stride
+        /// \param normalize
+        /// \param pointer
+        ///
         void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
 
+        /// \brief Get the default shader
+        ///
+        /// \return Reference to the default shader
+        ///
         static Shader& getDefault();
 
     private:

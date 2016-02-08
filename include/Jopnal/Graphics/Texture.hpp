@@ -95,7 +95,9 @@ namespace jop
 
         /// \brief Bind a texture sampler
         ///
-        void setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler);
+        /// \param sampler The sampler
+        ///
+        void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
 
 
         /// \brief Returns image's width
@@ -118,6 +120,10 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
         static const Texture& getDefault();
 
     private:

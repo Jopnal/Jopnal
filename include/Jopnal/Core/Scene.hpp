@@ -197,6 +197,10 @@ namespace jop
         void drawBase();
 
 
+        /// \brief Initialize this scene
+        ///
+        /// This function should be preferred when doing scene initialization.
+        ///
         virtual void initialize();
         
 

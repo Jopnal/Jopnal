@@ -150,7 +150,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler)
+    void Texture::setTextureSampler(std::weak_ptr<const TextureSampler> sampler)
     {
         m_sampler = sampler;
     }

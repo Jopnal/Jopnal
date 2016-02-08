@@ -110,6 +110,13 @@ namespace jop
         ///
         Transform& setScale(const glm::vec3& scale);
 
+        /// \brief Set the scale
+        ///
+        /// This call is equal to setScale(delta, delta, delta)
+        ///
+        /// \param delta The new scale
+        ///
+        /// \return Reference to self
         ///
         Transform& setScale(const float delta);
 
@@ -222,6 +229,12 @@ namespace jop
 
         /// \brief Scale this transform
         ///
+        /// This call is equal to scale(delta, delta, delta)
+        ///
+        /// \param delta The scale modifier
+        ///
+        /// \eturn Reference to self
+        ///
         Transform& scale(const float delta);
 
 
@@ -231,13 +244,13 @@ namespace jop
 
     protected:
 
-        mutable glm::mat4 m_transform;
-        mutable glm::mat4 m_invTransform;
-        mutable glm::quat m_rotation;
-        glm::vec3 m_scale;
-        glm::vec3 m_position;
-        mutable bool m_transformNeedUpdate;
-        mutable bool m_invTransformNeedsUpdate;
+        mutable glm::mat4 m_transform;          ///< The cached transformation matrix
+        mutable glm::mat4 m_invTransform;       ///< The cached inverted transformation matrix
+        mutable glm::quat m_rotation;           ///< Rotation quaternion
+        glm::vec3 m_scale;                      ///< Scale vector
+        glm::vec3 m_position;                   ///< Position vector
+        mutable bool m_transformNeedUpdate;     ///< Does the transform need updating?
+        mutable bool m_invTransformNeedsUpdate; ///< Does the inverted transform need updating?
         
     };
 }

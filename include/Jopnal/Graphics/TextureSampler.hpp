@@ -81,7 +81,15 @@ namespace jop
         ///
         ~TextureSampler();
 
-
+        
+        /// \brief Re(load) this sampler
+        ///
+        /// \param filterMode The filtering mode
+        /// \param rerpeatMode The repeating mode
+        /// \param param Anisotropic filtering level
+        ///
+        /// \return True if successful
+        ///
         bool load(const Filter filterMode, const Repeat repeatMode, const float param = 1.f);
 
         /// \brief Bind this sampler

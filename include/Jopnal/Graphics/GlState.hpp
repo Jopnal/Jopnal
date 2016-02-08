@@ -41,10 +41,14 @@ namespace jop
 
         friend class detail::WindowImpl;
 
+        /// Reset the cached values to defaults
+        ///
         static void reset();
 
     public:
 
+        /// Depth functions
+        ///
         enum class DepthFunc
         {
             Never,
@@ -57,6 +61,8 @@ namespace jop
             Always
         };
 
+        /// Face culling modes
+        ///
         enum class FaceCull
         {
             Front,
@@ -64,6 +70,8 @@ namespace jop
             Both
         };
 
+        /// Blend functions
+        ///
         enum class BlendFunc
         {
             Zero,
@@ -84,20 +92,58 @@ namespace jop
 
     public:
     
+        /// \brief Set the depth test
+        ///
+        /// \param enable Enable depth test
+        /// \param func The depth function
+        ///
         static void setDepthTest(const bool enable, const DepthFunc func = DepthFunc::Less);
 
+        /// \brief Set the face culling mode
+        ///
+        /// \param enable Enable face culling
+        /// \param cull The face culling mode
+        ///
         static void setFaceCull(const bool enable, const FaceCull cull = FaceCull::Back);
 
+        /// \brief Set the blend function
+        ///
+        /// \param enable Enable blending
+        /// \param srcFactor The source factor
+        /// \param dstFactor The destination factor
+        ///
         static void setBlendFunc(const bool enable, const BlendFunc srcFactor = BlendFunc::SrcAlpha, const BlendFunc dstFactor = BlendFunc::OneMinusSrcAlpha);
 
+        /// \brief Set the stencil test
+        ///
+        /// \param enable Enable stencil test
+        /// \param func The stencil function
+        /// \param mask The mask
+        ///
         static void setStencilTest(const bool enable, const DepthFunc func = DepthFunc::Always, const unsigned int mask = 0xFFFFFFFF);
 
+        /// \brief Enable/disable seamless cube mapping
+        ///
+        /// \param enable Enable?
+        ///
         static void setSeamlessCubemap(const bool enable);
 
+        /// \brief Enable/disable polygon smoothing
+        ///
+        /// \param enable Enable?
+        ///
         static void setPolygonSmooth(const bool enable);
 
+        /// \brief Enable/disable line smoothing
+        ///
+        /// \param enable Enable?
+        ///
         static void setLineSmooth(const bool enable);
 
+        /// \brief Set the line width
+        ///
+        /// \param width The new width
+        ///
         static void setLineWidth(const float width);
         
     };
