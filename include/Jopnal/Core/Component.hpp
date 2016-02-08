@@ -65,6 +65,8 @@ namespace jop
 
         /// \brief Copy this component
         ///
+        /// This function exists for internal use only. Do not call directly.
+        ///
         virtual Component* clone() const = 0;
 
 

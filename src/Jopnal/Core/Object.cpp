@@ -36,7 +36,6 @@ namespace jop
         // Object
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
         JOP_BIND_MEMBER_COMMAND(&Object::getComponent, "getComponent");
-        JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND(&Object::getChild, "getChild");
         JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
@@ -113,10 +112,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Object> Object::createChild(const std::string& ID)
+    Object& Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(std::make_unique<Object>(ID));
-        return std::weak_ptr<Object>(m_children.back());
+        return *m_children.back();
     }
 
     //////////////////////////////////////////////

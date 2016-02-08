@@ -35,6 +35,10 @@ namespace jop
     {
     public:
 
+        /// \copydoc jop::BoxModel::BoxModel()
+        ///
+        SphereModel();
+
         /// \brief Creates a 3D sphere
         ///
         /// High values for sectors and rings will result in better looking results, but may
@@ -43,8 +47,21 @@ namespace jop
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
+        /// \param normalizedTexCoords Normalize the tex coords?
         ///
-        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors);
+        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+
+
+        /// \brief Load a sphere
+        ///
+        /// \param radius The radius of the sphere
+        /// \param rings How many rings will the sphere have
+        /// \param sectors How many sectors the circle will get divided to
+        /// \param normalizedTexCoords Normalize the tex coords?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
     };
 }

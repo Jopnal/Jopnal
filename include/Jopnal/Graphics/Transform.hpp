@@ -90,31 +90,6 @@ namespace jop
         const glm::quat& getRotation() const;
 
 
-        /// \brief Set the origin
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setOrigin(const float x, const float y, const float z);
-
-        /// \brief Set the origin
-        ///
-        /// \param origin Vector with the origin to set
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setOrigin(const glm::vec3& origin);
-
-        /// \brief Get the origin
-        ///
-        /// \return Vector with the origin
-        ///
-        const glm::vec3& getOrigin() const;
-
-
         /// \brief Set the scale
         ///
         /// 1.f means the original scale
@@ -134,6 +109,16 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& setScale(const glm::vec3& scale);
+
+        /// \brief Set the scale
+        ///
+        /// This call is equal to setScale(delta, delta, delta)
+        ///
+        /// \param delta The new scale
+        ///
+        /// \return Reference to self
+        ///
+        Transform& setScale(const float delta);
 
         /// \brief Get the scale
         ///
@@ -241,25 +226,16 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& scale(const glm::vec3& scale);
-        
 
-        /// \brief Move this transform's origin
+        /// \brief Scale this transform
         ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
+        /// This call is equal to scale(delta, delta, delta)
         ///
-        /// \returns Reference to self
+        /// \param delta The scale modifier
         ///
-        Transform& moveOrigin(const float x, const float y, const float z);
-        
-        /// \brief Move this transform's origin
+        /// \eturn Reference to self
         ///
-        /// This function will change the origin, according given values
-        ///
-        /// \return Reference to self
-        ///
-        Transform& moveOrigin(const glm::vec3& offset);
+        Transform& scale(const float delta);
 
 
         /// The identity matrix
@@ -268,14 +244,13 @@ namespace jop
 
     protected:
 
-        mutable glm::mat4 m_transform;
-        mutable glm::mat4 m_invTransform;
-        mutable glm::quat m_rotation;
-        glm::vec3 m_origin;
-        glm::vec3 m_scale;
-        glm::vec3 m_position;
-        mutable bool m_transformNeedUpdate;
-        mutable bool m_invTransformNeedsUpdate;
+        mutable glm::mat4 m_transform;          ///< The cached transformation matrix
+        mutable glm::mat4 m_invTransform;       ///< The cached inverted transformation matrix
+        mutable glm::quat m_rotation;           ///< Rotation quaternion
+        glm::vec3 m_scale;                      ///< Scale vector
+        glm::vec3 m_position;                   ///< Position vector
+        mutable bool m_transformNeedUpdate;     ///< Does the transform need updating?
+        mutable bool m_invTransformNeedsUpdate; ///< Does the inverted transform need updating?
         
     };
 }

@@ -65,6 +65,15 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
+
+        /// \brief Get the default model
+        ///
+        /// The default model is a cube with a size of 1.
+        ///
+        /// \return Reference to the model
+        ///
+        static const Model& getDefault();
+
     private:
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer

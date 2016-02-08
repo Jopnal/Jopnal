@@ -56,12 +56,14 @@ namespace jop
         virtual ~Layer() override;
 
 
+        void drawBase();
+
         /// \brief Draw function
         ///
         /// The default version of this function simply iterates through the
         /// local & bound draw lists and calls draw() on the drawables.
         ///
-        virtual void draw() override;
+        virtual void draw(const Camera& camera);
 
 
         /// \brief Method to send messages
@@ -118,6 +120,8 @@ namespace jop
         ///
         void setRenderTexture(RenderTexture* renderTexture);
 
+        void sweepRemoved();
+
 
     protected:
 
@@ -125,6 +129,7 @@ namespace jop
         std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
         std::weak_ptr<const Camera> m_camera;             ///< Bound camera
         std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
+        bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 
     };
 }

@@ -31,7 +31,6 @@ namespace jop
         : m_transform               (IdentityMatrix),
           m_invTransform            (IdentityMatrix),
           m_rotation                (1.f, 0.f, 0.f, 0.f),
-          m_origin                  (0.f, 0.f, 0.f),
           m_scale                   (1.f, 1.f, 1.f),
           m_position                (0.f, 0.f, 0.f),
           m_transformNeedUpdate     (false),
@@ -44,10 +43,11 @@ namespace jop
     {
         if (m_transformNeedUpdate)
         {
-            glm::translate(m_transform, m_position);
+            m_transform = IdentityMatrix;
+
+            m_transform = glm::translate(m_transform, m_position);
             m_transform *= m_rotation.operator glm::tmat4x4<float, glm::highp>();
-            glm::scale(m_transform, m_scale);
-            glm::translate(m_transform, m_origin);
+            m_transform = glm::scale(m_transform, m_scale);
 
             m_transformNeedUpdate = false;
         }
@@ -102,31 +102,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Transform& Transform::setOrigin(const float x, const float y, const float z)
-    {
-        m_origin = glm::vec3(x, y, z);
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    Transform& Transform::setOrigin(const glm::vec3& origin)
-    {
-        return setOrigin(origin.x, origin.y, origin.z);
-    }
-
-    //////////////////////////////////////////////
-
-    const glm::vec3& Transform::getOrigin() const
-    {
-        return m_origin;
-    }
-
-    //////////////////////////////////////////////
-
     Transform& Transform::setScale(const float x, const float y, const float z)
     {
         m_scale = glm::vec3(x, y, z);
@@ -141,6 +116,13 @@ namespace jop
     Transform& Transform::setScale(const glm::vec3& scale)
     {
         return setScale(scale.x, scale.y, scale.z);
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::setScale(const float delta)
+    {
+        return setScale(delta, delta, delta);
     }
 
     //////////////////////////////////////////////
@@ -255,20 +237,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Transform& Transform::moveOrigin(const float x, const float y, const float z)
+    Transform& Transform::scale(const float delta)
     {
-        return moveOrigin(glm::vec3(x, y, z));
-    }
-
-    //////////////////////////////////////////////
-
-    Transform& Transform::moveOrigin(const glm::vec3& offset)
-    {
-        m_origin += offset;
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return scale(delta, delta, delta);
     }
 
     //////////////////////////////////////////////

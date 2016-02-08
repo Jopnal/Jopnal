@@ -35,11 +35,28 @@ namespace jop
     {
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Does not initialize the vertices.
+        ///
+        BoxModel();
+
         /// \brief Creates a cube model
         ///
-        /// \param size Size of box (Default is 1.0f)
+        /// \param size Size of the box
         ///
-        BoxModel(const float size = 1.0f);
+        BoxModel(const float size);
+
+
+        /// \brief Load this box
+        ///
+        /// This will set up the vertices and create the buffers
+        ///
+        /// \param size Size of the box
+        ///
+        /// \eturn True if successful
+        ///
+        bool load(const float size);
     };
 }
 

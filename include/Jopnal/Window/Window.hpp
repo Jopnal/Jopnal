@@ -69,6 +69,7 @@ namespace jop
             glm::uvec2 size;
             std::string title;
             DisplayMode displayMode;
+            unsigned int samples;
             bool visible;
         };
 

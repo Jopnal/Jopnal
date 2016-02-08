@@ -32,6 +32,12 @@
 namespace
 {
     bool ns_eventsPolled = false;
+
+    struct jop_DefaultEventHandler : jop::WindowEventHandler
+    {
+        jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
+        void closed() override {jop::Engine::exit();}
+    };
 }
 
 namespace jop
@@ -40,6 +46,7 @@ namespace jop
         : size          (1u, 1u),
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
+          samples       (0),
           visible       (false)
     {
         if (loadSettings)
@@ -47,6 +54,7 @@ namespace jop
             size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
+            samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = true;
         }
     }
@@ -67,6 +75,7 @@ namespace jop
           m_colorChanged    (true)
     {
         open(settings);
+        setEventHandler<jop_DefaultEventHandler>();
     }
 
     Window::~Window()
@@ -112,11 +121,11 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getBool("bControllerInput", true);
+            static const bool controllers = SettingManager::getUint("uMaxControllers", 4) > 0;
 
             pollEvents();
 
-            if (controllers && m_eventHandler.operator bool())
+            if (controllers && m_eventHandler)
                 m_eventHandler->handleControllerInput();
 
             ns_eventsPolled = true;
@@ -128,6 +137,10 @@ namespace jop
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
+        setViewportRelative(0.f, 0.f, 1.f, 1.f);
+
+        static const Color defColor(SettingManager::getUint("uDefaultWindowClearColor", 0x000000FF));
+        setClearColor(defColor);
     }
 
     //////////////////////////////////////////////

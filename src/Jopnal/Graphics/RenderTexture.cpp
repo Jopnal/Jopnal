@@ -211,8 +211,11 @@ namespace jop
     {
         if (m_frameBuffer && m_frameBuffer != ns_currentBuffer)
         {
-            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
-            ns_currentBuffer = m_frameBuffer;
+            if (m_frameBuffer != ns_currentBuffer)
+            {
+                glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
+                ns_currentBuffer = m_frameBuffer;
+            }
         }
 
         return isValid();

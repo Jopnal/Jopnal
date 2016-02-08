@@ -91,6 +91,8 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings)
+        : m_window      (nullptr),
+          m_vertexArray (0)
     {
         initialize();
 
@@ -99,7 +101,8 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+        glfwWindowHint(GLFW_SAMPLES, settings.samples);
+        
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
         
@@ -110,10 +113,18 @@ namespace jop { namespace detail
         glfwMakeContextCurrent(m_window);
 
         initExtensions();
+
+        glCheck(gl::GenVertexArrays(1, &m_vertexArray));
+        glCheck(gl::BindVertexArray(m_vertexArray));
     }
 
     WindowImpl::~WindowImpl()
     {
+        GlState::reset();
+
+        glCheck(gl::BindVertexArray(0));
+        glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
+
         // There should always be a valid window
         glfwDestroyWindow(m_window);
         deInitialize();

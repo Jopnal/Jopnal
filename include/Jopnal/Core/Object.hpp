@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
@@ -34,8 +35,6 @@
 
 namespace jop
 {
-    class Component;
-
     class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
     {
     private:
@@ -99,7 +98,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        std::weak_ptr<Object> createChild(const std::string& ID);
+        Object& createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///

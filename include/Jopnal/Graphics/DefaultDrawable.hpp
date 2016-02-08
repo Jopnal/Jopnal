@@ -19,44 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
+#ifndef JOP_DEFAULTDRAWABLE_HPP
+#define JOP_DEFAULTDRAWABLE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <GLFW/glfw3.h>
+#include <Jopnal/Graphics/Drawable.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop
 {
-    class WindowImpl
+    class JOP_API DefaultDrawable : public Drawable
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(WindowImpl);
-    
     public:
 
-        WindowImpl(const Window::Settings& settings);
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param ID Unique component identifier
+        ///
+        DefaultDrawable(Object& object, const std::string& ID);
 
-        ~WindowImpl();
 
+        /// \copydoc jop::Component::clone()
+        ///
+        virtual DefaultDrawable* clone() const override;
 
-        void swapBuffers();
-
-        GLFWwindow* getLibraryHandle();
-
-        static void pollEvents();
-
-    private:
-
-        GLFWwindow* m_window;
-        unsigned int m_vertexArray;
+        /// \brief Draw function
+        ///
+        virtual void draw(const Camera& camera) override;
 
     };
-}}
+}
 
 #endif

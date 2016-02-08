@@ -19,44 +19,20 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WINDOWDESKTOP_HPP
-#define JOP_WINDOWDESKTOP_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <GLFW/glfw3.h>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop
 {
-    class WindowImpl
+    std::string Keyboard::getKeyName(const int scanCode)
     {
-    private:
+        char str[64] = "UNKNOWN";
 
-        JOP_DISALLOW_COPY_MOVE(WindowImpl);
-    
-    public:
+        GetKeyNameTextA(scanCode, str, sizeof(str) / sizeof(str[0]));
 
-        WindowImpl(const Window::Settings& settings);
-
-        ~WindowImpl();
-
-
-        void swapBuffers();
-
-        GLFWwindow* getLibraryHandle();
-
-        static void pollEvents();
-
-    private:
-
-        GLFWwindow* m_window;
-        unsigned int m_vertexArray;
-
-    };
-}}
-
-#endif
+        return std::string(str);
+    }
+}

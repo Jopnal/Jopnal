@@ -78,10 +78,6 @@ namespace jop
         ///
         Camera(const Camera& other);
 
-        /// \brief Destructor
-        ///
-        ~Camera() override;
-
 
         /// \brief Clone this camera
         ///

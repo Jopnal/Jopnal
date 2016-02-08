@@ -98,7 +98,7 @@ namespace jop
                     char log[1024];
                     glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0)
+                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -133,7 +133,7 @@ namespace jop
                     char log[1024];
                     glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0)
+                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }
@@ -150,9 +150,7 @@ namespace jop
             if (shaderStr.empty())
                 continue;
 
-            // #TODO Change to use FileLoader string function
-            std::vector<unsigned char> fileReadBuffer;
-
+            std::string fileReadBuffer;
             const char* source = FileLoader::read(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str();
 
             shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
@@ -206,10 +204,13 @@ namespace jop
 
     bool Shader::bind() const
     {
-        if (m_shaderProgram && ns_boundProgram != m_shaderProgram)
+        if (m_shaderProgram)
         {
-            glCheck(gl::UseProgram(m_shaderProgram));
-            ns_boundProgram = m_shaderProgram;
+            if (ns_boundProgram != m_shaderProgram)
+            {
+                glCheck(gl::UseProgram(m_shaderProgram));
+                ns_boundProgram = m_shaderProgram;
+            }
             return true;
         }
 
@@ -229,59 +230,67 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Shader::setUniform(const std::string& name, const glm::mat4& matrix)
+    bool Shader::setUniform(const std::string& name, const glm::mat4& matrix)
     {
         const int loc = getUniformLocation(name);
         
         if (loc != -1)
             glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+
+        return loc != -1;
     }
 
     //////////////////////////////////////////////
 
-    void Shader::setUniform(const std::string& name, const glm::mat3& matrix)
+    bool Shader::setUniform(const std::string& name, const glm::mat3& matrix)
     {
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
             glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+
+        return loc != -1;
     }
 
     //////////////////////////////////////////////
 
-    void Shader::setUniform(const std::string& name, const glm::vec3& vector)
+    bool Shader::setUniform(const std::string& name, const glm::vec3& vector)
     {
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
             glCheck(gl::Uniform3f(loc, vector.x, vector.y, vector.z));
+
+        return loc != -1;
     }
 
     //////////////////////////////////////////////
 
-    void Shader::setUniform(const std::string& name, const glm::vec4& vector)
+    bool Shader::setUniform(const std::string& name, const glm::vec4& vector)
     {
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
             glCheck(gl::Uniform4f(loc, vector.x, vector.y, vector.z, vector.w));
+
+        return loc != -1;
     }
 
     //////////////////////////////////////////////
     
-    void Shader::setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit)
+    bool Shader::setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit)
     {
         const int loc = getUniformLocation(name);
 
-        texture.bind(unit);
+        if (loc != -1 && texture.bind(unit))
+            glCheck(gl::Uniform1i(loc, unit));
 
-        if (loc != -1)
-            glCheck(gl::Uniform1i(loc, texture.getHandle()));
+        return loc != -1;
     }
 
     //////////////////////////////////////////////
 
-    void Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
+    bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);
 
@@ -290,6 +299,57 @@ namespace jop
             glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
             glCheck(gl::EnableVertexAttribArray(loc));
         }
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
+    {
+        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
+        glCheck(gl::EnableVertexAttribArray(loc));
+    }
+
+    //////////////////////////////////////////////
+
+    Shader& Shader::getDefault()
+    {
+        static const std::string defVert =
+            "#version 330 \n"
+
+            "uniform mat4 u_PVMMatrix; \n"
+
+            "layout(location = 0)in vec3 a_Position; \n"
+            "layout(location = 1)in vec2 a_TexCoords; \n"
+
+            "out vec2 out_texCoords; \n"
+
+            "void main() \n"
+            "{ \n"
+            "   gl_Position = u_PVMMatrix * vec4(a_Position, 1.0); \n"
+
+            "   out_texCoords = a_TexCoords; \n"
+            "}";
+
+        static const std::string defFrag =
+            "#version 330 \n"
+
+            "uniform sampler2D tex; \n"
+
+            "in vec2 out_texCoords; \n"
+            "out vec4 final_Color; \n"
+
+            "void main() \n"
+            "{ \n"
+            "   final_Color = texture2D(tex, out_texCoords); \n"
+            "}";
+
+        auto defShader = ResourceManager::getNamedResource<Shader>("DefaultShader", defVert, "", defFrag);
+
+        JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
+
+        return *defShader.lock();
     }
 
     //////////////////////////////////////////////
@@ -315,7 +375,7 @@ namespace jop
     {
         if (bind())
         {
-            const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
+            const int location = glCheck(gl::GetAttribLocation(m_shaderProgram, name.c_str()));
 
             if (location == -1)
                 JOP_DEBUG_WARNING("Attrubute named \"" << name << "\" not found in shader");

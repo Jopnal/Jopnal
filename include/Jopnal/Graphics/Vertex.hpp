@@ -34,6 +34,15 @@ namespace jop
     {
     public:
 
+        enum Attrib
+        {
+            Position = 0,
+            TexCoords = sizeof(float) * 3,
+            Normal = TexCoords + sizeof(float) * 2
+        };
+
+    public:
+
         /// \brief Default constructor
         ///
         Vertex() = default;
