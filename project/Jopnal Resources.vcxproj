@@ -80,20 +80,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\Textures\checker.bmp" />
-    <Image Include="Resources\Textures\error.bmp" />
-    <Image Include="Textures\checker.bmp" />
-    <Image Include="Textures\error.bmp" />
+    <Image Include="Resources\Textures\checker.png" />
+    <Image Include="Resources\Textures\error.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\default.frag" />
-    <None Include="Resources\Shaders\default.vert" />
+    <ResourceCompile Include="Resources\Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

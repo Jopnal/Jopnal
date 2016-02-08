@@ -189,19 +189,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const Texture& Texture::getError()
+    {
+        auto errTex = ResourceManager::getNamedResource<Texture>("Error Texture", IDB_PNG2);
+
+        JOP_ASSERT(!errTex.expired(), "Failed to load error texture!");
+
+        return *errTex.lock();
+    }
+
+    //////////////////////////////////////////////
+
     const Texture& Texture::getDefault()
     {
-        static const unsigned char pix[] =
-        {
-            255, 0, 0, 255,
-            0, 0, 255, 255,
-            0, 0, 255, 255,
-            255, 0, 0, 255
-        };
+        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", IDB_PNG1);
 
-        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", 2, 2, 4, pix);
-
-        JOP_ASSERT(!defTex.expired(), "Couldn't create default texture!");
+        JOP_ASSERT(!defTex.expired(), "Failed to load error texture!");
 
         return *defTex.lock();
     }
@@ -211,6 +214,28 @@ namespace jop
     unsigned int Texture::getHandle() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture::load(const int id)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readFromDll(id, buf))
+            return false;
+
+        int x, y, bpp;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        if (!pix)
+            return false;
+
+        if (!load(x, y, bpp, pix))
+            return false;
+
+        stbi_image_free(pix);
+
+        return true;
     }
 
     //////////////////////////////////////////////

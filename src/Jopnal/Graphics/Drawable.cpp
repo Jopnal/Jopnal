@@ -35,7 +35,7 @@ namespace jop
     {
         setModel(Model::getDefault());
         setShader(Shader::getDefault());
-        setTexture(Texture::getDefault());
+        setTexture(Texture::getError());
     }
 
     Drawable::Drawable(const Drawable& other)

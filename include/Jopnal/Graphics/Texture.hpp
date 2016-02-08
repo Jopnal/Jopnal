@@ -35,6 +35,10 @@ namespace jop
 
     class Texture : public Resource
     {
+    private:
+
+        friend class ResourceManager;
+
     public:
 
         /// \brief Constructor
@@ -120,6 +124,12 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static const Texture& getError();
+
         /// \brief Get the default texture
         ///
         /// \return Reference to the texture
@@ -127,6 +137,12 @@ namespace jop
         static const Texture& getDefault();
 
     private:
+
+        /// \brief Load from dll
+        ///
+        /// This is for internal use only
+        ///
+        bool load(const int id);
 
         /// \brief Check if a byte depth is valid
         ///
