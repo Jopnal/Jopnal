@@ -313,43 +313,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Shader& Shader::getDefault()
+    std::weak_ptr<Shader> Shader::getDefault()
     {
-        static const std::string defVert =
-            "#version 330 \n"
+        static std::weak_ptr<Shader> defShader;
 
-            "uniform mat4 u_PVMMatrix; \n"
+        if (defShader.expired())
+        {
+            std::vector<unsigned char> vert;
+            std::vector<unsigned char> frag;
+            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            "layout(location = 0)in vec3 a_Position; \n"
-            "layout(location = 1)in vec2 a_TexCoords; \n"
+            defShader = ResourceManager::getNamedResource<Shader>("Default Shader",
+                                                                  std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                                                                  "",
+                                                                  std::string(reinterpret_cast<const char*>(frag.data()), frag.size()));
 
-            "out vec2 out_texCoords; \n"
+            JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
+        }
 
-            "void main() \n"
-            "{ \n"
-            "   gl_Position = u_PVMMatrix * vec4(a_Position, 1.0); \n"
-
-            "   out_texCoords = a_TexCoords; \n"
-            "}";
-
-        static const std::string defFrag =
-            "#version 330 \n"
-
-            "uniform sampler2D tex; \n"
-
-            "in vec2 out_texCoords; \n"
-            "out vec4 final_Color; \n"
-
-            "void main() \n"
-            "{ \n"
-            "   final_Color = texture2D(tex, out_texCoords); \n"
-            "}";
-
-        auto defShader = ResourceManager::getNamedResource<Shader>("DefaultShader", defVert, "", defFrag);
-
-        JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
-
-        return *defShader.lock();
+        return defShader;
     }
 
     //////////////////////////////////////////////

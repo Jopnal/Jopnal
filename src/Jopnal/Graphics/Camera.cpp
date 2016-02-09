@@ -48,8 +48,8 @@ namespace jop
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeX", 1024));
-        const float y = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeY", 600));
+        const float x = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
+        const float y = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
 
         if (mode == Projection::Orthographic)
         {

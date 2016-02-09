@@ -34,8 +34,8 @@ namespace jop
           m_texture ()
     {
         setModel(Model::getDefault());
-        setShader(Shader::getDefault());
-        setTexture(Texture::getDefault());
+        setShader(*Shader::getDefault().lock());
+        setTexture(*Texture::getDefault().lock());
     }
 
     Drawable::Drawable(const Drawable& other)

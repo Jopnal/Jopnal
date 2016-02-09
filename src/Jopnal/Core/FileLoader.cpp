@@ -27,6 +27,12 @@
 namespace
 {
     bool ns_init = false;
+
+#ifdef JOP_OS_WINDOWS
+
+    HINSTANCE ns_resourceDll = nullptr;
+
+#endif
 }
 
 namespace jop
@@ -51,6 +57,11 @@ namespace jop
     FileLoader::~FileLoader()
     {
         // SettingManager will deinitialize PhysFS
+
+    #ifdef JOP_OS_WINDOWS
+        if (ns_resourceDll)
+            FreeLibrary(ns_resourceDll);
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -96,5 +107,44 @@ namespace jop
         buffer = reinterpret_cast<const char*>(buf.data());
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool FileLoader::readFromDll(const int id, std::vector<unsigned char>& buffer)
+    {
+        if (!ns_resourceDll)
+        {
+            ns_resourceDll = LoadLibrary("Jopnal Resources.dll");
+            JOP_ASSERT(ns_resourceDll != nullptr, "Failed to load the Jopnal resource dll!");
+        }
+
+        bool success = false;
+
+        auto handle = FindResource(ns_resourceDll, MAKEINTRESOURCE(id), RT_RCDATA);
+
+        if (handle)
+        {
+            auto res = LoadResource(ns_resourceDll, handle);
+
+            if (res)
+            {
+                auto size = SizeofResource(ns_resourceDll, handle);
+                auto locked = LockResource(res);
+
+                if (locked && size)
+                {
+                    buffer.resize(size);
+                    std::memcpy(buffer.data(), locked, size);
+                    success = true;
+                }
+
+                UnlockResource(locked);
+            }
+
+            FreeResource(res);
+        }
+
+        return success;
     }
 }

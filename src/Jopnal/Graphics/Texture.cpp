@@ -36,7 +36,7 @@ namespace jop
 {
     Texture::Texture()
         : m_sampler         (),
-          m_defaultSampler  (std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this())),
+          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
@@ -189,21 +189,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture& Texture::getDefault()
+    std::weak_ptr<Texture> Texture::getError()
     {
-        static const unsigned char pix[] =
-        {
-            255, 0, 0, 255,
-            0, 0, 255, 255,
-            0, 0, 255, 255,
-            255, 0, 0, 255
-        };
+        auto errTex = ResourceManager::getNamedResource<Texture>("Error Texture", IDB_PNG2);
 
-        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", 2, 2, 4, pix);
+        JOP_ASSERT(!errTex.expired(), "Failed to load error texture!");
 
-        JOP_ASSERT(!defTex.expired(), "Couldn't create default texture!");
+        return errTex;
+    }
 
-        return *defTex.lock();
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Texture> Texture::getDefault()
+    {
+        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", IDB_PNG1);
+
+        JOP_ASSERT(!defTex.expired(), "Failed to load error texture!");
+
+        return defTex;
     }
 
     //////////////////////////////////////////////
@@ -211,6 +214,28 @@ namespace jop
     unsigned int Texture::getHandle() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture::load(const int id)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readFromDll(id, buf))
+            return false;
+
+        int x, y, bpp;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        if (!pix)
+            return false;
+
+        if (!load(x, y, bpp, pix))
+            return false;
+
+        stbi_image_free(pix);
+
+        return true;
     }
 
     //////////////////////////////////////////////

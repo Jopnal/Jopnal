@@ -23,6 +23,8 @@ See [here.](https://github.com/DrJonki/Jopnal/wiki)
 
 This library uses the zlib license. See the LICENSE file for details.
 
+All the included [3rd party libraries](https://github.com/DrJonki/Jopnal/wiki/Credits) are subject to their own licenses.
+
 ### Credits
 
 Copyright (c) 2016 Team Jopnal, All Rights Reserved  
