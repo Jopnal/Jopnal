@@ -191,11 +191,19 @@ namespace jop
         static T& setSharedScene(Args&... args);
 
 
+        /// \brief Get the total time since Engine construction
+        ///
+        /// \return Time in seconds
+        ///
+        static double getTotalTime();
+
+
     private:
 
         static Engine* m_engineObject;                        ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running

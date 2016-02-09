@@ -48,6 +48,7 @@ namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
         : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+          m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
           m_running         (true)
@@ -104,12 +105,10 @@ namespace jop
 
         while (m_running)
         {
-            float64 frameTime = frameClock.reset().asSeconds();
-
             // Clamp the delta time to a certain value. This is to prevent
             // a "spiral of death" if fps goes below 10.
-            if (frameTime > 0.1)
-                frameTime = 0.1;
+            const float64 frameTime = std::min(0.1, frameClock.reset().asSeconds());
+            m_totalTime += frameTime;
 
             // Fixed update
             {
@@ -284,7 +283,17 @@ namespace jop
         return *m_engineObject->m_sharedScene;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    double Engine::getTotalTime()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_totalTime;
+
+        return 0.0;
+    }
+
+    //////////////////////////////////////////////
 
     Engine* Engine::m_engineObject = nullptr;
 

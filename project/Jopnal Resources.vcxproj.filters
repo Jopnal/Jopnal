@@ -23,4 +23,12 @@
   <ItemGroup>
     <ResourceCompile Include="Resources\Resource.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\default.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\default.vert">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
 </Project>
