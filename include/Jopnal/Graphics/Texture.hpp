@@ -128,13 +128,13 @@ namespace jop
         ///
         /// \return Reference to the texture
         ///
-        static const Texture& getError();
+        static std::weak_ptr<Texture> getError();
 
         /// \brief Get the default texture
         ///
         /// \return Reference to the texture
         ///
-        static const Texture& getDefault();
+        static std::weak_ptr<Texture> getDefault();
 
     private:
 

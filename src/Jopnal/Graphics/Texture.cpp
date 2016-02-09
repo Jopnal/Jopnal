@@ -36,7 +36,7 @@ namespace jop
 {
     Texture::Texture()
         : m_sampler         (),
-          m_defaultSampler  (std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this())),
+          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
@@ -189,24 +189,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture& Texture::getError()
+    std::weak_ptr<Texture> Texture::getError()
     {
         auto errTex = ResourceManager::getNamedResource<Texture>("Error Texture", IDB_PNG2);
 
         JOP_ASSERT(!errTex.expired(), "Failed to load error texture!");
 
-        return *errTex.lock();
+        return errTex;
     }
 
     //////////////////////////////////////////////
 
-    const Texture& Texture::getDefault()
+    std::weak_ptr<Texture> Texture::getDefault()
     {
         auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", IDB_PNG1);
 
         JOP_ASSERT(!defTex.expired(), "Failed to load error texture!");
 
-        return *defTex.lock();
+        return defTex;
     }
 
     //////////////////////////////////////////////

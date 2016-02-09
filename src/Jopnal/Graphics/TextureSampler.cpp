@@ -170,7 +170,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const TextureSampler& TextureSampler::getDefault()
+    std::weak_ptr<TextureSampler> TextureSampler::getDefault()
     {
         auto defSampler = ResourceManager::getNamedResource<TextureSampler>
         (
@@ -182,6 +182,6 @@ namespace jop
 
         JOP_ASSERT(!defSampler.expired(), "Couldn't create default sampler!");
 
-        return *defSampler.lock();
+        return defSampler;
     }
 }

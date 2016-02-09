@@ -313,7 +313,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Shader& Shader::getDefault()
+    std::weak_ptr<Shader> Shader::getDefault()
     {
         static const std::string defVert =
             "#version 330 \n"
@@ -349,7 +349,7 @@ namespace jop
 
         JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
 
-        return *defShader.lock();
+        return defShader;
     }
 
     //////////////////////////////////////////////
