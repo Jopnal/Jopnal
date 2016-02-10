@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
+//    in a product, an acknowledgment in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,52 +19,50 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MATERIAL_HPP
-#define JOP_MATERIAL_HPP
+#ifndef JOP_BOXMODEL_HPP
+#define JOP_BOXMODEL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/Model.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-	class Shader;
-
-    class JOP_API Material : public Resource
+    class JOP_API BoxModel : public Model
     {
     public:
-        Material();
-        ~Material();
 
-        void sendToShader(Shader& shader);
+        /// \brief Default constructor
+        ///
+        /// Does not initialize the vertices.
+        ///
+        BoxModel();
 
-        Material& setAmbient(const Color& color);
-
-		const Color& getAmbient();
-
-        void setDiffuse(const Color& color);
-
-		const Color& getDiffuse();
-
-        void setSpecular(const Color& color);
-
-		const Color& getSpecular();
-
-        void setShininess(const float value);
-
-		const float getShininess();
+        /// \brief Creates a cube model
+        ///
+        /// \param size Size of the box
+        ///
+        BoxModel(const float size);
 
 
-    private:
-
-        Color m_ambientRef;
-        Color m_diffuseRef;
-        Color m_specularRef;
-        float m_shininess;
+        /// \brief Load this box
+        ///
+        /// This will set up the vertices and create the buffers
+        ///
+        /// \param size Size of the box
+        ///
+        /// \eturn True if successful
+        ///
+        bool load(const float size);
     };
 }
+
 #endif
+
+/// \class BoxModel
+/// \ingroup Graphics
+///
+/// Do explanation about the class

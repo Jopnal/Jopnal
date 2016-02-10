@@ -22,9 +22,10 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-// STB
 #define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable: 4189)
+#pragma warning(disable: 4244)
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 
@@ -35,7 +36,7 @@ namespace jop
 {
     Texture::Texture()
         : m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefaultSampler()),
+          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
@@ -128,7 +129,8 @@ namespace jop
     {
         if (m_texture)
         {
-            glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+            glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
+            glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
                 m_sampler.lock()->bind(texUnit);
@@ -148,7 +150,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler)
+    void Texture::setTextureSampler(std::weak_ptr<const TextureSampler> sampler)
     {
         m_sampler = sampler;
     }
@@ -187,9 +189,53 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::weak_ptr<Texture> Texture::getError()
+    {
+        auto errTex = ResourceManager::getNamedResource<Texture>("Error Texture", IDB_PNG2);
+
+        JOP_ASSERT(!errTex.expired(), "Failed to load error texture!");
+
+        return errTex;
+    }
+
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Texture> Texture::getDefault()
+    {
+        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", IDB_PNG1);
+
+        JOP_ASSERT(!defTex.expired(), "Failed to load error texture!");
+
+        return defTex;
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Texture::getHandle() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture::load(const int id)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readFromDll(id, buf))
+            return false;
+
+        int x, y, bpp;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        if (!pix)
+            return false;
+
+        if (!load(x, y, bpp, pix))
+            return false;
+
+        stbi_image_free(pix);
+
+        return true;
     }
 
     //////////////////////////////////////////////

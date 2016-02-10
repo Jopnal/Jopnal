@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <memory>
 
 //////////////////////////////////////////////
 
@@ -32,8 +33,10 @@
 namespace jop
 {
     class Layer;
+    class Model;
+    class Shader;
+    class Texture;
     class Camera;
-    class RenderTexture;
 
     class JOP_API Drawable : public Component
     {
@@ -46,17 +49,6 @@ namespace jop
     public:
     
         /// \brief Constructor
-        ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param layer Reference to the layer this drawable will be bound to
-        /// \param ID Unique component identifier
-        ///
-        Drawable(Object& object, Layer& layer, const std::string& ID);
-
-        /// \brief Contructor
-        ///
-        /// This doesn't take the layer as an argument. Instead it fetches the default layer
-        /// of the currently active scene.
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param ID Unique component identifier
@@ -78,7 +70,32 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&, RenderTexture* renderTexture) = 0;
+        virtual void draw(const Camera&) = 0;
+
+
+        /// \brief Set the model
+        ///
+        /// \param model Reference to the model
+        ///
+        void setModel(const Model& model);
+
+        /// \brief Set the shader
+        ///
+        /// \param shader Reference to the shader
+        ///
+        void setShader(Shader& shader);
+
+        /// \brief Set the texture
+        ///
+        /// \param texture Reference to the texture
+        ///
+        void setTexture(const Texture& texture);
+
+    protected:
+
+        std::weak_ptr<const Model> m_model; ///< The bound model
+        std::weak_ptr<Shader> m_shader;     ///< The bound shader
+        std::weak_ptr<Texture> m_texture;   ///< The bound texture
         
     };
 }

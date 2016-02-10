@@ -29,6 +29,67 @@ namespace detail
         
         return std::string(str);
     }
+
+    //////////////////////////////////////////////
+
+    template<typename T, typename Ret>
+    struct HasErrorGetter
+    {
+        template<typename U, Ret(*)()> struct SFINAE{};
+        template<typename U> static char Test(SFINAE<U, U::getError>*);
+        template<typename U> static int Test(...);
+        static const bool value = sizeof(Test<T>(0)) == sizeof(char);
+    };
+
+    template<typename T, typename Ret>
+    struct HasDefaultGetter
+    {
+        template<typename U, Ret(*)()> struct SFINAE{};
+        template<typename U> static char Test(SFINAE<U, U::getDefault>*);
+        template<typename U> static int Test(...);
+        static const bool value = sizeof(Test<T>(0)) == sizeof(char);
+    };
+
+    //////////////////////////////////////////////
+
+    template<typename T, typename Ret, bool HasError = HasErrorGetter<T, Ret>::value, bool HasDefault = HasDefaultGetter<T, Ret>::value>
+    struct LoadFallback
+    {
+        static std::weak_ptr<T> load(const std::string& name)
+        {
+            JOP_DEBUG_ERROR("Couldn't load resource: " << name);
+            return std::weak_ptr<T>();
+        }
+    };
+
+    template<typename T, typename Ret>
+    struct LoadFallback<T, Ret, true, false>
+    {
+        static std::weak_ptr<T> load(const std::string& name)
+        {
+            JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            return T::getError();
+        }
+    };
+
+    template<typename T, typename Ret>
+    struct LoadFallback<T, Ret, false, true>
+    {
+        static std::weak_ptr<T> load(const std::string& name)
+        {
+            JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            return T::getDefault();
+        }
+    };
+
+    template<typename T, typename Ret>
+    struct LoadFallback<T, Ret, true, true>
+    {
+        static std::weak_ptr<T> load(const std::string& name)
+        {
+            return LoadFallback<T, Ret, true, false>::load(name);
+        }
+    };
 }
 
 template<typename T, typename ... Args>
@@ -59,8 +120,8 @@ std::weak_ptr<T> ResourceManager::getResource(const Args&... args)
             inst.m_resources[str] = res;
             return std::weak_ptr<T>(res);
         }
-        
-        // No need for error messages here. Those should be handled by the resources themselves
+        else
+            return detail::LoadFallback<T, std::weak_ptr<T>>::load(str);
     }
     else
     {
@@ -96,6 +157,8 @@ std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, cons
             inst.m_resources[name] = res;
             return std::weak_ptr<T>(res);
         }
+        else
+            return detail::LoadFallback<T, std::weak_ptr<T>>::load(name);
     }
     else
     {

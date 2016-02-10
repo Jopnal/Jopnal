@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
@@ -34,8 +35,6 @@
 
 namespace jop
 {
-    class Component;
-
     class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
     {
     private:
@@ -134,12 +133,21 @@ namespace jop
         ///
         unsigned int childCount() const;
 
-        /// \brief Get amount of childrens recursively
+        /// \brief Get amount of children recursively
         ///
-        /// Goes throught the children and their children all the way down the tree
-        /// and return the total amount of childrens
+        /// Goes through the children and their children all the way down the tree
+        /// and return the total amount of children
         ///
         unsigned int childCountRecursive() const;
+
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -148,7 +156,7 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///

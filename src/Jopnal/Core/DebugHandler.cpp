@@ -154,6 +154,7 @@ namespace
 
     std::ostringstream ns_stream;
     jop::DebugHandler::Severity ns_displaySeverity, ns_lastSeverity;
+    std::string ns_last;
     bool ns_consoleEnabled;
 }
 
@@ -213,11 +214,20 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&))
     {
+        std::string newStr(ns_stream.str());
+
         if (isConsoleEnabled() && ns_lastSeverity <= ns_displaySeverity)
         {
-            std::cout << ns_stream.str() << '\n' << std::endl;
-            setConsoleColor(Color::White);
+            static const bool noSpam = SettingManager::getBool("bReduceConsoleSpam", true);
+
+            if (!noSpam || ns_last != newStr)
+            {
+                std::cout << newStr << '\n' << std::endl;
+                setConsoleColor(Color::White);
+            }
         }
+
+        ns_last = newStr;
         
         ns_stream.str("");
         ns_stream.clear();

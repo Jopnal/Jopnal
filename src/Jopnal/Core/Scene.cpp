@@ -27,10 +27,24 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Scene)
+
+        JOP_BIND_MEMBER_COMMAND(&Scene::cloneObject, "cloneObject");
+        JOP_BIND_MEMBER_COMMAND(&Scene::deleteObject, "deleteObject");
+        JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
+        JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
+        JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
+        JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Scene)
+}
+
+namespace jop
+{
     Scene::Scene(const std::string& ID)
         : m_objects         (),
           m_layers          (),
-          m_defaultLayer    (),
+          m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
           m_ID              (ID)
     {}
 
@@ -137,6 +151,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Layer& Scene::getDefaultLayer()
+    {
+        return *m_defaultLayer;
+    }
+
+    //////////////////////////////////////////////
+
     void Scene::setID(const std::string& ID)
     {
         m_ID = ID;
@@ -151,7 +172,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Scene::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Scene::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -161,10 +190,17 @@ namespace jop
 
     MessageResult Scene::sendMessage(const Message& message)
     {
-        // check id filter when calling scene's commands
+        if (message.passFilter(getID()))
+        {
+            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper());
+            }
 
-        if (message.passFilter(Message::Custom, getID()) && sendMessageImpl(message) == MessageResult::Escape)
-            return MessageResult::Escape;
+            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
 
         static const unsigned short objectField = Message::Object |
                                                   Message::Component;
@@ -235,11 +271,18 @@ namespace jop
     {
         preDraw();
 
+        m_defaultLayer->drawBase();
+
         for (auto& i : m_layers)
-            i->draw();
+            i->drawBase();
 
         postDraw();
     }
+
+    //////////////////////////////////////////////
+
+    void Scene::initialize()
+    {}
 
     //////////////////////////////////////////////
 

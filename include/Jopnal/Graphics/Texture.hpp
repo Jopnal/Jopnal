@@ -35,6 +35,10 @@ namespace jop
 
     class Texture : public Resource
     {
+    private:
+
+        friend class ResourceManager;
+
     public:
 
         /// \brief Constructor
@@ -95,7 +99,9 @@ namespace jop
 
         /// \brief Bind a texture sampler
         ///
-        void setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler);
+        /// \param sampler The sampler
+        ///
+        void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
 
 
         /// \brief Returns image's width
@@ -118,7 +124,25 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static std::weak_ptr<Texture> getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static std::weak_ptr<Texture> getDefault();
+
     private:
+
+        /// \brief Load from dll
+        ///
+        /// This is for internal use only
+        ///
+        bool load(const int id);
 
         /// \brief Check if a byte depth is valid
         ///

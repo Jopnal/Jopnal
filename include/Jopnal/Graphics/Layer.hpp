@@ -56,13 +56,23 @@ namespace jop
         virtual ~Layer() override;
 
 
+        void drawBase();
+
         /// \brief Draw function
         ///
         /// The default version of this function simply iterates through the
         /// local & bound draw lists and calls draw() on the drawables.
         ///
-        virtual void draw() override;
+        virtual void draw(const Camera& camera);
 
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -71,7 +81,7 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -84,13 +94,13 @@ namespace jop
         ///
         /// \param drawable Reference to the drawable to be added
         ///
-        void addDrawable(Drawable& drawable);
+        void addDrawable(std::reference_wrapper<Drawable> drawable);
 
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
         ///
-        void bindOtherLayer(Layer& layer);
+        void bindOtherLayer(std::reference_wrapper<Layer> layer);
 
         /// \brief Unbind a layer's draw list from this layer
         ///
@@ -102,13 +112,15 @@ namespace jop
         ///
         /// \param camera Reference to the camera to be set
         ///
-        void setCamera(const Camera& camera);
+        void setCamera(std::reference_wrapper<const Camera> camera);
 
         /// \brief Set a RenderTexture
         ///
         /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
         ///
-        //void setRenderTexture(RenderTexture* renderTexture);
+        void setRenderTexture(RenderTexture* renderTexture);
+
+        void sweepRemoved();
 
 
     protected:
@@ -117,6 +129,7 @@ namespace jop
         std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
         std::weak_ptr<const Camera> m_camera;             ///< Bound camera
         std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
+        bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 
     };
 }
