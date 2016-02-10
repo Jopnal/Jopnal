@@ -63,6 +63,7 @@ namespace jop
 
     Window::Window()
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
           m_eventHandler    (),
           m_colorChanged    (true)
@@ -70,6 +71,7 @@ namespace jop
 
     Window::Window(const Settings& settings)
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
           m_eventHandler    (),
           m_colorChanged    (true)
@@ -139,7 +141,7 @@ namespace jop
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         setViewportRelative(0.f, 0.f, 1.f, 1.f);
 
-        static const Color defColor(SettingManager::getUint("uDefaultWindowClearColor", 0x000000FF));
+        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "000000FF"));
         setClearColor(defColor);
     }
 

@@ -94,6 +94,7 @@ namespace jop
             }
         }
 
-        return Model::load(vertexArray, indices);
+        // #TODO names
+        return Model::load("Sphere", vertexArray, indices);
     }
 }

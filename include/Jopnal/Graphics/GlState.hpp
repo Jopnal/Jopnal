@@ -90,6 +90,15 @@ namespace jop
             OneMinusConstantAlpha
         };
 
+        /// Polygon mode
+        ///
+        enum class PolygonMode
+        {
+            Fill,
+            Line,
+            Point
+        };
+
     public:
     
         /// \brief Set the depth test
@@ -145,6 +154,12 @@ namespace jop
         /// \param width The new width
         ///
         static void setLineWidth(const float width);
+
+        /// \brief Set the polygon rasterization mode
+        ///
+        /// \param mode The mode
+        ///
+        static void setPolygonMode(const PolygonMode mode);
         
     };
 }

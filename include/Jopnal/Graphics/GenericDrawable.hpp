@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
+//    in a product, an acknowledgement in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,50 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_BOXMODEL_HPP
-#define JOP_BOXMODEL_HPP
+#ifndef JOP_GENERICDRAWABLE_HPP
+#define JOP_GENERICDRAWABLE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API BoxModel : public Model
+    class JOP_API GenericDrawable : public Drawable
     {
     public:
 
-        /// \brief Default constructor
+        /// \brief Constructor
         ///
-        /// Does not initialize the vertices.
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param ID Unique component identifier
         ///
-        BoxModel();
-
-        /// \brief Creates a cube model
-        ///
-        /// \param size Size of the box
-        ///
-        BoxModel(const float size);
+        GenericDrawable(Object& object, const std::string& ID);
 
 
-        /// \brief Load this box
+        /// \copydoc jop::Component::clone()
         ///
-        /// This will set up the vertices and create the buffers
+        virtual GenericDrawable* clone() const override;
+
+        /// \brief Draw function
         ///
-        /// \param size Size of the box
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float size);
+        virtual void draw(const Camera& camera) override;
+
     };
 }
 
 #endif
-
-/// \class BoxModel
-/// \ingroup Graphics
-///
-/// Do explanation about the class

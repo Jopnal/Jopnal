@@ -19,50 +19,43 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_BOXMODEL_HPP
-#define JOP_BOXMODEL_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API BoxModel : public Model
+    Mesh::Mesh()
+        : Resource          (),
+          m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
+          m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
     {
-    public:
+        m_vertexbuffer.setData(vertexArray.data(), sizeof(Vertex) * vertexArray.size());
 
-        /// \brief Default constructor
-        ///
-        /// Does not initialize the vertices.
-        ///
-        BoxModel();
+        if (!indexArray.empty())
+            m_indexbuffer.setData(indexArray.data(), sizeof(unsigned int) * indexArray.size());
 
-        /// \brief Creates a cube model
-        ///
-        /// \param size Size of the box
-        ///
-        BoxModel(const float size);
+        return true;
+    }
 
+    //////////////////////////////////////////////
 
-        /// \brief Load this box
-        ///
-        /// This will set up the vertices and create the buffers
-        ///
-        /// \param size Size of the box
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float size);
-    };
+    const VertexBuffer& Mesh::getIndexBuffer() const
+    {
+        return m_indexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const VertexBuffer& Mesh::getVertexBuffer() const
+    {
+        return m_vertexbuffer;
+    }
 }
-
-#endif
-
-/// \class BoxModel
-/// \ingroup Graphics
-///
-/// Do explanation about the class

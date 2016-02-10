@@ -19,39 +19,68 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_DEFAULTDRAWABLE_HPP
-#define JOP_DEFAULTDRAWABLE_HPP
+#ifndef JOP_MATERIAL_HPP
+#define JOP_MATERIAL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Color.hpp>
+#include <memory>
+#include <array>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API DefaultDrawable : public Drawable
+	class Shader;
+    class Texture;
+
+    class JOP_API Material
     {
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
-        ///
-        DefaultDrawable(Object& object, const std::string& ID);
+        enum class Reflection
+        {
+            Ambient,
+            Diffuse,
+            Specular
+        };
+
+        enum class Map
+        {
+            Diffuse
+        };
+
+    public:
+
+        Material();
+        
+
+        void sendToShader(Shader& shader) const;
 
 
-        /// \copydoc jop::Component::clone()
-        ///
-        virtual DefaultDrawable* clone() const override;
+        Material& setReflection(const Reflection reflection, const Color color);
 
-        /// \brief Draw function
-        ///
-        virtual void draw(const Camera& camera) override;
+        Material& setReflection(const Color ambient, const Color diffuse, const Color specular);
 
+        Color getReflection(const Reflection reflection) const;
+
+        Material& setShininess(const float value);
+
+		float getShininess() const;
+
+
+        Material& setMap(const Map map, const Texture& tex);
+
+
+        static const Material& getDefault();
+
+    private:
+
+        std::array<Color, 3> m_reflection;
+        float m_shininess;
+        std::array<std::weak_ptr<const Texture>, 1> m_maps;
     };
 }
-
 #endif

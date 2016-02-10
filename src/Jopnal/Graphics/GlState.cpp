@@ -46,6 +46,7 @@ namespace
     bool ns_seamlessCubemap;
     bool ns_polygonSmooth;
     std::pair<bool, float> ns_line;
+    jop::GlState::PolygonMode ns_polygonMode;
 
     void enableDisable(const bool enable, GLenum enum_)
     {
@@ -83,6 +84,9 @@ namespace jop
 
         // Line smoothing is disabled by default and its width is 1.0
         ns_line = std::make_pair(false, 1.f);
+
+        // Polygon mode is Fill by default
+        ns_polygonMode = PolygonMode::Fill;
     }
 
     //////////////////////////////////////////////
@@ -207,6 +211,25 @@ namespace jop
             glCheck(gl::LineWidth(width));
 
             ns_line.second = width;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void GlState::setPolygonMode(const PolygonMode mode)
+    {
+        if (mode != ns_polygonMode)
+        {
+            static const GLenum polyModes[] =
+            {
+                gl::FILL,
+                gl::LINE,
+                gl::POINT
+            };
+
+            glCheck(gl::PolygonMode(gl::FRONT_AND_BACK, polyModes[static_cast<int>(mode)]));
+
+            ns_polygonMode = mode;
         }
     }
 }

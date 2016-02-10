@@ -269,7 +269,7 @@ namespace jop
     bool Shader::setUniform(const std::string& name, const glm::vec4& vector)
     {
         const int loc = getUniformLocation(name);
-
+        
         if (loc != -1)
             glCheck(gl::Uniform4f(loc, vector.x, vector.y, vector.z, vector.w));
 
@@ -284,6 +284,18 @@ namespace jop
 
         if (loc != -1 && texture.bind(unit))
             glCheck(gl::Uniform1i(loc, unit));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const float value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1f(loc, value));
 
         return loc != -1;
     }
@@ -338,12 +350,14 @@ namespace jop
 
     int Shader::getUniformLocation(const std::string& name)
     {
+        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+
         if (bind())
         {
             const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
 
-            if (location == -1)
-                JOP_DEBUG_ERROR("Uniform named \"" << name << "\"not found in shader");
+            if (location == -1 && printErr)
+                JOP_DEBUG_WARNING("Uniform named \"" << name << "\"not found in shader");
 
             return location;
         }
@@ -355,11 +369,13 @@ namespace jop
 
     int Shader::getAttributeLocation(const std::string& name)
     {
+        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+
         if (bind())
         {
             const int location = glCheck(gl::GetAttribLocation(m_shaderProgram, name.c_str()));
 
-            if (location == -1)
+            if (location == -1 && printErr)
                 JOP_DEBUG_WARNING("Attrubute named \"" << name << "\" not found in shader");
 
             return location;

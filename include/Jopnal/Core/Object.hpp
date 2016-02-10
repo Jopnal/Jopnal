@@ -35,6 +35,8 @@
 
 namespace jop
 {
+    class Layer;
+
     class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
     {
     private:

@@ -89,8 +89,6 @@ namespace jop
     void VertexBuffer::setSubData(const void* data, std::size_t offset, std::size_t size)
     {
         if (m_buffer && data && size)
-        {
             glCheck(gl::BufferSubData(m_bufferType, offset, size, data));
-        }
     }
 }

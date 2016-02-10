@@ -25,20 +25,33 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Graphics/Transform.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Mesh;
+
     class JOP_API Model : public Resource
     {
     public:
 
-        /// \brief Default constructor
-        ///
-        Model();
+        struct LoadOptions
+        {
+            Transform transform;
+            bool centerOrigin;
+            bool flipV;
+            bool generateNormals;
+        };
 
+    public:
+
+        Model();
 
         /// \brief Loads a .obj model from file
         ///
@@ -49,21 +62,21 @@ namespace jop
         ///
         bool load(const std::string& filePath);
 
-        /// \brief Loads model from memory
         ///
-        /// \param vertexArray Container holding the vertex data
-        /// \param indices Container holding index data
         ///
-        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
+        bool load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+
+        ///
+        ///
+        bool load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material);
 
 
-        /// \brief Returns index buffer
-        ///
-        const VertexBuffer& getIndexBuffer() const;
+        std::weak_ptr<const Mesh> getMesh() const;
 
-        /// \brief Returns vertex buffer
-        ///
-        const VertexBuffer& getVertexBuffer() const;
+        const Material& getMaterial() const;
+
+
+        std::size_t getElementAmount() const;
 
 
         /// \brief Get the default model
@@ -72,18 +85,14 @@ namespace jop
         ///
         /// \return Reference to the model
         ///
-        static const Model& getDefault();
+        static std::weak_ptr<Model> getDefault();
 
     private:
 
-        VertexBuffer m_vertexbuffer;    ///< The vertex buffer
-        VertexBuffer m_indexbuffer;     ///< The index buffer
+        std::weak_ptr<Mesh> m_mesh;
+        Material m_material;
+
     };
 }
 
 #endif
-
-/// \class Model
-/// \ingroup graphics
-///
-/// NOTE: Currently only supports .obj format.
