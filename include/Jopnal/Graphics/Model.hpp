@@ -43,11 +43,17 @@ namespace jop
 
         struct LoadOptions
         {
+            LoadOptions() = default;
+
+            LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
+
             Transform transform;
             bool centerOrigin;
             bool flipV;
             bool generateNormals;
         };
+
+        static const LoadOptions DefaultOptions;
 
     public:
 
@@ -60,7 +66,7 @@ namespace jop
         ///
         /// \param filePath The path to the file you want to load
         ///
-        bool load(const std::string& filePath);
+        bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
 
         ///
         ///

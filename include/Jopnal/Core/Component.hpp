@@ -93,13 +93,13 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void update(const double deltaTime);
+        virtual void update(const float deltaTime);
 
         /// \brief Fixed update function for component
         ///
         /// \param timeStep Double holding time step
         ///
-        virtual void fixedUpdate(const double timeStep);
+        virtual void fixedUpdate(const float timeStep);
 
         /// \brief Function to get components unique identifier m_ID
         ///

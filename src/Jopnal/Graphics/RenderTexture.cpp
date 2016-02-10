@@ -52,7 +52,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RenderTexture::postUpdate(const double)
+    void RenderTexture::postUpdate(const float)
     {
         if (bind())
         {

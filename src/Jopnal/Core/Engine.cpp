@@ -98,8 +98,8 @@ namespace jop
         if (!m_currentScene)
             JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
-        const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
-        float64 accumulator = 0.0;
+        const float timeStep = 1.0f / SettingManager::getUint("uFixedUpdateFrequency", 30);
+        float accumulator = 0.0;
 
         Clock frameClock;
 
@@ -107,7 +107,7 @@ namespace jop
         {
             // Clamp the delta time to a certain value. This is to prevent
             // a "spiral of death" if fps goes below 10.
-            const float64 frameTime = std::min(0.1, frameClock.reset().asSeconds());
+            const float frameTime = static_cast<float>(std::min(0.1, frameClock.reset().asSeconds()));
             m_totalTime += frameTime;
 
             // Fixed update

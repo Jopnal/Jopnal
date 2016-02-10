@@ -182,13 +182,13 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        void update(const double deltaTime); 
+        void update(const float deltaTime); 
 
         /// \brief Fixed Update method for object - forwarded for its components
         ///
         /// \param timeStep Double holding time step
         ///
-        void fixedUpdate(const double timeStep);
+        void fixedUpdate(const float timeStep);
 
         /// \brief Update the transformation tree
         ///

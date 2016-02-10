@@ -356,6 +356,9 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\AABB.cpp">
+      <Filter>Root\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

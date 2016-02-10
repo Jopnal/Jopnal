@@ -33,6 +33,17 @@
 
 namespace jop
 {
+    Model::LoadOptions::LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_)
+        : transform         (),
+          centerOrigin      (centerOrigin_),
+          flipV             (flipV_),
+          generateNormals   (generateNormals_)
+    {}
+
+    const Model::LoadOptions Model::DefaultOptions(false, false, false);
+
+    //////////////////////////////////////////////
+
     Model::Model()
         : Resource      (),
           m_mesh        (),
@@ -43,7 +54,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& filepath)
+    bool Model::load(const std::string& filepath, const LoadOptions& options)
     {
         std::string buffer;
         if (!FileLoader::read(filepath, buffer))
@@ -51,8 +62,6 @@ namespace jop
 
         struct MatRead : tinyobj::MaterialReader
         {
-            JOP_DISALLOW_COPY_MOVE(MatRead);
-
             MatRead(const std::string& rootPath)
                 : tinyobj::MaterialReader   (),
                   m_rootPath                (rootPath)
@@ -84,7 +93,7 @@ namespace jop
 
         private:
 
-            const std::string& m_rootPath;
+            std::string m_rootPath;
         };
 
         std::string err;
@@ -104,6 +113,34 @@ namespace jop
         }
 
         const auto& mesh = shapes.front().mesh;
+
+        if (options.centerOrigin)
+        {
+            float minLeft = 0.f, maxRight = 0.f, minBottom = 0.f, maxTop = 0.f, minNegZ = 0.f, maxPosZ = 0.f;
+            auto itr = mesh.positions.cbegin();
+
+            while (itr != mesh.positions.cend())
+            {
+                minLeft = std::min(minLeft, *itr); maxRight = std::max(maxRight, *itr);
+                minBottom = std::min(minBottom, *(itr + 1)); maxTop = std::max(maxTop, *(itr + 1));
+                minNegZ = std::min(minNegZ, *(itr + 2)); maxPosZ = std::max(maxPosZ, *(itr + 2));
+                itr += 3;
+            }
+
+            const glm::vec3 centerPoint(glm::AABB(glm::vec3(minLeft, minBottom, minNegZ), glm::vec3(maxRight, maxTop, maxPosZ)).getCenter());
+
+            if (centerPoint.length() > 0.001f)
+            {
+                auto itr2 = shapes.front().mesh.positions.begin();
+
+                while (itr2 != shapes.front().mesh.positions.end())
+                {
+                    *(itr2++) -= centerPoint.x;
+                    *(itr2++) -= centerPoint.y;
+                    *(itr2++) -= centerPoint.z;
+                }
+            }
+        }
         
         auto posItr = mesh.positions.cbegin();
         auto tcItr = mesh.texcoords.empty() ? mesh.texcoords.cend() : mesh.texcoords.cbegin();
@@ -112,40 +149,59 @@ namespace jop
         std::vector<Vertex> vertexArray;
         vertexArray.reserve(mesh.positions.size() / 3);
 
-        for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
+        for (std::size_t i = 0; i < mesh.positions.size() / 3; ++i)
         {
-            vertexArray.emplace_back();
-            auto& v = vertexArray.back();
+            vertexArray.emplace_back(glm::vec3(*posItr, *(posItr + 1), *(posItr + 2)),
+                                     tcItr != mesh.texcoords.cend() ? glm::vec2(*tcItr, (options.flipV ? 1.f - *(tcItr + 1) : *(tcItr + 1))) : glm::vec2(),
+                                     nItr != mesh.normals.cend() ? glm::vec3(*nItr, *(nItr + 1), *(nItr + 2)) : glm::vec3());
 
-            v.position.x = *posItr;
-            v.position.y = *(++posItr);
-            v.position.z = *(++posItr);
+            posItr += 3;
+            tcItr += (tcItr != mesh.texcoords.cend()) * 2;
+            nItr += (nItr != mesh.normals.cend()) * 3;
+        }
 
-            if (tcItr != mesh.texcoords.cend())
+        bool normalsGenerated = false;
+        if (options.generateNormals && mesh.normals.empty() && mesh.indices.size() % 3 == 0)
+        {
+            // #TODO When drawing is indexed, will this work?
+
+            for (auto itr = vertexArray.begin(); itr != vertexArray.end(); itr += 3)
             {
-                v.texCoords.x = *tcItr;
-                v.texCoords.y = 1.f - *(++tcItr);
-                ++tcItr;
-            }
-            if (nItr != mesh.normals.cend())
-            {
-                v.normalVector.x = *nItr;
-                v.normalVector.y = *(++nItr);
-                v.normalVector.z = *(++nItr);
-                ++nItr;
+                const glm::vec3 u((itr + 1)->position - itr->position);
+                const glm::vec3 v((itr + 2)->position - itr->position);
+
+                for (std::size_t i = 0; i < 3; ++i)
+                    (itr + i)->normalVector = glm::vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x);
             }
 
-            ++posItr;
+            normalsGenerated = true;
+        }
+
+        if (options.transform.getMatrix() != Transform::IdentityMatrix)
+        {
+            const auto& m = options.transform.getMatrix();
+            const glm::mat3 m3(m);
+            const bool norm = normalsGenerated || !mesh.normals.empty();
+
+            for (auto& i : vertexArray)
+            {
+                glm::vec4 transformed(m * glm::vec4(i.position, 0.f));
+                i.position.x = transformed.x;
+                i.position.y = transformed.y;
+                i.position.z = transformed.z;
+
+                if (norm)
+                    i.normalVector = m3 * i.normalVector;
+            }
         }
 
         if (!materials.empty())
         {
             const auto& mat = materials.front();
-            const uint8 dissolve = static_cast<uint8>(mat.dissolve * 255.f);
 
-            m_material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[3], dissolve),
-                                     Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], dissolve),
-                                     Color(mat.specular[0], mat.specular[1], mat.specular[3], dissolve))
+            m_material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[3], mat.dissolve),
+                                     Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], mat.dissolve),
+                                     Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve))
                       .setShininess(mat.shininess);
 
             // The default texture will be used in case of failure

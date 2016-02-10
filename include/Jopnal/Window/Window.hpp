@@ -71,6 +71,7 @@ namespace jop
             DisplayMode displayMode;
             unsigned int samples;
             bool visible;
+            bool vSync;
         };
 
     public:
@@ -99,13 +100,13 @@ namespace jop
         /// This will simply set an internal boolean flag so
         /// we know when a new frame has begun.
         ///
-        void preUpdate(const double dt) override;
+        void preUpdate(const float deltaTime) override;
 
         /// \brief The post-update function
         ///
         /// This clears the OpenGL front buffer
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief The post-draw function
         ///

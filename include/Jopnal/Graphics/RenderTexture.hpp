@@ -67,7 +67,7 @@ namespace jop
         ///
         /// \param dt Delta time
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief Initialize the frame buffer
         ///

@@ -233,7 +233,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::update(const double deltaTime)
+    void Object::update(const float deltaTime)
     {
         for (auto& i : m_components)
             i->update(deltaTime);
@@ -244,7 +244,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::fixedUpdate(const double timeStep)
+    void Object::fixedUpdate(const float timeStep)
     {
         for (auto& i : m_components)
             i->fixedUpdate(timeStep);

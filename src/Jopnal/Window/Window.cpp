@@ -56,6 +56,7 @@ namespace jop
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = true;
+            vSync = SettingManager::getBool("bDefaultWindowVSync", true);
         }
     }
 
@@ -85,14 +86,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::preUpdate(const double)
+    void Window::preUpdate(const float)
     {
         ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const double)
+    void Window::postUpdate(const float)
     {
         if (isOpen())
         {
