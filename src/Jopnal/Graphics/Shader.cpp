@@ -39,8 +39,9 @@ namespace
 
 namespace jop
 {
-    Shader::Shader()
-        : m_shaderProgram(0)
+    Shader::Shader(const std::string& name)
+        : Resource          (name),
+          m_shaderProgram   (0)
     {}
 
     Shader::~Shader()

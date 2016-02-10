@@ -27,8 +27,8 @@
 
 namespace jop
 {
-    Mesh::Mesh()
-        : Resource          (),
+    Mesh::Mesh(const std::string& name)
+        : Resource          (name),
           m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
           m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
     {}

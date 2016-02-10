@@ -44,13 +44,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Model::Model()
-        : Resource      (),
+    Model::Model(const std::string& name)
+        : Resource      (name),
           m_mesh        (),
           m_material    (Material::getDefault())
-    {
-
-    }
+    {}
 
     //////////////////////////////////////////////
 
@@ -170,8 +168,9 @@ namespace jop
                 const glm::vec3 u((itr + 1)->position - itr->position);
                 const glm::vec3 v((itr + 2)->position - itr->position);
 
-                for (std::size_t i = 0; i < 3; ++i)
-                    (itr + i)->normalVector = glm::vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x);
+                itr->normalVector = glm::cross(u, v);
+                (itr + 1)->normalVector = itr->normalVector;
+                (itr + 2)->normalVector = itr->normalVector;
             }
 
             normalsGenerated = true;
@@ -216,19 +215,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
+    bool Model::load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
     {
-        return load(name, vertices, indices, Material::getDefault());
+        return load(vertices, indices, Material::getDefault());
     }
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material)
+    bool Model::load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material)
     {
         m_material = material;
-        
-        m_mesh = ResourceManager::getNamedResource<Mesh>(name, vertices, indices);
-        // #TODO Fix
+        m_mesh = ResourceManager::getNamedResource<Mesh>(getName() + "_buf", vertices, indices);
+
         return !m_mesh.expired();
     }
 

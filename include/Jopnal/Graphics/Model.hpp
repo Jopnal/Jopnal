@@ -57,7 +57,7 @@ namespace jop
 
     public:
 
-        Model();
+        Model(const std::string& name);
 
         /// \brief Loads a .obj model from file
         ///
@@ -70,11 +70,11 @@ namespace jop
 
         ///
         ///
-        bool load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+        bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 
         ///
         ///
-        bool load(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material);
+        bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material);
 
 
         std::weak_ptr<const Mesh> getMesh() const;

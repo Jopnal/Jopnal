@@ -27,12 +27,12 @@
 
 namespace jop
 {    
-    SphereModel::SphereModel()
-        : Model()
+    SphereModel::SphereModel(const std::string& name)
+        : Model(name)
     {}
 
-    SphereModel::SphereModel(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
-        : Model()
+    SphereModel::SphereModel(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+        : Model(name)
     {
         load(radius, rings, sectors, normalizedTexCoords);
     }
@@ -94,7 +94,6 @@ namespace jop
             }
         }
 
-        // #TODO names
-        return Model::load("Sphere", vertexArray, indices);
+        return Model::load(vertexArray, indices);
     }
 }

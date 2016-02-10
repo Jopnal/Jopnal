@@ -38,7 +38,7 @@ namespace jop
 
         /// \brief Default constructor
         ///
-        Mesh();
+        Mesh(const std::string& name);
 
         /// \brief Loads model from memory
         ///

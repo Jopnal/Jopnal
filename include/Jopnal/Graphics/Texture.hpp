@@ -43,7 +43,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        Texture();
+        Texture(const std::string& name);
 
         /// \brief Destructor
         ///

@@ -37,7 +37,7 @@ namespace jop
 
         /// \copydoc jop::BoxModel::BoxModel()
         ///
-        SphereModel();
+        SphereModel(const std::string& name);
 
         /// \brief Creates a 3D sphere
         ///
@@ -49,7 +49,7 @@ namespace jop
         /// \param sectors How many sectors the circle will get divided to
         /// \param normalizedTexCoords Normalize the tex coords?
         ///
-        SphereModel(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        SphereModel(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
 
         /// \brief Load a sphere

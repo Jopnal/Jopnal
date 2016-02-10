@@ -34,8 +34,9 @@
 
 namespace jop
 {
-    Texture::Texture()
-        : m_sampler         (),
+    Texture::Texture(const std::string& name)
+        : Resource          (name),
+          m_sampler         (),
           m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),

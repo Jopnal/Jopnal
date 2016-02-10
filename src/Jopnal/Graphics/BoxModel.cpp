@@ -27,12 +27,12 @@
 
 namespace jop
 {
-    BoxModel::BoxModel()
-        : Model()
+    BoxModel::BoxModel(const std::string& name)
+        : Model(name)
     {}
 
-    BoxModel::BoxModel(const float size)
-        : Model()
+    BoxModel::BoxModel(const std::string& name, const float size)
+        : Model(name)
     {
         load(size);
     }
@@ -108,7 +108,6 @@ namespace jop
             22, 21, 23
         });
 
-        // #TODO names
-        return Model::load("Box", vertexArray, indices);
+        return Model::load(vertexArray, indices);
     }
 }

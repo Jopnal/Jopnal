@@ -27,8 +27,9 @@
 
 namespace jop
 {
-    TextureSampler::TextureSampler()
-        : m_sampler(0)
+    TextureSampler::TextureSampler(const std::string& name)
+        : Resource  (name),
+          m_sampler (0)
     {
         reset();
     }

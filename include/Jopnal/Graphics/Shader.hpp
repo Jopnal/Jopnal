@@ -39,7 +39,7 @@ namespace jop
 
         /// \brief default constructor
         ///
-        Shader();
+        Shader(const std::string& name);
 
         /// \brief default destructor
         ///

@@ -36,11 +36,12 @@ namespace jop
 {
     RenderTexture::RenderTexture()
         : Subsystem ("Render Texture"),
-          m_texture ()
+          m_texture ("Render Texture Texture")
     {}
 
     RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : Subsystem("Render Texture")
+        : Subsystem ("Render Texture"),
+          m_texture ("Render Texture Texture")
     {
         create(size, depthBits, stencilBits);
     }
