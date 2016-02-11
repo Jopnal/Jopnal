@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -26,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <vector>
 #include <memory>
 
@@ -91,6 +90,9 @@ namespace jop
         ///
         void clearObjects();
 
+        /// \brief Retun the amount of objects
+        ///
+        unsigned int objectCount() const;
 
         /// \brief Get a layer with the given id
         ///
@@ -158,26 +160,48 @@ namespace jop
         /// to the objects
         ///
         /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
         ///
-        void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Base sendMessage function
+        ///
+        /// This will handle message filtering and forwarding
+        /// to the objects
+        ///
+        /// \param message String holding message
+        /// \param returnWrap Pointer to hold extra data
+        ///
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
+        MessageResult sendMessage(const Message& message);
 
 
         /// \brief Update method for scene
         ///
         /// \param deltaTime Double holding time step
         ///
-        void updateBase(const double timeStep);
+        void updateBase(const float deltaTime);
 
         /// \brief fixedUpdate method for scene
         ///
         /// \param deltaTime Double holding time step
         ///
-        void fixedUpdateBase(const double timeStep);
+        void fixedUpdateBase(const float timeStep);
 
         /// \brief Method for drawing
         ///
         void drawBase();
+
+
+        /// \brief Initialize this scene
+        ///
+        /// This function should be preferred when doing scene initialization.
+        ///
+        virtual void initialize();
         
 
         /// \brief Method for pre-updating
@@ -186,7 +210,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void preUpdate(const double deltaTime);
+        virtual void preUpdate(const float deltaTime);
 
         /// \brief Method for post-updating
         ///
@@ -194,7 +218,7 @@ namespace jop
         ///
         /// \param deltaTime double holding delta time
         ///
-        virtual void postUpdate(const double deltaTime);
+        virtual void postUpdate(const float deltaTime);
 
         /// \brief Method for pre-fixed updating
         ///
@@ -202,7 +226,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void preFixedUpdate(const double timeStep);
+        virtual void preFixedUpdate(const float timeStep);
 
         /// \brief Method for post-fixed updating
         ///
@@ -210,7 +234,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void postFixedUpdate(const double timeStep);
+        virtual void postFixedUpdate(const float timeStep);
         
         /// \brief Method for pre-drawing
         ///
@@ -226,12 +250,9 @@ namespace jop
 
     private:
 
-        /// \brief Send a message to this scene
+        /// \brief Virtual sendMessage
         ///
-        /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
-        ///
-        virtual void sendMessageImpl(const std::string& message, void* ptr);
+        virtual MessageResult sendMessageImpl(const Message& message);
 
 
         std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects

@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -34,6 +32,12 @@
 namespace
 {
     bool ns_eventsPolled = false;
+
+    struct jop_DefaultEventHandler : jop::WindowEventHandler
+    {
+        jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
+        void closed() override {jop::Engine::exit();}
+    };
 }
 
 namespace jop
@@ -42,14 +46,17 @@ namespace jop
         : size          (1u, 1u),
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
+          samples       (0),
           visible       (false)
     {
         if (loadSettings)
         {
-            size.x = SettingManager::getUint("uDefaultWindowSizeX", 1024); size.y = SettingManager::getUint("uDefaultWindowSizeY", 600);
+            size.x = SettingManager::getUint("uDefaultWindowSizeX", 1280); size.y = SettingManager::getUint("uDefaultWindowSizeY", 720);
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
+            samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = true;
+            vSync = SettingManager::getBool("bDefaultWindowVSync", true);
         }
     }
 
@@ -57,16 +64,21 @@ namespace jop
 
     Window::Window()
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_colorChanged    (true)
     {}
 
     Window::Window(const Settings& settings)
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_colorChanged    (true)
     {
         open(settings);
+        setEventHandler<jop_DefaultEventHandler>();
     }
 
     Window::~Window()
@@ -74,22 +86,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::preUpdate(const double)
+    void Window::preUpdate(const float)
     {
         ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const double)
+    void Window::postUpdate(const float)
     {
         if (isOpen())
         {
-            auto c = m_clearColor.asFloatVector();
+            if (m_colorChanged)
+            {
+                auto c = m_clearColor.asFloatVector();
 
-            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
-            glCheck(gl::ClearDepth(static_cast<GLdouble>(1.f)));
-            glCheck(gl::ClearStencil(static_cast<GLint>(0)));
+                glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
+                glCheck(gl::ClearDepth(1.0));
+                glCheck(gl::ClearStencil(0));
+
+                m_colorChanged = false;
+            }
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -107,11 +124,11 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getBool("bControllerInput", true);
+            static const bool controllers = SettingManager::getUint("uMaxControllers", 4) > 0;
 
             pollEvents();
 
-            if (controllers && m_eventHandler.operator bool())
+            if (controllers && m_eventHandler)
                 m_eventHandler->handleControllerInput();
 
             ns_eventsPolled = true;
@@ -123,6 +140,10 @@ namespace jop
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
+        setViewportRelative(0.f, 0.f, 1.f, 1.f);
+
+        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "000000FF"));
+        setClearColor(defColor);
     }
 
     //////////////////////////////////////////////
@@ -144,6 +165,7 @@ namespace jop
     void Window::setClearColor(const Color& color)
     {
         m_clearColor = color;
+        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////
@@ -177,5 +199,27 @@ namespace jop
     void Window::pollEvents()
     {
         detail::WindowImpl::pollEvents();
+    }
+
+    void Window::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
+    {
+        if (isOpen())
+            glCheck(gl::Viewport(x, y, width, height));
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setViewportRelative(const float x, const float y, const float width, const float height)
+    {
+        if (isOpen())
+        {
+            int windowX;
+            int windowY;
+
+            glfwGetWindowSize(getLibraryHandle(), &windowX, &windowY);
+
+            glCheck(gl::Viewport(static_cast<int>(x * windowX), static_cast<int>(y * windowY),
+                                 static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
+        }
     }
 }

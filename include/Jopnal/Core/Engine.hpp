@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -26,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <vector>
 
@@ -46,6 +45,9 @@ namespace jop
         /// This will initialize the engine and all associated systems.
         /// Project name must not be empty, as it will be used to create
         /// the necessary config directories.
+        ///
+        /// The engine object must stay alive until exit is called and the
+        /// main loop is returned from.
         ///
         /// \param projectName The project name
         /// \param argc Number of arguments passed from main()
@@ -86,7 +88,15 @@ namespace jop
         /// \return A reference to the newly created scene
         ///
         template<typename T, typename ... Args>
-        T& createScene(Args&... args);
+        static T& createScene(Args&... args);
+
+        /// \brief Get the current scene
+        ///
+        /// This function asserts that the scene has been loaded first with createScene().
+        ///
+        /// \return Reference to the scene
+        ///
+        static Scene& getCurrentScene();
 
 
         /// \brief Create a subsystem
@@ -96,14 +106,14 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        T& createSubsystem(Args&... args);
+        static T& createSubsystem(Args&... args);
 
         /// \brief Get a subsystem using type info
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        T* getSubsystem();
+        static T* getSubsystem();
 
         /// \brief Get a subsystem
         ///
@@ -111,13 +121,13 @@ namespace jop
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        Subsystem* getSubsystem(const std::string& ID);
+        static Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        bool removeSubsystem(const std::string& ID);
+        static bool removeSubsystem(const std::string& ID);
 
 
         /// \brief Check if the engine is running
@@ -134,12 +144,26 @@ namespace jop
         ///
         static void exit();
 
+
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
-        /// \param ptr Pointer to hold extra data
         ///
-        static void sendMessage(const std::string& message, void* ptr);
+        static MessageResult sendMessage(const std::string& message);
+
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
+        /// \param returnWrap Pointer to hold extra data
+        ///
+        static MessageResult sendMessage(const std::string& message, Any& returnWrap);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
+        static MessageResult sendMessage(const Message& message);
+
 
         /// \brief Get the shared scene
         ///
@@ -155,10 +179,31 @@ namespace jop
         ///
         static Scene& getSharedScene();
 
+        /// \brief Set the shared scene
+        ///
+        /// This will replace the previous shared scene with a new one of the given type.
+        ///
+        /// \param args Arguments to use in the scene's construction
+        ///
+        /// \return Reference to the new scene
+        ///
+        template<typename T, typename ... Args>
+        static T& setSharedScene(Args&... args);
+
+
+        /// \brief Get the total time since Engine construction
+        ///
+        /// \return Time in seconds
+        ///
+        static double getTotalTime();
+
 
     private:
 
+        static Engine* m_engineObject;                        ///< The single Engine instance
+
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running
@@ -176,9 +221,25 @@ namespace jop
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message String holding message
+    ///
+    JOP_API MessageResult broadcast(const std::string& message);
+
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message String holding message
     /// \param ptr Pointer to hold extra data
     ///
-    JOP_API void broadcast(const std::string& message, void* ptr);
+    JOP_API MessageResult broadcast(const std::string& message, Any& returnWrap);
+
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message The message
+    ///
+    JOP_API MessageResult broadcast(const Message& message);
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>

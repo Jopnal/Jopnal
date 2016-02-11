@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
@@ -34,7 +35,7 @@
 
 namespace jop
 {
-    class Component;
+    class Layer;
 
     class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
     {
@@ -81,7 +82,7 @@ namespace jop
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        T& createComponent(Args& ... args);
+        T& createComponent(Args&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -89,6 +90,9 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        /// \brief Get amount of components
+        ///
+        unsigned int componentCount() const;
 
         /// \brief Create a new child
         ///
@@ -127,15 +131,40 @@ namespace jop
         ///
         void clearChildren();
 
+        /// \brief Get amount of children
+        ///
+        unsigned int childCount() const;
+
+        /// \brief Get amount of children recursively
+        ///
+        /// Goes through the children and their children all the way down the tree
+        /// and return the total amount of children
+        ///
+        unsigned int childCountRecursive() const;
+
 
         /// \brief Method to send messages
         ///
         /// Forwards messages to this object's components
         ///
         /// \param message String holding the message
-        /// \param ptr Pointer to hold extra data
         ///
-        void sendMessage(const std::string& message, void* ptr);
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Method to send messages
+        ///
+        /// Forwards messages to this object's components
+        ///
+        /// \param message String holding the message
+        /// \param returnWrap Pointer to hold extra data
+        ///
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message The message
+        ///
+        MessageResult sendMessage(const Message& message);
 
 
         /// \brief Method for getting m_ID
@@ -153,13 +182,13 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        void update(const double deltaTime); 
+        void update(const float deltaTime); 
 
         /// \brief Fixed Update method for object - forwarded for its components
         ///
         /// \param timeStep Double holding time step
         ///
-        void fixedUpdate(const double timeStep);
+        void fixedUpdate(const float timeStep);
 
         /// \brief Update the transformation tree
         ///

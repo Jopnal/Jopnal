@@ -29,6 +29,24 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Object)
+
+        // Transform
+
+        // Object
+        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::getComponent, "getComponent");
+        JOP_BIND_MEMBER_COMMAND(&Object::getChild, "getChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Object)
+}
+
+namespace jop
+{
     Object::Object()
         : Transform                             (),
           std::enable_shared_from_this<Object>  (),
@@ -87,6 +105,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Object::componentCount() const
+    {
+        return m_components.size();
+    }
+
+    //////////////////////////////////////////////
+
     Object& Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(std::make_unique<Object>(ID));
@@ -141,18 +166,74 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::sendMessage(const std::string& message, void* ptr)
+    unsigned int Object::childCount() const
     {
-        for (auto& i : m_components)
-            i->sendMessage(message, ptr);
-
-        for (auto& i : m_children)
-            i->sendMessage(message, ptr);
+        return m_children.size();
     }
 
     /////////////////////////////////////////////
 
-    void Object::update(const double deltaTime)
+    unsigned int Object::childCountRecursive() const
+    {
+        unsigned int count = childCount();;
+
+        for (auto& i : m_children)
+        {
+            count += i->childCountRecursive();
+        }
+        return count;
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    /////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const std::string& message, Any& returnWrap)
+    {
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    /////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const Message& message)
+    {
+        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        {
+            Any instance(this);
+            JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper());
+        }
+
+        if (message.passFilter(Message::Component))
+        {
+            for (auto& i : m_components)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        if (message.passFilter(Message::Object))
+        {
+            for (auto& i : m_children)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        return MessageResult::Continue;
+    }
+
+    /////////////////////////////////////////////
+
+    void Object::update(const float deltaTime)
     {
         for (auto& i : m_components)
             i->update(deltaTime);
@@ -163,7 +244,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::fixedUpdate(const double timeStep)
+    void Object::fixedUpdate(const float timeStep)
     {
         for (auto& i : m_components)
             i->fixedUpdate(timeStep);

@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -29,9 +27,25 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Scene)
+
+        JOP_BIND_MEMBER_COMMAND(&Scene::cloneObject, "cloneObject");
+        JOP_BIND_MEMBER_COMMAND(&Scene::deleteObject, "deleteObject");
+        JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
+        JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
+        JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
+        JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Scene)
+}
+
+namespace jop
+{
     Scene::Scene(const std::string& ID)
-        : m_objects (),
-          m_ID      (ID)
+        : m_objects         (),
+          m_layers          (),
+          m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
+          m_ID              (ID)
     {}
 
     Scene::~Scene()
@@ -96,6 +110,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Scene::objectCount() const
+    {
+        return m_objects.size();
+    }
+
+    //////////////////////////////////////////////
+
     std::weak_ptr<Layer> Scene::getLayer(const std::string& ID)
     {
         for (auto& i : m_layers)
@@ -130,6 +151,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Layer& Scene::getDefaultLayer()
+    {
+        return *m_defaultLayer;
+    }
+
+    //////////////////////////////////////////////
+
     void Scene::setID(const std::string& ID)
     {
         m_ID = ID;
@@ -144,20 +172,63 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessage(const std::string& message, void* ptr)
+    MessageResult Scene::sendMessage(const std::string& message)
     {
-        sendMessageImpl(message, ptr);
-
-        for (auto& i : m_objects)
-            i->sendMessage(message, ptr);
-
-        for (auto& i : m_layers)
-            i->sendMessage(message, ptr);
+        Any wrap;
+        return sendMessage(message, wrap);
     }
 
     //////////////////////////////////////////////
 
-    void Scene::updateBase(const double deltaTime)
+    MessageResult Scene::sendMessage(const std::string& message, Any& returnWrap)
+    {
+        const Message msg(message, returnWrap);
+        return sendMessage(msg);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Scene::sendMessage(const Message& message)
+    {
+        if (message.passFilter(getID()))
+        {
+            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper());
+            }
+
+            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == MessageResult::Escape)
+                return MessageResult::Escape;
+        }
+
+        static const unsigned short objectField = Message::Object |
+                                                  Message::Component;
+
+        if (message.passFilter(objectField))
+        {
+            for (auto& i : m_objects)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        if (message.passFilter(Message::Layer))
+        {
+            for (auto& i : m_layers)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
+        }
+
+        return MessageResult::Continue;
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::updateBase(const float deltaTime)
     {
         preUpdate(deltaTime);
 
@@ -178,7 +249,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::fixedUpdateBase(const double timeStep)
+    void Scene::fixedUpdateBase(const float timeStep)
     {
         preFixedUpdate(timeStep);
 
@@ -200,30 +271,37 @@ namespace jop
     {
         preDraw();
 
+        m_defaultLayer->drawBase();
+
         for (auto& i : m_layers)
-            i->draw();
+            i->drawBase();
 
         postDraw();
     }
 
     //////////////////////////////////////////////
 
-    void Scene::preUpdate(const double)
+    void Scene::initialize()
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::postUpdate(const double)
+    void Scene::preUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::preFixedUpdate(const double)
+    void Scene::postUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::postFixedUpdate(const double)
+    void Scene::preFixedUpdate(const float)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Scene::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////
@@ -238,6 +316,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::sendMessageImpl(const std::string&, void*)
-    {}
+    MessageResult Scene::sendMessageImpl(const Message&)
+    {
+        return MessageResult::Continue;
+    }
 }

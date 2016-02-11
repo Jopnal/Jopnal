@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -33,7 +31,6 @@ namespace jop
         : m_transform               (IdentityMatrix),
           m_invTransform            (IdentityMatrix),
           m_rotation                (1.f, 0.f, 0.f, 0.f),
-          m_origin                  (0.f, 0.f, 0.f),
           m_scale                   (1.f, 1.f, 1.f),
           m_position                (0.f, 0.f, 0.f),
           m_transformNeedUpdate     (false),
@@ -46,10 +43,11 @@ namespace jop
     {
         if (m_transformNeedUpdate)
         {
-            glm::translate(m_transform, m_position);
+            m_transform = IdentityMatrix;
+
+            m_transform = glm::translate(m_transform, m_position);
             m_transform *= m_rotation.operator glm::tmat4x4<float, glm::highp>();
-            glm::scale(m_transform, m_scale);
-            glm::translate(m_transform, m_origin);
+            m_transform = glm::scale(m_transform, m_scale);
 
             m_transformNeedUpdate = false;
         }
@@ -104,31 +102,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Transform& Transform::setOrigin(const float x, const float y, const float z)
-    {
-        m_origin = glm::vec3(x, y, z);
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    Transform& Transform::setOrigin(const glm::vec3& origin)
-    {
-        return setOrigin(origin.x, origin.y, origin.z);
-    }
-
-    //////////////////////////////////////////////
-
-    const glm::vec3& Transform::getOrigin() const
-    {
-        return m_origin;
-    }
-
-    //////////////////////////////////////////////
-
     Transform& Transform::setScale(const float x, const float y, const float z)
     {
         m_scale = glm::vec3(x, y, z);
@@ -143,6 +116,13 @@ namespace jop
     Transform& Transform::setScale(const glm::vec3& scale)
     {
         return setScale(scale.x, scale.y, scale.z);
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::setScale(const float delta)
+    {
+        return setScale(delta, delta, delta);
     }
 
     //////////////////////////////////////////////
@@ -179,7 +159,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Transform::lookAt(const glm::vec3& point)
+    Transform& Transform::lookAt(const glm::vec3& point)
     {
         static const glm::vec3 upVec(0.f, 1.f, 0.f);
 
@@ -187,6 +167,79 @@ namespace jop
         m_transform = glm::inverse(m_invTransform);
         m_transformNeedUpdate = false;
         m_invTransformNeedsUpdate = false;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::move(const float x, const float y, const float z)
+    {
+        return move(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::move(const glm::vec3& offset)
+    {
+        m_position += offset;
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const float x, const float y, const float z)
+    {
+        return rotate(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const glm::quat& rotation)
+    {
+        m_rotation *= rotation;
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+    
+    Transform& Transform::rotate(const glm::vec3& rotation)
+    {
+        return rotate(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::scale(const float x, const float y, const float z)
+    {
+        return scale(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::scale(const glm::vec3& scale)
+    {
+        m_scale.x *= scale.x;
+        m_scale.y *= scale.y;
+        m_scale.z *= scale.z;
+
+        m_transformNeedUpdate = true;
+        m_invTransformNeedsUpdate = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::scale(const float delta)
+    {
+        return scale(delta, delta, delta);
     }
 
     //////////////////////////////////////////////
