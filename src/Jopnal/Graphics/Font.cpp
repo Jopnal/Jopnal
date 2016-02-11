@@ -93,11 +93,12 @@ namespace jop
         auto it = m_bitmaps.find(codepoint);
         if (it != m_bitmaps.end())
         {
-            // Return data of the found glyph bitmap
+            
             *width = it->second.second.x;
             *height = it->second.second.y;
             
-            /*return it->second;*/
+            //m_texture.setPixels
+
         }
         else
         {
@@ -105,23 +106,16 @@ namespace jop
             std::pair<glm::ivec2, glm::ivec2> bounds = getBounds(codepoint);
            
             // Create a bitmap
-            unsigned char* data = stbtt_GetCodepointBitmap(m_info.get(), scaleX, scaleY, codepoint, 
+            unsigned char* pixelData = stbtt_GetCodepointBitmap(m_info.get(), scaleX, scaleY, codepoint, 
                 &bounds.second.x, &bounds.second.y,
                 &bounds.first.x,
                 &bounds.first.y);
             
-            // Add the new bitmap to the map
-            Bitmap bm;
-            bm.height = bounds.second.x;
-            bm.width = bounds.second.y;
-            bm.data = data;
+            //Glyph data to map
             m_bitmaps[codepoint] = bounds;
 
-            m_texture.setPixels(bounds.first.x, bounds.first.y, bounds.second.x, bounds.second.y, data);
-
-            // Return necessary data
-            *width = bounds.second.x;
-            *height = bounds.second.y;
+            // Pass pixel data to texture
+            m_texture.setPixels(bounds.first.x, bounds.first.y, bounds.second.x, bounds.second.y, pixelData);
         }
     }
 }

@@ -37,12 +37,6 @@ struct stbtt_fontinfo;
 
 namespace jop
 {
-    struct Bitmap
-    {
-        int width, height;
-        unsigned char* data;
-    };
-
 	class Font
         :public Resource
 	{
@@ -84,8 +78,10 @@ namespace jop
         ///
         ~Font();
 
-
-//jgshgj
+        /// \brief Constructor
+        ///
+        /// \param path File path to font
+        ///
         Font(const std::string& path);
 
 	private:
