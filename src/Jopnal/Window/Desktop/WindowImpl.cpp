@@ -105,24 +105,22 @@ namespace jop { namespace detail
         
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
-
-        int width = settings.size.x, height = settings.size.y;
-        if (settings.displayMode == Window::DisplayMode::Borderless)
-        {
-            auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-            width = vidMode->width;
-            height = vidMode->height;
-        }
         
-        m_window = glfwCreateWindow(width, height, settings.title.c_str(), settings.displayMode != Window::DisplayMode::Fullscreen ? NULL : glfwGetPrimaryMonitor(), NULL);
+        m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode != Window::DisplayMode::Fullscreen ? NULL : glfwGetPrimaryMonitor(), NULL);
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
 
-        glfwMakeContextCurrent(m_window);
-        
-        initExtensions();
+        if (settings.displayMode != Window::DisplayMode::Fullscreen)
+        {
+            auto vm = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            
+            int width = 0, height = 0;
+            glfwGetWindowSize(m_window, &width, &height);
+            glfwSetWindowPos(m_window, vm->width / 2 - width / 2, vm->height / 2 - height / 2);
+        }
 
+        glfwMakeContextCurrent(m_window);
+        initExtensions();
         glfwSwapInterval(static_cast<int>(settings.vSync));
 
         glCheck(gl::GenVertexArrays(1, &m_vertexArray));
@@ -173,8 +171,6 @@ namespace jop { namespace detail
 
         glfwSetInputMode(m_window, GLFW_CURSOR, modes[static_cast<int>(mode)]);
     }
-
-}
-}
+}}
 
 #endif
