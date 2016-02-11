@@ -130,6 +130,10 @@ namespace jop
     };
 }
 
+/// \brief Convenience macro for defining a component's/scene's clone function.
+///
+#define JOP_GENERIC_CLONE(className) virtual className* clone() const override{return new className(*this);}
+
 #endif
 
 /// \class Component
