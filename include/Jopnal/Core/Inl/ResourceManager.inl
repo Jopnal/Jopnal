@@ -166,3 +166,24 @@ std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, cons
             return detail::LoadFallback<T, std::weak_ptr<T>>::load(name);
     }
 }
+
+template<typename T, typename ... Args>
+static std::weak_ptr<T> ResourceManager::getEmptyResource(const Args&... args)
+{
+    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+
+    if (!m_instance)
+    {
+        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
+        return std::weak_ptr<T>();
+    }
+
+    auto& inst = m_instance;
+
+    const std::string str = detail::getStringArg(args...);
+
+    auto ptr = std::make_shared<T>(args...);
+    inst->m_resources[str] = ptr;
+
+    return std::weak_ptr<T>(ptr);
+}

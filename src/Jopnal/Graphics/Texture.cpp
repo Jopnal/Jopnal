@@ -158,6 +158,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Texture::setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels)
+    {
+        if ((x + width > m_width) || (y + height > m_height))
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Would cause overflow");
+            return;
+        }
+        else if (!pixels)
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Pixel pointer is null");
+            return;
+        }
+
+        bind(0);
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+    }
+
+    //////////////////////////////////////////////
+
     int Texture::getWidth() const
     {
         return m_width;
@@ -192,9 +211,14 @@ namespace jop
 
     std::weak_ptr<Texture> Texture::getError()
     {
-        auto errTex = ResourceManager::getNamedResource<Texture>("Error Texture", IDB_PNG2);
+        static std::weak_ptr<Texture> errTex;
 
-        JOP_ASSERT(!errTex.expired(), "Failed to load error texture!");
+        if (errTex.expired())
+        {
+            errTex = ResourceManager::getEmptyResource<Texture>("Error Texture");
+
+            JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+        }
 
         return errTex;
     }
@@ -203,9 +227,14 @@ namespace jop
 
     std::weak_ptr<Texture> Texture::getDefault()
     {
-        auto defTex = ResourceManager::getNamedResource<Texture>("Default Texture", IDB_PNG1);
+        static std::weak_ptr<Texture> defTex;
 
-        JOP_ASSERT(!defTex.expired(), "Failed to load error texture!");
+        if (defTex.expired())
+        {
+            defTex = ResourceManager::getEmptyResource<Texture>("Default Texture");
+            
+            JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+        }
 
         return defTex;
     }

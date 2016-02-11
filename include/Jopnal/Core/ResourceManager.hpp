@@ -73,6 +73,12 @@ namespace jop
         template<typename T, typename ... Args>
         static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
 
+        /// \brief Get an empty resource
+        ///
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getEmptyResource(const Args&... args);
+
 
         /// \brief Deletes resource from memory
         ///

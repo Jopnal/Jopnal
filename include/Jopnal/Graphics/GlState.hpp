@@ -160,6 +160,13 @@ namespace jop
         /// \param mode The mode
         ///
         static void setPolygonMode(const PolygonMode mode);
+
+        /// \brief Enable/disable vertex attribute
+        ///
+        /// \param enable Enable the attribute?
+        /// \param attribute The attribute index
+        ///
+        static void setVertexAttribute(const bool enable, const unsigned int index);
         
     };
 }
