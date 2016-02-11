@@ -39,10 +39,11 @@ namespace jop
     public:
         LightSource(Object& object, const std::string& ID);
 
-        LightSource& setLightType(const LightType lightType, const Color color);
+        LightSource& setLightType(const LightType lightType);
 
         LightSource& getLightType();
 
+        //LightSource& setShadow(const bool);
 
     };
 }

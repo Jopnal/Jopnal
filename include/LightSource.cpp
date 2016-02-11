@@ -13,5 +13,15 @@ namespace jop
         : Component(object, ID)
     {}
 
+    LightSource& LightSource::setLightType(const LightType lightType)
+    {
+        m_light = lightType;
 
+        return *this;
+    }
+
+    LightSource& getLightType()
+    {
+        return m_light;
+    }
 }
