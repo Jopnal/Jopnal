@@ -167,6 +167,15 @@ namespace jop
         ///
         void setID(const std::string& ID);
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+		void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+		bool isActive();
 
         /// \brief Update method for object - forwarded for its components
         ///
@@ -191,6 +200,7 @@ namespace jop
         std::vector<std::shared_ptr<Object>> m_children;      ///< Container holding this object's children
         std::vector<std::shared_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
+        bool m_active;                                        ///< Boolean unit used as activity state
     };
 
     // Include the template implementation file

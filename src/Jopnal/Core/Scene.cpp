@@ -189,6 +189,18 @@ namespace jop
 
         return MessageResult::Continue;
     }
+    //////////////////////////////////////////////
+
+    void Scene::setActive(const bool active)
+    {
+        m_active = active;
+    }
+    //////////////////////////////////////////////
+
+    bool Scene::isActive()
+    {
+        return m_active;
+    }
 
     //////////////////////////////////////////////
 

@@ -107,16 +107,24 @@ namespace jop
                 while (accumulator >= timeStep)
                 {
                     for (auto& i : m_subsystems)
-                        i->preFixedUpdate(timeStep);
+                    {
+                        if (i->isActive())
+                            i->preFixedUpdate(timeStep);
+                    }
 
-                    if (m_currentScene)
-                        m_currentScene->fixedUpdateBase(timeStep);
+                    if (!isPaused())
+                    {
+                        if (m_currentScene)
+                            m_currentScene->fixedUpdateBase(timeStep);
 
-                    m_sharedScene->fixedUpdateBase(timeStep);
+                        m_sharedScene->fixedUpdateBase(timeStep);
+                    }
 
                     for (auto& i : m_subsystems)
-                        i->postFixedUpdate(timeStep);
-
+                    {
+                        if (i->isActive())
+                            i->postFixedUpdate(timeStep);
+                    }
                     accumulator -= timeStep;
                 }
             }
@@ -124,26 +132,41 @@ namespace jop
             // Update
             {
                 for (auto& i : m_subsystems)
-                    i->preUpdate(frameTime);
+                {
+                    if (i->isActive())
+                        i->preUpdate(frameTime);
+                }
 
-                if (m_currentScene)
-                    m_currentScene->updateBase(frameTime);
+                if (!isPaused())
+                {
+                    if (m_currentScene)
+                        m_currentScene->updateBase(frameTime);
 
-                m_sharedScene->updateBase(frameTime);
+                    m_sharedScene->updateBase(frameTime);
+                }
 
                 for (auto& i : m_subsystems)
-                    i->postUpdate(frameTime);
+                {
+                    if (i->isActive())
+                        i->postUpdate(frameTime);
+                }
             }
-            
+
             // Draw
             {
-                if (m_currentScene)
-                    m_currentScene->drawBase();
+                if (!isPaused())
+                {
+                    if (m_currentScene)
+                        m_currentScene->drawBase();
 
-                m_sharedScene->drawBase();
+                    m_sharedScene->drawBase();
+                }
 
                 for (auto& i : m_subsystems)
-                    i->draw();
+                {
+                    if (i->isActive())
+                        i->draw();
+                }
             }
         }
 
@@ -208,6 +231,21 @@ namespace jop
     {
         if (m_engineObject)
             m_engineObject->m_running = false;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::setPaused(const bool paused)
+    {
+        if (isRunning())
+            m_engineObject->m_paused = paused;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::isPaused()
+    {
+        return isRunning() ? m_engineObject->m_paused : false;
     }
 
     //////////////////////////////////////////////

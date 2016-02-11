@@ -58,6 +58,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Subsystem::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Subsystem::isActive()
+    {
+        return m_active;
+    }
+
+    //////////////////////////////////////////////
+
     MessageResult Subsystem::sendMessage(const std::string& message, Any returnWrap)
     {
         const Message msg(message, returnWrap);

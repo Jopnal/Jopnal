@@ -144,6 +144,15 @@ namespace jop
         ///
         static void exit();
 
+        /// \brief Sets paused to private m_paused member
+        ///
+        /// \param paused Boolean to set m_paused
+        ///
+        static void setPaused(const bool paused);
+
+        /// \brief Sets paused state to all update methods not including subsystems also returns m_paused
+        ///
+        static bool isPaused();
 
         /// \brief Send a message to the whole engine
         ///
@@ -193,7 +202,7 @@ namespace jop
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running
-
+        bool m_paused;                                        ///< A boolean telling if the engine is paused
     };
 
     /// \brief Get the project name
