@@ -91,6 +91,15 @@ namespace jop
         ///
         virtual void draw();
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+        void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+        bool isActive();
 
         /// \brief Function to handle messages
         ///
@@ -133,7 +142,7 @@ namespace jop
     private:
 
         std::string m_ID; ///< This subsystem's name
-
+        bool m_active;    ///< Sets activity 
     };
 }
 

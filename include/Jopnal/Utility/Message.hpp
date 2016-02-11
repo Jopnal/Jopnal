@@ -181,7 +181,7 @@ namespace jop
 
         std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
         std::string m_idPattern;                                            ///< The id filter to compare any passed ids against
-        mutable Any m_ptr;                                                  ///< Any object to store a possible return value
+        mutable Any& m_ptr;                                                 ///< Any object to store a possible return value
         unsigned short m_filterBits;                                        ///< Bit field with the system filter bits
         bool (*m_idMatchMethod)(const std::string&, const std::string&);    ///< Function to use in comparing the filter id and the passed id
 

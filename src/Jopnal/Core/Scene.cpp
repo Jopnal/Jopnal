@@ -45,7 +45,8 @@ namespace jop
         : m_objects         (),
           m_layers          (),
           m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
-          m_ID              (ID)
+          m_ID              (ID),
+          m_active          (true)
     {}
 
     Scene::~Scene()
@@ -225,58 +226,79 @@ namespace jop
 
         return MessageResult::Continue;
     }
+    //////////////////////////////////////////////
+
+    void Scene::setActive(const bool active)
+    {
+        m_active = active;
+    }
+    //////////////////////////////////////////////
+
+    bool Scene::isActive()
+    {
+        return m_active;
+    }
 
     //////////////////////////////////////////////
 
     void Scene::updateBase(const float deltaTime)
     {
-        preUpdate(deltaTime);
-
-        for (auto& i : m_layers)
-            i->preUpdate(deltaTime);
-
-        for (auto& i : m_objects)
+        if (isActive())
         {
-            i->update(deltaTime);
-            i->updateTransformTree(nullptr, false);
+            preUpdate(deltaTime);
+
+            for (auto& i : m_layers)
+                i->preUpdate(deltaTime);
+
+            for (auto& i : m_objects)
+            {
+                i->update(deltaTime);
+                i->updateTransformTree(nullptr, false);
+            }
+
+            for (auto& i : m_layers)
+                i->postUpdate(deltaTime);
+
+            postUpdate(deltaTime);
         }
-
-        for (auto& i : m_layers)
-            i->postUpdate(deltaTime);
-
-        postUpdate(deltaTime);
     }
 
     //////////////////////////////////////////////
 
     void Scene::fixedUpdateBase(const float timeStep)
     {
-        preFixedUpdate(timeStep);
+        if (isActive())
+        {
+            preFixedUpdate(timeStep);
 
-        for (auto& i : m_layers)
-            i->preFixedUpdate(timeStep);
+            for (auto& i : m_layers)
+                i->preFixedUpdate(timeStep);
 
-        for (auto& i : m_objects)
-            i->fixedUpdate(timeStep);
+            for (auto& i : m_objects)
+                i->fixedUpdate(timeStep);
 
-        for (auto& i : m_layers)
-            i->postFixedUpdate(timeStep);
+            for (auto& i : m_layers)
+                i->postFixedUpdate(timeStep);
 
-        postFixedUpdate(timeStep);
+            postFixedUpdate(timeStep);
+        }
     }
 
     //////////////////////////////////////////////
 
     void Scene::drawBase()
     {
-        preDraw();
+        if (isActive())
+        {
+            preDraw();
 
-        m_defaultLayer->drawBase();
+            m_defaultLayer->drawBase();
 
-        for (auto& i : m_layers)
-            i->drawBase();
+            for (auto& i : m_layers)
+                i->drawBase();
 
-        postDraw();
+            postDraw();
+        }
     }
 
     //////////////////////////////////////////////

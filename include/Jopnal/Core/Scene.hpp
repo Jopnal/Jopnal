@@ -179,6 +179,15 @@ namespace jop
         ///
         MessageResult sendMessage(const Message& message);
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+        void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+        bool isActive();
 
         /// \brief Update method for scene
         ///
@@ -259,6 +268,7 @@ namespace jop
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
         std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
         std::string m_ID;                               ///< String holding scene identifier
+        bool m_active;                                  ///< Boolean set to active
     };
 
     // Include the template implementation file
