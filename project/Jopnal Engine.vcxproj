@@ -31,6 +31,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
@@ -56,7 +57,6 @@
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
-    <ClInclude Include="..\src\Jopnal\Graphics\LightSource.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
