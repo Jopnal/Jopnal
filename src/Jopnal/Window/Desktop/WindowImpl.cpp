@@ -161,6 +161,20 @@ namespace jop { namespace detail
     {
         glfwPollEvents();
     }
-}}
+
+    void WindowImpl::setMouseMode(const Mouse::Mode mode)
+    {
+        static const int modes[] = 
+        {
+            GLFW_CURSOR_NORMAL,
+            GLFW_CURSOR_HIDDEN,
+            GLFW_CURSOR_DISABLED
+        };
+
+        glfwSetInputMode(m_window, GLFW_CURSOR, modes[static_cast<int>(mode)]);
+    }
+
+}
+}
 
 #endif
