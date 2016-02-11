@@ -215,7 +215,7 @@ namespace jop
     {
         std::string newStr(ns_stream.str());
 
-        static const bool debugConsole = SettingManager::getBool("bDebuggerOutput", true);
+        static const bool debugConsole = IsDebuggerPresent() == TRUE && SettingManager::getBool("bDebuggerOutput", true);
 
         if ((isConsoleEnabled() || debugConsole) && ns_lastSeverity <= ns_displaySeverity)
         {
@@ -230,8 +230,16 @@ namespace jop
                 }
 
             #ifdef JOP_OS_WINDOWS
+
+                static const char* severityStr[] =
+                {
+                    "ERROR: ",
+                    "WARNING: ",
+                    "INFO: "
+                };
+
                 if (debugConsole)
-                    OutputDebugString((newStr + '\n').c_str());
+                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(ns_displaySeverity)]) + newStr + '\n').c_str());
             #endif
             }
         }
