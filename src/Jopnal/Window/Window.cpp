@@ -223,11 +223,11 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
     void Window::setMouseMode(const Mouse::Mode mode)
     {
         if (isOpen())
             m_impl->setMouseMode(mode);
-
     }
-
 }
