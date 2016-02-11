@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <../src/Jopnal/Graphics/stb/stb_truetype.h>
+#include <Jopnal/Graphics/Texture.hpp>
 #include <Jopnal/MathInclude.hpp>
 #include <memory>
 #include <unordered_map>
@@ -75,17 +75,24 @@ namespace jop
         /// \param width Width of a single character
         /// \param height Height of a single character
         ///
-        unsigned char* getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height);
+        void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height);
         
+
+
         /// \brief Deconstructor
         ///
         ///
         ~Font();
 
+
+//jgshgj
+        Font(const std::string& path);
+
 	private:
+        jop::Texture m_texture; ///< Texture
 
         std::unique_ptr<stbtt_fontinfo> m_info; ///< Font info
-        std::unordered_map <int, Bitmap> m_bitmaps; ///< Bitmaps
+        std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Bitmaps
 
 	};
 }

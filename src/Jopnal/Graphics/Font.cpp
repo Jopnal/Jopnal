@@ -19,10 +19,12 @@
 
 //////////////////////////////////////////////
 
-#define STB_TRUETYPE_IMPLEMENTATION
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <Jopnal/Graphics/stb/stb_truetype.h>
 
 //////////////////////////////////////////////
 
@@ -31,11 +33,17 @@ namespace jop
 {
     Font::~Font()
     {
-        for (auto pair : m_bitmaps)
-        {
-            delete[] pair.second.data;
-        }
-        m_bitmaps.clear();
+        //for (auto pair : m_bitmaps)
+        //{
+        //    delete[] pair.second.data;
+        //}
+        //m_bitmaps.clear();
+    }
+
+    Font::Font(const std::string& path) : Resource(path),
+        m_texture("")
+    {
+
     }
 
     //////////////////////////////////////////////
@@ -44,6 +52,7 @@ namespace jop
     {
         auto info_ptr = std::make_unique<stbtt_fontinfo>();
 
+        m_texture.load(1024, 1024, 4);
         // Load font data from file
         std::vector<unsigned char> buffer;
 
@@ -53,7 +62,7 @@ namespace jop
         {
             // Save loaded data
             bool success = stbtt_InitFont(info_ptr.get(), buffer.data(), 0);
-            JOP_ASSERT(success, "Font failed!");
+            JOP_ASSERT(success, "Failed to load font!");
 
             m_info = std::move(info_ptr);
             return true;
@@ -79,21 +88,22 @@ namespace jop
 
     //////////////////////////////////////////////
     
-    unsigned char* Font::getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height)
+    void Font::getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height)
     {
         auto it = m_bitmaps.find(codepoint);
         if (it != m_bitmaps.end())
         {
             // Return data of the found glyph bitmap
-            *width = it->second.width;
-            *height = it->second.width;
-            return it->second.data;
+            *width = it->second.second.x;
+            *height = it->second.second.y;
+            
+            /*return it->second;*/
         }
         else
         {
             // Get glyph rectangle size in pixels
             std::pair<glm::ivec2, glm::ivec2> bounds = getBounds(codepoint);
-            
+           
             // Create a bitmap
             unsigned char* data = stbtt_GetCodepointBitmap(m_info.get(), scaleX, scaleY, codepoint, 
                 &bounds.second.x, &bounds.second.y,
@@ -105,12 +115,13 @@ namespace jop
             bm.height = bounds.second.x;
             bm.width = bounds.second.y;
             bm.data = data;
-            m_bitmaps[codepoint] = bm;
+            m_bitmaps[codepoint] = bounds;
+
+            m_texture.setPixels(bounds.first.x, bounds.first.y, bounds.second.x, bounds.second.y, data);
 
             // Return necessary data
             *width = bounds.second.x;
             *height = bounds.second.y;
-            return data;
         }
     }
 }
