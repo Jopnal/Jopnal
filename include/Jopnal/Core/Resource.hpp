@@ -49,6 +49,8 @@ namespace jop
 
         /// \brief Get the name
         ///
+        /// \return Reference to the name
+        ///
         const std::string& getName() const;
 
     private:

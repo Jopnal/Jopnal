@@ -56,6 +56,8 @@ namespace jop
         virtual ~Layer() override;
 
 
+        /// \brief Base draw function
+        ///
         void drawBase();
 
         /// \brief Draw function
@@ -120,6 +122,8 @@ namespace jop
         ///
         void setRenderTexture(RenderTexture* renderTexture);
 
+        /// \brief Sweep the drawables & bound layers that no longer exist
+        ///
         void sweepRemoved();
 
 
@@ -139,4 +143,4 @@ namespace jop
 /// \class Layer
 /// \ingroup graphics
 ///
-/// #TODO Detailed description
+/// 

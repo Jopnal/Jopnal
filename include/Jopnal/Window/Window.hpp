@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Window/Mouse.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
@@ -187,6 +188,14 @@ namespace jop
         /// \param height Relative height of the view port in pixels
         ///
         void setViewportRelative(const float x, const float y, const float width, const float height);
+
+        /// \brief Sets mouse mode
+        ///
+        /// Mouse modes: Visible, Hidden, Frozen (Defined in mouse class)
+        ///
+        /// \param mode Enum mouse mode.
+        ///
+        void setMouseMode(const Mouse::Mode mode);
 
     private:
 

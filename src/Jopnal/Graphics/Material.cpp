@@ -47,18 +47,18 @@ namespace jop
     //////////////////////////////////////////////
 
     void Material::sendToShader(Shader& shader) const
-	{
-		if (shader.bind())
-		{
+    {
+        if (shader.bind())
+        {
             shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asFloatVector());
             shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asFloatVector());
-			shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asFloatVector());
-			shader.setUniform("u_Material.shininess", m_shininess);
+            shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asFloatVector());
+            shader.setUniform("u_Material.shininess", m_shininess);
 
             if (!m_maps[ns_diffMapIndex].expired())
                 shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex].lock(), ns_diffMapIndex);
-		}
-	}
+        }
+    }
 
     //////////////////////////////////////////////
 

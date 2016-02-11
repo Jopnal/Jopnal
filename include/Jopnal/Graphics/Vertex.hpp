@@ -86,4 +86,4 @@ namespace jop
 /// \class Vertex
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

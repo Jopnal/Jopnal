@@ -41,22 +41,38 @@ namespace jop
     {
     public:
 
+        /// \brief Struct for passing extra options to the load function
+        ///
         struct LoadOptions
         {
+            /// \brief Default constructor
+            ///
             LoadOptions() = default;
 
+            /// \brief Constructor for initialization
+            ///
+            /// \param centerOrigin_ Center the origin?
+            /// \param flipV_ Flip the V texture coordinate?
+            /// \param generateNormals_ Generate normals in case they don't exist?
+            ///
             LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
 
-            Transform transform;
-            bool centerOrigin;
-            bool flipV;
-            bool generateNormals;
+            Transform transform;    ///< Transform for pre-transforming the vertices
+            bool centerOrigin;      ///< Center the origin?
+            bool flipV;             ///< Flip the V texture coordinate?
+            bool generateNormals;   ///< Generate normals in case they don't exist
         };
 
+        /// The default load options
+        ///
         static const LoadOptions DefaultOptions;
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of this resource. Must be the file path if applicable.
+        ///
         Model(const std::string& name);
 
         /// \brief Loads a .obj model from file
@@ -65,23 +81,66 @@ namespace jop
         /// Assigns data to index and vertex buffers
         ///
         /// \param filePath The path to the file you want to load
+        /// \param options Extra options for loading
         ///
         bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
 
+        /// \brief Load a model from vertices and indices
         ///
+        /// This will bind the default material
+        ///
+        /// \param vertices The vertices
+        /// \param indices The indices
+        ///
+        /// \return True if successful
         ///
         bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 
+        /// \brief Load a model from vertices and indices
         ///
+        /// \param vertices The vertices
+        /// \param indices The indices
+        /// \param material The material to use
+        ///
+        /// \return True if successful
         ///
         bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material);
 
 
+        /// \brief Get the mesh
+        ///
+        /// \return Pointer to the mesh
+        ///
         std::weak_ptr<const Mesh> getMesh() const;
 
+        /// \brief Set the mesh
+        ///
+        /// \param mesh Reference to the mesh
+        ///
+        void setMesh(const Mesh& mesh);
+
+        /// \brief Get the material
+        ///
+        /// \return Reference to the material
+        ///
         const Material& getMaterial() const;
 
+        /// \brief Set the material
+        ///
+        /// The material will be copied, so there's not need to keep the original around.
+        /// Respectively, you'll need to pass it again should you make any changes to it.
+        ///
+        /// \param material The new material
+        ///
+        void setMaterial(const Material& material);
 
+
+        /// \brief Get the element amount
+        ///
+        /// This will return zero if there are no indices.
+        ///
+        /// \return The element amount
+        ///
         std::size_t getElementAmount() const;
 
 
@@ -95,8 +154,8 @@ namespace jop
 
     private:
 
-        std::weak_ptr<Mesh> m_mesh;
-        Material m_material;
+        std::weak_ptr<const Mesh> m_mesh; ///< The mesh
+        Material m_material;        ///< The material
 
     };
 }

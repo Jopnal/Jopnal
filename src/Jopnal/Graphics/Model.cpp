@@ -239,9 +239,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Model::setMesh(const Mesh& mesh)
+    {
+        m_mesh = std::weak_ptr<const Mesh>(std::static_pointer_cast<const Mesh>(mesh.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
     const Material& Model::getMaterial() const
     {
         return m_material;
+    }
+
+    //////////////////////////////////////////////
+
+    void Model::setMaterial(const Material& material)
+    {
+        m_material = material;
     }
 
     //////////////////////////////////////////////
@@ -255,9 +269,14 @@ namespace jop
 
     std::weak_ptr<Model> Model::getDefault()
     {
-        auto defModel = ResourceManager::getNamedResource<BoxModel>("Default Model", 1.f);
+        static std::weak_ptr<BoxModel> defModel;
 
-        JOP_ASSERT(!defModel.expired(), "Couldn't load default model!");
+        if (defModel.expired())
+        {
+            defModel = ResourceManager::getEmptyResource<BoxModel>("Default Model");
+
+            JOP_ASSERT_EVAL(defModel.lock()->load(1.f), "Couldn't load default model!");
+        }
 
         return defModel;
     }

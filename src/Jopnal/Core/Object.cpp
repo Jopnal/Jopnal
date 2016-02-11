@@ -52,7 +52,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  ()
+          m_ID                                  (),
+          m_active                              (true)
     {}
 
     Object::Object(const Object& other)
@@ -60,7 +61,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (other),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (other.m_ID)
+          m_ID                                  (other.m_ID),
+          m_active                              (other.m_active)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -76,7 +78,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (ID)
+          m_ID                                  (ID),
+          m_active                              (true)
     {}
 
     //////////////////////////////////////////////
@@ -235,22 +238,28 @@ namespace jop
 
     void Object::update(const float deltaTime)
     {
-        for (auto& i : m_components)
-            i->update(deltaTime);
+        if (isActive())
+        {
+            for (auto& i : m_components)
+                i->update(deltaTime);
 
-        for (auto& i : m_children)
-            i->update(deltaTime);
+            for (auto& i : m_children)
+                i->update(deltaTime);
+        }
     }
 
     /////////////////////////////////////////////
 
     void Object::fixedUpdate(const float timeStep)
     {
-        for (auto& i : m_components)
-            i->fixedUpdate(timeStep);
+        if (isActive())
+        {
+            for (auto& i : m_components)
+                i->fixedUpdate(timeStep);
 
-        for (auto& i : m_children)
-            i->fixedUpdate(timeStep);
+            for (auto& i : m_children)
+                i->fixedUpdate(timeStep);
+        }
     }
 
     /////////////////////////////////////////////
@@ -265,6 +274,21 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
+    }
+
+
+    //////////////////////////////////////////////
+
+    void Object::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::isActive()
+    {
+        return m_active;
     }
 
     //////////////////////////////////////////////

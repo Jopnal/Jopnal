@@ -38,7 +38,8 @@ namespace jop
 {
     Subsystem::Subsystem(const std::string& ID)
         : std::enable_shared_from_this<Subsystem>   (),
-          m_ID                                      (ID)
+          m_ID                                      (ID),
+          m_active                                  (true)
     {}
 
     Subsystem::~Subsystem()
@@ -67,12 +68,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Subsystem::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Subsystem::isActive()
+    {
+        return m_active;
+    }
+    
+    //////////////////////////////////////////////
+    
     MessageResult Subsystem::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
     }
-
+    
     //////////////////////////////////////////////
 
     MessageResult Subsystem::sendMessage(const std::string& message, Any& returnWrap)
@@ -80,6 +95,8 @@ namespace jop
         const Message msg(message, returnWrap);
         return sendMessage(msg);
     }
+
+    //////////////////////////////////////////////
 
     MessageResult Subsystem::sendMessage(const Message& message)
     {

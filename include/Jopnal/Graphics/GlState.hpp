@@ -160,6 +160,13 @@ namespace jop
         /// \param mode The mode
         ///
         static void setPolygonMode(const PolygonMode mode);
+
+        /// \brief Enable/disable vertex attribute
+        ///
+        /// \param enable Enable the attribute?
+        /// \param index The attribute index
+        ///
+        static void setVertexAttribute(const bool enable, const unsigned int index);
         
     };
 }
@@ -169,4 +176,4 @@ namespace jop
 /// \class GlStateManager
 /// \ingroup graphics
 ///
-/// #TODO Detailed description
+/// 

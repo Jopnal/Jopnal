@@ -233,7 +233,7 @@ namespace jop
         ///
         /// \param delta The scale modifier
         ///
-        /// \eturn Reference to self
+        /// \return Reference to self
         ///
         Transform& scale(const float delta);
 

@@ -38,21 +38,29 @@ namespace jop
 
         /// \brief Default constructor
         ///
+        /// \param name Name of this buffer
+        ///
         Mesh(const std::string& name);
 
         /// \brief Loads model from memory
         ///
         /// \param vertexArray Container holding the vertex data
-        /// \param indices Container holding index data
+        /// \param indexArray Container holding index data
+        ///
+        /// \return True if successful
         ///
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
 
         /// \brief Returns index buffer
         ///
+        /// \return Reference to the index buffer
+        ///
         const VertexBuffer& getIndexBuffer() const;
 
         /// \brief Returns vertex buffer
+        ///
+        /// \return Reference to the index buffer
         ///
         const VertexBuffer& getVertexBuffer() const;
 

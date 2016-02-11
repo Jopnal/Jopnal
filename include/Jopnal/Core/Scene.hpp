@@ -179,6 +179,15 @@ namespace jop
         ///
         MessageResult sendMessage(const Message& message);
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+        void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+        bool isActive();
 
         /// \brief Update method for scene
         ///
@@ -188,7 +197,7 @@ namespace jop
 
         /// \brief fixedUpdate method for scene
         ///
-        /// \param deltaTime Double holding time step
+        /// \param timeStep Double holding time step
         ///
         void fixedUpdateBase(const float timeStep);
 
@@ -224,7 +233,7 @@ namespace jop
         ///
         /// This will be called before objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
         virtual void preFixedUpdate(const float timeStep);
 
@@ -232,7 +241,7 @@ namespace jop
         ///
         /// This will be called after objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
         virtual void postFixedUpdate(const float timeStep);
         
@@ -259,6 +268,7 @@ namespace jop
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
         std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
         std::string m_ID;                               ///< String holding scene identifier
+        bool m_active;                                  ///< Boolean set to active
     };
 
     // Include the template implementation file

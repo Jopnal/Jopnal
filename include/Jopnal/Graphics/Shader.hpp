@@ -131,11 +131,12 @@ namespace jop
 
         /// \brief method setting attributes
         ///
-        /// \param name unique name
-        /// \param type GLenum type
-        /// \param amount attributes size Glint size
-        /// \param stride 
-        /// \param pointer void pointer
+        /// \param name Attribute name
+        /// \param type Data type, Use the appropriate OpenGL enum
+        /// \param amount Amount of variables per element
+        /// \param stride The stride. Refer to OpenGL documentation on what this is
+        /// \param normalize Normalize the attributes?
+        /// \param pointer Pointer to the data or the offset in the buffer
         ///
         /// \return True if set successfully
         ///
@@ -143,12 +144,12 @@ namespace jop
 
         /// \brief Set an attribute using the location
         ///
-        /// \param loc Location
-        /// \param type The type
-        /// \param amount
-        /// \param stride
-        /// \param normalize
-        /// \param pointer
+        /// \param loc Attribute location
+        /// \param type Data type, Use the appropriate OpenGL enum
+        /// \param amount Amount of variables per element
+        /// \param stride The stride. Refer to OpenGL documentation on what this is
+        /// \param normalize Normalize the attributes?
+        /// \param pointer Pointer to the data or the offset in the buffer
         ///
         void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
         
@@ -179,4 +180,4 @@ namespace jop
 /// \class Shader
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

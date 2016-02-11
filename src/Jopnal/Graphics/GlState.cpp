@@ -47,16 +47,18 @@ namespace
     bool ns_polygonSmooth;
     std::pair<bool, float> ns_line;
     jop::GlState::PolygonMode ns_polygonMode;
+    std::vector<bool> ns_vertexAttribs;
 
     void enableDisable(const bool enable, GLenum enum_)
     {
-        // Don't touch these braces, they're just as they should be
         if (enable)
         {
             glCheck(gl::Enable(enum_));
         }
         else
+        {
             glCheck(gl::Disable(enum_));
+        }
     }
 }
 
@@ -87,6 +89,9 @@ namespace jop
 
         // Polygon mode is Fill by default
         ns_polygonMode = PolygonMode::Fill;
+
+        // All vertex attributes are disabled by default
+        ns_vertexAttribs.clear();
     }
 
     //////////////////////////////////////////////
@@ -230,6 +235,34 @@ namespace jop
             glCheck(gl::PolygonMode(gl::FRONT_AND_BACK, polyModes[static_cast<int>(mode)]));
 
             ns_polygonMode = mode;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void GlState::setVertexAttribute(const bool enable, const unsigned int index)
+    {
+        static int attribLocs = 0;
+
+        if (ns_vertexAttribs.empty())
+        {
+            glCheck(gl::GetIntegerv(gl::MAX_VERTEX_ATTRIBS, &attribLocs));
+            ns_vertexAttribs.resize(attribLocs, false);
+        }
+
+        const unsigned int clamp = std::min(attribLocs - 1u, index);
+        if (ns_vertexAttribs[clamp] != enable)
+        {
+            if (enable)
+            {
+                glCheck(gl::EnableVertexAttribArray(clamp));
+            }
+            else
+            {
+                glCheck(gl::DisableVertexAttribArray(clamp));
+            }
+
+            ns_vertexAttribs[clamp] = enable;
         }
     }
 }

@@ -35,10 +35,6 @@ namespace jop
 
     class Texture : public Resource
     {
-    private:
-
-        friend class ResourceManager;
-
     public:
 
         /// \brief Constructor
@@ -52,7 +48,7 @@ namespace jop
 
         /// \brief Method for using file loader to load new resource from file
         ///
-        /// \param Name or path for wanted resource
+        /// \param path The file path
         ///
         /// \return True if loading was successful
         ///
@@ -60,7 +56,9 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param 
+        /// \param x The desired width
+        /// \param y The desired height
+        /// \param bytesPerPixel The byte depth
         ///
         /// \return True if loading was successful
         ///
@@ -102,6 +100,19 @@ namespace jop
         /// \param sampler The sampler
         ///
         void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
+
+
+        /// \brief Set a subset of pixels
+        ///
+        /// The byte depth must be the same as this texture's!
+        ///
+        /// \param x The X starting point
+        /// \param y The Y starting point
+        /// \param width Width
+        /// \param height Height
+        /// \param pixels Pointer to the pixels
+        ///
+        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width

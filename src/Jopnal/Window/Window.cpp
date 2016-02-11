@@ -222,4 +222,12 @@ namespace jop
                                  static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
         }
     }
+
+    //////////////////////////////////////////////
+
+    void Window::setMouseMode(const Mouse::Mode mode)
+    {
+        if (isOpen())
+            m_impl->setMouseMode(mode);
+    }
 }

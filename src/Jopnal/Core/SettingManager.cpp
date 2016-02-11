@@ -53,50 +53,50 @@ namespace
     #pragma region ValueCasters
 
     template<typename T = void>
-    T getCastValue(const rj::Value& val)
+    T getCastValue(const rj::Value&, const std::string&)
     {
         static_assert(!std::is_void<T>::value, "Setting type not specialized");
     }
 
     template<>
-    int getCastValue<int>(const rj::Value& val)
+    int getCastValue<int>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an int)");
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an int): " + name);
         return val.GetInt();
     }
 
     template<>
-    unsigned int getCastValue<unsigned int>(const rj::Value& val)
+    unsigned int getCastValue<unsigned int>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an unsigned int)");
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an unsigned int): " + name);
         return val.GetUint();
     }
 
     template<>
-    float getCastValue<float>(const rj::Value& val)
+    float getCastValue<float>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a float)");
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a float): " + name);
         return static_cast<float>(val.GetDouble());
     }
 
     template<>
-    double getCastValue<double>(const rj::Value& val)
+    double getCastValue<double>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a double)");
+        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a double): " + name);
         return val.GetDouble();
     }
 
     template<>
-    bool getCastValue<bool>(const rj::Value& val)
+    bool getCastValue<bool>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsBool(), "Setting type not convertible! (asked for a bool)");
+        JOP_ASSERT(val.IsBool(), "Setting type not convertible! (asked for a bool): " + name);
         return val.GetBool();
     }
 
     template<>
-    std::string getCastValue<std::string>(const rj::Value& val)
+    std::string getCastValue<std::string>(const rj::Value& val, const std::string& name)
     {
-        JOP_ASSERT(val.IsString(), "Setting type not convertible! (asked for an string)");
+        JOP_ASSERT(val.IsString(), "Setting type not convertible! (asked for an string): " + name);
         return std::string(val.GetString());
     }
 
@@ -132,7 +132,7 @@ namespace
             return defaultValue;
         }
 
-        return getCastValue<T>(val);
+        return getCastValue<T>(val, name);
     }
 
     template<typename T>

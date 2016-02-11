@@ -310,7 +310,7 @@ namespace jop
         if (loc != -1)
         {
             glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
-            glCheck(gl::EnableVertexAttribArray(loc));
+            GlState::setVertexAttribute(true, loc);
         }
 
         return loc != -1;
@@ -321,7 +321,7 @@ namespace jop
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
-        glCheck(gl::EnableVertexAttribArray(loc));
+        GlState::setVertexAttribute(true, loc);
     }
 
     //////////////////////////////////////////////
@@ -336,12 +336,12 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = ResourceManager::getNamedResource<Shader>("Default Shader",
-                                                                  std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                                                  "",
-                                                                  std::string(reinterpret_cast<const char*>(frag.data()), frag.size()));
+            defShader = ResourceManager::getEmptyResource<Shader>("Default Shader");
 
-            JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
+            JOP_ASSERT_EVAL(defShader.lock()->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                                                   "",
+                                                   std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                                                   "Couldn't compile the default shader!");
         }
 
         return defShader;

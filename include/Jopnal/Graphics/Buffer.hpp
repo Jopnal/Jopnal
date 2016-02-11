@@ -131,4 +131,4 @@ namespace jop
 /// \class Buffer
 /// \ingroup Graphics
 ///
-/// do explanation about the class
+/// 
