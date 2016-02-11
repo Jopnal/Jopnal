@@ -181,11 +181,11 @@ namespace jop
         ///
         /// \param active Sets the active
         ///
-		void setActive(const bool active);
+        void setActive(const bool active);
 
         /// \brief Returns m_active boolean unit
         ///
-		bool isActive();
+        bool isActive();
 
         /// \brief Update method for object - forwarded for its components
         ///

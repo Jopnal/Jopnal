@@ -51,7 +51,8 @@ namespace jop
           m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
-          m_running         (true)
+          m_running         (true),
+          m_paused          (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");

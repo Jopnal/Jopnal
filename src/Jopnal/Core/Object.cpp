@@ -52,7 +52,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  ()
+          m_ID                                  (),
+          m_active                              (true)
     {}
 
     Object::Object(const Object& other)
@@ -60,7 +61,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (other),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (other.m_ID)
+          m_ID                                  (other.m_ID),
+          m_active                              (other.m_active)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -76,7 +78,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (ID)
+          m_ID                                  (ID),
+          m_active                              (true)
     {}
 
     //////////////////////////////////////////////
