@@ -35,15 +35,11 @@ namespace jop
 
     class Texture : public Resource
     {
-    private:
-
-        friend class ResourceManager;
-
     public:
 
         /// \brief Constructor
         ///
-        Texture();
+        Texture(const std::string& name);
 
         /// \brief Destructor
         ///
@@ -102,6 +98,19 @@ namespace jop
         /// \param sampler The sampler
         ///
         void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
+
+
+        /// \brief Set a subset of pixels
+        ///
+        /// The byte depth must be the same as this texture's!
+        ///
+        /// \param x The X starting point
+        /// \param y The Y starting point
+        /// \param width Width
+        /// \param height Height
+        /// \param pixels Pointer to the pixels
+        ///
+        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width

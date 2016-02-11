@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
+//    in a product, an acknowledgment in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,49 +19,53 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef JOP_MESH_HPP
+#define JOP_MESH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <string>
-#include <memory>
+#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/VertexBuffer.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Resource : public std::enable_shared_from_this<Resource>
+    class JOP_API Mesh final : public Resource
     {
     public:
 
-        /// \brief Constructor
+        /// \brief Default constructor
         ///
-        /// \param name Name of the resource. This must be the file path if this resource is loaded from a file.
-        ///
-        Resource(const std::string& name);
+        Mesh(const std::string& name);
 
-        /// \brief Virtual destructor
+        /// \brief Loads model from memory
         ///
-        virtual ~Resource() = 0;
+        /// \param vertexArray Container holding the vertex data
+        /// \param indices Container holding index data
+        ///
+        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
 
-        /// \brief Get the name
+        /// \brief Returns index buffer
         ///
-        /// \return Reference to the name
+        const VertexBuffer& getIndexBuffer() const;
+
+        /// \brief Returns vertex buffer
         ///
-        const std::string& getName() const;
+        const VertexBuffer& getVertexBuffer() const;
 
     private:
 
-        std::string m_name; ///< Name of this resource
+        VertexBuffer m_vertexbuffer;    ///< The vertex buffer
+        VertexBuffer m_indexbuffer;     ///< The index buffer
     };
 }
 
 #endif
 
-/// \class Resource
-/// \ingroup core
+/// \class Model
+/// \ingroup graphics
 ///
-/// This is the base class for all resources that are loaded from files
+/// NOTE: Currently only supports .obj format.

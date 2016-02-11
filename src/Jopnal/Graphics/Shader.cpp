@@ -39,8 +39,9 @@ namespace
 
 namespace jop
 {
-    Shader::Shader()
-        : m_shaderProgram(0)
+    Shader::Shader(const std::string& name)
+        : Resource          (name),
+          m_shaderProgram   (0)
     {}
 
     Shader::~Shader()
@@ -269,7 +270,7 @@ namespace jop
     bool Shader::setUniform(const std::string& name, const glm::vec4& vector)
     {
         const int loc = getUniformLocation(name);
-
+        
         if (loc != -1)
             glCheck(gl::Uniform4f(loc, vector.x, vector.y, vector.z, vector.w));
 
@@ -290,6 +291,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const float value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1f(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);
@@ -297,7 +310,7 @@ namespace jop
         if (loc != -1)
         {
             glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
-            glCheck(gl::EnableVertexAttribArray(loc));
+            GlState::setVertexAttribute(true, loc);
         }
 
         return loc != -1;
@@ -308,7 +321,7 @@ namespace jop
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
-        glCheck(gl::EnableVertexAttribArray(loc));
+        GlState::setVertexAttribute(true, loc);
     }
 
     //////////////////////////////////////////////
@@ -323,12 +336,12 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = ResourceManager::getNamedResource<Shader>("Default Shader",
-                                                                  std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                                                  "",
-                                                                  std::string(reinterpret_cast<const char*>(frag.data()), frag.size()));
+            defShader = ResourceManager::getEmptyResource<Shader>("Default Shader");
 
-            JOP_ASSERT(!defShader.expired(), "Couldn't compile the default shader!");
+            JOP_ASSERT_EVAL(defShader.lock()->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                                                   "",
+                                                   std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                                                   "Couldn't compile the default shader!");
         }
 
         return defShader;
@@ -338,12 +351,14 @@ namespace jop
 
     int Shader::getUniformLocation(const std::string& name)
     {
+        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+
         if (bind())
         {
             const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
 
-            if (location == -1)
-                JOP_DEBUG_ERROR("Uniform named \"" << name << "\"not found in shader");
+            if (location == -1 && printErr)
+                JOP_DEBUG_WARNING("Uniform named \"" << name << "\"not found in shader");
 
             return location;
         }
@@ -355,11 +370,13 @@ namespace jop
 
     int Shader::getAttributeLocation(const std::string& name)
     {
+        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+
         if (bind())
         {
             const int location = glCheck(gl::GetAttribLocation(m_shaderProgram, name.c_str()));
 
-            if (location == -1)
+            if (location == -1 && printErr)
                 JOP_DEBUG_WARNING("Attrubute named \"" << name << "\" not found in shader");
 
             return location;

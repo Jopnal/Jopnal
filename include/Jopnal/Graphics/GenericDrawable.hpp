@@ -19,49 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RESOURCE_HPP
-#define JOP_RESOURCE_HPP
+#ifndef JOP_GENERICDRAWABLE_HPP
+#define JOP_GENERICDRAWABLE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <string>
-#include <memory>
+#include <Jopnal/Graphics/Drawable.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Resource : public std::enable_shared_from_this<Resource>
+    class JOP_API GenericDrawable : public Drawable
     {
     public:
 
         /// \brief Constructor
         ///
-        /// \param name Name of the resource. This must be the file path if this resource is loaded from a file.
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param ID Unique component identifier
         ///
-        Resource(const std::string& name);
+        GenericDrawable(Object& object, const std::string& ID);
 
-        /// \brief Virtual destructor
+
+        /// \copydoc jop::Component::clone()
         ///
-        virtual ~Resource() = 0;
+        virtual GenericDrawable* clone() const override;
 
-
-        /// \brief Get the name
+        /// \brief Draw function
         ///
-        /// \return Reference to the name
-        ///
-        const std::string& getName() const;
+        virtual void draw(const Camera& camera) override;
 
-    private:
-
-        std::string m_name; ///< Name of this resource
     };
 }
 
 #endif
-
-/// \class Resource
-/// \ingroup core
-///
-/// This is the base class for all resources that are loaded from files

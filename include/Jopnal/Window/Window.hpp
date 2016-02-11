@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Window/Mouse.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
@@ -71,6 +72,7 @@ namespace jop
             DisplayMode displayMode;
             unsigned int samples;
             bool visible;
+            bool vSync;
         };
 
     public:
@@ -99,13 +101,13 @@ namespace jop
         /// This will simply set an internal boolean flag so
         /// we know when a new frame has begun.
         ///
-        void preUpdate(const double dt) override;
+        void preUpdate(const float deltaTime) override;
 
         /// \brief The post-update function
         ///
         /// This clears the OpenGL front buffer
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief The post-draw function
         ///
@@ -186,6 +188,14 @@ namespace jop
         /// \param height Relative height of the view port in pixels
         ///
         void setViewportRelative(const float x, const float y, const float width, const float height);
+
+        /// \brief Sets mouse mode
+        ///
+        /// Mouse modes: Visible, Hidden, Frozen (Defined in mouse class)
+        ///
+        /// \param mode Enum mouse mode.
+        ///
+        void setMouseMode(const Mouse::Mode mode);
 
     private:
 

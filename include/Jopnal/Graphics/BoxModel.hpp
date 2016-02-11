@@ -39,13 +39,13 @@ namespace jop
         ///
         /// Does not initialize the vertices.
         ///
-        BoxModel();
+        BoxModel(const std::string& name);
 
         /// \brief Creates a cube model
         ///
         /// \param size Size of the box
         ///
-        BoxModel(const float size);
+        BoxModel(const std::string& name, const float size);
 
 
         /// \brief Load this box
@@ -54,7 +54,7 @@ namespace jop
         ///
         /// \param size Size of the box
         ///
-        /// \eturn True if successful
+        /// \return True if successful
         ///
         bool load(const float size);
     };

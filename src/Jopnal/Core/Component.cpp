@@ -86,12 +86,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Component::update(double)
+    void Component::update(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Component::fixedUpdate(const double)
+    void Component::fixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////

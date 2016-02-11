@@ -228,7 +228,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::updateBase(const double deltaTime)
+    void Scene::updateBase(const float deltaTime)
     {
         preUpdate(deltaTime);
 
@@ -249,7 +249,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::fixedUpdateBase(const double timeStep)
+    void Scene::fixedUpdateBase(const float timeStep)
     {
         preFixedUpdate(timeStep);
 
@@ -286,22 +286,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::preUpdate(const double)
+    void Scene::preUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::postUpdate(const double)
+    void Scene::postUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::preFixedUpdate(const double)
+    void Scene::preFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Scene::postFixedUpdate(const double)
+    void Scene::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////

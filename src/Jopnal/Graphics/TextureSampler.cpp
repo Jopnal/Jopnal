@@ -27,8 +27,9 @@
 
 namespace jop
 {
-    TextureSampler::TextureSampler()
-        : m_sampler(0)
+    TextureSampler::TextureSampler(const std::string& name)
+        : Resource  (name),
+          m_sampler (0)
     {
         reset();
     }
@@ -174,7 +175,7 @@ namespace jop
     {
         auto defSampler = ResourceManager::getNamedResource<TextureSampler>
         (
-            "DefaultSampler",
+            "Default Sampler",
             static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
             static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)),
             SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f)

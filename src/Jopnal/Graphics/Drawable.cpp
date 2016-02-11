@@ -29,20 +29,8 @@ namespace jop
 {
     Drawable::Drawable(Object& object, const std::string& ID)
         : Component (object, ID),
-          m_model   (),
-          m_shader  (),
-          m_texture ()
-    {
-        setModel(Model::getDefault());
-        setShader(*Shader::getDefault().lock());
-        setTexture(*Texture::getDefault().lock());
-    }
-
-    Drawable::Drawable(const Drawable& other)
-        : Component (other),
-          m_model   (other.m_model),
-          m_shader  (other.m_shader),
-          m_texture (other.m_texture)
+          m_model   (Model::getDefault()),
+          m_shader  (Shader::getDefault())
     {}
 
     Drawable::~Drawable()
@@ -60,12 +48,5 @@ namespace jop
     void Drawable::setShader(Shader& shader)
     {
         m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
-    }
-
-    //////////////////////////////////////////////
-
-    void Drawable::setTexture(const Texture& texture)
-    {
-        m_texture = std::weak_ptr<const Texture>(std::static_pointer_cast<const Texture>(texture.shared_from_this()));
     }
 }

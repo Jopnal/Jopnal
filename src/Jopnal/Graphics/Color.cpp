@@ -57,6 +57,14 @@ namespace jop
         *this = Color(colors);
     }
 
+    Color::Color(const float _r, const float _g, const float _b, const float _a)
+        : r(static_cast<uint8>(_r * 255)),
+          g(static_cast<uint8>(_g * 255)),
+          b(static_cast<uint8>(_b * 255)),
+          a(static_cast<uint8>(_a * 255))
+    {
+
+    }
 
     //////////////////////////////////////////////
 

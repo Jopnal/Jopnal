@@ -46,18 +46,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::preFixedUpdate(const double)
+    void Subsystem::preFixedUpdate(const float)
     {}
 
-    void Subsystem::postFixedUpdate(const double)
+    void Subsystem::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Subsystem::preUpdate(const double)
+    void Subsystem::preUpdate(const float)
     {}
 
-    void Subsystem::postUpdate(const double)
+    void Subsystem::postUpdate(const float)
     {}
 
     //////////////////////////////////////////////

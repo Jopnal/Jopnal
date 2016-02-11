@@ -67,7 +67,7 @@ namespace jop
         /// 
         /// This will create a sampler object but not modify its values
         ///
-        TextureSampler();
+        TextureSampler(const std::string& name);
 
         /// \brief Move constructor
         ///

@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
+//    in a product, an acknowledgment in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -27,18 +27,35 @@
 
 namespace jop
 {
-    Resource::Resource(const std::string& name)
-        : std::enable_shared_from_this<Resource>    (),
-          m_name                                    (name)
-    {}
-
-    Resource::~Resource()
+    Mesh::Mesh(const std::string& name)
+        : Resource          (name),
+          m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
+          m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
     {}
 
     //////////////////////////////////////////////
 
-    const std::string& Resource::getName() const
+    bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
     {
-        return m_name;
+        m_vertexbuffer.setData(vertexArray.data(), sizeof(Vertex) * vertexArray.size());
+
+        if (!indexArray.empty())
+            m_indexbuffer.setData(indexArray.data(), sizeof(unsigned int) * indexArray.size());
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const VertexBuffer& Mesh::getIndexBuffer() const
+    {
+        return m_indexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const VertexBuffer& Mesh::getVertexBuffer() const
+    {
+        return m_vertexbuffer;
     }
 }

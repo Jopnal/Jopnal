@@ -27,20 +27,20 @@
 
 namespace jop
 {
-    DefaultDrawable::DefaultDrawable(Object& object, const std::string& ID)
+    GenericDrawable::GenericDrawable(Object& object, const std::string& ID)
         : Drawable(object, ID)
     {}
 
     //////////////////////////////////////////////
 
-    DefaultDrawable* DefaultDrawable::clone() const
+    GenericDrawable* GenericDrawable::clone() const
     {
-        return new DefaultDrawable(*this);
+        return new GenericDrawable(*this);
     }
 
     //////////////////////////////////////////////
 
-    void DefaultDrawable::draw(const Camera& camera)
+    void GenericDrawable::draw(const Camera& camera)
     {
         if (m_shader.expired() || m_model.expired())
             return;
@@ -48,18 +48,15 @@ namespace jop
         auto& s = *m_shader.lock();
         auto& m = *m_model.lock();
 
-        m.getVertexBuffer().bind();
+        m.getMesh().lock()->getVertexBuffer().bind();
 
         s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
 
-        if (!m_texture.expired())
-        {
-            s.setUniform("tex", *m_texture.lock(), 0);
-            s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
-        }
+        m.getMaterial().sendToShader(s);
+        s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        m.getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, m.getIndexBuffer().getAllocatedSize() / sizeof(unsigned int), gl::UNSIGNED_INT, (void*)0));
+        m.getMesh().lock()->getIndexBuffer().bind();
+        glCheck(gl::DrawElements(gl::TRIANGLES, m.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
     }
 }

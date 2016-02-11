@@ -184,13 +184,13 @@ namespace jop
         ///
         /// \param deltaTime Double holding time step
         ///
-        void updateBase(const double timeStep);
+        void updateBase(const float deltaTime);
 
         /// \brief fixedUpdate method for scene
         ///
         /// \param deltaTime Double holding time step
         ///
-        void fixedUpdateBase(const double timeStep);
+        void fixedUpdateBase(const float timeStep);
 
         /// \brief Method for drawing
         ///
@@ -210,7 +210,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void preUpdate(const double deltaTime);
+        virtual void preUpdate(const float deltaTime);
 
         /// \brief Method for post-updating
         ///
@@ -218,7 +218,7 @@ namespace jop
         ///
         /// \param deltaTime double holding delta time
         ///
-        virtual void postUpdate(const double deltaTime);
+        virtual void postUpdate(const float deltaTime);
 
         /// \brief Method for pre-fixed updating
         ///
@@ -226,7 +226,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void preFixedUpdate(const double timeStep);
+        virtual void preFixedUpdate(const float timeStep);
 
         /// \brief Method for post-fixed updating
         ///
@@ -234,7 +234,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void postFixedUpdate(const double timeStep);
+        virtual void postFixedUpdate(const float timeStep);
         
         /// \brief Method for pre-drawing
         ///

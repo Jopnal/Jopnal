@@ -73,6 +73,17 @@ namespace jop
         template<typename T, typename ... Args>
         static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
 
+        /// \brief Get an empty resource
+        ///
+        /// This function will replace the resource if one already exists with the same name.
+        ///
+        /// \param args Arguments to pass to the resource's constructor
+        ///
+        /// \return Pointer to the allocated resource.
+        ///
+        template<typename T, typename ... Args>
+        static std::weak_ptr<T> getEmptyResource(const Args&... args);
+
 
         /// \brief Deletes resource from memory
         ///
@@ -87,7 +98,6 @@ namespace jop
     private:
 
         static ResourceManager* m_instance;                                     ///< Pointer to the single instance
-
 
         std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
 

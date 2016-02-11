@@ -33,105 +33,251 @@
 
 namespace jop
 {
-    Model::Model()
-        : Resource          (),
-          m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
-          m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
+    Model::LoadOptions::LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_)
+        : transform         (),
+          centerOrigin      (centerOrigin_),
+          flipV             (flipV_),
+          generateNormals   (generateNormals_)
+    {}
+
+    const Model::LoadOptions Model::DefaultOptions(false, false, false);
+
+    //////////////////////////////////////////////
+
+    Model::Model(const std::string& name)
+        : Resource      (name),
+          m_mesh        (),
+          m_material    (Material::getDefault())
     {}
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& filepath)
+    bool Model::load(const std::string& filepath, const LoadOptions& options)
     {
         std::string buffer;
-        FileLoader::read(filepath, buffer);
+        if (!FileLoader::read(filepath, buffer))
+            return false;
 
-        class MatRead : public tinyobj::MaterialReader
+        struct MatRead : tinyobj::MaterialReader
         {
-            bool operator()(const std::string&,
-                            std::vector<tinyobj::material_t>&,
-                            std::map<std::string, int>&,
-                            std::string&)
+            MatRead(const std::string& rootPath)
+                : tinyobj::MaterialReader   (),
+                  m_rootPath                (rootPath)
+            {}
+
+            bool operator()(const std::string& matId,
+                            std::vector<tinyobj::material_t>& materials,
+                            std::map<std::string, int>& matMap,
+                            std::string&err)
             {
+                std::string matBuf;
+                if (!FileLoader::read(m_rootPath + matId, matBuf))
+                {
+                    err = "Material file not found: " + m_rootPath + matId;
+                    return false;
+                }
+
+                std::istringstream ss(matBuf);
+                if (!ss)
+                {
+                    err = "Couldn't initialize material file stream: " + m_rootPath + matId;
+                    return false;
+                }
+
+                tinyobj::LoadMtl(matMap, materials, ss);
+
                 return true;
             }
+
+        private:
+
+            std::string m_rootPath;
         };
 
         std::string err;
         std::istringstream sstream(buffer);
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-        MatRead matReader;
-        
+
+        const auto slashPos = filepath.find_last_of("/\\");
+        const std::string rootPath = slashPos == std::string::npos ? filepath : filepath.substr(0, slashPos + 1);
+
+        MatRead matReader(rootPath);
+
         if (!tinyobj::LoadObj(shapes, materials, err, sstream, matReader))
         {
             JOP_DEBUG_ERROR("Couldn't load .obj model: " << err);
             return false;
         }
-        
+
         const auto& mesh = shapes.front().mesh;
 
-        auto posItr = mesh.positions.cbegin();
-        auto tcItr = mesh.texcoords.cbegin();
-        auto nItr = mesh.normals.cbegin();
-
-        std::vector<Vertex> vertexArray;
-        vertexArray.reserve(shapes.front().mesh.positions.size() / 3);
-
-        for (std::size_t i = 0; i < vertexArray.capacity(); ++i)
+        if (options.centerOrigin)
         {
-            vertexArray.emplace_back
-            (
-                glm::vec3(*posItr, *(++posItr), *(++posItr)),
-                tcItr != mesh.texcoords.cend() ? glm::vec2(*tcItr, *(++tcItr)) : glm::vec2(),
-                nItr != mesh.normals.cend() ? glm::vec3(*nItr, *(++nItr), *(++nItr)) : glm::vec3()
-            );
+            float minLeft = 0.f, maxRight = 0.f, minBottom = 0.f, maxTop = 0.f, minNegZ = 0.f, maxPosZ = 0.f;
+            auto itr = mesh.positions.cbegin();
 
-            ++posItr; ++tcItr; ++nItr;
+            while (itr != mesh.positions.cend())
+            {
+                minLeft = std::min(minLeft, *itr); maxRight = std::max(maxRight, *itr);
+                minBottom = std::min(minBottom, *(itr + 1)); maxTop = std::max(maxTop, *(itr + 1));
+                minNegZ = std::min(minNegZ, *(itr + 2)); maxPosZ = std::max(maxPosZ, *(itr + 2));
+                itr += 3;
+            }
+
+            const glm::vec3 centerPoint(glm::AABB(glm::vec3(minLeft, minBottom, minNegZ), glm::vec3(maxRight, maxTop, maxPosZ)).getCenter());
+
+            if (centerPoint.length() > 0.001f)
+            {
+                auto itr2 = shapes.front().mesh.positions.begin();
+
+                while (itr2 != shapes.front().mesh.positions.end())
+                {
+                    *(itr2++) -= centerPoint.x;
+                    *(itr2++) -= centerPoint.y;
+                    *(itr2++) -= centerPoint.z;
+                }
+            }
+        }
+        
+        auto posItr = mesh.positions.cbegin();
+        auto tcItr = mesh.texcoords.empty() ? mesh.texcoords.cend() : mesh.texcoords.cbegin();
+        auto nItr = mesh.normals.empty() ? mesh.normals.cend() : mesh.normals.cbegin();
+        
+        std::vector<Vertex> vertexArray;
+        vertexArray.reserve(mesh.positions.size() / 3);
+
+        for (std::size_t i = 0; i < mesh.positions.size() / 3; ++i)
+        {
+            vertexArray.emplace_back(glm::vec3(*posItr, *(posItr + 1), *(posItr + 2)),
+                                     tcItr != mesh.texcoords.cend() ? glm::vec2(*tcItr, (options.flipV ? 1.f - *(tcItr + 1) : *(tcItr + 1))) : glm::vec2(),
+                                     nItr != mesh.normals.cend() ? glm::vec3(*nItr, *(nItr + 1), *(nItr + 2)) : glm::vec3());
+
+            posItr += 3;
+            tcItr += (tcItr != mesh.texcoords.cend()) * 2;
+            nItr += (nItr != mesh.normals.cend()) * 3;
         }
 
-        m_vertexbuffer.setData(&vertexArray[0], sizeof(Vertex) * vertexArray.size());
+        bool normalsGenerated = false;
+        if (options.generateNormals && mesh.normals.empty() && mesh.indices.size() % 3 == 0)
+        {
+            // #TODO When drawing is indexed, will this work?
 
-        if (!mesh.indices.empty())
-            m_indexbuffer.setData(mesh.indices.data(), sizeof(unsigned int) * mesh.indices.size());
+            for (auto itr = vertexArray.begin(); itr != vertexArray.end(); itr += 3)
+            {
+                const glm::vec3 u((itr + 1)->position - itr->position);
+                const glm::vec3 v((itr + 2)->position - itr->position);
 
-        return true;
+                itr->normalVector = glm::cross(u, v);
+                (itr + 1)->normalVector = itr->normalVector;
+                (itr + 2)->normalVector = itr->normalVector;
+            }
+
+            normalsGenerated = true;
+        }
+
+        if (options.transform.getMatrix() != Transform::IdentityMatrix)
+        {
+            const auto& m = options.transform.getMatrix();
+            const glm::mat3 m3(m);
+            const bool norm = normalsGenerated || !mesh.normals.empty();
+
+            for (auto& i : vertexArray)
+            {
+                glm::vec4 transformed(m * glm::vec4(i.position, 0.f));
+                i.position.x = transformed.x;
+                i.position.y = transformed.y;
+                i.position.z = transformed.z;
+
+                if (norm)
+                    i.normalVector = m3 * i.normalVector;
+            }
+        }
+
+        if (!materials.empty())
+        {
+            const auto& mat = materials.front();
+
+            m_material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[3], mat.dissolve),
+                                     Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], mat.dissolve),
+                                     Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve))
+                      .setShininess(mat.shininess);
+
+            // The default texture will be used in case of failure
+            if (!mat.diffuse_texname.empty())
+                m_material.setMap(Material::Map::Diffuse, *ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname).lock());
+        }
+
+        m_mesh = ResourceManager::getNamedResource<Mesh>(filepath + "_buf", vertexArray, mesh.indices);
+
+        return !m_mesh.expired();
     }
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
+    bool Model::load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
     {
-        m_vertexbuffer.setData(vertexArray.data(), sizeof(Vertex) * vertexArray.size());
-
-        if (!indexArray.empty())
-            m_indexbuffer.setData(indexArray.data(), sizeof(unsigned int) * indexArray.size());
-
-        return true;
+        return load(vertices, indices, Material::getDefault());
     }
 
     //////////////////////////////////////////////
 
-    const VertexBuffer& Model::getIndexBuffer() const
+    bool Model::load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material)
     {
-        return m_indexbuffer;
+        m_material = material;
+        m_mesh = ResourceManager::getNamedResource<Mesh>(getName() + "_buf", vertices, indices);
+
+        return !m_mesh.expired();
     }
 
     //////////////////////////////////////////////
 
-    const VertexBuffer& Model::getVertexBuffer() const
+    std::weak_ptr<const Mesh> Model::getMesh() const
     {
-        return m_vertexbuffer;
+        return m_mesh;
     }
 
     //////////////////////////////////////////////
 
-    const Model& Model::getDefault()
+    void Model::setMesh(const Mesh& mesh)
     {
-        auto defModel = ResourceManager::getNamedResource<BoxModel>("DefaultModel", 1.f);
+        m_mesh = std::weak_ptr<const Mesh>(std::static_pointer_cast<const Mesh>(mesh.shared_from_this()));
+    }
 
-        JOP_ASSERT(!defModel.expired(), "Couldn't load default model!");
+    //////////////////////////////////////////////
 
-        return *defModel.lock();
+    const Material& Model::getMaterial() const
+    {
+        return m_material;
+    }
+
+    //////////////////////////////////////////////
+
+    void Model::setMaterial(const Material& material)
+    {
+        m_material = material;
+    }
+
+    //////////////////////////////////////////////
+
+    std::size_t Model::getElementAmount() const
+    {
+        return (m_mesh.expired() ? 0 : m_mesh.lock()->getIndexBuffer().getAllocatedSize() / sizeof(unsigned int));
+    }
+
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Model> Model::getDefault()
+    {
+        static std::weak_ptr<BoxModel> defModel;
+
+        if (defModel.expired())
+        {
+            defModel = ResourceManager::getEmptyResource<BoxModel>("Default Model");
+
+            JOP_ASSERT_EVAL(defModel.lock()->load(1.f), "Couldn't load default model!");
+        }
+
+        return defModel;
     }
 }

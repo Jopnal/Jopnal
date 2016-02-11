@@ -32,10 +32,8 @@
 
 namespace jop
 {
-    class Layer;
     class Model;
     class Shader;
-    class Texture;
     class Camera;
 
     class JOP_API Drawable : public Component
@@ -54,10 +52,6 @@ namespace jop
         /// \param ID Unique component identifier
         ///
         Drawable(Object& object, const std::string& ID);
-
-        /// \brief Copy constructor
-        ///
-        Drawable(const Drawable& other);
 
         /// \brief Virtual destructor
         ///
@@ -85,17 +79,10 @@ namespace jop
         ///
         void setShader(Shader& shader);
 
-        /// \brief Set the texture
-        ///
-        /// \param texture Reference to the texture
-        ///
-        void setTexture(const Texture& texture);
-
     protected:
 
-        std::weak_ptr<const Model> m_model; ///< The bound model
         std::weak_ptr<Shader> m_shader;     ///< The bound shader
-        std::weak_ptr<Texture> m_texture;   ///< The bound texture
+        std::weak_ptr<Model> m_model;       ///< The bound model
         
     };
 }

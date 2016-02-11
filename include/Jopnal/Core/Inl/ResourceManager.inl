@@ -27,7 +27,7 @@ namespace detail
     {
         static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
         
-        return std::string(str);
+        return str;
     }
 
     //////////////////////////////////////////////
@@ -113,7 +113,7 @@ std::weak_ptr<T> ResourceManager::getResource(const Args&... args)
 
     if (it == inst.m_resources.end())
     {
-        auto res = std::make_shared<T>();
+        auto res = std::make_shared<T>(str);
 
         if (res->load(args...))
         {
@@ -128,10 +128,8 @@ std::weak_ptr<T> ResourceManager::getResource(const Args&... args)
         if (typeid(T) == typeid(*it->second.get()))
             return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
         else
-            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << str);
+            return detail::LoadFallback<T, std::weak_ptr<T>>::load(str);
     }
-
-    return std::weak_ptr<T>();
 }
 
 template<typename T, typename ... Args> 
@@ -150,7 +148,7 @@ std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, cons
    
     if (it == inst.m_resources.end())
     {
-        auto res = std::make_shared<T>();
+        auto res = std::make_shared<T>(name);
 
         if (res->load(args...))
         {
@@ -165,8 +163,27 @@ std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, cons
         if (typeid(T) == typeid(*it->second.get()))
             return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
         else
-            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << name);
+            return detail::LoadFallback<T, std::weak_ptr<T>>::load(name);
+    }
+}
+
+template<typename T, typename ... Args>
+static std::weak_ptr<T> ResourceManager::getEmptyResource(const Args&... args)
+{
+    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+
+    if (!m_instance)
+    {
+        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
+        return std::weak_ptr<T>();
     }
 
-    return std::weak_ptr<T>();
+    auto& inst = m_instance;
+
+    const std::string str = detail::getStringArg(args...);
+
+    auto ptr = std::make_shared<T>(args...);
+    inst->m_resources[str] = ptr;
+
+    return std::weak_ptr<T>(ptr);
 }

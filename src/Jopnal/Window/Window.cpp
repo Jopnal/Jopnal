@@ -56,6 +56,7 @@ namespace jop
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = true;
+            vSync = SettingManager::getBool("bDefaultWindowVSync", true);
         }
     }
 
@@ -63,6 +64,7 @@ namespace jop
 
     Window::Window()
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
           m_eventHandler    (),
           m_colorChanged    (true)
@@ -70,6 +72,7 @@ namespace jop
 
     Window::Window(const Settings& settings)
         : Subsystem         ("Window"),
+          m_clearColor      (),
           m_impl            (),
           m_eventHandler    (),
           m_colorChanged    (true)
@@ -83,14 +86,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::preUpdate(const double)
+    void Window::preUpdate(const float)
     {
         ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const double)
+    void Window::postUpdate(const float)
     {
         if (isOpen())
         {
@@ -139,7 +142,7 @@ namespace jop
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         setViewportRelative(0.f, 0.f, 1.f, 1.f);
 
-        static const Color defColor(SettingManager::getUint("uDefaultWindowClearColor", 0x000000FF));
+        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "000000FF"));
         setClearColor(defColor);
     }
 
@@ -219,4 +222,12 @@ namespace jop
                                  static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
         }
     }
+
+    void Window::setMouseMode(const Mouse::Mode mode)
+    {
+        if (isOpen())
+            m_impl->setMouseMode(mode);
+
+    }
+
 }
