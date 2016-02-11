@@ -48,7 +48,7 @@ namespace jop
 
         /// \brief Method for using file loader to load new resource from file
         ///
-        /// \param Name or path for wanted resource
+        /// \param path The file path
         ///
         /// \return True if loading was successful
         ///
@@ -56,7 +56,9 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param 
+        /// \param x The desired width
+        /// \param y The desired height
+        /// \param bytesPerPixel The byte depth
         ///
         /// \return True if loading was successful
         ///

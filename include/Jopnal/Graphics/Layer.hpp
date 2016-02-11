@@ -143,4 +143,4 @@ namespace jop
 /// \class Layer
 /// \ingroup graphics
 ///
-/// #TODO Detailed description
+/// 

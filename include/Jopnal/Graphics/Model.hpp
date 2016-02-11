@@ -45,8 +45,16 @@ namespace jop
         ///
         struct LoadOptions
         {
+            /// \brief Default constructor
+            ///
             LoadOptions() = default;
 
+            /// \brief Constructor for initialization
+            ///
+            /// \param centerOrigin_ Center the origin?
+            /// \param flipV_ Flip the V texture coordinate?
+            /// \param generateNormals_ Generate normals in case they don't exist?
+            ///
             LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
 
             Transform transform;    ///< Transform for pre-transforming the vertices
@@ -55,6 +63,8 @@ namespace jop
             bool generateNormals;   ///< Generate normals in case they don't exist
         };
 
+        /// The default load options
+        ///
         static const LoadOptions DefaultOptions;
 
     public:
@@ -71,6 +81,7 @@ namespace jop
         /// Assigns data to index and vertex buffers
         ///
         /// \param filePath The path to the file you want to load
+        /// \param options Extra options for loading
         ///
         bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
 
@@ -124,7 +135,7 @@ namespace jop
         void setMaterial(const Material& material);
 
 
-        /// \param Get the element amount
+        /// \brief Get the element amount
         ///
         /// This will return zero if there are no indices.
         ///

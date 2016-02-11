@@ -56,7 +56,7 @@ namespace jop
         ///
         /// This will be called before the engine calls the scene's update.
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
         virtual void preUpdate(const float deltaTime);
 
@@ -64,7 +64,7 @@ namespace jop
         ///
         /// This will be called before the engine calls the scene's fixedUpdate.
         ///
-        /// \param ts Time step
+        /// \param timeStep Time step
         ///
         virtual void preFixedUpdate(const float timeStep);
 
@@ -72,7 +72,7 @@ namespace jop
         ///
         /// This will be called after the engine calls the scene's fixedUpdate.
         ///
-        /// \param ts Time step
+        /// \param timeStep Time step
         ///
         virtual void postFixedUpdate(const float timeStep);
 
@@ -81,7 +81,7 @@ namespace jop
         /// This will be called after the engine calls the scene's update.
         /// This function can also be used as a pre-draw function.
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
         virtual void postUpdate(const float deltaTime);
 
@@ -151,4 +151,4 @@ namespace jop
 /// \class SubSystem
 /// \ingroup core
 ///
-/// #TODO Detailed description
+/// 

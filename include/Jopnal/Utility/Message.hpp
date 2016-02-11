@@ -92,13 +92,13 @@ namespace jop
         ///
         /// This can be used to push the command, if the message passed to the constructor didn't have it.
         ///
-        /// \param arg The argument to push
+        /// \param str The argument to push
         ///
         /// \return Reference to this
         ///
         Message& push(const std::string& str);
 
-        /// \copydoc Message::push(const std::string)
+        /// \copydoc jop::Message::push(const std::string&)
         ///
         Message& push(const char* str);
 

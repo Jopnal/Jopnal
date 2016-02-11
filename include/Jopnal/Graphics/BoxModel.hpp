@@ -39,10 +39,13 @@ namespace jop
         ///
         /// Does not initialize the vertices.
         ///
+        /// \param name Name of the box
+        ///
         BoxModel(const std::string& name);
 
         /// \brief Creates a cube model
         ///
+        /// \param name Name of the box
         /// \param size Size of the box
         ///
         BoxModel(const std::string& name, const float size);
@@ -65,4 +68,4 @@ namespace jop
 /// \class BoxModel
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

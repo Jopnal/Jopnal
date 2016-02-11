@@ -87,7 +87,7 @@ namespace jop
 
         /// \brief Deletes resource from memory
         ///
-        /// \param Name or path for wanted resource
+        /// \param path Name or path for wanted resource
         ///
         static void unloadResource(const std::string& path);
 

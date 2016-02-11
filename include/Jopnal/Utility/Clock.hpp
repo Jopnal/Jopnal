@@ -35,6 +35,8 @@ namespace jop
     {
     public:
 
+        /// \brief Class to store a time value
+        ///
         class Time
         {
         public:
@@ -75,11 +77,6 @@ namespace jop
             uint64 m_nanoseconds; ///< The internal time value in nanoseconds
 
         };
-
-        /// \class Time
-        /// \brief Class to store a time value
-        ///
-        /// #TODO Detailed description
 
     public:
 

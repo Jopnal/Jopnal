@@ -81,7 +81,7 @@ namespace jop
         /// This function will construct the scene and then set it as active.
         /// The previously active scene will be discarded.
         ///
-        /// #TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
+        /// TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
         ///
         /// \param args The arguments to be used in the scene's construction
         ///
@@ -231,6 +231,8 @@ namespace jop
     ///
     /// \param message String holding message
     ///
+    /// \return The message result
+    ///
     JOP_API MessageResult broadcast(const std::string& message);
 
     /// \brief Broadcast a message to the whole engine
@@ -238,7 +240,9 @@ namespace jop
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message String holding message
-    /// \param ptr Pointer to hold extra data
+    /// \param returnWrap Pointer to hold extra data
+    ///
+    /// \return The message result
     ///
     JOP_API MessageResult broadcast(const std::string& message, Any& returnWrap);
 
@@ -247,6 +251,8 @@ namespace jop
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message The message
+    ///
+    /// \return The message result
     ///
     JOP_API MessageResult broadcast(const Message& message);
 
@@ -259,4 +265,4 @@ namespace jop
 /// \class Engine
 /// \ingroup core
 ///
-/// #TODO Detailed description
+/// 

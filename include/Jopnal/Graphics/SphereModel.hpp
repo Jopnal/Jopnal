@@ -44,6 +44,7 @@ namespace jop
         /// High values for sectors and rings will result in better looking results, but may
         /// affect performance heavily.
         ///
+        /// \param name Name of this model
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
@@ -71,4 +72,4 @@ namespace jop
 /// \class SphereModel
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

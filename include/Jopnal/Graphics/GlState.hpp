@@ -164,7 +164,7 @@ namespace jop
         /// \brief Enable/disable vertex attribute
         ///
         /// \param enable Enable the attribute?
-        /// \param attribute The attribute index
+        /// \param index The attribute index
         ///
         static void setVertexAttribute(const bool enable, const unsigned int index);
         
@@ -176,4 +176,4 @@ namespace jop
 /// \class GlStateManager
 /// \ingroup graphics
 ///
-/// #TODO Detailed description
+/// 

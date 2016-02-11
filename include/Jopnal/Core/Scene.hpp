@@ -197,7 +197,7 @@ namespace jop
 
         /// \brief fixedUpdate method for scene
         ///
-        /// \param deltaTime Double holding time step
+        /// \param timeStep Double holding time step
         ///
         void fixedUpdateBase(const float timeStep);
 
@@ -233,7 +233,7 @@ namespace jop
         ///
         /// This will be called before objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
         virtual void preFixedUpdate(const float timeStep);
 
@@ -241,7 +241,7 @@ namespace jop
         ///
         /// This will be called after objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
         virtual void postFixedUpdate(const float timeStep);
         
