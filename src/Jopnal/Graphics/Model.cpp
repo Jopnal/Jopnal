@@ -239,9 +239,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Model::setMesh(const Mesh& mesh)
+    {
+        m_mesh = std::weak_ptr<const Mesh>(std::static_pointer_cast<const Mesh>(mesh.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
     const Material& Model::getMaterial() const
     {
         return m_material;
+    }
+
+    //////////////////////////////////////////////
+
+    void Model::setMaterial(const Material& material)
+    {
+        m_material = material;
     }
 
     //////////////////////////////////////////////

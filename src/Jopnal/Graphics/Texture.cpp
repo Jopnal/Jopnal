@@ -158,7 +158,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels)
+    void Texture::setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels)
     {
         if ((x + width > m_width) || (y + height > m_height))
         {

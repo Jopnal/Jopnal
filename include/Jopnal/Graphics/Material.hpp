@@ -33,7 +33,7 @@
 
 namespace jop
 {
-	class Shader;
+    class Shader;
     class Texture;
 
     class JOP_API Material
@@ -68,7 +68,7 @@ namespace jop
 
         Material& setShininess(const float value);
 
-		float getShininess() const;
+        float getShininess() const;
 
 
         Material& setMap(const Map map, const Texture& tex);

@@ -110,7 +110,7 @@ namespace jop
         /// \param height Height
         /// \param pixels Pointer to the pixels
         ///
-        void setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels);
+        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width
