@@ -42,7 +42,7 @@ std::weak_ptr<T> Object::getComponent()
 
 namespace detail
 {
-    template<typename T, typename First, typename ... Args>
+    template<typename T, typename First = void, typename ... Args>
     struct FirstIsSame{enum{value=std::is_same<T,First>::value};};
 
     template<typename T, bool IsDrawable, bool FirstIsLayer>
