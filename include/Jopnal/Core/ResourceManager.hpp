@@ -55,10 +55,10 @@ namespace jop
         ///
         /// \param args Arguments passed to resource's constructor
         ///
-        /// \return Pointer to the resource. Empty if loading failed
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getResource(const Args&... args);
+        static T& getResource(const Args&... args);
 
         /// \brief Get a named resource
         ///
@@ -68,10 +68,10 @@ namespace jop
         /// \param name Name for the resource
         /// \param args Arguments passed to resource's constructor
         ///
-        /// \return Pointer to the resource. Empty if loading failed
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
+        static T& getNamedResource(const std::string& name, const Args&... args);
 
         /// \brief Get an empty resource
         ///
@@ -79,10 +79,22 @@ namespace jop
         ///
         /// \param args Arguments to pass to the resource's constructor
         ///
-        /// \return Pointer to the allocated resource.
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getEmptyResource(const Args&... args);
+        static T& getEmptyResource(const Args&... args);
+
+        /// \brief Get an existing resource
+        ///
+        /// This function will not attempt to create the resource if it's not found
+        /// or is not of the matching type. Instead a default is returned.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return Reference to the resource
+        ///
+        template<typename T>
+        static T& getExistingResource(const std::string& name);
 
 
         /// \brief Deletes resource from memory

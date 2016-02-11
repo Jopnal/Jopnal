@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \param sampler The sampler
         ///
-        void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
+        void setTextureSampler(const TextureSampler& sampler);
 
 
         /// \brief Set a subset of pixels
@@ -139,13 +139,13 @@ namespace jop
         ///
         /// \return Reference to the texture
         ///
-        static std::weak_ptr<Texture> getError();
+        static Texture& getError();
 
         /// \brief Get the default texture
         ///
         /// \return Reference to the texture
         ///
-        static std::weak_ptr<Texture> getDefault();
+        static Texture& getDefault();
 
     private:
 
@@ -160,8 +160,7 @@ namespace jop
         bool checkDepthValid(const int depth) const;
 
 
-        std::weak_ptr<const TextureSampler> m_sampler;          ///< Texture sampler
-        std::shared_ptr<const TextureSampler> m_defaultSampler; ///< Default sampler
+        mutable std::weak_ptr<const TextureSampler> m_sampler;  ///< Texture sampler
         int m_width;                                            ///< Width of the texture
         int m_height;                                           ///< Height of the texture
         int m_bytesPerPixel;                                    ///< Byte depth of the texture

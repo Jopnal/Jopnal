@@ -205,10 +205,10 @@ namespace jop
 
             // The default texture will be used in case of failure
             if (!mat.diffuse_texname.empty())
-                m_material.setMap(Material::Map::Diffuse, *ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname).lock());
+                m_material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname));
         }
 
-        m_mesh = ResourceManager::getNamedResource<Mesh>(filepath + "_buf", vertexArray, mesh.indices);
+        m_mesh = std::static_pointer_cast<Mesh>(ResourceManager::getNamedResource<Mesh>(filepath + "_buf", vertexArray, mesh.indices).shared_from_this());
 
         return !m_mesh.expired();
     }
@@ -225,7 +225,7 @@ namespace jop
     bool Model::load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material)
     {
         m_material = material;
-        m_mesh = ResourceManager::getNamedResource<Mesh>(getName() + "_buf", vertices, indices);
+        m_mesh = std::static_pointer_cast<Mesh>(ResourceManager::getNamedResource<Mesh>(getName() + "_buf", vertices, indices).shared_from_this());
 
         return !m_mesh.expired();
     }
@@ -267,17 +267,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Model> Model::getDefault()
+    Model& Model::getDefault()
     {
         static std::weak_ptr<BoxModel> defModel;
 
         if (defModel.expired())
         {
-            defModel = ResourceManager::getEmptyResource<BoxModel>("Default Model");
+            defModel = std::static_pointer_cast<BoxModel>(ResourceManager::getEmptyResource<BoxModel>("Default Model").shared_from_this());
 
             JOP_ASSERT_EVAL(defModel.lock()->load(1.f), "Couldn't load default model!");
         }
 
-        return defModel;
+        return *defModel.lock();
     }
 }

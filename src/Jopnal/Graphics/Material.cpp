@@ -41,7 +41,7 @@ namespace jop
           m_shininess   (0.f),
           m_maps        ()
     {
-        m_maps[ns_diffMapIndex] = Texture::getDefault();
+        m_maps[ns_diffMapIndex] = std::static_pointer_cast<const Texture>(Texture::getDefault().shared_from_this());
     }
 
     //////////////////////////////////////////////

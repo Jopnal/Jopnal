@@ -326,7 +326,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Shader> Shader::getDefault()
+    Shader& Shader::getDefault()
     {
         static std::weak_ptr<Shader> defShader;
 
@@ -336,7 +336,7 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = ResourceManager::getEmptyResource<Shader>("Default Shader");
+            defShader = std::static_pointer_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").shared_from_this());
 
             JOP_ASSERT_EVAL(defShader.lock()->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
                                                    "",
@@ -344,7 +344,7 @@ namespace jop
                                                    "Couldn't compile the default shader!");
         }
 
-        return defShader;
+        return *defShader.lock();
     }
 
     //////////////////////////////////////////////

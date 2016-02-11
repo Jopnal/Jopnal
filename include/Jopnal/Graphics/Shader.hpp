@@ -157,7 +157,7 @@ namespace jop
         ///
         /// \return Reference to the default shader
         ///
-        static std::weak_ptr<Shader> getDefault();
+        static Shader& getDefault();
 
     private:
 

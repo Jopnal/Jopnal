@@ -29,8 +29,8 @@ namespace jop
 {
     Drawable::Drawable(Object& object, const std::string& ID)
         : Component (object, ID),
-          m_model   (Model::getDefault()),
-          m_shader  (Shader::getDefault())
+          m_model   (std::static_pointer_cast<Model>(Model::getDefault().shared_from_this())),
+          m_shader  (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
     {}
 
     Drawable::~Drawable()

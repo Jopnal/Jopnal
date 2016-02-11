@@ -37,12 +37,13 @@ namespace jop
     Texture::Texture(const std::string& name)
         : Resource          (name),
           m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
           m_texture         (0)
-    {}
+    {
+        setTextureSampler(TextureSampler::getDefault());
+    }
 
     Texture::~Texture()
     {
@@ -134,9 +135,10 @@ namespace jop
             glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
+            {
+                m_sampler = std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this());
                 m_sampler.lock()->bind(texUnit);
-            else
-                m_defaultSampler->bind(texUnit);
+            }
         }
 
         return m_texture != 0;
@@ -151,9 +153,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(std::weak_ptr<const TextureSampler> sampler)
+    void Texture::setTextureSampler(const TextureSampler& sampler)
     {
-        m_sampler = sampler;
+        m_sampler = std::static_pointer_cast<const TextureSampler>(sampler.shared_from_this());
     }
 
     //////////////////////////////////////////////
@@ -209,34 +211,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Texture> Texture::getError()
+    Texture& Texture::getError()
     {
         static std::weak_ptr<Texture> errTex;
 
         if (errTex.expired())
         {
-            errTex = ResourceManager::getEmptyResource<Texture>("Error Texture");
+            errTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").shared_from_this());
 
             JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
         }
 
-        return errTex;
+        return *errTex.lock();
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Texture> Texture::getDefault()
+    Texture& Texture::getDefault()
     {
         static std::weak_ptr<Texture> defTex;
 
         if (defTex.expired())
         {
-            defTex = ResourceManager::getEmptyResource<Texture>("Default Texture");
+            defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
             
             JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
         }
 
-        return defTex;
+        return *defTex.lock();
     }
 
     //////////////////////////////////////////////

@@ -135,7 +135,9 @@ namespace jop
 
         /// \brief Get the default sampler
         ///
-        static std::weak_ptr<TextureSampler> getDefault();
+        /// \return Reference to the sampler
+        ///
+        static TextureSampler& getDefault();
 
     private:
 

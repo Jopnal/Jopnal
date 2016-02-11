@@ -150,12 +150,12 @@ namespace jop
         ///
         /// \return Reference to the model
         ///
-        static std::weak_ptr<Model> getDefault();
+        static Model& getDefault();
 
     private:
 
-        std::weak_ptr<const Mesh> m_mesh; ///< The mesh
-        Material m_material;        ///< The material
+        std::weak_ptr<const Mesh> m_mesh;   ///< The mesh
+        Material m_material;                ///< The material
 
     };
 }

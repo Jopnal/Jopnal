@@ -32,19 +32,19 @@ namespace detail
 
     //////////////////////////////////////////////
 
-    template<typename T, typename Ret>
+    template<typename T>
     struct HasErrorGetter
     {
-        template<typename U, Ret(*)()> struct SFINAE{};
+        template<typename U, T&(*)()> struct SFINAE{};
         template<typename U> static char Test(SFINAE<U, U::getError>*);
         template<typename U> static int Test(...);
         static const bool value = sizeof(Test<T>(0)) == sizeof(char);
     };
 
-    template<typename T, typename Ret>
+    template<typename T>
     struct HasDefaultGetter
     {
-        template<typename U, Ret(*)()> struct SFINAE{};
+        template<typename U, T&(*)()> struct SFINAE{};
         template<typename U> static char Test(SFINAE<U, U::getDefault>*);
         template<typename U> static int Test(...);
         static const bool value = sizeof(Test<T>(0)) == sizeof(char);
@@ -52,56 +52,60 @@ namespace detail
 
     //////////////////////////////////////////////
 
-    template<typename T, typename Ret, bool HasError = HasErrorGetter<T, Ret>::value, bool HasDefault = HasDefaultGetter<T, Ret>::value>
+    template<typename T, bool HasError = HasErrorGetter<T>::value, bool HasDefault = HasDefaultGetter<T>::value>
     struct LoadFallback
     {
-        static std::weak_ptr<T> load(const std::string& name)
+        static T& load(const std::string& name)
         {
-            JOP_DEBUG_ERROR("Couldn't load resource: " << name);
-            return std::weak_ptr<T>();
+            JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
+
+            #pragma warning(push)
+            #pragma warning(disable: 4172)
+            int dummy;
+            return reinterpret_cast<T&>(dummy);
+            #pragma warning(pop)
         }
     };
-
-    template<typename T, typename Ret>
-    struct LoadFallback<T, Ret, true, false>
+    template<typename T>
+    struct LoadFallback<T, true, false>
     {
-        static std::weak_ptr<T> load(const std::string& name)
+        static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
             return T::getError();
         }
     };
-
-    template<typename T, typename Ret>
-    struct LoadFallback<T, Ret, false, true>
+    template<typename T>
+    struct LoadFallback<T, false, true>
     {
-        static std::weak_ptr<T> load(const std::string& name)
+        static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
             return T::getDefault();
         }
     };
-
-    template<typename T, typename Ret>
-    struct LoadFallback<T, Ret, true, true>
+    template<typename T>
+    struct LoadFallback<T, true, true>
     {
-        static std::weak_ptr<T> load(const std::string& name)
+        static T& load(const std::string& name)
         {
-            return LoadFallback<T, Ret, true, false>::load(name);
+            return LoadFallback<T, true, false>::load(name);
         }
     };
+
+    template<typename T>
+    void basicErrorCheck(const ResourceManager* instance)
+    {
+        static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+
+        JOP_ASSERT(instance != nullptr, "Tried to load a resource without there being a valid ResourceManager instance!");
+    }
 }
 
 template<typename T, typename ... Args>
-std::weak_ptr<T> ResourceManager::getResource(const Args&... args)
+T& ResourceManager::getResource(const Args&... args)
 {
-    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
-
-    if (!m_instance)
-    {
-        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
-        return std::weak_ptr<T>();
-    }
+    detail::basicErrorCheck<T>(m_instance);
 
     // ResourceManager instance
     auto& inst = *m_instance;
@@ -118,30 +122,24 @@ std::weak_ptr<T> ResourceManager::getResource(const Args&... args)
         if (res->load(args...))
         {
             inst.m_resources[str] = res;
-            return std::weak_ptr<T>(res);
+            return *res;
         }
         else
-            return detail::LoadFallback<T, std::weak_ptr<T>>::load(str);
+            return detail::LoadFallback<T>::load(str);
     }
     else
     {
         if (typeid(T) == typeid(*it->second.get()))
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
+            return *std::static_pointer_cast<T>(it->second);
         else
-            return detail::LoadFallback<T, std::weak_ptr<T>>::load(str);
+            return detail::LoadFallback<T>::load(str);
     }
 }
 
 template<typename T, typename ... Args> 
-std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, const Args&... args)
+T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
 {
-    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
-
-    if (!m_instance)
-    {
-        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
-        return std::weak_ptr<T>();
-    }
+    detail::basicErrorCheck<T>(m_instance);
     
     auto& inst = *m_instance;
     auto it = inst.m_resources.find(name);
@@ -153,37 +151,46 @@ std::weak_ptr<T> ResourceManager::getNamedResource(const std::string& name, cons
         if (res->load(args...))
         {
             inst.m_resources[name] = res;
-            return std::weak_ptr<T>(res);
+            return *res;
         }
         else
-            return detail::LoadFallback<T, std::weak_ptr<T>>::load(name);
+            return detail::LoadFallback<T>::load(name);
     }
     else
     {
         if (typeid(T) == typeid(*it->second.get()))
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
+            return *std::static_pointer_cast<T>(it->second);
         else
-            return detail::LoadFallback<T, std::weak_ptr<T>>::load(name);
+            return detail::LoadFallback<T>::load(name);
     }
 }
 
 template<typename T, typename ... Args>
-static std::weak_ptr<T> ResourceManager::getEmptyResource(const Args&... args)
+static T& ResourceManager::getEmptyResource(const Args&... args)
 {
-    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+    detail::basicErrorCheck<T>(m_instance);
 
-    if (!m_instance)
-    {
-        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
-        return std::weak_ptr<T>();
-    }
-
-    auto& inst = m_instance;
+    auto& inst = *m_instance;
 
     const std::string str = detail::getStringArg(args...);
 
     auto ptr = std::make_shared<T>(args...);
-    inst->m_resources[str] = ptr;
+    inst.m_resources[str] = ptr;
 
-    return std::weak_ptr<T>(ptr);
+    return *ptr;
+}
+
+template<typename T>
+T& ResourceManager::getExistingResource(const std::string& name)
+{
+    detail::basicErrorCheck<T>(m_instance);
+    
+    auto& inst = *m_instance;
+
+    auto it = inst.m_resources.find(name);
+
+    if (it != inst.m_resources.end() && typeid(T) == typeid(*it->second.get()))
+        return *std::static_pointer_cast<T>(it->second);
+
+    return detail::LoadFallback<T>::load(name);
 }
