@@ -161,7 +161,7 @@ namespace jop
 {
     DebugHandler::DebugHandler()
     {
-        ns_consoleEnabled = SettingManager::getBool("bConsoleEnabled", true);
+        ns_consoleEnabled = SettingManager::getBool("bConsoleEnabled", false);
 
         if (ns_consoleEnabled)
             openConsoleWindow();
@@ -215,7 +215,7 @@ namespace jop
     {
         std::string newStr(ns_stream.str());
 
-        static const bool debugConsole = SettingManager::getBool("bDebuggerOutput", false);
+        static const bool debugConsole = SettingManager::getBool("bDebuggerOutput", true);
 
         if ((isConsoleEnabled() || debugConsole) && ns_lastSeverity <= ns_displaySeverity)
         {
