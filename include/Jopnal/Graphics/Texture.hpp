@@ -39,7 +39,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        Texture();
+        Texture(const std::string& name);
 
         /// \brief Destructor
         ///
@@ -95,7 +95,22 @@ namespace jop
 
         /// \brief Bind a texture sampler
         ///
-        void setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler);
+        /// \param sampler The sampler
+        ///
+        void setTextureSampler(std::weak_ptr<const TextureSampler> sampler);
+
+
+        /// \brief Set a subset of pixels
+        ///
+        /// The byte depth must be the same as this texture's!
+        ///
+        /// \param x The X starting point
+        /// \param y The Y starting point
+        /// \param width Width
+        /// \param height Height
+        /// \param pixels Pointer to the pixels
+        ///
+        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width
@@ -118,7 +133,25 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static std::weak_ptr<Texture> getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static std::weak_ptr<Texture> getDefault();
+
     private:
+
+        /// \brief Load from dll
+        ///
+        /// This is for internal use only
+        ///
+        bool load(const int id);
 
         /// \brief Check if a byte depth is valid
         ///

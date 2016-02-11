@@ -29,6 +29,16 @@
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
 #include <Jopnal/Graphics/Shader.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Graphics/Buffer.hpp>
+#include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
+#include <Jopnal/Graphics/BoxModel.hpp>
+#include <Jopnal/Graphics/SphereModel.hpp>
+#include <Jopnal/Graphics/GenericDrawable.hpp>
+#include <Jopnal/Graphics/GlState.hpp>
+#include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Model.hpp>
 
 //////////////////////////////////////////////
 

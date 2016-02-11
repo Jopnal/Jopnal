@@ -27,10 +27,18 @@
 
 namespace jop
 {
-    Resource::Resource()
-        : std::enable_shared_from_this<Resource>()
+    Resource::Resource(const std::string& name)
+        : std::enable_shared_from_this<Resource>    (),
+          m_name                                    (name)
     {}
 
     Resource::~Resource()
     {}
+
+    //////////////////////////////////////////////
+
+    const std::string& Resource::getName() const
+    {
+        return m_name;
+    }
 }

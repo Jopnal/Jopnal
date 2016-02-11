@@ -67,7 +67,7 @@ namespace jop
         ///
         /// \param dt Delta time
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief Initialize the frame buffer
         ///
@@ -122,6 +122,25 @@ namespace jop
         /// \return Const reference to the internal texture
         ///
         const Texture& getTexture() const;
+
+        /// \brief Sets absolute Viewport for the frame buffer
+        ///
+        /// \param x The upper left x coordinate
+        /// \param y The upper left y coordinate
+        /// \param width Width of the view port in pixels
+        /// \param height Height of the view port in pixels
+        ///
+        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
+
+        /// \brief Sets relative Viewport for the frame buffer
+        ///
+        /// \param x The relative upper left x coordinate
+        /// \param y The relative upper left y coordinate
+        /// \param width Relative width of the view port in pixels
+        /// \param height Relative height of the view port in pixels
+        ///
+        void setViewportRelative(const float x, const float y, const float width, const float height);
+
 
     private:
 

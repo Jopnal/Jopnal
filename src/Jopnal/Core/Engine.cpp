@@ -25,6 +25,17 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_REGISTER_COMMAND_HANDLER(Engine)
+    
+        JOP_BIND_COMMAND(&Engine::getSubsystem, "getSubsystem");
+        JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::exit, "exit");
+
+    JOP_END_COMMAND_HANDLER(Engine)
+}
+
 namespace
 {
     std::string ns_projectName;
@@ -37,6 +48,7 @@ namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
         : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+          m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
           m_running         (true)
@@ -46,7 +58,7 @@ namespace jop
 
         ns_projectName = name;
         m_engineObject = this;
-
+        
         ns_argc = argc;
         ns_argv = argv;
     }
@@ -86,19 +98,17 @@ namespace jop
         if (!m_currentScene)
             JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
-        const double timeStep = 1.0 / SettingManager::getUint("uFixedUpdateFrequency", 30);
-        float64 accumulator = 0.0;
+        const float timeStep = 1.0f / SettingManager::getUint("uFixedUpdateFrequency", 30);
+        float accumulator = 0.0;
 
         Clock frameClock;
 
         while (m_running)
         {
-            float64 frameTime = frameClock.reset().asSeconds();
-
             // Clamp the delta time to a certain value. This is to prevent
             // a "spiral of death" if fps goes below 10.
-            if (frameTime > 0.1)
-                frameTime = 0.1;
+            const float frameTime = static_cast<float>(std::min(0.1, frameClock.reset().asSeconds()));
+            m_totalTime += frameTime;
 
             // Fixed update
             {
@@ -250,7 +260,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Engine::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
+    //////////////////////////////////////////////
+
+    MessageResult Engine::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -262,13 +280,16 @@ namespace jop
     {
         if (m_engineObject)
         {
-            //if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
-            //    JOP_EXECUTE_MEMBER_COMMAND(Engine, message.getString(), ns_engineObject, message.getReturnPointer());
+            if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            {
+                Any engPtr(m_engineObject);
+                JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper());
+            }
 
-            static const unsigned short sceneField = Message::SharedScene |
-                                                     Message::Scene |
-                                                     Message::Layer |
-                                                     Message::Object |
+            static const unsigned short sceneField = Message::SharedScene   |
+                                                     Message::Scene         |
+                                                     Message::Layer         |
+                                                     Message::Object        |
                                                      Message::Component;
 
             if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
@@ -283,13 +304,13 @@ namespace jop
             {
                 for (auto& i : m_engineObject->m_subsystems)
                 {
-                    if (message.passFilter(i->getID()) && i->sendMessage(message) == MessageResult::Escape)
+                    if (i->sendMessage(message) == MessageResult::Escape)
                         return MessageResult::Escape;
                 }
             }
         }
 
-        return MessageResult::Escape;
+        return MessageResult::Continue;
     }
 
     //////////////////////////////////////////////
@@ -300,7 +321,17 @@ namespace jop
         return *m_engineObject->m_sharedScene;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    double Engine::getTotalTime()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_totalTime;
+
+        return 0.0;
+    }
+
+    //////////////////////////////////////////////
 
     Engine* Engine::m_engineObject = nullptr;
 
@@ -313,7 +344,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult broadcast(const std::string& message, Any returnWrap)
+    MessageResult broadcast(const std::string& message)
+    {
+        return Engine::sendMessage(message);
+    }
+
+    MessageResult broadcast(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return Engine::sendMessage(msg);

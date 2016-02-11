@@ -91,6 +91,8 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings)
+        : m_window      (nullptr),
+          m_vertexArray (0)
     {
         initialize();
 
@@ -99,21 +101,41 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+        glfwWindowHint(GLFW_SAMPLES, settings.samples);
+        
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
+
+        int width = settings.size.x, height = settings.size.y;
+        if (settings.displayMode == Window::DisplayMode::Borderless)
+        {
+            auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+            width = vidMode->width;
+            height = vidMode->height;
+        }
         
-        m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode == Window::DisplayMode::Windowed ? NULL : glfwGetPrimaryMonitor(), NULL);
+        m_window = glfwCreateWindow(width, height, settings.title.c_str(), settings.displayMode != Window::DisplayMode::Fullscreen ? NULL : glfwGetPrimaryMonitor(), NULL);
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
 
         glfwMakeContextCurrent(m_window);
-
+        
         initExtensions();
+
+        glfwSwapInterval(static_cast<int>(settings.vSync));
+
+        glCheck(gl::GenVertexArrays(1, &m_vertexArray));
+        glCheck(gl::BindVertexArray(m_vertexArray));
     }
 
     WindowImpl::~WindowImpl()
     {
+        GlState::reset();
+
+        glCheck(gl::BindVertexArray(0));
+        glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
+
         // There should always be a valid window
         glfwDestroyWindow(m_window);
         deInitialize();
@@ -139,6 +161,20 @@ namespace jop { namespace detail
     {
         glfwPollEvents();
     }
-}}
+
+    void WindowImpl::setMouseMode(const Mouse::Mode mode)
+    {
+        static const int modes[] = 
+        {
+            GLFW_CURSOR_NORMAL,
+            GLFW_CURSOR_HIDDEN,
+            GLFW_CURSOR_DISABLED
+        };
+
+        glfwSetInputMode(m_window, GLFW_CURSOR, modes[static_cast<int>(mode)]);
+    }
+
+}
+}
 
 #endif

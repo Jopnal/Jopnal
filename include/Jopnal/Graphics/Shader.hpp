@@ -39,7 +39,7 @@ namespace jop
 
         /// \brief default constructor
         ///
-        Shader();
+        Shader(const std::string& name);
 
         /// \brief default destructor
         ///
@@ -79,28 +79,36 @@ namespace jop
         /// \param name unique name
         /// \param matrix 4x4 matrix
         ///
-        void setUniform(const std::string& name, const glm::mat4& matrix);
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::mat4& matrix);
 
         /// \brief method setting 3x3 matrix with unique name
         ///
         /// \param name unique name
         /// \param matrix 3x3 matrix
         ///
-        void setUniform(const std::string& name, const glm::mat3& matrix);
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::mat3& matrix);
 
         /// \brief method setting vector with 3 dimensions and unique name
         ///
         /// \param name unique name
         /// \param vector 3 dimensional vector
         ///
-        void setUniform(const std::string& name, const glm::vec3& vector);
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::vec3& vector);
         
         /// \brief method setting vector with 4 dimensions and unique name
         ///
         /// \param name unique name
         /// \param vector 4 dimensional vector
         ///
-        void setUniform(const std::string& name, const glm::vec4& vector);
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::vec4& vector);
 
         /// \brief method setting texture with unique name and Uint
         ///
@@ -108,7 +116,18 @@ namespace jop
         /// \param texture The texture
         /// \param unit The texture unit
         ///
-        void setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit);
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit);
+
+        /// \brief Set a float uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The float value
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const float value);
 
         /// \brief method setting attributes
         ///
@@ -118,7 +137,26 @@ namespace jop
         /// \param stride 
         /// \param pointer void pointer
         ///
-        void setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
+        /// \return True if set successfully
+        ///
+        bool setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
+
+        /// \brief Set an attribute using the location
+        ///
+        /// \param loc Location
+        /// \param type The type
+        /// \param amount
+        /// \param stride
+        /// \param normalize
+        /// \param pointer
+        ///
+        void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
+        
+        /// \brief Get the default shader
+        ///
+        /// \return Reference to the default shader
+        ///
+        static std::weak_ptr<Shader> getDefault();
 
     private:
 

@@ -58,7 +58,7 @@ namespace jop
         ///
         /// \param dt Delta time
         ///
-        virtual void preUpdate(const double dt);
+        virtual void preUpdate(const float deltaTime);
 
         /// \brief Pre-fixed update
         ///
@@ -66,7 +66,7 @@ namespace jop
         ///
         /// \param ts Time step
         ///
-        virtual void preFixedUpdate(const double ts);
+        virtual void preFixedUpdate(const float timeStep);
 
         /// \brief Post-fixed update
         ///
@@ -74,7 +74,7 @@ namespace jop
         ///
         /// \param ts Time step
         ///
-        virtual void postFixedUpdate(const double ts);
+        virtual void postFixedUpdate(const float timeStep);
 
         /// \brief Post-update
         ///
@@ -83,7 +83,7 @@ namespace jop
         ///
         /// \param dt Delta time
         ///
-        virtual void postUpdate(const double dt);
+        virtual void postUpdate(const float deltaTime);
 
         /// \brief Post-draw
         ///
@@ -104,9 +104,15 @@ namespace jop
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///

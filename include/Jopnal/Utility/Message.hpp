@@ -76,7 +76,7 @@ namespace jop
         ///                             in a separate context.
         /// \param ptr The return value pointer
         ///
-        Message(const std::string& message, Any ptr);
+        Message(const std::string& message, Any& ptr);
 
 
         /// \brief Push an argument value

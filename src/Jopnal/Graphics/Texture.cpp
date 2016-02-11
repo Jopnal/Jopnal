@@ -22,9 +22,10 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-// STB
 #define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable: 4189)
+#pragma warning(disable: 4244)
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 
@@ -33,9 +34,10 @@
 
 namespace jop
 {
-    Texture::Texture()
-        : m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefaultSampler()),
+    Texture::Texture(const std::string& name)
+        : Resource          (name),
+          m_sampler         (),
+          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
@@ -128,7 +130,8 @@ namespace jop
     {
         if (m_texture)
         {
-            glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+            glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
+            glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
                 m_sampler.lock()->bind(texUnit);
@@ -148,9 +151,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler)
+    void Texture::setTextureSampler(std::weak_ptr<const TextureSampler> sampler)
     {
         m_sampler = sampler;
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels)
+    {
+        if ((x + width > m_width) || (y + height > m_height))
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Would cause overflow");
+            return;
+        }
+        else if (!pixels)
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Pixel pointer is null");
+            return;
+        }
+
+        bind(0);
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -187,9 +209,63 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::weak_ptr<Texture> Texture::getError()
+    {
+        static std::weak_ptr<Texture> errTex;
+
+        if (errTex.expired())
+        {
+            errTex = ResourceManager::getEmptyResource<Texture>("Error Texture");
+
+            JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+        }
+
+        return errTex;
+    }
+
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Texture> Texture::getDefault()
+    {
+        static std::weak_ptr<Texture> defTex;
+
+        if (defTex.expired())
+        {
+            defTex = ResourceManager::getEmptyResource<Texture>("Default Texture");
+            
+            JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+        }
+
+        return defTex;
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Texture::getHandle() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture::load(const int id)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readFromDll(id, buf))
+            return false;
+
+        int x, y, bpp;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        if (!pix)
+            return false;
+
+        if (!load(x, y, bpp, pix))
+            return false;
+
+        stbi_image_free(pix);
+
+        return true;
     }
 
     //////////////////////////////////////////////
