@@ -206,7 +206,7 @@ namespace jop
     const Camera& Camera::getDefault()
     {
         static Object obj("Default Camera Object");
-        static const Camera& cam = obj.createComponent<Camera>(static_cast<const Projection>(std::max(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
+        static const Camera& cam = obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
 
         return cam;
     }
