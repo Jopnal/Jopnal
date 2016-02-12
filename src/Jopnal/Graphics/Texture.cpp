@@ -31,7 +31,27 @@
 
 //////////////////////////////////////////////
 
+namespace
+{
+    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
+    {
+        int rowSize = width * bpp;
 
+        for (int y = 0; y < height; ++y)
+        {
+            unsigned char* left = pixels + y * rowSize;
+            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
+
+            for (int x = 0; x < width / 2; ++x)
+            {
+                std::swap_ranges(left, left + bpp, right);
+
+                left += bpp;
+                right -= bpp;
+            }
+        }
+    }
+}
 namespace jop
 {
     Texture::Texture(const std::string& name)
@@ -62,7 +82,7 @@ namespace jop
 
         int x = 0, y = 0, bpp = 0;
         unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
-
+        flip(x, y, bpp, colorData);
         bool success = false;
         if (colorData)
             success = load(x, y, bpp, colorData);
@@ -261,7 +281,7 @@ namespace jop
 
         if (!pix)
             return false;
-
+        flip(x, y, bpp, pix);
         if (!load(x, y, bpp, pix))
             return false;
 

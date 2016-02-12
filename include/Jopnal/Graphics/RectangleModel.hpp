@@ -19,30 +19,52 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RECTANGLEMODEL_HPP
+#define JOP_RECTANGLEMODEL_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
-#include <Jopnal/Graphics/BoxModel.hpp>
-#include <Jopnal/Graphics/SphereModel.hpp>
-#include <Jopnal/Graphics/GenericDrawable.hpp>
-#include <Jopnal/Graphics/GlState.hpp>
-#include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Graphics/Model.hpp>
-#include <Jopnal/Graphics/RectangleModel.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
+
+namespace jop
+{
+
+    class JOP_API RectangleModel : public Model
+    {
+    public:
+
+        /// \brief Default constructor
+        ///
+        /// Does not initialize the vertices.
+        ///
+        /// \param name Name of the rectangle
+        ///
+        RectangleModel(const std::string& name);
+
+        /// \brief Creates a rectangle model
+        ///
+        /// \param name Name of the rectangle
+        /// \param size Size of the rectangle
+        ///
+        RectangleModel(const std::string& name, const float size);
+
+        /// \brief Load this rectangle
+        ///
+        /// This will set up the vertices and create the buffers
+        ///
+        /// \param size Size of the rectangle
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float size);
+    };
+}
+#endif
+
+/// \class BoxModel
+/// \ingroup Graphics
 ///
-/// #TODO Detailed decription
+/// 

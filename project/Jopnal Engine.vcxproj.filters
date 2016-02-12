@@ -234,6 +234,9 @@
     <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\RectangleModel.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -358,6 +361,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\AABB.cpp">
       <Filter>Root\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\RectangleModel.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

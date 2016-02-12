@@ -37,6 +37,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Material.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\RectangleModel.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
@@ -92,6 +93,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Material.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\RectangleModel.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
@@ -170,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <PreprocessorDefinitions>JOP_EXPORT_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
@@ -198,7 +200,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <PreprocessorDefinitions>JOP_EXPORT_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
