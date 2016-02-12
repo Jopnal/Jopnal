@@ -31,7 +31,6 @@
 
 namespace jop
 {
-
     class JOP_API RectangleModel : public Model
     {
     public:
@@ -51,6 +50,7 @@ namespace jop
         ///
         RectangleModel(const std::string& name, const float size);
 
+
         /// \brief Load this rectangle
         ///
         /// This will set up the vertices and create the buffers
@@ -60,6 +60,7 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
     };
 }
 #endif

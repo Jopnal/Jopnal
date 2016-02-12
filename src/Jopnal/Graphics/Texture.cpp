@@ -31,6 +31,7 @@
 
 //////////////////////////////////////////////
 
+
 namespace
 {
     void flip(const int width, const int height, const int bpp, unsigned char* pixels)
@@ -52,6 +53,7 @@ namespace
         }
     }
 }
+
 namespace jop
 {
     Texture::Texture(const std::string& name)
@@ -82,10 +84,13 @@ namespace jop
 
         int x = 0, y = 0, bpp = 0;
         unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
-        flip(x, y, bpp, colorData);
+
         bool success = false;
         if (colorData)
+        {
+            flip(x, y, bpp, colorData);
             success = load(x, y, bpp, colorData);
+        }
 
         stbi_image_free(colorData);
 
@@ -279,11 +284,12 @@ namespace jop
         int x, y, bpp;
         unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
 
-        if (!pix)
-            return false;
-        flip(x, y, bpp, pix);
-        if (!load(x, y, bpp, pix))
-            return false;
+        bool success = false;
+        if (pix)
+        {
+            flip(x, y, bpp, pix);
+            success = load(x, y, bpp, pix);
+        }
 
         stbi_image_free(pix);
 

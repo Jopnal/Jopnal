@@ -47,8 +47,8 @@ namespace jop
         ({
             Vertex(glm::vec3(-half, -half, 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 0, Left, Bottom, Front   
             Vertex(glm::vec3(half, -half, 0.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)),  // 1, Right, Bottom, Front  
-            Vertex(glm::vec3(half, half, 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),  // 2, Left, Top, Front      
-            Vertex(glm::vec3(-half, half, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),   // 3, Right, Top, Front     
+            Vertex(glm::vec3(half, half, 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),   // 2, Left, Top, Front      
+            Vertex(glm::vec3(-half, half, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),  // 3, Right, Top, Front     
         });
         static const std::vector<unsigned int> indices
         ({
