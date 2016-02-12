@@ -25,17 +25,11 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    jop::SceneLoader& jop_getSceneLoaderInstance()
-    {
-        static jop::SceneLoader instance;
-        return instance;
-    }
-}
-
 namespace jop
 {
-    
-
+    StateLoader& StateLoader::getInstance()
+    {
+        static StateLoader instance;
+        return instance;
+    }
 }

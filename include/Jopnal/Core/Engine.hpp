@@ -209,7 +209,7 @@ namespace jop
 
     private:
 
-        friend class SceneLoader;
+        friend class StateLoader;
 
         static Engine* m_engineObject;                        ///< The single Engine instance
 

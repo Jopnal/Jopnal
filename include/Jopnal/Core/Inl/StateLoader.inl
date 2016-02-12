@@ -19,21 +19,17 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/StateLoader.hpp>
+
+template<typename T>
+void StateLoader::registerLoadable(const std::string& id, const typename detail::FuncChooser<T>::LoadFunc& func)
+{
+    std::get<0>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[id]) = func;
+}
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+template<typename T>
+void StateLoader::registerSaveable(const std::string& id, const typename detail::FuncChooser<T>::SaveFunc& func)
+{
+    std::get<1>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[id]) = func;
+}

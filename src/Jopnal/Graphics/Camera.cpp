@@ -36,10 +36,23 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
 
     JOP_END_COMMAND_HANDLER(Camera)
+
+    JOP_REGISTER_LOADABLE(Camera) [](Object&, const char*) -> bool
+    {
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Camera)
+
+    JOP_REGISTER_SAVEABLE(Camera) [](const Component&, std::string&)
+    {
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Camera)
 }
 
 namespace jop
 {
+
     Camera::Camera(Object& object, const Projection mode)
         : Component                 (object, "Camera"),
           m_projectionMatrix        (),

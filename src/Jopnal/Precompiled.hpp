@@ -47,6 +47,8 @@
     #include <fcntl.h>
     #include <Jopnal/../../project/Resources/resource.h>
 
+    #pragma warning(disable: 4503)
+
 #endif
 
 // OpenGL
