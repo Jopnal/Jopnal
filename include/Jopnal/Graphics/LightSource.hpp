@@ -22,7 +22,7 @@
 #ifndef JOP_LIGHTSOURCE_HPP
 #define JOP_LIGHTSOURCE_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
@@ -35,10 +35,12 @@ namespace jop
 {
     class Object;
 
-    class JOP_API LightSource : public jop::Component
+    class JOP_API LightSource : public Component
     {
     public:
         
+        /// The light type
+        ///
         enum class Type
         {
             Point,
@@ -46,6 +48,8 @@ namespace jop
             Directional
         };
 
+        /// The intensity attribute
+        ///
         enum class Intensity
         {
             Ambient,
@@ -59,21 +63,31 @@ namespace jop
         ///
         /// \param object Reference to created object in object class 
         /// \param ID Unique string id for created light source as object
+        ///
         LightSource(Object& object, const std::string& ID);
+
 
         /// \brief Sets light types to type identifier and returns it
         ///
         /// \param type Light type from Type enum
-        LightSource& setLightType(const Type type);
-
-        /// \brief Returns type identifier m_type
         ///
-        Type getLightType()const;
+        /// \return Reference to self
+        ///
+        LightSource& setType(const Type type);
+
+        /// \briefGet the light type
+        ///
+        /// \return The light type
+        ///
+        Type getType() const;
+
 
         /// \brief Sets m_intensities array to color
         ///
         /// \param intensity Intensity type from enum
         /// \param color Color type as RGB vector
+        ///
+        /// \return Reference to self
         ///
         LightSource& setIntensity(const Intensity intensity, const Color color);
         
@@ -83,18 +97,23 @@ namespace jop
         /// \param diffuse Color value for diffuse lighting
         /// \param specular Color value for specular lighting
         ///
+        /// \return Reference to self
+        ///
         LightSource& setIntensity(const Color ambient, const Color diffuse, const Color specular);
 
         /// \brief Getter returning array of intensity types
         ///
         /// \param intensity Identifier for intensities
         ///
+        /// \return The intensity color
+        ///
         Color getIntensity(const Intensity intensity);
         
-
     private:
-        std::array<Color, 3 > m_intensities;    ///< Array of colors
-        Type m_type;                            ///< Unique Type identifier
+
+        Type m_type;                           ///< Unique Type identifier
+        std::array<Color, 3> m_intensities;    ///< Array of colors
+
     };
 }
 

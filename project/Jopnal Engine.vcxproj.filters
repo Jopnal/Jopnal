@@ -314,7 +314,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\VertexBuffer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\LightSource.cpp">
+    <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>

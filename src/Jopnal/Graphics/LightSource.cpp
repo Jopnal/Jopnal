@@ -24,20 +24,20 @@
 
 ///////////////////////////////////////////
 
+
 namespace jop
 {
-
     LightSource::LightSource(Object& object, const std::string& ID)
         : Component     (object, ID),
-          m_intensities (),
-          m_type        ()
+          m_type        (),
+          m_intensities ()
     {
         std::memset(m_intensities.data(), 255, m_intensities.size()* sizeof(Color));
     }
 
     ///////////////////////////////////////////
 
-    LightSource& LightSource::setLightType(const Type type)
+    LightSource& LightSource::setType(const Type type)
     {
         m_type = type;
 
@@ -46,7 +46,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    LightSource::Type LightSource::getLightType() const 
+    LightSource::Type LightSource::getType() const 
     {
         return m_type;
     }
@@ -65,8 +65,8 @@ namespace jop
     LightSource& LightSource::setIntensity(const Color ambient, const Color diffuse, const Color specular)
     {
         return setIntensity(Intensity::Ambient, ambient)
-            .setIntensity(Intensity::Diffuse, diffuse)
-            .setIntensity(Intensity::Specular, specular);
+              .setIntensity(Intensity::Diffuse, diffuse)
+              .setIntensity(Intensity::Specular, specular);
     }
 
     ///////////////////////////////////////////
@@ -75,5 +75,4 @@ namespace jop
     {
         return m_intensities[static_cast<int>(intensity)];
     }
-
 }
