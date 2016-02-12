@@ -32,6 +32,7 @@
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/LightSource.hpp>
 
 //////////////////////////////////////////////
 
