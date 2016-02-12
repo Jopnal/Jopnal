@@ -35,6 +35,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Material.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Material.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
