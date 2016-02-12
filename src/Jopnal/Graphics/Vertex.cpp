@@ -28,26 +28,26 @@
 namespace jop
 {
     Vertex::Vertex(const glm::vec3& position)
-        : m_position        (position),
-          m_texCoords       (0, 0),
-          m_normalVector    (0, 0, 0)
+        : position      (position),
+          texCoords     (0, 0),
+          normalVector  (0, 0, 0)
     {}
 
     Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords)
-        : m_position        (position),
-          m_texCoords       (texCoords),
-          m_normalVector    (0, 0, 0)
+        : position      (position),
+          texCoords     (texCoords),
+          normalVector  (0, 0, 0)
     {}
 
     Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector)
-        : m_position        (position),
-          m_texCoords       (0, 0),
-          m_normalVector    (normalVector)
+        : position      (position),
+          texCoords     (0, 0),
+          normalVector  (normalVector)
     {}
 
     Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector)
-        : m_position        (position),
-          m_texCoords       (texCoords),
-          m_normalVector    (normalVector)
+        : position      (position),
+          texCoords     (texCoords),
+          normalVector  (normalVector)
     {}
 }

@@ -109,9 +109,6 @@ Any& Any::operator =(const T& data)
     if (getType() == typeid(T))
         static_cast<Data<T>*>(m_data.get())->getData() = data;
 
-    else if (getType() == typeid(T*))
-        *(static_cast<Data<T*>*>(m_data.get())->getData()) = data;
-
     else
         m_data = std::make_unique<Data<T>>(data);
 
@@ -123,9 +120,6 @@ Any& Any::operator=(T&& data)
 {
     if (getType() == typeid(T))
         static_cast<Data<T>*>(m_data.get())->getData() = std::move(data);
-
-    else if (getType() == typeid(T*))
-        *(static_cast<Data<T*>*>(m_data.get())->getData()) = std::move(data);
 
     else
     {

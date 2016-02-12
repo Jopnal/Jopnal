@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    Message::Message(const std::string& message, Any ptr)
+    Message::Message(const std::string& message, Any& ptr)
         : m_command(),
           m_idPattern(),
           m_ptr(ptr),

@@ -88,4 +88,4 @@ namespace jop
 /// \class VertexBuffer
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

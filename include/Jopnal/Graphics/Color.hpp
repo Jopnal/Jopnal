@@ -53,6 +53,12 @@ namespace jop
 
         /// \brief Overloaded constructor
         ///
+        /// The values need to be clamped between 0 and 1.
+        ///
+        Color(const float _r, const float _g, const float _b, const float _a = 1.f);
+
+        /// \brief Overloaded constructor
+        ///
         /// \param colors A 32-bit unsigned integer to represent the colors,
         ///               as in 0xFFFFFFFF
         ///

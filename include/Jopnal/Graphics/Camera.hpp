@@ -44,21 +44,25 @@ namespace jop
 
         typedef std::pair<float, float> ClippingPlanes;
 
-        struct ProjectionData
+        /// Union with the projection data
+        ///
+        union ProjectionData
         {
             struct
             {
-                float sizeX;
-                float sizeY;
+                float sizeX;    ///< Orthographic projection width
+                float sizeY;    ///< Orthographic projection height
             } orthographic;
 
             struct
             {
-                float fov;
-                float aspectRatio;
+                float fov;          ///< The vertical field of view
+                float aspectRatio;  ///< The aspect ratio
             } perspective;
         };
 
+        /// Projection mode
+        ///
         enum class Projection
         {
             Orthographic,
@@ -77,10 +81,6 @@ namespace jop
         /// \brief Copy constructor
         ///
         Camera(const Camera& other);
-
-        /// \brief Destructor
-        ///
-        ~Camera() override;
 
 
         /// \brief Clone this camera
@@ -151,7 +151,10 @@ namespace jop
         ///
         void setSize(const glm::vec2& size);
 
-        /// \copydoc jop::Camera::setSize(const glm::vec2&)
+        /// \brief Brief set the size of the projection
+        ///
+        /// \param x The width
+        /// \param y The height
         ///
         void setSize(const float x, const float y);
 
@@ -219,4 +222,4 @@ namespace jop
 /// \class Camera
 /// \ingroup graphics
 ///
-/// #TODO Detailed description
+/// 

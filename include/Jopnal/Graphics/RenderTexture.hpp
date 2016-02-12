@@ -65,9 +65,9 @@ namespace jop
 
         /// \brief Overridden postUpdate. Clears the frame buffer
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief Initialize the frame buffer
         ///
@@ -97,9 +97,11 @@ namespace jop
 
         /// \brief Get the frame buffer texture size
         ///
+        /// \return glm::vec2 with the size
+        ///
         glm::vec2 getSize() const;
 
-        /// \param Check if this frame buffer is valid
+        /// \brief Check if this frame buffer is valid
         ///
         /// \return True if valid
         ///

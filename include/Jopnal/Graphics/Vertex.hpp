@@ -34,6 +34,15 @@ namespace jop
     {
     public:
 
+        enum Attrib
+        {
+            Position = 0,
+            TexCoords = sizeof(float) * 3,
+            Normal = TexCoords + sizeof(float) * 2
+        };
+
+    public:
+
         /// \brief Default constructor
         ///
         Vertex() = default;
@@ -65,12 +74,10 @@ namespace jop
         /// \param normalVector Vertex normal vector
         ///
         Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector);
-                
-    private:
 
-        glm::vec3 m_position;       ///< 3D position of the vertex
-        glm::vec2 m_texCoords;      ///< Coordinates of the texture's pixel to map to vertex
-        glm::vec3 m_normalVector;   ///< Normal vector of the vertex 
+        glm::vec3 position;       ///< 3D position of the vertex
+        glm::vec2 texCoords;      ///< Coordinates of the texture's pixel to map to vertex
+        glm::vec3 normalVector;   ///< Normal vector of the vertex 
 
     };
 }
@@ -79,4 +86,4 @@ namespace jop
 /// \class Vertex
 /// \ingroup Graphics
 ///
-/// Do explanation about the class
+/// 

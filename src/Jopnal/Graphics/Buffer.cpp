@@ -27,7 +27,7 @@
 
 namespace 
 {
-    static const int bt[] =
+    static const int ns_bufferType[] =
     {
         gl::ARRAY_BUFFER,
         gl::ELEMENT_ARRAY_BUFFER,
@@ -43,7 +43,7 @@ namespace jop
     Buffer::Buffer(BufferType type) 
         : m_bytesAllocated  (0),
           m_buffer          (0),
-          m_bufferType      (bt[static_cast<unsigned int>(type)])
+          m_bufferType      (ns_bufferType[static_cast<unsigned int>(type)])
     {}
 
     Buffer::Buffer(const Buffer& other)
@@ -98,7 +98,7 @@ namespace jop
 
     void Buffer::unbind(BufferType type)
     {
-        glCheck(gl::BindBuffer(bt[static_cast<const unsigned int>(type)], 0));
+        glCheck(gl::BindBuffer(ns_bufferType[static_cast<const unsigned int>(type)], 0));
     }
 
     //////////////////////////////////////////////

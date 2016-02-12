@@ -19,7 +19,7 @@
 
 ///////////////////////////////////////////
 
-//headers
+// Headers
 #include <Jopnal/Precompiled.hpp>
 
 ///////////////////////////////////////////
@@ -32,7 +32,7 @@ namespace jop
           m_type        (),
           m_intensities ()
     {
-        std::memset(m_intensities.data(), 255, m_intensities.size()* sizeof(Color));
+        std::memset(m_intensities.data(), 255, m_intensities.size() * sizeof(Color));
     }
 
     ///////////////////////////////////////////

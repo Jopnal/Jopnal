@@ -138,8 +138,8 @@ namespace jop
 
         /// \brief Assign new data with an lvalue reference
         ///
-        /// This function will assign the data normally if the type matches or the assignee is a
-        /// pointer of the same type. The data will be replaced with the new type if it doesn't match.
+        /// This function will assign the data normally if the type matches.
+        /// The data will be replaced with the new type if it doesn't match.
         ///
         /// \param data The data to be assigned
         ///
@@ -150,8 +150,8 @@ namespace jop
 
         /// \brief Assign new data with an rvalue reference
         ///
-        /// This function will assign the data normally if the type matches or the assignee is a
-        /// pointer of the same type. The data will be replaced with the new type if it doesn't match.
+        /// This function will assign the data normally if the type matches. 
+        /// The data will be replaced with the new type if it doesn't match.
         ///
         /// \param data The data to be assigned
         ///

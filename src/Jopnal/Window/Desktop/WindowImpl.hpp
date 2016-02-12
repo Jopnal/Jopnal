@@ -51,9 +51,12 @@ namespace jop { namespace detail
 
         static void pollEvents();
 
+        void setMouseMode(const Mouse::Mode mode);
+
     private:
 
         GLFWwindow* m_window;
+        unsigned int m_vertexArray;
 
     };
 }}

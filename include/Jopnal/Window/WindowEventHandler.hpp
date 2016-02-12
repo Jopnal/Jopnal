@@ -166,6 +166,7 @@ namespace jop
         /// \brief Controller axis callback
         ///
         /// \param index Index of the controller
+        /// \param axisIndex Index of the axis
         /// \param shift Shift of the axis
         ///
         virtual void controllerAxisShifted(const int index, const int axisIndex, const float shift);
@@ -201,5 +202,3 @@ namespace jop
 
 /// \class WindowEventHandler
 /// \ingroup window
-///
-/// #TODO Detailed description

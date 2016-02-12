@@ -26,12 +26,19 @@
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
     <ClInclude Include="..\include\Jopnal\Export.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\BoxModel.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Buffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Material.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
@@ -62,6 +69,7 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\AABB.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
@@ -74,12 +82,19 @@
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\BoxModel.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Material.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
@@ -98,6 +113,7 @@
     <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
+    <ClCompile Include="..\src\Jopnal\Window\Keyboard.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
   </ItemGroup>

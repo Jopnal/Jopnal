@@ -39,7 +39,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        Texture();
+        Texture(const std::string& name);
 
         /// \brief Destructor
         ///
@@ -48,7 +48,7 @@ namespace jop
 
         /// \brief Method for using file loader to load new resource from file
         ///
-        /// \param Name or path for wanted resource
+        /// \param path The file path
         ///
         /// \return True if loading was successful
         ///
@@ -56,7 +56,9 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param 
+        /// \param x The desired width
+        /// \param y The desired height
+        /// \param bytesPerPixel The byte depth
         ///
         /// \return True if loading was successful
         ///
@@ -95,7 +97,22 @@ namespace jop
 
         /// \brief Bind a texture sampler
         ///
-        void setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler);
+        /// \param sampler The sampler
+        ///
+        void setTextureSampler(const TextureSampler& sampler);
+
+
+        /// \brief Set a subset of pixels
+        ///
+        /// The byte depth must be the same as this texture's!
+        ///
+        /// \param x The X starting point
+        /// \param y The Y starting point
+        /// \param width Width
+        /// \param height Height
+        /// \param pixels Pointer to the pixels
+        ///
+        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width
@@ -118,15 +135,32 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture& getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture& getDefault();
+
     private:
+
+        /// \brief Load from dll
+        ///
+        /// This is for internal use only
+        ///
+        bool load(const int id);
 
         /// \brief Check if a byte depth is valid
         ///
         bool checkDepthValid(const int depth) const;
 
 
-        std::weak_ptr<const TextureSampler> m_sampler;          ///< Texture sampler
-        std::shared_ptr<const TextureSampler> m_defaultSampler; ///< Default sampler
+        mutable std::weak_ptr<const TextureSampler> m_sampler;  ///< Texture sampler
         int m_width;                                            ///< Width of the texture
         int m_height;                                           ///< Height of the texture
         int m_bytesPerPixel;                                    ///< Byte depth of the texture
