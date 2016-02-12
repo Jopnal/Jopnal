@@ -46,7 +46,7 @@ namespace
     {
         if (!ns_document.HasMember(name.c_str()))
             ns_document.AddMember(rj::Value(name.c_str(), ns_document.GetAllocator()), rj::Value(rj::kNullType), ns_document.GetAllocator());
-
+        
         return ns_document[name.c_str()];
     }
 

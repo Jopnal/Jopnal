@@ -20,20 +20,22 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/SceneLoader.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+
+namespace
+{
+    jop::SceneLoader& jop_getSceneLoaderInstance()
+    {
+        static jop::SceneLoader instance;
+        return instance;
+    }
+}
+
+namespace jop
+{
+    
+
+}

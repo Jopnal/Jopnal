@@ -234,6 +234,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\SceneLoader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -359,6 +360,7 @@
     <ClCompile Include="..\src\Jopnal\AABB.cpp">
       <Filter>Root\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SceneLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

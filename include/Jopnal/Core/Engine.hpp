@@ -209,6 +209,8 @@ namespace jop
 
     private:
 
+        friend class SceneLoader;
+
         static Engine* m_engineObject;                        ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
