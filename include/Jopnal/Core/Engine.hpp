@@ -38,6 +38,10 @@ namespace jop
 
     class JOP_API Engine final
     {
+    private:
+
+        friend class StateLoader;
+
     public:
 
         /// \brief Constructor
@@ -208,8 +212,6 @@ namespace jop
 
 
     private:
-
-        friend class StateLoader;
 
         static Engine* m_engineObject;                        ///< The single Engine instance
 

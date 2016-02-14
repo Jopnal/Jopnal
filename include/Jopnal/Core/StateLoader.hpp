@@ -28,9 +28,12 @@
 #include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Graphics/Layer.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <functional>
 #include <tuple>
+#include <typeindex>
 
 //////////////////////////////////////////////
 
@@ -39,14 +42,17 @@ namespace jop
 {
     class Object;
 
-    typedef std::function<bool(Object&, const char*)> ComponentLoadFunc;
-    typedef std::function<bool(const Component&, std::string& json)> ComponentSaveFunc;
+    typedef std::function<bool(Object&, const json::Value&)> ComponentLoadFunc;
+    typedef std::function<bool(const Component&, json::Value&)> ComponentSaveFunc;
 
-    typedef std::function<bool(Scene&, const char*)> LayerLoadFunc;
-    typedef std::function<bool(const Layer&, std::string& json)> LayerSaveFunc;
+    typedef std::function<bool(Scene&, const json::Value&)> LayerLoadFunc;
+    typedef std::function<bool(const Layer&, json::Value&)> LayerSaveFunc;
 
-    typedef std::function<bool(const char*)> SceneLoadFunc;
-    typedef std::function<bool(const Scene&, std::string& json)> SceneSaveFunc;
+    typedef std::function<bool(std::unique_ptr<Scene>& scene, const json::Value&)> SceneLoadFunc;
+    typedef std::function<bool(const Scene&, json::Value&)> SceneSaveFunc;
+
+    typedef std::function<bool(const json::Value&)> SubsystemLoadFunc;
+    typedef std::function<bool(const Subsystem&, json::Value&)> SubsystemSaveFunc;
 
     namespace detail
     {
@@ -55,30 +61,38 @@ namespace jop
             typename T,
             bool IsComp = std::is_base_of<Component, T>::value,
             bool IsLayer = std::is_base_of<Layer, T>::value,
-            bool IsScene = std::is_base_of<Scene, T>::value
+            bool IsScene = std::is_base_of<Scene, T>::value,
+            bool IsSubsystem = std::is_base_of<Subsystem, T>::value
 
-        > struct FuncChooser{};
-
+        > struct FuncChooser;
+        
         template<typename T>
-        struct FuncChooser<T, true, false, false>
+        struct FuncChooser<T, true, false, false, false>
         {
             typedef ComponentLoadFunc LoadFunc;
             typedef ComponentSaveFunc SaveFunc;
-            enum{ ContainerID = 0 };
+            enum{ContainerID = 0};
         };
         template<typename T>
-        struct FuncChooser<T, false, true, false>
+        struct FuncChooser<T, false, true, false, false>
         {
             typedef LayerLoadFunc LoadFunc;
             typedef LayerSaveFunc SaveFunc;
-            enum{ ContainerID = 1 };
+            enum{ContainerID = 1};
         };
         template<typename T>
-        struct FuncChooser<T, false, false, true>
+        struct FuncChooser<T, false, false, true, false>
         {
             typedef SceneLoadFunc LoadFunc;
             typedef SceneSaveFunc SaveFunc;
-            enum{ ContainerID = 2 };
+            enum{ContainerID = 2};
+        };
+        template<typename T>
+        struct FuncChooser<T, false, false, false, true>
+        {
+            typedef SubsystemLoadFunc LoadFunc;
+            typedef SubsystemSaveFunc SaveFunc;
+            enum{ContainerID = 3};
         };
     }
 
@@ -89,6 +103,7 @@ namespace jop
         typedef std::unordered_map<std::string, std::tuple<ComponentLoadFunc, ComponentSaveFunc>> CompFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>> LayerFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>> SceneFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>> SubsystemFuncContainer;
 
         StateLoader() = default;
 
@@ -97,19 +112,32 @@ namespace jop
         static StateLoader& getInstance();
     
         template<typename T>
-        void registerLoadable(const std::string& id, const typename detail::FuncChooser<T>::LoadFunc& func);
+        void registerLoadable(const char* id, const typename detail::FuncChooser<T>::LoadFunc& func);
 
         template<typename T>
-        void registerSaveable(const std::string& id, const typename detail::FuncChooser<T>::SaveFunc& func);
+        void registerSaveable(const char* id, const typename detail::FuncChooser<T>::SaveFunc& func);
         
+        bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+
+        bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
 
     private:
+
+        bool loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
+
+        bool loadLayers(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
+
+        bool loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
 
         std::tuple
         <
             CompFuncContainer,
             LayerFuncContainer,
-            SceneFuncContainer
+            SceneFuncContainer,
+            SubsystemFuncContainer,
+
+            // Maps the type info to identifiers, to be used when saving. Keep this last
+            std::unordered_map<std::type_index, std::string>
 
         > m_loaderSavers;
 
@@ -121,11 +149,11 @@ namespace jop
 
 #endif
 
-#define JOP_REGISTER_LOADABLE(className) \
-struct ns_##className##_LoadRegistrar{ns_##className##_LoadRegistrar(){jop::StateLoader::getInstance().registerLoadable<className>(#className,
+#define JOP_REGISTER_LOADABLE(nameSpace, className) \
+struct ns_##className##_LoadRegistrar{ns_##className##_LoadRegistrar(){jop::StateLoader::getInstance().registerLoadable<className>(#nameSpace "::" #className,
 
-#define JOP_REGISTER_SAVEABLE(className) \
-struct ns_##className##_SaveRegistrar{ns_##className##_SaveRegistrar(){jop::StateLoader::getInstance().registerSaveable<className>(#className,
+#define JOP_REGISTER_SAVEABLE(nameSpace, className) \
+struct ns_##className##_SaveRegistrar{ns_##className##_SaveRegistrar(){jop::StateLoader::getInstance().registerSaveable<className>(#nameSpace "::" #className,
 
 #define JOP_END_LOADABLE_REGISTRATION(className) );}} ns_##className##_LoadRegistrarInstance;
 #define JOP_END_SAVEABLE_REGISTRATION(className) );}} ns_##className##_SaveRegistrarInstance;

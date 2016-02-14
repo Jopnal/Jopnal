@@ -37,13 +37,13 @@ namespace jop
 
     JOP_END_COMMAND_HANDLER(Camera)
 
-    JOP_REGISTER_LOADABLE(Camera) [](Object&, const char*) -> bool
+    JOP_REGISTER_LOADABLE(jop, Camera) [](Object&, const json::Value&) -> bool
     {
         return true;
     }
     JOP_END_LOADABLE_REGISTRATION(Camera)
 
-    JOP_REGISTER_SAVEABLE(Camera) [](const Component&, std::string&)
+    JOP_REGISTER_SAVEABLE(jop, Camera) [](const Component&, json::Value&) -> bool
     {
         return true;
     }

@@ -243,6 +243,9 @@
     <ClInclude Include="..\include\Jopnal\Core\StateLoader.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Json.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -376,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\StateLoader.cpp">
       <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Json.cpp">
+      <Filter>Utility\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

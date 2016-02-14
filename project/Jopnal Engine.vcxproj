@@ -58,6 +58,7 @@
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\Json.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
@@ -113,6 +114,7 @@
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Json.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Message.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />

@@ -19,63 +19,29 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
-#define JOP_PRECOMPILED_HPP
+#ifndef JOP_JSON_HPP
+#define JOP_JSON_HPP
 
-//******** HEADERS ********//
+// Headers
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/stringbuffer.h>
+#pragma warning(pop)
 
-// Needed for configuration
-#include <Jopnal/OS.hpp>
+//////////////////////////////////////////////
 
-// Windows
-#if defined(JOP_OS_WINDOWS)
 
-    #define _CRT_SECURE_NO_WARNINGS
+namespace rapidjson
+{
+    bool checkParseError(const Document& doc);
+}
 
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-    #include <Jopnal/../../project/Resources/resource.h>
-
-#endif
-
-// OpenGL
-#include <GL/GL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
-
-// GLFW
-#include <GLFW/glfw3.h>
-
-// GLM
-#include <Jopnal/MathInclude.hpp>
-
-// PhysFS
-#include <PhysicsFS/physfs.h>
-
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
-// Standard headers
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <array>
-#include <string>
-#include <vector>
-#include <cctype>
-
-// Jopnal
-#include <Jopnal/Jopnal.hpp>
-
+namespace jop
+{
+    namespace json = rapidjson;
+}
 
 #endif

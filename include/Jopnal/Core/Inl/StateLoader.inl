@@ -21,15 +21,16 @@
 
 
 template<typename T>
-void StateLoader::registerLoadable(const std::string& id, const typename detail::FuncChooser<T>::LoadFunc& func)
+void StateLoader::registerLoadable(const char* id, const typename detail::FuncChooser<T>::LoadFunc& func)
 {
-    std::get<0>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[id]) = func;
+    std::get<0>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)]) = func;
 }
 
 //////////////////////////////////////////////
 
 template<typename T>
-void StateLoader::registerSaveable(const std::string& id, const typename detail::FuncChooser<T>::SaveFunc& func)
+void StateLoader::registerSaveable(const char* id, const typename detail::FuncChooser<T>::SaveFunc& func)
 {
-    std::get<1>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[id]) = func;
+    std::get<1>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)]) = func;
+    std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers)[std::type_index(typeid(T))] = id;
 }
