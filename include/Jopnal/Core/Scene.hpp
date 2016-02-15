@@ -266,7 +266,6 @@ namespace jop
 
         std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
-        std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
         std::string m_ID;                               ///< String holding scene identifier
         bool m_active;                                  ///< Boolean set to active
     };

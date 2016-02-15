@@ -27,19 +27,19 @@
 
 namespace jop
 {    
-    SphereModel::SphereModel(const std::string& name)
-        : Model(name)
+    SphereMesh::SphereMesh(const std::string& name)
+        : Mesh(name)
     {}
 
-    SphereModel::SphereModel(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
-        : Model(name)
+    SphereMesh::SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+        : Mesh(name)
     {
         load(radius, rings, sectors, normalizedTexCoords);
     }
 
     //////////////////////////////////////////////
 
-    bool SphereModel::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+    bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
     {
         const float R = 1.0f / static_cast<float>(rings - 1);
         const float S = 1.0f / static_cast<float>(sectors - 1);
@@ -94,6 +94,6 @@ namespace jop
             }
         }
 
-        return Model::load(vertexArray, indices);
+        return Mesh::load(vertexArray, indices);
     }
 }

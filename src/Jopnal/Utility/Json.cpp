@@ -86,4 +86,26 @@ namespace rapidjson
 
         return false;
     }
+
+    //////////////////////////////////////////////
+
+    Value::MemberIterator begin(Value& val)
+    {
+        return val.MemberBegin();
+    }
+
+    Value::MemberIterator end(Value& val)
+    {
+        return val.MemberEnd();
+    }
+
+    Value::ConstMemberIterator begin(const Value& val)
+    {
+        return val.MemberBegin();
+    }
+
+    Value::ConstMemberIterator end(const Value& val)
+    {
+        return val.MemberEnd();
+    }
 }

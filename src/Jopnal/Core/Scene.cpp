@@ -44,7 +44,6 @@ namespace jop
     Scene::Scene(const std::string& ID)
         : m_objects         (),
           m_layers          (),
-          m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
           m_ID              (ID),
           m_active          (true)
     {}
@@ -133,7 +132,7 @@ namespace jop
 
     void Scene::deleteLayer(const std::string& ID)
     {
-        for (auto itr = m_layers.begin(); itr != m_layers.end(); ++itr)
+        for (auto itr = m_layers.begin() + 1; itr != m_layers.end(); ++itr)
         {
             if ((*itr)->getID() == ID)
             {
@@ -147,14 +146,18 @@ namespace jop
 
     void Scene::clearLayers()
     {
-        m_layers.clear();
+        if (!m_layers.empty())
+            m_layers.erase(m_layers.begin() + 1, m_layers.end());
     }
 
     //////////////////////////////////////////////
 
     Layer& Scene::getDefaultLayer()
     {
-        return *m_defaultLayer;
+        if (m_layers.empty())
+            m_layers.emplace_back(std::make_shared<Layer>("Default Layer"));
+
+        return *m_layers.front();
     }
 
     //////////////////////////////////////////////
@@ -291,8 +294,6 @@ namespace jop
         if (isActive())
         {
             preDraw();
-
-            m_defaultLayer->drawBase();
 
             for (auto& i : m_layers)
                 i->drawBase();

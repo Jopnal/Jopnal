@@ -96,13 +96,17 @@ namespace jop
         ///
         /// \param drawable Reference to the drawable to be added
         ///
-        void addDrawable(std::reference_wrapper<Drawable> drawable);
+        void addDrawable(Drawable& drawable);
+
+        ///
+        ///
+        void removeDrawable(const std::string& id);
 
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
         ///
-        void bindOtherLayer(std::reference_wrapper<Layer> layer);
+        void bindOtherLayer(Layer& layer);
 
         /// \brief Unbind a layer's draw list from this layer
         ///

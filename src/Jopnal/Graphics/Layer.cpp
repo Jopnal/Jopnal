@@ -27,15 +27,11 @@
 
 namespace jop
 {
-    JOP_REGISTER_COMMAND_HANDLER(Layer)
+    /*JOP_REGISTER_COMMAND_HANDLER(Layer)
 
-        JOP_BIND_MEMBER_COMMAND(&Layer::addDrawable, "addDrawable");
-        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "bindOtherLayer");
-        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "unbindOtherLayer");
-        JOP_BIND_MEMBER_COMMAND(&Layer::setCamera, "setCamera");
-        JOP_BIND_MEMBER_COMMAND(&Layer::setRenderTexture, "setRenderTexture");
 
-    JOP_END_COMMAND_HANDLER(Layer)
+
+    JOP_END_COMMAND_HANDLER(Layer)*/
 }
 
 namespace jop
@@ -75,6 +71,8 @@ namespace jop
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
+
+        // TODO Does expired() have to be called, since drawable dtor removes itself from layers?
 
         for (auto& i : m_boundLayers)
         {
@@ -123,8 +121,8 @@ namespace jop
         {
             if (message.passFilter(Message::Command))
             {
-                Any instance(this);
-                JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
+                //Any instance(this);
+                //JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
             }
 
             if (message.passFilter(Message::Custom))
@@ -136,16 +134,32 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::addDrawable(std::reference_wrapper<Drawable> drawable)
+    void Layer::addDrawable(Drawable& drawable)
     {
-        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.get().shared_from_this()));
+        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
+        m_drawList.back().lock()->m_boundToLayers.emplace(std::static_pointer_cast<Layer>(shared_from_this()));
     }
 
     //////////////////////////////////////////////
 
-    void Layer::bindOtherLayer(std::reference_wrapper<Layer> layer)
+    void Layer::removeDrawable(const std::string& id)
     {
-        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.get().shared_from_this()));
+        for (auto itr = m_drawList.begin(); itr != m_drawList.end(); ++itr)
+        {
+            if (!itr->expired() && itr->lock()->getID() == id)
+            {
+                itr->lock()->m_boundToLayers.erase(std::static_pointer_cast<Layer>(shared_from_this()));
+                m_drawList.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::bindOtherLayer(Layer& layer)
+    {
+        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.shared_from_this()));
     }
 
     //////////////////////////////////////////////

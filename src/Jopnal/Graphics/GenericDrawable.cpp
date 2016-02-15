@@ -42,21 +42,21 @@ namespace jop
 
     void GenericDrawable::draw(const Camera& camera)
     {
-        if (m_shader.expired() || m_model.expired())
+        if (m_shader.expired() || m_model.getMesh().expired())
             return;
 
         auto& s = *m_shader.lock();
-        auto& m = *m_model.lock();
+        auto& msh = *m_model.getMesh().lock();
 
-        m.getMesh().lock()->getVertexBuffer().bind();
+        msh.getVertexBuffer().bind();
 
         s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
 
-        m.getMaterial().sendToShader(s);
+        m_model.getMaterial().sendToShader(s);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        m.getMesh().lock()->getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, m.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        msh.getIndexBuffer().bind();
+        glCheck(gl::DrawElements(gl::TRIANGLES, m_model.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
     }
 }

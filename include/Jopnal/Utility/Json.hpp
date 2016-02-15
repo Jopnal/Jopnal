@@ -37,6 +37,14 @@
 namespace rapidjson
 {
     bool checkParseError(const Document& doc);
+
+    Value::MemberIterator begin(Value&);
+
+    Value::MemberIterator end(Value&);
+
+    Value::ConstMemberIterator begin(const Value&);
+
+    Value::ConstMemberIterator end(const Value&);
 }
 
 namespace jop

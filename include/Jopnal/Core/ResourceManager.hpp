@@ -96,6 +96,9 @@ namespace jop
         template<typename T>
         static T& getExistingResource(const std::string& name);
 
+        template<typename T = void>
+        static bool resourceExists(const std::string& name);
+
 
         /// \brief Deletes resource from memory
         ///

@@ -27,19 +27,19 @@
 
 namespace jop
 {
-    BoxModel::BoxModel(const std::string& name)
-        : Model(name)
+    BoxMesh::BoxMesh(const std::string& name)
+        : Mesh(name)
     {}
 
-    BoxModel::BoxModel(const std::string& name, const float size)
-        : Model(name)
+    BoxMesh::BoxMesh(const std::string& name, const float size)
+        : Mesh(name)
     {
         load(size);
     }
 
     //////////////////////////////////////////////
 
-    bool BoxModel::load(const float size)
+    bool BoxMesh::load(const float size)
     {
         const float half = 0.5f * size;
 
@@ -108,6 +108,6 @@ namespace jop
             22, 21, 23
         });
 
-        return Model::load(vertexArray, indices);
+        return Mesh::load(vertexArray, indices);
     }
 }

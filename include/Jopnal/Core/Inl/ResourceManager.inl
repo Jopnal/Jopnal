@@ -93,6 +93,8 @@ namespace detail
         }
     };
 
+    //////////////////////////////////////////////
+
     template<typename T>
     void basicErrorCheck(const ResourceManager* instance)
     {
@@ -101,6 +103,8 @@ namespace detail
         JOP_ASSERT(instance != nullptr, "Tried to load a resource without there being a valid ResourceManager instance!");
     }
 }
+
+//////////////////////////////////////////////
 
 template<typename T, typename ... Args>
 T& ResourceManager::getResource(const Args&... args)
@@ -136,6 +140,8 @@ T& ResourceManager::getResource(const Args&... args)
     }
 }
 
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args> 
 T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
 {
@@ -165,6 +171,8 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
     }
 }
 
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
 static T& ResourceManager::getEmptyResource(const Args&... args)
 {
@@ -193,4 +201,14 @@ T& ResourceManager::getExistingResource(const std::string& name)
         return *std::static_pointer_cast<T>(it->second);
 
     return detail::LoadFallback<T>::load(name);
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+bool ResourceManager::resourceExists(const std::string& name)
+{
+    auto itr = m_resources.find(name);
+    
+    return (itr != m_resources.end() && (typeid(T) == typeid(void) || typeid(T) == typeid(itr->second->get())));
 }

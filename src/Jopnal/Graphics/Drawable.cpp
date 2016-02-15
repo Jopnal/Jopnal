@@ -28,19 +28,37 @@
 namespace jop
 {
     Drawable::Drawable(Object& object, const std::string& ID)
-        : Component (object, ID),
-          m_model   (std::static_pointer_cast<Model>(Model::getDefault().shared_from_this())),
-          m_shader  (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
+        : Component         (object, ID),
+          m_model           (Model::getDefault()),
+          m_boundToLayers   (),
+          m_shader          (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
     {}
 
     Drawable::~Drawable()
-    {}
+    {
+        for (auto itr = m_boundToLayers.begin(); itr != m_boundToLayers.end(); ++itr)
+            itr->get()->removeDrawable(getID());
+    }
 
     //////////////////////////////////////////////
 
     void Drawable::setModel(const Model& model)
     {
-        m_model = std::weak_ptr<const Model>(std::static_pointer_cast<const Model>(model.shared_from_this()));
+        m_model = model;
+    }
+
+    //////////////////////////////////////////////
+
+    const Model& Drawable::getModel() const
+    {
+        return m_model;
+    }
+
+    //////////////////////////////////////////////
+
+    std::weak_ptr<Shader> Drawable::getShader()
+    {
+        return m_shader;
     }
 
     //////////////////////////////////////////////

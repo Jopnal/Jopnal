@@ -41,7 +41,7 @@ namespace
         LayerID,
         SceneID,
         SubID,
-
+        CustomID,
 
         LoadID = 0,
         SaveID
@@ -79,13 +79,9 @@ namespace jop
 
         // Handle version
         if (!doc.HasMember(ns_versionField))
-        {
-            JOP_DEBUG_WARNING("State file doesn't have the version defined, assuming latest (" << ns_fileVersion << ")");
-        }
+            JOP_DEBUG_WARNING("State file doesn't have the version defined, assuming latest (" << ns_fileVersion << ")")
         else if (std::strcmp(doc[ns_versionField].GetString(), ns_fileVersion) != 0)
-        {
             JOP_DEBUG_WARNING("The state file version doesn't match the current library version. Attempting to load anyway...");
-        }
 
         // Load subsystems?
         if (subsystems)
@@ -197,9 +193,30 @@ namespace jop
 
     bool StateLoader::loadLayers(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
     {
-        // load layers
+        // Load layers
+        for (auto& i : data)
+        {
+            auto& obj = i.value;
 
-        // link layers
+            if (!obj.IsObject())
+                continue;
+
+            if (obj.HasMember(ns_typeField) && obj[ns_typeField].IsString())
+            {
+                std::unique_ptr<Layer> ptr;
+
+
+            }
+            else
+            {
+                JOP_DEBUG_ERROR("Couldn't create layer, no type specified: " << path);
+                return false;
+            }
+        }
+
+        // Link layers
+
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -207,6 +224,8 @@ namespace jop
     bool StateLoader::loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
     {
 
+
+        return true;
     }
 }
 

@@ -27,19 +27,19 @@
 
 namespace jop
 {
-    RectangleModel::RectangleModel(const std::string& name)
-        : Model(name)
+    RectangleMesh::RectangleMesh(const std::string& name)
+        : Mesh(name)
     {}
 
-    RectangleModel::RectangleModel(const std::string& name, const float size)
-        : Model(name)
+    RectangleMesh::RectangleMesh(const std::string& name, const float size)
+        : Mesh(name)
     {
         load(size);
     }
 
     //////////////////////////////////////////////
 
-    bool RectangleModel::load(const float size)
+    bool RectangleMesh::load(const float size)
     {
         const float half = 0.5f * size;
 
@@ -55,6 +55,7 @@ namespace jop
             0, 1, 2,
             2, 3, 0,
         });
-        return Model::load(vertexarray, indices);
+
+        return Mesh::load(vertexarray, indices);
     }
 }

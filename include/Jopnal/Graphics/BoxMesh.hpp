@@ -11,7 +11,7 @@
 //
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
+//    in a product, an acknowledgment in the product documentation would be
 //    appreciated but is not required.
 // 2. Altered source versions must be plainly marked as such, and must not be
 //    misrepresented as being the original software.
@@ -19,19 +19,19 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLEMODEL_HPP
-#define JOP_RECTANGLEMODEL_HPP
+#ifndef JOP_BOXMODEL_HPP
+#define JOP_BOXMODEL_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleModel : public Model
+    class JOP_API BoxMesh : public Mesh
     {
     public:
 
@@ -39,30 +39,30 @@ namespace jop
         ///
         /// Does not initialize the vertices.
         ///
-        /// \param name Name of the rectangle
+        /// \param name Name of the box
         ///
-        RectangleModel(const std::string& name);
+        BoxMesh(const std::string& name);
 
-        /// \brief Creates a rectangle model
+        /// \brief Creates a cube model
         ///
-        /// \param name Name of the rectangle
-        /// \param size Size of the rectangle
+        /// \param name Name of the box
+        /// \param size Size of the box
         ///
-        RectangleModel(const std::string& name, const float size);
+        BoxMesh(const std::string& name, const float size);
 
 
-        /// \brief Load this rectangle
+        /// \brief Load this box
         ///
         /// This will set up the vertices and create the buffers
         ///
-        /// \param size Size of the rectangle
+        /// \param size Size of the box
         ///
         /// \return True if successful
         ///
         bool load(const float size);
-
     };
 }
+
 #endif
 
 /// \class BoxModel

@@ -25,7 +25,9 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Model.hpp>
 #include <memory>
+#include <unordered_set>
 
 //////////////////////////////////////////////
 
@@ -43,6 +45,8 @@ namespace jop
         JOP_DISALLOW_MOVE(Drawable);
 
         void operator =(const Drawable&) = delete;
+
+        friend class Layer;
 
     public:
     
@@ -73,16 +77,21 @@ namespace jop
         ///
         void setModel(const Model& model);
 
+        const Model& getModel() const;
+
         /// \brief Set the shader
         ///
         /// \param shader Reference to the shader
         ///
         void setShader(Shader& shader);
 
+        std::weak_ptr<Shader> getShader();
+
     protected:
 
-        std::weak_ptr<Shader> m_shader;     ///< The bound shader
-        std::weak_ptr<Model> m_model;       ///< The bound model
+        Model m_model;                                              ///< The bound model
+        std::unordered_set<std::shared_ptr<Layer>> m_boundToLayers; ///< Set of layers this drawable is bound to
+        std::weak_ptr<Shader> m_shader;                             ///< The bound shader
         
     };
 }

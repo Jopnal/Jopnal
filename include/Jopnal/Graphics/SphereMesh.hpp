@@ -24,20 +24,20 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API SphereModel : public Model
+    class JOP_API SphereMesh : public Mesh
     {
     public:
 
-        /// \copydoc jop::BoxModel::BoxModel()
+        /// \copydoc jop::BoxMesh::BoxMesh()
         ///
-        SphereModel(const std::string& name);
+        SphereMesh(const std::string& name);
 
         /// \brief Creates a 3D sphere
         ///
@@ -50,7 +50,7 @@ namespace jop
         /// \param sectors How many sectors the circle will get divided to
         /// \param normalizedTexCoords Normalize the tex coords?
         ///
-        SphereModel(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
 
         /// \brief Load a sphere
