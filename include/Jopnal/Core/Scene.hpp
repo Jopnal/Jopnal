@@ -42,6 +42,8 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Scene);
 
+        friend class StateLoader;
+
     public:
 
         /// \brief Constructor for scene class

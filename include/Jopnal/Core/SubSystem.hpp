@@ -91,6 +91,7 @@ namespace jop
         ///
         virtual void draw();
 
+
         /// \brief Sets active on update functions
         ///
         /// \param active Sets the active
@@ -100,6 +101,7 @@ namespace jop
         /// \brief Returns m_active boolean unit
         ///
         bool isActive();
+
 
         /// \brief Function to handle messages
         ///

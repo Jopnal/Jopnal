@@ -34,6 +34,9 @@ namespace
     const char* const ns_versionField = "version";
     const char* const ns_typeField = "type";
     const char* const ns_sharedSceneField = "sharedscene";
+    const char* const ns_layerField = "layers";
+    const char* const ns_objectField = "objects";
+    const char* const ns_dataField = "data";
 
     enum
     {
@@ -86,7 +89,7 @@ namespace jop
         // Load subsystems?
         if (subsystems)
         {
-            // TODO, reminder: a complete success is required, otherwise original state must be returned
+            // TODO Implement, remember: a complete success is required, otherwise original state must be returned
         }
 
         std::unique_ptr<Scene> sharedScenePtr;
@@ -146,12 +149,12 @@ namespace jop
                 json::Value v(json::kObjectType);
 
                 // Attempt to create the scene
-                if (std::get<LoadID>(itr->second)(scene, data.HasMember("data") && data["data"].IsObject() ? data["data"] : v))
+                if (std::get<LoadID>(itr->second)(scene, data.HasMember(ns_dataField) && data[ns_dataField].IsObject() ? data[ns_dataField] : v))
                 {
                     // Attempt to load layers
-                    if (data.HasMember("layers") && data["layers"].IsArray() && !data["layers"].Empty())
+                    if (data.HasMember(ns_layerField) && data[ns_layerField].IsArray() && !data[ns_layerField].Empty())
                     {
-                        if (!loadLayers(scene, data["layers"], path))
+                        if (!loadLayers(scene, data[ns_layerField], path))
                         {
                             JOP_DEBUG_ERROR("Couldn't load scene state, a layer reported loading failure: " << path);
                             return false;
@@ -159,9 +162,9 @@ namespace jop
                     }
 
                     // Attempt to load objects
-                    if (data.HasMember("objects") && data["objects"].IsArray() && !data["objects"].Empty())
+                    if (data.HasMember(ns_objectField) && data[ns_objectField].IsArray() && !data[ns_objectField].Empty())
                     {
-                        if (!loadObjects(scene, data["objects"], path))
+                        if (!loadObjects(scene, data[ns_objectField], path))
                         {
                             JOP_DEBUG_ERROR("Couldn't load scene state, an object reported loading failure: " << path);
                             return false;
@@ -193,6 +196,8 @@ namespace jop
 
     bool StateLoader::loadLayers(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
     {
+        const auto& layerCont = std::get<LayerID>(m_loaderSavers);
+
         // Load layers
         for (auto& i : data)
         {
@@ -204,8 +209,23 @@ namespace jop
             if (obj.HasMember(ns_typeField) && obj[ns_typeField].IsString())
             {
                 std::unique_ptr<Layer> ptr;
+                auto itr = layerCont.find(obj[ns_typeField].GetString());
 
-
+                if (itr != layerCont.end())
+                {
+                    if (std::get<LoadID>(itr->second)(ptr, obj))
+                        scene->m_layers.push_back(std::shared_ptr<Layer>(ptr.release()));
+                    else
+                    {
+                        JOP_DEBUG_ERROR("Couldn't load layer state, the registered load function reported failure: " << path);
+                        return false;
+                    }
+                }
+                else
+                {
+                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type not registered: " << path);
+                    return false;
+                }
             }
             else
             {
@@ -214,7 +234,39 @@ namespace jop
             }
         }
 
-        // Link layers
+        // Link layers, we can assume all the objects are valid since they went through the previous loop
+        const char* const boundLayersField = "boundlayers";
+
+        for (auto& i : data)
+        {
+            auto& obj = i.value;
+
+            if (!obj.IsObject())
+                continue;
+
+            // It can be assumed that the id exists and is of right type
+            std::weak_ptr<Layer> weakCurrLayer = scene->getLayer(obj["id"].GetString());
+
+            if (weakCurrLayer.expired())
+            {
+                JOP_DEBUG_WARNING("Layer with id \"" << obj["id"].GetString() << "\" expired while loading scene: " << path);
+                continue;
+            }
+
+            if (obj.HasMember(boundLayersField) && obj[boundLayersField].IsArray())
+            {
+                Layer& currLayer = *weakCurrLayer.lock();
+
+                for (auto& j : obj[boundLayersField])
+                {
+                    std::weak_ptr<Layer> bound;
+                    if (j.value.IsString() && !(bound = scene->getLayer(j.value.GetString())).expired())
+                        currLayer.bindOtherLayer(*std::static_pointer_cast<Layer>(bound.lock()));
+                    else
+                        JOP_DEBUG_WARNING("Couldn't bind layer to \"" << currLayer.getID() << "\". Array element not a string or layer couldn't be found: " << path);
+                }
+            }
+        }
 
         return true;
     }
@@ -223,7 +275,12 @@ namespace jop
 
     bool StateLoader::loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
     {
+        for (auto& i : data)
+        {
 
+
+
+        }
 
         return true;
     }

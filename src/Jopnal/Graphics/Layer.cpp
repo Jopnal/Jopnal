@@ -52,17 +52,20 @@ namespace jop
 
     void Layer::drawBase()
     {
-        if (m_camera.expired())
-            setCamera(Camera::getDefault());
+        if (isActive())
+        {
+            if (m_camera.expired())
+                setCamera(Camera::getDefault());
 
-        if (!m_renderTexture.expired())
-            m_renderTexture.lock()->bind();
-        else
-            RenderTexture::unbind();
+            if (!m_renderTexture.expired())
+                m_renderTexture.lock()->bind();
+            else
+                RenderTexture::unbind();
 
-        draw(*m_camera.lock());
+            draw(*m_camera.lock());
 
-        sweepRemoved();
+            sweepRemoved();
+        }
     }
 
     //////////////////////////////////////////////

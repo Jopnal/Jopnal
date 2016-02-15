@@ -45,6 +45,8 @@ namespace jop
 
         void operator =(const Object&) = delete;
 
+        friend class StateLoader;
+
     public:
 
         /// \brief Default constructor

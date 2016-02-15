@@ -108,11 +108,11 @@ namespace jop
     {
     private:
 
-        typedef std::unordered_map<std::string, std::tuple<ComponentLoadFunc, ComponentSaveFunc>> CompFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>> LayerFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>> SceneFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>> SubsystemFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<CustomLoadFunc, CustomSaveFunc>> CustomFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<ComponentLoadFunc, ComponentSaveFunc>>   CompFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>>           LayerFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>>           SceneFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>>   SubsystemFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<CustomLoadFunc, CustomSaveFunc>>         CustomFuncContainer;
 
         StateLoader() = default;
 
