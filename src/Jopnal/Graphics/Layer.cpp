@@ -27,11 +27,11 @@
 
 namespace jop
 {
-    /*JOP_REGISTER_COMMAND_HANDLER(Layer)
+    JOP_REGISTER_COMMAND_HANDLER(Layer)
 
 
 
-    JOP_END_COMMAND_HANDLER(Layer)*/
+    JOP_END_COMMAND_HANDLER(Layer)
 }
 
 namespace jop
@@ -124,8 +124,8 @@ namespace jop
         {
             if (message.passFilter(Message::Command))
             {
-                //Any instance(this);
-                //JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
             }
 
             if (message.passFilter(Message::Custom))

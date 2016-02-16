@@ -63,6 +63,10 @@ namespace jop
 
     bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        path;
+        scene;
+        sharedScene;
+        subsystems;
         return false;
     }
 
@@ -110,6 +114,7 @@ namespace jop
                 return false;
         }
 
+        // Finally assign the pointers
         if (subsystems)
         {
 
@@ -179,7 +184,7 @@ namespace jop
             }
             else
             {
-                JOP_DEBUG_ERROR("Couldn't load scene state, scene type not registered: " << path);
+                JOP_DEBUG_ERROR("Couldn't load scene state, scene type (\"" << data[ns_typeField].GetString() << "\") not registered: " << path);
                 return false;
             }
         }
@@ -208,22 +213,23 @@ namespace jop
 
             if (obj.HasMember(ns_typeField) && obj[ns_typeField].IsString())
             {
-                std::unique_ptr<Layer> ptr;
                 auto itr = layerCont.find(obj[ns_typeField].GetString());
 
                 if (itr != layerCont.end())
                 {
-                    if (std::get<LoadID>(itr->second)(ptr, obj))
+                    std::unique_ptr<Layer> ptr;
+
+                    if (obj.HasMember(ns_dataField) && obj[ns_dataField].IsObject() && std::get<LoadID>(itr->second)(ptr, obj[ns_dataField]))
                         scene->m_layers.push_back(std::shared_ptr<Layer>(ptr.release()));
                     else
                     {
-                        JOP_DEBUG_ERROR("Couldn't load layer state, the registered load function reported failure: " << path);
+                        JOP_DEBUG_ERROR("Couldn't load layer state, data object missing or the registered load function reported failure: " << path);
                         return false;
                     }
                 }
                 else
                 {
-                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type not registered: " << path);
+                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type (\"" << obj[ns_typeField].GetString() << "\") not registered: " << path);
                     return false;
                 }
             }
@@ -277,9 +283,114 @@ namespace jop
     {
         for (auto& i : data)
         {
+            const auto& val = i.value;
 
+            if (!val.IsObject() || val.Empty())
+                continue;
 
+            const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
 
+            scene->createObject(id);
+            if (!loadObject(*scene->m_objects.back(), val, path))
+            {
+                JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::loadObject(Object& obj, const json::Value& data, const std::string& path)
+    {
+        const char* const activeField = "active";
+        const char* const componentsField = "components";
+        const char* const childrenField = "children";
+        const char* const transformField = "transform";
+
+        if (data.HasMember(activeField) && data[activeField].IsBool())
+            obj.setActive(data[activeField].GetBool());
+
+        if (data.HasMember(transformField) && data[transformField].IsArray() && data[transformField].Size() >= 10)
+        {
+            auto& val = data[transformField];
+
+            for (auto& i : val)
+            {
+                if (!i.value.IsDouble())
+                {
+                    JOP_DEBUG_WARNING("Encountered unexpected transform value(s) while loading object with id \"" << obj.getID() << "\": " << path);
+                    goto SkipTransform;
+                }
+            }
+
+            obj.setPosition(static_cast<float>(val[0u].GetDouble()),
+                            static_cast<float>(val[1u].GetDouble()),
+                            static_cast<float>(val[2u].GetDouble()));
+
+            obj.setScale(static_cast<float>(val[3u].GetDouble()),
+                         static_cast<float>(val[4u].GetDouble()),
+                         static_cast<float>(val[5u].GetDouble()));
+
+            obj.setRotation(glm::quat(static_cast<float>(val[6u].GetDouble()),
+                                      static_cast<float>(val[7u].GetDouble()),
+                                      static_cast<float>(val[8u].GetDouble()),
+                                      static_cast<float>(val[9u].GetDouble())));
+        }
+
+        SkipTransform:
+
+        if (data.HasMember(componentsField) && data[componentsField].IsArray())
+        {
+            auto& compCont = std::get<CompID>(m_loaderSavers);
+
+            for (auto& i : data[componentsField])
+            {
+                auto& val = i.value;
+
+                if (val.IsObject() && val.HasMember(ns_typeField) && val[ns_typeField].IsString())
+                {
+                    auto itr = compCont.find(val[ns_typeField].GetString());
+
+                    if (itr != compCont.end())
+                    {
+                        if (!val.HasMember(ns_dataField) || !val[ns_dataField].IsObject() || std::get<LoadID>(itr->second)(obj, val[ns_dataField]))
+                        {
+                            JOP_DEBUG_ERROR("Couldn't load component state, registered load function reported failure: " << path);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        JOP_DEBUG_ERROR("Couldn't load component state, component type (\"" << val[ns_typeField].GetString() << "\") not registered: " << path);
+                        return false;
+                    }
+                }
+                else
+                {
+                    JOP_DEBUG_ERROR("Failed to load component, no type specified: " << path);
+                    return false;
+                }
+            }
+        }
+
+        if (data.HasMember(childrenField) && data[childrenField].IsArray())
+        {
+            for (auto& i : data[childrenField])
+            {
+                auto& val = i.value;
+
+                const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
+
+                obj.createChild(id);
+                if (!loadObject(*obj.m_children.back(), val, path))
+                {
+                    JOP_DEBUG_ERROR("Failed to load child object with id \"" << id << "\": " << path);
+                    return false;
+                }
+            }
         }
 
         return true;

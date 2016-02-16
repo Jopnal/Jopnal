@@ -138,6 +138,8 @@ namespace jop
 
         bool loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
 
+        bool loadObject(Object& obj, const json::Value& data, const std::string& path);
+
         std::tuple
         <
             CompFuncContainer,
