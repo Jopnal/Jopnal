@@ -140,6 +140,16 @@ namespace jop
 
         bool loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path);
 
+
+        bool saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
+
+        bool saveLayers(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
+
+        bool saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
+
+        bool saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
+
+
         std::tuple
         <
             CompFuncContainer,

@@ -43,6 +43,8 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Layer);
 
+        friend class StateLoader;
+
     public:
     
         /// \brief Constructor

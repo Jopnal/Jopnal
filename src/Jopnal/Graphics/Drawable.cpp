@@ -99,7 +99,26 @@ namespace jop
         for (auto itr = layers.begin(); itr != layers.end(); ++itr)
             (*itr)->addDrawable(drawable);
 
-        JOP_ASSERT(false, "model&shader");
+        if (val.HasMember("shader") && val["shader"].IsString())
+        {
+            const std::string shstr = val["shader"].GetString();
+
+            if (ResourceManager::resourceExists<Shader>(shstr))
+                drawable.setShader(ResourceManager::getExistingResource<Shader>(shstr));
+            else
+                JOP_DEBUG_WARNING("Couldn't find shader named \"" << shstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
+        }
+        if (val.HasMember("mesh") && val["mesh"].IsString())
+        {
+            const std::string mshstr = val["mesh"].GetString();
+
+            if (ResourceManager::resourceExists<Mesh>(mshstr))
+                drawable.m_model.setMesh(ResourceManager::getExistingResource<Mesh>(mshstr));
+            else
+                JOP_DEBUG_WARNING("Couldn't find mesh named \"" << mshstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
+        }
+
+        JOP_ASSERT(false, "material");
 
         return true;
     }
@@ -119,7 +138,13 @@ namespace jop
                 layers.PushBack(json::StringRef(i->getID().c_str()), alloc);
         }
 
-        JOP_ASSERT(false, "model&shader");
+        if (!drawable.m_shader.expired())
+            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader.lock()->getName().c_str()), alloc);
+
+        if (!drawable.m_model.getMesh().expired())
+            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh().lock()->getName().c_str()), alloc);
+
+        JOP_ASSERT(false, "material");
 
         return true;
     }

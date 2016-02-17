@@ -63,11 +63,33 @@ namespace jop
 
     bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
-        path;
-        scene;
-        sharedScene;
-        subsystems;
-        return false;
+        if (!Engine::m_engineObject)
+            return false;
+
+        json::Document doc;
+        doc.SetObject();
+
+        doc.AddMember(json::StringRef(ns_versionField), json::StringRef(ns_fileVersion), doc.GetAllocator());
+
+        if (subsystems)
+        {
+
+        }
+
+        if (sharedScene && !saveScene(*Engine::m_engineObject->m_sharedScene, doc.AddMember(json::StringRef(ns_sharedSceneField), json::kObjectType, doc.GetAllocator())[ns_sharedSceneField], doc.GetAllocator(), path))
+            return false;
+
+        if (scene && !saveScene(*Engine::m_engineObject->m_currentScene, doc.AddMember(json::StringRef(ns_sceneField), json::kObjectType, doc.GetAllocator())[ns_sceneField], doc.GetAllocator(), path))
+            return false;
+
+        json::StringBuffer buffer;
+        json::PrettyWriter<json::StringBuffer> writer(buffer);
+        doc.Accept(writer);
+
+        if (!FileLoader::write(FileLoader::Directory::Resources, path, buffer.GetString(), buffer.GetSize()))
+            return false;
+
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -99,20 +121,14 @@ namespace jop
         std::unique_ptr<Scene> sharedScenePtr;
 
         // Load the shared scene?
-        if (sharedScene)
-        {
-            if (!doc.HasMember(ns_sharedSceneField) || !doc[ns_sharedSceneField].IsObject() || !Engine::m_engineObject || !loadScene(sharedScenePtr, doc[ns_sharedSceneField], path))
-                return false;
-        }
+        if (sharedScene && !doc.HasMember(ns_sharedSceneField) || !doc[ns_sharedSceneField].IsObject() || !Engine::m_engineObject || !loadScene(sharedScenePtr, doc[ns_sharedSceneField], path))
+            return false;
 
         std::unique_ptr<Scene> scenePtr;
 
         // Load scene?
-        if (scene)
-        {
-            if (!doc.HasMember(ns_sceneField) || !doc[ns_sceneField].IsObject() || !Engine::m_engineObject || !loadScene(scenePtr, doc[ns_sceneField], path))
-                return false;
-        }
+        if (scene && !doc.HasMember(ns_sceneField) || !doc[ns_sceneField].IsObject() || !Engine::m_engineObject || !loadScene(scenePtr, doc[ns_sceneField], path))
+            return false;
 
         // Finally assign the pointers
         if (subsystems)
@@ -394,6 +410,118 @@ namespace jop
         }
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    {
+        const auto& sceneCont = std::get<SceneID>(m_loaderSavers);
+        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+
+        // Type name iterator
+        auto itrRedir = nameMap.find(std::type_index(typeid(scene)));
+        // Function iterator
+        auto itr = sceneCont.end();
+
+        if (itrRedir == nameMap.end() || (itr = sceneCont.find(itrRedir->second)) == sceneCont.end())
+        {
+            JOP_DEBUG_ERROR("Couldn't save scene, type (name) not registered: " << path);
+            return false;
+        }
+
+        data.AddMember(json::StringRef(ns_typeField), json::StringRef(itrRedir->second.c_str()), alloc);
+
+        if (std::get<SaveID>(itr->second)(scene, data.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
+        {
+            // Attempt to save layers
+            if (!scene.m_layers.empty())
+            {
+                if (!saveLayers(scene, data.AddMember(json::StringRef(ns_layerField), json::kArrayType, alloc)[ns_layerField], alloc, path))
+                {
+                    JOP_DEBUG_ERROR("Couldn't save scene, a layer failed to save: " << path);
+                    return false;
+                }
+            }
+
+            // Attempt to save objects
+            if (!scene.m_objects.empty())
+            {
+                if (!saveObjects(scene, data.AddMember(json::StringRef(ns_objectField), json::kArrayType, alloc)[ns_objectField], alloc, path))
+                {
+                    JOP_DEBUG_ERROR("Couldn't save scene, an object failed to save: " << path);
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            JOP_DEBUG_ERROR("Couldn't save scene, registered save function reported failure: " << path);
+            return false;
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::saveLayers(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    {
+        const auto& layerCont = std::get<LayerID>(m_loaderSavers);
+        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+
+        // Type name iterator
+        auto itrRedir = nameMap.find(std::type_index(typeid(scene)));
+        // Function iterator
+        auto itr = layerCont.end();
+
+        if (itrRedir == nameMap.end() || (itr = layerCont.find(itrRedir->second)) == layerCont.end())
+        {
+            JOP_DEBUG_ERROR("Couldn't save scene, type (name) not registered: " << path);
+            return false;
+        }
+
+        for (auto& i : scene.m_layers)
+        {
+            json::Value obj(json::kObjectType);
+
+            obj.AddMember(json::StringRef(ns_typeField), json::StringRef(itrRedir->second.c_str()), alloc);
+
+            if (!std::get<SaveID>(itr->second)(*i, obj.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
+            {
+                JOP_DEBUG_ERROR("Couldn't save layer, registered save function reported failure: " << path);
+                return false;
+            }
+
+            const char* const boundLayersField = "boundlayers";
+
+            if (!i->m_boundLayers.empty())
+            {
+                auto& boundArray = data.AddMember(json::StringRef(boundLayersField), json::kArrayType, alloc)[boundLayersField];
+
+                for (auto& j : i->m_boundLayers)
+                {
+                    if (!j.expired())
+                        boundArray.PushBack(json::StringRef(j.lock()->getID().c_str()), alloc);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    {
+        return false;
     }
 }
 

@@ -289,7 +289,7 @@ namespace jop
         if (!PHYSFS_isInit())
             PHYSFS_init(0);
 
-        const std::string docDir("Documents");
+        static const std::string docDir("Documents");
 
         fullPath = PHYSFS_getUserDir();
         fullPath += docDir + PHYSFS_getDirSeparator() + getProjectName();

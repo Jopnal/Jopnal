@@ -208,7 +208,9 @@ T& ResourceManager::getExistingResource(const std::string& name)
 template<typename T>
 bool ResourceManager::resourceExists(const std::string& name)
 {
-    auto itr = m_resources.find(name);
+    detail::basicErrorCheck<T>(m_instance);
+
+    auto itr = m_instance->m_resources.find(name);
     
-    return (itr != m_resources.end() && (typeid(T) == typeid(void) || typeid(T) == typeid(itr->second->get())));
+    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(void) || typeid(T) == typeid(*itr->second)));
 }
