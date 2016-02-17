@@ -27,6 +27,21 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    {
+        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(""), scene, val);
+    }
+    JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
+
+    JOP_REGISTER_SAVEABLE(jop, GenericDrawable)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        return Drawable::saveStateBase(static_cast<const GenericDrawable&>(comp), val, alloc);
+    }
+    JOP_END_SAVEABLE_REGISTRATION(GenericDrawable)
+}
+
+namespace jop
+{
     GenericDrawable::GenericDrawable(Object& object, const std::string& ID)
         : Drawable(object, ID)
     {}
@@ -42,21 +57,22 @@ namespace jop
 
     void GenericDrawable::draw(const Camera& camera)
     {
-        if (m_shader.expired() || m_model.getMesh().expired())
+        if (getShader().expired() || getModel().getMesh().expired())
             return;
 
-        auto& s = *m_shader.lock();
-        auto& msh = *m_model.getMesh().lock();
+        auto& s = *getShader().lock();
+        auto& mod = getModel();
+        auto& msh = *mod.getMesh().lock();
 
         msh.getVertexBuffer().bind();
 
         s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
 
-        m_model.getMaterial().sendToShader(s);
+        mod.getMaterial().sendToShader(s);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
         msh.getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, m_model.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
     }
 }

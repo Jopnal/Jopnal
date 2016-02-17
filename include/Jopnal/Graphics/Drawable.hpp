@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <memory>
 #include <unordered_set>
 
@@ -37,6 +38,7 @@ namespace jop
     class Model;
     class Shader;
     class Camera;
+    class Scene;
 
     class JOP_API Drawable : public Component
     {
@@ -73,6 +75,8 @@ namespace jop
 
         /// \brief Set the model
         ///
+        /// The model will be copied.
+        ///
         /// \param model Reference to the model
         ///
         void setModel(const Model& model);
@@ -85,13 +89,19 @@ namespace jop
         ///
         void setShader(Shader& shader);
 
-        std::weak_ptr<Shader> getShader();
+        std::weak_ptr<Shader> getShader() const;
 
-    protected:
+        const std::unordered_set<Layer*> getBoundLayers() const;
 
-        Model m_model;                                              ///< The bound model
-        std::unordered_set<std::shared_ptr<Layer>> m_boundToLayers; ///< Set of layers this drawable is bound to
-        std::weak_ptr<Shader> m_shader;                             ///< The bound shader
+        static bool loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val);
+
+        static bool saveStateBase(const Drawable& comp, json::Value& val, json::Value::AllocatorType& alloc);
+
+    private:
+
+        Model m_model;                                      ///< The bound model
+        mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
+        std::weak_ptr<Shader> m_shader;                     ///< The bound shader
         
     };
 }

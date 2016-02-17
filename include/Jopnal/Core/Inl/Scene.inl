@@ -21,7 +21,7 @@
 
 
 template<typename T>
-std::weak_ptr<T> Scene::getLayer()
+std::weak_ptr<T> Scene::getLayer() const
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
 

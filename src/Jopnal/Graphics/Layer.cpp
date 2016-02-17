@@ -29,9 +29,51 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Layer)
 
-
+        JOP_BIND_MEMBER_COMMAND(&Layer::removeDrawable, "removeDrawable");
 
     JOP_END_COMMAND_HANDLER(Layer)
+
+    JOP_REGISTER_LOADABLE(jop, Layer)[](std::unique_ptr<Layer>& ptr, const json::Value& val) -> bool
+    {
+        const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "";
+
+        ptr = std::make_unique<Layer>(id);
+
+        const char* const rtexField = "rendertexture";
+        if (val.HasMember(rtexField) && val[rtexField].IsArray() && val[rtexField].Size() >= 4)
+        {
+            auto& rt = val[rtexField];
+
+            if (rt[0u].IsUint() && rt[1u].IsUint() && rt[2u].IsUint() && rt[3u].IsUint())
+                ptr->setRenderTexture(glm::ivec2(rt[0u].GetInt(), rt[1u].GetInt()), rt[2u].GetUint(), rt[3u].GetUint());
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading Layer's render texture with id \"" << ptr->getID() << "\"");
+        }
+
+        // Drawables will be resposible for binding themselves
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Layer)
+
+    JOP_REGISTER_SAVEABLE(jop, Layer)[](const Layer& layer, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        val.AddMember(json::StringRef("id"), json::StringRef(layer.getID().c_str()), alloc);
+        
+        if (layer.getRenderTexture())
+        {
+            auto& rt = *layer.getRenderTexture();
+            auto& rtarr = val.AddMember(json::StringRef("rendertexture"), json::kArrayType, alloc)["rendertexture"];
+
+            rtarr.PushBack(rt.getTexture().getWidth(), alloc)
+                 .PushBack(rt.getTexture().getHeight(), alloc)
+                 .PushBack(rt.getDepthBits(), alloc)
+                 .PushBack(rt.getStencilBits(), alloc);
+        }
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Layer)
 }
 
 namespace jop
@@ -46,7 +88,16 @@ namespace jop
     {}
 
     Layer::~Layer()
-    {}
+    {
+        if (!m_camera.expired())
+            handleDrawableRemoval(*m_camera.lock());
+
+        for (auto& i : m_drawList)
+        {
+            if (!i.expired())
+                handleDrawableRemoval(*i.lock());
+        }
+    }
 
     //////////////////////////////////////////////
 
@@ -57,8 +108,8 @@ namespace jop
             if (m_camera.expired())
                 setCamera(Camera::getDefault());
 
-            if (!m_renderTexture.expired())
-                m_renderTexture.lock()->bind();
+            if (m_renderTexture)
+                m_renderTexture->bind();
             else
                 RenderTexture::unbind();
 
@@ -74,8 +125,6 @@ namespace jop
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
-
-        // TODO Does expired() have to be called, since drawable dtor removes itself from layers?
 
         for (auto& i : m_boundLayers)
         {
@@ -139,8 +188,14 @@ namespace jop
 
     void Layer::addDrawable(Drawable& drawable)
     {
+        if (typeid(drawable) == typeid(Camera) || typeid(drawable) == typeid(LightSource))
+        {
+            JOP_DEBUG_WARNING("You must not bind cameras or light sources with addDrawable. Camera/LightSource was not bound");
+            return;
+        }
+
         m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
-        m_drawList.back().lock()->m_boundToLayers.emplace(std::static_pointer_cast<Layer>(shared_from_this()));
+        handleDrawableAddition(*m_drawList.back().lock());
     }
 
     //////////////////////////////////////////////
@@ -151,7 +206,7 @@ namespace jop
         {
             if (!itr->expired() && itr->lock()->getID() == id)
             {
-                itr->lock()->m_boundToLayers.erase(std::static_pointer_cast<Layer>(shared_from_this()));
+                handleDrawableRemoval(*itr->lock());
                 m_drawList.erase(itr);
                 return;
             }
@@ -181,19 +236,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::setCamera(std::reference_wrapper<const Camera> camera)
+    void Layer::setCamera(const Camera& camera)
     {
-        m_camera = std::static_pointer_cast<const Camera>(camera.get().shared_from_this());
+        if (!m_camera.expired())
+            handleDrawableRemoval(*m_camera.lock());
+
+        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
+        handleDrawableAddition(*m_camera.lock());
     }
 
     //////////////////////////////////////////////
 
-    void Layer::setRenderTexture(RenderTexture* renderTexture)
+    void Layer::setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil)
     {
-        if (renderTexture)
-            m_renderTexture = std::static_pointer_cast<RenderTexture>(renderTexture->shared_from_this());
-        else
-            m_renderTexture.reset();
+        m_renderTexture = std::make_unique<RenderTexture>(size, depth, stencil);
+    }
+
+    //////////////////////////////////////////////
+
+    const RenderTexture* Layer::getRenderTexture() const
+    {
+        return m_renderTexture.get();
     }
 
     //////////////////////////////////////////////
@@ -216,5 +279,19 @@ namespace jop
 
             m_drawablesRemoved = false;
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::handleDrawableAddition(const Drawable& drawable)
+    {
+        drawable.m_boundToLayers.emplace(this);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::handleDrawableRemoval(const Drawable& drawable)
+    {
+        drawable.m_boundToLayers.erase(this);
     }
 }

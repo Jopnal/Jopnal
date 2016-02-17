@@ -43,20 +43,20 @@ namespace jop
 {
     class Object;
 
-    typedef std::function<bool(Object&, const json::Value&)> ComponentLoadFunc;
-    typedef std::function<bool(const Component&, json::Value&)> ComponentSaveFunc;
+    typedef std::function<bool(Object&, const Scene&, const json::Value&)> ComponentLoadFunc;
+    typedef std::function<bool(const Component&, json::Value&, json::Value::AllocatorType&)> ComponentSaveFunc;
 
     typedef std::function<bool(std::unique_ptr<Layer>&, const json::Value&)> LayerLoadFunc;
-    typedef std::function<bool(const Layer&, json::Value&)> LayerSaveFunc;
+    typedef std::function<bool(const Layer&, json::Value&, json::Value::AllocatorType&)> LayerSaveFunc;
 
     typedef std::function<bool(std::unique_ptr<Scene>&, const json::Value&)> SceneLoadFunc;
-    typedef std::function<bool(const Scene&, json::Value&)> SceneSaveFunc;
+    typedef std::function<bool(const Scene&, json::Value&, json::Value::AllocatorType&)> SceneSaveFunc;
 
     typedef std::function<bool(const json::Value&)> SubsystemLoadFunc;
-    typedef std::function<bool(const Subsystem&, json::Value&)> SubsystemSaveFunc;
+    typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)> SubsystemSaveFunc;
 
     typedef std::function<bool(const json::Value&)> CustomLoadFunc;
-    typedef std::function<bool(json::Value&)> CustomSaveFunc;
+    typedef std::function<bool(json::Value&, json::Value::AllocatorType&)> CustomSaveFunc;
 
     namespace detail
     {
@@ -82,7 +82,7 @@ namespace jop
             enum{ContainerID = 0};
         };
         template<typename T>
-        struct FuncChooser<T, false, true, false, false>
+        struct FuncChooser<T, false, true, false, true>
         {
             typedef LayerLoadFunc LoadFunc;
             typedef LayerSaveFunc SaveFunc;
@@ -138,7 +138,7 @@ namespace jop
 
         bool loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
 
-        bool loadObject(Object& obj, const json::Value& data, const std::string& path);
+        bool loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path);
 
         std::tuple
         <

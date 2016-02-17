@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <array>
 
@@ -35,7 +35,7 @@ namespace jop
 {
     class Object;
 
-    class JOP_API LightSource : public Component
+    class JOP_API LightSource final : public Drawable
     {
     public:
         
@@ -65,6 +65,10 @@ namespace jop
         /// \param ID Unique string id for created light source as object
         ///
         LightSource(Object& object, const std::string& ID);
+
+        JOP_GENERIC_CLONE(LightSource);
+
+        void draw(const Camera&) override;
 
 
         /// \brief Sets light types to type identifier and returns it
@@ -107,11 +111,11 @@ namespace jop
         ///
         /// \return The intensity color
         ///
-        Color getIntensity(const Intensity intensity);
+        Color getIntensity(const Intensity intensity) const;
         
     private:
 
-        Type m_type;                           ///< Unique Type identifier
+        Type m_type;                           ///< Type identifier
         std::array<Color, 3> m_intensities;    ///< Array of colors
 
     };

@@ -291,7 +291,7 @@ namespace jop
             const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
 
             scene->createObject(id);
-            if (!loadObject(*scene->m_objects.back(), val, path))
+            if (!loadObject(*scene->m_objects.back(), *scene, val, path))
             {
                 JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
                 return false;
@@ -303,7 +303,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadObject(Object& obj, const json::Value& data, const std::string& path)
+    bool StateLoader::loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path)
     {
         const char* const activeField = "active";
         const char* const componentsField = "components";
@@ -356,7 +356,7 @@ namespace jop
 
                     if (itr != compCont.end())
                     {
-                        if (!val.HasMember(ns_dataField) || !val[ns_dataField].IsObject() || std::get<LoadID>(itr->second)(obj, val[ns_dataField]))
+                        if (!val.HasMember(ns_dataField) || !val[ns_dataField].IsObject() || std::get<LoadID>(itr->second)(obj, scene, val[ns_dataField]))
                         {
                             JOP_DEBUG_ERROR("Couldn't load component state, registered load function reported failure: " << path);
                             return false;
@@ -385,7 +385,7 @@ namespace jop
                 const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
 
                 obj.createChild(id);
-                if (!loadObject(*obj.m_children.back(), val, path))
+                if (!loadObject(*obj.m_children.back(), scene, val, path))
                 {
                     JOP_DEBUG_ERROR("Failed to load child object with id \"" << id << "\": " << path);
                     return false;

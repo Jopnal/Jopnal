@@ -65,7 +65,7 @@ namespace jop
                 itr->position.y = y * radius;
                 itr->position.z = z * radius;
 
-                itr->texCoords.x = texCoordMultS * s * S;
+                itr->texCoords.x = texCoordMultS * s * -S;
                 itr->texCoords.y = texCoordMultR * r * R;
 
                 itr->normalVector.x = x;

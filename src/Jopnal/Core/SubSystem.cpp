@@ -75,7 +75,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Subsystem::isActive()
+    bool Subsystem::isActive() const
     {
         return m_active;
     }

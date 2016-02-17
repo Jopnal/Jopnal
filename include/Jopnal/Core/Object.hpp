@@ -26,7 +26,8 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 

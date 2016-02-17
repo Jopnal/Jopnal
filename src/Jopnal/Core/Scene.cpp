@@ -37,6 +37,27 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Scene)
+
+    JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
+    {
+        const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : ""; 
+        const bool active = val.HasMember("active") && val["active"].IsBool() ? val["active"].GetBool() : true;
+
+        scene = std::make_unique<Scene>(id);
+        scene->setActive(active);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Scene)
+
+    JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
+    {
+        obj.AddMember(json::StringRef("id"), json::StringRef(scene.getID().c_str()), alloc)
+           .AddMember(json::StringRef("active"), scene.isActive(), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Scene)
 }
 
 namespace jop
@@ -117,7 +138,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Layer> Scene::getLayer(const std::string& ID)
+    std::weak_ptr<Layer> Scene::getLayer(const std::string& ID) const
     {
         for (auto& i : m_layers)
         {
@@ -152,7 +173,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Layer& Scene::getDefaultLayer()
+    Layer& Scene::getDefaultLayer() const
     {
         if (m_layers.empty())
             m_layers.emplace_back(std::make_shared<Layer>("Default Layer"));
@@ -235,9 +256,10 @@ namespace jop
     {
         m_active = active;
     }
+
     //////////////////////////////////////////////
 
-    bool Scene::isActive()
+    bool Scene::isActive() const
     {
         return m_active;
     }

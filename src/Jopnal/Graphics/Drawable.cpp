@@ -37,7 +37,7 @@ namespace jop
     Drawable::~Drawable()
     {
         for (auto itr = m_boundToLayers.begin(); itr != m_boundToLayers.end(); ++itr)
-            itr->get()->removeDrawable(getID());
+            (*itr)->removeDrawable(getID());
     }
 
     //////////////////////////////////////////////
@@ -56,15 +56,71 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Shader> Drawable::getShader()
+    void Drawable::setShader(Shader& shader)
     {
-        return m_shader;
+        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
     }
 
     //////////////////////////////////////////////
 
-    void Drawable::setShader(Shader& shader)
+    std::weak_ptr<Shader> Drawable::getShader() const
     {
-        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
+        return m_shader;
+    }
+    
+    //////////////////////////////////////////////
+
+    const std::unordered_set<Layer*> Drawable::getBoundLayers() const
+    {
+        return m_boundToLayers;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val)
+    {
+        drawable.setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
+
+        std::vector<Layer*> layers;
+        if (val.HasMember("layers") && val["layers"].IsArray())
+        {
+            for (auto& i : val["layers"])
+            {
+                if (!i.value.IsString())
+                    continue;
+
+                auto layer = scene.getLayer(i.value.GetString());
+
+                if (!layer.expired())
+                    layers.push_back(layer.lock().get());
+            }
+        }
+
+        for (auto itr = layers.begin(); itr != layers.end(); ++itr)
+            (*itr)->addDrawable(drawable);
+
+        JOP_ASSERT(false, "model&shader");
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        val.AddMember(json::StringRef("id"), json::StringRef(drawable.getID().c_str()), alloc);
+
+        auto& boundLayers = drawable.getBoundLayers();
+        if (!boundLayers.empty())
+        {
+            auto& layers = val.AddMember(json::StringRef("layers"), json::kArrayType, alloc)["layers"];
+
+            for (auto& i : boundLayers)
+                layers.PushBack(json::StringRef(i->getID().c_str()), alloc);
+        }
+
+        JOP_ASSERT(false, "model&shader");
+
+        return true;
     }
 }

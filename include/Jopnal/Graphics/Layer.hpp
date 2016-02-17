@@ -118,25 +118,33 @@ namespace jop
         ///
         /// \param camera Reference to the camera to be set
         ///
-        void setCamera(std::reference_wrapper<const Camera> camera);
+        void setCamera(const Camera& camera);
 
         /// \brief Set a RenderTexture
         ///
-        /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
+        /// The render texture will be created and taken ownership of
         ///
-        void setRenderTexture(RenderTexture* renderTexture);
+        void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
+
+        const RenderTexture* getRenderTexture() const;
 
         /// \brief Sweep the drawables & bound layers that no longer exist
         ///
         void sweepRemoved();
 
 
+    private:
+
+        void handleDrawableAddition(const Drawable& drawable);
+
+        void handleDrawableRemoval(const Drawable& drawable);
+
     protected:
 
         std::vector<std::weak_ptr<Drawable>> m_drawList;  ///< The local draw list
         std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
         std::weak_ptr<const Camera> m_camera;             ///< Bound camera
-        std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
+        std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture
         bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 
     };
