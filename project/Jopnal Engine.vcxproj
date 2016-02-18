@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\Listener.hpp" />
     <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp" />
     <ClInclude Include="..\include\Jopnal\Audio\SoundStream.hpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Audio\Listener.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp" />
     <ClCompile Include="..\src\Jopnal\AABB.cpp" />

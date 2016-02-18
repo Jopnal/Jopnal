@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SoundStream_HPP
-#define JOP_SoundStream_HPP
+#ifndef JOP_SOUNDSTREAM_HPP
+#define JOP_SOUNDSTREAM_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
