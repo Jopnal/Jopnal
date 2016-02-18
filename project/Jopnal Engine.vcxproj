@@ -72,12 +72,12 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
+
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp" />
-=======
+
     <ClCompile Include="..\src\Jopnal\AABB.cpp" />
->>>>>>> master
+
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
@@ -181,11 +181,11 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-<<<<<<< HEAD
-      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-=======
-      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
->>>>>>> master
+
+
+
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
@@ -213,11 +213,9 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
-<<<<<<< HEAD
-      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-=======
-      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
->>>>>>> master
+
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
