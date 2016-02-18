@@ -34,6 +34,8 @@
 
 
 struct stbtt_fontinfo;
+struct stbrp_context;
+struct stbrp_node;
 
 namespace jop
 {
@@ -69,9 +71,11 @@ namespace jop
         /// \param width Width of a single character
         /// \param height Height of a single character
         ///
-        void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height);
+        void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y);
         
-
+        /// \brief Returns the texture that contains all loaded glyphs
+        ///
+        Texture& getTexture();
 
         /// \brief Deconstructor
         ///
@@ -85,7 +89,11 @@ namespace jop
         Font(const std::string& path);
 
 	private:
-        jop::Texture m_texture; ///< Texture
+        Texture m_texture; ///< Texture
+
+        std::unique_ptr<stbrp_context> m_context;
+        stbrp_node* m_nodes;
+        int m_numNodes = 0;
 
         std::unique_ptr<stbtt_fontinfo> m_info; ///< Font info
         std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Bitmaps
