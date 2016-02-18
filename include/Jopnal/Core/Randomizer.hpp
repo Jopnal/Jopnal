@@ -43,7 +43,7 @@ namespace jop
         /// \param dEnd Ending point of distribution
         ///
         template<typename T>
-        T random(const T dStart,const T dEnd);
+        T range(const T dStart,const T dEnd);
 
         template<typename T>
         T operator()(const T dStart, const T dEnd);
@@ -53,7 +53,11 @@ namespace jop
         /// \param radius Radius of the circle
         ///
         template<typename T>
-        glm::vec2 randomInsideCircle(T radius);
+        glm::vec2 insideCircle(T radius);
+
+
+        template<typename T>
+        glm::vec3 insideSphere(T radius);
 
     private:
         std::default_random_engine m_randomGenerator;

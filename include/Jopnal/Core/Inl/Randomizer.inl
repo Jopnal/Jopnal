@@ -36,7 +36,7 @@ namespace detail
 //////////////////////////////////////////////
 
 template<typename T>
-T Randomizer::random(const T dStart,const T dEnd)
+T Randomizer::range(const T dStart,const T dEnd)
 {
     return detail::distribution<T>::dist (dStart, dEnd)(m_randomGenerator);
 }
@@ -46,15 +46,23 @@ T Randomizer::random(const T dStart,const T dEnd)
 template<typename T>
 T Randomizer::operator()(const T dStart, const T dEnd)
 {
-    return random(dStart,dEnd);
+    return range(dStart,dEnd);
 }
 
 //////////////////////////////////////////////
 template<typename T>
-glm::vec2 Randomizer::randomInsideCircle(T radius)
+glm::vec2 Randomizer::insideCircle(T radius)
 {
-    const float angle = random(0.f, glm::two_pi<float>());
-    const float rad = std::sqrt(random(0.f, 1.f)) * radius;
+    const float angle = range(0.f, glm::two_pi<float>());
+    const float rad = std::sqrt(range(0.f, 1.f)) * radius;
 
     return glm::vec2(rad * glm::cos(angle), rad * glm::sin(angle));
+}
+
+template<typename T>
+glm::vec3 Randomizer::insideSphere(T radius)
+{
+    glm::vec3 s(range(-1.0f, 1.0f), range(-1.0f, 1.0f), range(-1.0f, 1.0f));
+
+    return glm::normalize(s) * (std::sqrt(range(0.f, 1.f)) * radius);
 }
