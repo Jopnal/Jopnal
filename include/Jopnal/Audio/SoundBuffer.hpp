@@ -55,7 +55,7 @@ namespace jop
         const sf::SoundBuffer& getSfmlBuffer() const;
 
     private:
-        std::unique_ptr<sf::SoundBuffer>m_soundBuf;
+        std::unique_ptr<sf::SoundBuffer>m_soundBuf;     ///< Unique audio buffer
     };
 }
 #endif

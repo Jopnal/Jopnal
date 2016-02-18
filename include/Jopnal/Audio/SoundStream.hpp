@@ -19,27 +19,26 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SOUNDSOURCE_HPP
-#define JOP_SOUNDSOURCE_HPP
+#ifndef JOP_SoundStream_HPP
+#define JOP_SoundStream_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <string>
-
 //////////////////////////////////////////////
 
 namespace sf
 {
-    class Sound;
+    class Music;
 }
 
 namespace jop
 {
     class Object;
 
-    class SoundSource : public Component
+    class SoundStream : public Component
     {
     public:
 
@@ -48,43 +47,42 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
-        SoundSource(Object& object, const std::string& ID);
-
+        SoundStream(Object& object, const std::string& ID);
 
         /// \brief Copy constructor
         ///
-        SoundSource(const SoundSource& other);
+        SoundStream(const SoundStream& other);
 
         /// \brief Virtual destructor
         ///
-        ~SoundSource();
+        ~SoundStream();
 
-        JOP_GENERIC_CLONE(SoundSource);
+        JOP_GENERIC_CLONE(SoundStream);
 
-    
         /// \brief setSound
         ///
         /// \param Path to audio file
         ///
-        void setSound(const std::string& path);
+        void setStream(const std::string& path);
+
 
         /// \brief setSound with listener
         ///
         /// \param Path to audio file and position xyz
         ///
-        void setSound(const std::string& path, const float& x, const float& y, const float& z);
+        void setStream(const std::string& path,const float& x,const float& y,const float& z);
 
-        /// \brief Toggle sound on/off
+        /// \brief Toggle stream on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleSoundLoop(bool loop);
+        void toggleStreamLoop(bool loop);
 
-        /// \brief Toggle sound on/off and update position
+        /// \brief Toggle stream on/off and update position
         ///
-        /// \param Boolean On/off and position xyz
+        /// \param On/off and position xyz
         ///
-        void toggleSoundLoop(bool loop, const float& x, const float& y, const float& z);
+        void toggleStreamLoop(bool loop, const float& x, const float& y, const float& z);
 
         /// \brief Toggle listener on/off
         ///
@@ -92,14 +90,37 @@ namespace jop
         ///
         void toggleStreamListener(bool toggle);
 
+        /// \brief Get information from member variables
+        ///
+        /// \param SoundStream component to copy to
+        ///
+        void fullClone(sf::Music copy);
+
+        /// \brief Get stream path
+        ///
+        const std::string& pathClone();
+
+        /// \brief Clone all relative data from anothere SoundStream
+        ///
+        /// \param Name of SoundStream to copy from
+        ///
+        void fullCloneFrom(const std::string& name);
+
+        /// \brief Clone only file path from anothere SoundStream
+        ///
+        /// \param Name of SoundStream to copy from
+        ///
+        void pathCloneFrom(const std::string& name);
+
     private:
-        std::unique_ptr<sf::Sound> m_sound;      ///< Unique audio sample
+        std::unique_ptr<sf::Music> m_stream;    ///< Unique audio stream
+        std::string m_path;
     };
 }
-
 #endif
 
-/// \class SoundSource
+/// \class SoundStream
 /// \ingroup Audio
 ///
-/// Audio component that plays sound
+/// Sound streaming straight from file 
+/// Uses SFML Music.hpp streaming instead of FileLoader.hpp

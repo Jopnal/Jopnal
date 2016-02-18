@@ -14,6 +14,7 @@
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />
     <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundStream.hpp" />
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
@@ -72,12 +73,10 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
-
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp" />
-
     <ClCompile Include="..\src\Jopnal\AABB.cpp" />
-
+    <ClCompile Include="..\src\Jopnal\Audio\SoundStream.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
@@ -181,11 +180,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-
-
-
       <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
@@ -213,9 +208,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
-
       <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>

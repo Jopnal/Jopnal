@@ -52,9 +52,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void SoundSource::setSound(const std::string& path, const float& x, const float& y, const float& z)
+    {
+        m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
+        m_sound->setRelativeToListener(true);
+        m_sound->setPosition(x, y, z);
+        m_sound->play();
+    }
+
+    //////////////////////////////////////////////
+
     void SoundSource::toggleSoundLoop(bool loop)
     {
         m_sound->setLoop(loop);
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::toggleSoundLoop(bool loop, const float& x, const float& y, const float& z)
+    {
+        m_sound->setPosition(x, y, z);
+        m_sound->setLoop(loop);
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::toggleStreamListener(bool toggle)
+    {
+        m_sound->setRelativeToListener(toggle);
     }
 
 }
