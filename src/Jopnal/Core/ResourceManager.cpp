@@ -53,7 +53,17 @@ namespace jop
     void ResourceManager::unloadResources()
     {
         if (m_instance)
-            m_instance->m_resources.clear();
+        {
+            auto& res = m_instance->m_resources;
+
+            for (auto itr = res.begin(); itr != res.end();)
+            {
+                if (itr->second->isPersistent())
+                    ++itr;
+                else
+                    itr = res.erase(itr);
+            }
+        }
     }
 
     //////////////////////////////////////////////

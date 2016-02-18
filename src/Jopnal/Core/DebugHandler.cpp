@@ -150,20 +150,18 @@ namespace
     }
 
 #endif
-
-    std::ostringstream ns_stream;
-    jop::DebugHandler::Severity ns_displaySeverity, ns_lastSeverity;
-    std::string ns_last;
-    bool ns_consoleEnabled;
 }
 
 namespace jop
 {
     DebugHandler::DebugHandler()
+        : m_stream          (),
+          m_displaySeverity (Severity::Info),
+          m_lastSeverity    (Severity::Info),
+          m_last            (),
+          m_consoleEnabled  (SettingManager::getBool("bConsoleEnabled", false))
     {
-        ns_consoleEnabled = SettingManager::getBool("bConsoleEnabled", false);
-
-        if (ns_consoleEnabled)
+        if (m_consoleEnabled)
             openConsoleWindow();
         else
             closeConsoleWindow();
@@ -176,14 +174,7 @@ namespace jop
             0;
         #endif
 
-        ns_displaySeverity = static_cast<Severity>(std::min(static_cast<unsigned int>(Severity::Info), SettingManager::getUint("uConsoleVerbosity", defaultVerbosity)));
-    }
-
-    //////////////////////////////////////////////
-
-    std::ostringstream& DebugHandler::getStream()
-    {
-        return ns_stream;
+        m_displaySeverity = static_cast<Severity>(std::min(static_cast<unsigned int>(Severity::Info), SettingManager::getUint("uConsoleVerbosity", defaultVerbosity)));
     }
 
     //////////////////////////////////////////////
@@ -198,14 +189,14 @@ namespace jop
 
     bool DebugHandler::isConsoleEnabled()
     {
-        return ns_consoleEnabled && checkConsoleWindow();
+        return m_consoleEnabled && checkConsoleWindow();
     }
 
     //////////////////////////////////////////////
 
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
-        ns_lastSeverity = severity;
+        m_lastSeverity = severity;
         return *this;
     }
 
@@ -213,15 +204,15 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&))
     {
-        std::string newStr(ns_stream.str());
+        std::string newStr(m_stream.str());
 
         static const bool debugConsole = IsDebuggerPresent() == TRUE && SettingManager::getBool("bDebuggerOutput", true);
 
-        if ((isConsoleEnabled() || debugConsole) && ns_lastSeverity <= ns_displaySeverity)
+        if ((isConsoleEnabled() || debugConsole) && m_lastSeverity <= m_displaySeverity)
         {
             static const bool noSpam = SettingManager::getBool("bReduceConsoleSpam", true);
 
-            if (!noSpam || ns_last != newStr)
+            if (!noSpam || m_last != newStr)
             {
                 if (isConsoleEnabled())
                 {
@@ -239,15 +230,15 @@ namespace jop
                 };
 
                 if (debugConsole)
-                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(ns_displaySeverity)]) + newStr + '\n').c_str());
+                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(m_displaySeverity)]) + newStr + '\n').c_str());
             #endif
             }
         }
 
-        ns_last = newStr;
+        m_last = newStr;
         
-        ns_stream.str("");
-        ns_stream.clear();
+        m_stream.str("");
+        m_stream.clear();
 
         return *this;
     }

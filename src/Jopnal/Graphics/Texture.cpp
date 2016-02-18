@@ -261,6 +261,8 @@ namespace jop
             defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
             
             JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+
+            defTex.lock()->setPersistent(true);
         }
 
         return *defTex.lock();

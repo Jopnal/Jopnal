@@ -186,6 +186,8 @@ namespace jop
                 SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f)
 
             ), "Couldn't create default sampler!");
+
+            defSampler.lock()->setPersistent(true);
         }
 
         return *defSampler.lock();

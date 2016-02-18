@@ -109,35 +109,7 @@ namespace detail
 template<typename T, typename ... Args>
 T& ResourceManager::getResource(const Args&... args)
 {
-    detail::basicErrorCheck<T>(m_instance);
-
-    // ResourceManager instance
-    auto& inst = *m_instance;
-
-    // Extract the first argument. Should be string
-    const std::string str = detail::getStringArg(args...);
-
-    auto it = inst.m_resources.find(str);
-
-    if (it == inst.m_resources.end())
-    {
-        auto res = std::make_shared<T>(str);
-
-        if (res->load(args...))
-        {
-            inst.m_resources[str] = res;
-            return *res;
-        }
-        else
-            return detail::LoadFallback<T>::load(str);
-    }
-    else
-    {
-        if (typeid(T) == typeid(*it->second.get()))
-            return *std::static_pointer_cast<T>(it->second);
-        else
-            return detail::LoadFallback<T>::load(str);
-    }
+    return getNamedResource<T>(detail::getStringArg(args...), args...);
 }
 
 //////////////////////////////////////////////
@@ -145,30 +117,20 @@ T& ResourceManager::getResource(const Args&... args)
 template<typename T, typename ... Args> 
 T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
 {
-    detail::basicErrorCheck<T>(m_instance);
-    
-    auto& inst = *m_instance;
-    auto it = inst.m_resources.find(name);
-   
-    if (it == inst.m_resources.end())
+    if (resourceExists<T>(name))
+        return getExistingResource<T>(name);
+    else
     {
         auto res = std::make_shared<T>(name);
 
         if (res->load(args...))
         {
-            inst.m_resources[name] = res;
+            m_instance->m_resources[name] = res;
             return *res;
         }
-        else
-            return detail::LoadFallback<T>::load(name);
     }
-    else
-    {
-        if (typeid(T) == typeid(*it->second.get()))
-            return *std::static_pointer_cast<T>(it->second);
-        else
-            return detail::LoadFallback<T>::load(name);
-    }
+
+    return detail::LoadFallback<T>::load(name);
 }
 
 //////////////////////////////////////////////
@@ -178,12 +140,8 @@ static T& ResourceManager::getEmptyResource(const Args&... args)
 {
     detail::basicErrorCheck<T>(m_instance);
 
-    auto& inst = *m_instance;
-
-    const std::string str = detail::getStringArg(args...);
-
     auto ptr = std::make_shared<T>(args...);
-    inst.m_resources[str] = ptr;
+    m_instance->m_resources[detail::getStringArg(args...)] = ptr;
 
     return *ptr;
 }
@@ -191,14 +149,8 @@ static T& ResourceManager::getEmptyResource(const Args&... args)
 template<typename T>
 T& ResourceManager::getExistingResource(const std::string& name)
 {
-    detail::basicErrorCheck<T>(m_instance);
-    
-    auto& inst = *m_instance;
-
-    auto it = inst.m_resources.find(name);
-
-    if (it != inst.m_resources.end() && dynamic_cast<T*>(it->second.get()))
-        return *std::static_pointer_cast<T>(it->second);
+    if (resourceExists<T>(name))
+        return static_cast<T&>(*m_instance->m_resources.find(name)->second);
 
     return detail::LoadFallback<T>::load(name);
 }

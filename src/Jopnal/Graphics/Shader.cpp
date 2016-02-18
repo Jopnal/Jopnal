@@ -342,6 +342,8 @@ namespace jop
                                                    "",
                                                    std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
                                                    "Couldn't compile the default shader!");
+
+            defShader.lock()->setPersistent(true);
         }
 
         return *defShader.lock();

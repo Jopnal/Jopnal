@@ -43,17 +43,20 @@ namespace jop
 {
     class Object;
 
-    typedef std::function<bool(Object&, const Scene&, const json::Value&)> ComponentLoadFunc;
-    typedef std::function<bool(const Component&, json::Value&, json::Value::AllocatorType&)> ComponentSaveFunc;
+    typedef std::function<bool(Object&, const Scene&, const json::Value&)>                      ComponentLoadFunc;
+    typedef std::function<bool(const Component&, json::Value&, json::Value::AllocatorType&)>    ComponentSaveFunc;
 
-    typedef std::function<bool(std::unique_ptr<Layer>&, const json::Value&)> LayerLoadFunc;
-    typedef std::function<bool(const Layer&, json::Value&, json::Value::AllocatorType&)> LayerSaveFunc;
+    typedef std::function<bool(std::unique_ptr<Layer>&, const json::Value&)>                    LayerLoadFunc;
+    typedef std::function<bool(const Layer&, json::Value&, json::Value::AllocatorType&)>        LayerSaveFunc;
 
-    typedef std::function<bool(std::unique_ptr<Scene>&, const json::Value&)> SceneLoadFunc;
-    typedef std::function<bool(const Scene&, json::Value&, json::Value::AllocatorType&)> SceneSaveFunc;
+    typedef std::function<bool(std::unique_ptr<Scene>&, const json::Value&)>                    SceneLoadFunc;
+    typedef std::function<bool(const Scene&, json::Value&, json::Value::AllocatorType&)>        SceneSaveFunc;
 
-    typedef std::function<bool(const json::Value&)> SubsystemLoadFunc;
-    typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)> SubsystemSaveFunc;
+    typedef std::function<bool(const json::Value&)>                                             SubsystemLoadFunc;
+    typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)>    SubsystemSaveFunc;
+
+    typedef std::function<bool(const json::Value&)>                                             CustomLoadFunc;
+    typedef std::function<bool(const void*, json::Value&, json::Value::AllocatorType)>          CustomSaveFunc;
 
     namespace detail
     {
@@ -66,7 +69,11 @@ namespace jop
             bool IsSubsystem = std::is_convertible<T*, Subsystem*>::value
 
         > struct FuncChooser
-        {};
+        {
+            typedef CustomLoadFunc LoadFunc;
+            typedef CustomSaveFunc SaveFunc;
+            enum{ContainerID = 4};
+        };
         template<typename T>
         struct FuncChooser<T, true, false, false, false>
         {
@@ -105,6 +112,7 @@ namespace jop
         typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>>           LayerFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>>           SceneFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>>   SubsystemFuncContainer;
+        typedef std::unordered_map<std::string, std::tuple<CustomLoadFunc, CustomSaveFunc>>         CustomFuncContainer;
 
         StateLoader() = default;
 
@@ -142,12 +150,15 @@ namespace jop
         bool saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
 
 
+        /// Tuple with the function containers
+        ///
         std::tuple
         <
             CompFuncContainer,
             LayerFuncContainer,
             SceneFuncContainer,
             SubsystemFuncContainer,
+            CustomFuncContainer,
 
             // Maps the type info to identifiers, to be used when saving. Keep this last
             std::unordered_map<std::type_index, std::string>

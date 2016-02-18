@@ -37,6 +37,7 @@ namespace
     const char* const ns_layerField = "layers";
     const char* const ns_objectField = "objects";
     const char* const ns_dataField = "data";
+    const char* const ns_subsystemField = "subsystems";
 
     enum
     {
@@ -44,6 +45,7 @@ namespace
         LayerID,
         SceneID,
         SubID,
+        CustomID,
 
         LoadID = 0,
         SaveID
@@ -62,8 +64,17 @@ namespace jop
 
     bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
-        if (!Engine::m_engineObject)
+        if (!scene && !sharedScene && !subsystems)
+        {
+            JOP_DEBUG_ERROR("Didn't save state; scene, sharedScene and subsystems are false: " << path);
             return false;
+        }
+
+        if (!Engine::m_engineObject)
+        {
+            JOP_DEBUG_ERROR("Couldn't save state, Engine instance doesn't exist: " << path);
+            return false;
+        }
 
         json::Document doc;
         doc.SetObject();
@@ -72,7 +83,33 @@ namespace jop
 
         if (subsystems)
         {
+            const auto& subCont = std::get<SubID>(m_loaderSavers);
+            const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
 
+            auto& subArr = doc.AddMember(json::StringRef(ns_subsystemField), json::kArrayType, doc.GetAllocator())[ns_subsystemField];
+
+            for (auto& i : Engine::m_engineObject->m_subsystems)
+            {
+                auto redirItr = nameMap.find(std::type_index(typeid(*i)));
+                auto itr = subCont.end();
+
+                if (redirItr == nameMap.end() || (itr = subCont.find(redirItr->second)) == subCont.end())
+                {
+                    JOP_DEBUG_WARNING("Couldn't save subsystem with id \"" << i->getID() << "\". Type not registered. Attempting to load the rest: " << path);
+                    continue;
+                }
+
+                subArr.PushBack(json::kObjectType, doc.GetAllocator());
+                auto& curr = subArr[subArr.Size() - 1u];
+
+                curr.AddMember(json::StringRef(ns_typeField), json::StringRef(redirItr->second.c_str()), doc.GetAllocator());
+
+                if (!std::get<SaveID>(itr->second)(*i, curr.AddMember(json::StringRef(ns_dataField), json::kObjectType, doc.GetAllocator())[ns_dataField], doc.GetAllocator()))
+                {
+                    JOP_DEBUG_ERROR("Couldn't save sub system with id \"" << i->getID() << "\", registered save function reported failure: " << path);
+                    return false;
+                }
+            }
         }
 
         if (sharedScene && !saveScene(*Engine::m_engineObject->m_sharedScene, doc.AddMember(json::StringRef(ns_sharedSceneField), json::kObjectType, doc.GetAllocator())[ns_sharedSceneField], doc.GetAllocator(), path))
@@ -85,16 +122,25 @@ namespace jop
         json::PrettyWriter<json::StringBuffer> writer(buffer);
         doc.Accept(writer);
 
-        if (!FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize()))
-            return false;
-
-        return true;
+        return FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize());
     }
 
     //////////////////////////////////////////////
 
     bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        if (!scene && !sharedScene && !subsystems)
+        {
+            JOP_DEBUG_ERROR("Didn't load state; scene, sharedScene and subsystems are false: " << path);
+            return false;
+        }
+
+        if (!Engine::m_engineObject)
+        {
+            JOP_DEBUG_ERROR("Couldn't load state, Engine instance doesn't exist: " << path);
+            return false;
+        }
+
         std::string buf;
         if (!FileLoader::read(path + ".jop", buf))
             return false;
@@ -108,13 +154,43 @@ namespace jop
         // Handle version
         if (!doc.HasMember(ns_versionField))
             JOP_DEBUG_WARNING("State file doesn't have the version defined, assuming latest (" << ns_fileVersion << ")")
-        else if (std::strcmp(doc[ns_versionField].GetString(), ns_fileVersion) != 0)
-            JOP_DEBUG_WARNING("The state file version doesn't match the current library version. Attempting to load anyway...");
+
+        else if (!doc[ns_versionField].IsString() || std::strcmp(doc[ns_versionField].GetString(), ns_fileVersion) != 0)
+            JOP_DEBUG_WARNING("The state file version doesn't match the current library version and there's no conversion method defined (ask the maintainer of this library to include a conversion method for " << ns_fileVersion << " -> " << doc[ns_versionField].GetString() << "). Attempting to load anyway...");
 
         // Load subsystems?
-        if (subsystems)
+        if (subsystems && doc.HasMember(ns_subsystemField) && doc[ns_subsystemField].IsArray())
         {
-            // TODO Implement, remember: a complete success is required, otherwise original state must be returned
+            const auto& subCont = std::get<SubID>(m_loaderSavers);
+
+            for (auto& i : doc[ns_subsystemField])
+            {
+                if (i.HasMember(ns_typeField) && i[ns_typeField].IsString())
+                {
+                    auto itr = subCont.find(i[ns_typeField].GetString());
+
+                    if (itr != subCont.end())
+                    {
+                        const json::Value v(json::kObjectType);
+
+                        if (!std::get<LoadID>(itr->second)(i.HasMember(ns_dataField) && i[ns_dataField].IsObject() ? i[ns_dataField] : v))
+                        {
+                            JOP_DEBUG_ERROR("Failed to load sub system with type \"" << i[ns_typeField].GetString() << "\" , registered load function reported failure: " << path);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        JOP_DEBUG_WARNING("Couldn't load sub system, type \"" << i[ns_typeField].GetString() << "\" not registered. Attempting to load the rest: " << path);
+                        continue;
+                    }
+                }
+                else
+                {
+                    JOP_DEBUG_ERROR("Couldn't load sub system, type not specified: " << path);
+                    return false;
+                }
+            }
         }
 
         std::unique_ptr<Scene> sharedScenePtr;
@@ -130,10 +206,6 @@ namespace jop
             return false;
 
         // Finally assign the pointers
-        if (subsystems)
-        {
-
-        }
         if (sharedScene)
         {
             if (sharedScenePtr)
@@ -166,7 +238,7 @@ namespace jop
             // Has the load function been registered for this scene type?
             if (itr != sceneCont.end())
             {
-                json::Value v(json::kObjectType);
+                const json::Value v(json::kObjectType);
 
                 // Attempt to create the scene
                 if (std::get<LoadID>(itr->second)(scene, data.HasMember(ns_dataField) && data[ns_dataField].IsObject() ? data[ns_dataField] : v))
@@ -353,7 +425,7 @@ namespace jop
 
         if (data.HasMember(componentsField) && data[componentsField].IsArray())
         {
-            auto& compCont = std::get<CompID>(m_loaderSavers);
+            const auto& compCont = std::get<CompID>(m_loaderSavers);
 
             for (auto& i : data[componentsField])
             {
@@ -468,8 +540,8 @@ namespace jop
 
             if (itrRedir == nameMap.end() || (itr = layerCont.find(itrRedir->second)) == layerCont.end())
             {
-                JOP_DEBUG_ERROR("Couldn't save layer, type (name) not registered: " << path);
-                return false;
+                JOP_DEBUG_WARNING("Couldn't save layer, type (name) not registered. Attempting to save the rest: " << path);
+                continue;
             }
 
             data.PushBack(json::kObjectType, alloc);
@@ -563,8 +635,8 @@ namespace jop
 
                 if (itrRedir == nameMap.end() || (itr = compCont.find(itrRedir->second)) == compCont.end())
                 {
-                    JOP_DEBUG_ERROR("Couldn't save component with id \"" << i->getID() << "\", type (name) not registered: " << path);
-                    return false;
+                    JOP_DEBUG_WARNING("Couldn't save component with id \"" << i->getID() << "\", type (name) not registered. Attempting to save the rest: " << path);
+                    continue;
                 }
 
                 comps.PushBack(json::kObjectType, alloc);

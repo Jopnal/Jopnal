@@ -29,7 +29,8 @@ namespace jop
 {
     Resource::Resource(const std::string& name)
         : std::enable_shared_from_this<Resource>    (),
-          m_name                                    (name)
+          m_name                                    (name),
+          m_persistent                              (false)
     {}
 
     Resource::~Resource()
@@ -40,5 +41,19 @@ namespace jop
     const std::string& Resource::getName() const
     {
         return m_name;
+    }
+
+    //////////////////////////////////////////////
+
+    void Resource::setPersistent(const bool persistent)
+    {
+        m_persistent = persistent;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Resource::isPersistent() const
+    {
+        return m_persistent;
     }
 }

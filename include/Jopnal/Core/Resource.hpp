@@ -53,9 +53,22 @@ namespace jop
         ///
         const std::string& getName() const;
 
+        /// \brief Set the persistence flag
+        ///
+        /// \param persistent Set this resource persistent?
+        ///
+        void setPersistent(const bool persistent);
+
+        /// \brief Check if this resource is persistent
+        ///
+        /// \return True if persistent
+        ///
+        bool isPersistent() const;
+
     private:
 
         std::string m_name; ///< Name of this resource
+        bool m_persistent;  ///< Is this resource persistent?
     };
 }
 
