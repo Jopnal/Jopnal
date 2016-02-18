@@ -22,25 +22,50 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-// STB
 #define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable: 4189)
+#pragma warning(disable: 4244)
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 
 //////////////////////////////////////////////
 
 
+namespace
+{
+    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
+    {
+        int rowSize = width * bpp;
+
+        for (int y = 0; y < height; ++y)
+        {
+            unsigned char* left = pixels + y * rowSize;
+            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
+
+            for (int x = 0; x < width / 2; ++x)
+            {
+                std::swap_ranges(left, left + bpp, right);
+
+                left += bpp;
+                right -= bpp;
+            }
+        }
+    }
+}
+
 namespace jop
 {
-    Texture::Texture()
-        : m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefaultSampler()),
+    Texture::Texture(const std::string& name)
+        : Resource          (name),
+          m_sampler         (),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
           m_texture         (0)
-    {}
+    {
+        setTextureSampler(TextureSampler::getDefault());
+    }
 
     Texture::~Texture()
     {
@@ -54,70 +79,34 @@ namespace jop
         if (path.empty())
             return false;
 
-        // If exclamation mark is detected creates new flat texture
-        if (path[0] == '!')
-              return loadEmpty(path);
+        std::vector<unsigned char> buf;
+        FileLoader::read(path, buf);
 
-        // If not new texture is loaded from file 
-        else
+        int x = 0, y = 0, bpp = 0;
+        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        bool success = false;
+        if (colorData)
         {
-            std::vector<unsigned char> buf;
-            FileLoader::read(path, buf);
-
-            int x = 0, y = 0, bpp = 0;
-
-            unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
-
-            const bool success = loadFromPixels(x, y, bpp, colorData);
-
-            stbi_image_free(colorData);
-
-            return success;
+            flip(x, y, bpp, colorData);
+            success = load(x, y, bpp, colorData);
         }
+
+        stbi_image_free(colorData);
+
+        return success;
     }
 
     //////////////////////////////////////////////
  
-    bool Texture::loadEmpty(const std::string& xyBpp)
+    bool Texture::load(const int x, const int y, const int bytesPerPixel)
     {
-        if (xyBpp.empty())
-            return false;
-
-        // Temporary string for memory usage
-        std::string variable;
-        int x = 0, y = 0, bpp = 0;
-
-        // Loop Reads param one character at time
-        for (std::size_t i = 1; i <= xyBpp.size(); i++)
-        {
-            // Reads character to string if exclamation mark is not detected
-            if (xyBpp[i] != '!')
-                variable.insert(variable.end(), xyBpp[i]);
-            else
-            {
-                // If width x param is fully read it puts it in class's variable
-                if (!m_width)
-                    x = std::stoi(variable);
-
-                // If width y param is fully read it puts it in class's variable
-                else if (!m_height)
-                    y = std::stoi(variable);
-            }
-
-            // If exclamation mark is detected but it is not end of string temporary variable is reset
-            if (xyBpp[i] == '!' && xyBpp[i + 1] != NULL)
-                variable = "";
-        }
-
-        // Last param bpp is taken to the class's variable after loop is ended
-        m_bytesPerPixel = std::stoi(variable);
-
-        return loadFromPixels(x, y, bpp, nullptr);
+        return load(x, y, bytesPerPixel, nullptr);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture::loadFromPixels(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels)
+    bool Texture::load(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels)
     {
         if (!x || !y)
         {
@@ -167,12 +156,14 @@ namespace jop
     {
         if (m_texture)
         {
-            glCheck(gl::BindTexture(gl::TEXTURE0 + texUnit, m_texture));
+            glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
+            glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
+            {
+                m_sampler = std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this());
                 m_sampler.lock()->bind(texUnit);
-            else
-                m_defaultSampler->bind(texUnit);
+            }
         }
 
         return m_texture != 0;
@@ -187,9 +178,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(const std::weak_ptr<const TextureSampler>& sampler)
+    void Texture::setTextureSampler(const TextureSampler& sampler)
     {
-        m_sampler = sampler;
+        m_sampler = std::static_pointer_cast<const TextureSampler>(sampler.shared_from_this());
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels)
+    {
+        if ((x + width > m_width) || (y + height > m_height))
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Would cause overflow");
+            return;
+        }
+        else if (!pixels)
+        {
+            JOP_DEBUG_ERROR("Couldn't set texture pixels. Pixel pointer is null");
+            return;
+        }
+
+        bind(0);
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -226,6 +236,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Texture& Texture::getError()
+    {
+        static std::weak_ptr<Texture> errTex;
+
+        if (errTex.expired())
+        {
+            errTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").shared_from_this());
+
+            JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+        }
+
+        return *errTex.lock();
+    }
+
+    //////////////////////////////////////////////
+
+    Texture& Texture::getDefault()
+    {
+        static std::weak_ptr<Texture> defTex;
+
+        if (defTex.expired())
+        {
+            defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
+            
+            JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+        }
+
+        return *defTex.lock();
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Texture::getHandle() const
     {
         return m_texture;
@@ -233,8 +275,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Texture::load(const int id)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readFromDll(id, buf))
+            return false;
+
+        int x, y, bpp;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+
+        bool success = false;
+        if (pix)
+        {
+            flip(x, y, bpp, pix);
+            success = load(x, y, bpp, pix);
+        }
+
+        stbi_image_free(pix);
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
     bool Texture::checkDepthValid(const int depth) const
     {
-        return /*depth == 3 || */depth == 4;
+        return depth == 3 || depth == 4;
     }
 }

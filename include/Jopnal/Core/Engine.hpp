@@ -81,7 +81,7 @@ namespace jop
         /// This function will construct the scene and then set it as active.
         /// The previously active scene will be discarded.
         ///
-        /// #TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
+        /// TODO: Rethink the scene system so that it becomes more flexible (threaded loading?)
         ///
         /// \param args The arguments to be used in the scene's construction
         ///
@@ -144,13 +144,28 @@ namespace jop
         ///
         static void exit();
 
+        /// \brief Sets paused to private m_paused member
+        ///
+        /// \param paused Boolean to set m_paused
+        ///
+        static void setPaused(const bool paused);
+
+        /// \brief Sets paused state to all update methods not including subsystems also returns m_paused
+        ///
+        static bool isPaused();
+
+        /// \brief Send a message to the whole engine
+        ///
+        /// \param message String holding message
+        ///
+        static MessageResult sendMessage(const std::string& message);
 
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
-        static MessageResult sendMessage(const std::string& message, Any returnWrap);
+        static MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -185,15 +200,23 @@ namespace jop
         static T& setSharedScene(Args&... args);
 
 
+        /// \brief Get the total time since Engine construction
+        ///
+        /// \return Time in seconds
+        ///
+        static double getTotalTime();
+
+
     private:
 
         static Engine* m_engineObject;                        ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
+        double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         bool m_running;                                       ///< A boolean telling if the engine is running
-
+        bool m_paused;                                        ///< A boolean telling if the engine is paused
     };
 
     /// \brief Get the project name
@@ -207,15 +230,29 @@ namespace jop
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message String holding message
-    /// \param ptr Pointer to hold extra data
     ///
-    JOP_API MessageResult broadcast(const std::string& message, Any returnWrap);
+    /// \return The message result
+    ///
+    JOP_API MessageResult broadcast(const std::string& message);
+
+    /// \brief Broadcast a message to the whole engine
+    ///
+    /// This is the same as calling jop::Engine::sendMessage
+    ///
+    /// \param message String holding message
+    /// \param returnWrap Pointer to hold extra data
+    ///
+    /// \return The message result
+    ///
+    JOP_API MessageResult broadcast(const std::string& message, Any& returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///
     /// This is the same as calling jop::Engine::sendMessage
     ///
     /// \param message The message
+    ///
+    /// \return The message result
     ///
     JOP_API MessageResult broadcast(const Message& message);
 
@@ -228,4 +265,4 @@ namespace jop
 /// \class Engine
 /// \ingroup core
 ///
-/// #TODO Detailed description
+/// 

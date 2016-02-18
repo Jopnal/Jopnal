@@ -27,8 +27,9 @@
 
 namespace jop
 {
-    TextureSampler::TextureSampler()
-        : m_sampler(0)
+    TextureSampler::TextureSampler(const std::string& name)
+        : Resource  (name),
+          m_sampler (0)
     {
         reset();
     }
@@ -37,6 +38,16 @@ namespace jop
     {
         if (m_sampler)
             glCheck(gl::DeleteSamplers(1, &m_sampler));
+    }
+
+    //////////////////////////////////////////////
+
+    bool TextureSampler::load(const Filter filterMode, const Repeat repeatMode, const float param)
+    {
+        setFilterMode(filterMode, param);
+        setRepeatMode(repeatMode);
+
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -160,24 +171,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::shared_ptr<const TextureSampler> TextureSampler::getDefaultSampler()
+    TextureSampler& TextureSampler::getDefault()
     {
-        static std::weak_ptr<const TextureSampler> sampler;
+        static std::weak_ptr<TextureSampler> defSampler;
 
-        if (sampler.expired())
+        if (defSampler.expired())
         {
-            auto newSampler = std::make_shared<TextureSampler>();
+            defSampler = std::static_pointer_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("Default Sampler").shared_from_this());
+            
+            JOP_ASSERT_EVAL(defSampler.lock()->load
+            (
+                static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
+                static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)),
+                SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f)
 
-            newSampler->setFilterMode(static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
-                                                          SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f));
-
-            newSampler->setRepeatMode(static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)));
-
-            newSampler->setBorderColor(Color(SettingManager::getString("sDefaultTextureBorderColor", "FFFFFFFF")));
-
-            return (sampler = newSampler).lock();
+            ), "Couldn't create default sampler!");
         }
 
-        return sampler.lock();
+        return *defSampler.lock();
     }
 }

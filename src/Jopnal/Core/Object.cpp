@@ -29,12 +29,31 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Object)
+
+        // Transform
+
+        // Object
+        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::getComponent, "getComponent");
+        JOP_BIND_MEMBER_COMMAND(&Object::getChild, "getChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Object)
+}
+
+namespace jop
+{
     Object::Object()
         : Transform                             (),
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  ()
+          m_ID                                  (),
+          m_active                              (true)
     {}
 
     Object::Object(const Object& other)
@@ -42,7 +61,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (other),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (other.m_ID)
+          m_ID                                  (other.m_ID),
+          m_active                              (other.m_active)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -58,7 +78,8 @@ namespace jop
           std::enable_shared_from_this<Object>  (),
           m_children                            (),
           m_components                          (),
-          m_ID                                  (ID)
+          m_ID                                  (ID),
+          m_active                              (true)
     {}
 
     //////////////////////////////////////////////
@@ -166,9 +187,17 @@ namespace jop
         return count;
     }
 
+    //////////////////////////////////////////////
+
+    MessageResult Object::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message, Any returnWrap)
+    MessageResult Object::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -178,7 +207,11 @@ namespace jop
 
     MessageResult Object::sendMessage(const Message& message)
     {
-        // check id filter when calling object's commands
+        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        {
+            Any instance(this);
+            JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper());
+        }
 
         if (message.passFilter(Message::Component))
         {
@@ -189,10 +222,13 @@ namespace jop
             }
         }
 
-        for (auto& i : m_children)
+        if (message.passFilter(Message::Object))
         {
-            if (i->sendMessage(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            for (auto& i : m_children)
+            {
+                if (i->sendMessage(message) == MessageResult::Escape)
+                    return MessageResult::Escape;
+            }
         }
 
         return MessageResult::Continue;
@@ -200,24 +236,30 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::update(const double deltaTime)
+    void Object::update(const float deltaTime)
     {
-        for (auto& i : m_components)
-            i->update(deltaTime);
+        if (isActive())
+        {
+            for (auto& i : m_components)
+                i->update(deltaTime);
 
-        for (auto& i : m_children)
-            i->update(deltaTime);
+            for (auto& i : m_children)
+                i->update(deltaTime);
+        }
     }
 
     /////////////////////////////////////////////
 
-    void Object::fixedUpdate(const double timeStep)
+    void Object::fixedUpdate(const float timeStep)
     {
-        for (auto& i : m_components)
-            i->fixedUpdate(timeStep);
+        if (isActive())
+        {
+            for (auto& i : m_components)
+                i->fixedUpdate(timeStep);
 
-        for (auto& i : m_children)
-            i->fixedUpdate(timeStep);
+            for (auto& i : m_children)
+                i->fixedUpdate(timeStep);
+        }
     }
 
     /////////////////////////////////////////////
@@ -232,6 +274,21 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
+    }
+
+
+    //////////////////////////////////////////////
+
+    void Object::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::isActive()
+    {
+        return m_active;
     }
 
     //////////////////////////////////////////////

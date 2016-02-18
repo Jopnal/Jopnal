@@ -22,43 +22,175 @@
 
 namespace detail
 {
-
-}
-
-template<typename T> 
-std::weak_ptr<T> ResourceManager::getResource(const std::string& path)
-{
-    static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
-
-    if (!m_instance)
+    template<typename Str, typename ... Rest>
+    std::string getStringArg(const Str& str, const Rest&...)
     {
-        JOP_DEBUG_ERROR("Couldn't load resource. ResourceManager instance doesn't exist");
-        return std::weak_ptr<T>();
+        static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
+        
+        return str;
     }
 
+    //////////////////////////////////////////////
+
+    template<typename T>
+    struct HasErrorGetter
+    {
+        template<typename U, T&(*)()> struct SFINAE{};
+        template<typename U> static char Test(SFINAE<U, U::getError>*);
+        template<typename U> static int Test(...);
+        static const bool value = sizeof(Test<T>(0)) == sizeof(char);
+    };
+
+    template<typename T>
+    struct HasDefaultGetter
+    {
+        template<typename U, T&(*)()> struct SFINAE{};
+        template<typename U> static char Test(SFINAE<U, U::getDefault>*);
+        template<typename U> static int Test(...);
+        static const bool value = sizeof(Test<T>(0)) == sizeof(char);
+    };
+
+    //////////////////////////////////////////////
+
+    template<typename T, bool HasError = HasErrorGetter<T>::value, bool HasDefault = HasDefaultGetter<T>::value>
+    struct LoadFallback
+    {
+        static T& load(const std::string& name)
+        {
+            JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
+
+            #pragma warning(push)
+            #pragma warning(disable: 4172)
+            int dummy;
+            return reinterpret_cast<T&>(dummy);
+            #pragma warning(pop)
+        }
+    };
+    template<typename T>
+    struct LoadFallback<T, true, false>
+    {
+        static T& load(const std::string& name)
+        {
+            JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            return T::getError();
+        }
+    };
+    template<typename T>
+    struct LoadFallback<T, false, true>
+    {
+        static T& load(const std::string& name)
+        {
+            JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            return T::getDefault();
+        }
+    };
+    template<typename T>
+    struct LoadFallback<T, true, true>
+    {
+        static T& load(const std::string& name)
+        {
+            return LoadFallback<T, true, false>::load(name);
+        }
+    };
+
+    template<typename T>
+    void basicErrorCheck(const ResourceManager* instance)
+    {
+        static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
+
+        JOP_ASSERT(instance != nullptr, "Tried to load a resource without there being a valid ResourceManager instance!");
+    }
+}
+
+template<typename T, typename ... Args>
+T& ResourceManager::getResource(const Args&... args)
+{
+    detail::basicErrorCheck<T>(m_instance);
+
+    // ResourceManager instance
     auto& inst = *m_instance;
 
-    auto it = inst.m_resources.find(path);
+    // Extract the first argument. Should be string
+    const std::string str = detail::getStringArg(args...);
+
+    auto it = inst.m_resources.find(str);
 
     if (it == inst.m_resources.end())
     {
-        auto res = std::make_shared<T>();
+        auto res = std::make_shared<T>(str);
 
-        if (res->load(path))
+        if (res->load(args...))
         {
-            inst.m_resources[path] = std::move(res);
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(inst.m_resources[path]));
+            inst.m_resources[str] = res;
+            return *res;
         }
         else
-            JOP_DEBUG_ERROR("Couldn't load resource: " << path);
+            return detail::LoadFallback<T>::load(str);
     }
     else
     {
         if (typeid(T) == typeid(*it->second.get()))
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(it->second));
+            return *std::static_pointer_cast<T>(it->second);
         else
-            JOP_DEBUG_ERROR("Resource is not of type " << typeid(T).name() << ": " << path);
+            return detail::LoadFallback<T>::load(str);
     }
+}
 
-    return std::weak_ptr<T>();
+template<typename T, typename ... Args> 
+T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
+{
+    detail::basicErrorCheck<T>(m_instance);
+    
+    auto& inst = *m_instance;
+    auto it = inst.m_resources.find(name);
+   
+    if (it == inst.m_resources.end())
+    {
+        auto res = std::make_shared<T>(name);
+
+        if (res->load(args...))
+        {
+            inst.m_resources[name] = res;
+            return *res;
+        }
+        else
+            return detail::LoadFallback<T>::load(name);
+    }
+    else
+    {
+        if (typeid(T) == typeid(*it->second.get()))
+            return *std::static_pointer_cast<T>(it->second);
+        else
+            return detail::LoadFallback<T>::load(name);
+    }
+}
+
+template<typename T, typename ... Args>
+static T& ResourceManager::getEmptyResource(const Args&... args)
+{
+    detail::basicErrorCheck<T>(m_instance);
+
+    auto& inst = *m_instance;
+
+    const std::string str = detail::getStringArg(args...);
+
+    auto ptr = std::make_shared<T>(args...);
+    inst.m_resources[str] = ptr;
+
+    return *ptr;
+}
+
+template<typename T>
+T& ResourceManager::getExistingResource(const std::string& name)
+{
+    detail::basicErrorCheck<T>(m_instance);
+    
+    auto& inst = *m_instance;
+
+    auto it = inst.m_resources.find(name);
+
+    if (it != inst.m_resources.end() && typeid(T) == typeid(*it->second.get()))
+        return *std::static_pointer_cast<T>(it->second);
+
+    return detail::LoadFallback<T>::load(name);
 }

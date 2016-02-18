@@ -30,7 +30,7 @@
 
 namespace jop
 {
-    class Keyboard
+    class JOP_API Keyboard
     {
     public:
 
@@ -115,6 +115,17 @@ namespace jop
                 Super = 1 << 3
             };
         };
+
+    public:
+
+        /// \brief Get the key name in the current locale
+        ///
+        /// \param scanCode The scan code
+        ///
+        /// \return String with the name
+        ///
+        static std::string getKeyName(const int scanCode);
+
     };
 }
 

@@ -56,34 +56,34 @@ namespace jop
         ///
         /// This will be called before the engine calls the scene's update.
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
-        virtual void preUpdate(const double dt);
+        virtual void preUpdate(const float deltaTime);
 
         /// \brief Pre-fixed update
         ///
         /// This will be called before the engine calls the scene's fixedUpdate.
         ///
-        /// \param ts Time step
+        /// \param timeStep Time step
         ///
-        virtual void preFixedUpdate(const double ts);
+        virtual void preFixedUpdate(const float timeStep);
 
         /// \brief Post-fixed update
         ///
         /// This will be called after the engine calls the scene's fixedUpdate.
         ///
-        /// \param ts Time step
+        /// \param timeStep Time step
         ///
-        virtual void postFixedUpdate(const double ts);
+        virtual void postFixedUpdate(const float timeStep);
 
         /// \brief Post-update
         ///
         /// This will be called after the engine calls the scene's update.
         /// This function can also be used as a pre-draw function.
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
-        virtual void postUpdate(const double dt);
+        virtual void postUpdate(const float deltaTime);
 
         /// \brief Post-draw
         ///
@@ -91,13 +91,28 @@ namespace jop
         ///
         virtual void draw();
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+        void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+        bool isActive();
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -127,7 +142,7 @@ namespace jop
     private:
 
         std::string m_ID; ///< This subsystem's name
-
+        bool m_active;    ///< Sets activity 
     };
 }
 
@@ -136,4 +151,4 @@ namespace jop
 /// \class SubSystem
 /// \ingroup core
 ///
-/// #TODO Detailed description
+/// 

@@ -29,9 +29,6 @@ namespace
 {
 #ifdef JOP_OS_WINDOWS
 
-    FILE ns_oldOutBuffer;
-    FILE ns_oldInBuffer;
-
     BOOL WINAPI handleConsoleEvent(DWORD event)
     {
         return event == CTRL_C_EVENT;
@@ -44,10 +41,10 @@ namespace
 
     void openConsoleWindow()
     {
+        HWND foregroundWindow = GetForegroundWindow();
+
         if (!checkConsoleWindow())
         {
-            HWND foregroundWindow = GetForegroundWindow();
-
             if (!AllocConsole())
             {
                 JOP_ASSERT(false, "Failed to allocate console window!");
@@ -58,8 +55,6 @@ namespace
 
             _open_osfhandle(INT_PTR(GetStdHandle(STD_INPUT_HANDLE)), _O_TEXT);
             _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
-            ns_oldInBuffer = *stdin;
-            ns_oldOutBuffer = *stdout;
 
             FILE* pCout = nullptr;
             freopen_s(&pCout, "CONOUT$", "w", stdout);
@@ -100,16 +95,20 @@ namespace
         if (!GetConsoleScreenBufferInfoEx(consoleHandle, &info))
             return;
 
-        // Setting the horizontal size stops the horizontal scroll bar from appearing.
-        info.dwMaximumWindowSize.X = 200;
-        info.srWindow.Right = info.dwMaximumWindowSize.X;
-
-        // Triple the vertical buffer size
-        info.dwSize.Y = info.dwSize.Y * 3;
-
         std::memcpy(info.ColorTable, table, sizeof(table));
 
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
+
+        // Set the console size
+        COORD c;
+        c.X = static_cast<SHORT>(jop::SettingManager::getUint("uConsoleWindowSizeX", 120));
+        c.Y = static_cast<SHORT>(jop::SettingManager::getUint("uConsoleWindowSizeY", 80));
+
+        SetConsoleScreenBufferSize(consoleHandle, c);
+        ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+
+        // Restore the main window to the top
+        SetForegroundWindow(foregroundWindow);
     }
 
     void closeConsoleWindow()
@@ -154,6 +153,7 @@ namespace
 
     std::ostringstream ns_stream;
     jop::DebugHandler::Severity ns_displaySeverity, ns_lastSeverity;
+    std::string ns_last;
     bool ns_consoleEnabled;
 }
 
@@ -161,7 +161,7 @@ namespace jop
 {
     DebugHandler::DebugHandler()
     {
-        ns_consoleEnabled = SettingManager::getBool("bConsoleEnabled", true);
+        ns_consoleEnabled = SettingManager::getBool("bConsoleEnabled", false);
 
         if (ns_consoleEnabled)
             openConsoleWindow();
@@ -213,11 +213,38 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&))
     {
-        if (isConsoleEnabled() && ns_lastSeverity <= ns_displaySeverity)
+        std::string newStr(ns_stream.str());
+
+        static const bool debugConsole = IsDebuggerPresent() == TRUE && SettingManager::getBool("bDebuggerOutput", true);
+
+        if ((isConsoleEnabled() || debugConsole) && ns_lastSeverity <= ns_displaySeverity)
         {
-            std::cout << ns_stream.str() << '\n' << std::endl;
-            setConsoleColor(Color::White);
+            static const bool noSpam = SettingManager::getBool("bReduceConsoleSpam", true);
+
+            if (!noSpam || ns_last != newStr)
+            {
+                if (isConsoleEnabled())
+                {
+                    std::cout << newStr << '\n' << std::endl;
+                    setConsoleColor(Color::White);
+                }
+
+            #ifdef JOP_OS_WINDOWS
+
+                static const char* severityStr[] =
+                {
+                    "ERROR: ",
+                    "WARNING: ",
+                    "INFO: "
+                };
+
+                if (debugConsole)
+                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(ns_displaySeverity)]) + newStr + '\n').c_str());
+            #endif
+            }
         }
+
+        ns_last = newStr;
         
         ns_stream.str("");
         ns_stream.clear();

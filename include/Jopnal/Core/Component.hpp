@@ -65,15 +65,23 @@ namespace jop
 
         /// \brief Copy this component
         ///
+        /// This function exists for internal use only. Do not call directly.
+        ///
         virtual Component* clone() const = 0;
 
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
+        ///
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Function to handle messages
+        ///
+        /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -85,13 +93,13 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void update(const double deltaTime);
+        virtual void update(const float deltaTime);
 
         /// \brief Fixed update function for component
         ///
         /// \param timeStep Double holding time step
         ///
-        virtual void fixedUpdate(const double timeStep);
+        virtual void fixedUpdate(const float timeStep);
 
         /// \brief Function to get components unique identifier m_ID
         ///
@@ -121,6 +129,10 @@ namespace jop
         Object& m_objectRef;    ///< Reference to the object this component is bound to
     };
 }
+
+/// \brief Convenience macro for defining a component's/scene's clone function.
+///
+#define JOP_GENERIC_CLONE(className) virtual className* clone() const override{return new className(*this);}
 
 #endif
 

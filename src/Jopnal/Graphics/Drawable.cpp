@@ -27,22 +27,26 @@
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, Layer& layer, const std::string& ID)
-        : Component(object, ID)
-    {
-        layer.addDrawable(*this);
-    }
-    
     Drawable::Drawable(Object& object, const std::string& ID)
-        : Component(object, ID)
-    {
-        Engine::getCurrentScene().getDefaultLayer().addDrawable(*this);
-    }
-
-    Drawable::Drawable(const Drawable& other)
-        : Component(other)
+        : Component (object, ID),
+          m_model   (std::static_pointer_cast<Model>(Model::getDefault().shared_from_this())),
+          m_shader  (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
     {}
 
     Drawable::~Drawable()
     {}
+
+    //////////////////////////////////////////////
+
+    void Drawable::setModel(const Model& model)
+    {
+        m_model = std::weak_ptr<const Model>(std::static_pointer_cast<const Model>(model.shared_from_this()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setShader(Shader& shader)
+    {
+        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
+    }
 }

@@ -68,6 +68,13 @@ namespace jop
         ///
         static bool read(const std::string& filePath, std::string& buffer);
 
+        /// \brief Load a resource from a dll
+        ///
+        /// This is for internal use only.
+        /// Windows: The resource needs be of type RCDATA.
+        ///
+        static bool readFromDll(const int id, std::vector<unsigned char>& buffer);
+
     };
 }
 #endif

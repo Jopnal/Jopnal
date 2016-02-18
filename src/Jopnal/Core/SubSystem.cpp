@@ -27,9 +27,19 @@
 
 namespace jop
 {
+    JOP_REGISTER_COMMAND_HANDLER(Subsystem)
+
+        JOP_BIND_MEMBER_COMMAND(&Subsystem::setID, "setID");
+
+    JOP_END_COMMAND_HANDLER(Subsystem)
+}
+
+namespace jop
+{
     Subsystem::Subsystem(const std::string& ID)
         : std::enable_shared_from_this<Subsystem>   (),
-          m_ID                                      (ID)
+          m_ID                                      (ID),
+          m_active                                  (true)
     {}
 
     Subsystem::~Subsystem()
@@ -37,18 +47,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::preFixedUpdate(const double)
+    void Subsystem::preFixedUpdate(const float)
     {}
 
-    void Subsystem::postFixedUpdate(const double)
+    void Subsystem::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
-    void Subsystem::preUpdate(const double)
+    void Subsystem::preUpdate(const float)
     {}
 
-    void Subsystem::postUpdate(const double)
+    void Subsystem::postUpdate(const float)
     {}
 
     //////////////////////////////////////////////
@@ -58,16 +68,49 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessage(const std::string& message, Any returnWrap)
+    void Subsystem::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Subsystem::isActive()
+    {
+        return m_active;
+    }
+    
+    //////////////////////////////////////////////
+    
+    MessageResult Subsystem::sendMessage(const std::string& message)
+    {
+        Any wrap;
+        return sendMessage(message, wrap);
+    }
+    
+    //////////////////////////////////////////////
+
+    MessageResult Subsystem::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
     }
 
+    //////////////////////////////////////////////
+
     MessageResult Subsystem::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Custom, getID()))
-            return sendMessageImpl(message);
+        if (message.passFilter(Message::Subsystem, getID()))
+        {
+            if (message.passFilter(Message::Command))
+            {
+                Any instance(this);
+                JOP_EXECUTE_COMMAND(Subsystem, message.getString(), instance, message.getReturnWrapper());
+            }
+
+            if (message.passFilter(Message::Custom))
+                return sendMessageImpl(message);
+        }
 
         return MessageResult::Continue;
     }

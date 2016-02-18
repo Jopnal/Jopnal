@@ -160,9 +160,18 @@ namespace jop
         /// to the objects
         ///
         /// \param message String holding message
+        ///
+        MessageResult sendMessage(const std::string& message);
+
+        /// \brief Base sendMessage function
+        ///
+        /// This will handle message filtering and forwarding
+        /// to the objects
+        ///
+        /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any returnWrap);
+        MessageResult sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -170,22 +179,38 @@ namespace jop
         ///
         MessageResult sendMessage(const Message& message);
 
+        /// \brief Sets active on update functions
+        ///
+        /// \param active Sets the active
+        ///
+        void setActive(const bool active);
+
+        /// \brief Returns m_active boolean unit
+        ///
+        bool isActive();
 
         /// \brief Update method for scene
         ///
         /// \param deltaTime Double holding time step
         ///
-        void updateBase(const double timeStep);
+        void updateBase(const float deltaTime);
 
         /// \brief fixedUpdate method for scene
         ///
-        /// \param deltaTime Double holding time step
+        /// \param timeStep Double holding time step
         ///
-        void fixedUpdateBase(const double timeStep);
+        void fixedUpdateBase(const float timeStep);
 
         /// \brief Method for drawing
         ///
         void drawBase();
+
+
+        /// \brief Initialize this scene
+        ///
+        /// This function should be preferred when doing scene initialization.
+        ///
+        virtual void initialize();
         
 
         /// \brief Method for pre-updating
@@ -194,7 +219,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        virtual void preUpdate(const double deltaTime);
+        virtual void preUpdate(const float deltaTime);
 
         /// \brief Method for post-updating
         ///
@@ -202,23 +227,23 @@ namespace jop
         ///
         /// \param deltaTime double holding delta time
         ///
-        virtual void postUpdate(const double deltaTime);
+        virtual void postUpdate(const float deltaTime);
 
         /// \brief Method for pre-fixed updating
         ///
         /// This will be called before objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
-        virtual void preFixedUpdate(const double timeStep);
+        virtual void preFixedUpdate(const float timeStep);
 
         /// \brief Method for post-fixed updating
         ///
         /// This will be called after objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param timeStep Double holding delta time
         ///
-        virtual void postFixedUpdate(const double timeStep);
+        virtual void postFixedUpdate(const float timeStep);
         
         /// \brief Method for pre-drawing
         ///
@@ -243,6 +268,7 @@ namespace jop
         std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
         std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
         std::string m_ID;                               ///< String holding scene identifier
+        bool m_active;                                  ///< Boolean set to active
     };
 
     // Include the template implementation file

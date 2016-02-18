@@ -46,12 +46,12 @@ namespace jop
     {
     private:
 
-        // Private constructor since this is a singleton class
-        //
+        /// Private constructor since this is a singleton class
+        ///
         DebugHandler();
 
-        // Get the internal stream object. This is used by the template << operator
-        //
+        /// Get the internal stream object. This is used by the template << operator
+        ///
         std::ostringstream& getStream();
 
     public:
@@ -71,29 +71,43 @@ namespace jop
 
         /// \brief Get the DebugHandler instance
         ///
+        /// \return Reference to the instance
+        ///
         static DebugHandler& getInstance();
 
         /// \brief Check if the console is enabled
+        ///
+        /// \return True if console is enabled
         ///
         static bool isConsoleEnabled();
 
         /// \brief Operator for setting the severity level for the next text object
         ///
-        /// \param verbosity The verbosity level.
+        /// \param severity The severity level
+        ///
+        /// \return Reference to self
         ///
         DebugHandler& operator <<(const Severity severity);
 
         /// \brief Flushes the stream using std::endl
         ///
+        /// \return Reference to self
+        ///
         DebugHandler& operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&));
 
         /// \brief Sets the color for the next text object
+        ///
+        /// \param color The color to set
+        ///
+        /// \return Reference to self
         ///
         DebugHandler& operator <<(const jop::Color& color);
 
         /// \brief An operator for inputting data into the stream
         ///
         /// \param data The data to be output
+        ///
+        /// \return Reference to self
         ///
         template<typename T>
         DebugHandler& operator <<(const T& data);
@@ -108,4 +122,4 @@ namespace jop
 /// \class DebugHandler
 /// \ingroup core
 ///
-/// #TODO Detailed description
+/// 

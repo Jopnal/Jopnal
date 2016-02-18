@@ -38,19 +38,24 @@ namespace jop
 
         /// \brief Constructor
         ///
-        Resource();
+        /// \param name Name of the resource. This must be the file path if this resource is loaded from a file.
+        ///
+        Resource(const std::string& name);
 
         /// \brief Virtual destructor
         ///
         virtual ~Resource() = 0;
 
 
-        /// \brief Virtual method for using FileLoader to load new resource from file
+        /// \brief Get the name
         ///
-        /// \param path Name or path for wanted resource
+        /// \return Reference to the name
         ///
-        virtual bool load(const std::string& path) = 0;
+        const std::string& getName() const;
 
+    private:
+
+        std::string m_name; ///< Name of this resource
     };
 }
 

@@ -56,7 +56,7 @@ namespace jop
         /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
         /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
         ///
-        RenderTexture(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+        RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
         /// \brief Destructor
         ///
@@ -65,9 +65,9 @@ namespace jop
 
         /// \brief Overridden postUpdate. Clears the frame buffer
         ///
-        /// \param dt Delta time
+        /// \param deltaTime Delta time
         ///
-        void postUpdate(const double dt) override;
+        void postUpdate(const float deltaTime) override;
 
         /// \brief Initialize the frame buffer
         ///
@@ -77,7 +77,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool create(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+        bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
         /// \brief Destroy this frame buffer
         ///
@@ -97,9 +97,11 @@ namespace jop
 
         /// \brief Get the frame buffer texture size
         ///
+        /// \return glm::vec2 with the size
+        ///
         glm::vec2 getSize() const;
 
-        /// \param Check if this frame buffer is valid
+        /// \brief Check if this frame buffer is valid
         ///
         /// \return True if valid
         ///
@@ -122,6 +124,25 @@ namespace jop
         /// \return Const reference to the internal texture
         ///
         const Texture& getTexture() const;
+
+        /// \brief Sets absolute Viewport for the frame buffer
+        ///
+        /// \param x The upper left x coordinate
+        /// \param y The upper left y coordinate
+        /// \param width Width of the view port in pixels
+        /// \param height Height of the view port in pixels
+        ///
+        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
+
+        /// \brief Sets relative Viewport for the frame buffer
+        ///
+        /// \param x The relative upper left x coordinate
+        /// \param y The relative upper left y coordinate
+        /// \param width Relative width of the view port in pixels
+        /// \param height Relative height of the view port in pixels
+        ///
+        void setViewportRelative(const float x, const float y, const float width, const float height);
+
 
     private:
 

@@ -204,11 +204,46 @@
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp">
       <Filter>Audio\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp">
       <Filter>Audio\Headers</Filter>
+=======
+    <ClInclude Include="..\include\Jopnal\Graphics\Buffer.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Vertex.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\VertexBuffer.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Material.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\BoxModel.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\SphereModel.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\RectangleModel.hpp">
+      <Filter>Graphics\Headers</Filter>
+>>>>>>> master
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -299,11 +334,52 @@
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp">
       <Filter>Audio\Source</Filter>
+=======
+    <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Vertex.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\VertexBuffer.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Window\Keyboard.cpp">
+      <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Material.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\BoxModel.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\SphereModel.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\AABB.cpp">
+      <Filter>Root\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\RectangleModel.cpp">
+      <Filter>Graphics\Source</Filter>
+>>>>>>> master
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

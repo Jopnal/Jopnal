@@ -36,11 +36,12 @@ namespace jop
 {
     RenderTexture::RenderTexture()
         : Subsystem ("Render Texture"),
-          m_texture ()
+          m_texture ("Render Texture Texture")
     {}
 
-    RenderTexture::RenderTexture(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : Subsystem("Render Texture")
+    RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+        : Subsystem ("Render Texture"),
+          m_texture ("Render Texture Texture")
     {
         create(size, depthBits, stencilBits);
     }
@@ -52,7 +53,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RenderTexture::postUpdate(const double)
+    void RenderTexture::postUpdate(const float)
     {
         if (bind())
         {
@@ -73,7 +74,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const glm::vec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+    bool RenderTexture::create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
     {
         auto getDepthEnum = [](const unsigned int bits) -> GLenum
         {
@@ -114,7 +115,7 @@ namespace jop
 
         destroy();
 
-        if (!m_texture.loadEmpty("!" + std::to_string(size.x) + "!" + std::to_string(size.y) + "!4"))
+        if (!m_texture.load(size.x, size.y, 4))
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
             return false;
@@ -211,8 +212,11 @@ namespace jop
     {
         if (m_frameBuffer && m_frameBuffer != ns_currentBuffer)
         {
-            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
-            ns_currentBuffer = m_frameBuffer;
+            if (m_frameBuffer != ns_currentBuffer)
+            {
+                glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
+                ns_currentBuffer = m_frameBuffer;
+            }
         }
 
         return isValid();
@@ -263,5 +267,27 @@ namespace jop
     const Texture& RenderTexture::getTexture() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    void RenderTexture::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
+    {
+        if (isValid())
+            glCheck(gl::Viewport(x, y, width, height));
+    }
+
+    //////////////////////////////////////////////
+
+    void RenderTexture::setViewportRelative(const float x, const float y, const float width, const float height)
+    {
+        if (isValid())
+        {
+            float textureX = getSize().x;
+            float textureY = getSize().y;
+
+            glCheck(gl::Viewport(static_cast<int>(x * textureX), static_cast<int>(y * textureY),
+                                 static_cast<unsigned int>(width * textureX), static_cast<unsigned int>(height * textureY)));
+        }
     }
 }

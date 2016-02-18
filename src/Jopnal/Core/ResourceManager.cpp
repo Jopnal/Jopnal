@@ -30,7 +30,7 @@ namespace jop
     ResourceManager::ResourceManager()
         : Subsystem("Resource Manager")
     {
-        JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist st a time!");
+        JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist at a time!");
     
         m_instance = this;
     }
