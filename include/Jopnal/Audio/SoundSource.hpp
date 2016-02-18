@@ -92,6 +92,10 @@ namespace jop
         ///
         void toggleStreamListener(bool toggle);
 
+        /// \brief Clone m_sound
+        ///
+        sf::Sound clone();
+
     private:
         std::unique_ptr<sf::Sound> m_sound;      ///< Unique audio sample
     };

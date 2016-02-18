@@ -34,7 +34,9 @@ namespace jop
     SoundStream::SoundStream(const SoundStream& other)
         : Component(other),
         m_stream()
-    {}
+    {
+        other.clone()->clone(*m_stream);
+    }
     //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
@@ -94,7 +96,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::fullClone(sf::Music copy)
+    void SoundStream::clone(sf::Music& copy)
     {
         copy.setPlayingOffset(m_stream->getPlayingOffset());
        
@@ -110,23 +112,5 @@ namespace jop
         copy.pause();
     }
 
-    //////////////////////////////////////////////
-
-    const std::string& SoundStream::pathClone()
-    {
-        return m_path;
-    }
-
-    void fullCloneFrom(const std::string& name)
-    {
-       
-    }
-
-    //////////////////////////////////////////////
-
-    void pathCloneFrom(const std::string& name)
-    {
-
-    }
 
 }

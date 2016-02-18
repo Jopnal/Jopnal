@@ -34,7 +34,9 @@ namespace jop
     SoundSource::SoundSource(const SoundSource& other)
         : Component(other),
         m_sound()
-    {}
+    {
+        *m_sound = other.clone()->clone();
+    }
     //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
@@ -82,4 +84,10 @@ namespace jop
         m_sound->setRelativeToListener(toggle);
     }
 
+    //////////////////////////////////////////////
+
+    sf::Sound SoundSource::clone()
+    {
+        return *m_sound;
+    }
 }

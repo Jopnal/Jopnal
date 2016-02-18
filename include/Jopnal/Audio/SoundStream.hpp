@@ -94,23 +94,7 @@ namespace jop
         ///
         /// \param SoundStream component to copy to
         ///
-        void fullClone(sf::Music copy);
-
-        /// \brief Get stream path
-        ///
-        const std::string& pathClone();
-
-        /// \brief Clone all relative data from anothere SoundStream
-        ///
-        /// \param Name of SoundStream to copy from
-        ///
-        void fullCloneFrom(const std::string& name);
-
-        /// \brief Clone only file path from anothere SoundStream
-        ///
-        /// \param Name of SoundStream to copy from
-        ///
-        void pathCloneFrom(const std::string& name);
+        void clone(sf::Music& copy);
 
     private:
         std::unique_ptr<sf::Music> m_stream;    ///< Unique audio stream
