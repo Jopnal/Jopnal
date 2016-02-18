@@ -40,7 +40,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        SoundBuffer();
+        SoundBuffer(const std::string& name);
 
         /// \brief Virtual destructor
         ///

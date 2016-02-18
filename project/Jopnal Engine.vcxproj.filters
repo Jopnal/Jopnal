@@ -204,13 +204,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
-<<<<<<< HEAD
-    <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp">
-      <Filter>Audio\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp">
-      <Filter>Audio\Headers</Filter>
-=======
     <ClInclude Include="..\include\Jopnal\Graphics\Buffer.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
@@ -243,7 +236,15 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\RectangleModel.hpp">
       <Filter>Graphics\Headers</Filter>
->>>>>>> master
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp">
+      <Filter>Audio\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp">
+      <Filter>Audio\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp">
+      <Filter>Graphics\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -334,13 +335,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp">
-      <Filter>Audio\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp">
-      <Filter>Audio\Source</Filter>
-=======
     <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
@@ -379,7 +373,15 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\RectangleModel.cpp">
       <Filter>Graphics\Source</Filter>
->>>>>>> master
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp">
+      <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp">
+      <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

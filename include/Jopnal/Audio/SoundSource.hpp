@@ -43,9 +43,9 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_MOVE(SoundSource);
+        //JOP_DISALLOW_MOVE(SoundSource);
 
-        void operator =(const SoundSource&) = delete;
+        //void operator =(const SoundSource&) = delete;
     public:
 
         /// \brief Constructor
@@ -55,14 +55,16 @@ namespace jop
         ///
         SoundSource(Object& object, const std::string& ID);
 
-        /// \brief Virtual destructor
-        ///
-        ~SoundSource();
-
 
         /// \brief Copy constructor
         ///
         SoundSource(const SoundSource& other);
+
+        /// \brief Virtual destructor
+        ///
+        ~SoundSource();
+
+        JOP_GENERIC_CLONE(SoundSource);
 
     
         /// \brief setSound

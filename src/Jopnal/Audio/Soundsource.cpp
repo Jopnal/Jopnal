@@ -27,9 +27,14 @@
 namespace jop
 {
     SoundSource::SoundSource(Object& object, const std::string& ID)
-        :Component                                  (object,ID)
+        :Component                                  (object,ID),
+        m_sound(std::make_unique<sf::Sound>())
     {}
 
+    SoundSource::SoundSource(const SoundSource& other)
+        : Component(other),
+        m_sound()
+    {}
     //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
@@ -41,7 +46,7 @@ namespace jop
 
     void SoundSource::setSound(const std::string& path)
     {
-       m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).lock()->getSfmlBuffer());
+       m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
        m_sound->play();
     }
 

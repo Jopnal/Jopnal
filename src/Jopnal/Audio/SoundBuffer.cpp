@@ -27,8 +27,10 @@
 
 namespace jop
 {
-    SoundBuffer::SoundBuffer()
-        :m_soundBuf(std::make_unique<sf::SoundBuffer>())
+    SoundBuffer::SoundBuffer(const std::string& name)
+        : Resource(name),
+        
+        m_soundBuf(std::make_unique<sf::SoundBuffer>())
     {}
 
     //////////////////////////////////////////////
