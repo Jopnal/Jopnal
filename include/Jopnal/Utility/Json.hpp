@@ -38,13 +38,13 @@ namespace rapidjson
 {
     bool checkParseError(const Document& doc);
 
-    Value::MemberIterator begin(Value&);
+    Value::ValueIterator begin(Value&);
 
-    Value::MemberIterator end(Value&);
+    Value::ValueIterator end(Value&);
 
-    Value::ConstMemberIterator begin(const Value&);
+    Value::ConstValueIterator begin(const Value&);
 
-    Value::ConstMemberIterator end(const Value&);
+    Value::ConstValueIterator end(const Value&);
 }
 
 namespace jop

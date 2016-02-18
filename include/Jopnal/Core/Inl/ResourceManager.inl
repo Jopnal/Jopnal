@@ -197,7 +197,7 @@ T& ResourceManager::getExistingResource(const std::string& name)
 
     auto it = inst.m_resources.find(name);
 
-    if (it != inst.m_resources.end() && typeid(T) == typeid(*it->second.get()))
+    if (it != inst.m_resources.end() && dynamic_cast<T*>(it->second.get()))
         return *std::static_pointer_cast<T>(it->second);
 
     return detail::LoadFallback<T>::load(name);
@@ -212,5 +212,5 @@ bool ResourceManager::resourceExists(const std::string& name)
 
     auto itr = m_instance->m_resources.find(name);
     
-    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(void) || typeid(T) == typeid(*itr->second)));
+    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(void) || dynamic_cast<T*>(itr->second.get()) != nullptr));
 }

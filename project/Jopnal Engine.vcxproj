@@ -195,7 +195,14 @@
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ForceSymbolReferences>
+      </ForceSymbolReferences>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

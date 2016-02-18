@@ -86,10 +86,10 @@ namespace jop
         {
             for (auto& i : val["layers"])
             {
-                if (!i.value.IsString())
+                if (!i.IsString())
                     continue;
 
-                auto layer = scene.getLayer(i.value.GetString());
+                auto layer = scene.getLayer(i.GetString());
 
                 if (!layer.expired())
                     layers.push_back(layer.lock().get());
@@ -118,7 +118,28 @@ namespace jop
                 JOP_DEBUG_WARNING("Couldn't find mesh named \"" << mshstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
         }
 
-        JOP_ASSERT(false, "material");
+        if (val.HasMember("material") && val["material"].IsObject())
+        {
+            Material material;
+            auto& mat = val["material"];
+
+            if (mat.HasMember("reflection") && mat["reflection"].IsArray() && mat["reflection"].Size() >= 3)
+            {
+                auto& refl = mat["reflection"];
+                if (refl[0u].IsUint() && refl[1u].IsUint() && refl[2u].IsUint())
+                    material.setReflection(Color(refl[0u].GetUint()), Color(refl[1u].GetUint()), Color(refl[2u].GetUint()));
+                else
+                    JOP_DEBUG_WARNING("Unexpected material reflection values encountered while loading Drawable with id \"" << drawable.getID() << "\", resorting to default");
+            }
+
+            if (mat.HasMember("shininess") && mat["shininess"].IsDouble())
+                material.setShininess(static_cast<float>(mat["shininess"].GetDouble()));
+
+            if (mat.HasMember("diffusemap") && mat["diffusemap"].IsString())
+                material.setMap(Material::Map::Diffuse, ResourceManager::getExistingResource<Texture>(mat["diffusemap"].GetString()));
+
+            drawable.m_model.setMaterial(material);
+        }
 
         return true;
     }
@@ -144,7 +165,20 @@ namespace jop
         if (!drawable.m_model.getMesh().expired())
             val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh().lock()->getName().c_str()), alloc);
 
-        JOP_ASSERT(false, "material");
+        auto & mat = val.AddMember(json::StringRef("material"), json::kObjectType, alloc)["material"];
+        mat.AddMember(json::StringRef("reflection"), json::kArrayType, alloc)["reflection"]
+           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Ambient).asInteger(), alloc)
+           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Diffuse).asInteger(), alloc)
+           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Specular).asInteger(), alloc);
+
+        mat.AddMember(json::StringRef("shininess"), drawable.m_model.getMaterial().getShininess(), alloc);
+
+        // Diffuse map
+        {
+            auto map = drawable.m_model.getMaterial().getMap(Material::Map::Diffuse);
+            if (!map.expired())
+                mat.AddMember(json::StringRef("diffusemap"), json::StringRef(map.lock()->getName().c_str()), alloc);
+        }
 
         return true;
     }

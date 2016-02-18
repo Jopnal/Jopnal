@@ -286,7 +286,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Object::isActive()
+    bool Object::isActive() const
     {
         return m_active;
     }

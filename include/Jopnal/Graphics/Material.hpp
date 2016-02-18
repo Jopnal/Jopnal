@@ -73,6 +73,8 @@ namespace jop
 
         Material& setMap(const Map map, const Texture& tex);
 
+        std::weak_ptr<const Texture> getMap(const Map map) const;
+
 
         static const Material& getDefault();
 

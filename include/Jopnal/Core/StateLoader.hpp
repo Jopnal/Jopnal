@@ -55,25 +55,18 @@ namespace jop
     typedef std::function<bool(const json::Value&)> SubsystemLoadFunc;
     typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)> SubsystemSaveFunc;
 
-    typedef std::function<bool(const json::Value&)> CustomLoadFunc;
-    typedef std::function<bool(json::Value&, json::Value::AllocatorType&)> CustomSaveFunc;
-
     namespace detail
     {
         template
         <
             typename T,
-            bool IsComp = std::is_base_of<Component, T>::value,
-            bool IsLayer = std::is_base_of<Layer, T>::value,
-            bool IsScene = std::is_base_of<Scene, T>::value,
-            bool IsSubsystem = std::is_base_of<Subsystem, T>::value
+            bool IsComp = std::is_convertible<T*, Component*>::value,
+            bool IsLayer = std::is_convertible<T*, Layer*>::value,
+            bool IsScene = std::is_convertible<T*, Scene*>::value,
+            bool IsSubsystem = std::is_convertible<T*, Subsystem*>::value
 
         > struct FuncChooser
-        {
-            typedef CustomLoadFunc LoadFunc;
-            typedef CustomSaveFunc SaveFunc;
-            enum{ContainerID = 4};
-        };
+        {};
         template<typename T>
         struct FuncChooser<T, true, false, false, false>
         {
@@ -112,7 +105,6 @@ namespace jop
         typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>>           LayerFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>>           SceneFuncContainer;
         typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>>   SubsystemFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<CustomLoadFunc, CustomSaveFunc>>         CustomFuncContainer;
 
         StateLoader() = default;
 
@@ -156,7 +148,6 @@ namespace jop
             LayerFuncContainer,
             SceneFuncContainer,
             SubsystemFuncContainer,
-            CustomFuncContainer,
 
             // Maps the type info to identifiers, to be used when saving. Keep this last
             std::unordered_map<std::type_index, std::string>

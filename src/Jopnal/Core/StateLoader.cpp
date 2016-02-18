@@ -44,7 +44,6 @@ namespace
         LayerID,
         SceneID,
         SubID,
-        CustomID,
 
         LoadID = 0,
         SaveID
@@ -86,7 +85,7 @@ namespace jop
         json::PrettyWriter<json::StringBuffer> writer(buffer);
         doc.Accept(writer);
 
-        if (!FileLoader::write(FileLoader::Directory::Resources, path, buffer.GetString(), buffer.GetSize()))
+        if (!FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize()))
             return false;
 
         return true;
@@ -121,13 +120,13 @@ namespace jop
         std::unique_ptr<Scene> sharedScenePtr;
 
         // Load the shared scene?
-        if (sharedScene && !doc.HasMember(ns_sharedSceneField) || !doc[ns_sharedSceneField].IsObject() || !Engine::m_engineObject || !loadScene(sharedScenePtr, doc[ns_sharedSceneField], path))
+        if (sharedScene && (doc.HasMember(ns_sharedSceneField) && doc[ns_sharedSceneField].IsObject() && Engine::m_engineObject && !loadScene(sharedScenePtr, doc[ns_sharedSceneField], path)))
             return false;
 
         std::unique_ptr<Scene> scenePtr;
 
         // Load scene?
-        if (scene && !doc.HasMember(ns_sceneField) || !doc[ns_sceneField].IsObject() || !Engine::m_engineObject || !loadScene(scenePtr, doc[ns_sceneField], path))
+        if (scene && (doc.HasMember(ns_sceneField) && doc[ns_sceneField].IsObject() && Engine::m_engineObject && !loadScene(scenePtr, doc[ns_sceneField], path)))
             return false;
 
         // Finally assign the pointers
@@ -222,20 +221,18 @@ namespace jop
         // Load layers
         for (auto& i : data)
         {
-            auto& obj = i.value;
-
-            if (!obj.IsObject())
+            if (!i.IsObject())
                 continue;
 
-            if (obj.HasMember(ns_typeField) && obj[ns_typeField].IsString())
+            if (i.HasMember(ns_typeField) && i[ns_typeField].IsString())
             {
-                auto itr = layerCont.find(obj[ns_typeField].GetString());
+                auto itr = layerCont.find(i[ns_typeField].GetString());
 
                 if (itr != layerCont.end())
                 {
                     std::unique_ptr<Layer> ptr;
 
-                    if (obj.HasMember(ns_dataField) && obj[ns_dataField].IsObject() && std::get<LoadID>(itr->second)(ptr, obj[ns_dataField]))
+                    if (i.HasMember(ns_dataField) && i[ns_dataField].IsObject() && std::get<LoadID>(itr->second)(ptr, i[ns_dataField]))
                         scene->m_layers.push_back(std::shared_ptr<Layer>(ptr.release()));
                     else
                     {
@@ -245,7 +242,7 @@ namespace jop
                 }
                 else
                 {
-                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type (\"" << obj[ns_typeField].GetString() << "\") not registered: " << path);
+                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type (\"" << i[ns_typeField].GetString() << "\") not registered: " << path);
                     return false;
                 }
             }
@@ -261,28 +258,26 @@ namespace jop
 
         for (auto& i : data)
         {
-            auto& obj = i.value;
-
-            if (!obj.IsObject())
+            if (!i.IsObject())
                 continue;
 
             // It can be assumed that the id exists and is of right type
-            std::weak_ptr<Layer> weakCurrLayer = scene->getLayer(obj["id"].GetString());
+            std::weak_ptr<Layer> weakCurrLayer = scene->getLayer(i[ns_dataField]["id"].GetString());
 
             if (weakCurrLayer.expired())
             {
-                JOP_DEBUG_WARNING("Layer with id \"" << obj["id"].GetString() << "\" expired while loading scene: " << path);
+                JOP_DEBUG_WARNING("Layer with id \"" << i["id"].GetString() << "\" expired while loading scene: " << path);
                 continue;
             }
 
-            if (obj.HasMember(boundLayersField) && obj[boundLayersField].IsArray())
+            if (i.HasMember(boundLayersField) && i[boundLayersField].IsArray())
             {
                 Layer& currLayer = *weakCurrLayer.lock();
 
-                for (auto& j : obj[boundLayersField])
+                for (auto& j : i[boundLayersField])
                 {
                     std::weak_ptr<Layer> bound;
-                    if (j.value.IsString() && !(bound = scene->getLayer(j.value.GetString())).expired())
+                    if (j.IsString() && !(bound = scene->getLayer(j.GetString())).expired())
                         currLayer.bindOtherLayer(*std::static_pointer_cast<Layer>(bound.lock()));
                     else
                         JOP_DEBUG_WARNING("Couldn't bind layer to \"" << currLayer.getID() << "\". Array element not a string or layer couldn't be found: " << path);
@@ -299,15 +294,13 @@ namespace jop
     {
         for (auto& i : data)
         {
-            const auto& val = i.value;
-
-            if (!val.IsObject() || val.Empty())
+            if (!i.IsObject())
                 continue;
 
-            const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
+            const char* id = (i.HasMember("id") && i["id"].IsString() ? i["id"].GetString() : "");
 
             scene->createObject(id);
-            if (!loadObject(*scene->m_objects.back(), *scene, val, path))
+            if (!loadObject(*scene->m_objects.back(), *scene, i, path))
             {
                 JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
                 return false;
@@ -335,7 +328,7 @@ namespace jop
 
             for (auto& i : val)
             {
-                if (!i.value.IsDouble())
+                if (!i.IsDouble())
                 {
                     JOP_DEBUG_WARNING("Encountered unexpected transform value(s) while loading object with id \"" << obj.getID() << "\": " << path);
                     goto SkipTransform;
@@ -364,15 +357,13 @@ namespace jop
 
             for (auto& i : data[componentsField])
             {
-                auto& val = i.value;
-
-                if (val.IsObject() && val.HasMember(ns_typeField) && val[ns_typeField].IsString())
+                if (i.IsObject() && i.HasMember(ns_typeField) && i[ns_typeField].IsString())
                 {
-                    auto itr = compCont.find(val[ns_typeField].GetString());
+                    auto itr = compCont.find(i[ns_typeField].GetString());
 
                     if (itr != compCont.end())
                     {
-                        if (!val.HasMember(ns_dataField) || !val[ns_dataField].IsObject() || std::get<LoadID>(itr->second)(obj, scene, val[ns_dataField]))
+                        if (!i.HasMember(ns_dataField) || !i[ns_dataField].IsObject() || !std::get<LoadID>(itr->second)(obj, scene, i[ns_dataField]))
                         {
                             JOP_DEBUG_ERROR("Couldn't load component state, registered load function reported failure: " << path);
                             return false;
@@ -380,7 +371,7 @@ namespace jop
                     }
                     else
                     {
-                        JOP_DEBUG_ERROR("Couldn't load component state, component type (\"" << val[ns_typeField].GetString() << "\") not registered: " << path);
+                        JOP_DEBUG_ERROR("Couldn't load component state, component type (\"" << i[ns_typeField].GetString() << "\") not registered: " << path);
                         return false;
                     }
                 }
@@ -396,12 +387,10 @@ namespace jop
         {
             for (auto& i : data[childrenField])
             {
-                auto& val = i.value;
-
-                const char* id = (val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
+                const char* id = (i.HasMember("id") && i["id"].IsString() ? i["id"].GetString() : "");
 
                 obj.createChild(id);
-                if (!loadObject(*obj.m_children.back(), scene, val, path))
+                if (!loadObject(*obj.m_children.back(), scene, i, path))
                 {
                     JOP_DEBUG_ERROR("Failed to load child object with id \"" << id << "\": " << path);
                     return false;
@@ -470,20 +459,21 @@ namespace jop
         const auto& layerCont = std::get<LayerID>(m_loaderSavers);
         const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
 
-        // Type name iterator
-        auto itrRedir = nameMap.find(std::type_index(typeid(scene)));
-        // Function iterator
-        auto itr = layerCont.end();
-
-        if (itrRedir == nameMap.end() || (itr = layerCont.find(itrRedir->second)) == layerCont.end())
-        {
-            JOP_DEBUG_ERROR("Couldn't save scene, type (name) not registered: " << path);
-            return false;
-        }
-
         for (auto& i : scene.m_layers)
         {
-            json::Value obj(json::kObjectType);
+            // Type name iterator
+            auto itrRedir = nameMap.find(std::type_index(typeid(*i)));
+            // Function iterator
+            auto itr = layerCont.end();
+
+            if (itrRedir == nameMap.end() || (itr = layerCont.find(itrRedir->second)) == layerCont.end())
+            {
+                JOP_DEBUG_ERROR("Couldn't save layer, type (name) not registered: " << path);
+                return false;
+            }
+
+            data.PushBack(json::kObjectType, alloc);
+            auto& obj = data[data.Size() - 1];
 
             obj.AddMember(json::StringRef(ns_typeField), json::StringRef(itrRedir->second.c_str()), alloc);
 
@@ -514,14 +504,102 @@ namespace jop
 
     bool StateLoader::saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
-        return false;
+        for (auto& i : scene.m_objects)
+        {
+            data.PushBack(json::kObjectType, alloc);
+            auto& obj = data[data.Size() - 1u];
+
+            obj.AddMember(json::StringRef("id"), json::StringRef(i->getID().c_str()), alloc);
+
+            if (!saveObject(*i, obj, alloc, path))
+            {
+                JOP_DEBUG_ERROR("Failed to save object with id \"" << i->getID() << "\": " << path);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     //////////////////////////////////////////////
 
     bool StateLoader::saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
-        return false;
+        const char* const activeField = "active";
+        const char* const componentsField = "components";
+        const char* const childrenField = "children";
+        const char* const transformField = "transform";
+
+        const auto& compCont = std::get<CompID>(m_loaderSavers);
+        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+
+        // Active
+        data.AddMember(json::StringRef(activeField), obj.isActive(), alloc);
+
+        // Transform
+        data.AddMember(json::StringRef(transformField), json::kArrayType, alloc)[transformField]
+            .PushBack(obj.getPosition().x, alloc)
+            .PushBack(obj.getPosition().y, alloc)
+            .PushBack(obj.getPosition().z, alloc)
+            .PushBack(obj.getScale().x, alloc)
+            .PushBack(obj.getScale().y, alloc)
+            .PushBack(obj.getScale().z, alloc)
+            .PushBack(obj.getRotation().w, alloc)
+            .PushBack(obj.getRotation().x, alloc)
+            .PushBack(obj.getRotation().y, alloc)
+            .PushBack(obj.getRotation().z, alloc);
+           
+        // Components
+        if (!obj.m_components.empty())
+        {
+            auto& comps = data.AddMember(json::StringRef(componentsField), json::kArrayType, alloc)[componentsField];
+
+            for (auto& i : obj.m_components)
+            {
+                // Type name iterator
+                auto itrRedir = nameMap.find(std::type_index(typeid(*i)));
+                // Function iterator
+                auto itr = compCont.end();
+
+                if (itrRedir == nameMap.end() || (itr = compCont.find(itrRedir->second)) == compCont.end())
+                {
+                    JOP_DEBUG_ERROR("Couldn't save component with id \"" << i->getID() << "\", type (name) not registered: " << path);
+                    return false;
+                }
+
+                comps.PushBack(json::kObjectType, alloc);
+                auto& compObj = comps[comps.Size() - 1u];
+
+                compObj.AddMember(json::StringRef(ns_typeField), json::StringRef(itrRedir->second.c_str()), alloc);
+
+                if (!std::get<SaveID>(itr->second)(*i, compObj.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
+                {
+                    JOP_DEBUG_ERROR("Couldn't save component with id \"" << i->getID() << "\", registered save function reported failure: " << path);
+                    return false;
+                }
+            }
+        }
+
+        if (!obj.m_children.empty())
+        {
+            auto& objs = data.AddMember(json::StringRef(childrenField), json::kArrayType, alloc)[childrenField];
+
+            for (auto& i : obj.m_children)
+            {
+                objs.PushBack(json::kObjectType, alloc);
+                auto& curr = objs[objs.Size() - 1];
+
+                curr.AddMember(json::StringRef("id"), json::StringRef(i->getID().c_str()), alloc);
+
+                if (!saveObject(*i, curr, alloc, path))
+                {
+                    JOP_DEBUG_ERROR("Failed to save object with id \"" << i->getID() << "\": " << path);
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
 

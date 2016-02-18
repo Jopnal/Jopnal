@@ -188,7 +188,7 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
 
         /// \brief Update method for object - forwarded for its components
         ///
