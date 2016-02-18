@@ -55,7 +55,10 @@ namespace jop
         template<typename T>
         glm::vec2 insideCircle(T radius);
 
-
+        /// \brief Picks a random point from a sphere of given size
+        ///
+        /// \param radius Radius of the circle
+        ///
         template<typename T>
         glm::vec3 insideSphere(T radius);
 
