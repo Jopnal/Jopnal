@@ -164,5 +164,5 @@ bool ResourceManager::resourceExists(const std::string& name)
 
     auto itr = m_instance->m_resources.find(name);
     
-    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(void) || dynamic_cast<T*>(itr->second.get()) != nullptr));
+    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
 }

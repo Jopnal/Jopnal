@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <memory>
 
@@ -33,8 +35,6 @@
 
 namespace jop
 {
-    class Resource;
-
     class JOP_API ResourceManager : public Subsystem
     {
     public:
@@ -96,7 +96,7 @@ namespace jop
         template<typename T>
         static T& getExistingResource(const std::string& name);
 
-        template<typename T = void>
+        template<typename T = Resource>
         static bool resourceExists(const std::string& name);
 
 
@@ -109,6 +109,19 @@ namespace jop
         /// \brief Deletes all resources from memory
         ///
         static void unloadResources();
+
+
+        /// \brief Load the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool loadBase(const json::Value& val);
+
+        /// \brief Save the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool saveBase(const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 

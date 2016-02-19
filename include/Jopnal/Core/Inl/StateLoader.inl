@@ -34,3 +34,11 @@ void StateLoader::registerSaveable(const char* id, const typename detail::FuncCh
     std::get<1>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)]) = func;
     std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers)[std::type_index(typeid(T))] = id;
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+const typename detail::FuncChooser<T>::FuncContainer& StateLoader::getFunctionContainer() const
+{
+    return std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers);
+}

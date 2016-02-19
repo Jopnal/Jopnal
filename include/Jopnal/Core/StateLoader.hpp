@@ -55,23 +55,24 @@ namespace jop
     typedef std::function<bool(const json::Value&)>                                             SubsystemLoadFunc;
     typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)>    SubsystemSaveFunc;
 
-    typedef std::function<bool(const json::Value&)>                                             CustomLoadFunc;
-    typedef std::function<bool(const void*, json::Value&, json::Value::AllocatorType)>          CustomSaveFunc;
+    typedef std::function<bool(const void*, const json::Value&)>                                CustomLoadFunc;
+    typedef std::function<bool(const void*, json::Value&, json::Value::AllocatorType&)>         CustomSaveFunc;
 
     namespace detail
     {
         template
         <
             typename T,
-            bool IsComp = std::is_convertible<T*, Component*>::value,
-            bool IsLayer = std::is_convertible<T*, Layer*>::value,
-            bool IsScene = std::is_convertible<T*, Scene*>::value,
-            bool IsSubsystem = std::is_convertible<T*, Subsystem*>::value
+            bool IsComp      = std::is_base_of<Component, T>::value,
+            bool IsLayer     = std::is_base_of<Layer, T>::value,
+            bool IsScene     = std::is_base_of<Scene, T>::value,
+            bool IsSubsystem = std::is_base_of<Subsystem, T>::value
 
         > struct FuncChooser
         {
             typedef CustomLoadFunc LoadFunc;
             typedef CustomSaveFunc SaveFunc;
+            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 4};
         };
         template<typename T>
@@ -79,6 +80,7 @@ namespace jop
         {
             typedef ComponentLoadFunc LoadFunc;
             typedef ComponentSaveFunc SaveFunc;
+            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 0};
         };
         template<typename T>
@@ -86,6 +88,7 @@ namespace jop
         {
             typedef LayerLoadFunc LoadFunc;
             typedef LayerSaveFunc SaveFunc;
+            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 1};
         };
         template<typename T>
@@ -93,6 +96,7 @@ namespace jop
         {
             typedef SceneLoadFunc LoadFunc;
             typedef SceneSaveFunc SaveFunc;
+            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 2};
         };
         template<typename T>
@@ -100,6 +104,7 @@ namespace jop
         {
             typedef SubsystemLoadFunc LoadFunc;
             typedef SubsystemSaveFunc SaveFunc;
+            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 3};
         };
     }
@@ -107,12 +112,6 @@ namespace jop
     class JOP_API StateLoader
     {
     private:
-
-        typedef std::unordered_map<std::string, std::tuple<ComponentLoadFunc, ComponentSaveFunc>>   CompFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<LayerLoadFunc, LayerSaveFunc>>           LayerFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<SceneLoadFunc, SceneSaveFunc>>           SceneFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<SubsystemLoadFunc, SubsystemSaveFunc>>   SubsystemFuncContainer;
-        typedef std::unordered_map<std::string, std::tuple<CustomLoadFunc, CustomSaveFunc>>         CustomFuncContainer;
 
         StateLoader() = default;
 
@@ -129,6 +128,11 @@ namespace jop
         bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
 
         bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+
+        template<typename T>
+        const typename detail::FuncChooser<T>::FuncContainer& getFunctionContainer() const;
+
+        const std::unordered_map<std::type_index, std::string>& getSavenameContainer() const;
 
     private:
 
@@ -154,11 +158,11 @@ namespace jop
         ///
         std::tuple
         <
-            CompFuncContainer,
-            LayerFuncContainer,
-            SceneFuncContainer,
-            SubsystemFuncContainer,
-            CustomFuncContainer,
+            detail::FuncChooser<Component>::FuncContainer,  // Component
+            detail::FuncChooser<Layer>::FuncContainer,      // Layer
+            detail::FuncChooser<Scene>::FuncContainer,      // Scene
+            detail::FuncChooser<Subsystem>::FuncContainer,  // Subsystem
+            detail::FuncChooser<void>::FuncContainer,       // Custom (other)
 
             // Maps the type info to identifiers, to be used when saving. Keep this last
             std::unordered_map<std::type_index, std::string>

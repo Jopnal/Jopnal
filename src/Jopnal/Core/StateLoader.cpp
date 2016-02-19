@@ -84,7 +84,7 @@ namespace jop
         if (subsystems)
         {
             const auto& subCont = std::get<SubID>(m_loaderSavers);
-            const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+            const auto& nameMap = getSavenameContainer();
 
             auto& subArr = doc.AddMember(json::StringRef(ns_subsystemField), json::kArrayType, doc.GetAllocator())[ns_subsystemField];
 
@@ -118,9 +118,20 @@ namespace jop
         if (scene && !saveScene(*Engine::m_engineObject->m_currentScene, doc.AddMember(json::StringRef(ns_sceneField), json::kObjectType, doc.GetAllocator())[ns_sceneField], doc.GetAllocator(), path))
             return false;
 
+        static const bool pretty = SettingManager::getBool("bPrettyStateFormat", false);
+
         json::StringBuffer buffer;
-        json::PrettyWriter<json::StringBuffer> writer(buffer);
-        doc.Accept(writer);
+
+        if (pretty)
+        {
+            json::PrettyWriter<json::StringBuffer> writer(buffer);
+            doc.Accept(writer);
+        }
+        else
+        {
+            json::Writer<json::StringBuffer> writer(buffer);
+            doc.Accept(writer);
+        }
 
         return FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize());
     }
@@ -222,6 +233,13 @@ namespace jop
         }
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer() const
+    {
+        return std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
     }
 
     //////////////////////////////////////////////
@@ -478,7 +496,7 @@ namespace jop
     bool StateLoader::saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
         const auto& sceneCont = std::get<SceneID>(m_loaderSavers);
-        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+        const auto& nameMap = getSavenameContainer();
 
         // Type name iterator
         auto itrRedir = nameMap.find(std::type_index(typeid(scene)));
@@ -529,7 +547,7 @@ namespace jop
     bool StateLoader::saveLayers(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
         const auto& layerCont = std::get<LayerID>(m_loaderSavers);
-        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+        const auto& nameMap = getSavenameContainer();
 
         for (auto& i : scene.m_layers)
         {
@@ -603,7 +621,7 @@ namespace jop
         const char* const transformField = "transform";
 
         const auto& compCont = std::get<CompID>(m_loaderSavers);
-        const auto& nameMap = std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+        const auto& nameMap = getSavenameContainer();
 
         // Active
         data.AddMember(json::StringRef(activeField), obj.isActive(), alloc);
