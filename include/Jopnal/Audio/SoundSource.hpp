@@ -67,43 +67,79 @@ namespace jop
         ///
         void update(const float deltaTime)override;
 
-        /// \brief Load sound from file
+        /// \brief Load sound buffer from resource manager
+        ///
+        /// Can not be constant
         ///
         /// \param Path to audio file
         ///
-        void set(const std::string& path);
+        SoundSource& setBuffer(const std::string& path);
 
-        /// \brief Load sound from file with listener enabled
+        /// \brief Play sound
         ///
-        /// This method ignores value if set to 0, xyz=(0,0,0), at=0, min=0 
+        /// \param Enum Does sound start from beginning or continaue if already playing
         ///
-        /// \param Path to audio file, position xyz, Attenuation 0-100.0f and minDistance 1<x
+        SoundSource& Play(bool reset);
+
+        /// \brief Stop playing sound
         ///
-        void set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min);
+        SoundSource& Stop();
+
+        /// \brief Pause sound
+        ///
+        SoundSource& Pause();
+
+        /// \brief Set sound's volume
+        ///
+        /// \param Float 0-100.0f default is 100.0f
+        ///
+        SoundSource& setVolume(const float& vol);
+
+        /// \brief Returns float volume
+        ///
+        float getVolume();
+
+        /// \brief Set from which point as seconds the sound starts playing
+        ///
+        /// \param Float time
+        ///
+        SoundSource& setOffset(const float& time);
+
+        /// \brief Returns point where sound is playing as seconds
+        ///
+        const float getOffset();
+
+        /// \brief Set pitch
+        ///
+        /// \param Float default is 1
+        ///
+        SoundSource& setPitch(const float& value);
+
+        /// \brief Returns pitch
+        ///
+        const float getPitch();
+
+        /// \brief Returns status Playing, Paused or Stopped as enum
+        ///
+        int getStatus();
 
         /// \brief Toggle sound on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleLoop(bool loop);
-
-        /// \brief Toggle sound on/off and update position
-        ///
-        /// \param Boolean On/off and position xyz
-        ///
-        void toggleLoop(bool loop, const float& x, const float& y, const float& z);
+        SoundSource& setLoop(bool loop);
 
         /// \brief Toggle listener on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleListener(bool toggle);
+        SoundSource& setListener(bool toggle);
 
         /// \brief Change stream's fade and distance of max volume
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
-        void setAttenuationAndMinDistance(const float& at, const float& min);
+        SoundSource& setAttenuationAndMinDistance(const float& at, const float& min);
 
         /// \brief Clone m_sound
         ///

@@ -52,61 +52,126 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundSource::set(const std::string& path)
+    SoundSource& SoundSource::setBuffer(const std::string& path)
     {
        m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
-       m_sound->play();
+
+       return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundSource::set(const std::string& path, const float& x, const float& y, const float& z,const float& at, const float& min)
+    SoundSource& SoundSource::Play(bool reset)
     {
-        m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
-        m_sound->setRelativeToListener(true);
-       
-        if (x != 0 || y != 0 || z != 0);
-        m_sound->setPosition(x, y, z);
-
-        if (at != 0);
-        m_sound->setAttenuation(at);
-      
-        if (min != 0);
-        m_sound->setMinDistance(min);
+        if (m_sound->getStatus() == sf::Sound::Status::Playing)
+        {
+            if (reset);
+            return *this;
+        }
 
         m_sound->play();
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundSource::toggleLoop(bool loop)
+    SoundSource& SoundSource::Stop()
+    {
+        m_sound->stop();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::Pause()
+    {
+        m_sound->pause();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setVolume(const float& vol)
+    {
+        m_sound->setVolume(vol);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    float SoundSource::getVolume()
+    {
+        return m_sound->getVolume();
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setOffset(const float& time)
+    {
+        m_sound->setPlayingOffset(&time);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const float SoundSource::getOffset()
+    {
+       return m_sound->getPlayingOffset().asSeconds();
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setPitch(const float& value)
+    {
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const float SoundSource::getPitch()
+    {
+        return m_sound->getPitch();
+    }
+
+    //////////////////////////////////////////////
+
+    int SoundSource::getStatus()
+    {
+       m_sound->getStatus();
+       return 999;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setLoop(bool loop)
     {
         m_sound->setLoop(loop);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundSource::toggleLoop(bool loop, const float& x, const float& y, const float& z)
-    {
-        m_sound->setPosition(x, y, z);
-        m_sound->setLoop(loop);
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundSource::toggleListener(bool toggle)
+    SoundSource& SoundSource::setListener(bool toggle)
     {
         m_sound->setRelativeToListener(toggle);
-        m_sound->setAttenuation(100.0f);
-        m_sound->setMinDistance(1);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundSource::setAttenuationAndMinDistance(const float& at, const float& min)
+    SoundSource& SoundSource::setAttenuationAndMinDistance(const float& at, const float& min)
     {
         m_sound->setAttenuation(at);
         m_sound->setMinDistance(min);
+
+        return *this;
     }
 
     //////////////////////////////////////////////

@@ -53,7 +53,7 @@ namespace jop
     //////////////////////////////////////////////
 
 
-    void SoundStream::set(const std::string& path)
+    SoundStream& SoundStream::setPath(const std::string& path)
     {
         if (m_stream->openFromFile(path))
         {
@@ -62,58 +62,34 @@ namespace jop
         }
         else
             JOP_DEBUG_ERROR("Error in SoundStream::setStream: "<<path)
+
+            return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundStream::set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min)
-    {
-        if (m_stream->openFromFile(path))
-        {
-            m_path = path;
-            m_stream->setRelativeToListener(true);
-           
-            if (x != 0 || y != 0 || z != 0);
-            m_stream->setPosition(x, y, z);
-
-            if (at != 0);
-            m_stream->setAttenuation(at);
-
-            if (min != 0);
-            m_stream->setMinDistance(min);
-
-            m_stream->play();
-        }
-        else
-            JOP_DEBUG_ERROR("Error in SoundStream::setStream: " << path)
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundStream::toggleLoop(bool loop)
+    SoundStream& SoundStream::setLoop(bool loop)
     {
         m_stream->setLoop(loop);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void SoundStream::toggleLoop(bool loop, const float& x, const float& y, const float& z)
-    {
-        m_stream->setPosition(x, y, z);
-        m_stream->setLoop(loop);
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundStream::toggleListener(bool toggle)
+    SoundStream& SoundStream::setListener(bool toggle)
     {
         m_stream->setRelativeToListener(toggle);
+
+        return *this;
     }
 
-    void SoundStream::setAttenuationAndMinDistance(const float& at, const float& min)
+    SoundStream& SoundStream::setAttenuationAndMinDistance(const float& at, const float& min)
     {
         m_stream->setAttenuation(at);
         m_stream->setMinDistance(min);
+
+        return *this;
     }
 
     //////////////////////////////////////////////

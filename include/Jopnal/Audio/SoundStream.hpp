@@ -71,41 +71,25 @@ namespace jop
         ///
         /// \param Path to audio file
         ///
-        void set(const std::string& path);
-
-        /// \brief Stream audio from file with listener enabled
-        ///
-        /// Needs relative path to asset flodder
-        ///
-        /// This method ignores value if set to 0, xyz=(0,0,0), at=0, min=0 
-        ///
-        /// \param Path to audio file, position xyz, Attenuation 0-100.0f and minDistance 1<x
-        ///
-        void set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min);
+        SoundStream& setPath(const std::string& path);
 
         /// \brief Toggle stream on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleLoop(bool loop);
-
-        /// \brief Toggle stream on/off and update position
-        ///
-        /// \param On/off and position xyz
-        ///
-        void toggleLoop(bool loop, const float& x, const float& y, const float& z);
+        SoundStream& setLoop(bool loop);
 
         /// \brief Toggle listener on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleListener(bool toggle);
+        SoundStream& setListener(bool toggle);
 
         /// \brief Change sound's fade and distance of max volume
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
-        void setAttenuationAndMinDistance(const float& at, const float& min);
+        SoundStream& setAttenuationAndMinDistance(const float& at, const float& min);
 
         /// \brief Get information from member variables
         ///
