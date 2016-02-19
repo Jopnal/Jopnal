@@ -59,30 +59,46 @@ namespace jop
 
         JOP_GENERIC_CLONE(SoundStream);
 
+        /// \brief Automatically updates position
+        ///
+        void update(const float deltaTime)override;
+
         /// \brief setSound
         ///
         /// \param Path to audio file
         ///
-        void setStream(const std::string& path);
+        void set(const std::string& path);
 
 
         /// \brief setSound with listener
         ///
         /// \param Path to audio file and position xyz
         ///
-        void setStream(const std::string& path,const float& x,const float& y,const float& z);
+        void set(const std::string& path,const float& x,const float& y,const float& z);
 
         /// \brief Toggle stream on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleStreamLoop(bool loop);
+        void toggleLoop(bool loop);
 
         /// \brief Toggle stream on/off and update position
         ///
         /// \param On/off and position xyz
         ///
-        void toggleStreamLoop(bool loop, const float& x, const float& y, const float& z);
+        void toggleLoop(bool loop, const float& x, const float& y, const float& z);
+
+        /// \brief Toggle listener on/off
+        ///
+        /// \param Boolean true iquals on and false iquals off
+        ///
+        void toggleListener(bool toggle);
+
+        /// \brief Get information from member variables
+        ///
+        /// \param SoundStream component to copy to
+        ///
+        void clone(sf::Music& copy);
 
         /// \brief Toggle listener on/off
         ///
@@ -90,11 +106,11 @@ namespace jop
         ///
         void toggleStreamListener(bool toggle);
 
-        /// \brief Get information from member variables
+        /// \brief Change sound's fade and distance of max volume
         ///
-        /// \param SoundStream component to copy to
+        /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
-        void clone(sf::Music& copy);
+        void setAttenuationAndMinDistance(const float& at, const float& min);
 
     private:
         std::unique_ptr<sf::Music> m_stream;    ///< Unique audio stream

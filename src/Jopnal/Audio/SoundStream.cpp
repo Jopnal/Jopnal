@@ -45,8 +45,15 @@ namespace jop
     //////////////////////////////////////////////
     //////////////////////////////////////////////
 
+    void SoundStream::update(const float)
+    {
+        m_stream->setPosition(getObject().getPosition().x, getObject().getPosition().y, getObject().getPosition().z);
+    }
 
-    void SoundStream::setStream(const std::string& path)
+    //////////////////////////////////////////////
+
+
+    void SoundStream::set(const std::string& path)
     {
         if (m_stream->openFromFile(path))
         {
@@ -59,7 +66,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::setStream(const std::string& path, const float& x, const float& y, const float& z)
+    void SoundStream::set(const std::string& path, const float& x, const float& y, const float& z)
     {
         if (m_stream->openFromFile(path))
         {
@@ -74,14 +81,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::toggleStreamLoop(bool loop)
+    void SoundStream::toggleLoop(bool loop)
     {
         m_stream->setLoop(loop);
     }
 
     //////////////////////////////////////////////
 
-    void SoundStream::toggleStreamLoop(bool loop, const float& x, const float& y, const float& z)
+    void SoundStream::toggleLoop(bool loop, const float& x, const float& y, const float& z)
     {
         m_stream->setPosition(x, y, z);
         m_stream->setLoop(loop);
@@ -89,9 +96,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::toggleStreamListener(bool toggle)
+    void SoundStream::toggleListener(bool toggle)
     {
         m_stream->setRelativeToListener(toggle);
+    }
+
+    void SoundStream::setAttenuationAndMinDistance(const float& at, const float& min)
+    {
+        m_stream->setAttenuation(at);
+        m_stream->setMinDistance(min);
     }
 
     //////////////////////////////////////////////

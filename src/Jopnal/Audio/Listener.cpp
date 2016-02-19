@@ -28,16 +28,15 @@ namespace jop
 {
     Listener::Listener(Object& object, const std::string& ID)
         :Component(object, ID)
-      //  m_listener(std::make_unique<sf::Listener>())
-    {
-        if (&m_listener != nullptr)
-        {
-            JOP_DEBUG_WARNING("WARNING!: There is already declarated listener!")
-        }
-       m_camera.operator=( object.getComponent<Camera>());
-    }
+    {}
     
     ///////////////////////////////////////
+
+    Listener::Listener(const Listener& other)
+        : Component(other)
+    {}
+
+    //////////////////////////////////////////////
 
     Listener::~Listener()
     {}
@@ -45,35 +44,10 @@ namespace jop
     //////////////////////////////////////////////
     //////////////////////////////////////////////
 
-    void Listener::update()
-    {     
-            glm::mat4 modelViewT = glm::transpose(m_camera.lock()->getViewMatrix());            
-           
-            // Get plane normals 
-            glm::vec3 n1(modelViewT[0]);
-            glm::vec3 n2(modelViewT[1]);
-            glm::vec3 n3(modelViewT[2]);
-
-            sf::Vector3f sfPos = { n3.x,n3.y,n3.z };
-            sf::Listener::setDirection(sfPos);
-
-            // Get plane distances
-            float d1(modelViewT[0].w);
-            float d2(modelViewT[1].w);
-            float d3(modelViewT[2].w);
-
-            // Get the intersection of these 3 planes
-            glm::vec3 n2n3 = cross(n2, n3);
-            glm::vec3 n3n1 = cross(n3, n1);
-            glm::vec3 n1n2 = cross(n1, n2);
-
-            glm::vec3 top = (n2n3 * d1) + (n3n1 * d2) + (n1n2 * d3);
-            float denom = dot(n1, n2n3);
-
-            glm::vec3 pos = top / -denom;
-            sfPos= { pos.x, pos.y, pos.z };
-            sf::Listener::setPosition(sfPos);
-            
+    void Listener::update(const float)
+    {  
+        sf::Listener::setPosition(getObject().getPosition().x, getObject().getPosition().y, getObject().getPosition().z);
+        sf::Listener::setDirection(getObject().getRotation().x, getObject().getRotation().y, getObject().getRotation().z);
     }
 
     ///////////////////////////////////////
@@ -102,7 +76,6 @@ namespace jop
     void Listener::setPosition(const glm::fvec3& position)
     {
         sf::Vector3f pos = { position.x, position.y, position.z };
-        sf::Listener::setPosition(pos);
     }
 
     ///////////////////////////////////////

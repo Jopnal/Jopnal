@@ -28,6 +28,11 @@
 #include <memory>
 #include <string>
 //////////////////////////////////////////////
+namespace sf
+{
+    class Listener;
+}
+
 namespace jop
 {
     class Object;
@@ -42,14 +47,17 @@ namespace jop
         /// \param ID Unique component identifier
         ///
         Listener(Object& object, const std::string& ID);
+        Listener(const Listener& other);
 
         /// \brief Virtual destructor
         ///
         ~Listener();
 
+        JOP_GENERIC_CLONE(Listener);
+
         /// \brief Automatically updates position and direction
         ///
-        void update();
+        void update(const float deltaTime)override;
 
         /// \brief Change the global volume of all the sounds and musics
         ///
@@ -91,11 +99,7 @@ namespace jop
         /// \brief Get the current orientation of the listener in the scene
         ///
         const glm::fvec3 getDirection();
-
     private:
-        static Listener* m_listener;
-        std::weak_ptr<Camera> m_camera;
-
     };
 }
 #endif

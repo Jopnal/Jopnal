@@ -61,36 +61,45 @@ namespace jop
 
         JOP_GENERIC_CLONE(SoundSource);
 
-    
+        /// \brief Automatically updates position
+        ///
+        void update(const float deltaTime)override;
+
         /// \brief setSound
         ///
         /// \param Path to audio file
         ///
-        void setSound(const std::string& path);
+        void set(const std::string& path);
 
         /// \brief setSound with listener
         ///
         /// \param Path to audio file and position xyz
         ///
-        void setSound(const std::string& path, const float& x, const float& y, const float& z);
+        void set(const std::string& path, const float& x, const float& y, const float& z);
 
         /// \brief Toggle sound on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleSoundLoop(bool loop);
+        void toggleLoop(bool loop);
 
         /// \brief Toggle sound on/off and update position
         ///
         /// \param Boolean On/off and position xyz
         ///
-        void toggleSoundLoop(bool loop, const float& x, const float& y, const float& z);
+        void toggleLoop(bool loop, const float& x, const float& y, const float& z);
 
         /// \brief Toggle listener on/off
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        void toggleStreamListener(bool toggle);
+        void toggleListener(bool toggle);
+
+        /// \brief Change stream's fade and distance of max volume
+        ///
+        /// \param Attenuation 0-100.0f and minDistance 1<x
+        ///
+        void setAttenuationAndMinDistance(const float& at, const float& min);
 
         /// \brief Clone m_sound
         ///

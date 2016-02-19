@@ -45,8 +45,14 @@ namespace jop
     //////////////////////////////////////////////
     //////////////////////////////////////////////
 
+    void SoundSource::update(const float)
+    {
+        m_sound->setPosition(getObject().getPosition().x, getObject().getPosition().y,getObject().getPosition().z);
+    }
 
-    void SoundSource::setSound(const std::string& path)
+    //////////////////////////////////////////////
+
+    void SoundSource::set(const std::string& path)
     {
        m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
        m_sound->play();
@@ -54,7 +60,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundSource::setSound(const std::string& path, const float& x, const float& y, const float& z)
+    void SoundSource::set(const std::string& path, const float& x, const float& y, const float& z)
     {
         m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
         m_sound->setRelativeToListener(true);
@@ -64,14 +70,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundSource::toggleSoundLoop(bool loop)
+    void SoundSource::toggleLoop(bool loop)
     {
         m_sound->setLoop(loop);
     }
 
     //////////////////////////////////////////////
 
-    void SoundSource::toggleSoundLoop(bool loop, const float& x, const float& y, const float& z)
+    void SoundSource::toggleLoop(bool loop, const float& x, const float& y, const float& z)
     {
         m_sound->setPosition(x, y, z);
         m_sound->setLoop(loop);
@@ -79,9 +85,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundSource::toggleStreamListener(bool toggle)
+    void SoundSource::toggleListener(bool toggle)
     {
         m_sound->setRelativeToListener(toggle);
+        m_sound->setAttenuation(100.0f);
+        m_sound->setMinDistance(1);
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::setAttenuationAndMinDistance(const float& at, const float& min)
+    {
+        m_sound->setAttenuation(at);
+        m_sound->setMinDistance(min);
     }
 
     //////////////////////////////////////////////
