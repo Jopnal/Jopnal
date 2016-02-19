@@ -26,6 +26,21 @@
 
 
 namespace jop
+{
+    JOP_REGISTER_LOADABLE(jop, SphereMesh)[](const void*, const json::Value& val)
+    {
+
+    }
+    JOP_END_LOADABLE_REGISTRATION(SphereMesh)
+
+    JOP_REGISTER_SAVEABLE(jop, SphereMesh)[](const void* sphere, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+
+    }
+    JOP_END_SAVEABLE_REGISTRATION(SphereMesh)
+}
+
+namespace jop
 {    
     SphereMesh::SphereMesh(const std::string& name)
         : Mesh(name)
@@ -95,5 +110,33 @@ namespace jop
         }
 
         return Mesh::load(vertexArray, indices);
+    }
+
+    //////////////////////////////////////////////
+
+    float SphereMesh::getRadius() const
+    {
+        return m_radius;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int SphereMesh::getRings() const
+    {
+        return m_rings;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int SphereMesh::getSectors() const
+    {
+        return m_sectors;
+    }
+
+    //////////////////////////////////////////////
+
+    bool SphereMesh::normalizedTexCoords() const
+    {
+        return m_normTexCoords;
     }
 }

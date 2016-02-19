@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SPHEREMODEL_HPP
-#define JOP_SPHEREMODEL_HPP
+#ifndef JOP_SPHEREMESH_HPP
+#define JOP_SPHEREMESH_HPP
 
 //Headers
 #include <Jopnal/Header.hpp>
@@ -64,12 +64,25 @@ namespace jop
         ///
         bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
+        float getRadius() const;
+        unsigned int getRings() const;
+        unsigned int getSectors() const;
+        bool normalizedTexCoords() const;
+
+    private:
+
+        // For saving purposes
+        float m_radius;
+        unsigned int m_rings;
+        unsigned int m_sectors;
+        bool m_normTexCoords;
+
     };
 }
 
 #endif
 
-/// \class SphereModel
+/// \class SphereMesh
 /// \ingroup Graphics
 ///
 /// 

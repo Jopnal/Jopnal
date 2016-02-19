@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_BOXMODEL_HPP
-#define JOP_BOXMODEL_HPP
+#ifndef JOP_BOXMESH_HPP
+#define JOP_BOXMESH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -60,12 +60,19 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
+        float getSize() const;
+
+    private:
+
+        // Member variables for saving purposes
+        float m_size;
     };
 }
 
 #endif
 
-/// \class BoxModel
+/// \class BoxMesh
 /// \ingroup Graphics
 ///
 /// 

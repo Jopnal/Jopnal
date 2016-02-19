@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLEMODEL_HPP
-#define JOP_RECTANGLEMODEL_HPP
+#ifndef JOP_RECTANGLEMESH_HPP
+#define JOP_RECTANGLEMESH_HPP
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
@@ -65,7 +65,7 @@ namespace jop
 }
 #endif
 
-/// \class BoxModel
+/// \class RectangleMesh
 /// \ingroup Graphics
 ///
 /// 
