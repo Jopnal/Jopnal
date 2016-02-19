@@ -55,27 +55,31 @@ namespace jop
         ///
         SoundSource(const SoundSource& other);
 
+        /// \brief Check for copy constructor's need
+        ///
+        JOP_GENERIC_CLONE(SoundSource);
+
         /// \brief Virtual destructor
         ///
         ~SoundSource();
-
-        JOP_GENERIC_CLONE(SoundSource);
 
         /// \brief Automatically updates position
         ///
         void update(const float deltaTime)override;
 
-        /// \brief setSound
+        /// \brief Load sound from file
         ///
         /// \param Path to audio file
         ///
         void set(const std::string& path);
 
-        /// \brief setSound with listener
+        /// \brief Load sound from file with listener enabled
         ///
-        /// \param Path to audio file and position xyz
+        /// This method ignores value if set to 0, xyz=(0,0,0), at=0, min=0 
         ///
-        void set(const std::string& path, const float& x, const float& y, const float& z);
+        /// \param Path to audio file, position xyz, Attenuation 0-100.0f and minDistance 1<x
+        ///
+        void set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min);
 
         /// \brief Toggle sound on/off
         ///

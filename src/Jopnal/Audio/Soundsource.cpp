@@ -60,11 +60,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundSource::set(const std::string& path, const float& x, const float& y, const float& z)
+    void SoundSource::set(const std::string& path, const float& x, const float& y, const float& z,const float& at, const float& min)
     {
         m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
         m_sound->setRelativeToListener(true);
+       
+        if (x != 0 || y != 0 || z != 0);
         m_sound->setPosition(x, y, z);
+
+        if (at != 0);
+        m_sound->setAttenuation(at);
+      
+        if (min != 0);
+        m_sound->setMinDistance(min);
+
         m_sound->play();
     }
 

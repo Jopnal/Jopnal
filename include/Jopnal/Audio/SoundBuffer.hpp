@@ -46,12 +46,14 @@ namespace jop
         ///
        ~SoundBuffer();
 
-        /// \brief FileLoader to load new buffer from file
+        /// \brief Uses fileLoader to load new buffer from file
         ///
         /// \param path Name or path for wanted resource
         ///
         bool load(const std::string& path);
 
+        /// \brief Returns buffer
+        ///
         const sf::SoundBuffer& getSfmlBuffer() const;
 
     private:

@@ -29,8 +29,6 @@ namespace jop
     Listener::Listener(Object& object, const std::string& ID)
         :Component(object, ID)
     {}
-    
-    ///////////////////////////////////////
 
     Listener::Listener(const Listener& other)
         : Component(other)
@@ -106,5 +104,4 @@ namespace jop
     {
         return glm::fvec3(sf::Listener::getDirection().x, sf::Listener::getDirection().z, sf::Listener::getDirection().y);
     }
-
 }

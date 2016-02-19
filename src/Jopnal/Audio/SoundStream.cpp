@@ -35,11 +35,11 @@ namespace jop
         : Component(other),
         m_stream()
     {
-        other.clone()->clone(*m_stream);
+        other.clone()->copy(*m_stream);
     }
     //////////////////////////////////////////////
 
-    SoundSource::~SoundSource()
+    SoundStream::~SoundStream()
     {}
 
     //////////////////////////////////////////////
@@ -66,13 +66,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::set(const std::string& path, const float& x, const float& y, const float& z)
+    void SoundStream::set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min)
     {
         if (m_stream->openFromFile(path))
         {
             m_path = path;
             m_stream->setRelativeToListener(true);
+           
+            if (x != 0 || y != 0 || z != 0);
             m_stream->setPosition(x, y, z);
+
+            if (at != 0);
+            m_stream->setAttenuation(at);
+
+            if (min != 0);
+            m_stream->setMinDistance(min);
+
             m_stream->play();
         }
         else
@@ -109,7 +118,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SoundStream::clone(sf::Music& copy)
+    void SoundStream::copy(sf::Music& copy)
     {
         copy.setPlayingOffset(m_stream->getPlayingOffset());
        
@@ -124,6 +133,4 @@ namespace jop
         if(m_stream->getStatus()!=sf::Music::Playing);
         copy.pause();
     }
-
-
 }

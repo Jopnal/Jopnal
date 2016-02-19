@@ -53,28 +53,35 @@ namespace jop
         ///
         SoundStream(const SoundStream& other);
 
+        /// \brief Check for copy constructor's need
+        ///
+        JOP_GENERIC_CLONE(SoundStream);
+
         /// \brief Virtual destructor
         ///
         ~SoundStream();
-
-        JOP_GENERIC_CLONE(SoundStream);
 
         /// \brief Automatically updates position
         ///
         void update(const float deltaTime)override;
 
-        /// \brief setSound
+        /// \brief Stream audio from file
+        ///
+        /// Needs relative path to asset flodder
         ///
         /// \param Path to audio file
         ///
         void set(const std::string& path);
 
-
-        /// \brief setSound with listener
+        /// \brief Stream audio from file with listener enabled
         ///
-        /// \param Path to audio file and position xyz
+        /// Needs relative path to asset flodder
         ///
-        void set(const std::string& path,const float& x,const float& y,const float& z);
+        /// This method ignores value if set to 0, xyz=(0,0,0), at=0, min=0 
+        ///
+        /// \param Path to audio file, position xyz, Attenuation 0-100.0f and minDistance 1<x
+        ///
+        void set(const std::string& path, const float& x, const float& y, const float& z, const float& at, const float& min);
 
         /// \brief Toggle stream on/off
         ///
@@ -94,27 +101,21 @@ namespace jop
         ///
         void toggleListener(bool toggle);
 
-        /// \brief Get information from member variables
-        ///
-        /// \param SoundStream component to copy to
-        ///
-        void clone(sf::Music& copy);
-
-        /// \brief Toggle listener on/off
-        ///
-        /// \param Boolean true iquals on and false iquals off
-        ///
-        void toggleStreamListener(bool toggle);
-
         /// \brief Change sound's fade and distance of max volume
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
         void setAttenuationAndMinDistance(const float& at, const float& min);
 
+        /// \brief Get information from member variables
+        ///
+        /// \param SoundStream component to copy to
+        ///
+        void copy(sf::Music& copy);
+
     private:
         std::unique_ptr<sf::Music> m_stream;    ///< Unique audio stream
-        std::string m_path;
+        std::string m_path;                     ///< Remembers streaming path for cloning
     };
 }
 #endif

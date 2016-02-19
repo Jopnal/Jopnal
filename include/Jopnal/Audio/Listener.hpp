@@ -25,14 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <memory>
 #include <string>
 //////////////////////////////////////////////
-namespace sf
-{
-    class Listener;
-}
-
 namespace jop
 {
     class Object;
@@ -47,13 +41,18 @@ namespace jop
         /// \param ID Unique component identifier
         ///
         Listener(Object& object, const std::string& ID);
+
+        /// \brief Copy constructor
+        ///
         Listener(const Listener& other);
+
+        /// \brief Check for copy constructor's need
+        ///
+        JOP_GENERIC_CLONE(Listener);
 
         /// \brief Virtual destructor
         ///
         ~Listener();
-
-        JOP_GENERIC_CLONE(Listener);
 
         /// \brief Automatically updates position and direction
         ///
@@ -61,7 +60,8 @@ namespace jop
 
         /// \brief Change the global volume of all the sounds and musics
         ///
-        /// \param Float volume in range of 0-100
+        /// \param Global volume in range of 0-100.0f
+        ///
         void setGlobalVolume(float vol);
 
         /// \brief Get the current value of the global volume
@@ -99,7 +99,6 @@ namespace jop
         /// \brief Get the current orientation of the listener in the scene
         ///
         const glm::fvec3 getDirection();
-    private:
     };
 }
 #endif
