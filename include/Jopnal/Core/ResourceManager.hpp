@@ -96,8 +96,27 @@ namespace jop
         template<typename T>
         static T& getExistingResource(const std::string& name);
 
+        /// \brief Check is a resource exists
+        ///
+        /// You can pass the resource type as a template argument to compare against it.
+        /// If only the name should be checked, T should be Resource.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return True if the resource exists
+        /// 
         template<typename T = Resource>
         static bool resourceExists(const std::string& name);
+
+        /// \brief Get the number of references of a resource
+        ///
+        /// The return value will be 0 if the resource wasn't found.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return The reference count
+        ///
+        static unsigned int getReferenceCount(const std::string& name);
 
 
         /// \brief Deletes resource from memory

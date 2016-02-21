@@ -29,13 +29,52 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, SphereMesh)[](const void*, const json::Value& val)
     {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load SphereMesh, no name found");
+            return false;
+        }
 
+        float radius = 1.f;
+        unsigned int rings = 20;
+        unsigned int sectors = 20;
+        bool norm = true;
+
+        // Radius
+        if (val.HasMember("radius") && val["radius"].IsDouble())
+            radius = static_cast<float>(val["radius"].GetDouble());
+
+        // Rings
+        if (val.HasMember("rings") && val["rings"].IsUint())
+            rings = val["rings"].GetUint();
+
+        // Sectors
+        if (val.HasMember("sectors") && val["sectors"].IsUint())
+            sectors = val["sectors"].GetUint();
+
+        // Normalized?
+        if (val.HasMember("normtc") && val["normtc"].IsBool())
+            norm = val["normtc"].GetBool();
+
+        ResourceManager::getNamedResource<SphereMesh>(val["name"].GetString(), radius, rings, sectors, norm)
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
     }
     JOP_END_LOADABLE_REGISTRATION(SphereMesh)
 
     JOP_REGISTER_SAVEABLE(jop, SphereMesh)[](const void* sphere, json::Value& val, json::Value::AllocatorType& alloc)
     {
+        const SphereMesh& ref = *static_cast<const SphereMesh*>(sphere);
 
+        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc)
+           .AddMember(json::StringRef("radius"), ref.getRadius(), alloc)
+           .AddMember(json::StringRef("rings"), ref.getRings(), alloc)
+           .AddMember(json::StringRef("sectors"), ref.getSectors(), alloc)
+           .AddMember(json::StringRef("normtc"), ref.normalizedTexCoords(), alloc)
+           .AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+
+        return true;
     }
     JOP_END_SAVEABLE_REGISTRATION(SphereMesh)
 }
@@ -56,6 +95,11 @@ namespace jop
 
     bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
     {
+        m_radius = radius;
+        m_rings = rings;
+        m_sectors = sectors;
+        m_normTexCoords = normalizedTexCoords;
+
         const float R = 1.0f / static_cast<float>(rings - 1);
         const float S = 1.0f / static_cast<float>(sectors - 1);
 

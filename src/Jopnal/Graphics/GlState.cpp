@@ -48,6 +48,7 @@ namespace
     std::pair<bool, float> ns_line;
     jop::GlState::PolygonMode ns_polygonMode;
     std::vector<bool> ns_vertexAttribs;
+    bool ns_depthMask;
 
     void enableDisable(const bool enable, GLenum enum_)
     {
@@ -92,6 +93,9 @@ namespace jop
 
         // All vertex attributes are disabled by default
         ns_vertexAttribs.clear();
+
+        // Depth mask is enabled by default
+        ns_depthMask = true;
     }
 
     //////////////////////////////////////////////
@@ -263,6 +267,18 @@ namespace jop
             }
 
             ns_vertexAttribs[clamp] = enable;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void GlState::setDepthWrite(const bool enable)
+    {
+        if (ns_depthMask != enable)
+        {
+            glCheck(gl::DepthMask(enable));
+
+            ns_depthMask = enable;
         }
     }
 }

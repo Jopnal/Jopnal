@@ -118,6 +118,8 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
+        static Mesh& getDefault();
+
     private:
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer

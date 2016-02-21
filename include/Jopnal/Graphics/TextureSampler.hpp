@@ -127,6 +127,14 @@ namespace jop
         ///
         unsigned int getHandle() const;
 
+        Filter getFilteringMode() const;
+
+        Repeat getRepeatMode() const;
+
+        float getAnisotropyLevel() const;
+
+        Color getBorderColor() const;
+
         /// \brief Get the maximum anisotropy level supported by the system
         ///
         /// \return The maximum anisotropy level. Zero if not supported
@@ -141,6 +149,10 @@ namespace jop
 
     private:
 
+        Filter m_filter;
+        Repeat m_repeat;
+        float m_anisotropic;
+        Color m_borderColor;
         unsigned int m_sampler; ///< The OpenGL sampler handle
 
     };

@@ -61,6 +61,13 @@ namespace jop
         ///
         bool load(const float size);
 
+
+        float getSize() const;
+
+    private:
+
+        float m_size;
+
     };
 }
 #endif

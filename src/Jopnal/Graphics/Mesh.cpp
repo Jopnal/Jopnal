@@ -33,6 +33,11 @@
 
 namespace jop
 {
+
+}
+
+namespace jop
+{
     Mesh::LoadOptions::LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_)
         : transform         (),
           centerOrigin      (centerOrigin_),
@@ -257,5 +262,24 @@ namespace jop
     const VertexBuffer& Mesh::getVertexBuffer() const
     {
         return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    Mesh& Mesh::getDefault()
+    {
+        static std::weak_ptr<BoxMesh> defMesh;
+
+        if (defMesh.expired())
+        {
+            defMesh = std::static_pointer_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("Default Mesh").shared_from_this());
+
+            JOP_ASSERT_EVAL(defMesh.lock()->load(1.f), "Couldn't load default model!");
+
+            defMesh.lock()->setPersistent(true);
+            defMesh.lock()->setManaged(true);
+        }
+
+        return *defMesh.lock();
     }
 }

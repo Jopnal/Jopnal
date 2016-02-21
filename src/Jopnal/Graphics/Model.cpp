@@ -96,16 +96,14 @@ namespace jop
 
     const Model& Model::getDefault()
     {
-        static std::weak_ptr<BoxMesh> defMesh;
+        static std::weak_ptr<const Mesh> defMesh;
         static Model model;
 
         if (defMesh.expired())
         {
-            defMesh = std::static_pointer_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("Default Mesh").shared_from_this());
+            defMesh = std::static_pointer_cast<const Mesh>(Mesh::getDefault().shared_from_this());
 
-            JOP_ASSERT_EVAL(defMesh.lock()->load(1.f), "Couldn't load default model!");
-
-            model.setMesh(*std::static_pointer_cast<BoxMesh>(defMesh.lock()));
+            model.setMesh(*std::static_pointer_cast<Mesh>(defMesh.lock()));
         }
 
         return model;

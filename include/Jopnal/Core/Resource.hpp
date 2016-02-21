@@ -53,6 +53,7 @@ namespace jop
         ///
         const std::string& getName() const;
 
+
         /// \brief Set the persistence flag
         ///
         /// \param persistent Set this resource persistent?
@@ -65,10 +66,27 @@ namespace jop
         ///
         bool isPersistent() const;
 
+
+        /// \brief Set the managed flag
+        ///
+        /// The managed flag should be set for all resources that should
+        /// be ignored by the StateLoader
+        ///
+        /// \param def True to mark as a managed resource
+        ///
+        void setManaged(const bool def);
+
+        /// \brief Check if this is a managed resource
+        ///
+        /// \return True if managed resource
+        ///
+        bool isManaged() const;
+
     private:
 
         std::string m_name; ///< Name of this resource
         bool m_persistent;  ///< Is this resource persistent?
+        bool m_managed;     ///< Is this used as a default resource?
     };
 }
 
