@@ -32,12 +32,18 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Object)
 
         // Transform
-        JOP_BIND_MEMBER_COMMAND((Transform& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::move, "move");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::scale, "scale");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND(&Object::getComponent, "getComponent");
-        JOP_BIND_MEMBER_COMMAND(&Object::getChild, "getChild");
         JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
@@ -190,7 +196,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message)
+    Message::Result Object::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -198,7 +204,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Object::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -206,20 +212,21 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    MessageResult Object::sendMessage(const Message& message)
+    Message::Result Object::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
         {
             Any instance(this);
-            JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper());
+            if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                return Message::Result::Escape;
         }
 
         if (message.passFilter(Message::Component))
         {
             for (auto& i : m_components)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
@@ -227,12 +234,12 @@ namespace jop
         {
             for (auto& i : m_children)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     /////////////////////////////////////////////

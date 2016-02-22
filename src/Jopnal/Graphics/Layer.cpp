@@ -151,7 +151,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const std::string& message)
+    Message::Result Layer::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -159,7 +159,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Layer::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -167,21 +167,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const Message& message)
+    Message::Result Layer::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Layer, getID()))
         {
             if (message.passFilter(Message::Command))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
             if (message.passFilter(Message::Custom))
                 return sendMessageImpl(message);
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     //////////////////////////////////////////////

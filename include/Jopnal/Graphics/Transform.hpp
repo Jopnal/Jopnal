@@ -161,6 +161,10 @@ namespace jop
         ///
         Transform& lookAt(const glm::vec3& point);
 
+        /// \copydoc lookAt()
+        ///
+        Transform& lookAt(const float x, const float y, const float z);
+
 
         /// \brief Move this transform
         ///

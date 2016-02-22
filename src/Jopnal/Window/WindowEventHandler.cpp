@@ -153,11 +153,130 @@ namespace
         return k::Unknown;
     }
 
-    int getJopMouseButton(const int glfwKey)
+    int getGlfwKey(const int jopKey)
+    {
+        using k = jop::Keyboard::Key;
+
+        switch (jopKey)
+        {
+            case k::Unknown:             return GLFW_KEY_UNKNOWN;
+            case k::Space:               return GLFW_KEY_SPACE;
+            case k::Apostrophe:          return GLFW_KEY_APOSTROPHE;
+            case k::Comma:               return GLFW_KEY_COMMA;
+            case k::Minus:               return GLFW_KEY_MINUS;
+            case k::Period:              return GLFW_KEY_PERIOD;
+            case k::Slash:               return GLFW_KEY_SLASH;
+            case k::Zero:                return GLFW_KEY_0;
+            case k::One:                 return GLFW_KEY_1;
+            case k::Two:                 return GLFW_KEY_2;
+            case k::Three:               return GLFW_KEY_3;
+            case k::Four:                return GLFW_KEY_4;
+            case k::Five:                return GLFW_KEY_5;
+            case k::Six:                 return GLFW_KEY_6;
+            case k::Seven:               return GLFW_KEY_7;
+            case k::Eight:               return GLFW_KEY_8;
+            case k::Nine:                return GLFW_KEY_9;
+            case k::Semicolon:           return GLFW_KEY_SEMICOLON;
+            case k::Equal:               return GLFW_KEY_EQUAL;
+            case k::A:                   return GLFW_KEY_A;
+            case k::B:                   return GLFW_KEY_B;
+            case k::C:                   return GLFW_KEY_C;
+            case k::D:                   return GLFW_KEY_D;
+            case k::E:                   return GLFW_KEY_E;
+            case k::F:                   return GLFW_KEY_F;
+            case k::G:                   return GLFW_KEY_G;
+            case k::H:                   return GLFW_KEY_H;
+            case k::I:                   return GLFW_KEY_I;
+            case k::J:                   return GLFW_KEY_J;
+            case k::K:                   return GLFW_KEY_K;
+            case k::L:                   return GLFW_KEY_L;
+            case k::M:                   return GLFW_KEY_M;
+            case k::N:                   return GLFW_KEY_N;
+            case k::O:                   return GLFW_KEY_O;
+            case k::P:                   return GLFW_KEY_P;
+            case k::Q:                   return GLFW_KEY_Q;
+            case k::R:                   return GLFW_KEY_R;
+            case k::S:                   return GLFW_KEY_S;
+            case k::T:                   return GLFW_KEY_T;
+            case k::U:                   return GLFW_KEY_U;
+            case k::V:                   return GLFW_KEY_V;
+            case k::W:                   return GLFW_KEY_W;
+            case k::X:                   return GLFW_KEY_X;
+            case k::Y:                   return GLFW_KEY_Y;
+            case k::Z:                   return GLFW_KEY_Z;
+            case k::LBracket:            return GLFW_KEY_LEFT_BRACKET;
+            case k::Backslash:           return GLFW_KEY_BACKSLASH;
+            case k::RBracket:            return GLFW_KEY_RIGHT_BRACKET;
+            case k::GraveAccent:         return GLFW_KEY_GRAVE_ACCENT;
+            case k::World1:              return GLFW_KEY_WORLD_1;
+            case k::World2:              return GLFW_KEY_WORLD_2;
+            case k::Escape:              return GLFW_KEY_ESCAPE;
+            case k::Enter:               return GLFW_KEY_ENTER;
+            case k::Tab:                 return GLFW_KEY_TAB;
+            case k::Backspace:           return GLFW_KEY_BACKSPACE;
+            case k::Insert:              return GLFW_KEY_INSERT;
+            case k::Delete:              return GLFW_KEY_DELETE;
+            case k::Right:               return GLFW_KEY_RIGHT;
+            case k::Left:                return GLFW_KEY_LEFT;
+            case k::Down:                return GLFW_KEY_DOWN;
+            case k::Up:                  return GLFW_KEY_UP;
+            case k::PgUp:                return GLFW_KEY_PAGE_UP;
+            case k::PgDown:              return GLFW_KEY_PAGE_DOWN;
+            case k::Home:                return GLFW_KEY_HOME;
+            case k::End:                 return GLFW_KEY_END;
+            case k::CapsLock:            return GLFW_KEY_CAPS_LOCK;
+            case k::ScrollLock:          return GLFW_KEY_SCROLL_LOCK;
+            case k::NumLock:             return GLFW_KEY_NUM_LOCK;
+            case k::PrintScreen:         return GLFW_KEY_PRINT_SCREEN;
+            case k::Pause:               return GLFW_KEY_PAUSE;
+            case k::F1:                  return GLFW_KEY_F1;
+            case k::F2:                  return GLFW_KEY_F2;
+            case k::F3:                  return GLFW_KEY_F3;
+            case k::F4:                  return GLFW_KEY_F4;
+            case k::F5:                  return GLFW_KEY_F5;
+            case k::F6:                  return GLFW_KEY_F6;
+            case k::F7:                  return GLFW_KEY_F7;
+            case k::F8:                  return GLFW_KEY_F8;
+            case k::F9:                  return GLFW_KEY_F9;
+            case k::F10:                 return GLFW_KEY_F10;
+            case k::F11:                 return GLFW_KEY_F11;
+            case k::F12:                 return GLFW_KEY_F12;
+            case k::KeypadZero:          return GLFW_KEY_KP_0;
+            case k::KeypadOne:           return GLFW_KEY_KP_1;
+            case k::KeypadTwo:           return GLFW_KEY_KP_2;
+            case k::KeypadThree:         return GLFW_KEY_KP_3;
+            case k::KeypadFour:          return GLFW_KEY_KP_4;
+            case k::KeypadFive:          return GLFW_KEY_KP_5;
+            case k::KeypadSix:           return GLFW_KEY_KP_6;
+            case k::KeypadSeven:         return GLFW_KEY_KP_7;
+            case k::KeypadEight:         return GLFW_KEY_KP_8;
+            case k::KeypadNine:          return GLFW_KEY_KP_9;
+            case k::KeypadDecimal:       return GLFW_KEY_KP_DECIMAL;
+            case k::KeypadDivide:        return GLFW_KEY_KP_DIVIDE;
+            case k::KeypadMultiply:      return GLFW_KEY_KP_MULTIPLY;
+            case k::KeypadSubtract:      return GLFW_KEY_KP_SUBTRACT;
+            case k::KeypadAdd:           return GLFW_KEY_KP_ADD;
+            case k::KeypadEnter:         return GLFW_KEY_KP_ENTER;
+            case k::KeypadEqual:         return GLFW_KEY_KP_EQUAL;
+            case k::LShift:              return GLFW_KEY_LEFT_SHIFT;
+            case k::LControl:            return GLFW_KEY_LEFT_CONTROL;
+            case k::LAlt:                return GLFW_KEY_LEFT_ALT;
+            case k::LSuper:              return GLFW_KEY_LEFT_SUPER;
+            case k::RShift:              return GLFW_KEY_RIGHT_SHIFT;
+            case k::RControl:            return GLFW_KEY_RIGHT_CONTROL;
+            case k::RAlth:               return GLFW_KEY_RIGHT_ALT;
+            case k::RSuper:              return GLFW_KEY_RIGHT_SUPER;
+            case k::Menu:                return GLFW_KEY_MENU;
+        }
+
+        return GLFW_KEY_UNKNOWN;
+    }
+
+    int getJopMouseButton(const int glfwButton)
     {
         using m = jop::Mouse::Button;
 
-        switch (glfwKey)
+        switch (glfwButton)
         {
             case GLFW_MOUSE_BUTTON_LEFT:    return m::Left;
             case GLFW_MOUSE_BUTTON_RIGHT:   return m::Right;
@@ -168,8 +287,27 @@ namespace
             case GLFW_MOUSE_BUTTON_7:       return m::X4;
             case GLFW_MOUSE_BUTTON_8:       return m::X5;
         }
-
+        
         return m::Unknown;
+    }
+
+    int getGlfwButton(const int jopButton)
+    {
+        using m = jop::Mouse::Button;
+
+        switch (jopButton)
+        {
+            case m::Left:   return GLFW_MOUSE_BUTTON_LEFT;
+            case m::Right:  return GLFW_MOUSE_BUTTON_RIGHT;
+            case m::Middle: return GLFW_MOUSE_BUTTON_MIDDLE;
+            case m::X1:     return GLFW_MOUSE_BUTTON_4;
+            case m::X2:     return GLFW_MOUSE_BUTTON_5;
+            case m::X3:     return GLFW_MOUSE_BUTTON_6;
+            case m::X4:     return GLFW_MOUSE_BUTTON_7;
+            case m::X5:     return GLFW_MOUSE_BUTTON_8;
+        }
+
+        return GLFW_MOUSE_BUTTON_1;
     }
 #endif
 }
@@ -320,6 +458,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool WindowEventHandler::keyDown(const int key) const
+    {
+        return glfwGetKey(m_windowRef.getLibraryHandle(), getGlfwKey(key)) == GLFW_PRESS;
+    }
+
+    //////////////////////////////////////////////
+
     void WindowEventHandler::textEntered(const unsigned int)
     {}
 
@@ -330,6 +475,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::pair<float, float> WindowEventHandler::getCursorPosition() const
+    {
+        double x = 0.0, y = 0.0;
+        glfwGetCursorPos(m_windowRef.getLibraryHandle(), &x, &y);
+
+        return std::make_pair(static_cast<float>(x), static_cast<float>(y));
+    }
+
+    //////////////////////////////////////////////
+
     void WindowEventHandler::mouseButtonPressed(const int, const int)
     {}
 
@@ -337,6 +492,13 @@ namespace jop
 
     void WindowEventHandler::mouseButtonReleased(const int, const int)
     {}
+
+    //////////////////////////////////////////////
+
+    bool WindowEventHandler::mouseButtonDown(const int button) const
+    {
+        return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlfwButton(button)) == GLFW_PRESS;
+    }
 
     //////////////////////////////////////////////
 

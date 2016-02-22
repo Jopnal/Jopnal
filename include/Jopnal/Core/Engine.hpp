@@ -162,20 +162,20 @@ namespace jop
         ///
         /// \param message String holding message
         ///
-        static MessageResult sendMessage(const std::string& message);
+        static Message::Result sendMessage(const std::string& message);
 
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
-        static MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        static Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        static MessageResult sendMessage(const Message& message);
+        static Message::Result sendMessage(const Message& message);
 
 
         /// \brief Get the shared scene
@@ -237,7 +237,7 @@ namespace jop
     ///
     /// \return The message result
     ///
-    JOP_API MessageResult broadcast(const std::string& message);
+    JOP_API Message::Result broadcast(const std::string& message);
 
     /// \brief Broadcast a message to the whole engine
     ///
@@ -248,7 +248,7 @@ namespace jop
     ///
     /// \return The message result
     ///
-    JOP_API MessageResult broadcast(const std::string& message, Any& returnWrap);
+    JOP_API Message::Result broadcast(const std::string& message, Any& returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///
@@ -258,7 +258,7 @@ namespace jop
     ///
     /// \return The message result
     ///
-    JOP_API MessageResult broadcast(const Message& message);
+    JOP_API Message::Result broadcast(const Message& message);
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>

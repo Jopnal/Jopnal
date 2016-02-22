@@ -28,6 +28,14 @@ struct ArgumentConverter
         return T(from);
     }
 };
+template<>
+struct ArgumentConverter<int, false>
+{
+    static int convert(const std::string& from)
+    {
+        return from.empty() ? 0 : std::stoi(from);
+    }
+};
 template<typename T>
 struct ArgumentConverter<T, true>
 {
@@ -65,8 +73,7 @@ struct ArgumentConverter<char, false>
 {
     static char convert(const std::string& from)
     {
-        JOP_ASSERT(!from.empty(), "Tried to convert empty argument to char!");
-        return from[0];
+        return from.empty() ? '0' : from[0];
     }
 };
 template<>
@@ -82,15 +89,7 @@ struct ArgumentConverter<unsigned int, false>
 {
     static unsigned int convert(const std::string& from)
     {
-        return std::stoul(from);
-    }
-};
-template<>
-struct ArgumentConverter<int, false>
-{
-    static int convert(const std::string& from)
-    {
-        return std::stoi(from);
+        return from.empty() ? 0u : std::stoul(from);
     }
 };
 template<>
@@ -98,7 +97,7 @@ struct ArgumentConverter<unsigned long, false>
 {
     static unsigned long convert(const std::string& from)
     {
-        return std::stoul(from);
+        return from.empty() ? 0u : std::stoul(from);
     }
 };
 template<>
@@ -106,7 +105,7 @@ struct ArgumentConverter<long, false>
 {
     static long convert(const std::string& from)
     {
-        return std::stol(from);
+        return from.empty() ? 0 : std::stol(from);
     }
 };
 template<>
@@ -114,7 +113,7 @@ struct ArgumentConverter<unsigned long long, false>
 {
     static unsigned long long convert(const std::string& from)
     {
-        return std::stoull(from);
+        return from.empty() ? 0u : std::stoull(from);
     }
 };
 template<>
@@ -122,7 +121,7 @@ struct ArgumentConverter<long long, false>
 {
     static long long convert(const std::string& from)
     {
-        return std::stoll(from);
+        return from.empty() ? 0 : std::stoll(from);
     }
 };
 template<>
@@ -130,7 +129,7 @@ struct ArgumentConverter<float, false>
 {
     static float convert(const std::string& from)
     {
-        return std::stof(from);
+        return from.empty() ? 0.f : std::stof(from);
     }
 };
 template<>
@@ -138,7 +137,7 @@ struct ArgumentConverter<double, false>
 {
     static double convert(const std::string& from)
     {
-        return std::stod(from);
+        return from.empty() ? 0.0 : std::stod(from);
     }
 };
 template<>
@@ -146,7 +145,7 @@ struct ArgumentConverter<long double, false>
 {
     static long double convert(const std::string& from)
     {
-        return std::stold(from);
+        return from.empty() ? 0.0 : std::stold(from);
     }
 };
 
@@ -269,28 +268,15 @@ namespace ArgumentSplitter
 
 //////////////////////////////////////////////
 
-template<typename T, bool Discard>
-struct RetType
-{
-    typedef T type;
-};
-template<typename T>
-struct RetType<T, true>
-{
-    typedef void type;
-};
-
-//////////////////////////////////////////////
-
 namespace DefaultParser
 {
-    template<typename Ret, typename ... Args>
+    template<typename Discard, typename Ret, typename ... Args>
     void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
     {
-        Helper<Ret, Args...>::parse(func, args, returnWrap);
+        Helper<Discard, Ret, Args...>::parse(func, args, returnWrap);
     }
 
-    template<typename Ret, typename ... Args>
+    template<typename Discard, typename Ret, typename ... Args>
     struct Helper
     {
         static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
@@ -302,8 +288,8 @@ namespace DefaultParser
         }
     };
 
-    template<typename ... Args>
-    struct Helper<void, Args...>
+    template<typename Discard, typename ... Args>
+    struct Helper<Discard, void, Args...>
     {
         static void parse(const std::function<void(Args...)>& func, const std::string& args, Any&)
         {
@@ -311,8 +297,8 @@ namespace DefaultParser
         }
     };
 
-    template<typename Ret>
-    struct Helper<Ret>
+    template<typename Discard, typename Ret>
+    struct Helper<Discard, Ret>
     {
         static void parse(const std::function<Ret()>& func, const std::string&, Any& returnWrap)
         {
@@ -323,8 +309,25 @@ namespace DefaultParser
         }
     };
 
-    template<>
-    struct Helper<void>
+    template<typename Ret, typename ... Args>
+    struct Helper<std::true_type, Ret, Args...>
+    {
+        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any&)
+        {
+            ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+        }
+    };
+    template<typename Ret>
+    struct Helper<std::true_type, Ret>
+    {
+        static void parse(const std::function<Ret()>& func, const std::string&, Any&)
+        {
+            func();
+        }
+    };
+
+    template<typename Discard>
+    struct Helper<Discard, void>
     {
         static void parse(const std::function<void(void)>& func, const std::string&, jop::Any&)
         {
@@ -334,14 +337,14 @@ namespace DefaultParser
 
     //////////////////////////////////////////////
 
-    template<typename Ret, typename T, typename ... Args>
+    template<typename Discard, typename Ret, typename T, typename ... Args>
     void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
     {
         JOP_ASSERT(instance && (instance == typeid(typename std::remove_const<T>::type*) || instance == typeid(const T*)), "Called a member command with invalid instance type!");
-        MemberHelper<Ret, T, Args...>::parse(func, args, returnWrap, instance);
+        MemberHelper<Discard, Ret, T, Args...>::parse(func, args, returnWrap, instance);
     }
 
-    template<typename Ret, typename T, typename ... Args>
+    template<typename Discard, typename Ret, typename T, typename ... Args>
     struct MemberHelper
     {
         static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
@@ -353,8 +356,8 @@ namespace DefaultParser
         }
     };
 
-    template<typename T, typename ... Args>
-    struct MemberHelper<void, T, Args...>
+    template<typename Discard, typename T, typename ... Args>
+    struct MemberHelper<Discard, void, T, Args...>
     {
         static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
         {
@@ -362,8 +365,8 @@ namespace DefaultParser
         }
     };
 
-    template<typename Ret, typename T>
-    struct MemberHelper<Ret, T>
+    template<typename Discard, typename Ret, typename T>
+    struct MemberHelper<Discard, Ret, T>
     {
         static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, Any& instance)
         {
@@ -374,8 +377,25 @@ namespace DefaultParser
         }
     };
 
-    template<typename T>
-    struct MemberHelper<void, T>
+    template<typename Ret, typename T, typename ... Args>
+    struct MemberHelper<std::true_type, Ret, T, Args...>
+    {
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
+        {
+            ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+        }
+    };
+    template<typename Ret, typename T>
+    struct MemberHelper<std::true_type, Ret, T>
+    {
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any&, Any& instance)
+        {
+            func(*(instance.cast<typename std::remove_const<T>::type*>()));
+        }
+    };
+
+    template<typename Discard, typename T>
+    struct MemberHelper<Discard, void, T>
     {
         static void parse(const std::function<void(T&)>& func, const std::string&, Any&, Any& instance)
         {
