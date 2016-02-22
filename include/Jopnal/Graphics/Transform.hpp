@@ -161,7 +161,16 @@ namespace jop
         ///
         Transform& lookAt(const glm::vec3& point);
 
-        /// \copydoc lookAt()
+        /// \brief Set this transform to look at a certain point
+        ///
+        /// This function will override the position, scale and rotation until
+        /// changed again.
+        ///
+        /// \param x The X point
+        /// \param y The Y point
+        /// \param z The Z point
+        ///
+        /// \return Reference to self
         ///
         Transform& lookAt(const float x, const float y, const float z);
 

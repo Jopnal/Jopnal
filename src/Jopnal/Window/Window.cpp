@@ -142,7 +142,7 @@ namespace jop
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         setViewportRelative(0.f, 0.f, 1.f, 1.f);
 
-        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "000000FF"));
+        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "222222FF"));
         setClearColor(defColor);
     }
 
