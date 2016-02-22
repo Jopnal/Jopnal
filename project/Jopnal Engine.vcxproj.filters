@@ -237,6 +237,11 @@
     <ClInclude Include="..\include\Jopnal\Graphics\RectangleModel.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\include\Jopnal\Utility\Randomizer.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -365,6 +370,10 @@
     <ClCompile Include="..\src\Jopnal\Graphics\RectangleModel.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Randomizer.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -378,9 +387,6 @@
     </None>
     <None Include="..\include\Jopnal\Window\Inl\Window.inl">
       <Filter>Window\Inl</Filter>
-    </None>
-    <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl">
-      <Filter>Core\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl">
       <Filter>Core\Inl</Filter>
@@ -397,5 +403,14 @@
     <None Include="..\include\Jopnal\Utility\Inl\Any.inl">
       <Filter>Utility\Inl</Filter>
     </None>
+    <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Jopnal Engine.rc" />
   </ItemGroup>
 </Project>
