@@ -32,6 +32,32 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_REGISTER_LOADABLE(jop, Texture)[](const void*, const json::Value& val)
+    {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load Texture, no name found");
+            return false;
+        }
+
+        ResourceManager::getResource<Texture>(val["name"].GetString())
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Texture)
+
+    JOP_REGISTER_SAVEABLE(jop, Texture)[](const void* texture, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        val.AddMember(json::StringRef("name"), json::StringRef(static_cast<const Texture*>(texture)->getName().c_str()), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Texture)
+}
+
 namespace
 {
     void flip(const int width, const int height, const int bpp, unsigned char* pixels)
@@ -245,6 +271,9 @@ namespace jop
             errTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").shared_from_this());
 
             JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+
+            errTex.lock()->setPersistent(true);
+            errTex.lock()->setManaged(true);
         }
 
         return *errTex.lock();
@@ -261,6 +290,9 @@ namespace jop
             defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
             
             JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+
+            defTex.lock()->setPersistent(true);
+            defTex.lock()->setManaged(true);
         }
 
         return *defTex.lock();

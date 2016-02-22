@@ -27,7 +27,6 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Core/SubSystem.hpp>
 #include <glm/vec2.hpp>
 #include <string>
 
@@ -36,7 +35,7 @@
 
 namespace jop
 {
-    class JOP_API RenderTexture final : public Subsystem
+    class JOP_API RenderTexture final
     {
     private:
 
@@ -60,14 +59,14 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~RenderTexture() override;
+        ~RenderTexture();
 
 
-        /// \brief Overridden postUpdate. Clears the frame buffer
+        /// \brief Clear the frame buffer
         ///
-        /// \param deltaTime Delta time
+        /// This will clear the color, depth and stencil buffers.
         ///
-        void postUpdate(const float deltaTime) override;
+        void clear();
 
         /// \brief Initialize the frame buffer
         ///
@@ -87,7 +86,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool bind();
+        bool bind() const;
 
         /// \brief Unbind the currently bound frame buffer
         ///
@@ -125,6 +124,18 @@ namespace jop
         ///
         const Texture& getTexture() const;
 
+        /// \brief Get the depth bits
+        ///
+        /// \return The depth bits
+        ///
+        unsigned int getDepthBits() const;
+
+        /// \brief Get the stencil bits
+        ///
+        /// \return The stencil bits
+        ///
+        unsigned int getStencilBits() const;
+
         /// \brief Sets absolute Viewport for the frame buffer
         ///
         /// \param x The upper left x coordinate
@@ -151,6 +162,8 @@ namespace jop
         unsigned int m_frameBuffer;     ///< Handle for the frame buffer
         unsigned int m_depthBuffer;     ///< Handle for the depth buffer
         unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
+        unsigned int m_depthBits;       ///< The depth bits
+        unsigned int m_stencilBits;     ///< The stencil bits
         bool m_colorChanged;            ///< Has the clear color been changed?
 
     };

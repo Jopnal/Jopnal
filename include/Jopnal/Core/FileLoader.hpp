@@ -37,6 +37,14 @@ namespace jop
     {
     public:
 
+        enum class Directory
+        {
+            Resources,
+            Home
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// Initializes the PhysicsFs file system
@@ -74,6 +82,18 @@ namespace jop
         /// Windows: The resource needs be of type RCDATA.
         ///
         static bool readFromDll(const int id, std::vector<unsigned char>& buffer);
+
+
+        /// \brief Write data into a file
+        ///
+        /// \param dir The base directory
+        /// \param file The file path
+        /// \param data The data to write
+        /// \param size The size of the data buffer in bytes
+        ///
+        /// \return True if successful
+        ///
+        static bool write(const Directory dir, const std::string& file, const void* data, const unsigned int size);
 
     };
 }

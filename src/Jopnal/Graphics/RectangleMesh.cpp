@@ -27,20 +27,57 @@
 
 namespace jop
 {
-    RectangleModel::RectangleModel(const std::string& name)
-        : Model(name)
+    JOP_REGISTER_LOADABLE(jop, RectangleMesh)[](const void*, const json::Value& val)
+    {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load RectangleMesh, no name found");
+            return false;
+        }
+
+        float size = 1.f;
+        if (val.HasMember("size") && val["size"].IsDouble())
+            size = static_cast<float>(val["size"].GetDouble());
+
+        ResourceManager::getNamedResource<RectangleMesh>(val["name"].GetString(), size)
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(RectangleMesh)
+
+    JOP_REGISTER_SAVEABLE(jop, RectangleMesh)[](const void* box, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        const RectangleMesh& ref = *static_cast<const RectangleMesh*>(box);
+
+        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
+        val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
+        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(RectangleMesh)
+}
+
+namespace jop
+{
+    RectangleMesh::RectangleMesh(const std::string& name)
+        : Mesh      (name),
+          m_size    (0.f)
     {}
 
-    RectangleModel::RectangleModel(const std::string& name, const float size)
-        : Model(name)
+    RectangleMesh::RectangleMesh(const std::string& name, const float size)
+        : Mesh      (name),
+          m_size    (0.f)
     {
         load(size);
     }
 
     //////////////////////////////////////////////
 
-    bool RectangleModel::load(const float size)
+    bool RectangleMesh::load(const float size)
     {
+        m_size = size;
         const float half = 0.5f * size;
 
         const std::vector<Vertex> vertexarray
@@ -55,6 +92,14 @@ namespace jop
             0, 1, 2,
             2, 3, 0,
         });
-        return Model::load(vertexarray, indices);
+
+        return Mesh::load(vertexarray, indices);
+    }
+
+    //////////////////////////////////////////////
+
+    float RectangleMesh::getSize() const
+    {
+        return m_size;
     }
 }

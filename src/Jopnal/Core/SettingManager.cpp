@@ -46,7 +46,7 @@ namespace
     {
         if (!ns_document.HasMember(name.c_str()))
             ns_document.AddMember(rj::Value(name.c_str(), ns_document.GetAllocator()), rj::Value(rj::kNullType), ns_document.GetAllocator());
-
+        
         return ns_document[name.c_str()];
     }
 
@@ -289,7 +289,7 @@ namespace jop
         if (!PHYSFS_isInit())
             PHYSFS_init(0);
 
-        const std::string docDir("Documents");
+        static const std::string docDir("Documents");
 
         fullPath = PHYSFS_getUserDir();
         fullPath += docDir + PHYSFS_getDirSeparator() + getProjectName();

@@ -26,7 +26,8 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
@@ -44,6 +45,8 @@ namespace jop
         JOP_DISALLOW_MOVE(Object);
 
         void operator =(const Object&) = delete;
+
+        friend class StateLoader;
 
     public:
 
@@ -185,7 +188,7 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
 
         /// \brief Update method for object - forwarded for its components
         ///

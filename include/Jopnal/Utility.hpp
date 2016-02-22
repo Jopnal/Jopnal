@@ -24,6 +24,7 @@
 #include <Jopnal/Utility/Clock.hpp>
 #include <Jopnal/Utility/Any.hpp>
 #include <Jopnal/Utility/CommandHandler.hpp>
+#include <Jopnal/Utility/Json.hpp>
 
 //////////////////////////////////////////////
 

@@ -82,6 +82,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Color::asInteger() const
+    {
+        return
+        (
+            static_cast<unsigned int>(r) << 24 |
+            static_cast<unsigned int>(g) << 16 |
+            static_cast<unsigned int>(b) << 8  |
+            static_cast<unsigned int>(a)
+        );
+    }
+
+    //////////////////////////////////////////////
+
     // Static member initialization.
 
     const Color Color::Black        (0x000000FF);

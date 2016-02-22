@@ -19,19 +19,19 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLEMODEL_HPP
-#define JOP_RECTANGLEMODEL_HPP
+#ifndef JOP_RECTANGLEMESH_HPP
+#define JOP_RECTANGLEMESH_HPP
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleModel : public Model
+    class JOP_API RectangleMesh : public Mesh
     {
     public:
 
@@ -41,14 +41,14 @@ namespace jop
         ///
         /// \param name Name of the rectangle
         ///
-        RectangleModel(const std::string& name);
+        RectangleMesh(const std::string& name);
 
         /// \brief Creates a rectangle model
         ///
         /// \param name Name of the rectangle
         /// \param size Size of the rectangle
         ///
-        RectangleModel(const std::string& name, const float size);
+        RectangleMesh(const std::string& name, const float size);
 
 
         /// \brief Load this rectangle
@@ -61,11 +61,22 @@ namespace jop
         ///
         bool load(const float size);
 
+
+        /// \brief Get the size
+        ///
+        /// \return The size
+        ///
+        float getSize() const;
+
+    private:
+
+        float m_size;   ///< This rectangle's size
+
     };
 }
 #endif
 
-/// \class BoxModel
+/// \class RectangleMesh
 /// \ingroup Graphics
 ///
 /// 

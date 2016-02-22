@@ -42,6 +42,8 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Scene);
 
+        friend class StateLoader;
+
     public:
 
         /// \brief Constructor for scene class
@@ -100,14 +102,14 @@ namespace jop
         ///
         /// \return Pointer to the layer if found, empty otherwise
         ///
-        std::weak_ptr<Layer> getLayer(const std::string& ID);
+        std::weak_ptr<Layer> getLayer(const std::string& ID) const;
 
         /// \brief Get a layer using type info
         ///
         /// \return Pointer to the layer. Empty if not found
         ///
         template<typename T>
-        std::weak_ptr<T> getLayer();
+        std::weak_ptr<T> getLayer() const;
 
         /// \brief Create a new layer
         ///
@@ -138,7 +140,7 @@ namespace jop
         ///
         /// \return Reference to the default layer
         ///
-        Layer& getDefaultLayer();
+        Layer& getDefaultLayer() const;
 
 
         /// \brief Set the ID of this scene
@@ -187,7 +189,7 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
 
         /// \brief Update method for scene
         ///
@@ -264,11 +266,10 @@ namespace jop
         virtual MessageResult sendMessageImpl(const Message& message);
 
 
-        std::vector<std::shared_ptr<Object>> m_objects; ///< Container holding objects
-        std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
-        std::shared_ptr<Layer> m_defaultLayer;          ///< The default layer
-        std::string m_ID;                               ///< String holding scene identifier
-        bool m_active;                                  ///< Boolean set to active
+        std::vector<std::shared_ptr<Object>> m_objects;         ///< Container holding objects
+        mutable std::vector<std::shared_ptr<Layer>> m_layers;   ///< Container holding layers
+        std::string m_ID;                                       ///< String holding scene identifier
+        bool m_active;                                          ///< Boolean set to active
     };
 
     // Include the template implementation file

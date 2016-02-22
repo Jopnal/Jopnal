@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 #include <vector>
 
 //////////////////////////////////////////////
@@ -35,45 +36,28 @@
 
 namespace jop
 {
-    class Mesh;
-
-    class JOP_API Model : public Resource
+    class JOP_API Model
     {
-    public:
-
-        /// \brief Struct for passing extra options to the load function
-        ///
-        struct LoadOptions
-        {
-            /// \brief Default constructor
-            ///
-            LoadOptions() = default;
-
-            /// \brief Constructor for initialization
-            ///
-            /// \param centerOrigin_ Center the origin?
-            /// \param flipV_ Flip the V texture coordinate?
-            /// \param generateNormals_ Generate normals in case they don't exist?
-            ///
-            LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
-
-            Transform transform;    ///< Transform for pre-transforming the vertices
-            bool centerOrigin;      ///< Center the origin?
-            bool flipV;             ///< Flip the V texture coordinate?
-            bool generateNormals;   ///< Generate normals in case they don't exist
-        };
-
-        /// The default load options
-        ///
-        static const LoadOptions DefaultOptions;
-
     public:
 
         /// \brief Constructor
         ///
-        /// \param name Name of this resource. Must be the file path if applicable.
+        /// \param name Name of this model
         ///
-        Model(const std::string& name);
+        Model();
+
+        /// \brief Constructor for initializing with a mesh
+        ///
+        /// \param mesh Mesh to initialize with
+        ///
+        Model(const Mesh& mesh);
+
+        /// \brief Constructor for initializing with a mesh and a material
+        ///
+        /// \param mesh Mesh to initialize with
+        /// \param material Material to initialize with
+        ///
+        Model(const Mesh& mesh, const Material& material);
 
         /// \brief Loads a .obj model from file
         ///
@@ -83,28 +67,7 @@ namespace jop
         /// \param filePath The path to the file you want to load
         /// \param options Extra options for loading
         ///
-        bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
-
-        /// \brief Load a model from vertices and indices
-        ///
-        /// This will bind the default material
-        ///
-        /// \param vertices The vertices
-        /// \param indices The indices
-        ///
-        /// \return True if successful
-        ///
-        bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
-
-        /// \brief Load a model from vertices and indices
-        ///
-        /// \param vertices The vertices
-        /// \param indices The indices
-        /// \param material The material to use
-        ///
-        /// \return True if successful
-        ///
-        bool load(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material& material);
+        bool load(const std::string& filePath, const Mesh::LoadOptions& options = Mesh::DefaultOptions);
 
 
         /// \brief Get the mesh
@@ -134,14 +97,14 @@ namespace jop
         ///
         void setMaterial(const Material& material);
 
+        
+        /// \copydoc Mesh::getVertexAmount()
+        ///
+        unsigned int getVertexAmount() const;
 
-        /// \brief Get the element amount
+        /// \copydoc Mesh::getElementAmount()
         ///
-        /// This will return zero if there are no indices.
-        ///
-        /// \return The element amount
-        ///
-        std::size_t getElementAmount() const;
+        unsigned int getElementAmount() const;
 
 
         /// \brief Get the default model
@@ -150,12 +113,12 @@ namespace jop
         ///
         /// \return Reference to the model
         ///
-        static Model& getDefault();
+        static const Model& getDefault();
 
     private:
 
-        std::weak_ptr<const Mesh> m_mesh;   ///< The mesh
         Material m_material;                ///< The material
+        std::weak_ptr<const Mesh> m_mesh;   ///< The mesh
 
     };
 }

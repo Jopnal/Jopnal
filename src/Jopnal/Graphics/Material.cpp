@@ -110,6 +110,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::weak_ptr<const Texture> Material::getMap(const Map map) const
+    {
+        return m_maps[static_cast<int>(map)];
+    }
+
+    //////////////////////////////////////////////
+
     const Material& Material::getDefault()
     {
         static Material def;

@@ -50,13 +50,7 @@ namespace jop
         ///
         DebugHandler();
 
-        /// Get the internal stream object. This is used by the template << operator
-        ///
-        std::ostringstream& getStream();
-
     public:
-
-        friend class Engine;
 
         /// The severity levels
         ///
@@ -79,7 +73,7 @@ namespace jop
         ///
         /// \return True if console is enabled
         ///
-        static bool isConsoleEnabled();
+        bool isConsoleEnabled();
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -111,6 +105,14 @@ namespace jop
         ///
         template<typename T>
         DebugHandler& operator <<(const T& data);
+
+    private:
+
+        std::ostringstream m_stream;    ///< The stream object
+        Severity m_displaySeverity;     ///< The current severity
+        Severity m_lastSeverity;        ///< The last set severity
+        std::string m_last;             ///< Last string entered. Used for culling repeating messages
+        bool m_consoleEnabled;          ///< Is the console enabled?
     };
 
     // Include the template implementation file
