@@ -32,6 +32,7 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Object)
 
         // Transform
+        JOP_BIND_MEMBER_COMMAND((Transform& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
 
         // Object
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");

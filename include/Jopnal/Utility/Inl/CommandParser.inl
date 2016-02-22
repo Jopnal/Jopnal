@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 
-template<typename T, bool isEnum = std::is_enum<T>::value>
+template<typename T, bool IsEnum = std::is_enum<T>::value>
 struct ArgumentConverter
 {
     static T convert(const std::string& from)
@@ -152,7 +152,7 @@ struct ArgumentConverter<long double, false>
 
 //////////////////////////////////////////////
 
-template<typename T, bool isReference = std::is_lvalue_reference<T>::value>
+template<typename T, bool IsReference = std::is_lvalue_reference<T>::value>
 struct RealType
 {
     typedef T type;
@@ -160,17 +160,35 @@ struct RealType
 template<typename T>
 struct RealType<T, true>
 {
-    typedef std::reference_wrapper<T> type;
+    typedef std::reference_wrapper<typename std::remove_reference<T>::type> type;
 };
-//template<typename T>
-//struct RealType<std::weak_ptr<T>, false>
-//{
-//    typedef std::weak_ptr<T> type;
-//};
 template<>
 struct RealType<const std::string&, true>
 {
     typedef std::string type;
+};
+
+//////////////////////////////////////////////
+
+template<typename T, bool IsReference = std::is_lvalue_reference<T>::value>
+struct ApplyConverter
+{
+    static T convert(const T from)
+    {
+        return from;
+    }
+};
+template<typename T>
+struct ApplyConverter<T, true>
+{
+    static T& convert(T from)
+    {
+        return from;
+    }
+    static T& convert(std::reference_wrapper<T>& from)
+    {
+        return from.get();
+    }
 };
 
 //////////////////////////////////////////////
@@ -192,7 +210,7 @@ namespace ArgumentApplier
         template<typename Func, typename Tuple, typename... Args>
         static Ret apply(const Func& func, const Tuple&, const Args&... args)
         {
-            return func(args...);
+            return func(ApplyConverter<Args>::convert(args)...);
         }
     };
 
@@ -220,7 +238,7 @@ namespace ArgumentApplier
         template<typename Func, typename Tuple, typename... Args>
         static Ret apply(const Func& func, T& instance, const Tuple&, const Args&... args)
         {
-            return func(instance, args...);
+            return func(instance, ApplyConverter<Args>::convert(args)...);
         }
     };
 
@@ -248,6 +266,19 @@ namespace ArgumentSplitter
         return std::make_tuple(ArgumentConverter<Last>::convert(arg));
     }
 }
+
+//////////////////////////////////////////////
+
+template<typename T, bool Discard>
+struct RetType
+{
+    typedef T type;
+};
+template<typename T>
+struct RetType<T, true>
+{
+    typedef void type;
+};
 
 //////////////////////////////////////////////
 
@@ -306,7 +337,7 @@ namespace DefaultParser
     template<typename Ret, typename T, typename ... Args>
     void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
     {
-        JOP_ASSERT(instance && instance == typeid(T*), "Called a member command with invalid instance type!");
+        JOP_ASSERT(instance && (instance == typeid(typename std::remove_const<T>::type*) || instance == typeid(const T*)), "Called a member command with invalid instance type!");
         MemberHelper<Ret, T, Args...>::parse(func, args, returnWrap, instance);
     }
 
@@ -316,7 +347,7 @@ namespace DefaultParser
         static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
         {
             if (returnWrap)
-                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
                 ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
@@ -327,7 +358,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
         {
-            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
@@ -337,9 +368,9 @@ namespace DefaultParser
         static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, Any& instance)
         {
             if (returnWrap)
-                returnWrap = func(*(instance.cast<T*>()));
+                returnWrap = func(*(instance.cast<typename std::remove_const<T>::type*>()));
             else
-                func(*(instance.cast<T*>()));
+                func(*(instance.cast<typename std::remove_const<T>::type*>()));
         }
     };
 
@@ -348,7 +379,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<void(T&)>& func, const std::string&, Any&, Any& instance)
         {
-            func(*(instance.cast<T*>()));
+            func(*(instance.cast<typename std::remove_const<T>::type*>()));
         }
     };
 }

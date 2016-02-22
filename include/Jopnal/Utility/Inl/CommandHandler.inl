@@ -68,3 +68,9 @@ void CommandHandler::bindMember(const std::string& command, Ret(Class::*func)(Fu
     // Have to use mem_fn due to a bug in VS
     bindMember(command, std::mem_fn(func), &detail::DefaultParser::parseMember<Ret, Class, FuncArgs...>);
 }
+
+template<typename Ret, typename Class, typename ... FuncArgs>
+void CommandHandler::bindMember(const std::string& command, Ret(Class::*func)(FuncArgs...) const)
+{
+    bindMember(command, std::mem_fn(func), &detail::DefaultParser::parseMember<Ret, const Class, FuncArgs...>);
+}

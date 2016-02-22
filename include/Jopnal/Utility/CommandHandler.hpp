@@ -98,6 +98,14 @@ namespace jop
         template<typename Ret, typename Class, typename ... FuncArgs>
         void bindMember(const std::string& command, Ret (Class::*func)(FuncArgs...));
 
+        /// \brief Bind a new const member function
+        ///
+        /// \param command The command name
+        /// \param func The function pointer to bind
+        /// 
+        template<typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, Ret (Class::*func)(FuncArgs...) const);
+
 
         /// \brief Execute a command
         ///
