@@ -33,7 +33,89 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, Mesh)[](const void*, const json::Value& val)
+    {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load Mesh, no name found");
+            return false;
+        }
 
+        Mesh::LoadOptions opts(Mesh::DefaultOptions);
+
+        if (val.HasMember("options") && val["options"].IsObject())
+        {
+            auto& optVal = val["options"];
+
+            if (optVal.HasMember("transform") && optVal["transform"].IsArray() && optVal["transform"].Size() >= 10)
+            {
+                Transform& trans = opts.transform;
+                auto& trs = optVal["transform"];
+
+                trans.setPosition(static_cast<float>(trs[0u].GetDouble()),
+                                  static_cast<float>(trs[1u].GetDouble()),
+                                  static_cast<float>(trs[2u].GetDouble()));
+
+                trans.setScale(static_cast<float>(trs[3u].GetDouble()),
+                               static_cast<float>(trs[4u].GetDouble()),
+                               static_cast<float>(trs[5u].GetDouble()));
+
+                trans.setRotation(glm::quat(static_cast<float>(trs[6u].GetDouble()),
+                    static_cast<float>(trs[7u].GetDouble()),
+                    static_cast<float>(trs[8u].GetDouble()),
+                    static_cast<float>(trs[9u].GetDouble())));
+            }
+
+            if (optVal.HasMember("centerorig") && optVal["centerorig"].IsBool())
+                opts.centerOrigin = optVal["centerorig"].GetBool();
+
+            if (optVal.HasMember("flipv") && optVal["flipv"].IsBool())
+                opts.flipV = optVal["flipv"].GetBool();
+
+            if (optVal.HasMember("gennorm") && optVal["gennorm"].IsBool())
+                opts.generateNormals = optVal["gennorm"].GetBool();
+        }
+
+        ResourceManager::getResource<Mesh>(val["name"].GetString(), opts)
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Mesh)
+
+    JOP_REGISTER_SAVEABLE(jop, Mesh)[](const void* mesh, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        const Mesh& ref = *static_cast<const Mesh*>(mesh);
+        const Mesh::LoadOptions& opts = ref.getOptions();
+
+        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
+        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+
+        if (!(opts == Mesh::DefaultOptions))
+        {
+            const Transform& trs = opts.transform;
+            auto& obj = val.AddMember(json::StringRef("options"), json::kObjectType, alloc)["options"];
+
+            obj.AddMember(json::StringRef("transform"), json::kArrayType, alloc)["transform"]
+               .PushBack(trs.getPosition().x, alloc)
+               .PushBack(trs.getPosition().y, alloc)
+               .PushBack(trs.getPosition().z, alloc)
+               .PushBack(trs.getScale().x, alloc)
+               .PushBack(trs.getScale().y, alloc)
+               .PushBack(trs.getScale().z, alloc)
+               .PushBack(trs.getRotation().w, alloc)
+               .PushBack(trs.getRotation().x, alloc)
+               .PushBack(trs.getRotation().y, alloc)
+               .PushBack(trs.getRotation().z, alloc);
+
+            obj.AddMember(json::StringRef("centerorig"), opts.centerOrigin, alloc);
+            obj.AddMember(json::StringRef("flipv"), opts.flipV, alloc);
+            obj.AddMember(json::StringRef("gennorm"), opts.generateNormals, alloc);
+        }
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Mesh)
 }
 
 namespace jop
@@ -45,12 +127,21 @@ namespace jop
           generateNormals   (generateNormals_)
     {}
 
+    bool Mesh::LoadOptions::operator==(const LoadOptions& right) const
+    {
+        return transform.getMatrix() == right.transform.getMatrix() &&
+               centerOrigin          == right.centerOrigin          &&
+               flipV                 == right.flipV                 &&
+               generateNormals       == right.generateNormals;
+    }
+
     const Mesh::LoadOptions Mesh::DefaultOptions(false, false, false);
 
     //////////////////////////////////////////////
 
     Mesh::Mesh(const std::string& name)
         : Resource          (name),
+          m_options         (DefaultOptions),
           m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
           m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
     {}
@@ -221,6 +312,8 @@ namespace jop
                 material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname));
         }
 
+        m_options = options;
+
         return load(vertexArray, mesh.indices);
     }
 
@@ -262,6 +355,13 @@ namespace jop
     const VertexBuffer& Mesh::getVertexBuffer() const
     {
         return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    const Mesh::LoadOptions& Mesh::getOptions() const
+    {
+        return m_options;
     }
 
     //////////////////////////////////////////////

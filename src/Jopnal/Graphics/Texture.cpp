@@ -42,7 +42,7 @@ namespace jop
             return false;
         }
 
-        ResourceManager::getResource<BoxMesh>(val["name"].GetString())
+        ResourceManager::getResource<Texture>(val["name"].GetString())
             .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;

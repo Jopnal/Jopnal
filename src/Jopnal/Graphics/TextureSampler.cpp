@@ -40,9 +40,9 @@ namespace jop
         float anis = val.HasMember("anis") && val["anis"].IsDouble() ? static_cast<float>(val["anis"].GetDouble()) : 1.f;
         Color bcol(val.HasMember("bcolor") && val["bcolor"].IsUint() ? val["bcolor"].GetUint() : Color::White);
 
-        ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(),
-                                                   filt, rep, anis, bcol)
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        auto& samp = ResourceManager::getNamedResource<TextureSampler>(val["name"].GetString(), filt, rep, anis);
+        samp.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        samp.setBorderColor(bcol);
 
         return true;
     }
@@ -57,7 +57,7 @@ namespace jop
         val.AddMember(json::StringRef("filter"), static_cast<unsigned int>(ref.getFilteringMode()), alloc);
         val.AddMember(json::StringRef("repeat"), static_cast<unsigned int>(ref.getRepeatMode()), alloc);
         val.AddMember(json::StringRef("anis"), ref.getAnisotropyLevel(), alloc);
-        val.AddMember(json::StringRef("bcolor"), ref.getBorderColor(), alloc);
+        val.AddMember(json::StringRef("bcolor"), ref.getBorderColor().asInteger(), alloc);
 
         return true;
     }

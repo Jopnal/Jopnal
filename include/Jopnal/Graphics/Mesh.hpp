@@ -56,6 +56,8 @@ namespace jop
             bool centerOrigin;      ///< Center the origin?
             bool flipV;             ///< Flip the V texture coordinate?
             bool generateNormals;   ///< Generate normals in case they don't exist
+
+            bool operator ==(const LoadOptions& right) const;
         };
 
         /// The default load options
@@ -118,10 +120,13 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
+        const LoadOptions& getOptions() const;
+
         static Mesh& getDefault();
 
     private:
 
+        LoadOptions m_options;          ///< The options used in loading
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
     };

@@ -103,7 +103,7 @@ namespace jop
         {
             defMesh = std::static_pointer_cast<const Mesh>(Mesh::getDefault().shared_from_this());
 
-            model.setMesh(*std::static_pointer_cast<Mesh>(defMesh.lock()));
+            model.setMesh(*std::static_pointer_cast<const Mesh>(defMesh.lock()));
         }
 
         return model;
