@@ -24,14 +24,10 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     Randomizer::Randomizer()
-        : m_randomGenerator()
-    {
-    }
-
-    Randomizer::~Randomizer()
-    {
-    }
+        : m_randomGenerator(std::random_device()())
+    {}
 }

@@ -24,18 +24,23 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
 #include <random>
 #include <type_traits>
 
 //////////////////////////////////////////////
+
 
 namespace jop
 {
     class JOP_API Randomizer
     {
     public:
+
+        /// \brief Default constructor
+        ///
         Randomizer();
-        ~Randomizer();
+
 
         /// \brief Returns a random value from given distribution
         ///
@@ -45,8 +50,11 @@ namespace jop
         template<typename T>
         T range(const T dStart,const T dEnd);
 
+        /// \copydoc range()
+        ///
         template<typename T>
         T operator()(const T dStart, const T dEnd);
+
 
         /// \brief Picks a random point from a circle of given size
         ///
@@ -63,10 +71,13 @@ namespace jop
         glm::vec3 insideSphere(T radius);
 
     private:
+
         std::default_random_engine m_randomGenerator;
 
     };
-#include <Jopnal/Core/Inl/Randomizer.inl>
+
+    // Include the template implementation file
+    #include <Jopnal/Utility/Inl/Randomizer.inl>
 }
 
 #endif

@@ -30,7 +30,6 @@
 #include <Jopnal/Core/FileLoader.hpp>
 #include <Jopnal/Core/ResourceManager.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/Randomizer.hpp>
 
 //////////////////////////////////////////////
 

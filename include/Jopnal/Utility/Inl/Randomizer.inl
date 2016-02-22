@@ -21,22 +21,22 @@
 
 namespace detail
 {
-    template<typename T, bool isFloat = std::is_floating_point<T>::value>
+    template<typename T, bool IsFloat = std::is_floating_point<T>::value>
     struct distribution  
     {
-        typedef std::uniform_int_distribution<T>dist;
+        typedef std::uniform_int_distribution<T> dist;
     };
     template<typename T>
     struct distribution<T, true>
     {
-        typedef std::uniform_real_distribution<T>dist;
+        typedef std::uniform_real_distribution<T> dist;
     };
 }
 
 //////////////////////////////////////////////
 
 template<typename T>
-T Randomizer::range(const T dStart,const T dEnd)
+T Randomizer::range(const T dStart, const T dEnd)
 {
     return detail::distribution<T>::dist (dStart, dEnd)(m_randomGenerator);
 }
@@ -50,6 +50,7 @@ T Randomizer::operator()(const T dStart, const T dEnd)
 }
 
 //////////////////////////////////////////////
+
 template<typename T>
 glm::vec2 Randomizer::insideCircle(T radius)
 {
@@ -59,10 +60,10 @@ glm::vec2 Randomizer::insideCircle(T radius)
     return glm::vec2(rad * glm::cos(angle), rad * glm::sin(angle));
 }
 
+//////////////////////////////////////////////
+
 template<typename T>
 glm::vec3 Randomizer::insideSphere(T radius)
 {
-    glm::vec3 s(range(-1.0f, 1.0f), range(-1.0f, 1.0f), range(-1.0f, 1.0f));
-
-    return glm::normalize(s) * (std::sqrt(range(0.f, 1.f)) * radius);
+    return glm::normalize(glm::vec3(range(-1.0f, 1.0f), range(-1.0f, 1.0f), range(-1.0f, 1.0f))) * (std::sqrt(range(0.f, 1.f)) * radius);
 }

@@ -57,17 +57,30 @@ namespace
     {
         switch (depth)
         {
-        case 1:
-            return gl::RED;
-            break;
-        case 3:
-            return gl::RGB;
-            break;
-
-        case 4:
-            return gl::RGBA;
-            break;
+            case 1:
+                return gl::RED;
+            case 3:
+                return gl::RGB;
+            case 4:
+                return gl::RGBA;
         }
+
+        return gl::RED;
+    }
+
+    GLenum getInternalFormatEnum(const GLenum format)
+    {
+        switch (format)
+        {
+            case gl::RED:
+                return gl::R8;
+            case gl::RGB:
+                return gl::RGB8;
+            case gl::RGBA:
+                return gl::RGBA8;
+        }
+
+        return gl::R8;
     }
 }
 
@@ -148,7 +161,8 @@ namespace jop
         m_width = x; m_height = y;
         m_bytesPerPixel = bytesPerPixel;
 
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA8, x, y, 0, getDepthEnum(bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
+        const GLenum depthEnum = getDepthEnum(bytesPerPixel);
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
