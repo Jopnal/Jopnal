@@ -147,14 +147,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Camera* Camera::clone() const
-    {
-        auto ptr = std::make_unique<Camera>(*this);
-        return ptr.release();
-    }
-
-    //////////////////////////////////////////////
-
     void Camera::draw(const Camera&)
     {}
 
