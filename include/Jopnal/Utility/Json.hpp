@@ -37,19 +37,43 @@
 
 namespace rapidjson
 {
-    bool checkParseError(const Document& doc);
+    /// \brief Check if the document has a parse error
+    ///
+    /// This will also print the error.
+    ///
+    /// \param doc The document to check
+    ///
+    /// \return True if no errors
+    ///
+    JOP_API bool checkParseError(const Document& doc);
 
-    Value::ValueIterator begin(Value&);
+    /// \brief Json array iterator begin
+    ///
+    /// Enables the use of range iterators
+    ///
+    JOP_API Value::ValueIterator begin(Value&);
 
-    Value::ValueIterator end(Value&);
+    /// \brief Json array iterator begin
+    ///
+    /// Enables the use of range iterators
+    ///
+    /// \see begin()
+    ///
+    JOP_API Value::ValueIterator end(Value&);
 
-    Value::ConstValueIterator begin(const Value&);
+    /// \copydoc begin(Value&)
+    ///
+    JOP_API Value::ConstValueIterator begin(const Value&);
 
-    Value::ConstValueIterator end(const Value&);
+    /// \copydoc end(Value&)
+    ///
+    JOP_API Value::ConstValueIterator end(const Value&);
 }
 
 namespace jop
 {
+    /// Alias for the rapidjson namespace
+    ///
     namespace json = rapidjson;
 }
 

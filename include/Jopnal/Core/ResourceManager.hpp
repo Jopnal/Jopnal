@@ -127,6 +127,8 @@ namespace jop
 
         /// \brief Deletes all resources from memory
         ///
+        /// This will only delete the resources not flagged as persistent.
+        ///
         static void unloadResources();
 
 

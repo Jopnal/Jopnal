@@ -81,6 +81,10 @@ namespace jop
         ///
         void setModel(const Model& model);
 
+        /// \brief Get the model
+        ///
+        /// \return Reference to the model
+        ///
         const Model& getModel() const;
 
         /// \brief Set the shader
@@ -89,12 +93,40 @@ namespace jop
         ///
         void setShader(Shader& shader);
 
+        /// \brief Get the shader
+        ///
+        /// \return Weak pointer to the shader. Empty if none bound
+        ///
         std::weak_ptr<Shader> getShader() const;
 
+        /// \brief Get the set with the bound layers
+        ///
+        /// \return Reference to the set
+        ///
         const std::unordered_set<Layer*> getBoundLayers() const;
 
+        /// \brief Load the state
+        ///
+        /// This can be called by the derived class while loading serialized state.
+        ///
+        /// \param drawable Reference to the drawable to load
+        /// \param scene The scene this drawable is bound to
+        /// \param val The json value
+        ///
+        /// \return True if successful
+        ///
         static bool loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val);
 
+        /// \brief Save the state
+        ///
+        /// This can be called by the derived class while serializing state.
+        ///
+        /// \param drawable Reference to the drawable to save
+        /// \param val The json value
+        /// \param alloc The json allocator
+        ///
+        /// \return True if successful
+        ///
         static bool saveStateBase(const Drawable& comp, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:

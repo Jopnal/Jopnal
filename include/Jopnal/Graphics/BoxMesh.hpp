@@ -61,12 +61,15 @@ namespace jop
         ///
         bool load(const float size);
 
+        /// \brief Get the size
+        ///
+        /// \return The size
+        ///
         float getSize() const;
 
     private:
 
-        // Member variables for saving purposes
-        float m_size;
+        float m_size;   ///< This box's size
     };
 }
 

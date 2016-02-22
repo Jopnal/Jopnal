@@ -48,7 +48,7 @@ namespace jop
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the tex coords?
+        /// \param normalizedTexCoords Normalize the texture coordinates?
         ///
         SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
@@ -58,24 +58,43 @@ namespace jop
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the tex coords?
+        /// \param normalizedTexCoords Normalize the texture coordinates?
         ///
         /// \return True if successful
         ///
         bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
+
+        /// \brief Get the radius
+        ///
+        /// \return The radius
+        ///
         float getRadius() const;
+
+        /// \brief Get the amount of rings
+        ///
+        /// \return The ring amount
+        ///
         unsigned int getRings() const;
+
+        /// \brief Get the amount of sectors
+        ///
+        /// \return The sector amount
+        ///
         unsigned int getSectors() const;
+
+        /// \brief Check if this sphere uses normalized texture coordinates
+        ///
+        /// \return True if normalized
+        ///
         bool normalizedTexCoords() const;
 
     private:
 
-        // For saving purposes
-        float m_radius;
-        unsigned int m_rings;
-        unsigned int m_sectors;
-        bool m_normTexCoords;
+        float m_radius;         ///< The radius
+        unsigned int m_rings;   ///< Rings
+        unsigned int m_sectors; ///< Sectors
+        bool m_normTexCoords;   ///< Normalized texture coordinates
 
     };
 }

@@ -46,8 +46,17 @@ namespace jop
         ///
         Model();
 
+        /// \brief Constructor for initializing with a mesh
+        ///
+        /// \param mesh Mesh to initialize with
+        ///
         Model(const Mesh& mesh);
 
+        /// \brief Constructor for initializing with a mesh and a material
+        ///
+        /// \param mesh Mesh to initialize with
+        /// \param material Material to initialize with
+        ///
         Model(const Mesh& mesh, const Material& material);
 
         /// \brief Loads a .obj model from file
@@ -88,14 +97,12 @@ namespace jop
         ///
         void setMaterial(const Material& material);
 
-
+        
+        /// \copydoc Mesh::getVertexAmount()
+        ///
         unsigned int getVertexAmount() const;
 
-        /// \brief Get the element amount
-        ///
-        /// This will return zero if there are no indices.
-        ///
-        /// \return The element amount
+        /// \copydoc Mesh::getElementAmount()
         ///
         unsigned int getElementAmount() const;
 

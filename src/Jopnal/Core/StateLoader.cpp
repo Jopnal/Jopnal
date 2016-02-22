@@ -76,6 +76,8 @@ namespace jop
             return false;
         }
 
+        const auto& ls = getInstance().m_loaderSavers;
+
         json::Document doc;
         doc.SetObject();
 
@@ -83,7 +85,7 @@ namespace jop
 
         if (subsystems)
         {
-            const auto& subCont = std::get<SubID>(m_loaderSavers);
+            const auto& subCont = std::get<SubID>(ls);
             const auto& nameMap = getSavenameContainer();
 
             auto& subArr = doc.AddMember(json::StringRef(ns_subsystemField), json::kArrayType, doc.GetAllocator())[ns_subsystemField];
@@ -112,10 +114,10 @@ namespace jop
             }
         }
 
-        if (sharedScene && !saveScene(*Engine::m_engineObject->m_sharedScene, doc.AddMember(json::StringRef(ns_sharedSceneField), json::kObjectType, doc.GetAllocator())[ns_sharedSceneField], doc.GetAllocator(), path))
+        if (sharedScene && !getInstance().saveScene(*Engine::m_engineObject->m_sharedScene, doc.AddMember(json::StringRef(ns_sharedSceneField), json::kObjectType, doc.GetAllocator())[ns_sharedSceneField], doc.GetAllocator(), path))
             return false;
 
-        if (scene && !saveScene(*Engine::m_engineObject->m_currentScene, doc.AddMember(json::StringRef(ns_sceneField), json::kObjectType, doc.GetAllocator())[ns_sceneField], doc.GetAllocator(), path))
+        if (scene && !getInstance().saveScene(*Engine::m_engineObject->m_currentScene, doc.AddMember(json::StringRef(ns_sceneField), json::kObjectType, doc.GetAllocator())[ns_sceneField], doc.GetAllocator(), path))
             return false;
 
         static const bool pretty = SettingManager::getBool("bPrettyStateFormat", false);
@@ -152,6 +154,8 @@ namespace jop
             return false;
         }
 
+        const auto& ls = getInstance().m_loaderSavers;
+
         std::string buf;
         if (!FileLoader::read(path + ".jop", buf))
             return false;
@@ -172,7 +176,7 @@ namespace jop
         // Load subsystems?
         if (subsystems && doc.HasMember(ns_subsystemField) && doc[ns_subsystemField].IsArray())
         {
-            const auto& subCont = std::get<SubID>(m_loaderSavers);
+            const auto& subCont = std::get<SubID>(ls);
 
             for (auto& i : doc[ns_subsystemField])
             {
@@ -207,13 +211,13 @@ namespace jop
         std::unique_ptr<Scene> sharedScenePtr;
 
         // Load the shared scene?
-        if (sharedScene && (doc.HasMember(ns_sharedSceneField) && doc[ns_sharedSceneField].IsObject() && Engine::m_engineObject && !loadScene(sharedScenePtr, doc[ns_sharedSceneField], path)))
+        if (sharedScene && (doc.HasMember(ns_sharedSceneField) && doc[ns_sharedSceneField].IsObject() && Engine::m_engineObject && !getInstance().loadScene(sharedScenePtr, doc[ns_sharedSceneField], path)))
             return false;
 
         std::unique_ptr<Scene> scenePtr;
 
         // Load scene?
-        if (scene && (doc.HasMember(ns_sceneField) && doc[ns_sceneField].IsObject() && Engine::m_engineObject && !loadScene(scenePtr, doc[ns_sceneField], path)))
+        if (scene && (doc.HasMember(ns_sceneField) && doc[ns_sceneField].IsObject() && Engine::m_engineObject && !getInstance().loadScene(scenePtr, doc[ns_sceneField], path)))
             return false;
 
         // Finally assign the pointers
@@ -237,9 +241,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer() const
+    const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer()
     {
-        return std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers);
+        return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
     }
 
     //////////////////////////////////////////////

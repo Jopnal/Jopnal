@@ -68,7 +68,7 @@ namespace jop
 
         /// \brief Default constructor
         ///
-        /// \param name Name of this buffer
+        /// \param name Name of this mesh
         ///
         Mesh(const std::string& name);
 
@@ -103,8 +103,16 @@ namespace jop
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
 
+        /// \brief Get the vertex amount
+        ///
+        /// \return The vertex amount
+        ///
         unsigned int getVertexAmount() const;
 
+        /// \brief Get the element (index) amount
+        ///
+        /// \return The element amount
+        ///
         unsigned int getElementAmount() const;
 
 
@@ -120,8 +128,16 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
+        /// \brief Get the load options used in loading this mesh
+        ///
+        /// \return Reference to the load options
+        ///
         const LoadOptions& getOptions() const;
 
+        /// \brief Get the default mesh
+        ///
+        /// \return Reference to the mesh
+        ///
         static Mesh& getDefault();
 
     private:

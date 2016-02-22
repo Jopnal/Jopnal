@@ -96,17 +96,20 @@ namespace jop
             const Transform& trs = opts.transform;
             auto& obj = val.AddMember(json::StringRef("options"), json::kObjectType, alloc)["options"];
 
-            obj.AddMember(json::StringRef("transform"), json::kArrayType, alloc)["transform"]
-               .PushBack(trs.getPosition().x, alloc)
-               .PushBack(trs.getPosition().y, alloc)
-               .PushBack(trs.getPosition().z, alloc)
-               .PushBack(trs.getScale().x, alloc)
-               .PushBack(trs.getScale().y, alloc)
-               .PushBack(trs.getScale().z, alloc)
-               .PushBack(trs.getRotation().w, alloc)
-               .PushBack(trs.getRotation().x, alloc)
-               .PushBack(trs.getRotation().y, alloc)
-               .PushBack(trs.getRotation().z, alloc);
+            if (trs.getMatrix() != Transform::IdentityMatrix)
+            {
+                obj.AddMember(json::StringRef("transform"), json::kArrayType, alloc)["transform"]
+                    .PushBack(trs.getPosition().x, alloc)
+                    .PushBack(trs.getPosition().y, alloc)
+                    .PushBack(trs.getPosition().z, alloc)
+                    .PushBack(trs.getScale().x, alloc)
+                    .PushBack(trs.getScale().y, alloc)
+                    .PushBack(trs.getScale().z, alloc)
+                    .PushBack(trs.getRotation().w, alloc)
+                    .PushBack(trs.getRotation().x, alloc)
+                    .PushBack(trs.getRotation().y, alloc)
+                    .PushBack(trs.getRotation().z, alloc);
+            }
 
             obj.AddMember(json::StringRef("centerorig"), opts.centerOrigin, alloc);
             obj.AddMember(json::StringRef("flipv"), opts.flipV, alloc);
@@ -306,7 +309,7 @@ namespace jop
                                    Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], mat.dissolve),
                                    Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve))
                                    .setShininess(mat.shininess);
-
+            
             // The default texture will be used in case of failure
             if (!mat.diffuse_texname.empty())
                 material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname));

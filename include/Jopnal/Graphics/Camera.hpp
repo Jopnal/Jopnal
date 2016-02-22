@@ -82,13 +82,13 @@ namespace jop
         ///
         Camera(const Camera& other);
 
+        JOP_GENERIC_CLONE(Camera);
 
-        /// \brief Clone this camera
-        ///
-        /// \return Pointer to the newly cloned Camera
-        ///
-        Camera* clone() const override;
 
+        /// \brief Overridden draw function
+        ///
+        /// Doesn't do anything.
+        ///
         void draw(const Camera&) override;
 
 

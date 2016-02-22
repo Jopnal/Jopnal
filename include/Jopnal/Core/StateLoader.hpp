@@ -113,26 +113,78 @@ namespace jop
     {
     private:
 
+        /// \brief Default constructor
+        ///
         StateLoader() = default;
 
     public:
 
+        /// \brief Get the single StateLoader instance
+        ///
+        /// \return Reference to the instance
+        ///
         static StateLoader& getInstance();
     
+
+        /// \brief Register a loadable object
+        ///
+        /// Only use this function directly if you have a reason for not wanting
+        /// to use the registration macros macros.
+        ///
+        /// \param id The type name
+        /// \param func The registration function
+        ///
         template<typename T>
         void registerLoadable(const char* id, const typename detail::FuncChooser<T>::LoadFunc& func);
 
+        /// \brief Register a saveable object
+        ///
+        /// The same remarks as with registerLoadable() apply.
+        ///
+        /// \param id The type name
+        /// \param func The registration function
+        ///
+        /// \see registerLoadable()
+        ///
         template<typename T>
         void registerSaveable(const char* id, const typename detail::FuncChooser<T>::SaveFunc& func);
         
-        bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
 
-        bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+        /// \brief Save the current state
+        ///
+        /// \param path The file path + name to save into. The .jop extension will be appended automatically
+        /// \param scene Save the current scene?
+        /// \param sharedScene Save the shared scene?
+        /// \param subsystems Save the sub systems?
+        ///
+        /// \return True if successful
+        ///
+        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
 
+        /// \brief Load the current state
+        ///
+        /// \param path The file path + name to load from. The .jop extension will be appended automatically
+        /// \param scene Load the current scene?
+        /// \param sharedScene Load the shared scene?
+        /// \param subsystems Load the sub systems?
+        ///
+        /// \return True if successful
+        ///
+        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+
+
+        /// \brief Get the container with the registered load/save functions for the type T
+        ///
+        /// \return Reference to the container
+        ///
         template<typename T>
-        const typename detail::FuncChooser<T>::FuncContainer& getFunctionContainer() const;
+        static const typename detail::FuncChooser<T>::FuncContainer& getFunctionContainer();
 
-        const std::unordered_map<std::type_index, std::string>& getSavenameContainer() const;
+        /// \brief Get the container with the type names used while saving
+        ///
+        /// \return Reference to the container
+        ///
+        static const std::unordered_map<std::type_index, std::string>& getSavenameContainer();
 
     private:
 
@@ -177,14 +229,18 @@ namespace jop
 
 #endif
 
+/// Macro for statically registering a loadable object
+///
 #define JOP_REGISTER_LOADABLE(nameSpace, className) \
 struct ns_##className##_LoadRegistrar{ns_##className##_LoadRegistrar(){jop::StateLoader::getInstance().registerLoadable<className>(#nameSpace "::" #className,
 
+/// Macro for statically registering a saveable object
+///
 #define JOP_REGISTER_SAVEABLE(nameSpace, className) \
 struct ns_##className##_SaveRegistrar{ns_##className##_SaveRegistrar(){jop::StateLoader::getInstance().registerSaveable<className>(#nameSpace "::" #className,
 
-#define JOP_END_LOADABLE_REGISTRATION(className) );}} ns_##className##_LoadRegistrarInstance;
-#define JOP_END_SAVEABLE_REGISTRATION(className) );}} ns_##className##_SaveRegistrarInstance;
+#define JOP_END_LOADABLE_REGISTRATION(className) );}} ns_##className##_LoadRegistrarInstance;   ///< End loadable registration
+#define JOP_END_SAVEABLE_REGISTRATION(className) );}} ns_##className##_SaveRegistrarInstance;   ///< End saveable registration
 
 /// \class SceneLoader
 /// \ingroup core

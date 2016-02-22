@@ -68,6 +68,11 @@ namespace jop
 
         JOP_GENERIC_CLONE(LightSource);
 
+
+        /// \brief Overridden draw function
+        ///
+        /// Doesn't do anything.
+        ///
         void draw(const Camera&) override;
 
 

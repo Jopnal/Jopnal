@@ -38,6 +38,8 @@ namespace jop
     {
     public:
 
+        /// The shader type
+        ///
         enum class Type
         {
             Vertex,
@@ -164,6 +166,14 @@ namespace jop
         void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
 
 
+        /// \brief Get the shader source
+        ///
+        /// This is either the file path from which the shader was loaded or the shader source code itself.
+        ///
+        /// \param type The shader type
+        ///
+        /// \return Reference to the source
+        ///
         const std::string& getSource(const Type type) const;
 
         
@@ -184,8 +194,8 @@ namespace jop
         int getAttributeLocation(const std::string& name);
 
         
-        std::array<std::string, 3> m_strings;
-        unsigned int m_shaderProgram; ///< The OpenGL shader handle
+        std::array<std::string, 3> m_strings;   ///< The shader sources
+        unsigned int m_shaderProgram;           ///< The OpenGL shader handle
                 
     };
 }

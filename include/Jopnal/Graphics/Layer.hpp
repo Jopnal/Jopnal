@@ -100,7 +100,9 @@ namespace jop
         ///
         void addDrawable(Drawable& drawable);
 
+        /// \brief Unbind a drawable
         ///
+        /// \param id The id of the drawable to unbind
         ///
         void removeDrawable(const std::string& id);
 

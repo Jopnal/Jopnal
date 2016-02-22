@@ -62,11 +62,15 @@ namespace jop
         bool load(const float size);
 
 
+        /// \brief Get the size
+        ///
+        /// \return The size
+        ///
         float getSize() const;
 
     private:
 
-        float m_size;
+        float m_size;   ///< This rectangle's size
 
     };
 }

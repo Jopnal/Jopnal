@@ -38,7 +38,7 @@ void StateLoader::registerSaveable(const char* id, const typename detail::FuncCh
 //////////////////////////////////////////////
 
 template<typename T>
-const typename detail::FuncChooser<T>::FuncContainer& StateLoader::getFunctionContainer() const
+const typename detail::FuncChooser<T>::FuncContainer& StateLoader::getFunctionContainer()
 {
-    return std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers);
+    return std::get<detail::FuncChooser<T>::ContainerID>(getInstance().m_loaderSavers);
 }
