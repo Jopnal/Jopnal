@@ -38,6 +38,10 @@ namespace jop
 
     class JOP_API Engine final
     {
+    private:
+
+        friend class StateLoader;
+
     public:
 
         /// \brief Constructor

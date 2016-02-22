@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <memory>
 
@@ -33,8 +35,6 @@
 
 namespace jop
 {
-    class Resource;
-
     class JOP_API ResourceManager : public Subsystem
     {
     public:
@@ -96,6 +96,28 @@ namespace jop
         template<typename T>
         static T& getExistingResource(const std::string& name);
 
+        /// \brief Check is a resource exists
+        ///
+        /// You can pass the resource type as a template argument to compare against it.
+        /// If only the name should be checked, T should be Resource.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return True if the resource exists
+        /// 
+        template<typename T = Resource>
+        static bool resourceExists(const std::string& name);
+
+        /// \brief Get the number of references of a resource
+        ///
+        /// The return value will be 0 if the resource wasn't found.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return The reference count
+        ///
+        static unsigned int getReferenceCount(const std::string& name);
+
 
         /// \brief Deletes resource from memory
         ///
@@ -105,7 +127,22 @@ namespace jop
 
         /// \brief Deletes all resources from memory
         ///
+        /// This will only delete the resources not flagged as persistent.
+        ///
         static void unloadResources();
+
+
+        /// \brief Load the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool loadBase(const json::Value& val);
+
+        /// \brief Save the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool saveBase(const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 

@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API Camera final : public Component
+    class JOP_API Camera final : public Drawable
     {
     private:
 
@@ -82,12 +82,14 @@ namespace jop
         ///
         Camera(const Camera& other);
 
+        JOP_GENERIC_CLONE(Camera);
 
-        /// \brief Clone this camera
+
+        /// \brief Overridden draw function
         ///
-        /// \return Pointer to the newly cloned Camera
+        /// Doesn't do anything.
         ///
-        Camera* clone() const override;
+        void draw(const Camera&) override;
 
 
         /// \brief Get the projection matrix
@@ -186,7 +188,7 @@ namespace jop
         /// \brief Set the vertical field of view
         ///
         /// The minimum value is 1 and maximum 179.
-        /// The value will clamped inside this range.
+        /// The value will be clamped inside this range.
         ///
         /// \param fovY The new field of view value
         ///

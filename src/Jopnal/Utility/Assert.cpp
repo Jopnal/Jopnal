@@ -44,7 +44,7 @@ namespace jop
         #endif
 
         #if defined(JOP_DEBUG_MODE) && defined(_MSC_VER)
-            // An assertion failed. There's a break here so you can traverse the call stack :)
+            // An assertion failed. There's a break here so you can traverse the call stack
             DebugBreak();
         #endif
 

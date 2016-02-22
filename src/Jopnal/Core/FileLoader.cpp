@@ -147,4 +147,62 @@ namespace jop
 
         return success;
     }
+
+    //////////////////////////////////////////////
+
+    bool FileLoader::write(const Directory dir, const std::string& file, const void* data, const unsigned int size)
+    {
+        static const std::string resFolder = SettingManager::getString("sResourceDirectory", "Resources");
+        static const std::string docDir("Documents");
+
+        std::string writeDir;
+
+        if (dir == Directory::Resources)
+            writeDir = resFolder;
+        else
+        {
+            writeDir = PHYSFS_getUserDir();
+            writeDir += docDir + PHYSFS_getDirSeparator() + getProjectName();
+        }
+
+        auto pos = file.find_last_of("/\\");
+
+        if (!PHYSFS_setWriteDir(writeDir.c_str()) || !PHYSFS_mkdir(file.substr(0, pos).c_str()))
+        {
+            JOP_DEBUG_ERROR("Couldn't write file, failed to create directory: " << file);
+            return false;
+        }
+
+        if (pos != std::string::npos)
+        {
+            writeDir += PHYSFS_getDirSeparator() + file.substr(0, pos);
+
+            if (!PHYSFS_setWriteDir(writeDir.c_str()))
+            {
+                JOP_DEBUG_ERROR("Couldn't write file, failed to set write directory: " << file);
+                return false;
+            }
+        }
+
+        if (data && size)
+        {
+            if (PHYSFS_file* fileHandle = PHYSFS_openWrite(pos != std::string::npos ? file.substr(pos + 1).c_str() : file.c_str()))
+            {
+                if (PHYSFS_write(fileHandle, data, 1, size) != size)
+                    JOP_DEBUG_WARNING("Failed to write the specified amount of bytes: " << file);
+
+                if (!PHYSFS_close(fileHandle))
+                {
+                    JOP_DEBUG_ERROR("Couldn't close file handle: " << file);
+                    return false;
+                }
+
+                return true;
+            }
+
+            JOP_DEBUG_ERROR("Failed to write file, couldn't open for writing: " << file);
+        }
+
+        return false;
+    }
 }

@@ -41,6 +41,12 @@ namespace jop
         ///
         Randomizer();
 
+        /// \brief Constructor for initialization with a custom seed
+        ///
+        /// \param The seed to use
+        ///
+        Randomizer(const std::default_random_engine::result_type seed);
+
 
         /// \brief Returns a random value from given distribution
         ///
@@ -48,12 +54,12 @@ namespace jop
         /// \param dEnd Ending point of distribution
         ///
         template<typename T>
-        T range(const T dStart,const T dEnd);
+        T range(const T start, const T end);
 
         /// \copydoc range()
         ///
         template<typename T>
-        T operator()(const T dStart, const T dEnd);
+        T operator()(const T start, const T end);
 
 
         /// \brief Picks a random point from a circle of given size
@@ -61,18 +67,18 @@ namespace jop
         /// \param radius Radius of the circle
         ///
         template<typename T>
-        glm::vec2 insideCircle(T radius);
+        glm::vec2 insideCircle(const T radius);
 
         /// \brief Picks a random point from a sphere of given size
         ///
         /// \param radius Radius of the circle
         ///
         template<typename T>
-        glm::vec3 insideSphere(T radius);
+        glm::vec3 insideSphere(const T radius);
 
     private:
 
-        std::default_random_engine m_randomGenerator;
+        std::default_random_engine m_randomGenerator;   ///< The random engine
 
     };
 
