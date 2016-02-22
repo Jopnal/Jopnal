@@ -77,7 +77,7 @@ namespace jop
         /// This will be called when a keyboard key is pressed.
         ///
         /// \param key The key that was pressed
-        /// \param scanCode The scancode
+        /// \param scanCode The scan code
         /// \param mods Modifiers
         ///
         virtual void keyPressed(const int key, const int scanCode, const int mods);
@@ -87,10 +87,18 @@ namespace jop
         /// This will be called when a keyboard key is released.
         ///
         /// \param key The key that was released
-        /// \param scanCode The scancode
+        /// \param scanCode The scan code
         /// \param mods Modifiers
         ///
         virtual void keyReleased(const int key, const int scanCode, const int mods);
+
+        /// \brief Check if a key is down
+        ///
+        /// \param key The virtual key code
+        ///
+        /// \return True if the key is down
+        ///
+        bool keyDown(const int key) const;
 
         /// \brief Text entered callback
         ///
@@ -109,6 +117,12 @@ namespace jop
         ///
         virtual void mouseMoved(const float x, const float y);
 
+        /// \brief Get the cursor position
+        ///
+        /// \return A std::pair with the position. First = x, second = y
+        ///
+        std::pair<float, float> getCursorPosition() const;
+
         /// \brief Mouse button pressed callback
         ///
         /// This will be called when one of the mouse buttons was pressed.
@@ -126,6 +140,14 @@ namespace jop
         /// \param mods Modifiers
         ///
         virtual void mouseButtonReleased(const int button, const int mods);
+
+        /// \brief Check if a mouse button is down
+        ///
+        /// \param button The virtual button code
+        ///
+        /// \return True if the button is down
+        ///
+        bool mouseButtonDown(const int button) const;
 
         /// \brief Mouse left callback
         ///

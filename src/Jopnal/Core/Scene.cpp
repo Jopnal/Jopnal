@@ -197,7 +197,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message)
+    Message::Result Scene::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -205,7 +205,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Scene::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -213,18 +213,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const Message& message)
+    Message::Result Scene::sendMessage(const Message& message)
     {
         if (message.passFilter(getID()))
         {
             if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
-            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == Message::Result::Escape)
+                return Message::Result::Escape;
         }
 
         static const unsigned short objectField = Message::Object |
@@ -234,8 +235,8 @@ namespace jop
         {
             for (auto& i : m_objects)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
@@ -243,12 +244,12 @@ namespace jop
         {
             for (auto& i : m_layers)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
     //////////////////////////////////////////////
 
@@ -361,8 +362,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessageImpl(const Message&)
+    Message::Result Scene::sendMessageImpl(const Message&)
     {
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 }

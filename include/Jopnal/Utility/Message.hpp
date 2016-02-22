@@ -35,14 +35,6 @@
 
 namespace jop
 {
-    /// Message result
-    ///
-    enum class MessageResult
-    {
-        Continue,   ///< Continue to process the message
-        Escape      ///< Return from sendMessage
-    };
-
     class JOP_API Message
     {
     private:
@@ -65,6 +57,14 @@ namespace jop
             Command = Component << 1,
             Custom = Command << 1,
             Global = 0xFFFF
+        };
+
+        /// Message result
+        ///
+        enum class Result
+        {
+            Continue,   ///< Continue to process the message
+            Escape      ///< Return from sendMessage
         };
 
     public:

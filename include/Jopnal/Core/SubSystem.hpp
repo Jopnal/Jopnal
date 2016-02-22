@@ -107,20 +107,20 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
 
         /// \brief Set the name
@@ -139,7 +139,7 @@ namespace jop
 
         /// \brief Virtual sendMessage
         ///
-        virtual MessageResult sendMessageImpl(const Message& message);
+        virtual Message::Result sendMessageImpl(const Message& message);
 
     private:
 

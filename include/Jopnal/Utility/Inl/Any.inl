@@ -106,7 +106,7 @@ const T& Any::cast() const
 template<typename T>
 Any& Any::operator =(const T& data)
 {
-    if (getType() == typeid(T))
+    if (getType() == typeid(T) || getType() == typeid(typename std::remove_const<T>::type))
         static_cast<Data<T>*>(m_data.get())->getData() = data;
 
     else
@@ -118,7 +118,7 @@ Any& Any::operator =(const T& data)
 template<typename T>
 Any& Any::operator=(T&& data)
 {
-    if (getType() == typeid(T))
+    if (getType() == typeid(T) || getType() == typeid(typename std::remove_const<T>::type))
         static_cast<Data<T>*>(m_data.get())->getData() = std::move(data);
 
     else
