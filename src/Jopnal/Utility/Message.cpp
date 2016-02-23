@@ -28,11 +28,12 @@
 namespace jop
 {
     Message::Message(const std::string& message, Any& ptr)
-        : m_command(),
-          m_idPattern(),
-          m_ptr(ptr),
-          m_filterBits(Filter::Global),
-          m_idMatchMethod(nullptr)
+        : m_command         (),
+          m_commandStr      (),
+          m_idPattern       (),
+          m_ptr             (ptr),
+          m_filterBits      (Filter::Global),
+          m_idMatchMethod   (nullptr)
     {
         if (!message.empty())
         {
@@ -68,9 +69,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::string Message::getString() const
+    const std::string& Message::getString() const
     {
-        return m_command.str();
+        if (m_commandStr.empty())
+            return (m_commandStr = m_command.str());
+
+        return m_commandStr;
     }
 
     //////////////////////////////////////////////

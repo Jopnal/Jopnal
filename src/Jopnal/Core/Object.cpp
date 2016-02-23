@@ -43,6 +43,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
+        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
         JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");

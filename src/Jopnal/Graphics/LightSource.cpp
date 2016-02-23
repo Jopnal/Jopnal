@@ -27,6 +27,16 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setType, "setLightType");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setLightIntensity");
+
+    JOP_END_COMMAND_HANDLER(LightSource)
+}
+
+namespace jop
+{
     JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
         auto& light = obj.createComponent<LightSource>("");

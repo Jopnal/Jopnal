@@ -29,7 +29,14 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Layer)
 
+        JOP_BIND_MEMBER_COMMAND(&Layer::bindOtherLayer, "bindOtherLayer");
+        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "unbindOtherLayer");
+        JOP_BIND_MEMBER_COMMAND(&Layer::addDrawable, "addDrawable");
         JOP_BIND_MEMBER_COMMAND(&Layer::removeDrawable, "removeDrawable");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setRenderTexture, "setRenderTexture");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setCamera, "setCamera");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Layer)
 
@@ -50,7 +57,7 @@ namespace jop
                 JOP_DEBUG_WARNING("Encountered unexpected values while loading Layer's render texture with id \"" << ptr->getID() << "\"");
         }
 
-        // Drawables will be resposible for binding themselves
+        // Drawables will be responsible for binding themselves
 
         return true;
     }

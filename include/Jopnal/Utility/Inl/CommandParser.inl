@@ -61,6 +61,21 @@ struct ArgumentConverter<std::reference_wrapper<T>, false>
     }
 };
 template<>
+struct ArgumentConverter<bool, false>
+{
+    static bool convert(const std::string& from)
+    {
+        std::string copy(from);
+
+        std::transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
+        std::istringstream is(copy);
+
+        bool b;
+        is >> std::boolalpha >> b;
+        return b;
+    }
+};
+template<>
 struct ArgumentConverter<const char*, false>
 {
     static const char* convert(const std::string& from)

@@ -30,6 +30,7 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Subsystem)
 
         JOP_BIND_MEMBER_COMMAND(&Subsystem::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Subsystem::setActive, "setActive");
 
     JOP_END_COMMAND_HANDLER(Subsystem)
 }

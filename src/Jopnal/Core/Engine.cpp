@@ -29,8 +29,8 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
-        JOP_BIND_COMMAND(&Engine::getSubsystem, "getSubsystem");
         JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::setPaused, "setPaused");
         JOP_BIND_COMMAND(&Engine::exit, "exit");
 
     JOP_END_COMMAND_HANDLER(Engine)

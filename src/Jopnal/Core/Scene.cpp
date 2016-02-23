@@ -34,6 +34,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
         JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
         JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
+        JOP_BIND_MEMBER_COMMAND(&Scene::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Scene)

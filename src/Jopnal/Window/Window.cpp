@@ -29,6 +29,18 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
+
+        JOP_BIND_MEMBER_COMMAND(&Window::setClearColor, "setClearColor");
+        JOP_BIND_MEMBER_COMMAND(&Window::setViewport, "setViewport");
+        JOP_BIND_MEMBER_COMMAND(&Window::setViewportRelative, "setViewportRelative");
+        JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
+
+    JOP_END_COMMAND_HANDLER(Window)
+}
+
 namespace
 {
     bool ns_eventsPolled = false;

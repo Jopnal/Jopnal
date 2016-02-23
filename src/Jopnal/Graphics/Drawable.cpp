@@ -27,6 +27,16 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, Drawable)
+
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
+
+    JOP_END_COMMAND_HANDLER(Drawable)
+}
+
+namespace jop
+{
     Drawable::Drawable(Object& object, const std::string& ID)
         : Component         (object, ID),
           m_model           (Model::getDefault()),
