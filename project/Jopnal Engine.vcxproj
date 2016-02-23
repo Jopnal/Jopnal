@@ -40,6 +40,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RectangleMesh.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\ShaderManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereMesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RectangleMesh.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\ShaderManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereMesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />

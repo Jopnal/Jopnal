@@ -19,32 +19,25 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_SHADERMANAGER_HPP
+#define JOP_SHADERMANAGER_HPP
+
 // Headers
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
-#include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/Graphics/Shader.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Buffer.hpp>
-#include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/LightSource.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
-#include <Jopnal/Graphics/BoxMesh.hpp>
-#include <Jopnal/Graphics/SphereMesh.hpp>
-#include <Jopnal/Graphics/GenericDrawable.hpp>
-#include <Jopnal/Graphics/GlState.hpp>
-#include <Jopnal/Graphics/Material.hpp>
-#include <Jopnal/Graphics/Model.hpp>
-#include <Jopnal/Graphics/RectangleMesh.hpp>
-#include <Jopnal/Graphics/ShaderManager.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API ShaderManager : public Subsystem
+    {
+    public:
+
+        ShaderManager();
+
+    };
+}
+
+#endif
