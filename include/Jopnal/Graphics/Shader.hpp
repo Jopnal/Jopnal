@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <unordered_map>
 #include <array>
 
 //////////////////////////////////////////////
@@ -36,6 +37,10 @@ namespace jop
 
     class Shader : public Resource
     {
+    private:
+
+        typedef std::unordered_map<std::string, int> LocationMap;
+
     public:
 
         /// The shader type
@@ -44,7 +49,8 @@ namespace jop
         {
             Vertex,
             Geometry,
-            Fragment
+            Fragment,
+            Preprocessor
         };
 
     public:
@@ -65,10 +71,11 @@ namespace jop
         /// \param vert Vertex shader path
         /// \param geom Geometry shader path
         /// \param frag Fragment shader path
+        /// \param pp Preprocessor definitions
         ///
         /// \return True if the shader was loaded, compiled and linked successfully
         ///
-        bool load(const std::string& vert, const std::string& geom, const std::string& frag);
+        bool load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp = "#version 330 core");
 
         /// \brief Destroy this shader
         ///
@@ -193,8 +200,16 @@ namespace jop
         ///
         int getAttributeLocation(const std::string& name);
 
+        int getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&));
+
+        static int getLocUnif(unsigned int prog, const std::string& name);
+
+        static int getLocAttr(unsigned int prog, const std::string& name);
+
         
-        std::array<std::string, 3> m_strings;   ///< The shader sources
+        std::array<std::string, 4> m_strings;   ///< The shader sources
+        LocationMap m_unifMap;                  ///< Map with the uniform locations
+        LocationMap m_attribMap;                ///< Map with the attribute locations
         unsigned int m_shaderProgram;           ///< The OpenGL shader handle
                 
     };

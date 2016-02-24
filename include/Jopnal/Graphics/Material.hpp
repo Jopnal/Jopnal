@@ -38,7 +38,26 @@ namespace jop
 
     class JOP_API Material
     {
+    private:
+
+        typedef uint32 AttribType;
+
     public:
+
+        /// Bit values to describe a material's attributes
+        ///
+        struct Attribute
+        {
+            enum : AttribType
+            {
+                AmbientLight = 1,
+                SolidColor = AmbientLight << 1,
+                Material = SolidColor << 1,
+                Diffusemap = Material << 1
+            };
+        };
+
+        static const AttribType DefaultAttributes;
 
         /// The reflection attribute
         ///

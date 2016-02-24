@@ -230,7 +230,7 @@ namespace jop
                 };
 
                 if (debugConsole)
-                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(m_displaySeverity)]) + newStr + '\n').c_str());
+                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(m_lastSeverity)]) + newStr + '\n').c_str());
             #endif
             }
         }
