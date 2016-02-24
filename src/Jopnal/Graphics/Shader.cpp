@@ -386,7 +386,7 @@ namespace jop
 
     Shader& Shader::getDefault()
     {
-        static std::weak_ptr<Shader> defShader;
+        static WeakReference<Shader> defShader;
 
         if (defShader.expired())
         {
@@ -394,18 +394,18 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = std::static_pointer_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").shared_from_this());
+            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").getReference());
 
-            JOP_ASSERT_EVAL(defShader.lock()->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                                   "",
-                                                   std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                                                   "Couldn't compile the default shader!");
+            JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                                            "",
+                                            std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                                            "Couldn't compile the default shader!");
 
-            defShader.lock()->setPersistent(true);
-            defShader.lock()->setManaged(true);
+            defShader->setPersistent(true);
+            defShader->setManaged(true);
         }
 
-        return *defShader.lock();
+        return *defShader;
     }
 
     //////////////////////////////////////////////

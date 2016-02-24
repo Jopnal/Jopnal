@@ -28,7 +28,7 @@
 namespace jop
 {
     Resource::Resource(const std::string& name)
-        : std::enable_shared_from_this<Resource>    (),
+        : SafeReferenceable<Resource>    (this),
           m_name                                    (name),
           m_persistent                              (false),
           m_managed                                 (false)

@@ -38,7 +38,7 @@ namespace jop
 namespace jop
 {
     Subsystem::Subsystem(const std::string& ID)
-        : std::enable_shared_from_this<Subsystem>   (),
+        : SafeReferenceable<Subsystem>   (this),
           m_ID                                      (ID),
           m_active                                  (true)
     {}

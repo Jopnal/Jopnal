@@ -81,6 +81,8 @@ namespace jop
         ///
         void setModel(const Model& model);
 
+        Model& getModel();
+
         /// \brief Get the model
         ///
         /// \return Reference to the model
@@ -97,7 +99,7 @@ namespace jop
         ///
         /// \return Weak pointer to the shader. Empty if none bound
         ///
-        std::weak_ptr<Shader> getShader() const;
+        WeakReference<Shader> getShader() const;
 
         /// \brief Get the set with the bound layers
         ///
@@ -133,7 +135,7 @@ namespace jop
 
         Model m_model;                                      ///< The bound model
         mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
-        std::weak_ptr<Shader> m_shader;                     ///< The bound shader
+        WeakReference<Shader> m_shader;                     ///< The bound shader
         
     };
 }

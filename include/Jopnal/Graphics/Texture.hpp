@@ -162,7 +162,7 @@ namespace jop
         bool checkDepthValid(const int depth) const;
 
 
-        mutable std::weak_ptr<const TextureSampler> m_sampler;  ///< Texture sampler
+        mutable WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
         int m_width;                                            ///< Width of the texture
         int m_height;                                           ///< Height of the texture
         int m_bytesPerPixel;                                    ///< Byte depth of the texture

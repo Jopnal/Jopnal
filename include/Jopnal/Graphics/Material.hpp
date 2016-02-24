@@ -127,7 +127,7 @@ namespace jop
         ///
         /// \return Weak pointer to the texture. Empty if none bound
         ///
-        std::weak_ptr<const Texture> getMap(const Map map) const;
+        WeakReference<const Texture> getMap(const Map map) const;
 
 
         /// \brief Get the default material
@@ -140,7 +140,7 @@ namespace jop
 
         std::array<Color, 3> m_reflection;                  ///< The reflection values
         float m_shininess;                                  ///< The shininess factor
-        std::array<std::weak_ptr<const Texture>, 1> m_maps; ///< An array with the bound maps
+        std::array<WeakReference<const Texture>, 1> m_maps; ///< An array with the bound maps
 
     };
 }

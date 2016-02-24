@@ -60,9 +60,9 @@ namespace jop
         if (getShader().expired() || getModel().getMesh().expired())
             return;
 
-        auto& s = *getShader().lock();
+        auto& s = *getShader();
         auto& mod = getModel();
-        auto& msh = *mod.getMesh().lock();
+        auto& msh = *mod.getMesh();
 
         msh.getVertexBuffer().bind();
 

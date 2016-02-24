@@ -41,7 +41,7 @@ namespace jop
           m_shininess   (0.f),
           m_maps        ()
     {
-        m_maps[ns_diffMapIndex] = std::static_pointer_cast<const Texture>(Texture::getDefault().shared_from_this());
+        m_maps[ns_diffMapIndex] = static_ref_cast<const Texture>(Texture::getDefault().getReference());
     }
 
     //////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace jop
             shader.setUniform("u_Material.shininess", m_shininess);
 
             if (!m_maps[ns_diffMapIndex].expired())
-                shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex].lock(), ns_diffMapIndex);
+                shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
         }
     }
 
@@ -103,14 +103,13 @@ namespace jop
 
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        m_maps[static_cast<int>(map)] = std::static_pointer_cast<const Texture>(tex.shared_from_this());
-
+        m_maps[static_cast<int>(map)] = static_ref_cast<const Texture>(tex.getReference());
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<const Texture> Material::getMap(const Map map) const
+    WeakReference<const Texture> Material::getMap(const Map map) const
     {
         return m_maps[static_cast<int>(map)];
     }

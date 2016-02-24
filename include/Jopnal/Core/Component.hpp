@@ -24,8 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <memory>
 #include <string>
 
 //////////////////////////////////////////////
@@ -35,7 +35,7 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component : public std::enable_shared_from_this<Component>
+    class JOP_API Component : public SafeReferenceable<Component>
     {
     private:
 
@@ -126,7 +126,7 @@ namespace jop
         virtual Message::Result sendMessageImpl(const Message& message);
 
         std::string m_ID;       ///< Unique component identifier
-        Object& m_objectRef;    ///< Reference to the object this component is bound to
+        WeakReference<Object> m_objectRef;    ///< Reference to the object this component is bound to
     };
 }
 

@@ -371,18 +371,18 @@ namespace jop
 
     Mesh& Mesh::getDefault()
     {
-        static std::weak_ptr<BoxMesh> defMesh;
+        static WeakReference<BoxMesh> defMesh;
 
         if (defMesh.expired())
         {
-            defMesh = std::static_pointer_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("Default Mesh").shared_from_this());
+            defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("Default Mesh").getReference());
 
-            JOP_ASSERT_EVAL(defMesh.lock()->load(1.f), "Couldn't load default model!");
+            JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
 
-            defMesh.lock()->setPersistent(true);
-            defMesh.lock()->setManaged(true);
+            defMesh->setPersistent(true);
+            defMesh->setManaged(true);
         }
 
-        return *defMesh.lock();
+        return *defMesh;
     }
 }

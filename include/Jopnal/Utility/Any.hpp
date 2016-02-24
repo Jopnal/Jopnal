@@ -116,6 +116,12 @@ namespace jop
         template<typename T>
         const T& cast() const;
 
+        template<typename T>
+        T dynamicCast();
+
+        template<typename T>
+        const T dynamicCast() const;
+
         /// \brief Delete the contained data
         ///
         void clear();

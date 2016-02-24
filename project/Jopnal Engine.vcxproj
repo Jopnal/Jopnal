@@ -63,6 +63,7 @@
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Randomizer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
@@ -139,6 +140,7 @@
     <None Include="..\include\Jopnal\Utility\Inl\Message.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Any.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl" />
     <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

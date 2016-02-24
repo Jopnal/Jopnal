@@ -21,7 +21,7 @@
 
 
 template<typename T>
-std::weak_ptr<T> Scene::getLayer() const
+WeakReference<T> Scene::getLayer() const
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
 
@@ -30,10 +30,10 @@ std::weak_ptr<T> Scene::getLayer() const
     for (auto& i : m_layers)
     {
         if (typeid(*i) == ti)
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+            return static_ref_cast<T>(i);
     }
 
-    return std::weak_ptr<T>();
+    return WeakReference<T>();
 }
 
 //////////////////////////////////////////////
@@ -46,7 +46,7 @@ T& Scene::createLayer(Args&... args)
     // Make sure the default layer is created
     getDefaultLayer();
 
-    m_layers.emplace_back(std::make_shared<T>(args...));
+    m_layers.emplace_back(std::make_unique<T>(args...));
     return static_cast<T&>(*m_layers.back());
 }
 
@@ -60,6 +60,6 @@ T& Scene::setDefaultLayer(Args&... args)
     // Make sure the default layer is created
     getDefaultLayer();
 
-    m_layers.front() = std::make_shared<T>(args...);
+    m_layers.front() = std::make_unique<T>(args...);
     return static_cast<T&>(*m_layers.front());
 }

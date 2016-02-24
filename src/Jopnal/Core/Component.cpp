@@ -36,16 +36,16 @@ namespace jop
 
 namespace jop
 {
-    Component::Component(const Component& other)
-        : std::enable_shared_from_this<Component>   (other),
-          m_objectRef                               (other.m_objectRef),
-          m_ID                                      (other.m_ID)
-    {}
-
     Component::Component(Object& object, const std::string& ID)
-        : std::enable_shared_from_this<Component>   (),
+        : SafeReferenceable<Component>   (this),
           m_objectRef                               (object),
           m_ID                                      (ID)
+    {}
+
+    Component::Component(const Component& other)
+        : SafeReferenceable<Component>(this),
+        m_objectRef(other.m_objectRef),
+        m_ID(other.m_ID)
     {}
 
     Component::~Component()
@@ -113,14 +113,14 @@ namespace jop
 
     Object& Component::getObject()
     {
-        return m_objectRef;
+        return *m_objectRef;
     }
 
     //////////////////////////////////////////////
 
     const Object& Component::getObject() const
     {
-        return m_objectRef;
+        return *m_objectRef;
     }
 
     Message::Result Component::sendMessageImpl(const Message&)

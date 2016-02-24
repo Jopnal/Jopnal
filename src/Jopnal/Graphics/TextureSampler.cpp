@@ -245,13 +245,13 @@ namespace jop
 
     TextureSampler& TextureSampler::getDefault()
     {
-        static std::weak_ptr<TextureSampler> defSampler;
+        static WeakReference<TextureSampler> defSampler;
 
         if (defSampler.expired())
         {
-            defSampler = std::static_pointer_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("Default Sampler").shared_from_this());
+            defSampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("Default Sampler").getReference());
             
-            JOP_ASSERT_EVAL(defSampler.lock()->load
+            JOP_ASSERT_EVAL(defSampler->load
             (
                 static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
                 static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)),
@@ -259,10 +259,10 @@ namespace jop
 
             ), "Couldn't create default sampler!");
 
-            defSampler.lock()->setPersistent(true);
-            defSampler.lock()->setManaged(true);
+            defSampler->setPersistent(true);
+            defSampler->setManaged(true);
         }
 
-        return *defSampler.lock();
+        return *defSampler;
     }
 }

@@ -57,20 +57,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int ResourceManager::getReferenceCount(const std::string& name)
-    {
-        if (!m_instance)
-            return 0u;
-
-        auto itr = m_instance->m_resources.find(name);
-        if (itr != m_instance->m_resources.end())
-            return static_cast<unsigned int>(itr->second.use_count());
-
-        return 0u;
-    }
-
-    //////////////////////////////////////////////
-
     void ResourceManager::unloadResource(const std::string& path)
     {
         if (m_instance)

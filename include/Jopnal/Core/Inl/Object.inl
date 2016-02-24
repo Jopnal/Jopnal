@@ -23,7 +23,7 @@
 
 
 template<typename T>
-std::weak_ptr<T> Object::getComponent()
+WeakReference<T> Object::getComponent()
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
 
@@ -32,10 +32,10 @@ std::weak_ptr<T> Object::getComponent()
     for (auto& i : m_components)
     {
         if (typeid(*i) == ti)
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+            return static_ref_cast<T>(i->getReference());
     }
 
-    return std::weak_ptr<T>();
+    return WeakReference<T>();
 }
 
 //////////////////////////////////////////////
@@ -49,18 +49,18 @@ namespace detail
     struct ComponentMaker
     {
         template<typename ... Args>
-        static std::shared_ptr<T> make(Object& obj, Args&... args)
+        static std::unique_ptr<T> make(Object& obj, Args&... args)
         {
-            return std::make_shared<T>(obj, args...);
+            return std::make_unique<T>(obj, args...);
         }
     };
     template<typename T>
     struct ComponentMaker<T, true, true>
     {
         template<typename ... Args>
-        static std::shared_ptr<T> make(Object& obj, Layer& layer, Args&... args)
+        static std::unique_ptr<T> make(Object& obj, Layer& layer, Args&... args)
         {
-            auto ptr = std::make_shared<T>(obj, args...);
+            auto ptr = std::make_unique<T>(obj, args...);
             layer.addDrawable(*ptr);
             return ptr;
         }

@@ -218,8 +218,8 @@ namespace jop
 
             if (!m_sampler.expired())
             {
-                m_sampler = std::static_pointer_cast<const TextureSampler>(TextureSampler::getDefault().shared_from_this());
-                m_sampler.lock()->bind(texUnit);
+                m_sampler = static_ref_cast<const TextureSampler>(TextureSampler::getDefault().getReference());
+                m_sampler->bind(texUnit);
             }
         }
 
@@ -237,7 +237,7 @@ namespace jop
 
     void Texture::setTextureSampler(const TextureSampler& sampler)
     {
-        m_sampler = std::static_pointer_cast<const TextureSampler>(sampler.shared_from_this());
+        m_sampler = static_ref_cast<const TextureSampler>(sampler.getReference());
     }
 
     //////////////////////////////////////////////
@@ -295,38 +295,38 @@ namespace jop
 
     Texture& Texture::getError()
     {
-        static std::weak_ptr<Texture> errTex;
+        static WeakReference<Texture> errTex;
 
         if (errTex.expired())
         {
-            errTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").shared_from_this());
+            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
 
-            errTex.lock()->setPersistent(true);
-            errTex.lock()->setManaged(true);
+            errTex->setPersistent(true);
+            errTex->setManaged(true);
         }
 
-        return *errTex.lock();
+        return *errTex;
     }
 
     //////////////////////////////////////////////
 
     Texture& Texture::getDefault()
     {
-        static std::weak_ptr<Texture> defTex;
+        static WeakReference<Texture> defTex;
 
         if (defTex.expired())
         {
-            defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
+            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").getReference());
             
-            JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
 
-            defTex.lock()->setPersistent(true);
-            defTex.lock()->setManaged(true);
+            defTex->setPersistent(true);
+            defTex->setManaged(true);
         }
 
-        return *defTex.lock();
+        return *defTex;
     }
 
     //////////////////////////////////////////////

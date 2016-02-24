@@ -121,12 +121,13 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
         return getExistingResource<T>(name);
     else
     {
-        auto res = std::make_shared<T>(name);
+        auto res = std::make_unique<T>(name);
 
         if (res->load(args...))
         {
-            m_instance->m_resources[name] = res;
-            return *res;
+            T& ptr = *res;
+            m_instance->m_resources[name] = std::move(res);
+            return ptr;
         }
     }
 
@@ -140,10 +141,11 @@ static T& ResourceManager::getEmptyResource(const Args&... args)
 {
     detail::basicErrorCheck<T>(m_instance);
 
-    auto ptr = std::make_shared<T>(args...);
-    m_instance->m_resources[detail::getStringArg(args...)] = ptr;
+    auto res = std::make_unique<T>(args...);
+    T& ptr = *res;
+    m_instance->m_resources[detail::getStringArg(args...)] = std::move(res);
 
-    return *ptr;
+    return ptr;
 }
 
 template<typename T>

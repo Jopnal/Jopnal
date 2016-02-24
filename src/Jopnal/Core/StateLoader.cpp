@@ -327,7 +327,7 @@ namespace jop
                     std::unique_ptr<Layer> ptr;
 
                     if (i.HasMember(ns_dataField) && i[ns_dataField].IsObject() && std::get<LoadID>(itr->second)(ptr, i[ns_dataField]))
-                        scene->m_layers.push_back(std::shared_ptr<Layer>(ptr.release()));
+                        scene->m_layers.push_back(std::unique_ptr<Layer>(ptr.release()));
                     else
                     {
                         JOP_DEBUG_ERROR("Couldn't load layer state, data object missing or the registered load function reported failure: " << path);
@@ -356,7 +356,7 @@ namespace jop
                 continue;
 
             // It can be assumed that the id exists and is of right type
-            std::weak_ptr<Layer> weakCurrLayer = scene->getLayer(i[ns_dataField]["id"].GetString());
+            WeakReference<Layer> weakCurrLayer = scene->getLayer(i[ns_dataField]["id"].GetString());
 
             if (weakCurrLayer.expired())
             {
@@ -366,13 +366,13 @@ namespace jop
 
             if (i.HasMember(boundLayersField) && i[boundLayersField].IsArray())
             {
-                Layer& currLayer = *weakCurrLayer.lock();
+                Layer& currLayer = *weakCurrLayer;
 
                 for (auto& j : i[boundLayersField])
                 {
-                    std::weak_ptr<Layer> bound;
+                    WeakReference<Layer> bound;
                     if (j.IsString() && !(bound = scene->getLayer(j.GetString())).expired())
-                        currLayer.bindOtherLayer(*std::static_pointer_cast<Layer>(bound.lock()));
+                        currLayer.bindOtherLayer(*static_ref_cast<Layer>(bound));
                     else
                         JOP_DEBUG_WARNING("Couldn't bind layer to \"" << currLayer.getID() << "\". Array element not a string or layer couldn't be found: " << path);
                 }
@@ -394,7 +394,7 @@ namespace jop
             const char* id = (i.HasMember("id") && i["id"].IsString() ? i["id"].GetString() : "");
 
             scene->createObject(id);
-            if (!loadObject(*scene->m_objects.back(), *scene, i, path))
+            if (!loadObject(scene->m_objects.back(), *scene, i, path))
             {
                 JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
                 return false;
@@ -484,7 +484,7 @@ namespace jop
                 const char* id = (i.HasMember("id") && i["id"].IsString() ? i["id"].GetString() : "");
 
                 obj.createChild(id);
-                if (!loadObject(*obj.m_children.back(), scene, i, path))
+                if (!loadObject(obj.m_children.back(), scene, i, path))
                 {
                     JOP_DEBUG_ERROR("Failed to load child object with id \"" << id << "\": " << path);
                     return false;
@@ -586,7 +586,7 @@ namespace jop
                 for (auto& j : i->m_boundLayers)
                 {
                     if (!j.expired())
-                        boundArray.PushBack(json::StringRef(j.lock()->getID().c_str()), alloc);
+                        boundArray.PushBack(json::StringRef(j->getID().c_str()), alloc);
                 }
             }
         }
@@ -603,11 +603,11 @@ namespace jop
             data.PushBack(json::kObjectType, alloc);
             auto& obj = data[data.Size() - 1u];
 
-            obj.AddMember(json::StringRef("id"), json::StringRef(i->getID().c_str()), alloc);
+            obj.AddMember(json::StringRef("id"), json::StringRef(i.getID().c_str()), alloc);
 
-            if (!saveObject(*i, obj, alloc, path))
+            if (!saveObject(i, obj, alloc, path))
             {
-                JOP_DEBUG_ERROR("Failed to save object with id \"" << i->getID() << "\": " << path);
+                JOP_DEBUG_ERROR("Failed to save object with id \"" << i.getID() << "\": " << path);
                 return false;
             }
         }
@@ -683,11 +683,11 @@ namespace jop
                 objs.PushBack(json::kObjectType, alloc);
                 auto& curr = objs[objs.Size() - 1];
 
-                curr.AddMember(json::StringRef("id"), json::StringRef(i->getID().c_str()), alloc);
+                curr.AddMember(json::StringRef("id"), json::StringRef(i.getID().c_str()), alloc);
 
-                if (!saveObject(*i, curr, alloc, path))
+                if (!saveObject(i, curr, alloc, path))
                 {
-                    JOP_DEBUG_ERROR("Failed to save object with id \"" << i->getID() << "\": " << path);
+                    JOP_DEBUG_ERROR("Failed to save object with id \"" << i.getID() << "\": " << path);
                     return false;
                 }
             }

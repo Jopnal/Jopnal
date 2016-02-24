@@ -36,6 +36,7 @@ namespace jop
     class Drawable;
     class Camera;
     class RenderTexture;
+    class LightSource;
 
     class JOP_API Layer : public Subsystem
     {
@@ -130,6 +131,10 @@ namespace jop
         ///
         void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
 
+        /// \brief Get the render texture
+        ///
+        /// \return Pointer to the render texture. Nullptr if doesn't exist
+        ///
         const RenderTexture* getRenderTexture() const;
 
         /// \brief Sweep the drawables & bound layers that no longer exist
@@ -145,9 +150,10 @@ namespace jop
 
     protected:
 
-        std::vector<std::weak_ptr<Drawable>> m_drawList;  ///< The local draw list
-        std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
-        std::weak_ptr<const Camera> m_camera;             ///< Bound camera
+        std::vector<WeakReference<Drawable>> m_drawList;  ///< The local draw list
+        std::vector<WeakReference<LightSource>> m_lights; ///< The bound lights
+        std::vector<WeakReference<Layer>> m_boundLayers;  ///< Bound layers
+        WeakReference<const Camera> m_camera;             ///< Bound camera
         std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture
         bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 

@@ -74,7 +74,7 @@ namespace jop
         ///
         /// \return Pointer to the mesh
         ///
-        std::weak_ptr<const Mesh> getMesh() const;
+        WeakReference<const Mesh> getMesh() const;
 
         /// \brief Set the mesh
         ///
@@ -118,7 +118,7 @@ namespace jop
     private:
 
         Material m_material;                ///< The material
-        std::weak_ptr<const Mesh> m_mesh;   ///< The mesh
+        WeakReference<const Mesh> m_mesh;   ///< The mesh
 
     };
 }

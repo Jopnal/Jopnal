@@ -52,7 +52,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<const Mesh> Model::getMesh() const
+    WeakReference<const Mesh> Model::getMesh() const
     {
         return m_mesh;
     }
@@ -61,7 +61,7 @@ namespace jop
 
     void Model::setMesh(const Mesh& mesh)
     {
-        m_mesh = std::weak_ptr<const Mesh>(std::static_pointer_cast<const Mesh>(mesh.shared_from_this()));
+        m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
     }
 
     //////////////////////////////////////////////
@@ -82,28 +82,28 @@ namespace jop
 
     unsigned int Model::getVertexAmount() const
     {
-        return m_mesh.expired() ? 0 : m_mesh.lock()->getVertexAmount();
+        return m_mesh.expired() ? 0 : m_mesh->getVertexAmount();
     }
 
     //////////////////////////////////////////////
 
     unsigned int Model::getElementAmount() const
     {
-        return m_mesh.expired() ? 0 : m_mesh.lock()->getElementAmount();
+        return m_mesh.expired() ? 0 : m_mesh->getElementAmount();
     }
 
     //////////////////////////////////////////////
 
     const Model& Model::getDefault()
     {
-        static std::weak_ptr<const Mesh> defMesh;
+        static WeakReference<const Mesh> defMesh;
         static Model model;
 
         if (defMesh.expired())
         {
-            defMesh = std::static_pointer_cast<const Mesh>(Mesh::getDefault().shared_from_this());
+            defMesh = static_ref_cast<const Mesh>(Mesh::getDefault().getReference());
 
-            model.setMesh(*std::static_pointer_cast<const Mesh>(defMesh.lock()));
+            model.setMesh(*defMesh);
         }
 
         return model;

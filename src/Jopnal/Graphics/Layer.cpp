@@ -86,23 +86,30 @@ namespace jop
 namespace jop
 {
     Layer::Layer(const std::string& ID)
-        : Subsystem                             (ID),
-          m_drawList                            (),
-          m_boundLayers                         (),
-          m_camera                              (),
-          m_renderTexture                       (),
-          m_drawablesRemoved                    (false)
+        : Subsystem             (ID),
+          m_drawList            (),
+          m_lights              (),
+          m_boundLayers         (),
+          m_camera              (),
+          m_renderTexture       (),
+          m_drawablesRemoved    (false)
     {}
 
     Layer::~Layer()
     {
         if (!m_camera.expired())
-            handleDrawableRemoval(*m_camera.lock());
+            handleDrawableRemoval(*m_camera);
+
+        for (auto& i : m_lights)
+        {
+            if (!i.expired())
+                handleDrawableRemoval(*i);
+        }
 
         for (auto& i : m_drawList)
         {
             if (!i.expired())
-                handleDrawableRemoval(*i.lock());
+                handleDrawableRemoval(*i);
         }
     }
 
@@ -120,7 +127,7 @@ namespace jop
             else
                 RenderTexture::unbind();
 
-            draw(*m_camera.lock());
+            draw(*m_camera);
 
             sweepRemoved();
         }
@@ -137,10 +144,10 @@ namespace jop
         {
             if (!i.expired())
             {
-                for (auto& j : i.lock()->m_drawList)
+                for (auto& j : i->m_drawList)
                 {
                     if (!j.expired())
-                        j.lock()->draw(camera);
+                        j->draw(camera);
                     else
                         m_drawablesRemoved = true;
                 }
@@ -150,7 +157,7 @@ namespace jop
         for (auto& i : m_drawList)
         {
             if (!i.expired())
-                i.lock()->draw(camera);
+                i->draw(camera);
             else
                 m_drawablesRemoved = true;
         }
@@ -202,8 +209,8 @@ namespace jop
             return;
         }
 
-        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.shared_from_this()));
-        handleDrawableAddition(*m_drawList.back().lock());
+        m_drawList.emplace_back(static_ref_cast<Drawable>(drawable.getReference()));
+        handleDrawableAddition(*m_drawList.back());
     }
 
     //////////////////////////////////////////////
@@ -212,9 +219,9 @@ namespace jop
     {
         for (auto itr = m_drawList.begin(); itr != m_drawList.end(); ++itr)
         {
-            if (!itr->expired() && itr->lock()->getID() == id)
+            if (!itr->expired() && (*itr)->getID() == id)
             {
-                handleDrawableRemoval(*itr->lock());
+                handleDrawableRemoval(*(*itr));
                 m_drawList.erase(itr);
                 return;
             }
@@ -225,7 +232,7 @@ namespace jop
 
     void Layer::bindOtherLayer(Layer& layer)
     {
-        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.shared_from_this()));
+        m_boundLayers.emplace_back(static_ref_cast<Layer>(layer.getReference()));
     }
 
     //////////////////////////////////////////////
@@ -234,7 +241,7 @@ namespace jop
     {
         for (auto itr = m_boundLayers.begin(); itr != m_boundLayers.end(); ++itr)
         {
-            if (!itr->expired() && itr->lock()->getID() == ID)
+            if (!itr->expired() && (*itr)->getID() == ID)
             {
                 m_boundLayers.erase(itr);
                 return;
@@ -247,10 +254,10 @@ namespace jop
     void Layer::setCamera(const Camera& camera)
     {
         if (!m_camera.expired())
-            handleDrawableRemoval(*m_camera.lock());
+            handleDrawableRemoval(*m_camera);
 
-        m_camera = std::static_pointer_cast<const Camera>(camera.shared_from_this());
-        handleDrawableAddition(*m_camera.lock());
+        m_camera = static_ref_cast<const Camera>(camera.getReference());
+        handleDrawableAddition(*m_camera);
     }
 
     //////////////////////////////////////////////
@@ -273,13 +280,13 @@ namespace jop
     {
         if (m_drawablesRemoved)
         {
-            m_drawList.erase(std::remove_if(m_drawList.begin(), m_drawList.end(), [](const std::weak_ptr<Drawable>& drawable)
+            m_drawList.erase(std::remove_if(m_drawList.begin(), m_drawList.end(), [](const WeakReference<Drawable>& drawable)
             {
                 return drawable.expired();
 
             }), m_drawList.end());
 
-            m_boundLayers.erase(std::remove_if(m_boundLayers.begin(), m_boundLayers.end(), [](const std::weak_ptr<Layer>& layer)
+            m_boundLayers.erase(std::remove_if(m_boundLayers.begin(), m_boundLayers.end(), [](const WeakReference<Layer>& layer)
             {
                 return layer.expired();
 

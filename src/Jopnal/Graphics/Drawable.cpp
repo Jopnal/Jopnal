@@ -41,7 +41,7 @@ namespace jop
         : Component         (object, ID),
           m_model           (Model::getDefault()),
           m_boundToLayers   (),
-          m_shader          (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
+          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference()))
     {}
 
     Drawable::~Drawable()
@@ -66,14 +66,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setShader(Shader& shader)
+    Model& Drawable::getModel()
     {
-        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
+        return m_model;
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Shader> Drawable::getShader() const
+    void Drawable::setShader(Shader& shader)
+    {
+        m_shader = static_ref_cast<Shader>(shader.getReference());
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Shader> Drawable::getShader() const
     {
         return m_shader;
     }
@@ -102,7 +109,7 @@ namespace jop
                 auto layer = scene.getLayer(i.GetString());
 
                 if (!layer.expired())
-                    layers.push_back(layer.lock().get());
+                    layers.push_back(layer.get());
             }
         }
 
@@ -170,10 +177,10 @@ namespace jop
         }
 
         if (!drawable.m_shader.expired())
-            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader.lock()->getName().c_str()), alloc);
+            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);
 
         if (!drawable.m_model.getMesh().expired())
-            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh().lock()->getName().c_str()), alloc);
+            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh()->getName().c_str()), alloc);
 
         auto & mat = val.AddMember(json::StringRef("material"), json::kObjectType, alloc)["material"];
         mat.AddMember(json::StringRef("reflection"), json::kArrayType, alloc)["reflection"]
@@ -187,7 +194,7 @@ namespace jop
         {
             auto map = drawable.m_model.getMaterial().getMap(Material::Map::Diffuse);
             if (!map.expired())
-                mat.AddMember(json::StringRef("diffusemap"), json::StringRef(map.lock()->getName().c_str()), alloc);
+                mat.AddMember(json::StringRef("diffusemap"), json::StringRef(map->getName().c_str()), alloc);
         }
 
         return true;

@@ -258,6 +258,9 @@
     <ClInclude Include="..\include\Jopnal\Graphics\ShaderManager.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -437,6 +440,9 @@
       <Filter>Core\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl">
       <Filter>Utility\Inl</Filter>
     </None>
   </ItemGroup>
