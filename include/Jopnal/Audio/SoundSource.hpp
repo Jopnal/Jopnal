@@ -97,7 +97,7 @@ namespace jop
 
         /// \brief Returns float volume
         ///
-        float getVolume();
+        const float getVolume();
 
         /// \brief Set from which point as seconds the sound starts playing
         ///
@@ -119,9 +119,9 @@ namespace jop
         ///
         const float getPitch();
 
-        /// \brief Returns status Playing, Paused or Stopped as enum
+        /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
         ///
-        int getStatus();
+        enum status getStatus();
 
         /// \brief Toggle sound on/off
         ///

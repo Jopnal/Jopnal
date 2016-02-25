@@ -102,7 +102,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float SoundSource::getVolume()
+    const float SoundSource::getVolume()
     {
         return m_sound->getVolume();
     }
@@ -111,7 +111,8 @@ namespace jop
 
     SoundSource& SoundSource::setOffset(const float& time)
     {
-        m_sound->setPlayingOffset(&time);
+        sf::Time t(sf::seconds(time));
+        m_sound->setPlayingOffset(t);
 
         return *this;
     }
@@ -127,6 +128,7 @@ namespace jop
 
     SoundSource& SoundSource::setPitch(const float& value)
     {
+        m_sound->setPitch(value);
 
         return *this;
     }
@@ -140,10 +142,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int SoundSource::getStatus()
+    enum status SoundSource::getStatus()
     {
-       m_sound->getStatus();
-       return 999;
+        return status(m_sound->getStatus());
     }
 
     //////////////////////////////////////////////
