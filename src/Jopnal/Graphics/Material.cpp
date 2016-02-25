@@ -36,12 +36,31 @@ namespace
 
 namespace jop
 {
+    const Material::AttribType Material::DefaultAttributes = Material::Attribute::AmbientConstant
+                                                           | Material::Attribute::Material
+                                                           | Material::Attribute::Diffusemap
+                                                           | Material::Attribute::Phong;
+
+    //////////////////////////////////////////////
+
     Material::Material()
         : m_reflection  (),
+          m_attributes  (DefaultAttributes),
           m_shininess   (0.f),
           m_maps        ()
     {
-        m_maps[ns_diffMapIndex] = static_ref_cast<const Texture>(Texture::getDefault().getReference());
+        setMap(Map::Diffuse, Texture::getDefault());
+    }
+
+    //////////////////////////////////////////////
+
+    Material::Material(const AttribType attributes)
+        : m_reflection  (),
+          m_attributes  (attributes),
+          m_shininess   (0.f),
+          m_maps        ()
+    {
+        setMap(Map::Diffuse, Texture::getDefault());
     }
 
     //////////////////////////////////////////////
@@ -50,12 +69,22 @@ namespace jop
     {
         if (shader.bind())
         {
-            shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asFloatVector());
-            shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asFloatVector());
-            shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asFloatVector());
-            shader.setUniform("u_Material.shininess", m_shininess);
+            static glm::vec3 ambConst = Color(SettingManager::getUint("uAmbientConstant", 0x00000000)).asRGBFloatVector();
 
-            if (!m_maps[ns_diffMapIndex].expired())
+            if (hasAttribute(Attribute::AmbientConstant))
+                shader.setUniform("u_AmbientLight", ambConst);
+
+            if (hasAttribute(Attribute::Material))
+            {
+                shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
+                shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
+                shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
+                shader.setUniform("u_Material.shininess", m_shininess);
+            }
+            else
+                shader.setUniform("u_SolidColor", m_reflection[ns_ambIndex].asRGBFloatVector());
+
+            if (hasAttribute(Attribute::Diffusemap) && !m_maps[ns_diffMapIndex].expired())
                 shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
         }
     }
@@ -116,9 +145,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Material::setAttributeField(const AttribType attribs)
+    {
+        m_attributes = attribs;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Material::hasAttribute(const AttribType attrib) const
+    {
+        return (m_attributes & attrib) != 0;
+    }
+
+    //////////////////////////////////////////////
+
     const Material& Material::getDefault()
     {
-        static Material def;
+        static Material def(Attribute::Diffusemap);
         return def;
     }
 }

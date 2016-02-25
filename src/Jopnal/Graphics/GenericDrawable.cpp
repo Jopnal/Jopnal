@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(""), scene, val);
+        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>(""), scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
 
@@ -55,7 +55,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera& camera)
+    void GenericDrawable::draw(const Camera& camera, const LightContainer&)
     {
         if (getShader().expired() || getModel().getMesh().expired())
             return;
@@ -66,7 +66,12 @@ namespace jop
 
         msh.getVertexBuffer().bind();
 
-        s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
+        auto& modelMat = getObject()->getMatrix();
+
+        s.setUniform("u_PMatrix", camera.getProjectionMatrix());
+        s.setUniform("u_VMatrix", camera.getViewMatrix());
+        s.setUniform("u_MMatrix", modelMat);
+        s.setUniform("u_NMatrix", glm::mat3(modelMat));
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
 
         mod.getMaterial().sendToShader(s);

@@ -113,11 +113,11 @@ namespace jop
         ///
         /// \return Reference to the object
         ///
-        Object& getObject();
+        WeakReference<Object> getObject();
 
         /// \copydoc jop::Component::getObject()
         ///
-        const Object& getObject() const;
+        WeakReference<const Object> getObject() const;
         
     private:
 

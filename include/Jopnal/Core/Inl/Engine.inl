@@ -35,20 +35,20 @@ T& Engine::createScene(Args&... args)
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& Engine::createSubsystem(Args&... args)
+WeakReference<T> Engine::createSubsystem(Args&... args)
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create a subsystem which is not derived from jop::Subsystem");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
 
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(args...));
-    return static_cast<T&>(*m_engineObject->m_subsystems.back());
+    return static_ref_cast<T>(m_engineObject->m_subsystems.back()->getReference());
 }
 
 //////////////////////////////////////////////
 
 template<typename T>
-T* Engine::getSubsystem()
+WeakReference<T> Engine::getSubsystem()
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
 
@@ -59,11 +59,11 @@ T* Engine::getSubsystem()
         for (auto& i : m_engineObject->m_subsystems)
         {
             if (typeid(*i) == ti)
-                return static_cast<T*>(i.get());
+                return static_ref_cast<T>(i->getReference());
         }
     }
 
-    return nullptr;
+    return WeakReference<T>();
 }
 
 //////////////////////////////////////////////

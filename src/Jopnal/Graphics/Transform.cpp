@@ -48,7 +48,7 @@ namespace jop
             m_transform = glm::translate(m_transform, m_position);
             m_transform *= m_rotation.operator glm::tmat4x4<float, glm::highp>();
             m_transform = glm::scale(m_transform, m_scale);
-
+            
             m_transformNeedUpdate = false;
         }
 
@@ -98,6 +98,15 @@ namespace jop
     const glm::quat& Transform::getRotation() const
     {
         return m_rotation;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getDirection() const
+    {
+        auto& mat = getMatrix();
+
+        return glm::vec3(mat[0][3], mat[1][3], mat[2][3]);
     }
 
     //////////////////////////////////////////////

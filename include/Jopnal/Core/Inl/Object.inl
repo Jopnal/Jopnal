@@ -68,10 +68,10 @@ namespace detail
 }
 
 template<typename T, typename ... Args>
-T& Object::createComponent(Args& ... args)
+WeakReference<T> Object::createComponent(Args& ... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
     
     m_components.emplace_back(detail::ComponentMaker<T, std::is_base_of<Drawable, T>::value && !std::is_same<Camera, T>::value && !std::is_same<LightSource, T>::value, detail::FirstIsSame<Layer, Args...>::value>::make(*this, args...));
-    return static_cast<T&>(*m_components.back());
+    return static_ref_cast<T>(m_components.back()->getReference());
 }

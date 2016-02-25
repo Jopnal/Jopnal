@@ -315,6 +315,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const glm::vec2& vector)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform2f(loc, vector.x, vector.y));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setUniform(const std::string& name, const glm::vec3& vector)
     {
         const int loc = getUniformLocation(name);
@@ -357,6 +369,18 @@ namespace jop
 
         if (loc != -1)
             glCheck(gl::Uniform1f(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1i(loc, value));
 
         return loc != -1;
     }

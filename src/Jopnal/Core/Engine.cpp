@@ -199,18 +199,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& ID)
+    WeakReference<Subsystem> Engine::getSubsystem(const std::string& ID)
     {
         if (m_engineObject)
         {
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
-                    return i.get();
+                    return i->getReference();
             }
         }
 
-        return nullptr;
+        return WeakReference<Subsystem>();
     }
 
     //////////////////////////////////////////////

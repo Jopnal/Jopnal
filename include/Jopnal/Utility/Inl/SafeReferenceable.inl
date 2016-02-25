@@ -61,6 +61,10 @@ SafeReferenceable<T>& SafeReferenceable<T>::operator =(SafeReferenceable<T>&& ot
     return *this;
 }
 
+template<typename T>
+SafeReferenceable<T>::~SafeReferenceable()
+{}
+
 //////////////////////////////////////////////
 
 template<typename T>

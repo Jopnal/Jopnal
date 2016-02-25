@@ -43,14 +43,14 @@ namespace jop
                                   static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
                                   Camera::Projection::Perspective;
 
-        auto& cam = obj.createComponent<Camera>(proj);
+        auto cam = obj.createComponent<Camera>(proj);
 
         if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
         {
             auto& clip = val["clipping"];
 
             if (clip[0u].IsDouble() && clip[1u].IsDouble())
-                cam.setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
+                cam->setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
             else
                 JOP_DEBUG_WARNING("Incorrect clipping values specified for camera component, while loading object \"" << obj.getID() << "\"");
         }
@@ -67,14 +67,14 @@ namespace jop
 
             if (proj == Camera::Projection::Perspective)
             {
-                cam.setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
-                cam.setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
+                cam->setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
+                cam->setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
             }
             else
-                cam.setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
+                cam->setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
         }
 
-        return Drawable::loadStateBase(cam, scene, val);
+        return Drawable::loadStateBase(*cam, scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(Camera)
 
@@ -147,7 +147,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::draw(const Camera&)
+    void Camera::draw(const Camera&, const LightContainer&)
     {}
 
     //////////////////////////////////////////////
@@ -177,7 +177,7 @@ namespace jop
 
     const glm::mat4& Camera::getViewMatrix() const
     {
-        return getObject().getInverseMatrix();
+        return getObject()->getInverseMatrix();
     }
 
     //////////////////////////////////////////////
@@ -273,7 +273,7 @@ namespace jop
     const Camera& Camera::getDefault()
     {
         static Object obj("Default Camera Object");
-        static const Camera& cam = obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
+        static const Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
 
         return cam;
     }

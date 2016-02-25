@@ -91,7 +91,7 @@ namespace jop
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        T& createComponent(Args&... args);
+        WeakReference<T> createComponent(Args&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -109,7 +109,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        Object& createChild(const std::string& ID);
+        WeakReference<Object> createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///

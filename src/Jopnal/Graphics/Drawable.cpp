@@ -41,7 +41,8 @@ namespace jop
         : Component         (object, ID),
           m_model           (Model::getDefault()),
           m_boundToLayers   (),
-          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference()))
+          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
+          m_receiveLights   (true)
     {}
 
     Drawable::~Drawable()
@@ -90,6 +91,20 @@ namespace jop
     const std::unordered_set<Layer*> Drawable::getBoundLayers() const
     {
         return m_boundToLayers;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setReceiveLights(const bool receive)
+    {
+        m_receiveLights = receive;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::receiveLights() const
+    {
+        return m_receiveLights;
     }
 
     //////////////////////////////////////////////

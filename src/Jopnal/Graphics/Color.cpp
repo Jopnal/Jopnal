@@ -69,15 +69,26 @@ namespace jop
     //////////////////////////////////////////////
 
 
-    glm::fvec4 Color::asFloatVector() const
+    glm::vec4 Color::asRGBAFloatVector() const
     {
-        typedef glm::fvec4::value_type fType;
+        typedef glm::vec4::value_type fType;
 
         return glm::fvec4(static_cast<fType>(r) / 255.f,
                           static_cast<fType>(g) / 255.f,
                           static_cast<fType>(b) / 255.f,
                           static_cast<fType>(a) / 255.f);
 
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Color::asRGBFloatVector() const
+    {
+        typedef glm::vec3::value_type fType;
+
+        return glm::vec3(static_cast<fType>(r) / 255.f,
+                         static_cast<fType>(g) / 255.f,
+                         static_cast<fType>(b) / 255.f);
     }
 
     //////////////////////////////////////////////

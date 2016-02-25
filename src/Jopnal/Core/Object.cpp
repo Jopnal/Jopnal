@@ -145,10 +145,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::createChild(const std::string& ID)
+    WeakReference<Object> Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(ID);
-        return m_children.back();
+        return m_children.back().getReference();
     }
 
     //////////////////////////////////////////////

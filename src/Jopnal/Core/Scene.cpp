@@ -88,10 +88,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Scene::createObject(const std::string& ID)
+    WeakReference<Object> Scene::createObject(const std::string& ID)
     {
         m_objects.emplace_back(ID);
-        return m_objects.back();
+        return m_objects.back().getReference();
     }
 
     //////////////////////////////////////////////
@@ -174,12 +174,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Layer& Scene::getDefaultLayer() const
+    WeakReference<Layer> Scene::getDefaultLayer() const
     {
         if (m_layers.empty())
             m_layers.emplace_back(std::make_unique<Layer>("Default Layer"));
 
-        return *m_layers.front();
+        return static_ref_cast<Layer>(m_layers.front()->getReference());
     }
 
     //////////////////////////////////////////////

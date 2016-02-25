@@ -37,6 +37,7 @@ namespace jop
     class Camera;
     class RenderTexture;
     class LightSource;
+    class LightContainer;
 
     class JOP_API Layer : public Subsystem
     {
@@ -140,6 +141,8 @@ namespace jop
         /// \brief Sweep the drawables & bound layers that no longer exist
         ///
         void sweepRemoved();
+
+        void selectLights(LightContainer& lights, const Drawable& drawable) const;
 
 
     private:

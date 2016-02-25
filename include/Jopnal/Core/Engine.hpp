@@ -110,14 +110,14 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        static T& createSubsystem(Args&... args);
+        static WeakReference<T> createSubsystem(Args&... args);
 
         /// \brief Get a subsystem using type info
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        static T* getSubsystem();
+        static WeakReference<T> getSubsystem();
 
         /// \brief Get a subsystem
         ///
@@ -125,7 +125,7 @@ namespace jop
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        static Subsystem* getSubsystem(const std::string& ID);
+        static WeakReference<Subsystem> getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///

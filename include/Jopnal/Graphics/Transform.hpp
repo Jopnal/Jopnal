@@ -90,6 +90,9 @@ namespace jop
         const glm::quat& getRotation() const;
 
 
+        glm::vec3 getDirection() const;
+
+
         /// \brief Set the scale
         ///
         /// 1.f means the original scale

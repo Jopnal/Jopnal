@@ -139,6 +139,9 @@ namespace jop
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
+        GlState::setPolygonMode(GlState::PolygonMode::Fill);
+
+        LightContainer lights;
 
         for (auto& i : m_boundLayers)
         {
@@ -146,8 +149,13 @@ namespace jop
             {
                 for (auto& j : i->m_drawList)
                 {
+                    selectLights(lights, *j);
+
                     if (!j.expired())
-                        j->draw(camera);
+                    {
+                        selectLights(lights, *j);
+                        j->draw(camera, lights);
+                    }
                     else
                         m_drawablesRemoved = true;
                 }
@@ -157,7 +165,10 @@ namespace jop
         for (auto& i : m_drawList)
         {
             if (!i.expired())
-                i->draw(camera);
+            {
+                selectLights(lights, *i);
+                i->draw(camera, lights);
+            }
             else
                 m_drawablesRemoved = true;
         }
@@ -293,6 +304,44 @@ namespace jop
             }), m_boundLayers.end());
 
             m_drawablesRemoved = false;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::selectLights(LightContainer& lights, const Drawable& drawable) const
+    {
+        auto selectContainer = [](const LightSource& l, LightContainer& cont) -> LightContainer::ContainerType*
+        {
+            auto& c = cont[l.getType()];
+
+            if (c.size() < c.capacity())
+                return &c;
+
+            return nullptr;
+        };
+
+        if (drawable.receiveLights())
+        {
+            lights.clear();
+
+            for (auto& i : m_lights)
+            {
+                if (i.expired())
+                    continue;
+
+                auto cont = selectContainer(*i, lights);
+
+                if (!cont)
+                    continue;
+
+                if (i->getType() == LightSource::Type::Directional)
+                    cont->push_back(i.get());
+                else
+                {
+
+                }
+            }
         }
     }
 

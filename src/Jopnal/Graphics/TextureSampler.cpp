@@ -187,7 +187,7 @@ namespace jop
     {
         if (m_sampler)
         {
-            const glm::vec4 col = color.asFloatVector();
+            const glm::vec4 col = color.asRGBAFloatVector();
             glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &col[0]));
 
             m_borderColor = color;

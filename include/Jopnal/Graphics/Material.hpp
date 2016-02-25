@@ -38,11 +38,11 @@ namespace jop
 
     class JOP_API Material
     {
-    private:
-
-        typedef uint32 AttribType;
-
     public:
+
+        /// Attribute data type
+        ///
+        typedef uint32 AttribType;
 
         /// Bit values to describe a material's attributes
         ///
@@ -50,10 +50,10 @@ namespace jop
         {
             enum : AttribType
             {
-                AmbientLight = 1,
-                SolidColor = AmbientLight << 1,
-                Material = SolidColor << 1,
-                Diffusemap = Material << 1
+                AmbientConstant = 1,
+                Material = AmbientConstant << 1,
+                Diffusemap = Material << 1,
+                Phong = Diffusemap << 1
             };
         };
 
@@ -80,6 +80,8 @@ namespace jop
         /// \brief Default constructor
         ///
         Material();
+
+        Material(const AttribType attributes);
         
 
         /// \brief Send this material to a shader
@@ -149,6 +151,12 @@ namespace jop
         WeakReference<const Texture> getMap(const Map map) const;
 
 
+        void setAttributeField(const AttribType attribs);
+
+
+        bool hasAttribute(const AttribType attrib) const;
+
+
         /// \brief Get the default material
         ///
         /// \return Reference to the default material
@@ -158,6 +166,7 @@ namespace jop
     private:
 
         std::array<Color, 3> m_reflection;                  ///< The reflection values
+        AttribType m_attributes;                            
         float m_shininess;                                  ///< The shininess factor
         std::array<WeakReference<const Texture>, 1> m_maps; ///< An array with the bound maps
 

@@ -49,7 +49,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera& camera) override;
+        virtual void draw(const Camera& camera, const LightContainer& lights) override;
 
     };
 }

@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <memory>
+#include <vector>
 #include <unordered_set>
 
 //////////////////////////////////////////////
@@ -39,6 +40,8 @@ namespace jop
     class Shader;
     class Camera;
     class Scene;
+    class LightSource;
+    class LightContainer;
 
     class JOP_API Drawable : public Component
     {
@@ -70,7 +73,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&) = 0;
+        virtual void draw(const Camera&, const LightContainer&) = 0;
 
 
         /// \brief Set the model
@@ -107,6 +110,10 @@ namespace jop
         ///
         const std::unordered_set<Layer*> getBoundLayers() const;
 
+        void setReceiveLights(const bool receive);
+
+        bool receiveLights() const;
+
         /// \brief Load the state
         ///
         /// This can be called by the derived class while loading serialized state.
@@ -136,6 +143,7 @@ namespace jop
         Model m_model;                                      ///< The bound model
         mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
         WeakReference<Shader> m_shader;                     ///< The bound shader
+        bool m_receiveLights;
         
     };
 }

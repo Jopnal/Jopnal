@@ -78,7 +78,9 @@ namespace jop
         ///
         /// \return A float vector describing the color
         ///
-        glm::fvec4 asFloatVector() const;
+        glm::vec4 asRGBAFloatVector() const;
+
+        glm::vec3 asRGBFloatVector() const;
 
         /// \brief Get this color as an 32-bit unsigned integer
         ///

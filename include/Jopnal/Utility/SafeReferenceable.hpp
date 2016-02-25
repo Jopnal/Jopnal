@@ -64,6 +64,8 @@ namespace jop
 
         SafeReferenceable& operator =(SafeReferenceable<T>&& other);
 
+        ~SafeReferenceable();
+
     public:
 
         WeakReference<T> getReference() const;

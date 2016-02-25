@@ -111,6 +111,8 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const glm::mat3& matrix);
 
+        bool setUniform(const std::string& name, const glm::vec2& vector);
+
         /// \brief method setting vector with 3 dimensions and unique name
         ///
         /// \param name unique name
@@ -147,6 +149,8 @@ namespace jop
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const float value);
+
+        bool setUniform(const std::string& name, const int value);
 
         /// \brief method setting attributes
         ///

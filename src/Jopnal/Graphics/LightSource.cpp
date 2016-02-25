@@ -30,7 +30,7 @@ namespace jop
     JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
 
         JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setType, "setLightType");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setLightIntensity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setIntensity");
 
     JOP_END_COMMAND_HANDLER(LightSource)
 }
@@ -39,11 +39,11 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        auto& light = obj.createComponent<LightSource>("");
+        auto light = obj.createComponent<LightSource>("");
 
         const char* const typeField = "type";
         if (val.HasMember(typeField) && val[typeField].IsUint())
-            light.setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
+            light->setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
 
         const char* const intensityField = "intensities";
         if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
@@ -52,7 +52,7 @@ namespace jop
 
             if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
             {
-                light.setIntensity(Color(intArr[0u].GetUint()),
+                light->setIntensity(Color(intArr[0u].GetUint()),
                                    Color(intArr[1u].GetUint()),
                                    Color(intArr[2u].GetUint()));
             }
@@ -60,7 +60,7 @@ namespace jop
                 JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource for object with id \"" << obj.getID() << "\"");
         }
 
-        return Drawable::loadStateBase(light, scene, val);
+        return Drawable::loadStateBase(*light, scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(LightSource)
 
@@ -85,14 +85,16 @@ namespace jop
     LightSource::LightSource(Object& object, const std::string& ID)
         : Drawable      (object, ID),
           m_type        (),
-          m_intensities ()
+          m_intensities (),
+          m_attenuation (1.f, 0.7f, 1.8f, 7.f),
+          m_cutoff      (10.f, 20.f)
     {
         std::memset(m_intensities.data(), 255, m_intensities.size() * sizeof(Color));
     }
 
     //////////////////////////////////////////////
 
-    void LightSource::draw(const Camera&)
+    void LightSource::draw(const Camera&, const LightContainer&)
     {}
 
     ///////////////////////////////////////////
@@ -100,7 +102,6 @@ namespace jop
     LightSource& LightSource::setType(const Type type)
     {
         m_type = type;
-
         return *this;
     }
 
@@ -116,7 +117,6 @@ namespace jop
     LightSource& LightSource::setIntensity(const Intensity intensity, const Color color)
     {
         m_intensities[static_cast<int>(intensity)] = color;
-
         return *this;
     }
 
@@ -129,10 +129,107 @@ namespace jop
               .setIntensity(Intensity::Specular, specular);
     }
 
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setIntensity(const Color intensity)
+    {
+        return setIntensity(Intensity::Ambient, intensity)
+              .setIntensity(LightSource::Intensity::Diffuse, intensity)
+              .setIntensity(LightSource::Intensity::Specular, intensity);
+    }
+
     ///////////////////////////////////////////
 
     Color LightSource::getIntensity(const Intensity intensity) const
     {
         return m_intensities[static_cast<int>(intensity)];
+    }
+
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setAttenuation(const Attenuation attenuation, const float value)
+    {
+        m_attenuation[static_cast<int>(attenuation)] = value;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic, const float range)
+    {
+        m_attenuation = glm::vec4(constant, linear, quadratic, range);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    float LightSource::getAttenuation(const Attenuation attenuation) const
+    {
+        return m_attenuation[static_cast<int>(attenuation)];
+    }
+
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setCutoff(const float inner, const float outer)
+    {
+        m_cutoff.x = inner; m_cutoff.y = outer;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec2& LightSource::getCutoff() const
+    {
+        return m_cutoff;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int LightSource::getMaximumLights(const Type type)
+    {
+        static const unsigned int maxLights[] =
+        {
+            SettingManager::getUint("uMaxPointLights", 8),
+            SettingManager::getUint("uMaxDirectionalLights", 2),
+            SettingManager::getUint("uMaxSpotLights", 2)
+        };
+
+        return maxLights[static_cast<int>(type)];
+    }
+
+
+    //////////////////////////////////////////////
+
+
+    LightContainer::LightContainer()
+        : m_container()
+    {
+        clear();
+    }
+
+    //////////////////////////////////////////////
+
+    void LightContainer::clear()
+    {
+        for (auto& i : m_container)
+            i.clear();
+
+        (*this)[LightSource::Type::Point].reserve(LightSource::getMaximumLights(LightSource::Type::Point));
+        (*this)[LightSource::Type::Directional].reserve(LightSource::getMaximumLights(LightSource::Type::Directional));
+        (*this)[LightSource::Type::Spot].reserve(LightSource::getMaximumLights(LightSource::Type::Spot));
+    }
+
+    //////////////////////////////////////////////
+
+    LightContainer::ContainerType& LightContainer::operator[](const LightSource::Type type)
+    {
+        return m_container[static_cast<int>(type)];
+    }
+
+    //////////////////////////////////////////////
+
+    const LightContainer::ContainerType& LightContainer::operator[](const LightSource::Type type) const
+    {
+        return m_container[static_cast<int>(type)];
     }
 }

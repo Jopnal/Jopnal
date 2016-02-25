@@ -69,7 +69,7 @@ namespace jop
         ///
         /// \param ID Object identifier
         ///
-        Object& createObject(const std::string& ID);
+        WeakReference<Object> createObject(const std::string& ID);
 
         /// \brief Clone an object with the given id
         ///
@@ -118,7 +118,7 @@ namespace jop
         /// \return Reference to the newly created layer
         ///
         template<typename T, typename ... Args>
-        T& createLayer(Args&... args);
+        WeakReference<T> createLayer(Args&... args);
 
         /// \brief Delete a layer with the given id
         ///
@@ -134,13 +134,13 @@ namespace jop
         /// \brief Replace the default layer
         ///
         template<typename T, typename ... Args>
-        T& setDefaultLayer(Args&... args);
+        WeakReference<T> setDefaultLayer(Args&... args);
 
         /// \brief Get the default layer
         ///
         /// \return Reference to the default layer
         ///
-        Layer& getDefaultLayer() const;
+        WeakReference<Layer> getDefaultLayer() const;
 
 
         /// \brief Set the ID of this scene

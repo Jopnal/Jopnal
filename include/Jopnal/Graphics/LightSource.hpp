@@ -57,6 +57,16 @@ namespace jop
             Specular
         };
 
+        /// The attenuation attribute
+        ///
+        enum class Attenuation
+        {
+            Constant,
+            Linear,
+            Quadratic,
+            Range
+        };
+
     public:
 
         /// \brief Constructor
@@ -73,7 +83,7 @@ namespace jop
         ///
         /// Doesn't do anything.
         ///
-        void draw(const Camera&) override;
+        void draw(const Camera&, const LightContainer&) override;
 
 
         /// \brief Sets light types to type identifier and returns it
@@ -110,6 +120,8 @@ namespace jop
         ///
         LightSource& setIntensity(const Color ambient, const Color diffuse, const Color specular);
 
+        LightSource& setIntensity(const Color intensity);
+
         /// \brief Getter returning array of intensity types
         ///
         /// \param intensity Identifier for intensities
@@ -117,12 +129,49 @@ namespace jop
         /// \return The intensity color
         ///
         Color getIntensity(const Intensity intensity) const;
+
+
+        LightSource& setAttenuation(const Attenuation attenuation, const float value);
+
+        LightSource& setAttenuation(const float constant, const float linear, const float quadratic, const float range);
+
+        float getAttenuation(const Attenuation attenuation) const;
+
+        LightSource& setCutoff(const float inner, const float outer);
+
+        const glm::vec2& getCutoff() const;
+
+        static unsigned int getMaximumLights(const Type type);
         
     private:
 
         Type m_type;                           ///< Type identifier
         std::array<Color, 3> m_intensities;    ///< Array of colors
+        glm::vec4 m_attenuation;
+        glm::vec2 m_cutoff;
+    };
 
+
+    class LightContainer
+    {
+    public:
+
+        typedef std::vector<const LightSource*> ContainerType;
+
+    public:
+
+        LightContainer();
+
+
+        void clear();
+
+        ContainerType& operator [](const LightSource::Type type);
+
+        const ContainerType& operator [](const LightSource::Type type) const;
+
+    private:
+
+        std::array<ContainerType, 3> m_container;
     };
 }
 
