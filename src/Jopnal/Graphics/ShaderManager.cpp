@@ -87,7 +87,7 @@ namespace jop
             static const std::string maxLights =
                 "#define JMAT_MAX_POINT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
                 "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
-                "\n#define JMAT_MAX_SPOT_LIGHTS " = std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
+                "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
 
             // Phong model
             if ((attrib & m::Phong) != 0)

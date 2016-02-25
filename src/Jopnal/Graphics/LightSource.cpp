@@ -221,6 +221,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void LightContainer::sendToShader(Shader& shader) const
+    {
+        int li = 0;
+        for (auto& i : (*this)[LightSource::Type::Point])
+        {
+
+
+        }
+
+        for (auto& i : (*this)[LightSource::Type::Directional])
+        {
+
+        }
+
+        for (auto& i : (*this)[LightSource::Type::Spot])
+        {
+
+        }
+    }
+
+    //////////////////////////////////////////////
+
     LightContainer::ContainerType& LightContainer::operator[](const LightSource::Type type)
     {
         return m_container[static_cast<int>(type)];

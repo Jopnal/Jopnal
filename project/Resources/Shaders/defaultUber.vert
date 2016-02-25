@@ -33,7 +33,7 @@ uniform mat3 u_NMatrix; // Normal
     out vec3 out_MatAmbient;
     out vec3 out_MatDiffuse;
     out vec3 out_MatSpecular;
-    out float out_Shininess;
+    out float out_MatShininess;
 
 // If material is not used, then have a solid color
 #else
@@ -84,11 +84,85 @@ uniform mat3 u_NMatrix; // Normal
     {
         PointLightInfo l = u_PointLights[index];
 
+        vec3 tnorm = normalize(u_NMatrix * a_Normal);
+        vec3 eyeCoords = (u_VMatrix * u_MMatrix * vec4(a_Position, 1.0)).xyz;
+        vec3 s = normalize(l.position - eyeCoords);
+        vec3 v = normalize(-eyeCoords);
+        vec3 r = reflect(-s, tnorm);
 
+        // Ambient
+        vec3 ambient =
+        #ifdef JMAT_MATERIAL
+            l.ambient * u_Material.ambient;
+        #else
+            l.ambient;
+        #endif
+
+        // Diffuse
+        float sDotN = max(dot(s, tnorm), 0.0);
+        vec3 diffuse =
+        #ifdef JMAT_MATERIAL
+            l.diffuse * u_Material.diffuse * sDotN;
+        #else
+            l.diffuse * sDotN;
+        #endif
+
+        // Specular
+        vec3 specular = vec3(0.0);
+        if (sDotN > 0.0)
+            #ifdef JMAT_MATERIAL
+                specular = l.specular * u_Material.specular * pow(max(dot(r, v), 0.0), u_Material.shininess);
+            #else
+                specular = l.specular * max(dot(r, v), 0.0);
+            #endif
+
+        // Attenuation
+        float dist = length(l.position - a_Position);
+        float attenuation = 1.0f / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
+        ambient *= attenuation;
+        diffuse *= attenuation;
+        specular *= attenuation;
+
+        return ambient + diffuse + specular;
     }
     vec3 calculateDirectional(const in int index)
     {
         DirectionalLightInfo l = u_DirectionalLights[index];
+
+        // Common
+        vec3 norm = normalize(a_Normal);
+        vec3 lightDir = normalize(-l.direction);
+
+        // Ambient
+        vec3 ambient =
+        #ifdef JMAT_MATERIAL
+            l.ambient * u_Material.ambient;
+        #else
+            l.ambient;
+        #endif
+
+        // Diffuse
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse =
+        #ifdef JMAT_MATERIAL
+            l.diffuse * diff * u_Material.diffuse;
+        #else
+            l.diffuse * diff;
+        #endif
+
+        // Specular
+        vec3 eyeCoords = (u_VMatrix * u_MMatrix * vec4(a_Position, 1.0)).xyz;
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec =
+        #ifdef JMAT_MATERIAL
+            pow(max(dot(eyeCoords, reflectDir), 0.0), u_Material.shininess);
+            vec3 specular = l.specular * spec * u_Material.specular;
+        #else
+            max(dot(eyeCoords, reflectDir), 0.0);
+            vec3 specular = l.specular * spec;
+        #endif
+
+        return ambient * diffuse * specular;
     }
 #endif
 
@@ -102,17 +176,18 @@ out vec3 out_TempColor;
 
 void main()
 {
-    vec3 tempColor;
-
+    vec3 tempColor =
     #ifdef JMAT_AMBIENT
-        tempColor = u_AmbientColor;
+        u_AmbientColor;
+    #else
+        vec3(0.0);
     #endif
 
     #ifdef JMAT_PHONG
-    for (int i = 0; i < u_NumPointLights; i++)
-        tempColor += calculatePoint(i);
-    for (int i = 0; i < u_NumDirectionalLights; i++)
-        tempColor += calculateDirectional(i);
+        for (int i = 0; i < u_NumPointLights; i++)
+            tempColor += calculatePoint(i);
+        for (int i = 0; i < u_NumDirectionalLights; i++)
+            tempColor += calculateDirectional(i);
     #endif
 
     // Send vertex attributes

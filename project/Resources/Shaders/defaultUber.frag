@@ -22,7 +22,7 @@ in vec3 out_Normal;
     in vec3 out_MatAmbient;
     in vec3 out_MatDiffuse;
     in vec3 out_MatSpecular;
-    in float out_Shininess;
+    in float out_MatShininess;
 #else
     in vec3 out_SolidColor;
 #endif
@@ -70,13 +70,13 @@ in vec3 out_Normal;
 
         // Diffuse factor
         vec3 norm = normalize(out_Normal);
-        vec3 lightDir = normalize(light.position - out_Position);
+        vec3 lightDir = normalize(l.position - out_Position);
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse =
         #ifdef JMAT_DIFFUSEMAP
-            light.diffuse * diff * vec3(texture2D(u_DiffuseMap, out_TexCoords));
+            l.diffuse * diff * vec3(texture2D(u_DiffuseMap, out_TexCoords));
         #else
-            light.diffuse * diff;
+            l.diffuse * diff;
         #endif
         #ifdef JMAT_MATERIAL
             diffuse *= out_MatDiffuse;
@@ -103,8 +103,8 @@ in vec3 out_Normal;
 
         // Spotlight softness
         float theta = dot(lightDir, normalize(-l.direction));
-        float epsilon = (light.cutoff.x - light.cutoff.y);
-        float intensity = clamp((theta - light.cutoff.y) / epsilon, 0.0, 1.0);
+        float epsilon = (l.cutoff.x - l.cutoff.y);
+        float intensity = clamp((theta - l.cutoff.y) / epsilon, 0.0, 1.0);
         diffuse *= intensity;
         specular *= intensity;
 
@@ -127,18 +127,25 @@ out vec4 out_FinalColor;
 
 void main() 
 {
+    vec3 tempColor = out_TempColor;
+
     #ifdef JMAT_PHONG
         // In case both lighting and materials are used, calculate the spot light effect
         for (int i = 0; i < u_NumSpotLights; i++)
-            out_TempColor += calculateSpotLight(i);
+            tempColor += calculateSpotLight(i);
     #else
-        #ifdef JMAT_DIFFUSEMAP
-            out_TempColor += texture2D(u_DiffuseMap, out_TexCoords);
+        // Otherwise just use a single color (material's ambient reflection component)
+        #ifdef JMAT_MATERIAL
+            tempColor *= out_MatAmbient;
+        #else
+            tempColor *= out_SolidColor;
         #endif
-        // Otherwise just use the solid color (material's ambient reflection component)
-        out_TempColor *= u_SolidColor;
+    #endif
+
+    #ifdef JMAT_DIFFUSEMAP
+        tempColor *= texture2D(u_DiffuseMap, out_TexCoords).xyz;
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(out_TempColor.xyz, 1.0);
+    out_FinalColor = vec4(tempColor.xyz, 1.0);
 }

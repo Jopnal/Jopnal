@@ -55,7 +55,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera& camera, const LightContainer&)
+    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights)
     {
         if (getShader().expired() || getModel().getMesh().expired())
             return;
@@ -64,20 +64,41 @@ namespace jop
         auto& mod = getModel();
         auto& msh = *mod.getMesh();
 
-        msh.getVertexBuffer().bind();
-
         auto& modelMat = getObject()->getMatrix();
 
+        // Set common uniforms
         s.setUniform("u_PMatrix", camera.getProjectionMatrix());
         s.setUniform("u_VMatrix", camera.getViewMatrix());
         s.setUniform("u_MMatrix", modelMat);
         s.setUniform("u_NMatrix", glm::mat3(modelMat));
-        s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
 
+        // Set material
         mod.getMaterial().sendToShader(s);
-        s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        msh.getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        // Set lights
+        lights.sendToShader(s);
+
+        // Set vertex attributes
+        msh.getVertexBuffer().bind();
+        s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
+        s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
+        s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+
+        // Use indices if they exist
+        if (mod.getElementAmount())
+        {
+            // Bind index buffer
+            msh.getIndexBuffer().bind();
+
+            // Finally draw
+            glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        }
+        else
+        {
+            // Unbind the index buffer in case there is one bound
+            Buffer::unbind(Buffer::BufferType::ElementArrayBuffer);
+
+            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mod.getVertexAmount()));
+        }
     }
 }

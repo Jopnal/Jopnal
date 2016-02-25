@@ -165,6 +165,8 @@ namespace jop
 
         void clear();
 
+        void sendToShader(Shader& shader) const;
+
         ContainerType& operator [](const LightSource::Type type);
 
         const ContainerType& operator [](const LightSource::Type type) const;
