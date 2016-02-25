@@ -32,8 +32,9 @@
 
 //////////////////////////////////////////////
 
+struct FT_LibraryRec_;
+struct FT_FaceRec_;
 
-struct stbtt_fontinfo;
 struct stbrp_context;
 struct stbrp_node;
 
@@ -61,7 +62,7 @@ namespace jop
         /// \param codepoint1 Numerical value pointing to the desired character
         /// \param codepoint2 Ditto
         ///
-        int getKerning(const int codepoint1, const int codepoint2);
+        float getKerning(const int codepoint1, const int codepoint2);
 
         /// \brief Checks if glyph is in bitmap
         ///
@@ -89,13 +90,15 @@ namespace jop
         Font(const std::string& path);
 
 	private:
+        FT_LibraryRec_* m_library; ///< Freetype library
+        FT_FaceRec_* m_face; ///< Font info
+
         Texture m_texture; ///< Texture
 
         std::unique_ptr<stbrp_context> m_context;
         stbrp_node* m_nodes;
         int m_numNodes = 0;
 
-        std::unique_ptr<stbtt_fontinfo> m_info; ///< Font info
         std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Bitmaps
 
 	};
@@ -106,6 +109,6 @@ namespace jop
 /// \class Font
 /// \ingroup graphics
 ///
-/// Font manager class which loads any desired TrueType font file (.ttf)
+/// Font manager class which loads any desired font file
 /// 
 ///

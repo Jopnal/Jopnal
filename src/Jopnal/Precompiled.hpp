@@ -59,9 +59,6 @@
 // GLM
 #include <Jopnal/MathInclude.hpp>
 
-// STB
-#include <Jopnal/Graphics/stb/stb_truetype.h>
-
 // RapidJSON
 #pragma warning(push)
 #pragma warning(disable: 4244)

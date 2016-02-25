@@ -75,7 +75,8 @@ namespace jop
  
     bool Texture::load(const int x, const int y, const int bytesPerPixel)
     {
-        return load(x, y, bytesPerPixel, nullptr);
+        std::vector<unsigned char> buf(x * y* bytesPerPixel, 255);
+        return load(x, y, bytesPerPixel, buf.data());
     }
 
     //////////////////////////////////////////////

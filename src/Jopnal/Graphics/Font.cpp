@@ -25,14 +25,28 @@
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <Jopnal/Graphics/stb/stb_rect_pack.h>
-#define STB_TRUETYPE_IMPLEMENTATION
-#include <Jopnal/Graphics/stb/stb_truetype.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    Font::Font(const std::string& path) : Resource(path),
+        m_texture("")
+    {
+        FT_Init_FreeType(&m_library);
+
+
+        if (path != "")
+        {
+            load(path);
+        }
+    }
+
     Font::~Font()
     {
         //for (auto pair : m_bitmaps)
@@ -43,14 +57,6 @@ namespace jop
         delete[] m_nodes;
     }
 
-    Font::Font(const std::string& path) : Resource(path),
-        m_texture("")
-    {
-        if (path != "")
-        {
-            load(path);
-        }
-    }
 
     //////////////////////////////////////////////
 
@@ -63,15 +69,15 @@ namespace jop
 
     bool Font::load(const std::string& path)
     {
-        auto info_ptr = std::make_unique<stbtt_fontinfo>();
+        // create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
-
         m_nodes = new stbrp_node[1024];
         m_numNodes = 1024;
-
         m_texture.load(1024, 1024, 4);
-
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_nodes, m_numNodes);
+
+        //set pixel size, whatever it is...
+        FT_Set_Pixel_Sizes(m_face, 16, 16);
 
         // Load font data from file
         std::vector<unsigned char> buffer;
@@ -81,10 +87,8 @@ namespace jop
         if (!buffer.empty())
         {
             // Save loaded data
-            bool success = stbtt_InitFont(info_ptr.get(), buffer.data(), 0);
-            JOP_ASSERT(success, "Failed to load font!");
-
-            m_info = std::move(info_ptr);
+            FT_Error error = FT_New_Memory_Face(m_library, buffer.data(), buffer.size() * sizeof(unsigned char), 0, &m_face);
+            JOP_ASSERT(!error, "Failed to load font!");
             m_context = std::move(context_ptr);
             return true;
         }
@@ -95,16 +99,24 @@ namespace jop
     
     std::pair<glm::ivec2, glm::ivec2> Font::getBounds(const int codepoint)
     {
-        int x0, y0, x1, y1;
-        stbtt_GetCodepointBox(m_info.get(), codepoint, &x0, &y0, &x1, &y1);
-        return std::make_pair(glm::ivec2(x0, y0), glm::ivec2(x1-x0, y1-y0)); // X, Y, width & height
+        FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_NO_BITMAP);
+
+        //x and y are offset from glyph origo
+        int x, y, w, h;
+        x = m_face->glyph->bitmap_left;
+        y = m_face->glyph->bitmap_top;
+        w = m_face->glyph->bitmap.width;
+        h = m_face->glyph->bitmap.rows;
+        return std::make_pair(glm::ivec2(x, y), glm::ivec2(w, h)); // X, Y, width & height
     }
 
     //////////////////////////////////////////////
 
-    int Font::getKerning(const int codepoint1, const int codepoint2)
+    float Font::getKerning(const int codepoint1, const int codepoint2)
     {
-        return stbtt_GetCodepointKernAdvance(m_info.get(), codepoint1, codepoint2);
+        FT_Vector vector;
+        FT_Get_Kerning(m_face, FT_Get_Char_Index(m_face, codepoint1), FT_Get_Char_Index(m_face, codepoint2), FT_KERNING_DEFAULT, &vector);
+        return vector.x;
     }
 
     //////////////////////////////////////////////
@@ -124,13 +136,16 @@ namespace jop
         }
         else
         {
+            //load glyph
+            FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_DEFAULT);
+            FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
+            FT_GlyphSlot slot = m_face->glyph;
+
             // Get glyph rectangle size in pixels
             std::pair<glm::ivec2, glm::ivec2> bounds = getBounds(codepoint); // X, Y, width & height
            
             // Create a bitmap
-            unsigned char* pixelData = stbtt_GetCodepointBitmap(m_info.get(), scaleX, scaleY, codepoint, 
-                &bounds.second.x, &bounds.second.y,
-                &bounds.first.x, &bounds.first.y);
+            unsigned char* pixelData = slot->bitmap.buffer;
             
             // Find an empty spot in the texture
             stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y};
