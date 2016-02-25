@@ -54,92 +54,91 @@ in vec3 out_Normal;
     uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
     uniform int u_NumSpotLights;
 
-    #ifdef JMAT_MATERIAL
-        vec3 calculateSpotLight(const in int index)
-        {
-            SpotLightInfo l = u_SpotLights[index];
+    vec3 calculateSpotLight(const in int index)
+    {
+        SpotLightInfo l = u_SpotLights[index];
 
-            // Ambient factor
-            #ifdef JMAT_DIFFUSEMAP
-                vec3 ambient = l.ambient * out_MatAmbient * vec3(texture2D(u_DiffuseMap, out_TexCoords));
-            #else
-                vec3 ambient = l.ambient * out_MatAmbient;
-            #endif
+        // Ambient factor
+        #ifdef JMAT_DIFFUSEMAP
+            vec3 ambient = l.ambient * vec3(texture2D(u_DiffuseMap, out_TexCoords));
+        #else
+            vec3 ambient = l.ambient;
+        #endif
+        #ifdef JMAT_MATERIAL
+            ambient *= out_MatAmbient;
+        #endif
 
-            // Diffuse factor
-            vec3 norm = normalize(out_Normal);
-            vec3 lightDir = normalize(light.position - out_Position);
-            float diff = max(dot(norm, lightDir), 0.0);
-            #ifdef JMAT_DIFFUSEMAP
-                vec3 diffuse = light.diffuse * out_MatDiffuse * diff * vec3(texture2D(u_DiffuseMap, out_TexCoords));
-            #else
-                vec3 diffuse = light.diffuse * diff;
-            #endif
+        // Diffuse factor
+        vec3 norm = normalize(out_Normal);
+        vec3 lightDir = normalize(light.position - out_Position);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse =
+        #ifdef JMAT_DIFFUSEMAP
+            light.diffuse * diff * vec3(texture2D(u_DiffuseMap, out_TexCoords));
+        #else
+            light.diffuse * diff;
+        #endif
+        #ifdef JMAT_MATERIAL
+            diffuse *= out_MatDiffuse;
+        #endif
 
-            // Specular factor
-            vec3 viewDir = normalize(l.position - out_Position);
-            vec3 reflectDir = reflect(-lightDir, norm);
-            float spec = pow(max(dot(viewDir, reflectDir), 0.0), out_MatShininess);
-            #ifdef JMAT_SPECULARMAP
-                vec3 specular = l.specular * spec * vec3(texture2D(u_SpecularMap, out_TexCoords));
-            #else
-                vec3 specular = l.specular * spec;
-            #endif
+        // Specular factor
+        vec3 viewDir = normalize(l.position - out_Position);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec =
+        #ifdef JMAT_MATERIAL
+            pow(max(dot(viewDir, reflectDir), 0.0), out_MatShininess);
+        #else
+            max(dot(viewDir, reflectDir), 0.0);
+        #endif
+        vec3 specular =
+        #ifdef JMAT_SPECULARMAP
+            l.specular * spec * vec3(texture2D(u_SpecularMap, out_TexCoords));
+        #else
+            l.specular * spec;
+        #endif
+        #ifdef JMAT_MATERIAL
+            specular *= out_MatSpecular;
+        #endif
 
-            // Spot soft
-            float theta = dot(lightDir, normalize(-l.direction));
-            float epsilon = (light.cutoff.x - light.cutoff.y);
-            float intensity = clamp((theta - light.cutoff.y) / epsilon, 0.0, 1.0);
-            diffuse *= intensity;
-            specular *= intensity;
+        // Spotlight softness
+        float theta = dot(lightDir, normalize(-l.direction));
+        float epsilon = (light.cutoff.x - light.cutoff.y);
+        float intensity = clamp((theta - light.cutoff.y) / epsilon, 0.0, 1.0);
+        diffuse *= intensity;
+        specular *= intensity;
 
-            // Attenuation
-            float distance = length(l.position - out_Position);
-            float attenuation = 1.0f / (l.attenuation.x + l.attenuation.y * distance + l.attenuation.z * (distance * distance));
-            ambient *= attenuation;
-            diffuse *= attenuation;
-            specular *= attenuation;
+        // Attenuation
+        float dist = length(l.position - out_Position);
+        float attenuation = 1.0f / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
+        ambient *= attenuation;
+        diffuse *= attenuation;
+        specular *= attenuation;
 
-            return ambient + diffuse + specular;
-        }
-    #else
-        vec3 calculateSpotLight(in int index)
-        {
-            return vec3();
-        }
-    #endif
-#endif
-
-// Ambient constant
-#ifdef JMAT_AMBIENT
-    uniform vec3 u_AmbientColor;
+        return ambient + diffuse + specular;
+    }
 #endif
 
 // Temporary color from vertex shader
-in vec3 tempColor;
+in vec3 out_TempColor;
 
 // Final fragment color
-out vec4 final_Color;
+out vec4 out_FinalColor;
 
 void main() 
 {
-    #if defined(JMAT_MATERIAL) && defined(JMAT_PHONG)
+    #ifdef JMAT_PHONG
         // In case both lighting and materials are used, calculate the spot light effect
         for (int i = 0; i < u_NumSpotLights; i++)
-            tempColor += calculateSpotLight(i);
+            out_TempColor += calculateSpotLight(i);
     #else
         #ifdef JMAT_DIFFUSEMAP
-            tempColor = texture2D(u_DiffuseMap, out_TexCoords);
+            out_TempColor += texture2D(u_DiffuseMap, out_TexCoords);
         #endif
         // Otherwise just use the solid color (material's ambient reflection component)
-        tempColor *= vec4(u_SolidColor.xyz, 1.0);
-    #endif
-
-    // Add the ambient constant color
-    #ifdef JMAT_AMBIENT
-        tempColor += vec4(u_AmbientColor.xyz, 1.0);
+        out_TempColor *= u_SolidColor;
     #endif
 
     // Finally assign to the fragment output
-    final_Color = tempColor;
+    out_FinalColor = vec4(out_TempColor.xyz, 1.0);
 }

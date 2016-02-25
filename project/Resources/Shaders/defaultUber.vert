@@ -2,11 +2,21 @@
 
 //////////////////////////////////////////////
 
+// Vertex attributes
+layout(location = 0)in vec3 a_Position;
+layout(location = 1)in vec2 a_TexCoords;
+layout(location = 2)in vec3 a_Normal;
+
 // Matrices
 uniform mat4 u_PMatrix; // Perspective
 uniform mat4 u_VMatrix; // View
 uniform mat4 u_MMatrix; // Model
 uniform mat3 u_NMatrix; // Normal
+
+// Ambient constant
+#ifdef JMAT_AMBIENT
+    uniform vec3 u_AmbientColor;
+#endif
 
 // Surface material
 #ifdef JMAT_MATERIAL
@@ -70,25 +80,59 @@ uniform mat3 u_NMatrix; // Normal
     uniform int u_NumDirectionalLights;
 
     // Light calculation functions
-    void calculatePoint(out vec3 
+    vec3 calculatePoint(const in int index)
+    {
+        PointLightInfo l = u_PointLights[index];
 
+
+    }
+    vec3 calculateDirectional(const in int index)
+    {
+        DirectionalLightInfo l = u_DirectionalLights[index];
+    }
 #endif
 
-// Vertex attributes
-layout(location = 0)in vec3 a_Position; 
-layout(location = 1)in vec2 a_TexCoords;
-layout(location = 2)in vec3 a_Normal;
-
-// Texture coordinates to fragment shader
+// Vertex attributes for fragment shader
+out vec3 out_Position;
 out vec2 out_TexCoords;
+out vec3 out_Normal;
+
+// Temporary color
+out vec3 out_TempColor;
 
 void main()
 {
-#ifdef JMAT_USE_LIGHTS
+    vec3 tempColor;
 
-#endif
+    #ifdef JMAT_AMBIENT
+        tempColor = u_AmbientColor;
+    #endif
 
-    gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * vec4(a_Position, 1.0);
+    #ifdef JMAT_PHONG
+    for (int i = 0; i < u_NumPointLights; i++)
+        tempColor += calculatePoint(i);
+    for (int i = 0; i < u_NumDirectionalLights; i++)
+        tempColor += calculateDirectional(i);
+    #endif
 
+    // Send vertex attributes
+    out_Position = a_Position;
     out_TexCoords = a_TexCoords;
+    out_Normal = a_Normal;
+
+    // Send material
+    #ifdef JMAT_MATERIAL
+        out_MatAmbient = u_Material.ambient;
+        out_MatDiffuse = u_Material.diffuse;
+        out_MatSpecular = u_Material.specular;
+        out_MatShininess = u_Material.shininess;
+    #else
+        out_SolidColor = u_SolidColor;
+    #endif
+
+    // Send temporary color
+    out_TempColor = tempColor;
+
+    // Assign position
+    gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * vec4(a_Position, 1.0);
 }
