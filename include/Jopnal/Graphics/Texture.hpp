@@ -33,7 +33,7 @@ namespace jop
 {
     class TextureSampler;
 
-    class Texture : public Resource
+    class JOP_API Texture : public Resource
     {
     public:
 

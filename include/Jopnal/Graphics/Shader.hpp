@@ -35,7 +35,7 @@ namespace jop
 {
     class Texture;
 
-    class Shader : public Resource
+    class JOP_API Shader : public Resource
     {
     private:
 

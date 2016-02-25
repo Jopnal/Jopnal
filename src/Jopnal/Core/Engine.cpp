@@ -90,6 +90,9 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
+
+        // Shader manager
+        createSubsystem<ShaderManager>();
     }
 
     //////////////////////////////////////////////

@@ -37,13 +37,13 @@ namespace jop
 {
     namespace detail
     {
-        JOP_API std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
+        std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
 
         // Include the helper inl file
         #include <Jopnal/Utility/Inl/CommandParser.inl>
     }
 
-    class CommandHandler final
+    class JOP_API CommandHandler final
     {
     public:
 
@@ -157,10 +157,10 @@ namespace jop
 ///
 /// This macro must be followed with JOP_END_COMMAND_HANDLER
 ///
-#define JOP_REGISTER_COMMAND_HANDLER(handlerName) jop::CommandHandler& ns_##handlerName##_getCommandHandler(){ \
-                                                  static jop::CommandHandler instance; return instance;}       \
-                                                  struct ns_##handlerName##_registrar{                         \
-                                                  ns_##handlerName##_registrar(){                              \
+#define JOP_REGISTER_COMMAND_HANDLER(handlerName) JOP_API jop::CommandHandler& ns_##handlerName##_getCommandHandler(){  \
+                                                  static jop::CommandHandler instance; return instance;}                \
+                                                  struct ns_##handlerName##_registrar{                                  \
+                                                  ns_##handlerName##_registrar(){                                       \
                                                   jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
 
 /// \brief Register a derived command handler
