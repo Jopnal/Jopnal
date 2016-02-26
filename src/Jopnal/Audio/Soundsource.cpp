@@ -44,7 +44,7 @@ namespace jop
 
     void SoundSource::update(const float)
     {
-        m_sound->setPosition(getObject().getPosition().x, getObject().getPosition().y,getObject().getPosition().z);
+        m_sound->setPosition(-getObject().getPosition().x, -getObject().getPosition().y,-getObject().getPosition().z);
     }
 
     //////////////////////////////////////////////
