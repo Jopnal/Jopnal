@@ -254,12 +254,12 @@ namespace jop
                 const std::string indexed = "u_PointLights[" + std::to_string(i) + "].";
 
                 // Position
-                shader.setUniform(indexed + "position", camera.getObject()->getPosition());
+                shader.setUniform(indexed + "position", li.getObject()->extractPosition());
 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(indexed + "diffuse", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "specular", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
 
                 // Attenuation
                 shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
@@ -281,8 +281,8 @@ namespace jop
                 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(indexed + "diffuse", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "specular", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
             }
         }
 
@@ -304,8 +304,8 @@ namespace jop
 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(indexed + "diffuse", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "specular", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
 
                 // Attenuation
                 shader.setUniform(indexed + "attenuation", li.getAttenuationVec());

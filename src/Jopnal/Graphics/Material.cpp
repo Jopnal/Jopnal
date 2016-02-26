@@ -32,6 +32,7 @@ namespace
     static const int ns_specIndex = static_cast<int>(jop::Material::Reflection::Specular);
 
     static const int ns_diffMapIndex = static_cast<int>(jop::Material::Map::Diffuse);
+    static const int ns_specMapIndex = static_cast<int>(jop::Material::Map::Specular);
 }
 
 namespace jop
@@ -39,6 +40,7 @@ namespace jop
     const Material::AttribType Material::DefaultAttributes = Material::Attribute::AmbientConstant
                                                            | Material::Attribute::Material
                                                            | Material::Attribute::Diffusemap
+                                                           | Material::Attribute::Specularmap
                                                            | Material::Attribute::Phong;
 
     //////////////////////////////////////////////
@@ -69,11 +71,6 @@ namespace jop
     {
         if (shader.bind())
         {
-            static glm::vec3 ambConst = Color(SettingManager::getUint("uAmbientConstant", 0x00000000)).asRGBFloatVector();
-
-            if (hasAttribute(Attribute::AmbientConstant))
-                shader.setUniform("u_AmbientLight", ambConst);
-
             if (hasAttribute(Attribute::Material))
             {
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
@@ -86,6 +83,9 @@ namespace jop
 
             if (hasAttribute(Attribute::Diffusemap) && !m_maps[ns_diffMapIndex].expired())
                 shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
+
+            if (hasAttribute(Attribute::Specularmap) && !m_maps[ns_specMapIndex].expired())
+                shader.setUniform("u_DiffuseMap", *m_maps[ns_specMapIndex], ns_specMapIndex);
         }
     }
 

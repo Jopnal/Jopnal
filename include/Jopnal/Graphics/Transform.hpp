@@ -155,6 +155,9 @@ namespace jop
         const glm::vec3& getPosition() const;
 
 
+        glm::vec3 extractPosition() const;
+
+
         /// \brief Set this transform to look at a certain point
         ///
         /// This function will override the position, scale and rotation until

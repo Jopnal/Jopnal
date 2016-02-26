@@ -61,7 +61,7 @@ namespace jop
     {
         if (m_invTransformNeedsUpdate)
         {
-            m_invTransform = glm::inverse(m_transform);
+            m_invTransform = glm::inverse(getMatrix());
             m_invTransformNeedsUpdate = false;
         }
 
@@ -106,7 +106,7 @@ namespace jop
     {
         auto& mat = getMatrix();
 
-        return glm::vec3(mat[0][3], mat[1][3], mat[2][3]);
+        return glm::vec3(mat[2][0], mat[2][1], mat[2][2]);
     }
 
     //////////////////////////////////////////////
@@ -168,14 +168,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 Transform::extractPosition() const
+    {
+        auto& mat = getMatrix();
+
+        return glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
+    }
+
+    //////////////////////////////////////////////
+
     Transform& Transform::lookAt(const glm::vec3& point)
     {
         static const glm::vec3 upVec(0.f, 1.f, 0.f);
 
         m_invTransform = glm::lookAt(m_position, point, upVec);
-        m_transform = glm::inverse(m_invTransform);
         m_transformNeedUpdate = false;
-        m_invTransformNeedsUpdate = false;
+        m_invTransformNeedsUpdate = true;
 
         return *this;
     }

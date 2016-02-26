@@ -164,7 +164,7 @@ namespace jop
             else
             {
                 const auto& p = m_projData.perspective;
-                m_projectionMatrix = glm::perspective(p.fov, p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
+                m_projectionMatrix = glm::perspective(glm::radians(p.fov), p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
             }
 
             m_projectionNeedUpdate = false;
@@ -274,7 +274,6 @@ namespace jop
     {
         static Object obj("Default Camera Object");
         static const Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
-
         return cam;
     }
 }

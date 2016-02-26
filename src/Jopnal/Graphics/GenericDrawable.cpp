@@ -79,9 +79,9 @@ namespace jop
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        if (!lights.empty())
+        if (!lights.empty() && mod.getMaterial().hasAttribute(Material::Attribute::Phong))
         {
-            s.setUniform("u_NMatrix", glm::mat3(modelMat));
+            s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(camera.getViewMatrix() * modelMat))));
             s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
             // Set lights

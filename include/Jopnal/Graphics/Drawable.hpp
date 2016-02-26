@@ -82,7 +82,7 @@ namespace jop
         ///
         /// \param model Reference to the model
         ///
-        void setModel(const Model& model);
+        Drawable& setModel(const Model& model);
 
         Model& getModel();
 
@@ -96,7 +96,7 @@ namespace jop
         ///
         /// \param shader Reference to the shader
         ///
-        void setShader(Shader& shader);
+        Drawable& setShader(Shader& shader);
 
         /// \brief Get the shader
         ///

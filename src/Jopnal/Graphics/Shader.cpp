@@ -296,7 +296,7 @@ namespace jop
         const int loc = getUniformLocation(name);
         
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
 
         return loc != -1;
     }
@@ -308,7 +308,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
 
         return loc != -1;
     }

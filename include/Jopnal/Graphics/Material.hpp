@@ -53,6 +53,7 @@ namespace jop
                 AmbientConstant = 1,
                 Material = AmbientConstant << 1,
                 Diffusemap = Material << 1,
+                Specularmap = Diffusemap << 1,
                 Phong = Diffusemap << 1
             };
         };
@@ -72,7 +73,8 @@ namespace jop
         ///
         enum class Map
         {
-            Diffuse
+            Diffuse,
+            Specular
         };
 
     public:
@@ -168,7 +170,7 @@ namespace jop
         std::array<Color, 3> m_reflection;                  ///< The reflection values
         AttribType m_attributes;                            
         float m_shininess;                                  ///< The shininess factor
-        std::array<WeakReference<const Texture>, 1> m_maps; ///< An array with the bound maps
+        std::array<WeakReference<const Texture>, 2> m_maps; ///< An array with the bound maps
 
     };
 }

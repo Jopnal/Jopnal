@@ -72,7 +72,14 @@ namespace jop
 
         // Ambient constant
         if ((attrib & m::AmbientConstant) != 0)
-            str += "#define JMAT_AMBIENT 1\n";
+        {
+            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "111111FF")).asRGBFloatVector();
+            static const std::string ambConst = "#define JMAT_AMBIENT vec3("
+                                              + std::to_string(colors.r) + ","
+                                              + std::to_string(colors.g) + ","
+                                              + std::to_string(colors.b) + ")\n";
+            str += ambConst;
+        }
 
         // Material
         if ((attrib & m::Material) != 0)
@@ -81,6 +88,10 @@ namespace jop
         // Diffuse map
         if ((attrib & m::Diffusemap) != 0)
             str += "#define JMAT_DIFFUSEMAP\n";
+
+        // Specular map
+        if ((attrib & m::Specularmap) != 0)
+            str += "#define JMAT_SPECULARMAP\n";
 
         // Lighting
         {

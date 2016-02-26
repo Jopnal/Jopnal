@@ -29,8 +29,8 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, Drawable)
 
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
 
     JOP_END_COMMAND_HANDLER(Drawable)
 }
@@ -53,9 +53,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setModel(const Model& model)
+    Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -74,9 +75,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setShader(Shader& shader)
+    Drawable& Drawable::setShader(Shader& shader)
     {
         m_shader = static_ref_cast<Shader>(shader.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////
