@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <array>
 
 //////////////////////////////////////////////
 
@@ -35,6 +36,17 @@ namespace jop
 
     class Shader : public Resource
     {
+    public:
+
+        /// The shader type
+        ///
+        enum class Type
+        {
+            Vertex,
+            Geometry,
+            Fragment
+        };
+
     public:
 
         /// \brief default constructor
@@ -152,6 +164,18 @@ namespace jop
         /// \param pointer Pointer to the data or the offset in the buffer
         ///
         void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
+
+
+        /// \brief Get the shader source
+        ///
+        /// This is either the file path from which the shader was loaded or the shader source code itself.
+        ///
+        /// \param type The shader type
+        ///
+        /// \return Reference to the source
+        ///
+        const std::string& getSource(const Type type) const;
+
         
         /// \brief Get the default shader
         ///
@@ -170,7 +194,8 @@ namespace jop
         int getAttributeLocation(const std::string& name);
 
         
-        unsigned int m_shaderProgram; ///< The OpenGL shader handle
+        std::array<std::string, 3> m_strings;   ///< The shader sources
+        unsigned int m_shaderProgram;           ///< The OpenGL shader handle
                 
     };
 }

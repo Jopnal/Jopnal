@@ -29,6 +29,7 @@
 
     #pragma warning(disable: 4251)
     #pragma warning(disable: 4201)
+    #pragma warning(disable: 4503)
 
     #define JOP_OS_WINDOWS
     #define JOP_OS_DESKTOP

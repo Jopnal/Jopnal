@@ -35,13 +35,11 @@ namespace
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : Subsystem ("Render Texture"),
-          m_texture ("Render Texture Texture")
+        : m_texture ("")
     {}
 
     RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : Subsystem ("Render Texture"),
-          m_texture ("Render Texture Texture")
+        : m_texture ("")
     {
         create(size, depthBits, stencilBits);
     }
@@ -53,7 +51,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RenderTexture::postUpdate(const float)
+    void RenderTexture::clear()
     {
         if (bind())
         {
@@ -173,7 +171,7 @@ namespace jop
             return false;
         }
 
-        postUpdate(0.0);
+        clear();
         glCheck(gl::Viewport(0, 0, m_texture.getWidth(), m_texture.getHeight()));
 
         return true;
@@ -208,7 +206,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::bind()
+    bool RenderTexture::bind() const
     {
         if (m_frameBuffer && m_frameBuffer != ns_currentBuffer)
         {
@@ -267,6 +265,20 @@ namespace jop
     const Texture& RenderTexture::getTexture() const
     {
         return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int RenderTexture::getDepthBits() const
+    {
+        return m_depthBits;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int RenderTexture::getStencilBits() const
+    {
+        return m_stencilBits;
     }
 
     //////////////////////////////////////////////

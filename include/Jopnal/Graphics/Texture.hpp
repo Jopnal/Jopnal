@@ -66,6 +66,8 @@ namespace jop
 
         /// \brief Create a texture from an array of pixels
         ///
+        /// The accepted pixel depth values are 1, 3 and 4.
+        ///
         /// \param x Width of the texture
         /// \param y Height of the texture
         /// \param bytesPerPixel The byte depth of the image

@@ -19,25 +19,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SPHEREMODEL_HPP
-#define JOP_SPHEREMODEL_HPP
+#ifndef JOP_SPHEREMESH_HPP
+#define JOP_SPHEREMESH_HPP
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API SphereModel : public Model
+    class JOP_API SphereMesh : public Mesh
     {
     public:
 
-        /// \copydoc jop::BoxModel::BoxModel()
+        /// \copydoc jop::BoxMesh::BoxMesh()
         ///
-        SphereModel(const std::string& name);
+        SphereMesh(const std::string& name);
 
         /// \brief Creates a 3D sphere
         ///
@@ -48,9 +48,9 @@ namespace jop
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the tex coords?
+        /// \param normalizedTexCoords Normalize the texture coordinates?
         ///
-        SphereModel(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
 
         /// \brief Load a sphere
@@ -58,18 +58,50 @@ namespace jop
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
         /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the tex coords?
+        /// \param normalizedTexCoords Normalize the texture coordinates?
         ///
         /// \return True if successful
         ///
         bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+
+
+        /// \brief Get the radius
+        ///
+        /// \return The radius
+        ///
+        float getRadius() const;
+
+        /// \brief Get the amount of rings
+        ///
+        /// \return The ring amount
+        ///
+        unsigned int getRings() const;
+
+        /// \brief Get the amount of sectors
+        ///
+        /// \return The sector amount
+        ///
+        unsigned int getSectors() const;
+
+        /// \brief Check if this sphere uses normalized texture coordinates
+        ///
+        /// \return True if normalized
+        ///
+        bool normalizedTexCoords() const;
+
+    private:
+
+        float m_radius;         ///< The radius
+        unsigned int m_rings;   ///< Rings
+        unsigned int m_sectors; ///< Sectors
+        bool m_normTexCoords;   ///< Normalized texture coordinates
 
     };
 }
 
 #endif
 
-/// \class SphereModel
+/// \class SphereMesh
 /// \ingroup Graphics
 ///
 /// 

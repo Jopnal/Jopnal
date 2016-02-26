@@ -30,6 +30,7 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Subsystem)
 
         JOP_BIND_MEMBER_COMMAND(&Subsystem::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Subsystem::setActive, "setActive");
 
     JOP_END_COMMAND_HANDLER(Subsystem)
 }
@@ -75,14 +76,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Subsystem::isActive()
+    bool Subsystem::isActive() const
     {
         return m_active;
     }
     
     //////////////////////////////////////////////
     
-    MessageResult Subsystem::sendMessage(const std::string& message)
+    Message::Result Subsystem::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -90,7 +91,7 @@ namespace jop
     
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Subsystem::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -98,21 +99,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessage(const Message& message)
+    Message::Result Subsystem::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Subsystem, getID()))
         {
             if (message.passFilter(Message::Command))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Subsystem, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Subsystem, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
             if (message.passFilter(Message::Custom))
                 return sendMessageImpl(message);
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     //////////////////////////////////////////////
@@ -131,8 +133,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Subsystem::sendMessageImpl(const Message&)
+    Message::Result Subsystem::sendMessageImpl(const Message&)
     {
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 }

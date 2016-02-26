@@ -32,6 +32,32 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_REGISTER_LOADABLE(jop, Texture)[](const void*, const json::Value& val)
+    {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load Texture, no name found");
+            return false;
+        }
+
+        ResourceManager::getResource<Texture>(val["name"].GetString())
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Texture)
+
+    JOP_REGISTER_SAVEABLE(jop, Texture)[](const void* texture, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        val.AddMember(json::StringRef("name"), json::StringRef(static_cast<const Texture*>(texture)->getName().c_str()), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Texture)
+}
+
 namespace
 {
     void flip(const int width, const int height, const int bpp, unsigned char* pixels)
@@ -51,6 +77,36 @@ namespace
                 right -= bpp;
             }
         }
+    }
+    
+    GLenum getDepthEnum(const unsigned int depth)
+    {
+        switch (depth)
+        {
+            case 1:
+                return gl::RED;
+            case 3:
+                return gl::RGB;
+            case 4:
+                return gl::RGBA;
+        }
+
+        return gl::RED;
+    }
+
+    GLenum getInternalFormatEnum(const GLenum format)
+    {
+        switch (format)
+        {
+            case gl::RED:
+                return gl::R8;
+            case gl::RGB:
+                return gl::RGB8;
+            case gl::RGBA:
+                return gl::RGBA8;
+        }
+
+        return gl::R8;
     }
 }
 
@@ -83,10 +139,10 @@ namespace jop
         FileLoader::read(path, buf);
 
         int x = 0, y = 0, bpp = 0;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
         bool success = false;
-        if (colorData)
+        if (colorData && checkDepthValid(bpp))
         {
             flip(x, y, bpp, colorData);
             success = load(x, y, bpp, colorData);
@@ -131,7 +187,8 @@ namespace jop
         m_width = x; m_height = y;
         m_bytesPerPixel = bytesPerPixel;
 
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA8, x, y, 0, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+        const GLenum depthEnum = getDepthEnum(bytesPerPixel);
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
@@ -199,7 +256,7 @@ namespace jop
         }
 
         bind(0);
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -245,6 +302,9 @@ namespace jop
             errTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").shared_from_this());
 
             JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+
+            errTex.lock()->setPersistent(true);
+            errTex.lock()->setManaged(true);
         }
 
         return *errTex.lock();
@@ -261,6 +321,9 @@ namespace jop
             defTex = std::static_pointer_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").shared_from_this());
             
             JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+
+            defTex.lock()->setPersistent(true);
+            defTex.lock()->setManaged(true);
         }
 
         return *defTex.lock();
@@ -282,10 +345,10 @@ namespace jop
             return false;
 
         int x, y, bpp;
-        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
         bool success = false;
-        if (pix)
+        if (pix && checkDepthValid(bpp))
         {
             flip(x, y, bpp, pix);
             success = load(x, y, bpp, pix);
@@ -297,9 +360,9 @@ namespace jop
     }
 
     //////////////////////////////////////////////
-
+    
     bool Texture::checkDepthValid(const int depth) const
     {
-        return depth == 3 || depth == 4;
+        return depth == 1 || depth == 3 || depth == 4;
     }
 }

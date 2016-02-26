@@ -23,6 +23,6 @@
 template<typename T>
 DebugHandler& DebugHandler::operator <<(const T& data)
 {
-    getStream() << data;
+    m_stream << data;
     return *this;
 }

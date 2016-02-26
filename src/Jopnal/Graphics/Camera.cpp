@@ -36,12 +36,82 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
 
     JOP_END_COMMAND_HANDLER(Camera)
+
+    JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    {
+        Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
+                                  static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
+                                  Camera::Projection::Perspective;
+
+        auto& cam = obj.createComponent<Camera>(proj);
+
+        if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
+        {
+            auto& clip = val["clipping"];
+
+            if (clip[0u].IsDouble() && clip[1u].IsDouble())
+                cam.setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
+            else
+                JOP_DEBUG_WARNING("Incorrect clipping values specified for camera component, while loading object \"" << obj.getID() << "\"");
+        }
+
+        if (val.HasMember("projdata") && val["projdata"].IsArray() && val["projdata"].Size() >= 2)
+        {
+            auto& pd = val["projdata"];
+
+            if (!pd[0u].IsDouble() || !pd[1u].IsDouble())
+            {
+                JOP_DEBUG_WARNING("Incorrect projection data values specified for camera component, while loading object \"" << obj.getID() << "\"");
+                return true;
+            }
+
+            if (proj == Camera::Projection::Perspective)
+            {
+                cam.setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
+                cam.setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
+            }
+            else
+                cam.setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
+        }
+
+        return Drawable::loadStateBase(cam, scene, val);
+    }
+    JOP_END_LOADABLE_REGISTRATION(Camera)
+
+    JOP_REGISTER_SAVEABLE(jop, Camera)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        auto& cam = static_cast<const Camera&>(comp);
+
+        val.AddMember(json::StringRef("projection"), static_cast<unsigned int>(cam.getProjectionMode()), alloc);
+
+        auto& clip = val.AddMember(json::StringRef("clipping"), json::kArrayType, alloc)["clipping"];
+        clip.PushBack(cam.getClippingPlanes().first, alloc)
+            .PushBack(cam.getClippingPlanes().second, alloc);
+
+        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc);
+
+        if (cam.getProjectionMode() == Camera::Projection::Perspective)
+        {
+            auto size = cam.getSize();
+            pd.PushBack(size.x, alloc)
+              .PushBack(size.y, alloc);
+        }
+        else
+        {
+            pd.PushBack(cam.getFieldOfView(), alloc)
+              .PushBack(cam.getAspectRatio(), alloc);
+        }
+
+        return Drawable::saveStateBase(cam, val, alloc);
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Camera)
 }
 
 namespace jop
 {
+
     Camera::Camera(Object& object, const Projection mode)
-        : Component                 (object, "Camera"),
+        : Drawable                  (object, "Camera"),
           m_projectionMatrix        (),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
@@ -67,7 +137,7 @@ namespace jop
     }
 
     Camera::Camera(const Camera& other)
-        : Component                 (other),
+        : Drawable                  (other),
           m_projectionMatrix        (other.m_projectionMatrix),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),
@@ -77,11 +147,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Camera* Camera::clone() const
-    {
-        auto ptr = std::make_unique<Camera>(*this);
-        return ptr.release();
-    }
+    void Camera::draw(const Camera&)
+    {}
 
     //////////////////////////////////////////////
 

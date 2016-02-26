@@ -43,6 +43,8 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Layer);
 
+        friend class StateLoader;
+
     public:
     
         /// \brief Constructor
@@ -74,7 +76,7 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -83,26 +85,32 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
 
         /// \brief Add a new drawable component to the draw list
         ///
         /// \param drawable Reference to the drawable to be added
         ///
-        void addDrawable(std::reference_wrapper<Drawable> drawable);
+        void addDrawable(Drawable& drawable);
+
+        /// \brief Unbind a drawable
+        ///
+        /// \param id The id of the drawable to unbind
+        ///
+        void removeDrawable(const std::string& id);
 
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
         ///
-        void bindOtherLayer(std::reference_wrapper<Layer> layer);
+        void bindOtherLayer(Layer& layer);
 
         /// \brief Unbind a layer's draw list from this layer
         ///
@@ -114,25 +122,33 @@ namespace jop
         ///
         /// \param camera Reference to the camera to be set
         ///
-        void setCamera(std::reference_wrapper<const Camera> camera);
+        void setCamera(const Camera& camera);
 
         /// \brief Set a RenderTexture
         ///
-        /// \param renderTexture Pointer to the render texture to be set. Pass nullptr to unbind the current one
+        /// The render texture will be created and taken ownership of
         ///
-        void setRenderTexture(RenderTexture* renderTexture);
+        void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
+
+        const RenderTexture* getRenderTexture() const;
 
         /// \brief Sweep the drawables & bound layers that no longer exist
         ///
         void sweepRemoved();
 
 
+    private:
+
+        void handleDrawableAddition(const Drawable& drawable);
+
+        void handleDrawableRemoval(const Drawable& drawable);
+
     protected:
 
         std::vector<std::weak_ptr<Drawable>> m_drawList;  ///< The local draw list
         std::vector<std::weak_ptr<Layer>> m_boundLayers;  ///< Bound layers
         std::weak_ptr<const Camera> m_camera;             ///< Bound camera
-        std::weak_ptr<RenderTexture> m_renderTexture;     ///< Bound RenderTexture
+        std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture
         bool m_drawablesRemoved;                          ///< Have any drawables been removed?
 
     };

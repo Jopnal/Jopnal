@@ -27,13 +27,73 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setType, "setLightType");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setLightIntensity");
+
+    JOP_END_COMMAND_HANDLER(LightSource)
+}
+
+namespace jop
+{
+    JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    {
+        auto& light = obj.createComponent<LightSource>("");
+
+        const char* const typeField = "type";
+        if (val.HasMember(typeField) && val[typeField].IsUint())
+            light.setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
+
+        const char* const intensityField = "intensities";
+        if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
+        {
+            auto& intArr = val[intensityField];
+
+            if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
+            {
+                light.setIntensity(Color(intArr[0u].GetUint()),
+                                   Color(intArr[1u].GetUint()),
+                                   Color(intArr[2u].GetUint()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource for object with id \"" << obj.getID() << "\"");
+        }
+
+        return Drawable::loadStateBase(light, scene, val);
+    }
+    JOP_END_LOADABLE_REGISTRATION(LightSource)
+
+    JOP_REGISTER_SAVEABLE(jop, LightSource)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        auto& light = static_cast<const LightSource&>(comp);
+
+        val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
+
+        auto& intArr = val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"];
+        intArr.PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
+              .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
+              .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+
+        return Drawable::saveStateBase(light, val, alloc);
+    }
+    JOP_END_SAVEABLE_REGISTRATION(LightSource)
+}
+
+namespace jop
+{
     LightSource::LightSource(Object& object, const std::string& ID)
-        : Component     (object, ID),
+        : Drawable      (object, ID),
           m_type        (),
           m_intensities ()
     {
         std::memset(m_intensities.data(), 255, m_intensities.size() * sizeof(Color));
     }
+
+    //////////////////////////////////////////////
+
+    void LightSource::draw(const Camera&)
+    {}
 
     ///////////////////////////////////////////
 
@@ -71,7 +131,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    Color LightSource::getIntensity(const Intensity intensity)
+    Color LightSource::getIntensity(const Intensity intensity) const
     {
         return m_intensities[static_cast<int>(intensity)];
     }

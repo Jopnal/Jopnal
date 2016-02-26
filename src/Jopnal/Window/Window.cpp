@@ -29,6 +29,18 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
+
+        JOP_BIND_MEMBER_COMMAND(&Window::setClearColor, "setClearColor");
+        JOP_BIND_MEMBER_COMMAND(&Window::setViewport, "setViewport");
+        JOP_BIND_MEMBER_COMMAND(&Window::setViewportRelative, "setViewportRelative");
+        JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
+
+    JOP_END_COMMAND_HANDLER(Window)
+}
+
 namespace
 {
     bool ns_eventsPolled = false;
@@ -142,7 +154,7 @@ namespace jop
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         setViewportRelative(0.f, 0.f, 1.f, 1.f);
 
-        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "000000FF"));
+        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "222222FF"));
         setClearColor(defColor);
     }
 

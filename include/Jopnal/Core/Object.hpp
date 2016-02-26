@@ -26,7 +26,8 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <memory>
 
@@ -44,6 +45,8 @@ namespace jop
         JOP_DISALLOW_MOVE(Object);
 
         void operator =(const Object&) = delete;
+
+        friend class StateLoader;
 
     public:
 
@@ -149,7 +152,7 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -158,13 +161,13 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
 
         /// \brief Method for getting m_ID
@@ -185,7 +188,7 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
 
         /// \brief Update method for object - forwarded for its components
         ///

@@ -80,6 +80,12 @@ namespace jop
         ///
         glm::fvec4 asFloatVector() const;
 
+        /// \brief Get this color as an 32-bit unsigned integer
+        ///
+        /// \return 32-bit unsigned integer
+        ///
+        unsigned int asInteger() const;
+
 
     public:
 
