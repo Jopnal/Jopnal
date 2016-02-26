@@ -72,7 +72,7 @@ namespace jop
 
         // Ambient constant
         if ((attrib & m::AmbientConstant) != 0)
-            str += "#define JMAT_AMBIENT\n";
+            str += "#define JMAT_AMBIENT 1\n";
 
         // Material
         if ((attrib & m::Material) != 0)

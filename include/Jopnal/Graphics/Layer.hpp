@@ -108,6 +108,7 @@ namespace jop
         ///
         void removeDrawable(const std::string& id);
 
+
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
@@ -120,11 +121,16 @@ namespace jop
         ///
         void unbindOtherLayer(const std::string& ID);
 
+
         /// \brief Set the camera
         ///
         /// \param camera Reference to the camera to be set
         ///
         void setCamera(const Camera& camera);
+
+
+        void addLight(const LightSource& light);
+
 
         /// \brief Set a RenderTexture
         ///
@@ -138,14 +144,15 @@ namespace jop
         ///
         const RenderTexture* getRenderTexture() const;
 
+
         /// \brief Sweep the drawables & bound layers that no longer exist
         ///
         void sweepRemoved();
 
-        void selectLights(LightContainer& lights, const Drawable& drawable) const;
-
 
     private:
+
+        void selectLights(LightContainer& lights, const Drawable& drawable) const;
 
         void handleDrawableAddition(const Drawable& drawable);
 
@@ -154,7 +161,7 @@ namespace jop
     protected:
 
         std::vector<WeakReference<Drawable>> m_drawList;  ///< The local draw list
-        std::vector<WeakReference<LightSource>> m_lights; ///< The bound lights
+        std::vector<WeakReference<const LightSource>> m_lights; ///< The bound lights
         std::vector<WeakReference<Layer>> m_boundLayers;  ///< Bound layers
         WeakReference<const Camera> m_camera;             ///< Bound camera
         std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture

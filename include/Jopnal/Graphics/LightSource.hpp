@@ -137,6 +137,8 @@ namespace jop
 
         float getAttenuation(const Attenuation attenuation) const;
 
+        glm::vec3 getAttenuationVec() const;
+
         LightSource& setCutoff(const float inner, const float outer);
 
         const glm::vec2& getCutoff() const;
@@ -163,9 +165,11 @@ namespace jop
         LightContainer();
 
 
+        bool empty() const;
+
         void clear();
 
-        void sendToShader(Shader& shader) const;
+        void sendToShader(Shader& shader, const Camera& camera) const;
 
         ContainerType& operator [](const LightSource::Type type);
 

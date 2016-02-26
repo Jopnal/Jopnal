@@ -70,19 +70,23 @@ namespace jop
         s.setUniform("u_PMatrix", camera.getProjectionMatrix());
         s.setUniform("u_VMatrix", camera.getViewMatrix());
         s.setUniform("u_MMatrix", modelMat);
-        s.setUniform("u_NMatrix", glm::mat3(modelMat));
 
         // Set material
         mod.getMaterial().sendToShader(s);
-
-        // Set lights
-        lights.sendToShader(s);
 
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
-        s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+
+        if (!lights.empty())
+        {
+            s.setUniform("u_NMatrix", glm::mat3(modelMat));
+            s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+
+            // Set lights
+            lights.sendToShader(s, camera);
+        }
 
         // Use indices if they exist
         if (mod.getElementAmount())

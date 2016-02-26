@@ -84,7 +84,7 @@ namespace jop
 {
     LightSource::LightSource(Object& object, const std::string& ID)
         : Drawable      (object, ID),
-          m_type        (),
+          m_type        (Type::Point),
           m_intensities (),
           m_attenuation (1.f, 0.7f, 1.8f, 7.f),
           m_cutoff      (10.f, 20.f)
@@ -170,6 +170,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 LightSource::getAttenuationVec() const
+    {
+        return glm::vec3(m_attenuation);
+    }
+
+    //////////////////////////////////////////////
+
     LightSource& LightSource::setCutoff(const float inner, const float outer)
     {
         m_cutoff.x = inner; m_cutoff.y = outer;
@@ -209,6 +216,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool LightContainer::empty() const
+    {
+        for (auto& i : m_container)
+        {
+            if (!i.empty())
+                return false;
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
     void LightContainer::clear()
     {
         for (auto& i : m_container)
@@ -221,23 +241,78 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader) const
+    void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
     {
-        int li = 0;
-        for (auto& i : (*this)[LightSource::Type::Point])
+        // Point lights
         {
+            auto& points = (*this)[LightSource::Type::Point];
+            shader.setUniform("u_NumPointLights", points.size());
 
+            for (std::size_t i = 0; i < points.size(); ++i)
+            {
+                auto& li = *points[i];
+                const std::string indexed = "u_PointLights[" + std::to_string(i) + "].";
 
+                // Position
+                shader.setUniform(indexed + "position", camera.getObject()->getPosition());
+
+                // Intensity
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+
+                // Attenuation
+                shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
+            }
         }
 
-        for (auto& i : (*this)[LightSource::Type::Directional])
+        // Directional lights
         {
+            auto& dirs = (*this)[LightSource::Type::Directional];
+            shader.setUniform("u_NumDirectionalLights", dirs.size());
 
+            for (std::size_t i = 0; i < dirs.size(); ++i)
+            {
+                auto& li = *dirs[i];
+                const std::string indexed = "u_DirectionalLights[" + std::to_string(i) + "].";
+
+                // Direction
+                shader.setUniform(indexed + "direction", li.getObject()->getDirection());
+                
+                // Intensity
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+            }
         }
 
-        for (auto& i : (*this)[LightSource::Type::Spot])
+        // Spot lights
         {
+            auto& spots = (*this)[LightSource::Type::Spot];
+            shader.setUniform("u_NumSpotLights", spots.size());
 
+            for (std::size_t i = 0; i < spots.size(); ++i)
+            {
+                auto& li = *spots[i];
+                const std::string indexed = "u_SpotLights[" + std::to_string(i) + "].";
+
+                // Position
+                shader.setUniform(indexed + "position", camera.getObject()->getPosition());
+
+                // Direction
+                shader.setUniform(indexed + "direction", li.getObject()->getDirection());
+
+                // Intensity
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+
+                // Attenuation
+                shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
+
+                // Cutoff
+                shader.setUniform(indexed + "cutoff", li.getCutoff());
+            }
         }
     }
 

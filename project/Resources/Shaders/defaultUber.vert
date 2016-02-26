@@ -11,11 +11,14 @@ layout(location = 2)in vec3 a_Normal;
 uniform mat4 u_PMatrix; // Perspective
 uniform mat4 u_VMatrix; // View
 uniform mat4 u_MMatrix; // Model
-uniform mat3 u_NMatrix; // Normal
+
+#ifdef JMAT_PHONG
+    uniform mat3 u_NMatrix; // Normal
+#endif
 
 // Ambient constant
 #ifdef JMAT_AMBIENT
-    uniform vec3 u_AmbientColor;
+    uniform vec3 u_AmbientLight;
 #endif
 
 // Surface material
@@ -61,7 +64,7 @@ uniform mat3 u_NMatrix; // Normal
         vec3 attenuation;
     };
     uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
-    uniform int u_NumPointLights;
+    uniform uint u_NumPointLights;
 
     // Directional lights
     struct DirectionalLightInfo
@@ -77,10 +80,10 @@ uniform mat3 u_NMatrix; // Normal
         // No attenuation for directional lights
     };
     uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
-    uniform int u_NumDirectionalLights;
+    uniform uint u_NumDirectionalLights;
 
     // Light calculation functions
-    vec3 calculatePoint(const in int index)
+    vec3 calculatePoint(const in uint index)
     {
         PointLightInfo l = u_PointLights[index];
 
@@ -125,7 +128,7 @@ uniform mat3 u_NMatrix; // Normal
 
         return ambient + diffuse + specular;
     }
-    vec3 calculateDirectional(const in int index)
+    vec3 calculateDirectional(const in uint index)
     {
         DirectionalLightInfo l = u_DirectionalLights[index];
 
@@ -169,7 +172,9 @@ uniform mat3 u_NMatrix; // Normal
 // Vertex attributes for fragment shader
 out vec3 out_Position;
 out vec2 out_TexCoords;
-out vec3 out_Normal;
+#ifdef JMAT_PHONG
+    out vec3 out_Normal;
+#endif
 
 // Temporary color
 out vec3 out_TempColor;
@@ -178,22 +183,24 @@ void main()
 {
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
-        u_AmbientColor;
+        u_AmbientLight;
     #else
-        vec3(0.0);
+        vec3(0.0, 0.0, 0.0);
     #endif
 
     #ifdef JMAT_PHONG
-        for (int i = 0; i < u_NumPointLights; i++)
+        for (uint i = 0u; i < u_NumPointLights; i++)
             tempColor += calculatePoint(i);
-        for (int i = 0; i < u_NumDirectionalLights; i++)
+        for (uint i = 0u; i < u_NumDirectionalLights; i++)
             tempColor += calculateDirectional(i);
     #endif
 
     // Send vertex attributes
     out_Position = a_Position;
     out_TexCoords = a_TexCoords;
-    out_Normal = a_Normal;
+    #ifdef JMAT_PHONG
+        out_Normal = a_Normal;
+    #endif
 
     // Send material
     #ifdef JMAT_MATERIAL

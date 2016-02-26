@@ -387,6 +387,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const unsigned int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1ui(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);

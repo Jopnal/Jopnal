@@ -152,6 +152,8 @@ namespace jop
 
         bool setUniform(const std::string& name, const int value);
 
+        bool setUniform(const std::string& name, const unsigned int value);
+
         /// \brief method setting attributes
         ///
         /// \param name Attribute name

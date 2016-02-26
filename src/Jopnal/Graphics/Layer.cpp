@@ -273,6 +273,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::addLight(const LightSource& light)
+    {
+        m_lights.push_back(static_ref_cast<const LightSource>(light.getReference()));
+    }
+
+    //////////////////////////////////////////////
+
     void Layer::setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil)
     {
         m_renderTexture = std::make_unique<RenderTexture>(size, depth, stencil);
@@ -339,7 +346,7 @@ namespace jop
                     cont->push_back(i.get());
                 else
                 {
-
+                    cont->push_back(i.get());
                 }
             }
         }

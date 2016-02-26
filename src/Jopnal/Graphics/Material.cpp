@@ -46,7 +46,7 @@ namespace jop
     Material::Material()
         : m_reflection  (),
           m_attributes  (DefaultAttributes),
-          m_shininess   (0.f),
+          m_shininess   (1.f),
           m_maps        ()
     {
         setMap(Map::Diffuse, Texture::getDefault());
@@ -57,7 +57,7 @@ namespace jop
     Material::Material(const AttribType attributes)
         : m_reflection  (),
           m_attributes  (attributes),
-          m_shininess   (0.f),
+          m_shininess   (1.f),
           m_maps        ()
     {
         setMap(Map::Diffuse, Texture::getDefault());

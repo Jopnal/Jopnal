@@ -52,9 +52,9 @@ in vec3 out_Normal;
         vec2 cutoff;
     };
     uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
-    uniform int u_NumSpotLights;
+    uniform uint u_NumSpotLights;
 
-    vec3 calculateSpotLight(const in int index)
+    vec3 calculateSpotLight(const in uint index)
     {
         SpotLightInfo l = u_SpotLights[index];
 
@@ -129,23 +129,23 @@ void main()
 {
     vec3 tempColor = out_TempColor;
 
-    #ifdef JMAT_PHONG
+    #if defined(JMAT_PHONG)
         // In case both lighting and materials are used, calculate the spot light effect
-        for (int i = 0; i < u_NumSpotLights; i++)
+        for (uint i = 0u; i < u_NumSpotLights; i++)
             tempColor += calculateSpotLight(i);
-    #else
+    #elif defined(JMAT_MATERIAL)
         // Otherwise just use a single color (material's ambient reflection component)
-        #ifdef JMAT_MATERIAL
-            tempColor *= out_MatAmbient;
-        #else
-            tempColor *= out_SolidColor;
-        #endif
+        tempColor *= out_MatAmbient;
     #endif
 
     #ifdef JMAT_DIFFUSEMAP
         tempColor *= texture2D(u_DiffuseMap, out_TexCoords).xyz;
     #endif
 
+    #ifndef JMAT_MATERIAL
+        tempColor *= out_SolidColor;
+    #endif
+
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor.xyz, 1.0);
+    out_FinalColor = vec4(tempColor.xyz, 1.0);;
 }
