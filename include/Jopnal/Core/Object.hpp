@@ -26,9 +26,10 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
-#include <memory>
 
 //////////////////////////////////////////////
 
@@ -37,13 +38,13 @@ namespace jop
 {
     class Layer;
 
-    class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
+    class JOP_API Object : public Transform, public SafeReferenceable<Object>
     {
     private:
 
-        JOP_DISALLOW_MOVE(Object);
-
         void operator =(const Object&) = delete;
+
+        friend class StateLoader;
 
     public:
 
@@ -61,21 +62,29 @@ namespace jop
         ///
         Object(const Object& other);
 
+        /// \brief Move constructor
+        ///
+        Object(Object&& other);
+
+        /// \brief Move assignment operator
+        ///
+        Object& operator =(Object&& other);
+
 
         /// \brief Get a component with the given id
         ///
         /// \param ID Component identifier to search with
         ///
-        /// \return std::weak_ptr with the component, empty if the component wasn't found
+        /// \return Weak reference with the component, empty if the component wasn't found
         ///
-        std::weak_ptr<Component> getComponent(const std::string& ID);
+        WeakReference<Component> getComponent(const std::string& ID);
 
         /// \brief Get a component using type info
         ///
         /// \return Pointer to the component. Empty if not found
         ///
         template<typename T>
-        std::weak_ptr<T> getComponent();
+        WeakReference<T> getComponent();
 
         /// \brief Template function to create components
         ///
@@ -108,7 +117,7 @@ namespace jop
         ///
         /// \return Pointer to the child if found, nullptr otherwise
         ///
-        std::weak_ptr<Object> getChild(const std::string& ID);
+        WeakReference<Object> getChild(const std::string& ID);
 
         /// \brief Clone a child with the given id
         ///
@@ -119,7 +128,7 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        std::weak_ptr<Object> cloneChild(const std::string& ID);
+        WeakReference<Object> cloneChild(const std::string& ID);
 
         /// \brief Remove children with the given id
         ///
@@ -149,7 +158,7 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Method to send messages
         ///
@@ -158,13 +167,13 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
 
         /// \brief Method for getting m_ID
@@ -185,7 +194,7 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
 
         /// \brief Update method for object - forwarded for its components
         ///
@@ -207,8 +216,8 @@ namespace jop
 
     private:
 
-        std::vector<std::shared_ptr<Object>> m_children;      ///< Container holding this object's children
-        std::vector<std::shared_ptr<Component>> m_components; ///< Container holding components
+        std::vector<Object> m_children;                       ///< Container holding this object's children
+        std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
         bool m_active;                                        ///< Boolean unit used as activity state
     };

@@ -127,6 +127,30 @@ namespace jop
         ///
         unsigned int getHandle() const;
 
+        /// \brief Get the filtering mode
+        ///
+        /// \return The filtering mode
+        ///
+        Filter getFilteringMode() const;
+
+        /// \brief Get the repeating mode
+        ///
+        /// \return The repeating mode
+        ///
+        Repeat getRepeatMode() const;
+
+        /// \brief Get the anisotropy level
+        ///
+        /// \return The anisotropy level
+        ///
+        float getAnisotropyLevel() const;
+
+        /// \brief Get the border color
+        ///
+        /// \return The border color
+        ///
+        Color getBorderColor() const;
+
         /// \brief Get the maximum anisotropy level supported by the system
         ///
         /// \return The maximum anisotropy level. Zero if not supported
@@ -135,10 +159,16 @@ namespace jop
 
         /// \brief Get the default sampler
         ///
-        static std::weak_ptr<TextureSampler> getDefault();
+        /// \return Reference to the sampler
+        ///
+        static TextureSampler& getDefault();
 
     private:
 
+        Filter m_filter;        ///< The filtering mode
+        Repeat m_repeat;        ///< The repeating mode
+        float m_anisotropic;    ///< The anisotropic level
+        Color m_borderColor;    ///< The border color
         unsigned int m_sampler; ///< The OpenGL sampler handle
 
     };

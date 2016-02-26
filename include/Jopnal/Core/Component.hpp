@@ -24,8 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <memory>
 #include <string>
 
 //////////////////////////////////////////////
@@ -35,7 +35,7 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component : public std::enable_shared_from_this<Component>
+    class JOP_API Component : public SafeReferenceable<Component>
     {
     private:
 
@@ -74,20 +74,20 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
         /// \brief Update function for component
         ///
@@ -123,12 +123,16 @@ namespace jop
 
         /// \brief Virtual sendMessage
         ///
-        virtual MessageResult sendMessageImpl(const Message& message);
+        virtual Message::Result sendMessageImpl(const Message& message);
 
         std::string m_ID;       ///< Unique component identifier
-        Object& m_objectRef;    ///< Reference to the object this component is bound to
+        WeakReference<Object> m_objectRef;    ///< Reference to the object this component is bound to
     };
 }
+
+/// \brief Convenience macro for defining a component's/scene's clone function.
+///
+#define JOP_GENERIC_CLONE(className) virtual className* clone() const override{return new className(*this);}
 
 #endif
 

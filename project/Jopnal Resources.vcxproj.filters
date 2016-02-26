@@ -30,5 +30,11 @@
     <None Include="Resources\Shaders\default.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\defaultUber.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\defaultUber.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

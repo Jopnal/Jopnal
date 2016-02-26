@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <memory>
 
@@ -33,8 +35,6 @@
 
 namespace jop
 {
-    class Resource;
-
     class JOP_API ResourceManager : public Subsystem
     {
     public:
@@ -55,10 +55,10 @@ namespace jop
         ///
         /// \param args Arguments passed to resource's constructor
         ///
-        /// \return Pointer to the resource. Empty if loading failed
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getResource(const Args&... args);
+        static T& getResource(const Args&... args);
 
         /// \brief Get a named resource
         ///
@@ -68,10 +68,10 @@ namespace jop
         /// \param name Name for the resource
         /// \param args Arguments passed to resource's constructor
         ///
-        /// \return Pointer to the resource. Empty if loading failed
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getNamedResource(const std::string& name, const Args&... args);
+        static T& getNamedResource(const std::string& name, const Args&... args);
 
         /// \brief Get an empty resource
         ///
@@ -79,10 +79,34 @@ namespace jop
         ///
         /// \param args Arguments to pass to the resource's constructor
         ///
-        /// \return Pointer to the allocated resource.
+        /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static std::weak_ptr<T> getEmptyResource(const Args&... args);
+        static T& getEmptyResource(const Args&... args);
+
+        /// \brief Get an existing resource
+        ///
+        /// This function will not attempt to create the resource if it's not found
+        /// or is not of the matching type. Instead a default is returned.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return Reference to the resource
+        ///
+        template<typename T>
+        static T& getExistingResource(const std::string& name);
+
+        /// \brief Check is a resource exists
+        ///
+        /// You can pass the resource type as a template argument to compare against it.
+        /// If only the name should be checked, T should be Resource.
+        ///
+        /// \param name Name of the resource
+        ///
+        /// \return True if the resource exists
+        /// 
+        template<typename T = Resource>
+        static bool resourceExists(const std::string& name);
 
 
         /// \brief Deletes resource from memory
@@ -93,13 +117,28 @@ namespace jop
 
         /// \brief Deletes all resources from memory
         ///
+        /// This will only delete the resources not flagged as persistent.
+        ///
         static void unloadResources();
+
+
+        /// \brief Load the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool loadBase(const json::Value& val);
+
+        /// \brief Save the contents
+        ///
+        /// This is for internal use only.
+        ///
+        static bool saveBase(const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 
         static ResourceManager* m_instance;                                     ///< Pointer to the single instance
 
-        std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources; ///< Container holding resources
+        std::unordered_map<std::string, std::unique_ptr<Resource>> m_resources; ///< Container holding resources
 
     };
 

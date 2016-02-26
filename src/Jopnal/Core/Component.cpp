@@ -36,16 +36,16 @@ namespace jop
 
 namespace jop
 {
-    Component::Component(const Component& other)
-        : std::enable_shared_from_this<Component>   (other),
-          m_objectRef                               (other.m_objectRef),
-          m_ID                                      (other.m_ID)
-    {}
-
     Component::Component(Object& object, const std::string& ID)
-        : std::enable_shared_from_this<Component>   (),
+        : SafeReferenceable<Component>   (this),
           m_objectRef                               (object),
           m_ID                                      (ID)
+    {}
+
+    Component::Component(const Component& other)
+        : SafeReferenceable<Component>(this),
+        m_objectRef(other.m_objectRef),
+        m_ID(other.m_ID)
     {}
 
     Component::~Component()
@@ -53,7 +53,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Component::sendMessage(const std::string& message)
+    Message::Result Component::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -61,27 +61,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Component::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Component::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
     }
 
-    MessageResult Component::sendMessage(const Message& message)
+    Message::Result Component::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Component, getID()))
         {
             if (message.passFilter(Message::Command))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Component, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Component, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
             if (message.passFilter(Message::Custom))
                 return sendMessageImpl(message);
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     //////////////////////////////////////////////
@@ -112,18 +113,18 @@ namespace jop
 
     Object& Component::getObject()
     {
-        return m_objectRef;
+        return *m_objectRef;
     }
 
     //////////////////////////////////////////////
 
     const Object& Component::getObject() const
     {
-        return m_objectRef;
+        return *m_objectRef;
     }
 
-    MessageResult Component::sendMessageImpl(const Message&)
+    Message::Result Component::sendMessageImpl(const Message&)
     {
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 }

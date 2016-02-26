@@ -34,9 +34,31 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
         JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
         JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
+        JOP_BIND_MEMBER_COMMAND(&Scene::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Scene)
+
+    JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
+    {
+        const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : ""; 
+        const bool active = val.HasMember("active") && val["active"].IsBool() ? val["active"].GetBool() : true;
+
+        scene = std::make_unique<Scene>(id);
+        scene->setActive(active);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Scene)
+
+    JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
+    {
+        obj.AddMember(json::StringRef("id"), json::StringRef(scene.getID().c_str()), alloc)
+           .AddMember(json::StringRef("active"), scene.isActive(), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Scene)
 }
 
 namespace jop
@@ -44,7 +66,6 @@ namespace jop
     Scene::Scene(const std::string& ID)
         : m_objects         (),
           m_layers          (),
-          m_defaultLayer    (std::make_shared<Layer>("DefaultLayer")),
           m_ID              (ID),
           m_active          (true)
     {}
@@ -54,38 +75,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Object> Scene::getObject(const std::string& ID)
+    WeakReference<Object> Scene::getObject(const std::string& ID)
     {
         for (auto& i : m_objects)
         {
-            if (i->getID() == ID)
-                return std::weak_ptr<Object>(i);
+            if (i.getID() == ID)
+                return i.getReference();
         }
 
-        return std::weak_ptr<Object>();
+        return WeakReference<Object>();
     }
 
     //////////////////////////////////////////////
 
     Object& Scene::createObject(const std::string& ID)
     {
-        m_objects.emplace_back(std::make_unique<Object>(ID));
-        return *m_objects.back();
+        m_objects.emplace_back(ID);
+        return m_objects.back();
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Object> Scene::cloneObject(const std::string& ID)
+    WeakReference<Object> Scene::cloneObject(const std::string& ID)
     {
         auto ptr = getObject(ID);
 
         if (!ptr.expired())
         {
-            m_objects.emplace_back(std::make_unique<Object>(*ptr.lock()));
-            return std::weak_ptr<Object>(m_objects.back());
+            m_objects.emplace_back(*ptr);
+            return m_objects.back().getReference();
         }
 
-        return std::weak_ptr<Object>();
+        return WeakReference<Object>();
     }
 
     //////////////////////////////////////////////
@@ -94,7 +115,7 @@ namespace jop
     {
         for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
         {
-            if ((*itr)->getID() == ID)
+            if (itr->getID() == ID)
             {
                 m_objects.erase(itr);
                 return;
@@ -118,22 +139,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Layer> Scene::getLayer(const std::string& ID)
+    WeakReference<Layer> Scene::getLayer(const std::string& ID) const
     {
         for (auto& i : m_layers)
         {
             if (i->getID() == ID)
-                return std::weak_ptr<Layer>(i);
+                return static_ref_cast<Layer>(i->getReference());
         }
 
-        return std::weak_ptr<Layer>();
+        return WeakReference<Layer>();
     }
 
     //////////////////////////////////////////////
 
     void Scene::deleteLayer(const std::string& ID)
     {
-        for (auto itr = m_layers.begin(); itr != m_layers.end(); ++itr)
+        for (auto itr = m_layers.begin() + 1; itr != m_layers.end(); ++itr)
         {
             if ((*itr)->getID() == ID)
             {
@@ -147,14 +168,18 @@ namespace jop
 
     void Scene::clearLayers()
     {
-        m_layers.clear();
+        if (!m_layers.empty())
+            m_layers.erase(m_layers.begin() + 1, m_layers.end());
     }
 
     //////////////////////////////////////////////
 
-    Layer& Scene::getDefaultLayer()
+    Layer& Scene::getDefaultLayer() const
     {
-        return *m_defaultLayer;
+        if (m_layers.empty())
+            m_layers.emplace_back(std::make_unique<Layer>("Default Layer"));
+
+        return *m_layers.front();
     }
 
     //////////////////////////////////////////////
@@ -173,7 +198,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message)
+    Message::Result Scene::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -181,7 +206,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Scene::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -189,18 +214,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessage(const Message& message)
+    Message::Result Scene::sendMessage(const Message& message)
     {
         if (message.passFilter(getID()))
         {
             if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
-            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == Message::Result::Escape)
+                return Message::Result::Escape;
         }
 
         static const unsigned short objectField = Message::Object |
@@ -210,8 +236,8 @@ namespace jop
         {
             for (auto& i : m_objects)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i.sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
@@ -219,12 +245,12 @@ namespace jop
         {
             for (auto& i : m_layers)
             {
-                if (i->sendMessage(message) == MessageResult::Escape)
-                    return MessageResult::Escape;
+                if (i->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
     //////////////////////////////////////////////
 
@@ -232,9 +258,10 @@ namespace jop
     {
         m_active = active;
     }
+
     //////////////////////////////////////////////
 
-    bool Scene::isActive()
+    bool Scene::isActive() const
     {
         return m_active;
     }
@@ -252,8 +279,8 @@ namespace jop
 
             for (auto& i : m_objects)
             {
-                i->update(deltaTime);
-                i->updateTransformTree(nullptr, false);
+                i.update(deltaTime);
+                i.updateTransformTree(nullptr, false);
             }
 
             for (auto& i : m_layers)
@@ -275,7 +302,7 @@ namespace jop
                 i->preFixedUpdate(timeStep);
 
             for (auto& i : m_objects)
-                i->fixedUpdate(timeStep);
+                i.fixedUpdate(timeStep);
 
             for (auto& i : m_layers)
                 i->postFixedUpdate(timeStep);
@@ -291,8 +318,6 @@ namespace jop
         if (isActive())
         {
             preDraw();
-
-            m_defaultLayer->drawBase();
 
             for (auto& i : m_layers)
                 i->drawBase();
@@ -338,8 +363,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Scene::sendMessageImpl(const Message&)
+    Message::Result Scene::sendMessageImpl(const Message&)
     {
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 }

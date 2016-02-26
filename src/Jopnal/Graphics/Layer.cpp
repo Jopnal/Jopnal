@@ -29,44 +29,108 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Layer)
 
-        JOP_BIND_MEMBER_COMMAND(&Layer::addDrawable, "addDrawable");
-        JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "bindOtherLayer");
+        JOP_BIND_MEMBER_COMMAND(&Layer::bindOtherLayer, "bindOtherLayer");
         JOP_BIND_MEMBER_COMMAND(&Layer::unbindOtherLayer, "unbindOtherLayer");
-        JOP_BIND_MEMBER_COMMAND(&Layer::setCamera, "setCamera");
+        JOP_BIND_MEMBER_COMMAND(&Layer::addDrawable, "addDrawable");
+        JOP_BIND_MEMBER_COMMAND(&Layer::removeDrawable, "removeDrawable");
         JOP_BIND_MEMBER_COMMAND(&Layer::setRenderTexture, "setRenderTexture");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setCamera, "setCamera");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND(&Layer::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Layer)
+
+    JOP_REGISTER_LOADABLE(jop, Layer)[](std::unique_ptr<Layer>& ptr, const json::Value& val) -> bool
+    {
+        const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "";
+
+        ptr = std::make_unique<Layer>(id);
+
+        const char* const rtexField = "rendertexture";
+        if (val.HasMember(rtexField) && val[rtexField].IsArray() && val[rtexField].Size() >= 4)
+        {
+            auto& rt = val[rtexField];
+
+            if (rt[0u].IsUint() && rt[1u].IsUint() && rt[2u].IsUint() && rt[3u].IsUint())
+                ptr->setRenderTexture(glm::ivec2(rt[0u].GetInt(), rt[1u].GetInt()), rt[2u].GetUint(), rt[3u].GetUint());
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading Layer's render texture with id \"" << ptr->getID() << "\"");
+        }
+
+        // Drawables will be responsible for binding themselves
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Layer)
+
+    JOP_REGISTER_SAVEABLE(jop, Layer)[](const Layer& layer, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        val.AddMember(json::StringRef("id"), json::StringRef(layer.getID().c_str()), alloc);
+        
+        if (layer.getRenderTexture())
+        {
+            auto& rt = *layer.getRenderTexture();
+            auto& rtarr = val.AddMember(json::StringRef("rendertexture"), json::kArrayType, alloc)["rendertexture"];
+
+            rtarr.PushBack(rt.getTexture().getWidth(), alloc)
+                 .PushBack(rt.getTexture().getHeight(), alloc)
+                 .PushBack(rt.getDepthBits(), alloc)
+                 .PushBack(rt.getStencilBits(), alloc);
+        }
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Layer)
 }
 
 namespace jop
 {
     Layer::Layer(const std::string& ID)
-        : Subsystem                             (ID),
-          m_drawList                            (),
-          m_boundLayers                         (),
-          m_camera                              (),
-          m_renderTexture                       (),
-          m_drawablesRemoved                    (false)
+        : Subsystem             (ID),
+          m_drawList            (),
+          m_lights              (),
+          m_boundLayers         (),
+          m_camera              (),
+          m_renderTexture       (),
+          m_drawablesRemoved    (false)
     {}
 
     Layer::~Layer()
-    {}
+    {
+        if (!m_camera.expired())
+            handleDrawableRemoval(*m_camera);
+
+        for (auto& i : m_lights)
+        {
+            if (!i.expired())
+                handleDrawableRemoval(*i);
+        }
+
+        for (auto& i : m_drawList)
+        {
+            if (!i.expired())
+                handleDrawableRemoval(*i);
+        }
+    }
 
     //////////////////////////////////////////////
 
     void Layer::drawBase()
     {
-        if (m_camera.expired())
-            setCamera(Camera::getDefault());
+        if (isActive())
+        {
+            if (m_camera.expired())
+                setCamera(Camera::getDefault());
 
-        if (!m_renderTexture.expired())
-            m_renderTexture.lock()->bind();
-        else
-            RenderTexture::unbind();
+            if (m_renderTexture)
+                m_renderTexture->bind();
+            else
+                RenderTexture::unbind();
 
-        draw(*m_camera.lock());
+            draw(*m_camera);
 
-        sweepRemoved();
+            sweepRemoved();
+        }
     }
 
     //////////////////////////////////////////////
@@ -80,10 +144,10 @@ namespace jop
         {
             if (!i.expired())
             {
-                for (auto& j : i.lock()->m_drawList)
+                for (auto& j : i->m_drawList)
                 {
                     if (!j.expired())
-                        j.lock()->draw(camera);
+                        j->draw(camera);
                     else
                         m_drawablesRemoved = true;
                 }
@@ -93,7 +157,7 @@ namespace jop
         for (auto& i : m_drawList)
         {
             if (!i.expired())
-                i.lock()->draw(camera);
+                i->draw(camera);
             else
                 m_drawablesRemoved = true;
         }
@@ -101,7 +165,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const std::string& message)
+    Message::Result Layer::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -109,7 +173,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Layer::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -117,35 +181,58 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Layer::sendMessage(const Message& message)
+    Message::Result Layer::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Layer, getID()))
         {
             if (message.passFilter(Message::Command))
             {
                 Any instance(this);
-                JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Layer, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
             if (message.passFilter(Message::Custom))
                 return sendMessageImpl(message);
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     //////////////////////////////////////////////
 
-    void Layer::addDrawable(std::reference_wrapper<Drawable> drawable)
+    void Layer::addDrawable(Drawable& drawable)
     {
-        m_drawList.emplace_back(std::static_pointer_cast<Drawable>(drawable.get().shared_from_this()));
+        if (typeid(drawable) == typeid(Camera) || typeid(drawable) == typeid(LightSource))
+        {
+            JOP_DEBUG_WARNING("You must not bind cameras or light sources with addDrawable. Camera/LightSource was not bound");
+            return;
+        }
+
+        m_drawList.emplace_back(static_ref_cast<Drawable>(drawable.getReference()));
+        handleDrawableAddition(*m_drawList.back());
     }
 
     //////////////////////////////////////////////
 
-    void Layer::bindOtherLayer(std::reference_wrapper<Layer> layer)
+    void Layer::removeDrawable(const std::string& id)
     {
-        m_boundLayers.emplace_back(std::static_pointer_cast<Layer>(layer.get().shared_from_this()));
+        for (auto itr = m_drawList.begin(); itr != m_drawList.end(); ++itr)
+        {
+            if (!itr->expired() && (*itr)->getID() == id)
+            {
+                handleDrawableRemoval(*(*itr));
+                m_drawList.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::bindOtherLayer(Layer& layer)
+    {
+        m_boundLayers.emplace_back(static_ref_cast<Layer>(layer.getReference()));
     }
 
     //////////////////////////////////////////////
@@ -154,7 +241,7 @@ namespace jop
     {
         for (auto itr = m_boundLayers.begin(); itr != m_boundLayers.end(); ++itr)
         {
-            if (!itr->expired() && itr->lock()->getID() == ID)
+            if (!itr->expired() && (*itr)->getID() == ID)
             {
                 m_boundLayers.erase(itr);
                 return;
@@ -164,19 +251,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Layer::setCamera(std::reference_wrapper<const Camera> camera)
+    void Layer::setCamera(const Camera& camera)
     {
-        m_camera = std::static_pointer_cast<const Camera>(camera.get().shared_from_this());
+        if (!m_camera.expired())
+            handleDrawableRemoval(*m_camera);
+
+        m_camera = static_ref_cast<const Camera>(camera.getReference());
+        handleDrawableAddition(*m_camera);
     }
 
     //////////////////////////////////////////////
 
-    void Layer::setRenderTexture(RenderTexture* renderTexture)
+    void Layer::setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil)
     {
-        if (renderTexture)
-            m_renderTexture = std::static_pointer_cast<RenderTexture>(renderTexture->shared_from_this());
-        else
-            m_renderTexture.reset();
+        m_renderTexture = std::make_unique<RenderTexture>(size, depth, stencil);
+    }
+
+    //////////////////////////////////////////////
+
+    const RenderTexture* Layer::getRenderTexture() const
+    {
+        return m_renderTexture.get();
     }
 
     //////////////////////////////////////////////
@@ -185,13 +280,13 @@ namespace jop
     {
         if (m_drawablesRemoved)
         {
-            m_drawList.erase(std::remove_if(m_drawList.begin(), m_drawList.end(), [](const std::weak_ptr<Drawable>& drawable)
+            m_drawList.erase(std::remove_if(m_drawList.begin(), m_drawList.end(), [](const WeakReference<Drawable>& drawable)
             {
                 return drawable.expired();
 
             }), m_drawList.end());
 
-            m_boundLayers.erase(std::remove_if(m_boundLayers.begin(), m_boundLayers.end(), [](const std::weak_ptr<Layer>& layer)
+            m_boundLayers.erase(std::remove_if(m_boundLayers.begin(), m_boundLayers.end(), [](const WeakReference<Layer>& layer)
             {
                 return layer.expired();
 
@@ -199,5 +294,19 @@ namespace jop
 
             m_drawablesRemoved = false;
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::handleDrawableAddition(const Drawable& drawable)
+    {
+        drawable.m_boundToLayers.emplace(this);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::handleDrawableRemoval(const Drawable& drawable)
+    {
+        drawable.m_boundToLayers.erase(this);
     }
 }

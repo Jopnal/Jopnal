@@ -29,8 +29,8 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
-        JOP_BIND_COMMAND(&Engine::getSubsystem, "getSubsystem");
         JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::setPaused, "setPaused");
         JOP_BIND_COMMAND(&Engine::exit, "exit");
 
     JOP_END_COMMAND_HANDLER(Engine)
@@ -90,6 +90,9 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
+
+        // Shader manager
+        createSubsystem<ShaderManager>();
     }
 
     //////////////////////////////////////////////
@@ -261,7 +264,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const std::string& message)
+    Message::Result Engine::sendMessage(const std::string& message)
     {
         Any wrap;
         return sendMessage(message, wrap);
@@ -269,7 +272,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const std::string& message, Any& returnWrap)
+    Message::Result Engine::sendMessage(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return sendMessage(msg);
@@ -277,14 +280,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult Engine::sendMessage(const Message& message)
+    Message::Result Engine::sendMessage(const Message& message)
     {
         if (m_engineObject)
         {
             if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
             {
                 Any engPtr(m_engineObject);
-                JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper());
+                if (JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper()) == Message::Result::Escape)
+                    return Message::Result::Escape;
             }
 
             static const unsigned short sceneField = Message::SharedScene   |
@@ -293,25 +297,25 @@ namespace jop
                                                      Message::Object        |
                                                      Message::Component;
 
-            if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
+                return Message::Result::Escape;
 
             auto& s = m_engineObject->m_currentScene;
 
-            if (s && message.passFilter(sceneField) && s->sendMessage(message) == MessageResult::Escape)
-                return MessageResult::Escape;
+            if (s && message.passFilter(sceneField) && s->sendMessage(message) == Message::Result::Escape)
+                return Message::Result::Escape;
 
             if (message.passFilter(Message::Subsystem))
             {
                 for (auto& i : m_engineObject->m_subsystems)
                 {
-                    if (i->sendMessage(message) == MessageResult::Escape)
-                        return MessageResult::Escape;
+                    if (i->sendMessage(message) == Message::Result::Escape)
+                        return Message::Result::Escape;
                 }
             }
         }
 
-        return MessageResult::Continue;
+        return Message::Result::Continue;
     }
 
     //////////////////////////////////////////////
@@ -345,18 +349,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    MessageResult broadcast(const std::string& message)
+    Message::Result broadcast(const std::string& message)
     {
         return Engine::sendMessage(message);
     }
 
-    MessageResult broadcast(const std::string& message, Any& returnWrap)
+    Message::Result broadcast(const std::string& message, Any& returnWrap)
     {
         const Message msg(message, returnWrap);
         return Engine::sendMessage(msg);
     }
 
-    MessageResult broadcast(const Message& message)
+    Message::Result broadcast(const Message& message)
     {
         return Engine::sendMessage(message);
     }

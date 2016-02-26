@@ -35,14 +35,6 @@
 
 namespace jop
 {
-    /// Message result
-    ///
-    enum class MessageResult
-    {
-        Continue,   ///< Continue to process the message
-        Escape      ///< Return from sendMessage
-    };
-
     class JOP_API Message
     {
     private:
@@ -65,6 +57,14 @@ namespace jop
             Command = Component << 1,
             Custom = Command << 1,
             Global = 0xFFFF
+        };
+
+        /// Message result
+        ///
+        enum class Result
+        {
+            Continue,   ///< Continue to process the message
+            Escape      ///< Return from sendMessage
         };
 
     public:
@@ -129,7 +129,7 @@ namespace jop
         ///
         /// \return A new string with the internal buffer's contents
         ///
-        std::string getString() const;
+        const std::string& getString() const;
 
 
         /// \brief Check if the given arguments should pass the filter
@@ -180,6 +180,7 @@ namespace jop
     private:
 
         std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
+        mutable std::string m_commandStr;                                   ///< String with the command & arguments
         std::string m_idPattern;                                            ///< The id filter to compare any passed ids against
         mutable Any& m_ptr;                                                 ///< Any object to store a possible return value
         unsigned short m_filterBits;                                        ///< Bit field with the system filter bits

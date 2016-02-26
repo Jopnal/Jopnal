@@ -23,7 +23,7 @@
 
 
 template<typename T>
-std::weak_ptr<T> Object::getComponent()
+WeakReference<T> Object::getComponent()
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
 
@@ -32,46 +32,35 @@ std::weak_ptr<T> Object::getComponent()
     for (auto& i : m_components)
     {
         if (typeid(*i) == ti)
-            return std::weak_ptr<T>(std::static_pointer_cast<T>(i));
+            return static_ref_cast<T>(i->getReference());
     }
 
-    return std::weak_ptr<T>();
+    return WeakReference<T>();
 }
 
 //////////////////////////////////////////////
 
 namespace detail
 {
-    template<typename T, typename First, typename ... Args>
+    template<typename T, typename First = void, typename ... Args>
     struct FirstIsSame{enum{value=std::is_same<T,First>::value};};
 
     template<typename T, bool IsDrawable, bool FirstIsLayer>
     struct ComponentMaker
     {
         template<typename ... Args>
-        static std::shared_ptr<T> make(Object& obj, Args&... args)
+        static std::unique_ptr<T> make(Object& obj, Args&... args)
         {
-            return std::make_shared<T>(obj, args...);
-        }
-    };
-    template<typename T>
-    struct ComponentMaker<T, true, false>
-    {
-        template<typename ... Args>
-        static std::shared_ptr<T> make(Object& obj, Args&... args)
-        {
-            auto ptr = std::make_shared<T>(obj, args...);
-            Engine::getCurrentScene().getDefaultLayer().addDrawable(*ptr);
-            return ptr;
+            return std::make_unique<T>(obj, args...);
         }
     };
     template<typename T>
     struct ComponentMaker<T, true, true>
     {
         template<typename ... Args>
-        static std::shared_ptr<T> make(Object& obj, Layer& layer, Args&... args)
+        static std::unique_ptr<T> make(Object& obj, Layer& layer, Args&... args)
         {
-            auto ptr = std::make_shared<T>(obj, args...);
+            auto ptr = std::make_unique<T>(obj, args...);
             layer.addDrawable(*ptr);
             return ptr;
         }
@@ -82,7 +71,7 @@ template<typename T, typename ... Args>
 T& Object::createComponent(Args& ... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
-
-    m_components.emplace_back(detail::ComponentMaker<T, std::is_base_of<Drawable, T>::value, detail::FirstIsSame<Layer, Args...>::value>::make(*this, args...));
+    
+    m_components.emplace_back(detail::ComponentMaker<T, std::is_base_of<Drawable, T>::value && !std::is_same<Camera, T>::value && !std::is_same<LightSource, T>::value, detail::FirstIsSame<Layer, Args...>::value>::make(*this, args...));
     return static_cast<T&>(*m_components.back());
 }

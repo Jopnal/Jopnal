@@ -34,15 +34,94 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, Texture)[](const void*, const json::Value& val)
+    {
+        if (!val.HasMember("name") || !val["name"].IsString())
+        {
+            JOP_DEBUG_ERROR("Couldn't load Texture, no name found");
+            return false;
+        }
+
+        ResourceManager::getResource<Texture>(val["name"].GetString())
+            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(Texture)
+
+    JOP_REGISTER_SAVEABLE(jop, Texture)[](const void* texture, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        val.AddMember(json::StringRef("name"), json::StringRef(static_cast<const Texture*>(texture)->getName().c_str()), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Texture)
+}
+
+namespace
+{
+    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
+    {
+        int rowSize = width * bpp;
+
+        for (int y = 0; y < height; ++y)
+        {
+            unsigned char* left = pixels + y * rowSize;
+            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
+
+            for (int x = 0; x < width / 2; ++x)
+            {
+                std::swap_ranges(left, left + bpp, right);
+
+                left += bpp;
+                right -= bpp;
+            }
+        }
+    }
+    
+    GLenum getDepthEnum(const unsigned int depth)
+    {
+        switch (depth)
+        {
+            case 1:
+                return gl::RED;
+            case 3:
+                return gl::RGB;
+            case 4:
+                return gl::RGBA;
+        }
+
+        return gl::RED;
+    }
+
+    GLenum getInternalFormatEnum(const GLenum format)
+    {
+        switch (format)
+        {
+            case gl::RED:
+                return gl::R8;
+            case gl::RGB:
+                return gl::RGB8;
+            case gl::RGBA:
+                return gl::RGBA8;
+        }
+
+        return gl::R8;
+    }
+}
+
+namespace jop
+{
     Texture::Texture(const std::string& name)
         : Resource          (name),
           m_sampler         (),
-          m_defaultSampler  (TextureSampler::getDefault()),
           m_width           (0),
           m_height          (0),
           m_bytesPerPixel   (0),
           m_texture         (0)
-    {}
+    {
+        setTextureSampler(TextureSampler::getDefault());
+    }
 
     Texture::~Texture()
     {
@@ -60,11 +139,14 @@ namespace jop
         FileLoader::read(path, buf);
 
         int x = 0, y = 0, bpp = 0;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
         bool success = false;
-        if (colorData)
+        if (colorData && checkDepthValid(bpp))
+        {
+            flip(x, y, bpp, colorData);
             success = load(x, y, bpp, colorData);
+        }
 
         stbi_image_free(colorData);
 
@@ -106,7 +188,8 @@ namespace jop
         m_width = x; m_height = y;
         m_bytesPerPixel = bytesPerPixel;
 
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA8, x, y, 0, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+        const GLenum depthEnum = getDepthEnum(bytesPerPixel);
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
@@ -135,9 +218,10 @@ namespace jop
             glCheck(gl::BindTexture(gl::TEXTURE_2D, m_texture));
 
             if (!m_sampler.expired())
-                m_sampler.lock()->bind(texUnit);
-            else
-                m_defaultSampler->bind(texUnit);
+            {
+                m_sampler = static_ref_cast<const TextureSampler>(TextureSampler::getDefault().getReference());
+                m_sampler->bind(texUnit);
+            }
         }
 
         return m_texture != 0;
@@ -152,9 +236,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setTextureSampler(std::weak_ptr<const TextureSampler> sampler)
+    void Texture::setTextureSampler(const TextureSampler& sampler)
     {
-        m_sampler = sampler;
+        m_sampler = static_ref_cast<const TextureSampler>(sampler.getReference());
     }
 
     //////////////////////////////////////////////
@@ -173,7 +257,7 @@ namespace jop
         }
 
         bind(0);
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, gl::RGBA, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -210,34 +294,40 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Texture> Texture::getError()
+    Texture& Texture::getError()
     {
-        static std::weak_ptr<Texture> errTex;
+        static WeakReference<Texture> errTex;
 
         if (errTex.expired())
         {
-            errTex = ResourceManager::getEmptyResource<Texture>("Error Texture");
+            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex.lock()->load(IDB_PNG2), "Failed to load error texture!");
+            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
+
+            errTex->setPersistent(true);
+            errTex->setManaged(true);
         }
 
-        return errTex;
+        return *errTex;
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Texture> Texture::getDefault()
+    Texture& Texture::getDefault()
     {
-        static std::weak_ptr<Texture> defTex;
+        static WeakReference<Texture> defTex;
 
         if (defTex.expired())
         {
-            defTex = ResourceManager::getEmptyResource<Texture>("Default Texture");
+            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").getReference());
             
-            JOP_ASSERT_EVAL(defTex.lock()->load(IDB_PNG1), "Failed to load default texture!");
+            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
+
+            defTex->setPersistent(true);
+            defTex->setManaged(true);
         }
 
-        return defTex;
+        return *defTex;
     }
 
     //////////////////////////////////////////////
@@ -256,13 +346,14 @@ namespace jop
             return false;
 
         int x, y, bpp;
-        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 4);
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
-        if (!pix)
-            return false;
-
-        if (!load(x, y, bpp, pix))
-            return false;
+        bool success = false;
+        if (pix && checkDepthValid(bpp))
+        {
+            flip(x, y, bpp, pix);
+            success = load(x, y, bpp, pix);
+        }
 
         stbi_image_free(pix);
 
@@ -270,9 +361,9 @@ namespace jop
     }
 
     //////////////////////////////////////////////
-
+    
     bool Texture::checkDepthValid(const int depth) const
     {
-        return depth == 3 || depth == 4;
+        return depth == 1 || depth == 3 || depth == 4;
     }
 }

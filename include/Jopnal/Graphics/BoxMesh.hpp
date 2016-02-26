@@ -19,19 +19,19 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_BOXMODEL_HPP
-#define JOP_BOXMODEL_HPP
+#ifndef JOP_BOXMESH_HPP
+#define JOP_BOXMESH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API BoxModel : public Model
+    class JOP_API BoxMesh : public Mesh
     {
     public:
 
@@ -41,14 +41,14 @@ namespace jop
         ///
         /// \param name Name of the box
         ///
-        BoxModel(const std::string& name);
+        BoxMesh(const std::string& name);
 
         /// \brief Creates a cube model
         ///
         /// \param name Name of the box
         /// \param size Size of the box
         ///
-        BoxModel(const std::string& name, const float size);
+        BoxMesh(const std::string& name, const float size);
 
 
         /// \brief Load this box
@@ -60,12 +60,22 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
+        /// \brief Get the size
+        ///
+        /// \return The size
+        ///
+        float getSize() const;
+
+    private:
+
+        float m_size;   ///< This box's size
     };
 }
 
 #endif
 
-/// \class BoxModel
+/// \class BoxMesh
 /// \ingroup Graphics
 ///
 /// 

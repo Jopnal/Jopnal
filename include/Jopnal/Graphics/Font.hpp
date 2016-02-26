@@ -40,7 +40,7 @@ struct stbrp_node;
 
 namespace jop
 {
-	class Font
+	class JOP_API Font
         :public Resource
 	{
 	public:

@@ -37,13 +37,13 @@ namespace jop
 {
     namespace detail
     {
-        JOP_API std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
+        std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
 
         // Include the helper inl file
         #include <Jopnal/Utility/Inl/CommandParser.inl>
     }
 
-    class CommandHandler final
+    class JOP_API CommandHandler final
     {
     public:
 
@@ -52,25 +52,30 @@ namespace jop
         /// \param command The command name
         /// \param func The function to bind
         /// \param parser The parser to use
+        /// \param result The message result this function should return
         ///
-        template<typename Func, typename Parser>
-        void bind(const std::string& command, const Func& func, const Parser& parser);
+        template<typename Discard, typename Func, typename Parser>
+        void bind(const std::string& command, const Func& func, const Parser& parser, Discard, const Message::Result result = Message::Result::Continue);
 
         /// \brief Bind a new free function
         ///
         /// \param command The command name
         /// \param func The function object to bind
+        /// \param dis std::true_type to discard return value
+        /// \param result The message result this function should return
         ///
-        template<typename Ret, typename ... FuncArgs>
-        void bind(const std::string& command, const std::function<Ret(FuncArgs...)>& func);
+        template<typename Discard, typename Ret, typename ... FuncArgs>
+        void bind(const std::string& command, const std::function<Ret(FuncArgs...)>& func, Discard dis, const Message::Result result = Message::Result::Continue);
 
         /// \brief Bind a new free function
         ///
         /// \param command The command name
         /// \param func The function pointer to bind
+        /// \param dis std::true_type to discard return value
+        /// \param result The message result this function should return
         ///
-        template<typename Ret, typename ... FuncArgs>
-        void bind(const std::string& command, Ret (*func)(FuncArgs...));
+        template<typename Discard, typename Ret, typename ... FuncArgs>
+        void bind(const std::string& command, Ret(*func)(FuncArgs...), Discard dis, const Message::Result result = Message::Result::Continue);
 
 
         /// \brief Bind a new member function
@@ -78,25 +83,40 @@ namespace jop
         /// \param command The command name
         /// \param func The function to bind
         /// \param parser The parser to use
+        /// \param result The message result this function should return
         ///
-        template<typename Func, typename Parser>
-        void bindMember(const std::string& command, const Func& func, const Parser& parser);
+        template<typename Discard, typename Func, typename Parser>
+        void bindMember(const std::string& command, const Func& func, const Parser& parser, Discard, const Message::Result result = Message::Result::Continue);
 
         /// \brief Bind a new member function
         /// 
         /// \param command The command name
         /// \param func The function object to bind
+        /// \param dis std::true_type to discard return value
+        /// \param result The message result this function should return
         ///
-        template<typename Ret, typename Class, typename ... FuncArgs>
-        void bindMember(const std::string& command, const std::function<Ret(Class&, FuncArgs...)>& func);
+        template<typename Discard, typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, const std::function<Ret(Class&, FuncArgs...)>& func, Discard dis, const Message::Result result = Message::Result::Continue);
 
         /// \brief Bind a new member function
         ///
         /// \param command The command name
         /// \param func The function pointer to bind
+        /// \param dis std::true_type to discard return value
+        /// \param result The message result this function should return
         ///
-        template<typename Ret, typename Class, typename ... FuncArgs>
-        void bindMember(const std::string& command, Ret (Class::*func)(FuncArgs...));
+        template<typename Discard, typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, Ret(Class::*func)(FuncArgs...), Discard dis, const Message::Result result = Message::Result::Continue);
+
+        /// \brief Bind a new const member function
+        ///
+        /// \param command The command name
+        /// \param func The function pointer to bind
+        /// \param dis std::true_type to discard return value
+        /// \param result The message result this function should return
+        /// 
+        template<typename Discard, typename Ret, typename Class, typename ... FuncArgs>
+        void bindMember(const std::string& command, Ret(Class::*func)(FuncArgs...) const, Discard dis, const Message::Result result = Message::Result::Continue);
 
 
         /// \brief Execute a command
@@ -107,7 +127,9 @@ namespace jop
         /// \param command The command name
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         ///
-        void execute(const std::string& command, Any& instance);
+        /// \return The message result
+        ///
+        Message::Result execute(const std::string& command, Any& instance);
 
         /// \brief Execute a command and get the return value
         ///
@@ -115,13 +137,15 @@ namespace jop
         /// \param instance The class instance to call the command on. Can be nullptr to only consider free functions
         /// \param returnWrap PtrWrapper to hold the return value
         ///
-        void execute(const std::string& command, Any& instance, Any& returnWrap);
+        /// \return The message result
+        ///
+        Message::Result execute(const std::string& command, Any& instance, Any& returnWrap);
 
 
     private:
 
-        std::unordered_map<std::string, std::function<void(const std::string&, Any&, Any&)>> m_memberParsers; ///< Parsers for member functions
-        std::unordered_map<std::string, std::function<void(const std::string&, Any&)>> m_funcParsers;         ///< Parsers for free functions
+        std::unordered_map<std::string, std::pair<std::function<void(const std::string&, Any&, Any&)>, Message::Result>> m_memberParsers; ///< Parsers for member functions
+        std::unordered_map<std::string, std::pair<std::function<void(const std::string&, Any&)>, Message::Result>> m_funcParsers;         ///< Parsers for free functions
 
     };
 
@@ -133,10 +157,10 @@ namespace jop
 ///
 /// This macro must be followed with JOP_END_COMMAND_HANDLER
 ///
-#define JOP_REGISTER_COMMAND_HANDLER(handlerName) jop::CommandHandler& ns_##handlerName##_getCommandHandler(){ \
-                                                  static jop::CommandHandler instance; return instance;}       \
-                                                  struct ns_##handlerName##_registrar{                         \
-                                                  ns_##handlerName##_registrar(){                              \
+#define JOP_REGISTER_COMMAND_HANDLER(handlerName) JOP_API jop::CommandHandler& ns_##handlerName##_getCommandHandler(){  \
+                                                  static jop::CommandHandler instance; return instance;}                \
+                                                  struct ns_##handlerName##_registrar{                                  \
+                                                  ns_##handlerName##_registrar(){                                       \
                                                   jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
 
 /// \brief Register a derived command handler
@@ -157,13 +181,39 @@ namespace jop
 
 /// \brief Bind a member command
 ///
-#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, function)
+#define JOP_BIND_MEMBER_COMMAND(function, funcName) handler.bindMember(funcName, function, std::false_type())
 
-/// brief Bind a free function command
+/// \brief Bind a member command with escape result
 ///
-#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, function)
+#define JOP_BIND_MEMBER_COMMAND_ESCAPE(function, funcName) handler.bindMember(funcName, function, std::false_type(), jop::Message::Result::Escape)
 
-/// \brief Execute a free function command
+/// \brief Bind a member command that discards the return value
+///
+#define JOP_BIND_MEMBER_COMMAND_NORETURN(function, funcName) handler.bindMember(funcName, function, std::true_type())
+
+/// \brief Bind a member command that discards the return value. With escape result
+///
+#define JOP_BIND_MEMBER_COMMAND_NORETURN_ESCAPE(function, funcName) handler.bindMember(funcName, function), std::true_type(), jop::Message::Result::Escape)
+
+/// \brief Bind a free function command
+///
+#define JOP_BIND_COMMAND(function, funcName) handler.bind(funcName, function, std::false_type())
+
+/// \brief Bind a free function command with escape result
+///
+#define JOP_BIND_COMMAND_ESCAPE(function, funcName) handler.bind(funcName, function, std::false_type(), jop::Message::Result::Escape)
+
+/// \brief Bind a free function command that discards the return value
+///
+#define JOP_BIND_COMMAND_NORETURN(function, funcName) handler.bind(funcName, function, std::true_type())
+
+/// \brief Bind a free function command that discards the return value. With escape result
+///
+#define JOP_BIND_COMMAND_NORETURN_ESCAPE(function, funcName) handler.bind(funcName, function, std::true_type(), jop::Message::Result::Escape)
+
+/// \brief Execute a command
+///
+/// This will search for both free and member functions.
 ///
 #define JOP_EXECUTE_COMMAND(handlerName, command, instance, returnPtr) ns_##handlerName##_getCommandHandler().execute(command, instance, returnPtr)
 

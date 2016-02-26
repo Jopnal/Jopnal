@@ -38,8 +38,29 @@ namespace jop
 
     class JOP_API Material
     {
+    private:
+
+        typedef uint32 AttribType;
+
     public:
 
+        /// Bit values to describe a material's attributes
+        ///
+        struct Attribute
+        {
+            enum : AttribType
+            {
+                AmbientLight = 1,
+                SolidColor = AmbientLight << 1,
+                Material = SolidColor << 1,
+                Diffusemap = Material << 1
+            };
+        };
+
+        static const AttribType DefaultAttributes;
+
+        /// The reflection attribute
+        ///
         enum class Reflection
         {
             Ambient,
@@ -47,6 +68,8 @@ namespace jop
             Specular
         };
 
+        /// The map attribute
+        ///
         enum class Map
         {
             Diffuse
@@ -54,33 +77,91 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
         Material();
         
 
+        /// \brief Send this material to a shader
+        ///
+        /// \param shader Reference to the shader to send this material to
+        ///
         void sendToShader(Shader& shader) const;
 
 
+        /// \brief Set a reflection value
+        ///
+        /// \param reflection The reflection attribute
+        /// \param color The reflection color
+        ///
+        /// \return Reference to self
+        ///
         Material& setReflection(const Reflection reflection, const Color color);
 
+        /// \brief Set the reflection values
+        ///
+        /// \param ambient The ambient reflection
+        /// \param diffuse The diffuse reflection
+        /// \param specular The specular reflection
+        ///
+        /// \return Reference to self
+        ///
         Material& setReflection(const Color ambient, const Color diffuse, const Color specular);
 
+        /// \brief Get a reflection value
+        ///
+        /// \param reflection The reflection attribute
+        ///
+        /// \return The reflection value
+        ///
         Color getReflection(const Reflection reflection) const;
 
+        /// \brief Set the shininess value
+        ///
+        /// \param value The shininess value
+        ///
+        /// \return Reference to self
+        ///
         Material& setShininess(const float value);
 
+        /// \brief Get the shininess value
+        ///
+        /// \return The shininess value
+        ///
         float getShininess() const;
 
 
+        /// \brief Set a map
+        ///
+        /// \param map The map attribute
+        /// \param tex Reference to the texture
+        ///
+        /// \return Reference to self
+        ///
         Material& setMap(const Map map, const Texture& tex);
 
+        /// \brief Get a map
+        ///
+        /// \param map The map attribute
+        ///
+        /// \return Weak pointer to the texture. Empty if none bound
+        ///
+        WeakReference<const Texture> getMap(const Map map) const;
 
+
+        /// \brief Get the default material
+        ///
+        /// \return Reference to the default material
+        ///
         static const Material& getDefault();
 
     private:
 
-        std::array<Color, 3> m_reflection;
-        float m_shininess;
-        std::array<std::weak_ptr<const Texture>, 1> m_maps;
+        std::array<Color, 3> m_reflection;                  ///< The reflection values
+        float m_shininess;                                  ///< The shininess factor
+        std::array<WeakReference<const Texture>, 1> m_maps; ///< An array with the bound maps
+
     };
 }
+
 #endif

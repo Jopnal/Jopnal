@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
 #include <memory>
@@ -33,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Subsystem : public std::enable_shared_from_this<Subsystem>
+    class JOP_API Subsystem : public SafeReferenceable<Subsystem>
     {
     private:
 
@@ -91,6 +92,7 @@ namespace jop
         ///
         virtual void draw();
 
+
         /// \brief Sets active on update functions
         ///
         /// \param active Sets the active
@@ -99,26 +101,27 @@ namespace jop
 
         /// \brief Returns m_active boolean unit
         ///
-        bool isActive();
+        bool isActive() const;
+
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         ///
-        MessageResult sendMessage(const std::string& message);
+        Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
         ///
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
-        MessageResult sendMessage(const std::string& message, Any& returnWrap);
+        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
-        MessageResult sendMessage(const Message& message);
+        Message::Result sendMessage(const Message& message);
 
 
         /// \brief Set the name
@@ -137,7 +140,7 @@ namespace jop
 
         /// \brief Virtual sendMessage
         ///
-        virtual MessageResult sendMessageImpl(const Message& message);
+        virtual Message::Result sendMessageImpl(const Message& message);
 
     private:
 

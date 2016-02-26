@@ -29,7 +29,11 @@
 //////////////////////////////////////////////
 
 
-#ifdef JOP_DYNAMIC
+#ifdef JOP_STATIC
+
+    #define JOP_API
+
+#else
 
     #if defined(JOP_OS_WINDOWS)
     
@@ -43,10 +47,6 @@
     #else
         #define JOP_API JOP_API_IMPORT
     #endif
-
-#else
-
-    #define JOP_API
 
 #endif
 

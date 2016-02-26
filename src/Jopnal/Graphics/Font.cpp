@@ -76,9 +76,6 @@ namespace jop
         m_texture.load(1024, 1024, 4);
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_nodes, m_numNodes);
 
-        //set pixel size, whatever it is...
-        FT_Set_Pixel_Sizes(m_face, 16, 16);
-
         // Load font data from file
         std::vector<unsigned char> buffer;
 
@@ -89,6 +86,12 @@ namespace jop
             // Save loaded data
             FT_Error error = FT_New_Memory_Face(m_library, buffer.data(), buffer.size() * sizeof(unsigned char), 0, &m_face);
             JOP_ASSERT(!error, "Failed to load font!");
+
+            FT_Select_Charmap(m_face, ft_encoding_unicode);
+
+            //set pixel size, whatever it is...
+            FT_Set_Pixel_Sizes(m_face, 16, 16);
+
             m_context = std::move(context_ptr);
             return true;
         }
@@ -137,7 +140,8 @@ namespace jop
         else
         {
             //load glyph
-            FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_DEFAULT);
+            FT_UInt index = FT_Get_Char_Index(m_face, codepoint);
+            FT_Load_Glyph(m_face, index, FT_LOAD_DEFAULT);
             FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
             FT_GlyphSlot slot = m_face->glyph;
 

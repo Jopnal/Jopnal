@@ -25,7 +25,10 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <memory>
+#include <unordered_set>
 
 //////////////////////////////////////////////
 
@@ -35,6 +38,7 @@ namespace jop
     class Model;
     class Shader;
     class Camera;
+    class Scene;
 
     class JOP_API Drawable : public Component
     {
@@ -43,6 +47,8 @@ namespace jop
         JOP_DISALLOW_MOVE(Drawable);
 
         void operator =(const Drawable&) = delete;
+
+        friend class Layer;
 
     public:
     
@@ -69,9 +75,19 @@ namespace jop
 
         /// \brief Set the model
         ///
+        /// The model will be copied.
+        ///
         /// \param model Reference to the model
         ///
         void setModel(const Model& model);
+
+        Model& getModel();
+
+        /// \brief Get the model
+        ///
+        /// \return Reference to the model
+        ///
+        const Model& getModel() const;
 
         /// \brief Set the shader
         ///
@@ -79,10 +95,47 @@ namespace jop
         ///
         void setShader(Shader& shader);
 
-    protected:
+        /// \brief Get the shader
+        ///
+        /// \return Weak pointer to the shader. Empty if none bound
+        ///
+        WeakReference<Shader> getShader() const;
 
-        std::weak_ptr<Shader> m_shader;     ///< The bound shader
-        std::weak_ptr<Model> m_model;       ///< The bound model
+        /// \brief Get the set with the bound layers
+        ///
+        /// \return Reference to the set
+        ///
+        const std::unordered_set<Layer*> getBoundLayers() const;
+
+        /// \brief Load the state
+        ///
+        /// This can be called by the derived class while loading serialized state.
+        ///
+        /// \param drawable Reference to the drawable to load
+        /// \param scene The scene this drawable is bound to
+        /// \param val The json value
+        ///
+        /// \return True if successful
+        ///
+        static bool loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val);
+
+        /// \brief Save the state
+        ///
+        /// This can be called by the derived class while serializing state.
+        ///
+        /// \param drawable Reference to the drawable to save
+        /// \param val The json value
+        /// \param alloc The json allocator
+        ///
+        /// \return True if successful
+        ///
+        static bool saveStateBase(const Drawable& comp, json::Value& val, json::Value::AllocatorType& alloc);
+
+    private:
+
+        Model m_model;                                      ///< The bound model
+        mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
+        WeakReference<Shader> m_shader;                     ///< The bound shader
         
     };
 }

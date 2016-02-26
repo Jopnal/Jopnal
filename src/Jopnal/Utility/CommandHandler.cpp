@@ -98,15 +98,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, Any& instance)
+    Message::Result CommandHandler::execute(const std::string& command, Any& instance)
     {
         Any returnWrap(nullptr);
-        execute(command, instance, returnWrap);
+        return execute(command, instance, returnWrap);
     }
 
     //////////////////////////////////////////////
 
-    void CommandHandler::execute(const std::string& command, Any& instance, Any& returnWrap)
+    Message::Result CommandHandler::execute(const std::string& command, Any& instance, Any& returnWrap)
     {
         std::string comm, args;
         handleCommand(command, comm, args);
@@ -114,14 +114,22 @@ namespace jop
         {
             auto itr = m_funcParsers.find(comm);
             if (itr != m_funcParsers.end())
-                itr->second(args, returnWrap);
+            {
+                itr->second.first(args, returnWrap);
+                return itr->second.second;
+            }
         }
 
         if (instance)
         {
             auto itr = m_memberParsers.find(comm);
             if (itr != m_memberParsers.end())
-                itr->second(args, returnWrap, instance);
+            {
+                itr->second.first(args, returnWrap, instance);
+                itr->second.second;
+            }
         }
+
+        return Message::Result::Continue;
     }
 }

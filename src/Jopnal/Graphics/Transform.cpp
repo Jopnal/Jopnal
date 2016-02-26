@@ -173,6 +173,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Transform& Transform::lookAt(const float x, const float y, const float z)
+    {
+        return lookAt(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
     Transform& Transform::move(const float x, const float y, const float z)
     {
         return move(glm::vec3(x, y, z));

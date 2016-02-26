@@ -167,6 +167,12 @@ namespace jop
         /// \param index The attribute index
         ///
         static void setVertexAttribute(const bool enable, const unsigned int index);
+
+        /// \brief Enable/disable depth buffer writing
+        ///
+        /// \param enable Enable depth writes?
+        ///
+        static void setDepthWrite(const bool enable);
         
     };
 }

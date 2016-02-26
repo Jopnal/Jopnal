@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <unordered_map>
+#include <array>
 
 //////////////////////////////////////////////
 
@@ -33,8 +35,24 @@ namespace jop
 {
     class Texture;
 
-    class Shader : public Resource
+    class JOP_API Shader : public Resource
     {
+    private:
+
+        typedef std::unordered_map<std::string, int> LocationMap;
+
+    public:
+
+        /// The shader type
+        ///
+        enum class Type
+        {
+            Vertex,
+            Geometry,
+            Fragment,
+            Preprocessor
+        };
+
     public:
 
         /// \brief default constructor
@@ -53,10 +71,11 @@ namespace jop
         /// \param vert Vertex shader path
         /// \param geom Geometry shader path
         /// \param frag Fragment shader path
+        /// \param pp Preprocessor definitions
         ///
         /// \return True if the shader was loaded, compiled and linked successfully
         ///
-        bool load(const std::string& vert, const std::string& geom, const std::string& frag);
+        bool load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp = "#version 330 core");
 
         /// \brief Destroy this shader
         ///
@@ -152,12 +171,24 @@ namespace jop
         /// \param pointer Pointer to the data or the offset in the buffer
         ///
         void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
+
+
+        /// \brief Get the shader source
+        ///
+        /// This is either the file path from which the shader was loaded or the shader source code itself.
+        ///
+        /// \param type The shader type
+        ///
+        /// \return Reference to the source
+        ///
+        const std::string& getSource(const Type type) const;
+
         
         /// \brief Get the default shader
         ///
         /// \return Reference to the default shader
         ///
-        static std::weak_ptr<Shader> getDefault();
+        static Shader& getDefault();
 
     private:
 
@@ -169,8 +200,17 @@ namespace jop
         ///
         int getAttributeLocation(const std::string& name);
 
+        int getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&));
+
+        static int getLocUnif(unsigned int prog, const std::string& name);
+
+        static int getLocAttr(unsigned int prog, const std::string& name);
+
         
-        unsigned int m_shaderProgram; ///< The OpenGL shader handle
+        std::array<std::string, 4> m_strings;   ///< The shader sources
+        LocationMap m_unifMap;                  ///< Map with the uniform locations
+        LocationMap m_attribMap;                ///< Map with the attribute locations
+        unsigned int m_shaderProgram;           ///< The OpenGL shader handle
                 
     };
 }
