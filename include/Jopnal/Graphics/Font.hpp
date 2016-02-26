@@ -74,6 +74,14 @@ namespace jop
         ///
         void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y);
         
+        /// \brief Converts UTF-8 to UTF-32
+        ///
+        ///
+        static int getCharacters(uint8_t buffer[], unsigned long *id, size_t strlen, uint32_t *cp);
+        int codePointCount(uint8_t chars[], size_t strlen, size_t *outSize);
+        int convert(uint8_t input[], uint32_t output[], size_t count, size_t *outSize);
+
+
         /// \brief Returns the texture that contains all loaded glyphs
         ///
         Texture& getTexture();

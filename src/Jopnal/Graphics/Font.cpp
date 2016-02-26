@@ -177,4 +177,75 @@ namespace jop
             }
         }
     }
+
+    //////////////////////////////////////////////
+
+    int Font::getCharacters(uint8_t buffer[], unsigned long *id, size_t strlen, uint32_t *cp)
+    {
+        int remainUnits;
+        uint8_t next, mask;
+
+        if (*id >= strlen)
+            return -1;
+
+        next = buffer[(*id)++];
+        if (next & 0x80)
+        {
+            mask = 0xe0;
+            for (remainUnits = 1; (next & mask) != (mask << 1); remainUnits++)
+            {
+                mask = (mask >> 1) | 0x80;
+            }
+        }
+        else
+        {
+            remainUnits = 0;
+            mask = 0;
+        }
+
+        *cp = next ^ mask;
+
+        while (remainUnits-- > 0)
+        {
+            *cp <<= 6;
+            if (*id >= strlen)
+                return -1;
+            *cp |= buffer[(*id)++] & 0x3f;
+        }
+
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int Font::codePointCount(uint8_t chars[], size_t strlen, size_t *outSize)
+    {
+        unsigned long id = 0;
+
+        for (*outSize = 0; *outSize < strlen; *outSize++)
+        {
+            uint32_t cp;
+            getCharacters(chars, &id, strlen, &cp);
+            if (!(cp < 0xd800 || cp > 0xdfff))
+                return -1;
+        }
+        
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int Font::convert(uint8_t input[], uint32_t output[], size_t count, size_t *outSize)
+    {
+        unsigned long id = 0;
+
+        for (*outSize = 0; *outSize < count; *outSize++)
+        {
+            getCharacters(input, &id, count, &output[count]);
+            if (!(id < 0xd800 || id > 0xdfff))
+                return -1;
+        }
+
+        return 0;
+    }
 }
