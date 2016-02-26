@@ -27,16 +27,13 @@
 namespace jop
 {
     SoundSource::SoundSource(Object& object, const std::string& ID)
-        :Component                                  (object,ID),
-        m_sound(std::make_unique<sf::Sound>())
+        :Component                                  (object,ID)
     {}
 
     SoundSource::SoundSource(const SoundSource& other)
         : Component(other),
         m_sound()
-    {
-        *m_sound = other.clone()->clone();
-    }
+    {}
     //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
@@ -48,47 +45,6 @@ namespace jop
     void SoundSource::update(const float)
     {
         m_sound->setPosition(getObject().getPosition().x, getObject().getPosition().y,getObject().getPosition().z);
-    }
-
-    //////////////////////////////////////////////
-
-    SoundSource& SoundSource::setBuffer(const std::string& path)
-    {
-       m_sound->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
-
-       return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    SoundSource& SoundSource::Play(bool reset)
-    {
-        if (m_sound->getStatus() == sf::Sound::Status::Playing)
-        {
-            if (reset);
-            return *this;
-        }
-
-        m_sound->play();
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    SoundSource& SoundSource::Stop()
-    {
-        m_sound->stop();
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    SoundSource& SoundSource::Pause()
-    {
-        m_sound->pause();
-
-        return *this;
     }
 
     //////////////////////////////////////////////
@@ -109,23 +65,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setOffset(const float& time)
-    {
-        sf::Time t(sf::seconds(time));
-        m_sound->setPlayingOffset(t);
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    const float SoundSource::getOffset()
-    {
-       return m_sound->getPlayingOffset().asSeconds();
-    }
-
-    //////////////////////////////////////////////
-
     SoundSource& SoundSource::setPitch(const float& value)
     {
         m_sound->setPitch(value);
@@ -138,22 +77,6 @@ namespace jop
     const float SoundSource::getPitch()
     {
         return m_sound->getPitch();
-    }
-
-    //////////////////////////////////////////////
-
-    enum status SoundSource::getStatus()
-    {
-        return status(m_sound->getStatus());
-    }
-
-    //////////////////////////////////////////////
-
-    SoundSource& SoundSource::setLoop(bool loop)
-    {
-        m_sound->setLoop(loop);
-
-        return *this;
     }
 
     //////////////////////////////////////////////
@@ -173,12 +96,5 @@ namespace jop
         m_sound->setMinDistance(min);
 
         return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    sf::Sound SoundSource::clone()
-    {
-        return *m_sound;
     }
 }

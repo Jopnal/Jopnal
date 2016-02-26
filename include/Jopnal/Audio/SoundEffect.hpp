@@ -19,21 +19,21 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SOUNDSTREAM_HPP
-#define JOP_SOUNDSTREAM_HPP
+#ifndef JOP_SOUNDEFFECT_HPP
+#define JOP_SOUNDEFFECT_HPP
 
 //////////////////////////////////////////////
 
 namespace sf
 {
-    class Music;
+    class Sound;
 }
 
 namespace jop
 {
     class Object;
 
-    class SoundStream : public SoundSource
+    class SoundEffect : public SoundSource
     {
     public:
 
@@ -42,31 +42,27 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
-        SoundStream(Object& object, const std::string& ID);
+        SoundEffect(Object& object, const std::string& ID);
 
         /// \brief Copy constructor
         ///
-        SoundStream(const SoundStream& other);
+        SoundEffect(const SoundEffect& other);
 
         /// \brief Check for copy constructor's need
         ///
-        JOP_GENERIC_CLONE(SoundStream);
+        JOP_GENERIC_CLONE(SoundEffect);
 
         /// \brief Virtual destructor
         ///
-        ~SoundStream();
-        /// \brief Stream audio from file
+        ~SoundEffect();
+        
+        /// \brief Load sound buffer from resource manager
         ///
-        /// Needs relative path to asset flodder
+        /// Can not be constant
         ///
         /// \param Path to audio file
         ///
-        SoundStream& setPath(const std::string& path);
-
-        /// \brief Get information from member variables
-        ///
-        /// \param SoundStream component to copy to
-        ///
+        SoundEffect& setBuffer(const std::string& path);
 
         /// \brief Play sound
         ///
@@ -74,25 +70,25 @@ namespace jop
         ///
         /// If true audio doesn't start over from beginging
         ///
-        SoundStream& Play(bool reset);
+        SoundEffect& Play(bool reset);
 
         /// \brief Play sound from start
         ///
-        SoundStream& Play();
+        SoundEffect& Play();
 
         /// \brief Stop playing sound
         ///
-        SoundStream& Stop();
+        SoundEffect& Stop();
 
         /// \brief Pause sound
         ///
-        SoundStream& Pause();
+        SoundEffect& Pause();
 
         /// \brief Set from which point as seconds the sound starts playing
         ///
         /// \param Float time
         ///
-        SoundStream& setOffset(const float& time);
+        SoundEffect& setOffset(const float& time);
 
         /// \brief Returns point where sound is playing as seconds
         ///
@@ -106,22 +102,18 @@ namespace jop
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        SoundStream& setLoop(bool loop);
+        SoundEffect& setLoop(bool loop);
 
         /// \brief Copy information from stream component
         ///
-        /// \param sf::music object
+        /// \param sf::Sound object
         ///
-        void copy(sf::Music* sound);
-
-    private:
-        std::string m_path;                     ///< Remembers streaming path for cloning
+        void copy(sf::Sound* sound);
     };
 }
 #endif
 
-/// \class SoundStream
+/// \class SoundEffect
 /// \ingroup Audio
 ///
-/// Sound streaming straight from file 
-/// Uses SFML Music.hpp streaming instead of FileLoader.hpp
+/// Audio component that plays sound

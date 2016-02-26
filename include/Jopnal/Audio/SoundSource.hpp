@@ -32,7 +32,7 @@
 
 namespace sf
 {
-    class Sound;
+    class SoundSource;
 }
 
 namespace jop
@@ -67,28 +67,6 @@ namespace jop
         ///
         void update(const float deltaTime)override;
 
-        /// \brief Load sound buffer from resource manager
-        ///
-        /// Can not be constant
-        ///
-        /// \param Path to audio file
-        ///
-        SoundSource& setBuffer(const std::string& path);
-
-        /// \brief Play sound
-        ///
-        /// \param Enum Does sound start from beginning or continaue if already playing
-        ///
-        SoundSource& Play(bool reset);
-
-        /// \brief Stop playing sound
-        ///
-        SoundSource& Stop();
-
-        /// \brief Pause sound
-        ///
-        SoundSource& Pause();
-
         /// \brief Set sound's volume
         ///
         /// \param Float 0-100.0f default is 100.0f
@@ -99,16 +77,6 @@ namespace jop
         ///
         const float getVolume();
 
-        /// \brief Set from which point as seconds the sound starts playing
-        ///
-        /// \param Float time
-        ///
-        SoundSource& setOffset(const float& time);
-
-        /// \brief Returns point where sound is playing as seconds
-        ///
-        const float getOffset();
-
         /// \brief Set pitch
         ///
         /// \param Float default is 1
@@ -118,16 +86,6 @@ namespace jop
         /// \brief Returns pitch
         ///
         const float getPitch();
-
-        /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
-        ///
-        enum status getStatus();
-
-        /// \brief Toggle sound on/off
-        ///
-        /// \param Boolean true iquals on and false iquals off
-        ///
-        SoundSource& setLoop(bool loop);
 
         /// \brief Toggle listener on/off
         ///
@@ -141,12 +99,8 @@ namespace jop
         ///
         SoundSource& setAttenuationAndMinDistance(const float& at, const float& min);
 
-        /// \brief Clone m_sound
-        ///
-        sf::Sound clone();
-
-    private:
-        std::unique_ptr<sf::Sound> m_sound;      ///< Unique audio sample
+    protected:
+        std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
     };
 }
 
@@ -155,4 +109,4 @@ namespace jop
 /// \class SoundSource
 /// \ingroup Audio
 ///
-/// Audio component that plays sound
+/// Base class for audio component

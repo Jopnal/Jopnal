@@ -27,15 +27,16 @@
 namespace jop
 {
     SoundStream::SoundStream(Object& object, const std::string& ID)
-        :Component(object, ID),
-        m_stream(std::make_unique<sf::Music>())
-    {}
+        :SoundSource(object, ID)
+    {
+        m_sound = std::make_unique < sf::Music > ();
+    }
 
     SoundStream::SoundStream(const SoundStream& other)
-        : Component(other),
-        m_stream()
+        : SoundSource(other)
     {
-        other.clone()->copy(*m_stream);
+        m_sound = std::make_unique < sf::Music >();
+        other.clone()->copy(static_cast<sf::Music*>(m_sound.get()));
     }
     //////////////////////////////////////////////
 
@@ -43,24 +44,16 @@ namespace jop
     {}
 
     //////////////////////////////////////////////
-    //////////////////////////////////////////////
-
-    void SoundStream::update(const float)
-    {
-        m_stream->setPosition(getObject().getPosition().x, getObject().getPosition().y, getObject().getPosition().z);
-    }
-
-    //////////////////////////////////////////////
 
 
     SoundStream& SoundStream::setPath(const std::string& path)
     {
-        if (m_stream->openFromFile(path))
+        if (static_cast<sf::Music*>(m_sound.get())->openFromFile(path));
         {
             m_path = path;
-            m_stream->play();
+
+            return *this;
         }
-        else
             JOP_DEBUG_ERROR("Error in SoundStream::setStream: "<<path)
 
             return *this;
@@ -68,45 +61,90 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    SoundStream& SoundStream::Play(bool reset)
+    {
+        if (static_cast<sf::Music*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+        {
+            if (reset);
+            return *this;
+        }
+        static_cast<sf::Music*>(m_sound.get())->play();
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundStream& SoundStream::Play()
+    {
+        static_cast<sf::Music*>(m_sound.get())->play();
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundStream& SoundStream::Stop()
+    {
+        static_cast<sf::Music*>(m_sound.get())->stop();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundStream& SoundStream::Pause()
+    {
+        static_cast<sf::Music*>(m_sound.get())->pause();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundStream& SoundStream::setOffset(const float& time)
+    {
+        sf::Time t(sf::seconds(time));
+        static_cast<sf::Music*>(m_sound.get())->setPlayingOffset(t);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const float SoundStream::getOffset()
+    {
+        return static_cast<sf::Music*>(m_sound.get())->getPlayingOffset().asSeconds();
+    }
+
+    //////////////////////////////////////////////
+
+    enum status SoundStream::getStatus()
+    {
+        return status(static_cast<sf::Music*>(m_sound.get())->getStatus());
+    }
+
+    //////////////////////////////////////////////
+
     SoundStream& SoundStream::setLoop(bool loop)
     {
-        m_stream->setLoop(loop);
+        static_cast<sf::Music*>(m_sound.get())->setLoop(loop);
 
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    SoundStream& SoundStream::setListener(bool toggle)
+    void SoundStream::copy(sf::Music* sound)
     {
-        m_stream->setRelativeToListener(toggle);
-
-        return *this;
-    }
-
-    SoundStream& SoundStream::setAttenuationAndMinDistance(const float& at, const float& min)
-    {
-        m_stream->setAttenuation(at);
-        m_stream->setMinDistance(min);
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundStream::copy(sf::Music& copy)
-    {
-        copy.setPlayingOffset(m_stream->getPlayingOffset());
+        static_cast<sf::Music*>(sound)->setPlayingOffset(static_cast<sf::Music*>(m_sound.get())->getPlayingOffset());
        
-        if(bool listener = m_stream->isRelativeToListener())
+        if (bool listener = static_cast<sf::Music*>(m_sound.get())->isRelativeToListener())
         {
-           copy.setRelativeToListener(listener);
-           copy.setPosition( m_stream->getPosition());
+            static_cast<sf::Music*>(sound)->setRelativeToListener(listener);
+            static_cast<sf::Music*>(sound)->setPosition(static_cast<sf::Music*>(m_sound.get())->getPosition());
+            static_cast<sf::Music*>(sound)->setVolume(static_cast<sf::Music*>(m_sound.get())->getVolume());
+            static_cast<sf::Music*>(sound)->setPitch(static_cast<sf::Music*>(m_sound.get())->getPitch());
         }
 
-        copy.openFromFile(m_path);
-        copy.play();
-        if(m_stream->getStatus()!=sf::Music::Playing);
-        copy.pause();
+        static_cast<sf::Music*>(sound)->openFromFile(m_path);
     }
 }

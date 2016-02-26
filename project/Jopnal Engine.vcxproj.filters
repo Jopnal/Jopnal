@@ -252,6 +252,9 @@
     <ClInclude Include="..\include\Jopnal\Audio\Listener.hpp">
       <Filter>Audio\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Audio\SoundEffect.hpp">
+      <Filter>Audio\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -393,6 +396,9 @@
       <Filter>Audio\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Audio\Listener.cpp">
+      <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Audio\SoundEffect.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
   </ItemGroup>
