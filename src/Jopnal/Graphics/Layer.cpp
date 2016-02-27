@@ -214,6 +214,14 @@ namespace jop
 
     void Layer::addDrawable(Drawable& drawable)
     {
+    #if defined(JOP_DEBUG_MODE) && !defined(JOP_EDITOR)
+        if (typeid(drawable) == typeid(Camera) || typeid(drawable) == typeid(LightSource))
+        {
+            JOP_DEBUG_WARNING("Layer::addDrawable(): You must add cameras/lights using setCamera() and addLight()");
+            return;
+        }
+    #endif
+
         m_drawList.emplace_back(static_ref_cast<Drawable>(drawable.getReference()));
         handleDrawableAddition(*m_drawList.back());
     }
@@ -270,6 +278,22 @@ namespace jop
     void Layer::addLight(const LightSource& light)
     {
         m_lights.push_back(static_ref_cast<const LightSource>(light.getReference()));
+        handleDrawableAddition(light);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::removeLight(const std::string& id)
+    {
+        for (auto itr = m_lights.begin(); itr != m_lights.end(); ++itr)
+        {
+            if (!itr->expired() && (*itr)->getID() == id)
+            {
+                handleDrawableRemoval(*(*itr));
+                m_lights.erase(itr);
+                return;
+            }
+        }
     }
 
     //////////////////////////////////////////////
@@ -277,6 +301,13 @@ namespace jop
     void Layer::setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil)
     {
         m_renderTexture = std::make_unique<RenderTexture>(size, depth, stencil);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::removeRenderTexture()
+    {
+        m_renderTexture.reset();
     }
 
     //////////////////////////////////////////////
@@ -340,7 +371,7 @@ namespace jop
                     cont->push_back(i.get());
                 else
                 {
-                    // TODO Take drawable bounds into account. Current approach could produce artifacts
+                    // TODO Take drawable bounds into account. Current approach could produce light "popping"
 
                     if ((i->getObject()->extractPosition() - drawable.getObject()->extractPosition()).length() <= i->getAttenuation(LightSource::Attenuation::Range))
                         cont->push_back(i.get());

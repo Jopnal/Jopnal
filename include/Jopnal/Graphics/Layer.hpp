@@ -131,12 +131,16 @@ namespace jop
 
         void addLight(const LightSource& light);
 
+        void removeLight(const std::string& id);
+
 
         /// \brief Set a RenderTexture
         ///
         /// The render texture will be created and taken ownership of
         ///
         void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
+
+        void removeRenderTexture();
 
         /// \brief Get the render texture
         ///

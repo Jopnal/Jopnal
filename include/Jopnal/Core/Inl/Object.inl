@@ -45,12 +45,35 @@ namespace detail
     template<typename T, typename First = void, typename ... Args>
     struct FirstIsSame{enum{value=std::is_same<T,First>::value};};
 
-    template<typename T, bool IsDrawable, bool FirstIsLayer>
+    #ifdef JOP_DEBUG_MODE
+        template<typename T, bool IsDrawable = std::is_base_of<::jop::Drawable, T>::value>
+        struct LayerWarning
+        {static void print(){}};
+
+        template<typename T>
+        struct LayerWarning<T, true>
+        {
+            static void print()
+            {
+                JOP_DEBUG_WARNING("No Layer passed to createComponent() when type was \"" << typeid(T).name() << "\", won't be automatically used in drawing");
+            }
+        };
+    #endif
+
+    template
+    <
+        typename T,
+        bool FirstIsLayer,
+        bool IsDrawable = std::is_base_of<::jop::Drawable, T>::value
+    >
     struct ComponentMaker
     {
         template<typename ... Args>
         static std::unique_ptr<T> make(Object& obj, Args&... args)
         {
+        #ifdef JOP_DEBUG_MODE
+            LayerWarning<T>::print();
+        #endif
             return std::make_unique<T>(obj, args...);
         }
     };
@@ -65,6 +88,32 @@ namespace detail
             return ptr;
         }
     };
+    template<>
+    struct ComponentMaker<::jop::LightSource, true, true>
+    {
+        typedef ::jop::LightSource L;
+
+        template<typename ... Args>
+        static std::unique_ptr<L> make(Object& obj, Layer& layer, Args&... args)
+        {
+            auto ptr = std::make_unique<L>(obj, args...);
+            layer.addLight(*ptr);
+            return ptr;
+        }
+    };
+    template<>
+    struct ComponentMaker<::jop::Camera, true, true>
+    {
+        typedef ::jop::Camera C;
+
+        template<typename ... Args>
+        static std::unique_ptr<C> make(Object& obj, Layer& layer, Args&... args)
+        {
+            auto ptr = std::make_unique<C>(obj, args...);
+            layer.setCamera(*ptr);
+            return ptr;
+        }
+    };
 }
 
 template<typename T, typename ... Args>
@@ -72,6 +121,6 @@ WeakReference<T> Object::createComponent(Args& ... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
     
-    m_components.emplace_back(detail::ComponentMaker<T, std::is_base_of<Drawable, T>::value && !std::is_same<Camera, T>::value && !std::is_same<LightSource, T>::value, detail::FirstIsSame<Layer, Args...>::value>::make(*this, args...));
+    m_components.emplace_back(detail::ComponentMaker<T, detail::FirstIsSame<::jop::Layer, Args...>::value>::make(*this, args...));
     return static_ref_cast<T>(m_components.back()->getReference());
 }
