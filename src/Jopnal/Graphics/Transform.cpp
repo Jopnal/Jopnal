@@ -86,7 +86,7 @@ namespace jop
 
     Transform& Transform::setRotation(const glm::quat& rotation)
     {
-        m_rotation = rotation;
+        m_rotation = glm::conjugate(rotation);
         m_transformNeedUpdate = true;
         m_invTransformNeedsUpdate = true;
 
@@ -105,7 +105,7 @@ namespace jop
     glm::vec3 Transform::getFront() const
     {
         auto& m = getMatrix();
-        return glm::vec3(m[0][2], m[1][2], m[2][2]);
+        return glm::vec3(m[0][2], m[1][2], -m[2][2]);
     }
 
     //////////////////////////////////////////////
@@ -113,7 +113,7 @@ namespace jop
     glm::vec3 Transform::getRight() const
     {
         auto& m = getMatrix();
-        return glm::vec3(m[0][0], m[1][0], m[2][0]);
+        return glm::vec3(m[0][0], m[1][0], -m[2][0]);
     }
 
     //////////////////////////////////////////////
@@ -121,7 +121,7 @@ namespace jop
     glm::vec3 Transform::getUp() const
     {
         auto& m = getMatrix();
-        return glm::vec3(m[0][1], m[1][1], m[2][1]);
+        return glm::vec3(m[0][1], m[1][1], -m[2][1]);
     }
 
     //////////////////////////////////////////////
@@ -239,7 +239,7 @@ namespace jop
 
     Transform& Transform::rotate(const glm::quat& rotation)
     {
-        m_rotation *= rotation;
+        m_rotation *= glm::conjugate(rotation);
         m_transformNeedUpdate = true;
         m_invTransformNeedsUpdate = true;
 

@@ -70,7 +70,7 @@ namespace jop
         // Some good predefined attenuation values
         enum class AttenuationPreset
         {
-            _7, _13, _20, _32, _50, _65, _100, _160, _200, _320, _600, _3250 
+            _7, _13, _20, _32, _50, _65, _100, _160, _200, _320, _600, _3250
         };
 
     public:
