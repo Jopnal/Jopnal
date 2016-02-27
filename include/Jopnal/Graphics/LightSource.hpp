@@ -67,6 +67,12 @@ namespace jop
             Range
         };
 
+        // Some good predefined attenuation values
+        enum class AttenuationPreset
+        {
+            _7, _13, _20, _32, _50, _65, _100, _160, _200, _320, _600, _3250 
+        };
+
     public:
 
         /// \brief Constructor
@@ -135,6 +141,8 @@ namespace jop
 
         LightSource& setAttenuation(const float constant, const float linear, const float quadratic, const float range);
 
+        LightSource& setAttenuation(const AttenuationPreset preset);
+
         float getAttenuation(const Attenuation attenuation) const;
 
         glm::vec3 getAttenuationVec() const;
@@ -169,7 +177,7 @@ namespace jop
 
         void clear();
 
-        void sendToShader(Shader& shader, const Camera& camera) const;
+        void sendToShader(Shader& shader) const;
 
         ContainerType& operator [](const LightSource::Type type);
 

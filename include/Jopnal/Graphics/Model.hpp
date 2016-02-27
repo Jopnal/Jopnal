@@ -88,6 +88,8 @@ namespace jop
         ///
         const Material& getMaterial() const;
 
+        Material& getMaterial();
+
         /// \brief Set the material
         ///
         /// The material will be copied, so there's not need to keep the original around.

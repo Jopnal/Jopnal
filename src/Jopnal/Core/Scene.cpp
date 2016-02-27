@@ -96,13 +96,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Scene::cloneObject(const std::string& ID)
+    WeakReference<Object> Scene::cloneObject(const std::string& ID, const std::string& clonedID)
     {
         auto ptr = getObject(ID);
 
         if (!ptr.expired())
         {
-            m_objects.emplace_back(*ptr);
+            m_objects.push_back(Object(*ptr, clonedID));
             return m_objects.back().getReference();
         }
 
@@ -177,7 +177,7 @@ namespace jop
     WeakReference<Layer> Scene::getDefaultLayer() const
     {
         if (m_layers.empty())
-            m_layers.emplace_back(std::make_unique<Layer>("Default Layer"));
+            m_layers.emplace_back(std::make_unique<Layer>("jop_default_layer"));
 
         return static_ref_cast<Layer>(m_layers.front()->getReference());
     }

@@ -62,6 +62,8 @@ namespace jop
         ///
         Drawable(Object& object, const std::string& ID);
 
+        Drawable(const Drawable& other);
+
         /// \brief Virtual destructor
         ///
         virtual ~Drawable() = 0;

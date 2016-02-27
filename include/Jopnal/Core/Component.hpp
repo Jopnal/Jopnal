@@ -43,6 +43,8 @@ namespace jop
 
         void operator =(const Component&) = delete;
 
+        friend class Object;
+
     protected:
 
         /// \brief Copy constructor
@@ -118,6 +120,8 @@ namespace jop
         /// \copydoc jop::Component::getObject()
         ///
         WeakReference<const Object> getObject() const;
+
+        bool isActive() const;
         
     private:
 

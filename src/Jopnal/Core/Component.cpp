@@ -123,6 +123,13 @@ namespace jop
         return static_ref_cast<const Object>(m_objectRef);
     }
 
+    //////////////////////////////////////////////
+
+    bool Component::isActive() const
+    {
+        return getObject()->isActive();
+    }
+
     Message::Result Component::sendMessageImpl(const Message&)
     {
         return Message::Result::Continue;

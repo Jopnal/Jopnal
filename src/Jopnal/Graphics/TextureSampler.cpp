@@ -139,7 +139,6 @@ namespace jop
                     else
                         // Should never happen but just to be sure.
                         JOP_DEBUG_WARNING("Anisotropic filtering is not supported on this system");
-                    break;
             }
 
             m_filter = mode;
@@ -174,7 +173,6 @@ namespace jop
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_BORDER));
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_BORDER));
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::CLAMP_TO_BORDER));
-                    break;
             }
 
             m_repeat = repeat;
@@ -249,7 +247,7 @@ namespace jop
 
         if (defSampler.expired())
         {
-            defSampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("Default Sampler").getReference());
+            defSampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_default_sampler").getReference());
             
             JOP_ASSERT_EVAL(defSampler->load
             (

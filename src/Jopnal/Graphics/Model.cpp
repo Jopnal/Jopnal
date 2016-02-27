@@ -73,6 +73,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Material& Model::getMaterial()
+    {
+        return m_material;
+    }
+
+    //////////////////////////////////////////////
+
     void Model::setMaterial(const Material& material)
     {
         m_material = material;

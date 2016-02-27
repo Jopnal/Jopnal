@@ -299,7 +299,7 @@ namespace jop
 
         if (errTex.expired())
         {
-            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").getReference());
+            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("jop_error_texture").getReference());
 
             JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
 
@@ -318,7 +318,7 @@ namespace jop
 
         if (defTex.expired())
         {
-            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").getReference());
+            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("jop_default_texture").getReference());
             
             JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
 

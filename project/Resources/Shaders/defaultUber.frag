@@ -20,6 +20,11 @@ in vec3 vf_FragPosition;
     uniform sampler2D u_SpecularMap;
 #endif
 
+// Emission map
+#ifdef JMAT_EMISSIONMAP
+    uniform sampler2D u_EmissionMap;
+#endif
+
 // Surface material
 #ifdef JMAT_MATERIAL
     struct Material
@@ -27,12 +32,12 @@ in vec3 vf_FragPosition;
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
+        vec3 emission;
         float shininess;
     };
     uniform Material u_Material;
 #else
-    // If material is not used, then have a solid color
-    uniform vec3 u_SolidColor;
+    uniform vec3 u_Emission;
 #endif
 
 // Light info
@@ -58,50 +63,54 @@ in vec3 vf_FragPosition;
     uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
     uniform uint u_NumPointLights;
 
-    //// Directional lights
-    //struct DirectionalLightInfo
-    //{
-    //    // Direction
-    //    vec3 direction;
+    // Directional lights
+    struct DirectionalLightInfo
+    {
+        // Direction
+        vec3 direction;
 
-    //    // Intensities
-    //    vec3 ambient;
-    //    vec3 diffuse;
-    //    vec3 specular;
+        // Intensities
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
 
-    //    // No attenuation for directional lights
-    //};
-    //uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
-    //uniform uint u_NumDirectionalLights;
+        // No attenuation for directional lights
+    };
+    uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
+    uniform uint u_NumDirectionalLights;
 
-    //// Spot lights
-    //struct SpotLightInfo
-    //{
-    //    // Position in eye (camera) coordinates
-    //    vec3 position;
+    // Spot lights
+    struct SpotLightInfo
+    {
+        // Position
+        vec3 position;
 
-    //    // Direction
-    //    vec3 direction;
+        // Direction
+        vec3 direction;
 
-    //    // Intensities
-    //    vec3 ambient;
-    //    vec3 diffuse;
-    //    vec3 specular;
+        // Intensities
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
 
-    //    // Attenuation
-    //    vec3 attenuation;
+        // Attenuation
+        vec3 attenuation;
 
-    //    // Cutoff
-    //    // x = inner
-    //    // y = outer
-    //    vec2 cutoff;
-    //};
-    //uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
-    //uniform uint u_NumSpotLights;
+        // Cutoff
+        // x = inner
+        // y = outer
+        vec2 cutoff;
+    };
+    uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
+    uniform uint u_NumSpotLights;
 
+    // Point light calculation
     vec3 calculatePointLight(const in uint index)
     {
         PointLightInfo l = u_PointLights[index];
+
+        // Ambient impact
+        vec3 ambient = u_Material.ambient * l.ambient;
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
@@ -109,17 +118,103 @@ in vec3 vf_FragPosition;
         // Direction from light to fragment
         vec3 lightDir = normalize(l.position - vf_FragPosition);
 
-        // Calculate diffuse impact
+        // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
 
-        // Specular
+        // Direction from fragment to eye (eye is always at [0,0,0])
+        vec3 viewDir = normalize(-vf_FragPosition);
+
+        // Calculate reflection direction
+        vec3 reflectDir = reflect(-lightDir, norm);
+
+        // Specular impact
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
+
+        // Attenuation
+        float dist = length(l.position - vf_FragPosition);
+        float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
+        ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
+
+        // Combine all the colors
+        return ambient + diffuse + specular;
+    }
+
+    // Directional light calculation
+    vec3 calculateDirectionalLight(const in uint index)
+    {
+        DirectionalLightInfo l = u_DirectionalLights[index];
+
+        // Ambient impact
+        vec3 ambient = u_Material.ambient * l.ambient;
+
+        // Normal vector
+        vec3 norm = normalize(vf_Normal);
+
+        // Direction from light to fragment.
+        // Directional light shines infinitely in the same direction,
+        // so no need to take fragment position into account
+        vec3 lightDir = normalize(-l.direction);
+
+        // Diffuse impact
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
+
+        // Direction from fragment to eye
+        vec3 viewDir = normalize(-vf_FragPosition);
+
+        // Calculate reflection direction
+        vec3 reflectDir = reflect(-lightDir, norm);
+
+        // Specular impact
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
+
+        // No attenuation calculations here
+        // Directional Light is infinite, Directional Light is eternal
+
+        return ambient + diffuse + specular;
+    }
+
+    // Spot light calculation
+    vec3 calculateSpotLight(const in uint index)
+    {
+        SpotLightInfo l = u_SpotLights[index];
+
+        // Ambient impact
+        vec3 ambient = u_Material.ambient * l.ambient;
+
+        // Normal vector
+        vec3 norm = normalize(vf_Normal);
+
+        // Direction from light to fragment
+        vec3 lightDir = normalize(l.position - vf_FragPosition);
+
+        // Diffuse impact
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = l.diffuse * diff * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
+
+        // Specular impact
         vec3 viewDir = normalize(-vf_FragPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
-        vec3 specular = l.specular * spec * u_Material.specular;
+        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
 
-        return diffuse + specular;
+        // Spotlight soft edges
+        float theta = dot(lightDir, normalize(-l.direction));
+        float epsilon = (l.cutoff.x - l.cutoff.y);
+        float intensity = clamp((theta - l.cutoff.y) / epsilon, 0.0, 1.0);
+        ambient *= intensity;
+        diffuse *= intensity;
+        specular *= intensity;
+
+        // Attenuation
+        float dist = length(l.position - vf_FragPosition);
+        float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
+        ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
+
+        return ambient + diffuse + specular;
     }
 
 #endif
@@ -132,15 +227,39 @@ void main()
     // Assign the initial color
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
-        JMAT_AMBIENT * vec3(texture(u_DiffuseMap, vf_TexCoords));
+        #ifdef JMAT_DIFFUSEMAP
+            JMAT_AMBIENT * vec3(texture(u_DiffuseMap, vf_TexCoords));
+        #else
+            JMAT_AMBIENT;
+        #endif
     #else
         vec3(0.0, 0.0, 0.0);
     #endif
 
     // Do lighting calculations
     #if defined(JMAT_PHONG)
+        // Point lights
         for (uint i = 0u; i < u_NumPointLights; ++i)
             tempColor += calculatePointLight(i);
+
+        // Directional lights
+        for (uint i = 0u; i < u_NumDirectionalLights; ++i)
+            tempColor += calculateDirectionalLight(i);
+
+        // Spot lights
+        for (uint i = 0u; i < u_NumSpotLights; ++i)
+            tempColor += calculateSpotLight(i);
+    #endif
+
+    // Emission
+    #ifdef JMAT_EMISSIONMAP
+        tempColor += u_Material.emission * vec3(texture(u_EmissionMap, vf_TexCoords));
+    #else
+        #ifdef JMAT_MATERIAL
+            tempColor += u_Material.emission;
+        #else
+            tempColor += u_Emission;
+        #endif
     #endif
 
     // Finally assign to the fragment output

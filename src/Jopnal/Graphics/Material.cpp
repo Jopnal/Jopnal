@@ -30,9 +30,11 @@ namespace
     static const int ns_ambIndex = static_cast<int>(jop::Material::Reflection::Ambient);
     static const int ns_diffIndex = static_cast<int>(jop::Material::Reflection::Diffuse);
     static const int ns_specIndex = static_cast<int>(jop::Material::Reflection::Specular);
+    static const int ns_emissIndex = static_cast<int>(jop::Material::Reflection::Emission);
 
     static const int ns_diffMapIndex = static_cast<int>(jop::Material::Map::Diffuse);
     static const int ns_specMapIndex = static_cast<int>(jop::Material::Map::Specular);
+    static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
 }
 
 namespace jop
@@ -41,6 +43,7 @@ namespace jop
                                                            | Material::Attribute::Material
                                                            | Material::Attribute::Diffusemap
                                                            | Material::Attribute::Specularmap
+                                                           | Material::Attribute::Emissionmap
                                                            | Material::Attribute::Phong;
 
     //////////////////////////////////////////////
@@ -51,7 +54,14 @@ namespace jop
           m_shininess   (1.f),
           m_maps        ()
     {
-        setMap(Map::Diffuse, Texture::getDefault());
+        setReflection
+        (
+            Color::Black,
+            Color::White,
+            Color::White,
+            Color::White
+        )
+        .setMap(Map::Diffuse, Texture::getDefault());
     }
 
     //////////////////////////////////////////////
@@ -76,16 +86,20 @@ namespace jop
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
+                shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.shininess", m_shininess);
             }
             else
-                shader.setUniform("u_SolidColor", m_reflection[ns_ambIndex].asRGBFloatVector());
+                shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
             if (hasAttribute(Attribute::Diffusemap) && !m_maps[ns_diffMapIndex].expired())
                 shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
 
             if (hasAttribute(Attribute::Specularmap) && !m_maps[ns_specMapIndex].expired())
-                shader.setUniform("u_DiffuseMap", *m_maps[ns_specMapIndex], ns_specMapIndex);
+                shader.setUniform("u_SpecularMap", *m_maps[ns_specMapIndex], ns_specMapIndex);
+
+            if (hasAttribute(Attribute::Emissionmap) && !m_maps[ns_emissMapIndex].expired())
+                shader.setUniform("u_EmissionMap", *m_maps[ns_emissMapIndex], ns_emissMapIndex);
         }
     }
 
@@ -94,15 +108,17 @@ namespace jop
     Material& Material::setReflection(const Reflection reflection, const Color color)
     {
         m_reflection[static_cast<int>(reflection)] = color;
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    Material& Material::setReflection(const Color ambient, const Color diffuse, const Color specular)
+    Material& Material::setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission)
     {
-        return setReflection(Reflection::Ambient, ambient).setReflection(Reflection::Diffuse, diffuse).setReflection(Reflection::Specular, specular);
+        return setReflection(Reflection::Ambient, ambient)
+              .setReflection(Reflection::Diffuse, diffuse)
+              .setReflection(Reflection::Specular, specular)
+              .setReflection(Reflection::Emission, emission);
     }
 
     //////////////////////////////////////////////
@@ -117,7 +133,6 @@ namespace jop
     Material& Material::setShininess(const float value)
     {
         m_shininess = value;
-
         return *this;
     }
 

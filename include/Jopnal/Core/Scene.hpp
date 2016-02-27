@@ -80,7 +80,7 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        WeakReference<Object> cloneObject(const std::string& ID);
+        WeakReference<Object> cloneObject(const std::string& ID, const std::string& clonedID);
 
         /// \brief Method for deleting object 
         ///

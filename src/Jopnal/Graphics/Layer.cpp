@@ -145,13 +145,13 @@ namespace jop
 
         for (auto& i : m_boundLayers)
         {
-            if (!i.expired())
+            if (!i.expired() && !i->isActive())
             {
                 for (auto& j : i->m_drawList)
                 {
                     selectLights(lights, *j);
 
-                    if (!j.expired())
+                    if (!j.expired() && j->isActive())
                     {
                         selectLights(lights, *j);
                         j->draw(camera, lights);
@@ -164,7 +164,7 @@ namespace jop
 
         for (auto& i : m_drawList)
         {
-            if (!i.expired())
+            if (!i.expired() && i->isActive())
             {
                 selectLights(lights, *i);
                 i->draw(camera, lights);
@@ -214,12 +214,6 @@ namespace jop
 
     void Layer::addDrawable(Drawable& drawable)
     {
-        if (typeid(drawable) == typeid(Camera) || typeid(drawable) == typeid(LightSource))
-        {
-            JOP_DEBUG_WARNING("You must not bind cameras or light sources with addDrawable. Camera/LightSource was not bound");
-            return;
-        }
-
         m_drawList.emplace_back(static_ref_cast<Drawable>(drawable.getReference()));
         handleDrawableAddition(*m_drawList.back());
     }
@@ -334,7 +328,7 @@ namespace jop
 
             for (auto& i : m_lights)
             {
-                if (i.expired())
+                if (i.expired() || !i->isActive())
                     continue;
 
                 auto cont = selectContainer(*i, lights);
@@ -346,7 +340,10 @@ namespace jop
                     cont->push_back(i.get());
                 else
                 {
-                    cont->push_back(i.get());
+                    // TODO Take drawable bounds into account. Current approach could produce artifacts
+
+                    if ((i->getObject()->extractPosition() - drawable.getObject()->extractPosition()).length() <= i->getAttenuation(LightSource::Attenuation::Range))
+                        cont->push_back(i.get());
                 }
             }
         }

@@ -51,10 +51,11 @@ namespace jop
             enum : AttribType
             {
                 AmbientConstant = 1,
-                Material = AmbientConstant << 1,
-                Diffusemap = Material << 1,
-                Specularmap = Diffusemap << 1,
-                Phong = Diffusemap << 1
+                Material        = 1 << 1,
+                Diffusemap      = 1 << 2,
+                Specularmap     = 1 << 3,
+                Emissionmap     = 1 << 4,
+                Phong           = 1 << 5
             };
         };
 
@@ -66,7 +67,9 @@ namespace jop
         {
             Ambient,
             Diffuse,
-            Specular
+            Specular,
+            Emission,
+            Solid = Emission
         };
 
         /// The map attribute
@@ -74,7 +77,38 @@ namespace jop
         enum class Map
         {
             Diffuse,
-            Specular
+            Specular,
+            Emission
+        };
+
+        /// Predefined material properties
+        ///
+        enum class Property
+        {
+            Emerald,
+            Jade,
+            Obsidian,
+            Pearl,
+            Ruby,
+            Turquoise,
+            Brass,
+            Bronze,
+            Chrome,
+            Copper,
+            Gold,
+            Silver,
+            BlackPlastic,
+            CyanPlastic,
+            GreenPlastic,
+            RedPlastic,
+            WhitePlastic,
+            YellowPlastic,
+            BlackRubber,
+            CyanRubber,
+            GreenRubber,
+            RedRubber,
+            WhiteRubber,
+            YellowRubber
         };
 
     public:
@@ -110,7 +144,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Color ambient, const Color diffuse, const Color specular);
+        Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
 
         /// \brief Get a reflection value
         ///
@@ -167,10 +201,10 @@ namespace jop
 
     private:
 
-        std::array<Color, 3> m_reflection;                  ///< The reflection values
+        std::array<Color, 4> m_reflection;                  ///< The reflection values
         AttribType m_attributes;                            
         float m_shininess;                                  ///< The shininess factor
-        std::array<WeakReference<const Texture>, 2> m_maps; ///< An array with the bound maps
+        std::array<WeakReference<const Texture>, 3> m_maps; ///< An array with the bound maps
 
     };
 }

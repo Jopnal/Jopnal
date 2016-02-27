@@ -86,10 +86,12 @@ namespace jop
         : Drawable      (object, ID),
           m_type        (Type::Point),
           m_intensities (),
-          m_attenuation (1.f, 0.7f, 1.8f, 7.f),
-          m_cutoff      (10.f, 20.f)
+          m_attenuation (1.f, 1.f, 2.f, 5.f),
+          m_cutoff      (10.f, 10.f)
     {
-        std::memset(m_intensities.data(), 255, m_intensities.size() * sizeof(Color));
+        m_intensities[0] = Color::Black;    // Ambient
+        m_intensities[1] = Color::White;    // Diffuse
+        m_intensities[2] = Color::White;    // Specular
     }
 
     //////////////////////////////////////////////
@@ -159,6 +161,31 @@ namespace jop
     {
         m_attenuation = glm::vec4(constant, linear, quadratic, range);
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setAttenuation(const AttenuationPreset preset)
+    {
+        static const glm::vec4 att[] =
+        {
+            //         Range    Constant    Linear      Quadratic
+            glm::vec4( 7.f,     1.f,        0.7f,       1.8f),
+            glm::vec4( 13.f,    1.f,        0.35f,      0.44f),
+            glm::vec4( 20.f,    1.f,        0.22f,      0.20f),
+            glm::vec4( 32.f,    1.f,        0.14f,      0.07f),
+            glm::vec4( 50.f,    1.f,        0.09f,      0.032f),
+            glm::vec4( 65.f,    1.f,        0.07f,      0.017f),
+            glm::vec4( 100.f,   1.f,        0.045f,     0.0075f),
+            glm::vec4( 160.f,   1.f,        0.27f,      0.0028f),
+            glm::vec4( 200.f,   1.f,        0.22f,      0.0019f),
+            glm::vec4( 325.f,   1.f,        0.14f,      0.0007f),
+            glm::vec4( 600.f,   1.f,        0.007f,     0.0002f),
+            glm::vec4( 3250.f,  1.f,        0.0014f,    0.000007f)
+        };
+
+        auto& v = att[static_cast<int>(preset)];
+        return setAttenuation(v[1], v[2], v[3], v[0]);
     }
 
     //////////////////////////////////////////////
@@ -241,7 +268,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
+    void LightContainer::sendToShader(Shader& shader) const
     {
         // Point lights
         {
@@ -277,7 +304,7 @@ namespace jop
                 const std::string indexed = "u_DirectionalLights[" + std::to_string(i) + "].";
 
                 // Direction
-                shader.setUniform(indexed + "direction", li.getObject()->getDirection());
+                shader.setUniform(indexed + "direction", li.getObject()->getFront());
                 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
@@ -297,10 +324,10 @@ namespace jop
                 const std::string indexed = "u_SpotLights[" + std::to_string(i) + "].";
 
                 // Position
-                shader.setUniform(indexed + "position", camera.getObject()->getPosition());
+                shader.setUniform(indexed + "position", li.getObject()->extractPosition());
 
                 // Direction
-                shader.setUniform(indexed + "direction", li.getObject()->getDirection());
+                shader.setUniform(indexed + "direction", li.getObject()->getFront());
 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
@@ -311,7 +338,7 @@ namespace jop
                 shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
 
                 // Cutoff
-                shader.setUniform(indexed + "cutoff", li.getCutoff());
+                shader.setUniform(indexed + "cutoff", glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));
             }
         }
     }

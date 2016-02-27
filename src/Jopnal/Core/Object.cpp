@@ -83,7 +83,30 @@ namespace jop
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
+        {
             m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+            m_components.back()->m_objectRef = getReference();
+        }
+
+        m_children.reserve(other.m_children.size());
+        for (auto& i : other.m_children)
+            m_children.emplace_back(i);
+    }
+
+    Object::Object(const Object& other, const std::string& newName)
+        : Transform(other),
+        SafeReferenceable<Object>(this),
+        m_children(),
+        m_components(),
+        m_ID(newName),
+        m_active(other.m_active)
+    {
+        m_components.reserve(other.m_components.size());
+        for (auto& i : other.m_components)
+        {
+            m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+            m_components.back()->m_objectRef = getReference();
+        }
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
@@ -91,12 +114,12 @@ namespace jop
     }
 
     Object::Object(Object&& other)
-        : Transform                 (other),
-          SafeReferenceable<Object> (std::move(other)),
-          m_children                (std::move(other.m_children)),
-          m_components              (std::move(other.m_components)),
-          m_ID                      (other.m_ID),
-          m_active                  (other.m_active)
+        : Transform(other),
+        SafeReferenceable<Object>(std::move(other)),
+        m_children(std::move(other.m_children)),
+        m_components(std::move(other.m_components)),
+        m_ID(other.m_ID),
+        m_active(other.m_active)
     {}
 
     Object& Object::operator=(Object&& other)

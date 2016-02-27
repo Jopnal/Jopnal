@@ -102,11 +102,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 Transform::getDirection() const
+    glm::vec3 Transform::getFront() const
     {
-        auto& mat = getMatrix();
+        auto& m = getMatrix();
+        return glm::vec3(m[0][2], m[1][2], m[2][2]);
+    }
 
-        return glm::vec3(mat[2][0], mat[2][1], mat[2][2]);
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getRight() const
+    {
+        auto& m = getMatrix();
+        return glm::vec3(m[0][0], m[1][0], m[2][0]);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getUp() const
+    {
+        auto& m = getMatrix();
+        return glm::vec3(m[0][1], m[1][1], m[2][1]);
     }
 
     //////////////////////////////////////////////

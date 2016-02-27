@@ -93,6 +93,10 @@ namespace jop
         if ((attrib & m::Specularmap) != 0)
             str += "#define JMAT_SPECULARMAP\n";
 
+        // Emission map
+        if ((attrib & m::Emissionmap) != 0)
+            str += "#define JMAT_EMISSIONMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =

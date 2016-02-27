@@ -85,7 +85,7 @@ namespace jop
             s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
             // Set lights
-            lights.sendToShader(s, camera);
+            lights.sendToShader(s);
         }
 
         // Use indices if they exist
@@ -99,9 +99,6 @@ namespace jop
         }
         else
         {
-            // Unbind the index buffer in case there is one bound
-            Buffer::unbind(Buffer::BufferType::ElementArrayBuffer);
-
             glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mod.getVertexAmount()));
         }
     }

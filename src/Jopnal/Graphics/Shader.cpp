@@ -439,7 +439,7 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").getReference());
+            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_default").getReference());
 
             JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
                                             "",

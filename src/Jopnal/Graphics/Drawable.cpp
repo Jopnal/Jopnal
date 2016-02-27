@@ -45,6 +45,19 @@ namespace jop
           m_receiveLights   (true)
     {}
 
+    //////////////////////////////////////////////
+
+    Drawable::Drawable(const Drawable& other)
+        : Component(other),
+          m_model(other.m_model),
+          m_boundToLayers(),
+          m_shader(other.m_shader),
+          m_receiveLights(other.m_receiveLights)
+    {
+        for (auto& i : other.m_boundToLayers)
+            i->addDrawable(*this);
+    }
+
     Drawable::~Drawable()
     {
         for (auto itr = m_boundToLayers.begin(); itr != m_boundToLayers.end(); ++itr)
@@ -161,7 +174,7 @@ namespace jop
             {
                 auto& refl = mat["reflection"];
                 if (refl[0u].IsUint() && refl[1u].IsUint() && refl[2u].IsUint())
-                    material.setReflection(Color(refl[0u].GetUint()), Color(refl[1u].GetUint()), Color(refl[2u].GetUint()));
+                    material.setReflection(Color(refl[0u].GetUint()), Color(refl[1u].GetUint()), Color(refl[2u].GetUint()), Color());
                 else
                     JOP_DEBUG_WARNING("Unexpected material reflection values encountered while loading Drawable with id \"" << drawable.getID() << "\", resorting to default");
             }

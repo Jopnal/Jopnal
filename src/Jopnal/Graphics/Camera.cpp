@@ -131,7 +131,7 @@ namespace jop
         {
             setID("PerspCamera");
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
-            setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 80.f));
+            setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
             setSize(x, y);
         }
     }
@@ -272,7 +272,7 @@ namespace jop
 
     const Camera& Camera::getDefault()
     {
-        static Object obj("Default Camera Object");
+        static Object obj("jop_default_camera_object");
         static const Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
         return cam;
     }

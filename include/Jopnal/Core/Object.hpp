@@ -62,6 +62,10 @@ namespace jop
         ///
         Object(const Object& other);
 
+        /// \brief Overloaded copy constructor
+        ///
+        Object(const Object& other, const std::string& newName);
+
         /// \brief Move constructor
         ///
         Object(Object&& other);

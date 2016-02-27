@@ -307,7 +307,8 @@ namespace jop
 
             material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[3], mat.dissolve),
                                    Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], mat.dissolve),
-                                   Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve))
+                                   Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve),
+                                   Color(mat.emission[0], mat.emission[1], mat.emission[2], mat.dissolve))
                                    .setShininess(mat.shininess);
             
             // The default texture will be used in case of failure
@@ -375,7 +376,7 @@ namespace jop
 
         if (defMesh.expired())
         {
-            defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("Default Mesh").getReference());
+            defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("jop_default_mesh").getReference());
 
             JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
 
