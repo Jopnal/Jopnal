@@ -25,6 +25,26 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_REGISTER_LOADABLE(jop, Material)[](const void*, const json::Value& val) -> bool
+    {
+
+    }
+    JOP_END_LOADABLE_REGISTRATION(Material)
+
+    JOP_REGISTER_SAVEABLE(jop, Material)[](const void* material, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        auto& ref = *static_cast<const Material*>(material);
+
+        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
+        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+
+
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Material);
+}
+
 namespace
 {
     static const int ns_ambIndex = static_cast<int>(jop::Material::Reflection::Ambient);
@@ -48,8 +68,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material::Material()
-        : m_reflection  (),
+    Material::Material(const std::string& name)
+        : Resource      (name),
+          m_reflection  (),
           m_attributes  (DefaultAttributes),
           m_shininess   (1.f),
           m_maps        ()
@@ -66,13 +87,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material::Material(const AttribType attributes)
-        : m_reflection  (),
+    Material::Material(const std::string& name, const AttribType attributes)
+        : Resource      (name),
+          m_reflection  (),
           m_attributes  (attributes),
           m_shininess   (1.f),
           m_maps        ()
     {
-        setMap(Map::Diffuse, Texture::getDefault());
+        setReflection
+        (
+            Color::Black,
+            Color::White,
+            Color::White,
+            Color::White
+        )
+        .setMap(Map::Diffuse, Texture::getDefault());
     }
 
     //////////////////////////////////////////////
@@ -167,6 +196,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Material::AttribType jop::Material::getAttributeField() const
+    {
+        return m_attributes;
+    }
+
+    //////////////////////////////////////////////
+
     bool Material::hasAttribute(const AttribType attrib) const
     {
         return (m_attributes & attrib) != 0;
@@ -174,9 +210,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Material& Material::getDefault()
+    Material& Material::getDefault()
     {
-        static Material def(Attribute::Diffusemap);
+        static Material def("jop_default_material", Attribute::Diffusemap);
         return def;
     }
 }

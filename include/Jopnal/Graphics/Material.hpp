@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <memory>
 #include <array>
 
@@ -36,7 +37,7 @@ namespace jop
     class Shader;
     class Texture;
 
-    class JOP_API Material
+    class JOP_API Material final : public Resource
     {
     public:
 
@@ -115,9 +116,9 @@ namespace jop
 
         /// \brief Default constructor
         ///
-        Material();
+        Material(const std::string& name);
 
-        Material(const AttribType attributes);
+        Material(const std::string& name, const AttribType attributes);
         
 
         /// \brief Send this material to a shader
@@ -190,6 +191,9 @@ namespace jop
         void setAttributeField(const AttribType attribs);
 
 
+        AttribType getAttributeField() const;
+
+
         bool hasAttribute(const AttribType attrib) const;
 
 
@@ -197,7 +201,7 @@ namespace jop
         ///
         /// \return Reference to the default material
         ///
-        static const Material& getDefault();
+        static Material& getDefault();
 
     private:
 

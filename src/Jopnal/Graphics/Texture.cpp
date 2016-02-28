@@ -176,7 +176,7 @@ namespace jop
         }
         else if (!checkDepthValid(bytesPerPixel))
         {
-            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 3 or 4");
+            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 1, 3 or 4");
             return false;
         }
 

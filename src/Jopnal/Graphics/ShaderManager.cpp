@@ -59,7 +59,10 @@ namespace jop
         std::string pp;
         getPreprocessDef(attributes, pp);
 
-        return ResourceManager::getNamedResource<Shader>(shaderName, uber[0], "", uber[2], pp);
+        auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], "", uber[2], pp);
+        s.setManaged(true);
+
+        return s;
     }
 
     //////////////////////////////////////////////

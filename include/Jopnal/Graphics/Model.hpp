@@ -80,15 +80,15 @@ namespace jop
         ///
         /// \param mesh Reference to the mesh
         ///
-        void setMesh(const Mesh& mesh);
+        Model& setMesh(const Mesh& mesh);
 
         /// \brief Get the material
         ///
         /// \return Reference to the material
         ///
-        const Material& getMaterial() const;
+        WeakReference<const Material> getMaterial() const;
 
-        Material& getMaterial();
+        WeakReference<Material> getMaterial();
 
         /// \brief Set the material
         ///
@@ -97,7 +97,7 @@ namespace jop
         ///
         /// \param material The new material
         ///
-        void setMaterial(const Material& material);
+        Model& setMaterial(const Material& material);
 
         
         /// \copydoc Mesh::getVertexAmount()
@@ -119,7 +119,7 @@ namespace jop
 
     private:
 
-        Material m_material;                ///< The material
+        WeakReference<Material> m_material;                ///< The material
         WeakReference<const Mesh> m_mesh;   ///< The mesh
 
     };

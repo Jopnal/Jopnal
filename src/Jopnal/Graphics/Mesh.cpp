@@ -153,7 +153,7 @@ namespace jop
 
     bool Mesh::load(const std::string& filePath, const LoadOptions& options)
     {
-        Material mat;
+        Material mat("");
         return load(filePath, mat, options);
     }
 

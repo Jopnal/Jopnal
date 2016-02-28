@@ -97,7 +97,7 @@ namespace jop
 
                 if (redirItr == nameMap.end() || (itr = subCont.find(redirItr->second)) == subCont.end())
                 {
-                    JOP_DEBUG_WARNING("Couldn't save subsystem with id \"" << i->getID() << "\". Type not registered. Attempting to load the rest: " << path);
+                    JOP_DEBUG_WARNING("Couldn't save subsystem with id \"" << i->getID() << "\". Type not registered. Attempting to save the rest: " << path);
                     continue;
                 }
 

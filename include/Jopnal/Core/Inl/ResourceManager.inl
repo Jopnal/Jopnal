@@ -23,7 +23,7 @@
 namespace detail
 {
     template<typename Str, typename ... Rest>
-    std::string getStringArg(const Str& str, const Rest&...)
+    std::string getStringArg(const Str& str, Rest&...)
     {
         static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
         
@@ -107,15 +107,15 @@ namespace detail
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& ResourceManager::getResource(const Args&... args)
+T& ResourceManager::getResource(Args&&... args)
 {
-    return getNamedResource<T>(detail::getStringArg(args...), args...);
+    return getNamedResource<T>(detail::getStringArg(args...), std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args> 
-T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
+T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 {
     if (resourceExists<T>(name))
         return getExistingResource<T>(name);
@@ -123,7 +123,7 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
     {
         auto res = std::make_unique<T>(name);
 
-        if (res->load(args...))
+        if (res->load(std::forward<Args>(args)...))
         {
             T& ptr = *res;
             m_instance->m_resources[name] = std::move(res);
@@ -137,7 +137,7 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-static T& ResourceManager::getEmptyResource(const Args&... args)
+static T& ResourceManager::getEmptyResource(Args&&... args)
 {
     detail::basicErrorCheck<T>(m_instance);
 
