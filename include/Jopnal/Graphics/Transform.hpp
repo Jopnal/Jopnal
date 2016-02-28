@@ -87,7 +87,7 @@ namespace jop
         ///
         /// \return Quaternion with the rotation
         ///
-        const glm::quat& getRotation() const;
+        glm::quat getRotation() const;
 
 
         glm::vec3 getFront() const;

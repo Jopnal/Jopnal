@@ -60,7 +60,7 @@ namespace jop
         getPreprocessDef(attributes, pp);
 
         auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], "", uber[2], pp);
-        s.setManaged(true);
+        //s.setManaged(true);
 
         return s;
     }

@@ -144,7 +144,16 @@ namespace jop
         }
 
         for (auto itr = layers.begin(); itr != layers.end(); ++itr)
-            (*itr)->addDrawable(drawable);
+        {   
+            if (typeid(drawable) == typeid(Camera))
+                (*itr)->setCamera(static_cast<Camera&>(drawable));
+
+            else if (typeid(drawable) == typeid(LightSource))
+                (*itr)->addLight(static_cast<LightSource&>(drawable));
+
+            else
+                (*itr)->addDrawable(drawable);
+        }
 
         if (val.HasMember("shader") && val["shader"].IsString())
         {

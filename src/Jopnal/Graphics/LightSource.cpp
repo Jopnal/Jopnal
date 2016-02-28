@@ -53,11 +53,41 @@ namespace jop
             if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
             {
                 light->setIntensity(Color(intArr[0u].GetUint()),
-                                   Color(intArr[1u].GetUint()),
-                                   Color(intArr[2u].GetUint()));
+                                    Color(intArr[1u].GetUint()),
+                                    Color(intArr[2u].GetUint()));
             }
             else
-                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource for object with id \"" << obj.getID() << "\"");
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource intensity for object with id \"" << obj.getID() << "\"");
+        }
+
+        const char* const attField = "attenuation";
+        if (val.HasMember(attField) && val[attField].IsArray() && val[attField].Size() >= 4)
+        {
+            auto& attArr = val[attField];
+
+            if (attArr[0u].IsDouble() && attArr[1u].IsDouble() && attArr[2u].IsDouble() && attArr[3u].IsDouble())
+            {
+                light->setAttenuation(static_cast<float>(attArr[0u].GetDouble()),
+                                      static_cast<float>(attArr[1u].GetDouble()),
+                                      static_cast<float>(attArr[2u].GetDouble()),
+                                      static_cast<float>(attArr[3u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource attenuation for object with id \"" << obj.getID() << "\"");
+        }
+
+        const char* const coField = "cutoff";
+        if (val.HasMember(coField) && val[coField].IsArray() && val[coField].Size() >= 2)
+        {
+            auto& coArr = val[coField];
+
+            if (coArr[0u].IsDouble() && coArr[1u].IsDouble())
+            {
+                light->setCutoff(static_cast<float>(coArr[0u].GetDouble()),
+                                 static_cast<float>(coArr[1u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource cutoff for object with id \"" << obj.getID() << "\"");
         }
 
         return Drawable::loadStateBase(*light, scene, val);
@@ -70,10 +100,20 @@ namespace jop
 
         val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
 
-        auto& intArr = val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"];
-        intArr.PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
-              .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
-              .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+        val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"]
+           .PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
+           .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
+           .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+
+        val.AddMember(json::StringRef("attenuation"), json::kArrayType, alloc)["attenuation"]
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Constant), alloc)
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Linear), alloc)
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Quadratic), alloc)
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Range), alloc);
+
+        val.AddMember(json::StringRef("cutoff"), json::kArrayType, alloc)["cutoff"]
+           .PushBack(light.getCutoff().x, alloc)
+           .PushBack(light.getCutoff().y, alloc);
 
         return Drawable::saveStateBase(light, val, alloc);
     }

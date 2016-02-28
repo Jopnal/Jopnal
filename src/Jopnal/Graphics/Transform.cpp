@@ -95,9 +95,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::quat& Transform::getRotation() const
+    glm::quat Transform::getRotation() const
     {
-        return m_rotation;
+        return glm::conjugate(m_rotation);
     }
 
     //////////////////////////////////////////////
