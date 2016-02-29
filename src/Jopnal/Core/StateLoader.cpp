@@ -142,6 +142,22 @@ namespace jop
 
     bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        class LoadFlagger
+        {
+            JOP_DISALLOW_COPY(LoadFlagger);
+            bool& m_flag;
+        public:
+            LoadFlagger(bool& flag)
+                : m_flag(flag)
+            {
+                flag = true;
+            }
+            ~LoadFlagger()
+            {
+                m_flag = false;
+            }
+        } loadingFlag(getInstance().m_loading);
+
         if (!scene && !sharedScene && !subsystems)
         {
             JOP_DEBUG_ERROR("Didn't load state; scene, sharedScene and subsystems are false: " << path);
@@ -244,6 +260,13 @@ namespace jop
     const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer()
     {
         return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::currentlyLoading()
+    {
+        return getInstance().m_loading;
     }
 
     //////////////////////////////////////////////

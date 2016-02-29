@@ -55,7 +55,8 @@ namespace detail
         {
             static void print()
             {
-                JOP_DEBUG_WARNING("No Layer passed to createComponent() when type was \"" << typeid(T).name() << "\", won't be automatically used in drawing");
+                if (!StateLoader::currentlyLoading())
+                    JOP_DEBUG_WARNING("No Layer passed to createComponent() when type was \"" << typeid(T).name() << "\", won't be automatically used in drawing");
             }
         };
     #endif

@@ -186,6 +186,8 @@ namespace jop
         ///
         static const std::unordered_map<std::type_index, std::string>& getSavenameContainer();
 
+        static bool currentlyLoading();
+
     private:
 
         bool loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
@@ -220,6 +222,7 @@ namespace jop
             std::unordered_map<std::type_index, std::string>
 
         > m_loaderSavers;
+        bool m_loading;
 
     };
 
