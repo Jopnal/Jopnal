@@ -206,7 +206,7 @@ namespace jop
         ///
         /// \return Const reference to the camera
         ///
-        static const Camera& getDefault();
+        static Camera& getDefault();
 
     private:
 
