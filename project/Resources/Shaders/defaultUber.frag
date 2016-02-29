@@ -3,9 +3,10 @@
 //////////////////////////////////////////////
 
 // Attributes from vertex shader
-in vec3 vf_Position;
 in vec2 vf_TexCoords;
 in vec3 vf_Normal;
+
+uniform vec3 u_CameraPosition;
 
 // Fragment position from vertex shader
 in vec3 vf_FragPosition;
@@ -122,8 +123,8 @@ in vec3 vf_FragPosition;
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
 
-        // Direction from fragment to eye (eye is always at [0,0,0])
-        vec3 viewDir = normalize(-vf_FragPosition);
+        // Direction from fragment to eye
+        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
         // Calculate reflection direction
         vec3 reflectDir = reflect(-lightDir, norm);
@@ -162,7 +163,7 @@ in vec3 vf_FragPosition;
         vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
 
         // Direction from fragment to eye
-        vec3 viewDir = normalize(-vf_FragPosition);
+        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
         // Calculate reflection direction
         vec3 reflectDir = reflect(-lightDir, norm);
@@ -196,7 +197,7 @@ in vec3 vf_FragPosition;
         vec3 diffuse = l.diffuse * diff * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
 
         // Specular impact
-        vec3 viewDir = normalize(-vf_FragPosition);
+        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
         vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));

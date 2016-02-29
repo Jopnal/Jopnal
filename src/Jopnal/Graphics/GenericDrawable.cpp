@@ -80,11 +80,11 @@ namespace jop
         {
             if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Phong))
             {
-                s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(camera.getViewMatrix() * modelMat))));
+                s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
                 // Set lights
-                lights.sendToShader(s);
+                lights.sendToShader(s, camera);
             }
 
             // Set material

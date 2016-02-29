@@ -177,7 +177,7 @@ namespace jop
 
         void clear();
 
-        void sendToShader(Shader& shader) const;
+        void sendToShader(Shader& shader, const Camera& camera) const;
 
         ContainerType& operator [](const LightSource::Type type);
 

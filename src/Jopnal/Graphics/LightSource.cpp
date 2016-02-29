@@ -308,8 +308,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader) const
+    void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
     {
+        // Send camera position to shader
+        shader.setUniform("u_CameraPosition", camera.getObject()->extractPosition());
+
         // Point lights
         {
             auto& points = (*this)[LightSource::Type::Point];

@@ -27,7 +27,7 @@ void main()
     vf_Normal = u_NMatrix * a_Normal;
 
     // Calculate and assign fragment position
-    vf_FragPosition = vec3(u_VMatrix * u_MMatrix * vec4(a_Position, 1.0));
+    vf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
 
     // Calculate and assign position
     gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * vec4(a_Position, 1.0);
