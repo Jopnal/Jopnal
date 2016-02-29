@@ -91,12 +91,20 @@ namespace jop
         ///
         glm::quat getRotation() const;
 
+        glm::quat getGlobalRotation() const;
 
-        glm::vec3 getFront() const;
 
-        glm::vec3 getRight() const;
+        glm::vec3 getGlobalFront() const;
 
-        glm::vec3 getUp() const;
+        glm::vec3 getGlobalRight() const;
+
+        glm::vec3 getGlobalUp() const;
+
+        glm::vec3 getLocalFront() const;
+
+        glm::vec3 getLocalRight() const;
+
+        glm::vec3 getLocalUp() const;
 
 
         /// \brief Set the scale
@@ -135,6 +143,8 @@ namespace jop
         ///
         const glm::vec3& getScale() const;
 
+        glm::vec3 getGlobalScale() const;
+
 
         /// \brief Set the position
         ///
@@ -161,7 +171,7 @@ namespace jop
         const glm::vec3& getPosition() const;
 
 
-        glm::vec3 extractPosition() const;
+        glm::vec3 getGlobalPosition() const;
 
 
         /// \brief Set this transform to look at a certain point

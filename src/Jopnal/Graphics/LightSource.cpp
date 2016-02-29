@@ -311,7 +311,7 @@ namespace jop
     void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
     {
         // Send camera position to shader
-        shader.setUniform("u_CameraPosition", camera.getObject()->extractPosition());
+        shader.setUniform("u_CameraPosition", camera.getObject()->getGlobalPosition());
 
         // Point lights
         {
@@ -324,7 +324,7 @@ namespace jop
                 const std::string indexed = "u_PointLights[" + std::to_string(i) + "].";
 
                 // Position
-                shader.setUniform(indexed + "position", li.getObject()->extractPosition());
+                shader.setUniform(indexed + "position", li.getObject()->getGlobalPosition());
 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
@@ -347,7 +347,7 @@ namespace jop
                 const std::string indexed = "u_DirectionalLights[" + std::to_string(i) + "].";
 
                 // Direction
-                shader.setUniform(indexed + "direction", li.getObject()->getFront());
+                shader.setUniform(indexed + "direction", li.getObject()->getGlobalFront());
                 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
@@ -367,10 +367,10 @@ namespace jop
                 const std::string indexed = "u_SpotLights[" + std::to_string(i) + "].";
 
                 // Position
-                shader.setUniform(indexed + "position", li.getObject()->extractPosition());
+                shader.setUniform(indexed + "position", li.getObject()->getGlobalPosition());
 
                 // Direction
-                shader.setUniform(indexed + "direction", li.getObject()->getFront());
+                shader.setUniform(indexed + "direction", li.getObject()->getGlobalFront());
 
                 // Intensity
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());

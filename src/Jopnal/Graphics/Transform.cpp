@@ -109,7 +109,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 Transform::getFront() const
+    glm::quat Transform::getGlobalRotation() const
+    {
+        return glm::conjugate(glm::quat_cast(getMatrix()));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getGlobalFront() const
     {
         auto& m = getMatrix();
         return glm::normalize(-glm::vec3(m[2][0], m[2][1], m[2][2]));
@@ -117,7 +124,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 Transform::getRight() const
+    glm::vec3 Transform::getGlobalRight() const
     {
         auto& m = getMatrix();
         return glm::normalize(glm::vec3(m[0][0], m[0][1], m[0][2]));
@@ -125,10 +132,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 Transform::getUp() const
+    glm::vec3 Transform::getGlobalUp() const
     {
         auto& m = getMatrix();
-        return glm::normalize(glm::vec3(m[0][1], m[1][1], m[2][1]));
+        return glm::normalize(glm::vec3(m[1][0], m[1][1], m[1][2]));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalFront() const
+    {
+        return m_rotation * Front;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalRight() const
+    {
+        return m_rotation * Right;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalUp() const
+    {
+        return m_rotation * Up;
     }
 
     //////////////////////////////////////////////
@@ -165,6 +193,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 Transform::getGlobalScale() const
+    {
+        auto& m = getMatrix();
+
+        // X axis
+        auto x = glm::length(glm::vec3(m[0][0], m[0][1], m[0][2]));
+
+        // Y axis
+        auto y = glm::length(glm::vec3(m[1][0], m[1][1], m[1][2]));
+
+        // Z axis
+        auto z = glm::length(glm::vec3(m[2][0], m[2][1], m[2][2]));
+
+        return glm::vec3(x, y, z);
+    }
+
+    //////////////////////////////////////////////
+
     Transform& Transform::setPosition(const float x, const float y, const float z)
     {
         m_position = glm::vec3(x, y, z);
@@ -190,10 +236,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 Transform::extractPosition() const
+    glm::vec3 Transform::getGlobalPosition() const
     {
         auto& mat = getMatrix();
-
         return glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
     }
 
@@ -216,7 +261,7 @@ namespace jop
 
     Transform& Transform::lookAt(const glm::vec3& point, const glm::vec3& up)
     {
-        m_invTransform = glm::lookAt(extractPosition(), point, up);
+        m_invTransform = glm::lookAt(getGlobalPosition(), point, up);
         m_transform = glm::inverse(m_invTransform);
         m_transformNeedUpdate = false;
         m_invTransformNeedsUpdate = false;
@@ -235,11 +280,7 @@ namespace jop
 
     Transform& Transform::move(const glm::vec3& offset)
     {
-        m_position += offset;
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setPosition(m_position + offset);
     }
 
     //////////////////////////////////////////////
@@ -253,11 +294,7 @@ namespace jop
 
     Transform& Transform::rotate(const glm::quat& rotation)
     {
-        m_rotation *= glm::conjugate(rotation);
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setRotation(glm::conjugate(m_rotation * glm::conjugate(rotation)));
     }
 
     //////////////////////////////////////////////
@@ -285,14 +322,7 @@ namespace jop
 
     Transform& Transform::scale(const glm::vec3& scale)
     {
-        m_scale.x *= scale.x;
-        m_scale.y *= scale.y;
-        m_scale.z *= scale.z;
-
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setScale(m_scale * scale);
     }
 
     //////////////////////////////////////////////

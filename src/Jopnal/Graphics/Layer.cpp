@@ -373,7 +373,7 @@ namespace jop
                 {
                     // TODO Take drawable bounds into account. Current approach could produce light "popping"
 
-                    if ((i->getObject()->extractPosition() - drawable.getObject()->extractPosition()).length() <= i->getAttenuation(LightSource::Attenuation::Range))
+                    if ((i->getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition()).length() <= i->getAttenuation(LightSource::Attenuation::Range))
                         cont->push_back(i.get());
                 }
             }

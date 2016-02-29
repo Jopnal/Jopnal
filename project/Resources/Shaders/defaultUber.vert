@@ -1,4 +1,6 @@
 // JOPNAL DEFAULT VERTEX UBERSHADER
+//
+// Jopnal license applies
 
 //////////////////////////////////////////////
 
@@ -11,7 +13,7 @@ layout(location = 2) in vec3 a_Normal;
 uniform mat4 u_PMatrix; // Perspective
 uniform mat4 u_VMatrix; // View
 uniform mat4 u_MMatrix; // Model
-uniform mat3 u_NMatrix; // Normal (is transpose(inverse(view * model)))
+uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
 // Vertex attributes to fragment shader
 out vec2 vf_TexCoords;

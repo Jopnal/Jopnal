@@ -1,29 +1,42 @@
 // JOPNAL DEFAULT FRAGMENT UBERSHADER
+//
+// Jopnal license applies
 
 //////////////////////////////////////////////
 
-// Attributes from vertex shader
-in vec2 vf_TexCoords;
-in vec3 vf_Normal;
-
-uniform vec3 u_CameraPosition;
-
-// Fragment position from vertex shader
-in vec3 vf_FragPosition;
+// Camera position
+#ifdef JMAT_PHONG
+    uniform vec3 u_CameraPosition;
+#endif
 
 // Diffuse map
 #ifdef JMAT_DIFFUSEMAP
     uniform sampler2D u_DiffuseMap;
+    #define JMAT_USE_TEXTURE
 #endif
 
 // Specular map
 #ifdef JMAT_SPECULARMAP
     uniform sampler2D u_SpecularMap;
+    #define JMAT_USE_TEXTURE
 #endif
 
 // Emission map
 #ifdef JMAT_EMISSIONMAP
     uniform sampler2D u_EmissionMap;
+    #define JMAT_USE_TEXTURE
+#endif
+
+// Attributes from vertex shader
+#if defined(JMAT_USE_TEXTURE)
+    in vec2 vf_TexCoords;
+#endif
+#ifdef JMAT_PHONG
+    // Normal vector
+    in vec3 vf_Normal;
+
+    // Fragment position from vertex shader
+    in vec3 vf_FragPosition;
 #endif
 
 // Surface material
@@ -111,17 +124,30 @@ in vec3 vf_FragPosition;
         PointLightInfo l = u_PointLights[index];
 
         // Ambient impact
-        vec3 ambient = u_Material.ambient * l.ambient;
+        vec3 ambient = l.ambient
+        #ifdef JMAT_MATERIAL
+            * u_Material.ambient
+        #endif
+        ;
+
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
 
-        // Direction from light to fragment
+        // Direction from fragment to light
         vec3 lightDir = normalize(l.position - vf_FragPosition);
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
+        vec3 diffuse = diff * l.diffuse
+        #ifdef JMAT_MATERIAL
+            * u_Material.diffuse
+        #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, vf_TexCoords))
+        #endif
+        ;
+
 
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
@@ -130,8 +156,21 @@ in vec3 vf_FragPosition;
         vec3 reflectDir = reflect(-lightDir, norm);
 
         // Specular impact
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
-        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
+        float spec =
+        #ifdef JMAT_MATERIAL
+            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+        #else
+            max(dot(viewDir, reflectDir), 0.0)
+        #endif
+        ;
+        vec3 specular = l.specular * spec
+        #ifdef JMAT_MATERIAL
+            * u_Material.specular
+        #endif
+        #ifdef JMAT_SPECULARMAP
+            * vec3(texture(u_SpecularMap, vf_TexCoords))
+        #endif
+        ;
 
         // Attenuation
         float dist = length(l.position - vf_FragPosition);
@@ -148,7 +187,12 @@ in vec3 vf_FragPosition;
         DirectionalLightInfo l = u_DirectionalLights[index];
 
         // Ambient impact
-        vec3 ambient = u_Material.ambient * l.ambient;
+        vec3 ambient = l.ambient
+        #ifdef JMAT_MATERIAL
+            * u_Material.ambient
+        #endif
+        ;
+
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
@@ -160,7 +204,14 @@ in vec3 vf_FragPosition;
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * l.diffuse * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
+        vec3 diffuse = l.diffuse * diff
+        #ifdef JMAT_MATERIAL
+            * u_Material.diffuse
+        #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, vf_TexCoords))
+        #endif
+        ;
 
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
@@ -169,8 +220,21 @@ in vec3 vf_FragPosition;
         vec3 reflectDir = reflect(-lightDir, norm);
 
         // Specular impact
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
-        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
+        float spec =
+        #ifdef JMAT_MATERIAL
+            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+        #else
+            max(dot(viewDir, reflectDir), 0.0)
+        #endif
+        ;
+        vec3 specular = l.specular * spec
+        #ifdef JMAT_MATERIAL
+            * u_Material.specular
+        #endif
+        #ifdef JMAT_SPECULARMAP
+            * vec3(texture(u_SpecularMap, vf_TexCoords))
+        #endif
+        ;
 
         // No attenuation calculations here
         // Directional Light is infinite, Directional Light is eternal
@@ -184,23 +248,52 @@ in vec3 vf_FragPosition;
         SpotLightInfo l = u_SpotLights[index];
 
         // Ambient impact
-        vec3 ambient = u_Material.ambient * l.ambient;
+        vec3 ambient = l.ambient
+        #ifdef JMAT_MATERIAL
+            * u_Material.ambient
+        #endif
+        ;
+
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
 
-        // Direction from light to fragment
+        // Direction from fragment to light
         vec3 lightDir = normalize(l.position - vf_FragPosition);
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = l.diffuse * diff * u_Material.diffuse * vec3(texture(u_DiffuseMap, vf_TexCoords));
+        vec3 diffuse = l.diffuse * diff
+        #ifdef JMAT_MATERIAL
+            * u_Material.diffuse
+        #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, vf_TexCoords))
+        #endif
+        ;
+
+        // Direction from fragment to eye
+        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
+
+        // Calculate reflection direction
+        vec3 reflectDir = reflect(-lightDir, norm);
 
         // Specular impact
-        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
-        vec3 specular = l.specular * spec * u_Material.specular * vec3(texture(u_SpecularMap, vf_TexCoords));
+        float spec =
+        #ifdef JMAT_MATERIAL
+            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+        #else
+            max(dot(viewDir, reflectDir), 0.0)
+        #endif
+        ;
+        vec3 specular = l.specular * spec
+        #ifdef JMAT_MATERIAL
+            * u_Material.specular
+        #endif
+        #ifdef JMAT_SPECULARMAP
+            * vec3(texture(u_SpecularMap, vf_TexCoords))
+        #endif
+        ;
 
         // Spotlight soft edges
         float theta = dot(lightDir, normalize(-l.direction));
@@ -210,10 +303,12 @@ in vec3 vf_FragPosition;
         diffuse *= intensity;
         specular *= intensity;
 
+
         // Attenuation
         float dist = length(l.position - vf_FragPosition);
         float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
         ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
+
 
         return ambient + diffuse + specular;
     }
@@ -254,7 +349,11 @@ void main()
 
     // Emission
     #ifdef JMAT_EMISSIONMAP
-        tempColor += u_Material.emission * vec3(texture(u_EmissionMap, vf_TexCoords));
+        #ifdef JMAT_MATERIAL
+            tempColor += u_Material.emission * vec3(texture(u_EmissionMap, vf_TexCoords));
+        #else
+            tempColor += vec3(texture(u_EmissionMap, vf_TexCoords));
+        #endif
     #else
         #ifdef JMAT_MATERIAL
             tempColor += u_Material.emission;
@@ -264,5 +363,5 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor.xyz, 1.0);
+    out_FinalColor = vec4(tempColor, 1.0);
 }
