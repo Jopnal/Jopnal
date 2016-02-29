@@ -86,7 +86,7 @@ namespace jop
 
     Transform& Transform::setRotation(const glm::quat& rotation)
     {
-        m_rotation = rotation;
+        m_rotation = glm::conjugate(rotation);
         m_transformNeedUpdate = true;
         m_invTransformNeedsUpdate = true;
 
@@ -95,9 +95,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Transform& Transform::setRotation(const float angle, const glm::vec3& axis)
+    {
+        return setRotation(glm::quat(angle, axis));
+    }
+
+    //////////////////////////////////////////////
+
     glm::quat Transform::getRotation() const
     {
-        return m_rotation;
+        return glm::conjugate(m_rotation);
     }
 
     //////////////////////////////////////////////
@@ -105,7 +112,7 @@ namespace jop
     glm::vec3 Transform::getFront() const
     {
         auto& m = getMatrix();
-        return glm::normalize(glm::vec3(m[0][2], m[1][2], m[2][2]));
+        return glm::normalize(-glm::vec3(m[2][0], m[2][1], m[2][2]));
     }
 
     //////////////////////////////////////////////
@@ -113,7 +120,7 @@ namespace jop
     glm::vec3 Transform::getRight() const
     {
         auto& m = getMatrix();
-        return glm::normalize(glm::vec3(m[0][0], m[1][0], m[2][0]));
+        return glm::normalize(glm::vec3(m[0][0], m[0][1], m[0][2]));
     }
 
     //////////////////////////////////////////////
@@ -195,12 +202,7 @@ namespace jop
     Transform& Transform::lookAt(const glm::vec3& point)
     {
         static const glm::vec3 upVec(0.f, 1.f, 0.f);
-
-        m_transform = glm::lookAt(m_position, point, upVec);
-        m_transformNeedUpdate = false;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return lookAt(point, upVec);
     }
 
     //////////////////////////////////////////////
@@ -208,6 +210,18 @@ namespace jop
     Transform& Transform::lookAt(const float x, const float y, const float z)
     {
         return lookAt(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::lookAt(const glm::vec3& point, const glm::vec3& up)
+    {
+        m_invTransform = glm::lookAt(extractPosition(), point, up);
+        m_transform = glm::inverse(m_invTransform);
+        m_transformNeedUpdate = false;
+        m_invTransformNeedsUpdate = false;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -239,7 +253,7 @@ namespace jop
 
     Transform& Transform::rotate(const glm::quat& rotation)
     {
-        m_rotation *= rotation;
+        m_rotation *= glm::conjugate(rotation);
         m_transformNeedUpdate = true;
         m_invTransformNeedsUpdate = true;
 
@@ -251,6 +265,13 @@ namespace jop
     Transform& Transform::rotate(const glm::vec3& rotation)
     {
         return rotate(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const float angle, const glm::vec3& axis)
+    {
+        return rotate(glm::angleAxis(angle, axis));
     }
 
     //////////////////////////////////////////////
@@ -290,4 +311,12 @@ namespace jop
         0.f, 0.f, 1.f, 0.f,
         0.f, 0.f, 0.f, 1.f
     );
+
+    //////////////////////////////////////////////
+
+    const glm::vec3 Transform::Front(0.f, 0.f, -1.f);
+
+    const glm::vec3 Transform::Right(1.f, 0.f, 0.f);
+
+    const glm::vec3 Transform::Up(0.f, 1.f, 0.f);
 }

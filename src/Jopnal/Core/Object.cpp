@@ -57,29 +57,29 @@ namespace jop
 {
     Object::Object()
         : Transform                 (),
+          Activateable              (true),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (),
-          m_active                  (true)
+          m_ID                      ()
     {}
 
     Object::Object(const std::string& ID)
         : Transform                 (),
+          Activateable              (true),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (ID),
-          m_active                  (true)
+          m_ID                      (ID)
     {}
 
     Object::Object(const Object& other)
         : Transform                 (other),
+          Activateable              (other.isActive()),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (other.m_ID),
-          m_active                  (other.m_active)
+          m_ID                      (other.m_ID)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -94,12 +94,12 @@ namespace jop
     }
 
     Object::Object(const Object& other, const std::string& newName)
-        : Transform(other),
-        SafeReferenceable<Object>(this),
-        m_children(),
-        m_components(),
-        m_ID(newName),
-        m_active(other.m_active)
+        : Transform                 (other),
+          Activateable              (other.isActive()),
+          SafeReferenceable<Object> (this),
+          m_children                (),
+          m_components              (),
+          m_ID                      (newName)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -114,12 +114,12 @@ namespace jop
     }
 
     Object::Object(Object&& other)
-        : Transform(other),
-        SafeReferenceable<Object>(std::move(other)),
-        m_children(std::move(other.m_children)),
-        m_components(std::move(other.m_components)),
-        m_ID(other.m_ID),
-        m_active(other.m_active)
+        : Transform                 (other),
+          Activateable              (other.isActive()),
+          SafeReferenceable<Object> (std::move(other)),
+          m_children                (std::move(other.m_children)),
+          m_components              (std::move(other.m_components)),
+          m_ID                      (std::move(other.m_ID))
     {}
 
     Object& Object::operator=(Object&& other)
@@ -127,10 +127,11 @@ namespace jop
         Transform::operator =(other);
         SafeReferenceable<Object>::operator=(std::move(other));
 
-        m_children = std::move(other.m_children);
-        m_components = std::move(other.m_components);
-        m_ID = std::move(other.m_ID);
-        m_active = other.m_active;
+        m_children      = std::move(other.m_children);
+        m_components    = std::move(other.m_components);
+        m_ID            = std::move(other.m_ID);
+
+        setActive(other.isActive());
 
         return *this;
     }
@@ -327,21 +328,6 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
-    }
-
-
-    //////////////////////////////////////////////
-
-    void Object::setActive(const bool active)
-    {
-        m_active = active;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Object::isActive() const
-    {
-        return m_active;
     }
 
     //////////////////////////////////////////////

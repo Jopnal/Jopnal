@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <vector>
 #include <memory>
@@ -36,7 +37,7 @@ namespace jop
     class Object;
     class Layer;
 
-    class JOP_API Scene 
+    class JOP_API Scene : public Activateable
     {
     public:
 
@@ -181,16 +182,6 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
-
         /// \brief Update method for scene
         ///
         /// \param deltaTime Double holding time step
@@ -269,7 +260,6 @@ namespace jop
         std::vector<Object> m_objects;         ///< Container holding objects
         mutable std::vector<std::unique_ptr<Layer>> m_layers;   ///< Container holding layers
         std::string m_ID;                                       ///< String holding scene identifier
-        bool m_active;                                          ///< Boolean set to active
     };
 
     // Include the template implementation file

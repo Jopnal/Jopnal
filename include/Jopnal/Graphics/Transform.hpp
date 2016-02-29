@@ -75,6 +75,8 @@ namespace jop
         ///
         Transform& setRotation(const glm::vec3& rotation);
 
+        Transform& setRotation(const float angle, const glm::vec3& axis);
+
         /// \brief Set the rotation
         ///
         /// \param rotation Quaternion with the rotation to set
@@ -171,6 +173,8 @@ namespace jop
         ///
         Transform& lookAt(const glm::vec3& point);
 
+        Transform& lookAt(const glm::vec3& point, const glm::vec3& up);
+
         /// \brief Set this transform to look at a certain point
         ///
         /// This function will override the position, scale and rotation until
@@ -183,7 +187,6 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& lookAt(const float x, const float y, const float z);
-
 
         /// \brief Move this transform
         ///
@@ -229,6 +232,8 @@ namespace jop
         /// \return Reference to self
         ///
         Transform& rotate(const glm::vec3& rotation);
+
+        Transform& rotate(const float angle, const glm::vec3& axis);
         
 
         /// \brief Scale this transform
@@ -264,6 +269,10 @@ namespace jop
         /// The identity matrix
         ///
         static const glm::mat4 IdentityMatrix;
+
+        static const glm::vec3 Front;
+        static const glm::vec3 Right;
+        static const glm::vec3 Up;
 
     protected:
 

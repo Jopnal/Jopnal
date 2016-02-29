@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
@@ -38,7 +39,7 @@ namespace jop
 {
     class Layer;
 
-    class JOP_API Object : public Transform, public SafeReferenceable<Object>
+    class JOP_API Object : public Transform, public Activateable, public SafeReferenceable<Object>
     {
     private:
 
@@ -190,16 +191,6 @@ namespace jop
         ///
         void setID(const std::string& ID);
 
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
-
         /// \brief Update method for object - forwarded for its components
         ///
         /// \param deltaTime Double holding delta time
@@ -223,7 +214,6 @@ namespace jop
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
-        bool m_active;                                        ///< Boolean unit used as activity state
     };
 
     // Include the template implementation file

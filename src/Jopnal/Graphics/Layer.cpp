@@ -145,7 +145,7 @@ namespace jop
 
         for (auto& i : m_boundLayers)
         {
-            if (!i.expired() && !i->isActive())
+            if (!i.expired() && i->isActive())
             {
                 for (auto& j : i->m_drawList)
                 {

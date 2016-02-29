@@ -142,9 +142,11 @@ namespace jop
 
     bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        #pragma warning(push)
+        #pragma warning(disable: 4822)
         class LoadFlagger
         {
-            JOP_DISALLOW_COPY(LoadFlagger);
+            JOP_DISALLOW_COPY_MOVE(LoadFlagger);
             bool& m_flag;
         public:
             LoadFlagger(bool& flag)
@@ -157,6 +159,7 @@ namespace jop
                 m_flag = false;
             }
         } loadingFlag(getInstance().m_loading);
+        #pragma warning(pop)
 
         if (!scene && !sharedScene && !subsystems)
         {

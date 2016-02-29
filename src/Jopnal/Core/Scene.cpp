@@ -64,10 +64,10 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : m_objects         (),
+        : Activateable      (true),
+          m_objects         (),
           m_layers          (),
-          m_ID              (ID),
-          m_active          (true)
+          m_ID              (ID)
     {}
 
     Scene::~Scene()
@@ -251,19 +251,6 @@ namespace jop
         }
 
         return Message::Result::Continue;
-    }
-    //////////////////////////////////////////////
-
-    void Scene::setActive(const bool active)
-    {
-        m_active = active;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Scene::isActive() const
-    {
-        return m_active;
     }
 
     //////////////////////////////////////////////

@@ -64,6 +64,7 @@
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
@@ -127,6 +128,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />

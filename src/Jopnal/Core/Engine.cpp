@@ -168,13 +168,10 @@ namespace jop
 
             // Draw
             {
-                if (!isPaused())
-                {
-                    if (m_currentScene)
-                        m_currentScene->drawBase();
+                if (m_currentScene)
+                    m_currentScene->drawBase();
 
-                    m_sharedScene->drawBase();
-                }
+                m_sharedScene->drawBase();
 
                 for (auto& i : m_subsystems)
                 {
