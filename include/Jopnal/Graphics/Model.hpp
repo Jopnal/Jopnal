@@ -42,8 +42,6 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param name Name of this model
-        ///
         Model();
 
         /// \brief Constructor for initializing with a mesh
@@ -80,17 +78,19 @@ namespace jop
         ///
         /// \param mesh Reference to the mesh
         ///
+        /// \return Reference to self
+        ///
         Model& setMesh(const Mesh& mesh);
 
         /// \brief Get the material
         ///
         /// \return Reference to the material
         ///
-        WeakReference<const Material> getMaterial() const;
+        WeakReference<Material> getMaterial();
 
         /// \copydoc getMaterial()
         ///
-        WeakReference<Material> getMaterial();
+        WeakReference<const Material> getMaterial() const;
 
         /// \brief Set the material
         ///
@@ -98,6 +98,8 @@ namespace jop
         /// Respectively, you'll need to pass it again should you make any changes to it.
         ///
         /// \param material The new material
+        ///
+        /// \return Reference to self
         ///
         Model& setMaterial(const Material& material);
 

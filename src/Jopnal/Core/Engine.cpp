@@ -93,6 +93,8 @@ namespace jop
 
         // Shader manager
         createSubsystem<ShaderManager>();
+
+        JOP_DEBUG_INFO("Default engine configuration loaded");
     }
 
     //////////////////////////////////////////////
@@ -220,6 +222,7 @@ namespace jop
             {
                 if ((*itr)->getID() == ID)
                 {
+                    JOP_DEBUG_INFO("Sub system with id \"" << (*itr)->getID() << "\" removed");
                     m_engineObject->m_subsystems.erase(itr);
                     return true;
                 }
@@ -241,7 +244,10 @@ namespace jop
     void Engine::exit()
     {
         if (m_engineObject)
+        {
+            JOP_DEBUG_INFO("Exit signal received, exiting...");
             m_engineObject->m_running = false;
+        }
     }
 
     //////////////////////////////////////////////
@@ -249,7 +255,10 @@ namespace jop
     void Engine::setPaused(const bool paused)
     {
         if (isRunning())
+        {
+            JOP_DEBUG_INFO("Engine " << (paused ? "paused" : "unpaused"));
             m_engineObject->m_paused = paused;
+        }
     }
 
     //////////////////////////////////////////////

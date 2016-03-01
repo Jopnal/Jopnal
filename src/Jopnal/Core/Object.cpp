@@ -190,13 +190,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::cloneChild(const std::string& ID)
+    WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID)
     {
         auto ptr = getChild(ID);
 
         if (!ptr.expired())
         {
-            m_children.emplace_back(*ptr);
+            m_children.emplace_back(*ptr, clonedID);
             return m_children.back().getReference();
         }
 

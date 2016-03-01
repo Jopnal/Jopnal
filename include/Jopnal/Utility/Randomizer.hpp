@@ -43,15 +43,15 @@ namespace jop
 
         /// \brief Constructor for initialization with a custom seed
         ///
-        /// \param The seed to use
+        /// \param seed The seed to use
         ///
         Randomizer(const std::default_random_engine::result_type seed);
 
 
         /// \brief Returns a random value from given distribution
         ///
-        /// \param dStart Starting point of distribution
-        /// \param dEnd Ending point of distribution
+        /// \param start Starting point of distribution
+        /// \param end Ending point of distribution
         ///
         template<typename T>
         T range(const T start, const T end);

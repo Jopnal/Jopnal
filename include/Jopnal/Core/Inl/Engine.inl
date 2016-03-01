@@ -42,6 +42,9 @@ WeakReference<T> Engine::createSubsystem(Args&&... args)
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
 
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+
+    JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
+
     return static_ref_cast<T>(m_engineObject->m_subsystems.back()->getReference());
 }
 

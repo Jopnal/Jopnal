@@ -130,10 +130,11 @@ namespace jop
         /// and then returned.
         ///
         /// \param ID The id to search with
+        /// \param clonedID The id of the cloned object
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        WeakReference<Object> cloneChild(const std::string& ID);
+        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
         /// \brief Remove children with the given id
         ///

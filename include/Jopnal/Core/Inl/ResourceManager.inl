@@ -58,6 +58,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
+            name; // Remove warning when not using assertions
 
             #pragma warning(push)
             #pragma warning(disable: 4172)
@@ -72,6 +73,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            name; // Remove warning in release mode
             return T::getError();
         }
     };
@@ -81,6 +83,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            name; // Remove warning in release mode
             return T::getDefault();
         }
     };
@@ -127,6 +130,9 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
         {
             T& ptr = *res;
             m_instance->m_resources[name] = std::move(res);
+
+            JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
+
             return ptr;
         }
     }
@@ -167,4 +173,27 @@ bool ResourceManager::resourceExists(const std::string& name)
     auto itr = m_instance->m_resources.find(name);
     
     return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+T& ResourceManager::copyResource(const std::string& name, const std::string& newName)
+{
+    if (resourceExists<T>(name))
+    {
+        auto& oldRes = getExistingResource<T>(name);
+
+        auto res = std::make_unique<T>(oldRes);
+        res->m_name = newName;
+        T& ptr = *res;
+
+        m_instance->m_resources[newName] = std::move(res);
+
+        JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
+
+        return ptr;
+    }
+
+    return detail::LoadFallback<T>::load(name);
 }

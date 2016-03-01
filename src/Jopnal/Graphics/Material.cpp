@@ -272,7 +272,14 @@ namespace jop
 
     Material& Material::getDefault()
     {
-        static Material def("jop_default_material", Attribute::Diffusemap);
-        return def;
+        static WeakReference<Material> defMat;
+
+        if (defMat.expired())
+        {
+            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Attribute::Diffusemap).getReference());
+            defMat->setManaged(true);
+        }
+
+        return *defMat;
     }
 }

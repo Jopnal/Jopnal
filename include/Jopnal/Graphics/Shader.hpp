@@ -160,7 +160,7 @@ namespace jop
         /// \brief Set an integer uniform
         ///
         /// \param name Name of the uniform
-        /// \param vector The integer to set
+        /// \param value The integer to set
         ///
         /// \return True if set successfully
         ///
@@ -169,7 +169,7 @@ namespace jop
         /// \brief Set an unsigned integer uniform
         ///
         /// \param name Name of the uniform
-        /// \param vector The unsigned integer to set
+        /// \param value The unsigned integer to set
         ///
         /// \return True if set successfully
         ///
