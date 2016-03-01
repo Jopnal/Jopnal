@@ -1,0 +1,11 @@
+<map id="jop::Activateable" name="jop::Activateable">
+<area shape="rect" id="node2" href="$classjop_1_1_object.html" title="jop::Object" alt="" coords="185,31,270,57"/>
+<area shape="rect" id="node3" href="$classjop_1_1_scene.html" title="jop::Scene" alt="" coords="185,81,269,108"/>
+<area shape="rect" id="node4" href="$classjop_1_1_subsystem.html" title="jop::Subsystem" alt="" coords="171,132,284,159"/>
+<area shape="rect" id="node5" href="$classjop_1_1_file_loader.html" title="jop::FileLoader" alt="" coords="355,5,461,32"/>
+<area shape="rect" id="node6" href="$classjop_1_1_layer.html" title="jop::Layer" alt="" coords="369,56,447,83"/>
+<area shape="rect" id="node7" href="$classjop_1_1_resource_manager.html" title="jop::ResourceManager" alt="" coords="332,107,484,133"/>
+<area shape="rect" id="node8" href="$classjop_1_1_setting_manager.html" title="jop::SettingManager" alt="" coords="339,157,477,184"/>
+<area shape="rect" id="node9" href="$classjop_1_1_shader_manager.html" title="jop::ShaderManager" alt="" coords="339,208,477,235"/>
+<area shape="rect" id="node10" href="$classjop_1_1_window.html" title="jop::Window" alt="" coords="361,259,455,285"/>
+</map>
