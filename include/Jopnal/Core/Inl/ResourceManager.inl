@@ -58,6 +58,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
+            name; // Remove warning when not using assertions
 
             #pragma warning(push)
             #pragma warning(disable: 4172)
@@ -72,6 +73,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            name; // Remove warning in release mode
             return T::getError();
         }
     };
@@ -81,6 +83,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            name; // Remove warning in release mode
             return T::getDefault();
         }
     };
