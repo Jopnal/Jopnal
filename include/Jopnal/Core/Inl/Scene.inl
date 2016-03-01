@@ -39,27 +39,27 @@ WeakReference<T> Scene::getLayer() const
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-WeakReference<T> Scene::createLayer(Args&... args)
+WeakReference<T> Scene::createLayer(Args&&... args)
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
     // Make sure the default layer is created
     getDefaultLayer();
 
-    m_layers.emplace_back(std::make_unique<T>(args...));
+    m_layers.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
     return static_ref_cast<T>(m_layers.back()->getReference());
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-WeakReference<T> Scene::setDefaultLayer(Args&... args)
+WeakReference<T> Scene::setDefaultLayer(Args&&... args)
 {
     static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
 
     // Make sure the default layer is created
     getDefaultLayer();
 
-    m_layers.front() = std::make_unique<T>(args...);
+    m_layers.front() = std::make_unique<T>(std::forward<Args>(args)...);
     return static_ref_cast<T>(m_layers.front()->getReference());
 }

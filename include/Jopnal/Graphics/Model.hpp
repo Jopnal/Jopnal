@@ -88,6 +88,8 @@ namespace jop
         ///
         WeakReference<const Material> getMaterial() const;
 
+        /// \copydoc getMaterial()
+        ///
         WeakReference<Material> getMaterial();
 
         /// \brief Set the material
@@ -119,7 +121,7 @@ namespace jop
 
     private:
 
-        WeakReference<Material> m_material;                ///< The material
+        WeakReference<Material> m_material; ///< The material
         WeakReference<const Mesh> m_mesh;   ///< The mesh
 
     };

@@ -39,9 +39,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    /// \param Statically cast a weak reference
+    ///
+    /// \param other The reference to cast
+    ///
+    /// \return Weak reference with the cast type
+    ///
     template<typename To, typename From>
     WeakReference<To> static_ref_cast(const WeakReference<From>& other);
 
+    /// \param Dynamically cast a weak reference
+    ///
+    /// \param other The reference to cast
+    ///
+    /// \return Weak reference with the cast type. Empty if unsuccessful
+    ///
     template<typename To, typename From>
     WeakReference<To> dynamic_ref_cast(const WeakReference<From>& other);
 
@@ -58,21 +70,35 @@ namespace jop
 
     protected:
 
+        /// \brief Constructor
+        ///
+        /// \param ref Pointer to the object to bind
+        ///
         SafeReferenceable(T* ref);
 
+        /// \brief Move constructor
+        ///
         SafeReferenceable(SafeReferenceable<T>&& other);
 
+        /// \brief Move assignment operator
+        ///
         SafeReferenceable& operator =(SafeReferenceable<T>&& other);
 
+        /// \brief Protected destructor
+        ///
         ~SafeReferenceable();
 
     public:
 
+        /// \brief Get a weak reference to the bound object
+        ///
+        /// \return New weak reference to the bound object
+        ///
         WeakReference<T> getReference() const;
 
     private:
 
-        std::shared_ptr<T*> m_ref;
+        std::shared_ptr<T*> m_ref;  ///< The bound reference
 
     };
 
@@ -91,33 +117,79 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Initializes the internal reference to be empty
+        ///
         WeakReference() = default;
 
+        /// \brief Constructor for initializing from a SafeReferenceable object
+        ///
+        /// \param ref The object to bind
+        ///
         WeakReference(const SafeReferenceable<T>& ref);
 
 
+        /// \brief Check if this reference is expired
+        ///
+        /// \return True if expired
+        ///
         bool expired() const;
 
+
+        /// \brief Get a pointer to the bound object
+        ///
+        /// \return Pointer to the object. Nullptr if expired
+        ///
         T* get();
 
+        /// \copydoc get()
+        ///
         const T* get() const;
 
+
+        /// \brief Dereference operator
+        ///
+        /// Calling this operator when this reference is expired will
+        /// cause a segmentation fault.
+        ///
+        /// \return Reference to the bound object
+        ///
         T& operator *();
 
+        /// \copydoc operator *()
+        ///
         const T& operator *() const;
 
+
+        /// \copydoc get()
+        ///
         T* operator ->();
 
+        /// \copydoc get()
+        ///
         const T* operator ->() const;
 
+
+        /// \brief Check if this reference is not expired
+        ///
+        /// This is the same as !expired()
+        ///
+        /// \return True if not expired
+        ///
         operator bool() const;
 
+        /// \brief Assignment operator for assigning a SafeReferenceable object
+        ///
+        /// \param other The object to bind
+        ///
+        /// \return Reference to self
+        ///
         WeakReference& operator =(const SafeReferenceable<T>& other);
-
 
     private:
 
-        std::weak_ptr<T*> m_ref;
+        std::weak_ptr<T*> m_ref;    ///< The bound reference
 
     };
 

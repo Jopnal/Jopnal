@@ -86,13 +86,15 @@ namespace jop
         ///
         Drawable& setModel(const Model& model);
 
-        Model& getModel();
-
         /// \brief Get the model
         ///
         /// \return Reference to the model
         ///
+        Model& getModel();
+
+        /// \copydoc getModel()
         const Model& getModel() const;
+
 
         /// \brief Set the shader
         ///
@@ -106,15 +108,26 @@ namespace jop
         ///
         WeakReference<Shader> getShader() const;
 
+
         /// \brief Get the set with the bound layers
         ///
         /// \return Reference to the set
         ///
         const std::unordered_set<Layer*> getBoundLayers() const;
 
+
+        /// \brief Set whether or not this drawable receives lights
+        ///
+        /// \param receive True to receive lights
+        ///
         void setReceiveLights(const bool receive);
 
+        /// \brief Check if this drawable receives lights
+        ///
+        /// \return True if receives lights
+        ///
         bool receiveLights() const;
+
 
         /// \brief Load the state
         ///
@@ -145,7 +158,7 @@ namespace jop
         Model m_model;                                      ///< The bound model
         mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
         WeakReference<Shader> m_shader;                     ///< The bound shader
-        bool m_receiveLights;
+        bool m_receiveLights;                               ///< Does this drawable receive lights
         
     };
 }

@@ -67,7 +67,8 @@ namespace jop
             Range
         };
 
-        // Some good predefined attenuation values
+        /// Some good predefined attenuation values
+        ///
         enum class AttenuationPreset
         {
             _7, _13, _20, _32, _50, _65, _100, _160, _200, _320, _600, _3250
@@ -92,9 +93,9 @@ namespace jop
         void draw(const Camera&, const LightContainer&) override;
 
 
-        /// \brief Sets light types to type identifier and returns it
+        /// \brief Sets light type
         ///
-        /// \param type Light type from Type enum
+        /// \param type The light type
         ///
         /// \return Reference to self
         ///
@@ -116,7 +117,7 @@ namespace jop
         ///
         LightSource& setIntensity(const Intensity intensity, const Color color);
         
-        /// \brief Overload function for setIntensity, returns set intensities for all types from enum
+        /// \brief Overload function for setIntensity
         ///
         /// \param ambient Color value for ambient lighting
         /// \param diffuse Color value for diffuse lighting
@@ -126,42 +127,117 @@ namespace jop
         ///
         LightSource& setIntensity(const Color ambient, const Color diffuse, const Color specular);
 
+        /// \brief Set an uniform intensity
+        ///
+        /// All the intensity values will be set to the given color value
+        ///
+        /// \param intensity The intensity to set
+        ///
+        /// \return Reference to self
+        ///
         LightSource& setIntensity(const Color intensity);
 
-        /// \brief Getter returning array of intensity types
+        /// \brief Get an intensity value
         ///
-        /// \param intensity Identifier for intensities
+        /// \param intensity The intensity type
         ///
         /// \return The intensity color
         ///
         Color getIntensity(const Intensity intensity) const;
 
 
+        /// \brief Set a single attenuation value
+        ///
+        /// \param attenuation The attenuation type
+        /// \param value The value to set
+        ///
+        /// \return Reference to self
+        /// 
         LightSource& setAttenuation(const Attenuation attenuation, const float value);
 
+        /// \brief Set the attenuation values
+        ///
+        /// \param constant The constant attenuation
+        /// \param linear The linear attenuation
+        /// \param quadratic The quadratic attenuation
+        /// \param range Range of this light. Only affects culling
+        ///
+        /// \return Reference to self
+        /// 
         LightSource& setAttenuation(const float constant, const float linear, const float quadratic, const float range);
 
+        /// \brief Set the attenuation values using a preset
+        ///
+        /// \param preset The preset
+        ///
+        /// \return Reference to self
+        ///
         LightSource& setAttenuation(const AttenuationPreset preset);
 
+        /// \brief Get an attenuation value
+        ///
+        /// \param The attenuation type
+        ///
+        /// \return The attenuation value
+        ///
         float getAttenuation(const Attenuation attenuation) const;
 
+        /// \brief Get the attenuation values as a vector
+        ///
+        /// x = constant
+        /// y = linear
+        /// z = quadratic
+        /// Doesn't include the range parameter
+        ///
+        /// \return A vector with the attenuation values
+        ///
         glm::vec3 getAttenuationVec() const;
 
+
+        /// \brief Set the cutoff
+        ///
+        /// This only affects spot lights.
+        /// The inner and outer cutoff control the dimming near
+        /// the edges of the spot light.
+        ///
+        /// \param inner The inner cutoff in radians. The light will be at its
+        ///              maximum intensity inside this angle
+        /// \param outer The outer cutoff in radians
+        ///
+        /// \return Reference to self
+        ///
         LightSource& setCutoff(const float inner, const float outer);
 
+        /// \brief Get the cutoff values
+        ///
+        /// x = inner
+        /// y = outer
+        ///
+        /// \return Vector with the cutoff values
+        ///
         const glm::vec2& getCutoff() const;
 
+
+        /// \brief Get the setting for the maximum number of lights
+        ///
+        /// \param type The light type
+        ///
+        /// \return The maximum number of lights
+        ///
         static unsigned int getMaximumLights(const Type type);
         
     private:
 
-        Type m_type;                           ///< Type identifier
-        std::array<Color, 3> m_intensities;    ///< Array of colors
-        glm::vec4 m_attenuation;
-        glm::vec2 m_cutoff;
+        Type m_type;                        ///< The light type
+        std::array<Color, 3> m_intensities; ///< The intensities
+        glm::vec4 m_attenuation;            ///< The attenuation values    
+        glm::vec2 m_cutoff;                 ///< Spot light cutoff
     };
 
-
+    /// \brief Container for lights
+    ///
+    /// Meant to be passed to drawable
+    ///
     class LightContainer
     {
     public:
@@ -170,22 +246,44 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Reserves storage according to the maximum light amounts
+        ///
         LightContainer();
 
 
+        /// \brief Check is this container is empty
+        ///
+        /// \return True if empty
+        ///
         bool empty() const;
 
+        /// \brief Clear this container
+        ///
         void clear();
 
+        /// \brief Send the contained lights to shader
+        ///
+        /// \param shader The shader to send the lights to
+        ///
         void sendToShader(Shader& shader, const Camera& camera) const;
 
+        /// \brief Access the individual containers for each light type
+        ///
+        /// \param type The light type
+        ///
+        /// \return Reference to the container
+        ///
         ContainerType& operator [](const LightSource::Type type);
 
+        /// \copydoc operator[]
+        ///
         const ContainerType& operator [](const LightSource::Type type) const;
 
     private:
 
-        std::array<ContainerType, 3> m_container;
+        std::array<ContainerType, 3> m_container;   ///< Containers for each type of light
     };
 }
 

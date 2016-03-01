@@ -119,7 +119,7 @@ namespace jop
         /// \return Reference to the newly created layer
         ///
         template<typename T, typename ... Args>
-        WeakReference<T> createLayer(Args&... args);
+        WeakReference<T> createLayer(Args&&... args);
 
         /// \brief Delete a layer with the given id
         ///
@@ -135,7 +135,7 @@ namespace jop
         /// \brief Replace the default layer
         ///
         template<typename T, typename ... Args>
-        WeakReference<T> setDefaultLayer(Args&... args);
+        WeakReference<T> setDefaultLayer(Args&&... args);
 
         /// \brief Get the default layer
         ///

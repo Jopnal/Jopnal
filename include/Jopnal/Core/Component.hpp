@@ -121,6 +121,12 @@ namespace jop
         ///
         WeakReference<const Object> getObject() const;
 
+        /// \brief Check if this component is active
+        ///
+        /// This is the same as calling getObject()->isActive().
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
         
     private:
@@ -129,8 +135,8 @@ namespace jop
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
 
-        std::string m_ID;       ///< Unique component identifier
-        WeakReference<Object> m_objectRef;    ///< Reference to the object this component is bound to
+        std::string m_ID;                   ///< Identifier
+        WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }
 

@@ -141,7 +141,6 @@ namespace jop
         ///
         Message::Result execute(const std::string& command, Any& instance, Any& returnWrap);
 
-
     private:
 
         std::unordered_map<std::string, std::pair<std::function<void(const std::string&, Any&, Any&)>, Message::Result>> m_memberParsers; ///< Parsers for member functions

@@ -116,8 +116,15 @@ namespace jop
 
         /// \brief Default constructor
         ///
+        /// \param name Name of this material
+        ///
         Material(const std::string& name);
 
+        /// \brief Overloaded constructor for initializing with attributes
+        ///
+        /// \param name Name of this material
+        /// \param attributes The initial attributes
+        ///
         Material(const std::string& name, const AttribType attributes);
         
 
@@ -188,12 +195,24 @@ namespace jop
         WeakReference<const Texture> getMap(const Map map) const;
 
 
+        /// \brief Set the attribute bit field
+        ///
+        /// \param attribs The attributes to set
+        ///
         void setAttributeField(const AttribType attribs);
 
-
+        /// \brief Get the attribute bit field
+        ///
+        /// \return The attribute bit field
+        ///
         AttribType getAttributeField() const;
 
-
+        /// \brief Check if this material has a specific attribute
+        ///
+        /// \param attrib The attribute to check
+        ///
+        /// \return True if does have the attribute
+        ///
         bool hasAttribute(const AttribType attrib) const;
 
 
@@ -206,7 +225,7 @@ namespace jop
     private:
 
         std::array<Color, 4> m_reflection;                  ///< The reflection values
-        AttribType m_attributes;                            
+        AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
         std::array<WeakReference<const Texture>, 3> m_maps; ///< An array with the bound maps
 

@@ -38,19 +38,33 @@ namespace jop
 
     protected:
 
+        /// \brief Constructor
+        ///
+        /// \param active The initial state
+        ///
         Activateable(const bool active);
 
+        /// \brief Protected destructor
+        ///
         ~Activateable();
 
     public:
 
+        /// \brief Set this object active/inactive
+        ///
+        /// \param active Set this object active?
+        ///
         void setActive(const bool active);
 
+        /// \brief Check if this object is active
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
 
     private:
 
-        bool m_active;
+        bool m_active;  ///< Is this object active?
 
     };
 }

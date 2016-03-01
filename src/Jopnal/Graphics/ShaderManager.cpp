@@ -113,6 +113,11 @@ namespace jop
         }
     }
 
+    ShaderManager::~ShaderManager()
+    {
+        m_instance = nullptr;
+    }
+
     //////////////////////////////////////////////
 
     ShaderManager* ShaderManager::m_instance = nullptr;

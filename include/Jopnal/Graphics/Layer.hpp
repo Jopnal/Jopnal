@@ -129,8 +129,16 @@ namespace jop
         void setCamera(const Camera& camera);
 
 
+        /// \brief Add a light to this layer
+        ///
+        /// \param Reference to the light to add
+        ///
         void addLight(const LightSource& light);
 
+        /// \brief Remove a light from this layer
+        ///
+        /// \param id Identifier of the light to remove
+        ///
         void removeLight(const std::string& id);
 
 
@@ -140,6 +148,10 @@ namespace jop
         ///
         void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
 
+        /// \brief Remove the render texture
+        ///
+        /// The texture attachment and render buffers are destroyed as well
+        ///
         void removeRenderTexture();
 
         /// \brief Get the render texture
@@ -164,12 +176,12 @@ namespace jop
 
     protected:
 
-        std::vector<WeakReference<Drawable>> m_drawList;  ///< The local draw list
+        std::vector<WeakReference<Drawable>> m_drawList;        ///< The local draw list
         std::vector<WeakReference<const LightSource>> m_lights; ///< The bound lights
-        std::vector<WeakReference<Layer>> m_boundLayers;  ///< Bound layers
-        WeakReference<const Camera> m_camera;             ///< Bound camera
-        std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture
-        bool m_drawablesRemoved;                          ///< Have any drawables been removed?
+        std::vector<WeakReference<Layer>> m_boundLayers;        ///< Bound layers
+        WeakReference<const Camera> m_camera;                   ///< Bound camera
+        std::unique_ptr<RenderTexture> m_renderTexture;         ///< Bound RenderTexture
+        bool m_drawablesRemoved;                                ///< Have any drawables been removed?
 
     };
 }

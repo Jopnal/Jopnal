@@ -111,6 +111,13 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const glm::mat3& matrix);
 
+        /// \brief Set a two-dimensional float vector uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param vector The vector to set
+        ///
+        /// \return True if set successfully
+        ///
         bool setUniform(const std::string& name, const glm::vec2& vector);
 
         /// \brief method setting vector with 3 dimensions and unique name
@@ -150,8 +157,22 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const float value);
 
+        /// \brief Set an integer uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param vector The integer to set
+        ///
+        /// \return True if set successfully
+        ///
         bool setUniform(const std::string& name, const int value);
 
+        /// \brief Set an unsigned integer uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param vector The unsigned integer to set
+        ///
+        /// \return True if set successfully
+        ///
         bool setUniform(const std::string& name, const unsigned int value);
 
         /// \brief method setting attributes

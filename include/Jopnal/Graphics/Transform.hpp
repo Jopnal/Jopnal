@@ -75,6 +75,13 @@ namespace jop
         ///
         Transform& setRotation(const glm::vec3& rotation);
 
+        /// \brief Set the rotation using angle-axis
+        ///
+        /// \param angle The angle
+        /// \param axis The axis
+        ///
+        /// \return Reference to self
+        ///
         Transform& setRotation(const float angle, const glm::vec3& axis);
 
         /// \brief Set the rotation
@@ -91,19 +98,55 @@ namespace jop
         ///
         const glm::quat& getRotation() const;
 
+        /// \brief Get the global rotation
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global rotation
+        ///
         glm::quat getGlobalRotation() const;
 
 
+        /// \brief Get the global front vector
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global front vector
+        ///
         glm::vec3 getGlobalFront() const;
 
+        /// \brief Get the global right vector
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global front vector
+        ///
         glm::vec3 getGlobalRight() const;
 
+        /// \brief Get the global right vector
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global front vector
+        ///
         glm::vec3 getGlobalUp() const;
 
+        /// \brief Get the local front vector
+        ///
+        /// \return The local front vector
+        ///
         glm::vec3 getLocalFront() const;
 
+        /// \brief Get the local right vector
+        ///
+        /// \return The local right vector
+        ///
         glm::vec3 getLocalRight() const;
 
+        /// \brief Get the local up vector
+        ///
+        /// \return The local up vector
+        ///
         glm::vec3 getLocalUp() const;
 
 
@@ -143,6 +186,12 @@ namespace jop
         ///
         const glm::vec3& getScale() const;
 
+        /// \brief Get the global scale
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global scale
+        ///
         glm::vec3 getGlobalScale() const;
 
 
@@ -170,7 +219,12 @@ namespace jop
         ///
         const glm::vec3& getPosition() const;
 
-
+        /// \brief Get the global position
+        ///
+        /// This will only return the correct values during post update and draw phases
+        ///
+        /// \return The global position
+        ///
         glm::vec3 getGlobalPosition() const;
 
 
@@ -181,8 +235,16 @@ namespace jop
         ///
         /// \param point The point to look at
         ///
+        /// \return Reference to self
+        ///
         Transform& lookAt(const glm::vec3& point);
 
+        /// \copydoc lookAt
+        ///
+        /// \param up A custom up vector
+        ///
+        /// \return Reference to self
+        ///
         Transform& lookAt(const glm::vec3& point, const glm::vec3& up);
 
         /// \brief Set this transform to look at a certain point
@@ -243,6 +305,13 @@ namespace jop
         ///
         Transform& rotate(const glm::vec3& rotation);
 
+        /// \brief Rotate this transform using an axis-angle
+        ///
+        /// \param angle The angle
+        /// \param axis The axis
+        /// 
+        /// \return Reference to self
+        ///
         Transform& rotate(const float angle, const glm::vec3& axis);
         
 
@@ -276,13 +345,10 @@ namespace jop
         Transform& scale(const float delta);
 
 
-        /// The identity matrix
-        ///
-        static const glm::mat4 IdentityMatrix;
-
-        static const glm::vec3 Front;
-        static const glm::vec3 Right;
-        static const glm::vec3 Up;
+        static const glm::mat4 IdentityMatrix;  ///< The identity matrix
+        static const glm::vec3 Front;           ///< The default normalized front vector
+        static const glm::vec3 Right;           ///< The default normalized right vector
+        static const glm::vec3 Up;              ///< The default normalized up vector
 
     protected:
 

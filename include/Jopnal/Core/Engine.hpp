@@ -264,7 +264,20 @@ namespace jop
     #include <Jopnal/Core/Inl/Engine.inl>
 }
 
+/// \brief Initializing the engine with the default configuration
+///
+/// The engine should be constructed after entering main.
+///
+/// \param projectName The project name
+/// \param argc Number of arguments passed from main()
+/// \param argv The argument array passed from main()
+///
 #define JOP_ENGINE_INIT(projectName, argc, argv) jop::Engine jop_engine(projectName, argc, argv); jop_engine.loadDefaultConfiguration();
+
+/// \brief Run the main loop
+///
+/// This macro must appear in the same scope as JOP_ENGINE_INIT
+///
 #define JOP_MAIN_LOOP jop_engine.runMainLoop();
 
 #endif
