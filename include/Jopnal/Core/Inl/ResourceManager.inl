@@ -127,6 +127,9 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
         {
             T& ptr = *res;
             m_instance->m_resources[name] = std::move(res);
+
+            JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
+
             return ptr;
         }
     }
@@ -183,6 +186,8 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
         T& ptr = *res;
 
         m_instance->m_resources[newName] = std::move(res);
+
+        JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
 
         return ptr;
     }

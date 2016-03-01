@@ -64,6 +64,8 @@ namespace jop
 
     bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        JOP_DEBUG_INFO("Invoked state save: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
+
         if (!scene && !sharedScene && !subsystems)
         {
             JOP_DEBUG_ERROR("Didn't save state; scene, sharedScene and subsystems are false: " << path);
@@ -135,7 +137,15 @@ namespace jop
             doc.Accept(writer);
         }
 
-        return FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize());
+        if (FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize()))
+        {
+            JOP_DEBUG_INFO("State successfully saved");
+            return true;
+        }
+        else
+            JOP_DEBUG_ERROR("Couldn't save state, writing to file failed");
+
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -160,6 +170,8 @@ namespace jop
             }
         } loadingFlag(getInstance().m_loading);
         #pragma warning(pop)
+
+        JOP_DEBUG_INFO("Invoked state load: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
 
         if (!scene && !sharedScene && !subsystems)
         {
@@ -254,6 +266,8 @@ namespace jop
             else
                 return false;
         }
+
+        JOP_DEBUG_INFO("State successfully loaded");
 
         return true;
     }
