@@ -28,10 +28,17 @@
 namespace jop
 {
     Resource::Resource(const std::string& name)
-        : SafeReferenceable<Resource>    (this),
-          m_name                                    (name),
-          m_persistent                              (false),
-          m_managed                                 (false)
+        : SafeReferenceable<Resource>   (this),
+          m_name                        (name),
+          m_persistent                  (false),
+          m_managed                     (false)
+    {}
+
+    Resource::Resource(const Resource& other)
+        : SafeReferenceable<Resource>   (this),
+          m_name                        (other.m_name),
+          m_persistent                  (other.m_persistent),
+          m_managed                     (false)
     {}
 
     Resource::~Resource()
@@ -60,9 +67,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Resource::setManaged(const bool def)
+    void Resource::setManaged(const bool managed)
     {
-        m_managed = def;
+        m_managed = managed;
     }
 
     //////////////////////////////////////////////

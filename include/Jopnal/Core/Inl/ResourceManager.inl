@@ -168,3 +168,24 @@ bool ResourceManager::resourceExists(const std::string& name)
     
     return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+T& ResourceManager::copyResource(const std::string& name, const std::string& newName)
+{
+    if (resourceExists<T>(name))
+    {
+        auto& oldRes = getExistingResource<T>(name);
+
+        auto res = std::make_unique<T>(oldRes);
+        res->m_name = newName;
+        T& ptr = *res;
+
+        m_instance->m_resources[newName] = std::move(res);
+
+        return ptr;
+    }
+
+    return detail::LoadFallback<T>::load(name);
+}

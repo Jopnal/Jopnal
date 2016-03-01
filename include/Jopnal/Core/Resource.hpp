@@ -35,6 +35,14 @@ namespace jop
 {
     class JOP_API Resource : public SafeReferenceable<Resource>
     {
+    private:
+
+        friend class ResourceManager;
+
+    protected:
+
+        Resource(const Resource& other);
+
     public:
 
         /// \brief Constructor
@@ -73,9 +81,9 @@ namespace jop
         /// The managed flag should be set for all resources that should
         /// be ignored by the StateLoader
         ///
-        /// \param def True to mark as a managed resource
+        /// \param managed True to mark as a managed resource
         ///
-        void setManaged(const bool def);
+        void setManaged(const bool managed);
 
         /// \brief Check if this is a managed resource
         ///
@@ -87,7 +95,7 @@ namespace jop
 
         std::string m_name; ///< Name of this resource
         bool m_persistent;  ///< Is this resource persistent?
-        bool m_managed;     ///< Is this used as a default resource?
+        bool m_managed;     ///< Is this a managed resource?
     };
 }
 
