@@ -1,11 +1,9 @@
-#version 330 
-
 uniform sampler2D u_DiffuseMap; 
 
-in vec2 out_texCoords; 
-out vec4 final_Color; 
+in vec2 out_TexCoords; 
+out vec4 out_FinalColor; 
 
 void main() 
 { 
-   final_Color = texture2D(u_DiffuseMap, out_texCoords);
+    out_FinalColor = texture2D(u_DiffuseMap, out_TexCoords);
 }

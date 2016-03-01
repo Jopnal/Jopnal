@@ -24,6 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
 #include <memory>
@@ -33,7 +35,7 @@
 
 namespace jop
 {
-    class JOP_API Subsystem : public std::enable_shared_from_this<Subsystem>
+    class JOP_API Subsystem : public Activateable, public SafeReferenceable<Subsystem>
     {
     private:
 
@@ -90,17 +92,6 @@ namespace jop
         /// This will be called after the engine calls the scene's draw.
         ///
         virtual void draw();
-
-
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
 
 
         /// \brief Function to handle messages

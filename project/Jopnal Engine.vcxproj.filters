@@ -255,6 +255,15 @@
     <ClInclude Include="..\include\Jopnal\Utility\Randomizer.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\ShaderManager.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -395,6 +404,12 @@
     <ClCompile Include="..\src\Jopnal\Utility\Randomizer.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\ShaderManager.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -431,6 +446,9 @@
       <Filter>Core\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl">
       <Filter>Utility\Inl</Filter>
     </None>
   </ItemGroup>

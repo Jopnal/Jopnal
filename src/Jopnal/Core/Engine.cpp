@@ -90,6 +90,9 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
+
+        // Shader manager
+        createSubsystem<ShaderManager>();
     }
 
     //////////////////////////////////////////////
@@ -165,13 +168,10 @@ namespace jop
 
             // Draw
             {
-                if (!isPaused())
-                {
-                    if (m_currentScene)
-                        m_currentScene->drawBase();
+                if (m_currentScene)
+                    m_currentScene->drawBase();
 
-                    m_sharedScene->drawBase();
-                }
+                m_sharedScene->drawBase();
 
                 for (auto& i : m_subsystems)
                 {
@@ -196,18 +196,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& ID)
+    WeakReference<Subsystem> Engine::getSubsystem(const std::string& ID)
     {
         if (m_engineObject)
         {
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
-                    return i.get();
+                    return i->getReference();
             }
         }
 
-        return nullptr;
+        return WeakReference<Subsystem>();
     }
 
     //////////////////////////////////////////////

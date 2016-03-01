@@ -72,13 +72,21 @@ namespace jop
         Color(const std::string& hexString);
 
 
-        /// \brief Get this color as a float vector
+        /// \brief Get this color as a RGBA float vector
         ///
         /// The precision of the values is 32 bits each.
         ///
         /// \return A float vector describing the color
         ///
-        glm::fvec4 asFloatVector() const;
+        glm::vec4 asRGBAFloatVector() const;
+
+        /// \brief Get this color as a RGB float vector
+        ///
+        /// The precision of the values is 32 bits each.
+        ///
+        /// \return A float vector describing the color
+        ///
+        glm::vec3 asRGBFloatVector() const;
 
         /// \brief Get this color as an 32-bit unsigned integer
         ///
@@ -94,19 +102,19 @@ namespace jop
                      b, ///< The blue component
                      a; ///< The alpha component
 
-        static const Color Black;
-        static const Color White;
-        static const Color Red;
-        static const Color Green;
-        static const Color Blue;
-        static const Color Cyan;
-        static const Color Yellow;
-        static const Color Magenta;
-        static const Color Purple;
-        static const Color Orange;
-        static const Color Gray;
-        static const Color Brown;
-        static const Color Transparent;
+        static const Color Black;       ///< Black color
+        static const Color White;       ///< White color
+        static const Color Red;         ///< Red color
+        static const Color Green;       ///< Green color
+        static const Color Blue;        ///< Blue color
+        static const Color Cyan;        ///< Cyan color
+        static const Color Yellow;      ///< Yellow color
+        static const Color Magenta;     ///< Magenta color
+        static const Color Purple;      ///< Purple color
+        static const Color Orange;      ///< Orange color
+        static const Color Gray;        ///< Gray color
+        static const Color Brown;       ///< Brown color
+        static const Color Transparent; ///< Transparent color
 
 
     public:

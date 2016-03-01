@@ -186,6 +186,12 @@ namespace jop
         ///
         static const std::unordered_map<std::type_index, std::string>& getSavenameContainer();
 
+        /// \brief Check is the state is currently loading
+        ///
+        /// \return True if currently loading
+        ///
+        static bool currentlyLoading();
+
     private:
 
         bool loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
@@ -220,6 +226,7 @@ namespace jop
             std::unordered_map<std::type_index, std::string>
 
         > m_loaderSavers;
+        bool m_loading; ///< Currently loading flag
 
     };
 

@@ -26,10 +26,11 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
-#include <memory>
 
 //////////////////////////////////////////////
 
@@ -38,11 +39,9 @@ namespace jop
 {
     class Layer;
 
-    class JOP_API Object : public Transform, public std::enable_shared_from_this<Object>
+    class JOP_API Object : public Transform, public Activateable, public SafeReferenceable<Object>
     {
     private:
-
-        JOP_DISALLOW_MOVE(Object);
 
         void operator =(const Object&) = delete;
 
@@ -64,28 +63,40 @@ namespace jop
         ///
         Object(const Object& other);
 
+        /// \brief Overloaded copy constructor
+        ///
+        Object(const Object& other, const std::string& newName);
+
+        /// \brief Move constructor
+        ///
+        Object(Object&& other);
+
+        /// \brief Move assignment operator
+        ///
+        Object& operator =(Object&& other);
+
 
         /// \brief Get a component with the given id
         ///
         /// \param ID Component identifier to search with
         ///
-        /// \return std::weak_ptr with the component, empty if the component wasn't found
+        /// \return Weak reference with the component, empty if the component wasn't found
         ///
-        std::weak_ptr<Component> getComponent(const std::string& ID);
+        WeakReference<Component> getComponent(const std::string& ID);
 
         /// \brief Get a component using type info
         ///
         /// \return Pointer to the component. Empty if not found
         ///
         template<typename T>
-        std::weak_ptr<T> getComponent();
+        WeakReference<T> getComponent();
 
         /// \brief Template function to create components
         ///
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        T& createComponent(Args&... args);
+        WeakReference<T> createComponent(Args&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -103,7 +114,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        Object& createChild(const std::string& ID);
+        WeakReference<Object> createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///
@@ -111,7 +122,7 @@ namespace jop
         ///
         /// \return Pointer to the child if found, nullptr otherwise
         ///
-        std::weak_ptr<Object> getChild(const std::string& ID);
+        WeakReference<Object> getChild(const std::string& ID);
 
         /// \brief Clone a child with the given id
         ///
@@ -122,7 +133,7 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        std::weak_ptr<Object> cloneChild(const std::string& ID);
+        WeakReference<Object> cloneChild(const std::string& ID);
 
         /// \brief Remove children with the given id
         ///
@@ -180,16 +191,6 @@ namespace jop
         ///
         void setID(const std::string& ID);
 
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
-
         /// \brief Update method for object - forwarded for its components
         ///
         /// \param deltaTime Double holding delta time
@@ -210,10 +211,9 @@ namespace jop
 
     private:
 
-        std::vector<std::shared_ptr<Object>> m_children;      ///< Container holding this object's children
-        std::vector<std::shared_ptr<Component>> m_components; ///< Container holding components
+        std::vector<Object> m_children;                       ///< Container holding this object's children
+        std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
-        bool m_active;                                        ///< Boolean unit used as activity state
     };
 
     // Include the template implementation file

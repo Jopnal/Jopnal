@@ -5,8 +5,16 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugStatic|Win32">
+      <Configuration>DebugStatic</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseStatic|Win32">
+      <Configuration>ReleaseStatic</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -40,6 +48,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Mesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Model.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RectangleMesh.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\ShaderManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereMesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
@@ -55,6 +64,7 @@
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
@@ -62,6 +72,7 @@
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Randomizer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp" />
     <ClInclude Include="..\include\Jopnal\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
@@ -100,6 +111,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Mesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Model.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RectangleMesh.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\ShaderManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereMesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
@@ -110,8 +122,13 @@
     <ClCompile Include="..\src\Jopnal\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugDynamic|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseDynamic|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />
@@ -137,6 +154,7 @@
     <None Include="..\include\Jopnal\Utility\Inl\Message.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Any.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl" />
+    <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl" />
     <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -144,14 +162,27 @@
     <RootNamespace>JopnalEngine</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -160,21 +191,67 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'">
+    <TargetName>jopnald-s</TargetName>
+    <IntDir>$(OutDir)int\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>jopnald</TargetName>
+    <IntDir>$(OutDir)int\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
+    <TargetName>jopnal-s</TargetName>
     <IntDir>$(OutDir)int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>jopnal</TargetName>
     <IntDir>$(OutDir)int\</IntDir>
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugStatic|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PreprocessorDefinitions>JOP_EXPORT_API;JOP_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
+      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ForceSymbolReferences>
+      </ForceSymbolReferences>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -206,6 +283,35 @@
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>JOP_EXPORT_API;JOP_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
+      <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

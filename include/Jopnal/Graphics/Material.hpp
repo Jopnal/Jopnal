@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <memory>
 #include <array>
 
@@ -36,9 +37,30 @@ namespace jop
     class Shader;
     class Texture;
 
-    class JOP_API Material
+    class JOP_API Material final : public Resource
     {
     public:
+
+        /// Attribute data type
+        ///
+        typedef uint32 AttribType;
+
+        /// Bit values to describe a material's attributes
+        ///
+        struct Attribute
+        {
+            enum : AttribType
+            {
+                AmbientConstant = 1,
+                Material        = 1 << 1,
+                Diffusemap      = 1 << 2,
+                Specularmap     = 1 << 3,
+                Emissionmap     = 1 << 4,
+                Phong           = 1 << 5
+            };
+        };
+
+        static const AttribType DefaultAttributes;
 
         /// The reflection attribute
         ///
@@ -46,21 +68,64 @@ namespace jop
         {
             Ambient,
             Diffuse,
-            Specular
+            Specular,
+            Emission,
+            Solid = Emission
         };
 
         /// The map attribute
         ///
         enum class Map
         {
-            Diffuse
+            Diffuse,
+            Specular,
+            Emission
+        };
+
+        /// Predefined material properties
+        ///
+        enum class Property
+        {
+            Emerald,
+            Jade,
+            Obsidian,
+            Pearl,
+            Ruby,
+            Turquoise,
+            Brass,
+            Bronze,
+            Chrome,
+            Copper,
+            Gold,
+            Silver,
+            BlackPlastic,
+            CyanPlastic,
+            GreenPlastic,
+            RedPlastic,
+            WhitePlastic,
+            YellowPlastic,
+            BlackRubber,
+            CyanRubber,
+            GreenRubber,
+            RedRubber,
+            WhiteRubber,
+            YellowRubber
         };
 
     public:
 
         /// \brief Default constructor
         ///
-        Material();
+        /// \param name Name of this material
+        ///
+        Material(const std::string& name);
+
+        /// \brief Overloaded constructor for initializing with attributes
+        ///
+        /// \param name Name of this material
+        /// \param attributes The initial attributes
+        ///
+        Material(const std::string& name, const AttribType attributes);
         
 
         /// \brief Send this material to a shader
@@ -87,7 +152,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Color ambient, const Color diffuse, const Color specular);
+        Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
 
         /// \brief Get a reflection value
         ///
@@ -127,20 +192,42 @@ namespace jop
         ///
         /// \return Weak pointer to the texture. Empty if none bound
         ///
-        std::weak_ptr<const Texture> getMap(const Map map) const;
+        WeakReference<const Texture> getMap(const Map map) const;
+
+
+        /// \brief Set the attribute bit field
+        ///
+        /// \param attribs The attributes to set
+        ///
+        void setAttributeField(const AttribType attribs);
+
+        /// \brief Get the attribute bit field
+        ///
+        /// \return The attribute bit field
+        ///
+        AttribType getAttributeField() const;
+
+        /// \brief Check if this material has a specific attribute
+        ///
+        /// \param attrib The attribute to check
+        ///
+        /// \return True if does have the attribute
+        ///
+        bool hasAttribute(const AttribType attrib) const;
 
 
         /// \brief Get the default material
         ///
         /// \return Reference to the default material
         ///
-        static const Material& getDefault();
+        static Material& getDefault();
 
     private:
 
-        std::array<Color, 3> m_reflection;                  ///< The reflection values
+        std::array<Color, 4> m_reflection;                  ///< The reflection values
+        AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
-        std::array<std::weak_ptr<const Texture>, 1> m_maps; ///< An array with the bound maps
+        std::array<WeakReference<const Texture>, 3> m_maps; ///< An array with the bound maps
 
     };
 }

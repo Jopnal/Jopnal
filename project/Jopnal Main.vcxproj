@@ -43,7 +43,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(OutDir)$(ProjectName)\</IntDir>
-    <TargetName>jopnal-maind</TargetName>
+    <TargetName>jopnal-main</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(OutDir)$(ProjectName)\</IntDir>

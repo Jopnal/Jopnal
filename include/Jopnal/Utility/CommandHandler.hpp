@@ -43,7 +43,7 @@ namespace jop
         #include <Jopnal/Utility/Inl/CommandParser.inl>
     }
 
-    class CommandHandler final
+    class JOP_API CommandHandler final
     {
     public:
 
@@ -141,7 +141,6 @@ namespace jop
         ///
         Message::Result execute(const std::string& command, Any& instance, Any& returnWrap);
 
-
     private:
 
         std::unordered_map<std::string, std::pair<std::function<void(const std::string&, Any&, Any&)>, Message::Result>> m_memberParsers; ///< Parsers for member functions
@@ -157,10 +156,10 @@ namespace jop
 ///
 /// This macro must be followed with JOP_END_COMMAND_HANDLER
 ///
-#define JOP_REGISTER_COMMAND_HANDLER(handlerName) jop::CommandHandler& ns_##handlerName##_getCommandHandler(){ \
-                                                  static jop::CommandHandler instance; return instance;}       \
-                                                  struct ns_##handlerName##_registrar{                         \
-                                                  ns_##handlerName##_registrar(){                              \
+#define JOP_REGISTER_COMMAND_HANDLER(handlerName) JOP_API jop::CommandHandler& ns_##handlerName##_getCommandHandler(){  \
+                                                  static jop::CommandHandler instance; return instance;}                \
+                                                  struct ns_##handlerName##_registrar{                                  \
+                                                  ns_##handlerName##_registrar(){                                       \
                                                   jop::CommandHandler& handler = ns_##handlerName##_getCommandHandler();
 
 /// \brief Register a derived command handler

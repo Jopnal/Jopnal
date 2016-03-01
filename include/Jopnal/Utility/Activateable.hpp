@@ -19,56 +19,54 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_ACTIVATEABLE_HPP
+#define JOP_ACTIVATEABLE_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Resource::Resource(const std::string& name)
-        : SafeReferenceable<Resource>    (this),
-          m_name                                    (name),
-          m_persistent                              (false),
-          m_managed                                 (false)
-    {}
-
-    Resource::~Resource()
-    {}
-
-    //////////////////////////////////////////////
-
-    const std::string& Resource::getName() const
+    class JOP_API Activateable
     {
-        return m_name;
-    }
+    private:
 
-    //////////////////////////////////////////////
+        JOP_DISALLOW_COPY_MOVE(Activateable);
 
-    void Resource::setPersistent(const bool persistent)
-    {
-        m_persistent = persistent;
-    }
+    protected:
 
-    //////////////////////////////////////////////
+        /// \brief Constructor
+        ///
+        /// \param active The initial state
+        ///
+        Activateable(const bool active);
 
-    bool Resource::isPersistent() const
-    {
-        return m_persistent;
-    }
+        /// \brief Protected destructor
+        ///
+        ~Activateable();
 
-    //////////////////////////////////////////////
+    public:
 
-    void Resource::setManaged(const bool def)
-    {
-        m_managed = def;
-    }
+        /// \brief Set this object active/inactive
+        ///
+        /// \param active Set this object active?
+        ///
+        void setActive(const bool active);
 
-    //////////////////////////////////////////////
+        /// \brief Check if this object is active
+        ///
+        /// \return True if active
+        ///
+        bool isActive() const;
 
-    bool Resource::isManaged() const
-    {
-        return m_managed;
-    }
+    private:
+
+        bool m_active;  ///< Is this object active?
+
+    };
 }
+
+#endif

@@ -139,7 +139,6 @@ namespace jop
                     else
                         // Should never happen but just to be sure.
                         JOP_DEBUG_WARNING("Anisotropic filtering is not supported on this system");
-                    break;
             }
 
             m_filter = mode;
@@ -174,7 +173,6 @@ namespace jop
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_BORDER));
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_BORDER));
                     glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::CLAMP_TO_BORDER));
-                    break;
             }
 
             m_repeat = repeat;
@@ -187,7 +185,7 @@ namespace jop
     {
         if (m_sampler)
         {
-            const glm::vec4 col = color.asFloatVector();
+            const glm::vec4 col = color.asRGBAFloatVector();
             glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &col[0]));
 
             m_borderColor = color;
@@ -245,13 +243,13 @@ namespace jop
 
     TextureSampler& TextureSampler::getDefault()
     {
-        static std::weak_ptr<TextureSampler> defSampler;
+        static WeakReference<TextureSampler> defSampler;
 
         if (defSampler.expired())
         {
-            defSampler = std::static_pointer_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("Default Sampler").shared_from_this());
+            defSampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_default_sampler").getReference());
             
-            JOP_ASSERT_EVAL(defSampler.lock()->load
+            JOP_ASSERT_EVAL(defSampler->load
             (
                 static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
                 static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)),
@@ -259,10 +257,10 @@ namespace jop
 
             ), "Couldn't create default sampler!");
 
-            defSampler.lock()->setPersistent(true);
-            defSampler.lock()->setManaged(true);
+            defSampler->setPersistent(true);
+            defSampler->setManaged(true);
         }
 
-        return *defSampler.lock();
+        return *defSampler;
     }
 }

@@ -29,8 +29,8 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, Drawable)
 
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
 
     JOP_END_COMMAND_HANDLER(Drawable)
 }
@@ -41,8 +41,22 @@ namespace jop
         : Component         (object, ID),
           m_model           (Model::getDefault()),
           m_boundToLayers   (),
-          m_shader          (std::static_pointer_cast<Shader>(Shader::getDefault().shared_from_this()))
+          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
+          m_receiveLights   (true)
     {}
+
+    //////////////////////////////////////////////
+
+    Drawable::Drawable(const Drawable& other)
+        : Component(other),
+          m_model(other.m_model),
+          m_boundToLayers(),
+          m_shader(other.m_shader),
+          m_receiveLights(other.m_receiveLights)
+    {
+        for (auto& i : other.m_boundToLayers)
+            i->addDrawable(*this);
+    }
 
     Drawable::~Drawable()
     {
@@ -52,9 +66,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setModel(const Model& model)
+    Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -66,14 +81,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setShader(Shader& shader)
+    Model& Drawable::getModel()
     {
-        m_shader = std::weak_ptr<Shader>(std::static_pointer_cast<Shader>(shader.shared_from_this()));
+        return m_model;
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<Shader> Drawable::getShader() const
+    Drawable& Drawable::setShader(Shader& shader)
+    {
+        m_shader = static_ref_cast<Shader>(shader.getReference());
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Shader> Drawable::getShader() const
     {
         return m_shader;
     }
@@ -83,6 +106,20 @@ namespace jop
     const std::unordered_set<Layer*> Drawable::getBoundLayers() const
     {
         return m_boundToLayers;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setReceiveLights(const bool receive)
+    {
+        m_receiveLights = receive;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::receiveLights() const
+    {
+        return m_receiveLights;
     }
 
     //////////////////////////////////////////////
@@ -102,12 +139,21 @@ namespace jop
                 auto layer = scene.getLayer(i.GetString());
 
                 if (!layer.expired())
-                    layers.push_back(layer.lock().get());
+                    layers.push_back(layer.get());
             }
         }
 
         for (auto itr = layers.begin(); itr != layers.end(); ++itr)
-            (*itr)->addDrawable(drawable);
+        {   
+            if (typeid(drawable) == typeid(Camera))
+                (*itr)->setCamera(static_cast<Camera&>(drawable));
+
+            else if (typeid(drawable) == typeid(LightSource))
+                (*itr)->addLight(static_cast<LightSource&>(drawable));
+
+            else
+                (*itr)->addDrawable(drawable);
+        }
 
         if (val.HasMember("shader") && val["shader"].IsString())
         {
@@ -128,27 +174,14 @@ namespace jop
                 JOP_DEBUG_WARNING("Couldn't find mesh named \"" << mshstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
         }
 
-        if (val.HasMember("material") && val["material"].IsObject())
+        if (val.HasMember("material") && val["material"].IsString())
         {
-            Material material;
-            auto& mat = val["material"];
+            const std::string matstr = val["material"].GetString();
 
-            if (mat.HasMember("reflection") && mat["reflection"].IsArray() && mat["reflection"].Size() >= 3)
-            {
-                auto& refl = mat["reflection"];
-                if (refl[0u].IsUint() && refl[1u].IsUint() && refl[2u].IsUint())
-                    material.setReflection(Color(refl[0u].GetUint()), Color(refl[1u].GetUint()), Color(refl[2u].GetUint()));
-                else
-                    JOP_DEBUG_WARNING("Unexpected material reflection values encountered while loading Drawable with id \"" << drawable.getID() << "\", resorting to default");
-            }
-
-            if (mat.HasMember("shininess") && mat["shininess"].IsDouble())
-                material.setShininess(static_cast<float>(mat["shininess"].GetDouble()));
-
-            if (mat.HasMember("diffusemap") && mat["diffusemap"].IsString())
-                material.setMap(Material::Map::Diffuse, ResourceManager::getExistingResource<Texture>(mat["diffusemap"].GetString()));
-
-            drawable.m_model.setMaterial(material);
+            if (ResourceManager::resourceExists<Material>(matstr))
+                drawable.m_model.setMaterial(ResourceManager::getExistingResource<Material>(matstr));
+            else
+                JOP_DEBUG_WARNING("Couldn't find material named \"" << matstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
         }
 
         return true;
@@ -170,25 +203,13 @@ namespace jop
         }
 
         if (!drawable.m_shader.expired())
-            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader.lock()->getName().c_str()), alloc);
+            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);
 
         if (!drawable.m_model.getMesh().expired())
-            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh().lock()->getName().c_str()), alloc);
+            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh()->getName().c_str()), alloc);
 
-        auto & mat = val.AddMember(json::StringRef("material"), json::kObjectType, alloc)["material"];
-        mat.AddMember(json::StringRef("reflection"), json::kArrayType, alloc)["reflection"]
-           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Ambient).asInteger(), alloc)
-           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Diffuse).asInteger(), alloc)
-           .PushBack(drawable.m_model.getMaterial().getReflection(Material::Reflection::Specular).asInteger(), alloc);
-
-        mat.AddMember(json::StringRef("shininess"), drawable.m_model.getMaterial().getShininess(), alloc);
-
-        // Diffuse map
-        {
-            auto map = drawable.m_model.getMaterial().getMap(Material::Map::Diffuse);
-            if (!map.expired())
-                mat.AddMember(json::StringRef("diffusemap"), json::StringRef(map.lock()->getName().c_str()), alloc);
-        }
+        if (!drawable.getModel().getMaterial().expired())
+            val.AddMember(json::StringRef("material"), json::StringRef(drawable.getModel().getMaterial()->getName().c_str()), alloc);
 
         return true;
     }

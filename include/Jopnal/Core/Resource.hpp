@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <string>
 #include <memory>
 
@@ -32,7 +33,7 @@
 
 namespace jop
 {
-    class JOP_API Resource : public std::enable_shared_from_this<Resource>
+    class JOP_API Resource : public SafeReferenceable<Resource>
     {
     public:
 

@@ -37,10 +37,12 @@ namespace jop
     {
     public:
 
+        /// Base directory
+        ///
         enum class Directory
         {
-            Resources,
-            Home
+            Resources, ///< EXERoot/Resources
+            Home       ///< User/Documents/ProjectName
         };
 
     public:

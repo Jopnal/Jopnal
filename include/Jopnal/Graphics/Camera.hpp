@@ -89,7 +89,7 @@ namespace jop
         ///
         /// Doesn't do anything.
         ///
-        void draw(const Camera&) override;
+        void draw(const Camera&, const LightContainer&) override;
 
 
         /// \brief Get the projection matrix
@@ -206,7 +206,7 @@ namespace jop
         ///
         /// \return Const reference to the camera
         ///
-        static const Camera& getDefault();
+        static Camera& getDefault();
 
     private:
 
