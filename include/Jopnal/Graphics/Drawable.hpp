@@ -151,7 +151,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool saveStateBase(const Drawable& comp, json::Value& val, json::Value::AllocatorType& alloc);
+        static bool saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 
