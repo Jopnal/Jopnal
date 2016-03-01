@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['r',['R',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfada5d5a487269318ff1f6d48ead9fabcb7b',1,'jop::Keyboard']]],
+  ['ralth',['RAlth',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfada324d74471670ca34eba8391819e1419f',1,'jop::Keyboard']]],
+  ['range',['Range',['../classjop_1_1_light_source.html#a96e7e0e65f787f161b8f4d2a5f02780fa87ba2ecc8b6915e8bd6f5089918229fd',1,'jop::LightSource']]],
+  ['rbracket',['RBracket',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfadaf6afe41a3df83177b10c518061a7eb60',1,'jop::Keyboard']]],
+  ['rcontrol',['RControl',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfada6b3fbe6144284bbb399597571db43ec7',1,'jop::Keyboard']]],
+  ['redplastic',['RedPlastic',['../classjop_1_1_material.html#ae22af3caa851abc18c3c67e664533099aee0a7ceb0c2f7ffc288a702d6e3cb911',1,'jop::Material']]],
+  ['redrubber',['RedRubber',['../classjop_1_1_material.html#ae22af3caa851abc18c3c67e664533099a8dbd19d98485bd41e1d1baeba01b4c95',1,'jop::Material']]],
+  ['resources',['Resources',['../classjop_1_1_file_loader.html#a8f9fd9b2d2ed07743d4b410d622b074faddcf50c29294d4414f3f7c1bbc892cb5',1,'jop::FileLoader']]],
+  ['right',['Right',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfadafd6fb6e9e7d5cb538e0698d8759f0606',1,'jop::Keyboard::Right()'],['../classjop_1_1_mouse.html#a8a083e964e7cce167607f9953ce594d2a79d0fbe432246cba8d51eb7025517ce8',1,'jop::Mouse::Right()']]],
+  ['rightstickx',['RightStickX',['../structjop_1_1_controller_1_1_x_box.html#a6d9d12f08852db57400e7c60a50d0204ab741b1a871af6fcbb1cd41315b330e24',1,'jop::Controller::XBox']]],
+  ['rightsticky',['RightStickY',['../structjop_1_1_controller_1_1_x_box.html#a6d9d12f08852db57400e7c60a50d0204ad7572f22a266a997c0ce727b88b923a8',1,'jop::Controller::XBox']]],
+  ['rshift',['RShift',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfada1f1bfa2bbf0c50d48e449b6562cfa5e7',1,'jop::Keyboard']]],
+  ['rshoulder',['RShoulder',['../structjop_1_1_controller_1_1_x_box.html#ae8feb6df11c088c92c2e471757b5776bacfacef31be1c543b88f7b045bedbf7d8',1,'jop::Controller::XBox']]],
+  ['rstick',['RStick',['../structjop_1_1_controller_1_1_x_box.html#ae8feb6df11c088c92c2e471757b5776ba92a588b4e0f55ae927ff256f5fa85dc5',1,'jop::Controller::XBox']]],
+  ['rsuper',['RSuper',['../classjop_1_1_keyboard.html#a031d3cfecc413d6690697b49ddfdbfada7493ced585e4698f52c4c5a63066bde8',1,'jop::Keyboard']]],
+  ['ruby',['Ruby',['../classjop_1_1_material.html#ae22af3caa851abc18c3c67e664533099a9916d1fc59fe22cc046a2fe1615bc764',1,'jop::Material']]]
+];

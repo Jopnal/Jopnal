@@ -1,0 +1,7 @@
+<map id="jop::Component" name="jop::Component">
+<area shape="rect" id="node3" href="$classjop_1_1_drawable.html" title="jop::Drawable" alt="" coords="144,169,244,196"/>
+<area shape="rect" id="node2" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Component \&gt;" alt="" coords="117,5,271,47"/>
+<area shape="rect" id="node4" href="$classjop_1_1_camera.html" title="jop::Camera" alt="" coords="5,244,97,271"/>
+<area shape="rect" id="node5" href="$classjop_1_1_generic_drawable.html" title="jop::GenericDrawable" alt="" coords="121,244,267,271"/>
+<area shape="rect" id="node6" href="$classjop_1_1_light_source.html" title="jop::LightSource" alt="" coords="291,244,407,271"/>
+</map>
