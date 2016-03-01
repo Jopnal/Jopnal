@@ -131,7 +131,7 @@ namespace jop
 
         /// \brief Add a light to this layer
         ///
-        /// \param Reference to the light to add
+        /// \param light Reference to the light to add
         ///
         void addLight(const LightSource& light);
 

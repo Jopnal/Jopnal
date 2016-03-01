@@ -39,7 +39,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    /// \param Statically cast a weak reference
+    /// \brief Statically cast a weak reference
     ///
     /// \param other The reference to cast
     ///
@@ -48,7 +48,7 @@ namespace jop
     template<typename To, typename From>
     WeakReference<To> static_ref_cast(const WeakReference<From>& other);
 
-    /// \param Dynamically cast a weak reference
+    /// \brief Dynamically cast a weak reference
     ///
     /// \param other The reference to cast
     ///
@@ -78,9 +78,13 @@ namespace jop
 
         /// \brief Move constructor
         ///
+        /// \param other The object to move
+        ///
         SafeReferenceable(SafeReferenceable<T>&& other);
 
         /// \brief Move assignment operator
+        ///
+        /// \param other The object to move
         ///
         SafeReferenceable& operator =(SafeReferenceable<T>&& other);
 
@@ -157,7 +161,7 @@ namespace jop
         ///
         T& operator *();
 
-        /// \copydoc operator *()
+        /// \copydoc operator*()
         ///
         const T& operator *() const;
 

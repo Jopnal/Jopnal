@@ -101,7 +101,7 @@ namespace jop
         ///
         LightSource& setType(const Type type);
 
-        /// \briefGet the light type
+        /// \brief Get the light type
         ///
         /// \return The light type
         ///
@@ -176,7 +176,7 @@ namespace jop
 
         /// \brief Get an attenuation value
         ///
-        /// \param The attenuation type
+        /// \param attenuation The attenuation type
         ///
         /// \return The attenuation value
         ///
@@ -266,6 +266,7 @@ namespace jop
         /// \brief Send the contained lights to shader
         ///
         /// \param shader The shader to send the lights to
+        /// \param camera The camera used currently
         ///
         void sendToShader(Shader& shader, const Camera& camera) const;
 

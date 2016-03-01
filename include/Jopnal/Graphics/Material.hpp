@@ -149,6 +149,7 @@ namespace jop
         /// \param ambient The ambient reflection
         /// \param diffuse The diffuse reflection
         /// \param specular The specular reflection
+        /// \param emission The emission value
         ///
         /// \return Reference to self
         ///
