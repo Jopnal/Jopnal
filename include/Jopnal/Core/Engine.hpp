@@ -92,7 +92,7 @@ namespace jop
         /// \return A reference to the newly created scene
         ///
         template<typename T, typename ... Args>
-        static T& createScene(Args&... args);
+        static T& createScene(Args&&... args);
 
         /// \brief Get the current scene
         ///
@@ -110,7 +110,7 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        static WeakReference<T> createSubsystem(Args&... args);
+        static WeakReference<T> createSubsystem(Args&&... args);
 
         /// \brief Get a subsystem using type info
         ///
@@ -201,7 +201,7 @@ namespace jop
         /// \return Reference to the new scene
         ///
         template<typename T, typename ... Args>
-        static T& setSharedScene(Args&... args);
+        static T& setSharedScene(Args&&... args);
 
 
         /// \brief Get the total time since Engine construction

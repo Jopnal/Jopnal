@@ -46,7 +46,7 @@ namespace jop
             m_transform = IdentityMatrix;
 
             m_transform = glm::translate(m_transform, m_position);
-            m_transform *= m_rotation.operator glm::tmat4x4<float, glm::highp>();
+            m_transform *= glm::mat4_cast(m_rotation);
             m_transform = glm::scale(m_transform, m_scale);
             
             m_transformNeedUpdate = false;
@@ -86,7 +86,7 @@ namespace jop
 
     Transform& Transform::setRotation(const glm::quat& rotation)
     {
-        m_rotation = glm::conjugate(rotation);
+        m_rotation = rotation;
         m_transformNeedUpdate = true;
         m_invTransformNeedsUpdate = true;
 
@@ -102,16 +102,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::quat Transform::getRotation() const
+    const glm::quat& Transform::getRotation() const
     {
-        return glm::conjugate(m_rotation);
+        return m_rotation;
     }
 
     //////////////////////////////////////////////
 
     glm::quat Transform::getGlobalRotation() const
     {
-        return glm::conjugate(glm::quat_cast(getMatrix()));
+        return glm::quat_cast(getMatrix());
     }
 
     //////////////////////////////////////////////
@@ -246,8 +246,7 @@ namespace jop
 
     Transform& Transform::lookAt(const glm::vec3& point)
     {
-        static const glm::vec3 upVec(0.f, 1.f, 0.f);
-        return lookAt(point, upVec);
+        return lookAt(point, Up);
     }
 
     //////////////////////////////////////////////
@@ -294,7 +293,7 @@ namespace jop
 
     Transform& Transform::rotate(const glm::quat& rotation)
     {
-        return setRotation(glm::conjugate(m_rotation * glm::conjugate(rotation)));
+        return setRotation(m_rotation * rotation);
     }
 
     //////////////////////////////////////////////

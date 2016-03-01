@@ -89,7 +89,7 @@ namespace jop
         ///
         /// \return Quaternion with the rotation
         ///
-        glm::quat getRotation() const;
+        const glm::quat& getRotation() const;
 
         glm::quat getGlobalRotation() const;
 
