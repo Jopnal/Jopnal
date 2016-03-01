@@ -264,6 +264,9 @@ namespace jop
     #include <Jopnal/Core/Inl/Engine.inl>
 }
 
+#define JOP_ENGINE_INIT(projectName, argc, argv) jop::Engine jop_engine(projectName, argc, argv); jop_engine.loadDefaultConfiguration();
+#define JOP_MAIN_LOOP jop_engine.runMainLoop();
+
 #endif
 
 /// \class Engine
