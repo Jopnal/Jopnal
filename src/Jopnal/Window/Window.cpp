@@ -208,6 +208,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    WindowHandle Window::getNativeHandle()
+    {
+        if (isOpen())
+            m_impl->getNativeHandle();
+
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
     void Window::pollEvents()
     {
         detail::WindowImpl::pollEvents();

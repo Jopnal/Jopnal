@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Window.hpp>
+#include <Jopnal/Window/WindowHandle.hpp>
 #include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
@@ -48,6 +49,8 @@ namespace jop { namespace detail
         void swapBuffers();
 
         GLFWwindow* getLibraryHandle();
+
+        WindowHandle getNativeHandle();
 
         static void pollEvents();
 

@@ -264,6 +264,9 @@
     <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">

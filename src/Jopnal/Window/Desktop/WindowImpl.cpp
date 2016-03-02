@@ -155,6 +155,15 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
+    WindowHandle WindowImpl::getNativeHandle()
+    {
+    #ifdef JOP_OS_WINDOWS
+        return glfwGetWin32Window(m_window);
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
     void WindowImpl::pollEvents()
     {
         glfwPollEvents();

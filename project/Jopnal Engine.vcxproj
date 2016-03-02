@@ -79,6 +79,7 @@
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />

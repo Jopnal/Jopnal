@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Window/Mouse.hpp>
+#include <Jopnal/Window/WindowHandle.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
@@ -147,7 +148,7 @@ namespace jop
         /// \param args The arguments to use with construction
         ///
         template<typename T, typename ... Args>
-        T& setEventHandler(Args&... args);
+        T& setEventHandler(Args&&... args);
 
         /// \brief Get the event handler
         ///
@@ -159,11 +160,19 @@ namespace jop
         ///
         void removeEventHandler();
 
-        /// \brief Get the GLFW library window handle
+        /// \brief Get the window library handle handle
+        ///
+        /// On desktop operating systems this is GLFWwindow*.
         ///
         /// \return A pointer to the handle. Nullptr if window hasn't been created
         ///
-        GLFWwindow* getLibraryHandle();
+        WindowLibHandle getLibraryHandle();
+
+        /// \brief Get the native window handle
+        ///
+        /// \return The native window handle
+        ///
+        WindowHandle getNativeHandle();
 
         /// \brief Poll the events of all open windows
         ///
