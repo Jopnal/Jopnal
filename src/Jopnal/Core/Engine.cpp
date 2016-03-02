@@ -112,8 +112,8 @@ namespace jop
         while (m_running)
         {
             // Clamp the delta time to a certain value. This is to prevent
-            // a "spiral of death" if fps goes below 10.
-            const float frameTime = static_cast<float>(std::min(0.1, frameClock.reset().asSeconds()));
+            // a "spiral of death" if fps goes below 5.
+            const float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
             m_totalTime += frameTime;
 
             // Fixed update
