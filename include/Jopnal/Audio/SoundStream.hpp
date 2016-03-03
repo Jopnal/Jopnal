@@ -22,6 +22,9 @@
 #ifndef JOP_SOUNDSTREAM_HPP
 #define JOP_SOUNDSTREAM_HPP
 
+// Headers
+#include <Jopnal/Header.hpp>
+
 //////////////////////////////////////////////
 
 namespace sf
@@ -33,7 +36,7 @@ namespace jop
 {
     class Object;
 
-    class SoundStream : public SoundSource
+    class JOP_API SoundStream : public SoundSource
     {
     public:
 

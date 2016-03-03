@@ -48,7 +48,7 @@ namespace jop
 
     SoundStream& SoundStream::setPath(const std::string& path)
     {
-        if (static_cast<sf::Music*>(m_sound.get())->openFromFile(path));
+        if (static_cast<sf::Music*>(m_sound.get())->openFromFile(path))
         {
             m_path = path;
 

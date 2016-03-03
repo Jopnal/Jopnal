@@ -44,8 +44,8 @@ namespace jop
 
     void Listener::update(const float)
     {
-        sf::Listener::setPosition(getObject().getPosition().x, getObject().getPosition().y, getObject().getPosition().z);
-        sf::Listener::setDirection(getObject().getRotation().x, getObject().getRotation().y, getObject().getRotation().z);
+        sf::Listener::setPosition(getObject()->getPosition().x, getObject()->getPosition().y, getObject()->getPosition().z);
+        //sf::Listener::setDirection(getObject()->getRotation().x, getObject()->getRotation().y, getObject()->getRotation().z);
     }
 
     ///////////////////////////////////////

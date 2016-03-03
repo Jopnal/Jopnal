@@ -32,7 +32,7 @@ namespace jop
 {
     class Object;
     
-    class Listener : public Component
+    class JOP_API Listener : public Component
     {
     public:
 

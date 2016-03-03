@@ -39,7 +39,7 @@ namespace jop
 {
     class Object;
 
-    class SoundSource : public Component
+    class JOP_API SoundSource : public Component
     {
     public:
 
