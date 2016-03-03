@@ -41,6 +41,7 @@
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
+#include <Jopnal/Graphics/ShaderManager.hpp>
 
 //////////////////////////////////////////////
 

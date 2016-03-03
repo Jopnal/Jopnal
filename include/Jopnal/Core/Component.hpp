@@ -24,8 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <memory>
 #include <string>
 
 //////////////////////////////////////////////
@@ -35,13 +35,15 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component : public std::enable_shared_from_this<Component>
+    class JOP_API Component : public SafeReferenceable<Component>
     {
     private:
 
         JOP_DISALLOW_MOVE(Component);
 
         void operator =(const Component&) = delete;
+
+        friend class Object;
 
     protected:
 
@@ -113,11 +115,19 @@ namespace jop
         ///
         /// \return Reference to the object
         ///
-        Object& getObject();
+        WeakReference<Object> getObject();
 
         /// \copydoc jop::Component::getObject()
         ///
-        const Object& getObject() const;
+        WeakReference<const Object> getObject() const;
+
+        /// \brief Check if this component is active
+        ///
+        /// This is the same as calling getObject()->isActive().
+        ///
+        /// \return True if active
+        ///
+        bool isActive() const;
         
     private:
 
@@ -125,8 +135,8 @@ namespace jop
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
 
-        std::string m_ID;       ///< Unique component identifier
-        Object& m_objectRef;    ///< Reference to the object this component is bound to
+        std::string m_ID;                   ///< Identifier
+        WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }
 

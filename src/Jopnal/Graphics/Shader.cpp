@@ -35,7 +35,7 @@ namespace jop
             return false;
         }
 
-        if (!val.HasMember("shaders") || !val["shaders"].IsArray() || val["shaders"].Size() < 3)
+        if (!val.HasMember("shaders") || !val["shaders"].IsArray() || val["shaders"].Size() < 4)
         {
             JOP_DEBUG_ERROR("Couldn't load Shader, no shader paths or sources found");
             return false;
@@ -46,7 +46,8 @@ namespace jop
         ResourceManager::getNamedResource<Shader>(val["name"].GetString(),
                                                   arr[0u].IsString() ? arr[0u].GetString() : "",
                                                   arr[1u].IsString() ? arr[1u].GetString() : "", 
-                                                  arr[2u].IsString() ? arr[2u].GetString() : "")
+                                                  arr[2u].IsString() ? arr[2u].GetString() : "",
+                                                  arr[3u].IsString() ? arr[3u].GetString() : "")
             
             .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
@@ -64,7 +65,9 @@ namespace jop
         val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
            .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
            .PushBack(json::StringRef(ref.getSource(Shader::Type::Geometry).c_str()), alloc)
-           .PushBack(json::StringRef(ref.getSource(Shader::Type::Fragment).c_str()), alloc);
+           .PushBack(json::StringRef(ref.getSource(Shader::Type::Fragment).c_str()), alloc)
+           .PushBack(json::StringRef(ref.getSource(Shader::Type::Preprocessor).c_str()), alloc);
+
 
         return true;
     }
@@ -87,8 +90,10 @@ namespace jop
 {
     Shader::Shader(const std::string& name)
         : Resource          (name),
-          m_shaderProgram   (0),
-          m_strings         ()
+          m_strings         (),
+          m_unifMap         (),
+          m_attribMap       (),
+          m_shaderProgram   (0)
     {}
 
     Shader::~Shader()
@@ -98,7 +103,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Shader::load(const std::string& vert, const std::string& geom, const std::string& frag)
+    bool Shader::load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp)
     {
         static const int shaderAmount = sizeof(ns_shaderTypes) / sizeof(ns_shaderTypes[0]);
 
@@ -199,12 +204,12 @@ namespace jop
                 continue;
 
             std::string fileReadBuffer;
-            const char* source = FileLoader::read(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str();
+            const char* sources[] = {pp.c_str(), "\n", FileLoader::read(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str()};
 
             shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
 
-            int size = fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size();
-            glCheck(gl::ShaderSource(shaderHandles[i], 1, &source, &size));
+            int sizes[] = {pp.length(), 1, fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size()};
+            glCheck(gl::ShaderSource(shaderHandles[i], 3, sources, sizes));
             glCheck(gl::CompileShader(shaderHandles[i]));
 
             if (!handleShaderInfo(shaderHandles[i], i))
@@ -232,6 +237,7 @@ namespace jop
         m_strings[0] = vert;
         m_strings[1] = geom;
         m_strings[2] = frag;
+        m_strings[3] = pp;
 
         return true;
     }
@@ -248,6 +254,9 @@ namespace jop
 
             glCheck(gl::DeleteProgram(m_shaderProgram));
         }
+
+        m_unifMap.clear();
+        m_attribMap.clear();
         
         m_shaderProgram = 0;
     }
@@ -287,7 +296,7 @@ namespace jop
         const int loc = getUniformLocation(name);
         
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
 
         return loc != -1;
     }
@@ -299,7 +308,19 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const glm::vec2& vector)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform2f(loc, vector.x, vector.y));
 
         return loc != -1;
     }
@@ -354,6 +375,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1i(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const unsigned int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1ui(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);
@@ -386,7 +431,7 @@ namespace jop
 
     Shader& Shader::getDefault()
     {
-        static std::weak_ptr<Shader> defShader;
+        static WeakReference<Shader> defShader;
 
         if (defShader.expired())
         {
@@ -394,32 +439,56 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = std::static_pointer_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").shared_from_this());
+            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_default").getReference());
 
-            JOP_ASSERT_EVAL(defShader.lock()->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                                   "",
-                                                   std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                                                   "Couldn't compile the default shader!");
+            JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                                            "",
+                                            std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                                            "Couldn't compile the default shader!");
 
-            defShader.lock()->setPersistent(true);
-            defShader.lock()->setManaged(true);
+            defShader->setPersistent(true);
+            defShader->setManaged(true);
         }
 
-        return *defShader.lock();
+        return *defShader;
     }
 
     //////////////////////////////////////////////
 
     int Shader::getUniformLocation(const std::string& name)
     {
-        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+        return getLocation(name, m_unifMap, &getLocUnif);
+    }
+
+    //////////////////////////////////////////////
+
+    int Shader::getAttributeLocation(const std::string& name)
+    {
+        return getLocation(name, m_attribMap, &getLocAttr);
+    }
+
+    //////////////////////////////////////////////
+
+    int Shader::getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&))
+    {
+        static const bool printErr = SettingManager::getBool("bPrintShaderLocationErrors", true);
 
         if (bind())
         {
-            const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
+            auto itr = map.find(name);
 
-            if (location == -1 && printErr)
-                JOP_DEBUG_WARNING("Uniform named \"" << name << "\"not found in shader");
+            if (itr != map.end())
+                return itr->second;
+
+            const int location = func(m_shaderProgram, name);
+
+            if (location == -1)
+            {
+                if (printErr)
+                    JOP_DEBUG_WARNING("Uniform/attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
+            }
+            else
+                map[name] = location;
 
             return location;
         }
@@ -429,20 +498,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int Shader::getAttributeLocation(const std::string& name)
+    int Shader::getLocUnif(unsigned int prog, const std::string& name)
     {
-        static const bool printErr = SettingManager::getBool("bPrintShaderUniformErrors", true);
+        const int loc = glCheck(gl::GetUniformLocation(prog, name.c_str()));
+        return loc;
+    }
 
-        if (bind())
-        {
-            const int location = glCheck(gl::GetAttribLocation(m_shaderProgram, name.c_str()));
+    //////////////////////////////////////////////
 
-            if (location == -1 && printErr)
-                JOP_DEBUG_WARNING("Attrubute named \"" << name << "\" not found in shader");
-
-            return location;
-        }
-
-        return -1;
+    int Shader::getLocAttr(unsigned int prog, const std::string& name)
+    {
+        const int loc = glCheck(gl::GetAttribLocation(prog, name.c_str()));
+        return loc;
     }
 }

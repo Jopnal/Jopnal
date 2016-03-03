@@ -19,37 +19,53 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_GENERICDRAWABLE_HPP
-#define JOP_GENERICDRAWABLE_HPP
+#ifndef JOP_SHADERMANAGER_HPP
+#define JOP_SHADERMANAGER_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Graphics/Material.hpp>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API GenericDrawable : public Drawable
+    class Shader;
+
+    class JOP_API ShaderManager final : public Subsystem
     {
     public:
 
-        /// \brief Constructor
+        /// \brief Default constructor
         ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
+        /// Reads the uber shader from the resource dll
         ///
-        GenericDrawable(Object& object, const std::string& ID);
+        ShaderManager();
+
+        /// \brief Destructor
+        ///
+        ~ShaderManager() override;
 
 
-        /// \copydoc jop::Component::clone()
+        /// \brief Get a shader with the given attribute combination
         ///
-        virtual GenericDrawable* clone() const override;
+        /// \param attributes The material attributes
+        ///
+        /// \return Reference to the shader
+        ///
+        static Shader& getShader(const Material::AttribType attributes);
 
-        /// \brief Draw function
-        ///
-        virtual void draw(const Camera& camera, const LightContainer& lights) override;
+    private:
+
+        static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+
+        static ShaderManager* m_instance;   ///< The single instance
+
+        std::unordered_map<Material::AttribType, WeakReference<Shader>> m_shaders;  ///< Map with the shaders
+        std::array<std::string, 3> m_uber;                                          ///< The uber shader sources
 
     };
 }

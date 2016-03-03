@@ -39,7 +39,11 @@
 #endif
 
 // Console
-#define JOP_ENABLE_CONSOLE
+#ifdef JOP_DEBUG_MODE
+    #define JOP_CONSOLE_VERBOSITY 2
+#else
+    #define JOP_CONSOLE_VERBOSITY 0
+#endif
 
 // Asserts
 #define JOP_ENABLE_ASSERTS

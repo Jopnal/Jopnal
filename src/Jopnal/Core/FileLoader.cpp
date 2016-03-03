@@ -129,6 +129,8 @@ namespace jop
 
             if (res)
             {
+                buffer.clear();
+
                 auto size = SizeofResource(ns_resourceDll, handle);
                 auto locked = LockResource(res);
 

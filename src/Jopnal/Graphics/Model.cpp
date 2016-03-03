@@ -28,82 +28,105 @@
 namespace jop
 {
     Model::Model()
-        : m_material    (Material::getDefault()),
+        : m_material    (),
           m_mesh        ()
-    {}
+    {
+        setMaterial(Material::getDefault());
+        setMesh(Mesh::getDefault());
+    }
 
     //////////////////////////////////////////////
 
     Model::Model(const Mesh& mesh, const Material& material)
-        : m_material    (material),
+        : m_material    (),
           m_mesh        ()
     {
+        setMaterial(material);
         setMesh(mesh);
     }
 
     //////////////////////////////////////////////
 
     Model::Model(const Mesh& mesh)
-        : m_material    (Material::getDefault()),
+        : m_material    (),
           m_mesh        ()
     {
+        setMaterial(Material::getDefault());
         setMesh(mesh);
     }
 
     //////////////////////////////////////////////
 
-    std::weak_ptr<const Mesh> Model::getMesh() const
+    bool Model::load(const std::string& filePath, const Mesh::LoadOptions& options)
+    {
+        setMesh(ResourceManager::getResource<Mesh>(filePath, *m_material, options));
+
+        return m_mesh.get() != &Mesh::getDefault();
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<const Mesh> Model::getMesh() const
     {
         return m_mesh;
     }
 
     //////////////////////////////////////////////
 
-    void Model::setMesh(const Mesh& mesh)
+    Model& Model::setMesh(const Mesh& mesh)
     {
-        m_mesh = std::weak_ptr<const Mesh>(std::static_pointer_cast<const Mesh>(mesh.shared_from_this()));
+        m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    const Material& Model::getMaterial() const
+    WeakReference<const Material> Model::getMaterial() const
+    {
+        return static_ref_cast<const Material>(m_material);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Material> Model::getMaterial()
     {
         return m_material;
     }
 
     //////////////////////////////////////////////
 
-    void Model::setMaterial(const Material& material)
+    Model& Model::setMaterial(const Material& material)
     {
-        m_material = material;
+        m_material = static_ref_cast<Material>(material.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     unsigned int Model::getVertexAmount() const
     {
-        return m_mesh.expired() ? 0 : m_mesh.lock()->getVertexAmount();
+        return m_mesh.expired() ? 0 : m_mesh->getVertexAmount();
     }
 
     //////////////////////////////////////////////
 
     unsigned int Model::getElementAmount() const
     {
-        return m_mesh.expired() ? 0 : m_mesh.lock()->getElementAmount();
+        return m_mesh.expired() ? 0 : m_mesh->getElementAmount();
     }
 
     //////////////////////////////////////////////
 
     const Model& Model::getDefault()
     {
-        static std::weak_ptr<const Mesh> defMesh;
+        static WeakReference<const Mesh> defMesh;
         static Model model;
 
         if (defMesh.expired())
         {
-            defMesh = std::static_pointer_cast<const Mesh>(Mesh::getDefault().shared_from_this());
+            defMesh = static_ref_cast<const Mesh>(Mesh::getDefault().getReference());
 
-            model.setMesh(*std::static_pointer_cast<const Mesh>(defMesh.lock()));
+            model.setMesh(*defMesh);
         }
 
         return model;

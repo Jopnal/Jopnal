@@ -92,7 +92,7 @@ namespace jop
         /// \return A reference to the newly created scene
         ///
         template<typename T, typename ... Args>
-        static T& createScene(Args&... args);
+        static T& createScene(Args&&... args);
 
         /// \brief Get the current scene
         ///
@@ -110,14 +110,14 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        static T& createSubsystem(Args&... args);
+        static WeakReference<T> createSubsystem(Args&&... args);
 
         /// \brief Get a subsystem using type info
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        static T* getSubsystem();
+        static WeakReference<T> getSubsystem();
 
         /// \brief Get a subsystem
         ///
@@ -125,7 +125,7 @@ namespace jop
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        static Subsystem* getSubsystem(const std::string& ID);
+        static WeakReference<Subsystem> getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
@@ -201,7 +201,7 @@ namespace jop
         /// \return Reference to the new scene
         ///
         template<typename T, typename ... Args>
-        static T& setSharedScene(Args&... args);
+        static T& setSharedScene(Args&&... args);
 
 
         /// \brief Get the total time since Engine construction
@@ -263,6 +263,22 @@ namespace jop
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>
 }
+
+/// \brief Initializing the engine with the default configuration
+///
+/// The engine should be constructed after entering main.
+///
+/// \param projectName The project name
+/// \param argc Number of arguments passed from main()
+/// \param argv The argument array passed from main()
+///
+#define JOP_ENGINE_INIT(projectName, argc, argv) jop::Engine jop_engine(projectName, argc, argv); jop_engine.loadDefaultConfiguration();
+
+/// \brief Run the main loop
+///
+/// This macro must appear in the same scope as JOP_ENGINE_INIT
+///
+#define JOP_MAIN_LOOP jop_engine.runMainLoop();
 
 #endif
 

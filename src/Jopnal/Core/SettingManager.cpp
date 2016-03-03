@@ -257,7 +257,8 @@ namespace jop
                 std::cout << "Config file has a parse error at " << ns_document.GetErrorOffset() << std::endl;
         }
 
-        PHYSFS_close(file);
+        if (PHYSFS_close(file))
+            JOP_DEBUG_INFO("Successfully reloaded settings");
     }
 
     //////////////////////////////////////////////
@@ -276,7 +277,8 @@ namespace jop
         if (file)
             PHYSFS_write(file, buffer.GetString(), 1, buffer.GetSize());
 
-        PHYSFS_close(file);
+        if (PHYSFS_close(file))
+            JOP_DEBUG_INFO("Successfully saved settings");
     }
 
     //////////////////////////////////////////////

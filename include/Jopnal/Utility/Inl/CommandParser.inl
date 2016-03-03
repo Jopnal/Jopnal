@@ -355,66 +355,68 @@ namespace DefaultParser
     template<typename Discard, typename Ret, typename T, typename ... Args>
     void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
     {
-        JOP_ASSERT(instance && (instance == typeid(typename std::remove_const<T>::type*) || instance == typeid(const T*)), "Called a member command with invalid instance type!");
-        MemberHelper<Discard, Ret, T, Args...>::parse(func, args, returnWrap, instance);
+        T* instPtr = instance.dynamicCast<T*>();
+
+        if (instPtr)
+            MemberHelper<Discard, Ret, T, Args...>::parse(func, args, returnWrap, *instPtr);
     }
 
     template<typename Discard, typename Ret, typename T, typename ... Args>
     struct MemberHelper
     {
-        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, T& instance)
         {
             if (returnWrap)
-                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
             else
-                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<T*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
     template<typename Discard, typename T, typename ... Args>
     struct MemberHelper<Discard, void, T, Args...>
     {
-        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
+        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, T& instance)
         {
-            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
 
     template<typename Discard, typename Ret, typename T>
     struct MemberHelper<Discard, Ret, T>
     {
-        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, Any& instance)
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, T& instance)
         {
             if (returnWrap)
-                returnWrap = func(*(instance.cast<typename std::remove_const<T>::type*>()));
+                returnWrap = func(instance);
             else
-                func(*(instance.cast<typename std::remove_const<T>::type*>()));
+                func(instance);
         }
     };
 
     template<typename Ret, typename T, typename ... Args>
     struct MemberHelper<std::true_type, Ret, T, Args...>
     {
-        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any&, Any& instance)
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any&, T& instance)
         {
-            ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, *(instance.cast<typename std::remove_const<T>::type*>()), ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
     template<typename Ret, typename T>
     struct MemberHelper<std::true_type, Ret, T>
     {
-        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any&, Any& instance)
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any&, T& instance)
         {
-            func(*(instance.cast<typename std::remove_const<T>::type*>()));
+            func(instance);
         }
     };
 
     template<typename Discard, typename T>
     struct MemberHelper<Discard, void, T>
     {
-        static void parse(const std::function<void(T&)>& func, const std::string&, Any&, Any& instance)
+        static void parse(const std::function<void(T&)>& func, const std::string&, Any&, T& instance)
         {
-            func(*(instance.cast<typename std::remove_const<T>::type*>()));
+            func(instance);
         }
     };
 }

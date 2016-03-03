@@ -57,7 +57,7 @@ namespace jop
         {
             if (m_colorChanged)
             {
-                glm::vec4 col = m_clearColor.asFloatVector();
+                glm::vec4 col = m_clearColor.asRGBAFloatVector();
 
                 glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
                 glCheck(gl::ClearDepth(1.0));

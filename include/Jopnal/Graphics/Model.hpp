@@ -42,8 +42,6 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param name Name of this model
-        ///
         Model();
 
         /// \brief Constructor for initializing with a mesh
@@ -74,19 +72,25 @@ namespace jop
         ///
         /// \return Pointer to the mesh
         ///
-        std::weak_ptr<const Mesh> getMesh() const;
+        WeakReference<const Mesh> getMesh() const;
 
         /// \brief Set the mesh
         ///
         /// \param mesh Reference to the mesh
         ///
-        void setMesh(const Mesh& mesh);
+        /// \return Reference to self
+        ///
+        Model& setMesh(const Mesh& mesh);
 
         /// \brief Get the material
         ///
         /// \return Reference to the material
         ///
-        const Material& getMaterial() const;
+        WeakReference<Material> getMaterial();
+
+        /// \copydoc getMaterial()
+        ///
+        WeakReference<const Material> getMaterial() const;
 
         /// \brief Set the material
         ///
@@ -95,7 +99,9 @@ namespace jop
         ///
         /// \param material The new material
         ///
-        void setMaterial(const Material& material);
+        /// \return Reference to self
+        ///
+        Model& setMaterial(const Material& material);
 
         
         /// \copydoc Mesh::getVertexAmount()
@@ -117,8 +123,8 @@ namespace jop
 
     private:
 
-        Material m_material;                ///< The material
-        std::weak_ptr<const Mesh> m_mesh;   ///< The mesh
+        WeakReference<Material> m_material; ///< The material
+        WeakReference<const Mesh> m_mesh;   ///< The mesh
 
     };
 }

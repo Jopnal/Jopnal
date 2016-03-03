@@ -57,20 +57,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int ResourceManager::getReferenceCount(const std::string& name)
-    {
-        if (!m_instance)
-            return 0u;
-
-        auto itr = m_instance->m_resources.find(name);
-        if (itr != m_instance->m_resources.end())
-            return static_cast<unsigned int>(itr->second.use_count());
-
-        return 0u;
-    }
-
-    //////////////////////////////////////////////
-
     void ResourceManager::unloadResource(const std::string& path)
     {
         if (m_instance)
@@ -167,7 +153,7 @@ namespace jop
 
                 if (nameItr == nameMap.end() || (itr = resCont.find(nameItr->second)) == resCont.end())
                 {
-                    JOP_DEBUG_WARNING("Couldn't save resource, type (name) not registered. Attempting to load the rest");
+                    JOP_DEBUG_WARNING("Couldn't save resource, type \"" << typeid(*i.second).name() << "\" not registered. Attempting to save the rest");
                     continue;
                 }
 
@@ -178,7 +164,7 @@ namespace jop
 
                 if (!std::get<1>(itr->second)(i.second.get(), curr.AddMember(json::StringRef("data"), json::kObjectType, alloc)["data"], alloc))
                 {
-                    JOP_DEBUG_ERROR("Couldn't save resource, registered save function reported failure");
+                    JOP_DEBUG_ERROR("Couldn't save resource with name \"" << i.second->getName() << "\", registered save function reported failure");
                     return false;
                 }
             }

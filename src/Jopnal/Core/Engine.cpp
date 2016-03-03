@@ -90,6 +90,11 @@ namespace jop
         // Main window
         const Window::Settings wSettings(true);
         createSubsystem<Window>(wSettings);
+
+        // Shader manager
+        createSubsystem<ShaderManager>();
+
+        JOP_DEBUG_INFO("Default engine configuration loaded");
     }
 
     //////////////////////////////////////////////
@@ -107,8 +112,8 @@ namespace jop
         while (m_running)
         {
             // Clamp the delta time to a certain value. This is to prevent
-            // a "spiral of death" if fps goes below 10.
-            const float frameTime = static_cast<float>(std::min(0.1, frameClock.reset().asSeconds()));
+            // a "spiral of death" if fps goes below 5.
+            const float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
             m_totalTime += frameTime;
 
             // Fixed update
@@ -165,13 +170,10 @@ namespace jop
 
             // Draw
             {
-                if (!isPaused())
-                {
-                    if (m_currentScene)
-                        m_currentScene->drawBase();
+                if (m_currentScene)
+                    m_currentScene->drawBase();
 
-                    m_sharedScene->drawBase();
-                }
+                m_sharedScene->drawBase();
 
                 for (auto& i : m_subsystems)
                 {
@@ -196,18 +198,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& ID)
+    WeakReference<Subsystem> Engine::getSubsystem(const std::string& ID)
     {
         if (m_engineObject)
         {
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
-                    return i.get();
+                    return i->getReference();
             }
         }
 
-        return nullptr;
+        return WeakReference<Subsystem>();
     }
 
     //////////////////////////////////////////////
@@ -220,6 +222,7 @@ namespace jop
             {
                 if ((*itr)->getID() == ID)
                 {
+                    JOP_DEBUG_INFO("Sub system with id \"" << (*itr)->getID() << "\" removed");
                     m_engineObject->m_subsystems.erase(itr);
                     return true;
                 }
@@ -241,7 +244,10 @@ namespace jop
     void Engine::exit()
     {
         if (m_engineObject)
+        {
+            JOP_DEBUG_INFO("Exit signal received, exiting...");
             m_engineObject->m_running = false;
+        }
     }
 
     //////////////////////////////////////////////
@@ -249,7 +255,10 @@ namespace jop
     void Engine::setPaused(const bool paused)
     {
         if (isRunning())
+        {
+            JOP_DEBUG_INFO("Engine " << (paused ? "paused" : "unpaused"));
             m_engineObject->m_paused = paused;
+        }
     }
 
     //////////////////////////////////////////////

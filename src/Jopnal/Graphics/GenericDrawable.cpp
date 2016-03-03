@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(""), scene, val);
+        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>(""), scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
 
@@ -55,24 +55,54 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera& camera)
+    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights)
     {
         if (getShader().expired() || getModel().getMesh().expired())
             return;
 
-        auto& s = *getShader().lock();
+        auto& s = *getShader();
         auto& mod = getModel();
-        auto& msh = *mod.getMesh().lock();
+        auto& msh = *mod.getMesh();
 
+        auto& modelMat = getObject()->getMatrix();
+
+        // Set common uniforms
+        s.setUniform("u_PMatrix", camera.getProjectionMatrix());
+        s.setUniform("u_VMatrix", camera.getViewMatrix());
+        s.setUniform("u_MMatrix", modelMat);
+
+        // Set vertex attributes
         msh.getVertexBuffer().bind();
-
-        s.setUniform("u_PVMMatrix", camera.getProjectionMatrix() * camera.getViewMatrix() * getObject().getMatrix());
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
-
-        mod.getMaterial().sendToShader(s);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        msh.getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        if (!mod.getMaterial().expired())
+        {
+            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Phong))
+            {
+                s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
+                s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+
+                // Set lights
+                lights.sendToShader(s, camera);
+            }
+
+            // Set material
+            mod.getMaterial()->sendToShader(s);
+        }
+
+        // Use indices if they exist
+        if (mod.getElementAmount())
+        {
+            // Bind index buffer
+            msh.getIndexBuffer().bind();
+
+            // Finally draw
+            glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+        }
+        else
+        {
+            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mod.getVertexAmount()));
+        }
     }
 }

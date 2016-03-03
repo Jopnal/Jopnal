@@ -32,13 +32,24 @@
 
 namespace jop
 {
-    #ifdef JOP_ENABLE_CONSOLE
+    // Error verbosity
+    #if JOP_CONSOLE_VERBOSITY >= 0
         #define JOP_DEBUG_ERROR(stream)   {jop::DebugHandler::getInstance() << jop::Color::Red << jop::DebugHandler::Severity::Error << stream << std::endl;}
-        #define JOP_DEBUG_WARNING(stream) {jop::DebugHandler::getInstance() << jop::Color::Yellow << jop::DebugHandler::Severity::Warning << stream << std::endl;}
-        #define JOP_DEBUG_INFO(stream)    {jop::DebugHandler::getInstance() << jop::Color::White << jop::DebugHandler::Severity::Info << stream << std::endl;}
     #else
         #define JOP_DEBUG_ERROR(stream)   {}
+    #endif
+
+    // Warning verbosity
+    #if JOP_CONSOLE_VERBOSITY >= 1
+        #define JOP_DEBUG_WARNING(stream) {jop::DebugHandler::getInstance() << jop::Color::Yellow << jop::DebugHandler::Severity::Warning << stream << std::endl;}
+    #else
         #define JOP_DEBUG_WARNING(stream) {}
+    #endif
+
+    // Info verbosity
+    #if JOP_CONSOLE_VERBOSITY >= 2
+        #define JOP_DEBUG_INFO(stream)    {jop::DebugHandler::getInstance() << jop::Color::White << jop::DebugHandler::Severity::Info << stream << std::endl;}
+    #else
         #define JOP_DEBUG_INFO(stream)    {}
     #endif
 
