@@ -32,6 +32,7 @@
 
 //////////////////////////////////////////////
 
+
 struct FT_LibraryRec_;
 struct FT_FaceRec_;
 
@@ -44,6 +45,17 @@ namespace jop
         :public Resource
 	{
 	public:
+
+        /// \brief Constructor
+        ///
+        /// \param path File path to font
+        ///
+        Font(const std::string& path);
+
+        /// \brief Deconstructor
+        ///
+        ///
+        ~Font();
 
         /// \brief Loads a font from targeted path
         ///
@@ -78,31 +90,16 @@ namespace jop
         ///
         Texture& getTexture();
 
-        /// \brief Deconstructor
-        ///
-        ///
-        ~Font();
-
-        /// \brief Constructor
-        ///
-        /// \param path File path to font
-        ///
-        Font(const std::string& path);
 
 	private:
         FT_LibraryRec_* m_library; ///< Freetype library
         FT_FaceRec_* m_face; ///< Font info
-
         Texture m_texture; ///< Texture
-
         std::vector<unsigned char> m_buffer; ///< File buffer
-
         std::unique_ptr<stbrp_context> m_context; ///< Rectangle packing context
         stbrp_node* m_nodes;
         int m_numNodes = 0;
-
-        std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Bitmaps
-
+        std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Texture coordinates
 	};
 }
 
@@ -111,6 +108,6 @@ namespace jop
 /// \class Font
 /// \ingroup graphics
 ///
-/// Font manager class which loads any desired font file
+/// Font manager class, which loads fonts from file.
 /// 
 ///

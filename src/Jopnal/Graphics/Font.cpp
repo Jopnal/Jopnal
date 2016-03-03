@@ -19,19 +19,8 @@
 
 //////////////////////////////////////////////
 
-
 // Headers
 #include <Jopnal/Precompiled.hpp>
-
-#define STB_RECT_PACK_IMPLEMENTATION
-#include <Jopnal/Graphics/stb/stb_rect_pack.h>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-#include FT_OUTLINE_H
-#include FT_BITMAP_H
-
 
 //////////////////////////////////////////////
 
@@ -43,27 +32,18 @@ namespace jop
     {
         FT_Error err = FT_Init_FreeType(&m_library);
         if (err)
-        {
             JOP_DEBUG_ERROR("Could not initialize freetype: " << err);
-        }
 
         if (path != "")
-        {
             load(path);
-        }
     }
 
     Font::~Font()
     {
         FT_Done_FreeType(m_library);
-        //for (auto pair : m_bitmaps)
-        //{
-        //    delete[] pair.second.data;
-        //}
-        //m_bitmaps.clear();
+        m_bitmaps.clear();
         delete[] m_nodes;
     }
-
 
     //////////////////////////////////////////////
 
@@ -76,7 +56,7 @@ namespace jop
 
     bool Font::load(const std::string& path)
     {
-        // create texture and context for glyph atlas
+        // Create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
         m_nodes = new stbrp_node[1024];
         m_numNodes = 1024;
@@ -90,26 +70,23 @@ namespace jop
         {
             // Save loaded data
             FT_Error error = FT_New_Memory_Face(m_library, m_buffer.data(), m_buffer.size() * sizeof(unsigned char), 0, &m_face);
-            JOP_ASSERT(!error, "Failed to load font!");
+            JOP_ASSERT(!error, "Failure loading font!");
 
             FT_Select_Charmap(m_face, ft_encoding_unicode);
 
-            //char size
-            //FT_Set_Char_Size(m_face, 0, 8*64, 300, 300);
-
-            //set glyph size in pixels
+            // Set glyph size in pixels
             FT_Set_Pixel_Sizes(m_face, 128, 128);
             error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
-            JOP_ASSERT(!error, "Failed to select charmap!");
+            JOP_ASSERT(!error, "Failure selecting charmap!");
 
             m_context = std::move(context_ptr);
             
-            //create default glyph
+            // Create default glyph
             unsigned char data[4] = { 255, 255, 255, 255 };
 
             m_texture.setPixels(0, 0, 2, 2, data);
 
-            std::pair<glm::ivec2, glm::ivec2> bounds; // X, Y, width & height
+            std::pair<glm::ivec2, glm::ivec2> bounds;
 
             bounds.first.x = 0;
             bounds.first.y = 0;
@@ -126,9 +103,8 @@ namespace jop
                 m_bitmaps[0] = bounds;
             }
             else
-            {
-                JOP_DEBUG_ERROR("Can't create white rectangle");
-            }
+                JOP_DEBUG_ERROR("Failure creating white rectangle!");
+
             return true;
         }
         return false;
@@ -140,13 +116,14 @@ namespace jop
     {
         FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_NO_BITMAP);
 
-        //x and y are offset from glyph origo
+        // X and Y are offset from glyph origo
         int x, y, w, h;
         x = m_face->glyph->bitmap_left;
         y = m_face->glyph->bitmap_top;
         w = m_face->glyph->bitmap.width;
         h = m_face->glyph->bitmap.rows;
-        return std::make_pair(glm::ivec2(x, y), glm::ivec2(w, h)); // X, Y, width & height
+
+        return std::make_pair(glm::ivec2(x, y), glm::ivec2(w, h));
     }
 
     //////////////////////////////////////////////
@@ -165,18 +142,16 @@ namespace jop
         
         auto it = m_bitmaps.find(codepoint);
         if (it != m_bitmaps.end())
-        {
-            
-            //return glyph texture coordinates
+        {           
+            // Return glyph texture coordinates
             *x = it->second.first.x;
             *y = it->second.first.y;
             *width = it->second.second.x;
             *height = it->second.second.y;
-
         }
         else
         {
-            //load glyph
+            // Load glyph
             FT_UInt index = FT_Get_Char_Index(m_face, codepoint);
 
             FT_GlyphSlot slot = m_face->glyph;
@@ -199,15 +174,14 @@ namespace jop
             FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
             // Get glyph rectangle size in pixels
-            std::pair<glm::ivec2, glm::ivec2> bounds; // X, Y, width & height
+            std::pair<glm::ivec2, glm::ivec2> bounds; 
 
             bounds.first.x = bitmapGlyph->left;
             bounds.first.y = bitmapGlyph->top;
             bounds.second.x = bitmapGlyph->bitmap.width;
             bounds.second.y = bitmapGlyph->bitmap.rows;
            
-            // Create a bitmap
-            unsigned char* pixelData = bitmap.buffer;//slot->bitmap.buffer;
+            unsigned char* pixelData = bitmap.buffer;
             
             // Find an empty spot in the texture
             stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y};
@@ -232,13 +206,9 @@ namespace jop
                 *height = rectangle.h;
             }
             else
-            {
-                //we need a bigger texture!
-            }
+                JOP_DEBUG_ERROR("Failure packing rectangle! Need bigger texture!");
 
             FT_Done_Glyph(glyphDesc);
         }
     }
-
-    //////////////////////////////////////////////
 }
