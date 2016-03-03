@@ -24,7 +24,6 @@
 
 // Headers
 #include <nana/gui/wvl.hpp>
-#include <nana/gui/widgets/button.hpp>
 
 //////////////////////////////////////////////
 
@@ -38,11 +37,6 @@ namespace jope
         MainWindow();
 
         
-
-    private:
-
-        nana::nested_form m_exitConfirm;
-        nana::button m_exitButton;
 
     };
 }

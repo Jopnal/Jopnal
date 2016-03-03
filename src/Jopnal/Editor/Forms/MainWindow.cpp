@@ -21,6 +21,8 @@
 
 // Headers
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
+#include <nana/gui/widgets/button.hpp>
+#include <nana/gui/place.hpp>
 
 //////////////////////////////////////////////
 
@@ -42,37 +44,45 @@ namespace
 namespace jope
 {
     MainWindow::MainWindow()
-        : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
-          m_exitConfirm(*this, nana::API::make_center(100, 20), nana::appearance(true, false, true, false, false, false, false)),
-          m_exitButton()
+        : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance)
     {
         this->caption("Jopnal Editor");
         this->bgcolor(nana::color(nana::color_rgb(0x222222)));
         
         this->events().unload([this](const nana::arg_unload& u)
         {
+            bool close = false;
 
-            m_exitConfirm.activate();
-            m_exitConfirm.show();
-            m_exitButton.create(m_exitConfirm, true);
-            m_exitButton.caption("yes");
-            bool yes = false;
+            nana::nested_form dialog(*this, nana::API::make_center(*this, 200, 40), nana::appearance(true, false, true, false, false, false, false));
+            dialog.caption("Really exit?");
+            nana::place pl(dialog);
+            pl.div("<ab>");
 
-            m_exitButton.events().click([this, &yes]
+            nana::button yes(dialog, "Yes");
+            yes.events().click([&dialog, &close]
             {
-                yes = true;
-                m_exitConfirm.close();
+                close = true;
+                dialog.close();
             });
+
+            nana::button no(dialog, "No");
+            no.events().click([&dialog]
+            {
+                dialog.close();
+            });
+
+            pl.field("ab") << yes << no;
+
+            pl.collocate();
+            dialog.show();
             
-            nana::API::wait_for(m_exitConfirm);
+            nana::API::wait_for(dialog);
             
-            if (yes)
+            if (close)
                 jop::Engine::exit();
             else
                 u.cancel = true;
         });
-
-        m_exitConfirm.hide();
 
         // Keep last
         this->zoom(true);
