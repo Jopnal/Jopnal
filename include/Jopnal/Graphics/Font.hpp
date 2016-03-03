@@ -78,13 +78,11 @@ namespace jop
 
         /// \brief Checks if glyph is in bitmap
         ///
-        /// \param scaleX Horizontal scale of a single character
-        /// \param scaleY Vertical scale of a single character
         /// \param codepoint Pointer to a single character
         /// \param width Width of a single character
         /// \param height Height of a single character
         ///
-        void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y);
+        void getCodepointBitmap(const int codepoint, int* width, int* height, int* x, int* y);
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///

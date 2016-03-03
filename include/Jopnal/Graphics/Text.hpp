@@ -19,28 +19,32 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_FONT_HPP
-#define JOP_FONT_HPP
+#ifndef JOP_TEXT_HPP
+#define JOP_TEXT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
 
 namespace jop
 {
     class JOP_API Text
-        :public Component
+        :public Drawable, public Mesh
     {
     public:
+        Text(Object& object, const std::string& ID);
+        
+        void setString(const std::string &string); //generates vertices
+        void draw(const Camera&, const LightContainer&)override;
 
-        /// \brief <Description>
-        ///
-        /// \param <parameter_1 description>
-        ///
+
+    private:
+        WeakReference<Font> m_font;
     };
 }
 

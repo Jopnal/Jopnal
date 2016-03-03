@@ -75,7 +75,7 @@ namespace jop
             FT_Select_Charmap(m_face, ft_encoding_unicode);
 
             // Set glyph size in pixels
-            FT_Set_Pixel_Sizes(m_face, 128, 128);
+            FT_Set_Pixel_Sizes(m_face, 64, 64);
             error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
             JOP_ASSERT(!error, "Failure selecting charmap!");
 
@@ -137,13 +137,13 @@ namespace jop
 
     //////////////////////////////////////////////
     
-    void Font::getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y)
+    void Font::getCodepointBitmap(const int codepoint, int* width, int* height, int* x, int* y)
     {
         
         auto it = m_bitmaps.find(codepoint);
         if (it != m_bitmaps.end())
         {           
-            // Return glyph texture coordinates
+            // Return glyph texture coordinates in pixels
             *x = it->second.first.x;
             *y = it->second.first.y;
             *width = it->second.second.x;

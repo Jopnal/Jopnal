@@ -264,8 +264,10 @@
     <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Text.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -414,7 +416,12 @@
     <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Text.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
