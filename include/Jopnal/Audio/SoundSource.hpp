@@ -79,7 +79,7 @@ namespace jop
 
         /// \brief Set pitch
         ///
-        /// \param Float default is 1
+        /// \param Float pitch value default is 1 min is 0.0 max is 8.9
         ///
         SoundSource& setPitch(const float& value);
 
@@ -89,7 +89,7 @@ namespace jop
 
         /// \brief Toggle listener on/off
         ///
-        /// \param Boolean true iquals on and false iquals off
+        /// \param Boolean true plays sound at listener's position and false enables spatialization in 3d space
         ///
         SoundSource& setListener(bool toggle);
 
@@ -97,7 +97,15 @@ namespace jop
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
-        SoundSource& setAttenuationAndMinDistance(const float& at, const float& min);
+        SoundSource& setAttenuationAndMinDistance(const float& at, const float& min); 
+       
+        /// \brief Returns fadein value
+        ///
+        const float getAttenuation();
+
+        /// \brief Returns distance of max volume
+        ///
+        const float getMinDistance();
 
     protected:
         std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample

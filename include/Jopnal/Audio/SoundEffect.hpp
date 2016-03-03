@@ -33,7 +33,7 @@ namespace jop
 {
     class Object;
 
-    class SoundEffect : public SoundSource
+    class JOP_API SoundEffect : public SoundSource
     {
     public:
 

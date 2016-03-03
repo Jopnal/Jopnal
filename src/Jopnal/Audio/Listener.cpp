@@ -44,8 +44,11 @@ namespace jop
 
     void Listener::update(const float)
     {
-        sf::Listener::setPosition(getObject()->getPosition().x, getObject()->getPosition().y, getObject()->getPosition().z);
-        //sf::Listener::setDirection(getObject()->getRotation().x, getObject()->getRotation().y, getObject()->getRotation().z);
+        glm::vec3 var = getObject()->getPosition();
+        sf::Listener::setPosition(var.x, var.y, var.z);
+
+        var = getObject()->getGlobalFront();
+        sf::Listener::setDirection(var.x, var.y, var.z);
     }
 
     ///////////////////////////////////////
@@ -73,15 +76,16 @@ namespace jop
 
     void Listener::setPosition(const glm::fvec3& position)
     {
-        sf::Vector3f pos = { position.x, position.y, position.z };
-        sf::Listener::setPosition(pos.x, pos.y, pos.z);
+        sf::Listener::setPosition(position.x, position.y, position.z);
     }
 
     ///////////////////////////////////////
 
     glm::fvec3 Listener::getPosition()
     {
-        return glm::fvec3(sf::Listener::getPosition().x, sf::Listener::getPosition().z, sf::Listener::getPosition().y);
+        return glm::fvec3(sf::Listener::getPosition().x,
+            sf::Listener::getPosition().z,
+            sf::Listener::getPosition().y);
     }
 
     ///////////////////////////////////////
@@ -95,14 +99,15 @@ namespace jop
 
     void Listener::setDirection(const glm::fvec3& direction)
     {
-        sf::Vector3f dir = { direction.x, direction.y, direction.z };
-        sf::Listener::setDirection(dir.x,dir.y,dir.z);
+        sf::Listener::setDirection(direction.x, direction.y, direction.z);
     }
 
     ///////////////////////////////////////
 
     const glm::fvec3 Listener::getDirection()
     {
-        return glm::fvec3(sf::Listener::getDirection().x, sf::Listener::getDirection().z, sf::Listener::getDirection().y);
+        return glm::fvec3(sf::Listener::getDirection().x,
+            sf::Listener::getDirection().z,
+            sf::Listener::getDirection().y);
     }
 }

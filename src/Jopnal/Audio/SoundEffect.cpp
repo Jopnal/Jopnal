@@ -49,7 +49,7 @@ namespace jop
     {
         static_cast<sf::Sound*>(m_sound.get())->setBuffer(ResourceManager::getResource<SoundBuffer>(path).getSfmlBuffer());
 
-    return *this;
+        return *this;
     }
 
     //////////////////////////////////////////////

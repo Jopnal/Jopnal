@@ -44,7 +44,8 @@ namespace jop
 
     void SoundSource::update(const float)
     {
-        m_sound->setPosition(getObject()->getPosition().x, getObject()->getPosition().y, getObject()->getPosition().z);
+        glm::vec3 pos = getObject()->getPosition();
+        m_sound->setPosition(pos.x, pos.y, pos.z);
     }
 
     //////////////////////////////////////////////
@@ -67,6 +68,7 @@ namespace jop
 
     SoundSource& SoundSource::setPitch(const float& value)
     {
+        if (value >= 0.0 && value < 8.9)
         m_sound->setPitch(value);
 
         return *this;
@@ -96,5 +98,19 @@ namespace jop
         m_sound->setMinDistance(min);
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const float SoundSource::getAttenuation()
+    {
+        return m_sound->getAttenuation();
+    }
+
+    //////////////////////////////////////////////
+
+    const float SoundSource::getMinDistance()
+    {
+        return  m_sound->getMinDistance();
     }
 }
