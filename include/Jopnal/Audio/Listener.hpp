@@ -69,34 +69,6 @@ namespace jop
         ///
         float getGlobalVolume();
 
-        /// \Set the position xyz of the listener in the scene
-        ///
-        /// \param Position xyz
-        ///
-        void setPosition(const float& x,const float& y,const float& z);
-
-        /// \Set the position vector of the listener in the scene
-        ///
-        /// \param Position float vector 3
-        ///
-        void setPosition(const glm::fvec3& position);
-
-        /// \brief Get the current position of the listener in the scene
-        ///
-        glm::fvec3 getPosition();
-
-        /// \brief Set the orientation xyz of the listener in the scene
-        ///
-        /// \param Direction xyz
-        ///
-        void setDirection(const float& x, const float& y, const float& z);
-
-        /// \brief Set the orientation vector of the listener in the scene
-        ///
-        /// \param Direction vector 3
-         ///
-        void setDirection(const glm::fvec3& direction);
-
         /// \brief Get the current orientation of the listener in the scene
         ///
         const glm::fvec3 getDirection();
