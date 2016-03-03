@@ -27,6 +27,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
 //////////////////////////////////////////////
+
 namespace jop
 {
     class Object;

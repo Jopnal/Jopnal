@@ -74,6 +74,7 @@ namespace jop
     void Listener::setPosition(const glm::fvec3& position)
     {
         sf::Vector3f pos = { position.x, position.y, position.z };
+        sf::Listener::setPosition(pos.x, pos.y, pos.z);
     }
 
     ///////////////////////////////////////
@@ -95,7 +96,7 @@ namespace jop
     void Listener::setDirection(const glm::fvec3& direction)
     {
         sf::Vector3f dir = { direction.x, direction.y, direction.z };
-        sf::Listener::setPosition(dir);
+        sf::Listener::setDirection(dir.x,dir.y,dir.z);
     }
 
     ///////////////////////////////////////
