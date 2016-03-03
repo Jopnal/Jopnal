@@ -52,6 +52,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\ShaderManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereMesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Text.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp" />
