@@ -103,6 +103,8 @@ namespace jop
 
         Texture m_texture; ///< Texture
 
+        std::vector<unsigned char> m_buffer;
+
         std::unique_ptr<stbrp_context> m_context;
         stbrp_node* m_nodes;
         int m_numNodes = 0;
