@@ -25,17 +25,57 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    static const nana::appearance ns_mainAppearance
+    (
+        /* Decoration  */ true,  
+        /* Task bar    */ true,
+        /* Floating    */ false,
+        /* No activate */ false,
+        /* Minimize    */ true,
+        /* Maximize    */ true,
+        /* Resizeable  */ true
+    );
+}
+
 namespace jope
 {
     MainWindow::MainWindow()
+        : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
+          m_exitConfirm(*this, nana::API::make_center(100, 20), nana::appearance(true, false, true, false, false, false, false)),
+          m_exitButton()
     {
+        this->caption("Jopnal Editor");
+        this->bgcolor(nana::color(nana::color_rgb(0x222222)));
+        
+        this->events().unload([this](const nana::arg_unload& u)
+        {
 
-    }
+            m_exitConfirm.activate();
+            m_exitConfirm.show();
+            m_exitButton.create(m_exitConfirm, true);
+            m_exitButton.caption("yes");
+            bool yes = false;
 
-    //////////////////////////////////////////////
+            m_exitButton.events().click([this, &yes]
+            {
+                yes = true;
+                m_exitConfirm.close();
+            });
+            
+            nana::API::wait_for(m_exitConfirm);
+            
+            if (yes)
+                jop::Engine::exit();
+            else
+                u.cancel = true;
+        });
 
-    MainWindow::~MainWindow()
-    {
+        m_exitConfirm.hide();
 
+        // Keep last
+        this->zoom(true);
+        this->show();
     }
 }

@@ -77,7 +77,7 @@ namespace jop
         ///
         /// \return An integer return value. To be used as the main() return value
         ///
-        int runMainLoop();
+        static int runMainLoop();
 
 
         /// \brief Create a scene
@@ -278,7 +278,7 @@ namespace jop
 ///
 /// This macro must appear in the same scope as JOP_ENGINE_INIT
 ///
-#define JOP_MAIN_LOOP jop_engine.runMainLoop();
+#define JOP_MAIN_LOOP jop::Engine::runMainLoop();
 
 #endif
 

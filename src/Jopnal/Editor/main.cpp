@@ -1,29 +1,44 @@
+// Jopnal Editor C++ Application
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
+//////////////////////////////////////////////
+
+// Headers
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
+#include <windows.h>
+
+//////////////////////////////////////////////
 
 
-
-#include <Jopnal/Jopnal.hpp>
-#include <iostream>
-#include <nana/gui/wvl.hpp> 
-#include <nana/gui/widgets/label.hpp>
-#include <nana/gui/widgets/menubar.hpp>
-
-
-int main(int c, char* v[])
+int main(int argc, char* argv[])
 {
-    JOP_ENGINE_INIT("Jopnal Editor", c, v);
+    JOP_ENGINE_INIT("Jopnal Editor", argc, argv);
 
-    nana::appearance a;
-    a.maximize = true;
-    a.taskbar = true;
+    std::thread t([]
+    {
+        JOP_MAIN_LOOP;
+    });
 
-
-    //nana::form form(nana::rectangle(nana::point(10, 10), nana::size(1280u, 720u)), a);
     jope::MainWindow form;
-
-    form.bgcolor(nana::color(nana::color_rgb(0x222222)));
-    nana::label label(form, nana::rectangle(0, 0, 1000, 220));
-    label.caption("Hello Nana");
-    form.show();
+    
     nana::exec();
+    t.join();
+
+    return EXIT_SUCCESS;
 }

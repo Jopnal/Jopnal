@@ -19,8 +19,17 @@
 
 //////////////////////////////////////////////
 
+// Disable warning C4512 and C4503
+#pragma warning(disable: 4512)
+#pragma warning(disable: 4503)
+
 // Standard
 #include <iostream>
+#include <thread>
+
+// Nana
+#include <nana/gui/wvl.hpp> 
+#include <nana/gui/widgets/label.hpp>
 
 // Jopnal Engine
 #include <Jopnal/Jopnal.hpp>
