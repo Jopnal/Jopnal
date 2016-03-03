@@ -373,9 +373,34 @@ namespace jop
         });
 
         // Mouse position callback
+        // First set the initial mouse position
+        double x = 0.0, y = 0.0;
+        glfwGetCursorPos(handle, &x, &y);
+        m_lastMouseX = static_cast<float>(x);
+        m_lastMouseY = static_cast<float>(y);
+
         glfwSetCursorPosCallback(handle, [](GLFWwindow* w, double x, double y)
         {
-            static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w))->mouseMoved(static_cast<const float>(x), static_cast<const float>(y));
+            auto h = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
+
+            double realX = h->m_lastMouseX;
+            double realY = h->m_lastMouseY;
+
+            if (glfwGetInputMode(w, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+            {
+                realX -= x;
+                realY -= y;
+            }
+            else
+            {
+                realX = x;
+                realY = y;
+            }
+
+            h->mouseMoved(static_cast<float>(-realX), static_cast<float>(-realY));
+
+            h->m_lastMouseX = static_cast<float>(x);
+            h->m_lastMouseY = static_cast<float>(y);
         });
 
         // Mouse button callback

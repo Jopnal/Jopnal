@@ -157,7 +157,7 @@ namespace jop
  
     bool Texture::load(const int x, const int y, const int bytesPerPixel)
     {
-        std::vector<unsigned char> buf(x * y* bytesPerPixel, 255);
+        std::vector<unsigned char> buf(x * y* bytesPerPixel, 0);
         return load(x, y, bytesPerPixel, buf.data());
     }
 
@@ -177,7 +177,7 @@ namespace jop
         }
         else if (!checkDepthValid(bytesPerPixel))
         {
-            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 3 or 4");
+            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 1, 3 or 4");
             return false;
         }
 
@@ -256,8 +256,12 @@ namespace jop
             return;
         }
 
+        std::vector<unsigned char> buf(m_bytesPerPixel * width * height);
+        std::memcpy(&buf[0], pixels, buf.size());
+        flip(width, height, m_bytesPerPixel, &buf[0]);
+
         bind(0);
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, buf.data()));
     }
 
     //////////////////////////////////////////////
@@ -300,7 +304,7 @@ namespace jop
 
         if (errTex.expired())
         {
-            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Error Texture").getReference());
+            errTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("jop_error_texture").getReference());
 
             JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
 
@@ -319,7 +323,7 @@ namespace jop
 
         if (defTex.expired())
         {
-            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("Default Texture").getReference());
+            defTex = static_ref_cast<Texture>(ResourceManager::getEmptyResource<Texture>("jop_default_texture").getReference());
             
             JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
 

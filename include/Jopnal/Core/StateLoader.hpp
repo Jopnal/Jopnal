@@ -159,7 +159,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = true);
 
         /// \brief Load the current state
         ///
@@ -170,7 +170,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = false);
+        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = true);
 
 
         /// \brief Get the container with the registered load/save functions for the type T
@@ -185,6 +185,12 @@ namespace jop
         /// \return Reference to the container
         ///
         static const std::unordered_map<std::type_index, std::string>& getSavenameContainer();
+
+        /// \brief Check is the state is currently loading
+        ///
+        /// \return True if currently loading
+        ///
+        static bool currentlyLoading();
 
     private:
 
@@ -220,6 +226,7 @@ namespace jop
             std::unordered_map<std::type_index, std::string>
 
         > m_loaderSavers;
+        bool m_loading; ///< Currently loading flag
 
     };
 

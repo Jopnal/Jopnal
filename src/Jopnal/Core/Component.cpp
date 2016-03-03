@@ -111,16 +111,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Component::getObject()
+    WeakReference<Object> Component::getObject()
     {
-        return *m_objectRef;
+        return m_objectRef;
     }
 
     //////////////////////////////////////////////
 
-    const Object& Component::getObject() const
+    WeakReference<const Object> Component::getObject() const
     {
-        return *m_objectRef;
+        return static_ref_cast<const Object>(m_objectRef);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Component::isActive() const
+    {
+        return getObject()->isActive();
     }
 
     Message::Result Component::sendMessageImpl(const Message&)

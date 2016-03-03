@@ -139,15 +139,23 @@ namespace jop
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
+        GlState::setPolygonMode(GlState::PolygonMode::Fill);
+
+        LightContainer lights;
 
         for (auto& i : m_boundLayers)
         {
-            if (!i.expired())
+            if (!i.expired() && i->isActive())
             {
                 for (auto& j : i->m_drawList)
                 {
-                    if (!j.expired())
-                        j->draw(camera);
+                    selectLights(lights, *j);
+
+                    if (!j.expired() && j->isActive())
+                    {
+                        selectLights(lights, *j);
+                        j->draw(camera, lights);
+                    }
                     else
                         m_drawablesRemoved = true;
                 }
@@ -156,8 +164,11 @@ namespace jop
 
         for (auto& i : m_drawList)
         {
-            if (!i.expired())
-                i->draw(camera);
+            if (!i.expired() && i->isActive())
+            {
+                selectLights(lights, *i);
+                i->draw(camera, lights);
+            }
             else
                 m_drawablesRemoved = true;
         }
@@ -203,11 +214,13 @@ namespace jop
 
     void Layer::addDrawable(Drawable& drawable)
     {
+    #if defined(JOP_DEBUG_MODE) && !defined(JOP_EDITOR)
         if (typeid(drawable) == typeid(Camera) || typeid(drawable) == typeid(LightSource))
         {
-            JOP_DEBUG_WARNING("You must not bind cameras or light sources with addDrawable. Camera/LightSource was not bound");
+            JOP_DEBUG_WARNING("Layer::addDrawable(): You must add cameras/lights using setCamera() and addLight()");
             return;
         }
+    #endif
 
         m_drawList.emplace_back(static_ref_cast<Drawable>(drawable.getReference()));
         handleDrawableAddition(*m_drawList.back());
@@ -262,9 +275,39 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Layer::addLight(const LightSource& light)
+    {
+        m_lights.push_back(static_ref_cast<const LightSource>(light.getReference()));
+        handleDrawableAddition(light);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::removeLight(const std::string& id)
+    {
+        for (auto itr = m_lights.begin(); itr != m_lights.end(); ++itr)
+        {
+            if (!itr->expired() && (*itr)->getID() == id)
+            {
+                handleDrawableRemoval(*(*itr));
+                m_lights.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
     void Layer::setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil)
     {
         m_renderTexture = std::make_unique<RenderTexture>(size, depth, stencil);
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::removeRenderTexture()
+    {
+        m_renderTexture.reset();
     }
 
     //////////////////////////////////////////////
@@ -293,6 +336,47 @@ namespace jop
             }), m_boundLayers.end());
 
             m_drawablesRemoved = false;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Layer::selectLights(LightContainer& lights, const Drawable& drawable) const
+    {
+        auto selectContainer = [](const LightSource& l, LightContainer& cont) -> LightContainer::ContainerType*
+        {
+            auto& c = cont[l.getType()];
+
+            if (c.size() < c.capacity())
+                return &c;
+
+            return nullptr;
+        };
+
+        if (drawable.receiveLights())
+        {
+            lights.clear();
+
+            for (auto& i : m_lights)
+            {
+                if (i.expired() || !i->isActive())
+                    continue;
+
+                auto cont = selectContainer(*i, lights);
+
+                if (!cont)
+                    continue;
+
+                if (i->getType() == LightSource::Type::Directional)
+                    cont->push_back(i.get());
+                else
+                {
+                    // TODO Take drawable bounds into account. Current approach could produce light "popping"
+
+                    if ((i->getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition()).length() <= i->getAttenuation(LightSource::Attenuation::Range))
+                        cont->push_back(i.get());
+                }
+            }
         }
     }
 

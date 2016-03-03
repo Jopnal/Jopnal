@@ -19,19 +19,54 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MATHINCLUDE_HPP
-#define JOP_MATHINCLUDE_HPP
+#ifndef JOP_ACTIVATEABLE_HPP
+#define JOP_ACTIVATEABLE_HPP
+
+// Headers
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-// Include all the GLM headers here
-#define GLM_PRECISION_MEDIUMP_INT
-#define GLM_PRECISION_HIGHP_FLOAT
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/AABB.hpp>
-#include <glm/gtc/type_ptr.hpp>
+namespace jop
+{
+    class JOP_API Activateable
+    {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Activateable);
+
+    protected:
+
+        /// \brief Constructor
+        ///
+        /// \param active The initial state
+        ///
+        Activateable(const bool active);
+
+        /// \brief Protected destructor
+        ///
+        ~Activateable();
+
+    public:
+
+        /// \brief Set this object active/inactive
+        ///
+        /// \param active Set this object active?
+        ///
+        void setActive(const bool active);
+
+        /// \brief Check if this object is active
+        ///
+        /// \return True if active
+        ///
+        bool isActive() const;
+
+    private:
+
+        bool m_active;  ///< Is this object active?
+
+    };
+}
 
 #endif

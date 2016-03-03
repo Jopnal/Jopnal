@@ -27,55 +27,24 @@
 
 namespace jop
 {
-    Resource::Resource(const std::string& name)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (name),
-          m_persistent                  (false),
-          m_managed                     (false)
+    Activateable::Activateable(const bool active)
+        : m_active(active)
     {}
 
-    Resource::Resource(const Resource& other)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (other.m_name),
-          m_persistent                  (other.m_persistent),
-          m_managed                     (false)
-    {}
-
-    Resource::~Resource()
+    Activateable::~Activateable()
     {}
 
     //////////////////////////////////////////////
 
-    const std::string& Resource::getName() const
+    void Activateable::setActive(const bool active)
     {
-        return m_name;
+        m_active = active;
     }
 
     //////////////////////////////////////////////
 
-    void Resource::setPersistent(const bool persistent)
+    bool Activateable::isActive() const
     {
-        m_persistent = persistent;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Resource::isPersistent() const
-    {
-        return m_persistent;
-    }
-
-    //////////////////////////////////////////////
-
-    void Resource::setManaged(const bool managed)
-    {
-        m_managed = managed;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Resource::isManaged() const
-    {
-        return m_managed;
+        return m_active;
     }
 }

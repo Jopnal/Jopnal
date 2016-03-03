@@ -37,6 +37,7 @@ namespace jop
     class Camera;
     class RenderTexture;
     class LightSource;
+    class LightContainer;
 
     class JOP_API Layer : public Subsystem
     {
@@ -107,6 +108,7 @@ namespace jop
         ///
         void removeDrawable(const std::string& id);
 
+
         /// \brief Bind a layer's draw list into this layer
         ///
         /// \param layer Reference to the layer to be bound
@@ -119,11 +121,26 @@ namespace jop
         ///
         void unbindOtherLayer(const std::string& ID);
 
+
         /// \brief Set the camera
         ///
         /// \param camera Reference to the camera to be set
         ///
         void setCamera(const Camera& camera);
+
+
+        /// \brief Add a light to this layer
+        ///
+        /// \param light Reference to the light to add
+        ///
+        void addLight(const LightSource& light);
+
+        /// \brief Remove a light from this layer
+        ///
+        /// \param id Identifier of the light to remove
+        ///
+        void removeLight(const std::string& id);
+
 
         /// \brief Set a RenderTexture
         ///
@@ -131,11 +148,18 @@ namespace jop
         ///
         void setRenderTexture(const glm::ivec2& size, const unsigned int depth, const unsigned int stencil);
 
+        /// \brief Remove the render texture
+        ///
+        /// The texture attachment and render buffers are destroyed as well
+        ///
+        void removeRenderTexture();
+
         /// \brief Get the render texture
         ///
         /// \return Pointer to the render texture. Nullptr if doesn't exist
         ///
         const RenderTexture* getRenderTexture() const;
+
 
         /// \brief Sweep the drawables & bound layers that no longer exist
         ///
@@ -144,18 +168,20 @@ namespace jop
 
     private:
 
+        void selectLights(LightContainer& lights, const Drawable& drawable) const;
+
         void handleDrawableAddition(const Drawable& drawable);
 
         void handleDrawableRemoval(const Drawable& drawable);
 
     protected:
 
-        std::vector<WeakReference<Drawable>> m_drawList;  ///< The local draw list
-        std::vector<WeakReference<LightSource>> m_lights; ///< The bound lights
-        std::vector<WeakReference<Layer>> m_boundLayers;  ///< Bound layers
-        WeakReference<const Camera> m_camera;             ///< Bound camera
-        std::unique_ptr<RenderTexture> m_renderTexture;   ///< Bound RenderTexture
-        bool m_drawablesRemoved;                          ///< Have any drawables been removed?
+        std::vector<WeakReference<Drawable>> m_drawList;        ///< The local draw list
+        std::vector<WeakReference<const LightSource>> m_lights; ///< The bound lights
+        std::vector<WeakReference<Layer>> m_boundLayers;        ///< Bound layers
+        WeakReference<const Camera> m_camera;                   ///< Bound camera
+        std::unique_ptr<RenderTexture> m_renderTexture;         ///< Bound RenderTexture
+        bool m_drawablesRemoved;                                ///< Have any drawables been removed?
 
     };
 }

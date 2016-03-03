@@ -25,17 +25,47 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Graphics/Material.hpp>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API ShaderManager : public Subsystem
+    class Shader;
+
+    class JOP_API ShaderManager final : public Subsystem
     {
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Reads the uber shader from the resource dll
+        ///
         ShaderManager();
+
+        /// \brief Destructor
+        ///
+        ~ShaderManager() override;
+
+
+        /// \brief Get a shader with the given attribute combination
+        ///
+        /// \param attributes The material attributes
+        ///
+        /// \return Reference to the shader
+        ///
+        static Shader& getShader(const Material::AttribType attributes);
+
+    private:
+
+        static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+
+        static ShaderManager* m_instance;   ///< The single instance
+
+        std::unordered_map<Material::AttribType, WeakReference<Shader>> m_shaders;  ///< Map with the shaders
+        std::array<std::string, 3> m_uber;                                          ///< The uber shader sources
 
     };
 }

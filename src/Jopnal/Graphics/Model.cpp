@@ -28,26 +28,40 @@
 namespace jop
 {
     Model::Model()
-        : m_material    (Material::getDefault()),
+        : m_material    (),
           m_mesh        ()
-    {}
+    {
+        setMaterial(Material::getDefault());
+        setMesh(Mesh::getDefault());
+    }
 
     //////////////////////////////////////////////
 
     Model::Model(const Mesh& mesh, const Material& material)
-        : m_material    (material),
+        : m_material    (),
           m_mesh        ()
     {
+        setMaterial(material);
         setMesh(mesh);
     }
 
     //////////////////////////////////////////////
 
     Model::Model(const Mesh& mesh)
-        : m_material    (Material::getDefault()),
+        : m_material    (),
           m_mesh        ()
     {
+        setMaterial(Material::getDefault());
         setMesh(mesh);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Model::load(const std::string& filePath, const Mesh::LoadOptions& options)
+    {
+        setMesh(ResourceManager::getResource<Mesh>(filePath, *m_material, options));
+
+        return m_mesh.get() != &Mesh::getDefault();
     }
 
     //////////////////////////////////////////////
@@ -59,23 +73,32 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Model::setMesh(const Mesh& mesh)
+    Model& Model::setMesh(const Mesh& mesh)
     {
         m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    const Material& Model::getMaterial() const
+    WeakReference<const Material> Model::getMaterial() const
+    {
+        return static_ref_cast<const Material>(m_material);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Material> Model::getMaterial()
     {
         return m_material;
     }
 
     //////////////////////////////////////////////
 
-    void Model::setMaterial(const Material& material)
+    Model& Model::setMaterial(const Material& material)
     {
-        m_material = material;
+        m_material = static_ref_cast<Material>(material.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////

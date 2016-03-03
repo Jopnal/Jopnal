@@ -96,6 +96,8 @@ namespace jop
 
         // Depth mask is enabled by default
         ns_depthMask = true;
+
+        JOP_DEBUG_INFO("OpenGL state reset");
     }
 
     //////////////////////////////////////////////

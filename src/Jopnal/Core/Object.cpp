@@ -57,33 +57,56 @@ namespace jop
 {
     Object::Object()
         : Transform                 (),
+          Activateable              (true),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (),
-          m_active                  (true)
+          m_ID                      ()
     {}
 
     Object::Object(const std::string& ID)
         : Transform                 (),
+          Activateable              (true),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (ID),
-          m_active                  (true)
+          m_ID                      (ID)
     {}
 
     Object::Object(const Object& other)
         : Transform                 (other),
+          Activateable              (other.isActive()),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (other.m_ID),
-          m_active                  (other.m_active)
+          m_ID                      (other.m_ID)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
+        {
             m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+            m_components.back()->m_objectRef = getReference();
+        }
+
+        m_children.reserve(other.m_children.size());
+        for (auto& i : other.m_children)
+            m_children.emplace_back(i);
+    }
+
+    Object::Object(const Object& other, const std::string& newName)
+        : Transform                 (other),
+          Activateable              (other.isActive()),
+          SafeReferenceable<Object> (this),
+          m_children                (),
+          m_components              (),
+          m_ID                      (newName)
+    {
+        m_components.reserve(other.m_components.size());
+        for (auto& i : other.m_components)
+        {
+            m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
+            m_components.back()->m_objectRef = getReference();
+        }
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
@@ -92,11 +115,11 @@ namespace jop
 
     Object::Object(Object&& other)
         : Transform                 (other),
+          Activateable              (other.isActive()),
           SafeReferenceable<Object> (std::move(other)),
           m_children                (std::move(other.m_children)),
           m_components              (std::move(other.m_components)),
-          m_ID                      (other.m_ID),
-          m_active                  (other.m_active)
+          m_ID                      (std::move(other.m_ID))
     {}
 
     Object& Object::operator=(Object&& other)
@@ -104,10 +127,11 @@ namespace jop
         Transform::operator =(other);
         SafeReferenceable<Object>::operator=(std::move(other));
 
-        m_children = std::move(other.m_children);
-        m_components = std::move(other.m_components);
-        m_ID = std::move(other.m_ID);
-        m_active = other.m_active;
+        m_children      = std::move(other.m_children);
+        m_components    = std::move(other.m_components);
+        m_ID            = std::move(other.m_ID);
+
+        setActive(other.isActive());
 
         return *this;
     }
@@ -145,10 +169,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::createChild(const std::string& ID)
+    WeakReference<Object> Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(ID);
-        return m_children.back();
+        return m_children.back().getReference();
     }
 
     //////////////////////////////////////////////
@@ -166,13 +190,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::cloneChild(const std::string& ID)
+    WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID)
     {
         auto ptr = getChild(ID);
 
         if (!ptr.expired())
         {
-            m_children.emplace_back(*ptr);
+            m_children.emplace_back(*ptr, clonedID);
             return m_children.back().getReference();
         }
 
@@ -304,21 +328,6 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
-    }
-
-
-    //////////////////////////////////////////////
-
-    void Object::setActive(const bool active)
-    {
-        m_active = active;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Object::isActive() const
-    {
-        return m_active;
     }
 
     //////////////////////////////////////////////

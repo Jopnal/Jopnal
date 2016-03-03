@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <memory>
+#include <vector>
 #include <unordered_set>
 
 //////////////////////////////////////////////
@@ -39,6 +40,8 @@ namespace jop
     class Shader;
     class Camera;
     class Scene;
+    class LightSource;
+    class LightContainer;
 
     class JOP_API Drawable : public Component
     {
@@ -59,6 +62,8 @@ namespace jop
         ///
         Drawable(Object& object, const std::string& ID);
 
+        Drawable(const Drawable& other);
+
         /// \brief Virtual destructor
         ///
         virtual ~Drawable() = 0;
@@ -70,7 +75,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&) = 0;
+        virtual void draw(const Camera&, const LightContainer&) = 0;
 
 
         /// \brief Set the model
@@ -79,21 +84,23 @@ namespace jop
         ///
         /// \param model Reference to the model
         ///
-        void setModel(const Model& model);
-
-        Model& getModel();
+        Drawable& setModel(const Model& model);
 
         /// \brief Get the model
         ///
         /// \return Reference to the model
         ///
+        Model& getModel();
+
+        /// \copydoc getModel()
         const Model& getModel() const;
+
 
         /// \brief Set the shader
         ///
         /// \param shader Reference to the shader
         ///
-        void setShader(Shader& shader);
+        Drawable& setShader(Shader& shader);
 
         /// \brief Get the shader
         ///
@@ -101,11 +108,26 @@ namespace jop
         ///
         WeakReference<Shader> getShader() const;
 
+
         /// \brief Get the set with the bound layers
         ///
         /// \return Reference to the set
         ///
         const std::unordered_set<Layer*> getBoundLayers() const;
+
+
+        /// \brief Set whether or not this drawable receives lights
+        ///
+        /// \param receive True to receive lights
+        ///
+        void setReceiveLights(const bool receive);
+
+        /// \brief Check if this drawable receives lights
+        ///
+        /// \return True if receives lights
+        ///
+        bool receiveLights() const;
+
 
         /// \brief Load the state
         ///
@@ -129,13 +151,14 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool saveStateBase(const Drawable& comp, json::Value& val, json::Value::AllocatorType& alloc);
+        static bool saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 
         Model m_model;                                      ///< The bound model
         mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
         WeakReference<Shader> m_shader;                     ///< The bound shader
+        bool m_receiveLights;                               ///< Does this drawable receive lights
         
     };
 }

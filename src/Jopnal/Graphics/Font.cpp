@@ -80,7 +80,7 @@ namespace jop
         auto context_ptr = std::make_unique<stbrp_context>();
         m_nodes = new stbrp_node[1024];
         m_numNodes = 1024;
-        m_texture.load(1024, 1024, 4);
+        m_texture.load(1024, 1024, 1);
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_nodes, m_numNodes);
 
         // Load font data from file
@@ -98,7 +98,7 @@ namespace jop
             FT_Set_Char_Size(m_face, 0, 16*64, 300, 300);
 
             //set pixel size, whatever it is...
-            FT_Set_Pixel_Sizes(m_face, 16, 16);
+            FT_Set_Pixel_Sizes(m_face, 64, 64);
             error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
             JOP_ASSERT(!error, "Failed to select charmap!");
 
@@ -159,7 +159,7 @@ namespace jop
         else
         {
             //load glyph
-            FT_UInt index = 50;//FT_Get_Char_Index(m_face, codepoint);
+            FT_UInt index = FT_Get_Char_Index(m_face, codepoint);
             //FT_Load_Char(m_face, codepoint, FT_LOAD_DEFAULT);
 
             FT_GlyphSlot slot = m_face->glyph;
@@ -188,7 +188,12 @@ namespace jop
             FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
             // Get glyph rectangle size in pixels
-            std::pair<glm::ivec2, glm::ivec2> bounds = getBounds(codepoint); // X, Y, width & height
+            std::pair<glm::ivec2, glm::ivec2> bounds; // X, Y, width & height
+
+            bounds.first.x = bitmapGlyph->left;
+            bounds.first.y = bitmapGlyph->top;
+            bounds.second.x = bitmapGlyph->bitmap.width;
+            bounds.second.y = bitmapGlyph->bitmap.rows;
            
             // Create a bitmap
             unsigned char* pixelData = bitmap.buffer;//slot->bitmap.buffer;
@@ -199,6 +204,8 @@ namespace jop
 
             if (rectangle.was_packed != 0)
             {
+                GlState::setBlendFunc(true);
+
                 // Was packed successfully, pass pixel data to texture
                 m_texture.setPixels(rectangle.x, rectangle.y, rectangle.w, rectangle.h, pixelData);
                 

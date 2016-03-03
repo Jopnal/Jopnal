@@ -46,9 +46,9 @@ namespace jop
             m_transform = IdentityMatrix;
 
             m_transform = glm::translate(m_transform, m_position);
-            m_transform *= m_rotation.operator glm::tmat4x4<float, glm::highp>();
+            m_transform *= glm::mat4_cast(m_rotation);
             m_transform = glm::scale(m_transform, m_scale);
-
+            
             m_transformNeedUpdate = false;
         }
 
@@ -61,7 +61,7 @@ namespace jop
     {
         if (m_invTransformNeedsUpdate)
         {
-            m_invTransform = glm::inverse(m_transform);
+            m_invTransform = glm::inverse(getMatrix());
             m_invTransformNeedsUpdate = false;
         }
 
@@ -95,9 +95,68 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Transform& Transform::setRotation(const float angle, const glm::vec3& axis)
+    {
+        return setRotation(glm::quat(angle, axis));
+    }
+
+    //////////////////////////////////////////////
+
     const glm::quat& Transform::getRotation() const
     {
         return m_rotation;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::quat Transform::getGlobalRotation() const
+    {
+        return glm::quat_cast(getMatrix());
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getGlobalFront() const
+    {
+        auto& m = getMatrix();
+        return glm::normalize(-glm::vec3(m[2][0], m[2][1], m[2][2]));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getGlobalRight() const
+    {
+        auto& m = getMatrix();
+        return glm::normalize(glm::vec3(m[0][0], m[0][1], m[0][2]));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getGlobalUp() const
+    {
+        auto& m = getMatrix();
+        return glm::normalize(glm::vec3(m[1][0], m[1][1], m[1][2]));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalFront() const
+    {
+        return m_rotation * Front;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalRight() const
+    {
+        return m_rotation * Right;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Transform::getLocalUp() const
+    {
+        return m_rotation * Up;
     }
 
     //////////////////////////////////////////////
@@ -134,6 +193,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 Transform::getGlobalScale() const
+    {
+        auto& m = getMatrix();
+
+        // X axis
+        auto x = glm::length(glm::vec3(m[0][0], m[0][1], m[0][2]));
+
+        // Y axis
+        auto y = glm::length(glm::vec3(m[1][0], m[1][1], m[1][2]));
+
+        // Z axis
+        auto z = glm::length(glm::vec3(m[2][0], m[2][1], m[2][2]));
+
+        return glm::vec3(x, y, z);
+    }
+
+    //////////////////////////////////////////////
+
     Transform& Transform::setPosition(const float x, const float y, const float z)
     {
         m_position = glm::vec3(x, y, z);
@@ -159,16 +236,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 Transform::getGlobalPosition() const
+    {
+        auto& mat = getMatrix();
+        return glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
+    }
+
+    //////////////////////////////////////////////
+
     Transform& Transform::lookAt(const glm::vec3& point)
     {
-        static const glm::vec3 upVec(0.f, 1.f, 0.f);
-
-        m_invTransform = glm::lookAt(m_position, point, upVec);
-        m_transform = glm::inverse(m_invTransform);
-        m_transformNeedUpdate = false;
-        m_invTransformNeedsUpdate = false;
-
-        return *this;
+        return lookAt(point, Up);
     }
 
     //////////////////////////////////////////////
@@ -176,6 +254,18 @@ namespace jop
     Transform& Transform::lookAt(const float x, const float y, const float z)
     {
         return lookAt(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::lookAt(const glm::vec3& point, const glm::vec3& up)
+    {
+        m_invTransform = glm::lookAt(getGlobalPosition(), point, up);
+        m_transform = glm::inverse(m_invTransform);
+        m_transformNeedUpdate = false;
+        m_invTransformNeedsUpdate = false;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -189,11 +279,7 @@ namespace jop
 
     Transform& Transform::move(const glm::vec3& offset)
     {
-        m_position += offset;
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setPosition(m_position + offset);
     }
 
     //////////////////////////////////////////////
@@ -207,11 +293,7 @@ namespace jop
 
     Transform& Transform::rotate(const glm::quat& rotation)
     {
-        m_rotation *= rotation;
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setRotation(m_rotation * rotation);
     }
 
     //////////////////////////////////////////////
@@ -219,6 +301,13 @@ namespace jop
     Transform& Transform::rotate(const glm::vec3& rotation)
     {
         return rotate(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Transform& Transform::rotate(const float angle, const glm::vec3& axis)
+    {
+        return rotate(glm::angleAxis(angle, axis));
     }
 
     //////////////////////////////////////////////
@@ -232,14 +321,7 @@ namespace jop
 
     Transform& Transform::scale(const glm::vec3& scale)
     {
-        m_scale.x *= scale.x;
-        m_scale.y *= scale.y;
-        m_scale.z *= scale.z;
-
-        m_transformNeedUpdate = true;
-        m_invTransformNeedsUpdate = true;
-
-        return *this;
+        return setScale(m_scale * scale);
     }
 
     //////////////////////////////////////////////
@@ -258,4 +340,12 @@ namespace jop
         0.f, 0.f, 1.f, 0.f,
         0.f, 0.f, 0.f, 1.f
     );
+
+    //////////////////////////////////////////////
+
+    const glm::vec3 Transform::Front(0.f, 0.f, -1.f);
+
+    const glm::vec3 Transform::Right(1.f, 0.f, 0.f);
+
+    const glm::vec3 Transform::Up(0.f, 1.f, 0.f);
 }

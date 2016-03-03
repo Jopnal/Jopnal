@@ -296,7 +296,7 @@ namespace jop
         const int loc = getUniformLocation(name);
         
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
 
         return loc != -1;
     }
@@ -308,7 +308,19 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, &matrix[0][0]));
+            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const glm::vec2& vector)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform2f(loc, vector.x, vector.y));
 
         return loc != -1;
     }
@@ -363,6 +375,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1i(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const unsigned int value)
+    {
+        const int loc = getUniformLocation(name);
+
+        if (loc != -1)
+            glCheck(gl::Uniform1ui(loc, value));
+
+        return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);
@@ -403,7 +439,7 @@ namespace jop
             std::vector<unsigned char> frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
 
-            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("Default Shader").getReference());
+            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_default").getReference());
 
             JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
                                             "",

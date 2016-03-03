@@ -23,7 +23,7 @@
 namespace detail
 {
     template<typename Str, typename ... Rest>
-    std::string getStringArg(const Str& str, const Rest&...)
+    std::string getStringArg(const Str& str, Rest&...)
     {
         static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
         
@@ -58,6 +58,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
+            name; // Remove warning when not using assertions
 
             #pragma warning(push)
             #pragma warning(disable: 4172)
@@ -72,6 +73,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            name; // Remove warning in release mode
             return T::getError();
         }
     };
@@ -81,6 +83,7 @@ namespace detail
         static T& load(const std::string& name)
         {
             JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            name; // Remove warning in release mode
             return T::getDefault();
         }
     };
@@ -107,15 +110,15 @@ namespace detail
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& ResourceManager::getResource(const Args&... args)
+T& ResourceManager::getResource(Args&&... args)
 {
-    return getNamedResource<T>(detail::getStringArg(args...), args...);
+    return getNamedResource<T>(detail::getStringArg(args...), std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args> 
-T& ResourceManager::getNamedResource(const std::string& name, const Args&... args)
+T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 {
     if (resourceExists<T>(name))
         return getExistingResource<T>(name);
@@ -123,10 +126,13 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
     {
         auto res = std::make_unique<T>(name);
 
-        if (res->load(args...))
+        if (res->load(std::forward<Args>(args)...))
         {
             T& ptr = *res;
             m_instance->m_resources[name] = std::move(res);
+
+            JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
+
             return ptr;
         }
     }
@@ -137,7 +143,7 @@ T& ResourceManager::getNamedResource(const std::string& name, const Args&... arg
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-static T& ResourceManager::getEmptyResource(const Args&... args)
+static T& ResourceManager::getEmptyResource(Args&&... args)
 {
     detail::basicErrorCheck<T>(m_instance);
 
@@ -167,4 +173,27 @@ bool ResourceManager::resourceExists(const std::string& name)
     auto itr = m_instance->m_resources.find(name);
     
     return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+T& ResourceManager::copyResource(const std::string& name, const std::string& newName)
+{
+    if (resourceExists<T>(name))
+    {
+        auto& oldRes = getExistingResource<T>(name);
+
+        auto res = std::make_unique<T>(oldRes);
+        res->m_name = newName;
+        T& ptr = *res;
+
+        m_instance->m_resources[newName] = std::move(res);
+
+        JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
+
+        return ptr;
+    }
+
+    return detail::LoadFallback<T>::load(name);
 }

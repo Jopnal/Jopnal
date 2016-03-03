@@ -26,6 +26,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
@@ -38,7 +39,7 @@ namespace jop
 {
     class Layer;
 
-    class JOP_API Object : public Transform, public SafeReferenceable<Object>
+    class JOP_API Object : public Transform, public Activateable, public SafeReferenceable<Object>
     {
     private:
 
@@ -61,6 +62,10 @@ namespace jop
         /// \brief Copy constructor
         ///
         Object(const Object& other);
+
+        /// \brief Overloaded copy constructor
+        ///
+        Object(const Object& other, const std::string& newName);
 
         /// \brief Move constructor
         ///
@@ -91,7 +96,7 @@ namespace jop
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        T& createComponent(Args&... args);
+        WeakReference<T> createComponent(Args&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -109,7 +114,7 @@ namespace jop
         ///
         /// \return Reference to the newly created child
         ///
-        Object& createChild(const std::string& ID);
+        WeakReference<Object> createChild(const std::string& ID);
 
         /// \brief Get a child with the given id
         ///
@@ -125,10 +130,11 @@ namespace jop
         /// and then returned.
         ///
         /// \param ID The id to search with
+        /// \param clonedID The id of the cloned object
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        WeakReference<Object> cloneChild(const std::string& ID);
+        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
         /// \brief Remove children with the given id
         ///
@@ -186,16 +192,6 @@ namespace jop
         ///
         void setID(const std::string& ID);
 
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
-
         /// \brief Update method for object - forwarded for its components
         ///
         /// \param deltaTime Double holding delta time
@@ -219,7 +215,6 @@ namespace jop
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
-        bool m_active;                                        ///< Boolean unit used as activity state
     };
 
     // Include the template implementation file

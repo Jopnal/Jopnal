@@ -37,7 +37,7 @@ namespace jop
 {
     namespace detail
     {
-        std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
+        JOP_API std::tuple<std::string, std::string> splitFirstArguments(const std::string& args);
 
         // Include the helper inl file
         #include <Jopnal/Utility/Inl/CommandParser.inl>
@@ -140,7 +140,6 @@ namespace jop
         /// \return The message result
         ///
         Message::Result execute(const std::string& command, Any& instance, Any& returnWrap);
-
 
     private:
 

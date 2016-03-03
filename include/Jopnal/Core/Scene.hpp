@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <vector>
 #include <memory>
@@ -36,7 +37,7 @@ namespace jop
     class Object;
     class Layer;
 
-    class JOP_API Scene 
+    class JOP_API Scene : public Activateable
     {
     public:
 
@@ -69,7 +70,7 @@ namespace jop
         ///
         /// \param ID Object identifier
         ///
-        Object& createObject(const std::string& ID);
+        WeakReference<Object> createObject(const std::string& ID);
 
         /// \brief Clone an object with the given id
         ///
@@ -77,10 +78,11 @@ namespace jop
         /// and then returned.
         ///
         /// \param ID The id to search with
+        /// \param clonedID The id of the cloned object
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
-        WeakReference<Object> cloneObject(const std::string& ID);
+        WeakReference<Object> cloneObject(const std::string& ID, const std::string& clonedID);
 
         /// \brief Method for deleting object 
         ///
@@ -118,7 +120,7 @@ namespace jop
         /// \return Reference to the newly created layer
         ///
         template<typename T, typename ... Args>
-        T& createLayer(Args&... args);
+        WeakReference<T> createLayer(Args&&... args);
 
         /// \brief Delete a layer with the given id
         ///
@@ -134,13 +136,13 @@ namespace jop
         /// \brief Replace the default layer
         ///
         template<typename T, typename ... Args>
-        T& setDefaultLayer(Args&... args);
+        WeakReference<T> setDefaultLayer(Args&&... args);
 
         /// \brief Get the default layer
         ///
         /// \return Reference to the default layer
         ///
-        Layer& getDefaultLayer() const;
+        WeakReference<Layer> getDefaultLayer() const;
 
 
         /// \brief Set the ID of this scene
@@ -180,16 +182,6 @@ namespace jop
         /// \param message The message
         ///
         Message::Result sendMessage(const Message& message);
-
-        /// \brief Sets active on update functions
-        ///
-        /// \param active Sets the active
-        ///
-        void setActive(const bool active);
-
-        /// \brief Returns m_active boolean unit
-        ///
-        bool isActive() const;
 
         /// \brief Update method for scene
         ///
@@ -269,7 +261,6 @@ namespace jop
         std::vector<Object> m_objects;         ///< Container holding objects
         mutable std::vector<std::unique_ptr<Layer>> m_layers;   ///< Container holding layers
         std::string m_ID;                                       ///< String holding scene identifier
-        bool m_active;                                          ///< Boolean set to active
     };
 
     // Include the template implementation file

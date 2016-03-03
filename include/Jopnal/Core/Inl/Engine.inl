@@ -21,13 +21,13 @@
 
 
 template<typename T, typename ... Args>
-T& Engine::createScene(Args&... args)
+T& Engine::createScene(Args&&... args)
 {
     static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create a scene which is not derived from jop::Scene");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
 
-    m_engineObject->m_currentScene = std::make_unique<T>(args...);
+    m_engineObject->m_currentScene = std::make_unique<T>(std::forward<Args>(args)...);
     m_engineObject->m_currentScene->initialize();
     return static_cast<T&>(*m_engineObject->m_currentScene);
 }
@@ -35,20 +35,23 @@ T& Engine::createScene(Args&... args)
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& Engine::createSubsystem(Args&... args)
+WeakReference<T> Engine::createSubsystem(Args&&... args)
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create a subsystem which is not derived from jop::Subsystem");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
 
-    m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(args...));
-    return static_cast<T&>(*m_engineObject->m_subsystems.back());
+    m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+
+    JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
+
+    return static_ref_cast<T>(m_engineObject->m_subsystems.back()->getReference());
 }
 
 //////////////////////////////////////////////
 
 template<typename T>
-T* Engine::getSubsystem()
+WeakReference<T> Engine::getSubsystem()
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
 
@@ -59,20 +62,20 @@ T* Engine::getSubsystem()
         for (auto& i : m_engineObject->m_subsystems)
         {
             if (typeid(*i) == ti)
-                return static_cast<T*>(i.get());
+                return static_ref_cast<T>(i->getReference());
         }
     }
 
-    return nullptr;
+    return WeakReference<T>();
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& Engine::setSharedScene(Args&... args)
+T& Engine::setSharedScene(Args&&... args)
 {
     JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_currentScene, "Tried to set the shared scene when it or the engine wasn't loaded!");
 
-    m_engineObject->m_sharedScene = std::make_unique<T>(args...);
+    m_engineObject->m_sharedScene = std::make_unique<T>(std::forward<Args>(args)...);
     return static_cast<T&>(*m_engineObject->m_sharedScene);
 }

@@ -58,7 +58,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getResource(const Args&... args);
+        static T& getResource(Args&&... args);
 
         /// \brief Get a named resource
         ///
@@ -71,7 +71,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getNamedResource(const std::string& name, const Args&... args);
+        static T& getNamedResource(const std::string& name, Args&&... args);
 
         /// \brief Get an empty resource
         ///
@@ -82,7 +82,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getEmptyResource(const Args&... args);
+        static T& getEmptyResource(Args&&... args);
 
         /// \brief Get an existing resource
         ///
@@ -109,7 +109,24 @@ namespace jop
         static bool resourceExists(const std::string& name);
 
 
+        /// \brief Copy a resource
+        ///
+        /// This function requires that the resource has a valid copy constructor.
+        /// If the resource is not found or is of the wrong type, the default/error
+        /// resource will be returned instead.
+        ///
+        /// \param name Name of the resource to copy
+        /// \param newName Name of the copied resource
+        ///
+        /// \return Reference to the resource
+        ///
+        template<typename T>
+        static T& copyResource(const std::string& name, const std::string& newName);
+
+
         /// \brief Deletes resource from memory
+        ///
+        /// The resource, if found, will be deleted regardless of the persistence flag.
         ///
         /// \param path Name or path for wanted resource
         ///

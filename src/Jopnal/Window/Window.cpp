@@ -111,7 +111,7 @@ namespace jop
         {
             if (m_colorChanged)
             {
-                auto c = m_clearColor.asFloatVector();
+                auto c = m_clearColor.asRGBAFloatVector();
 
                 glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
                 glCheck(gl::ClearDepth(1.0));

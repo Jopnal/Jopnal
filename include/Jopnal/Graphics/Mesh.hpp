@@ -81,6 +81,8 @@ namespace jop
         /// \param filePath The path to the file you want to load
         /// \param options Extra options for loading
         ///
+        /// \return True if successfully loaded
+        ///
         bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
 
         /// \brief Loads a .obj model from file
@@ -89,7 +91,10 @@ namespace jop
         /// Assigns data to index and vertex buffers
         ///
         /// \param filePath The path to the file you want to load
+        /// \param material Reference to a material object to load material info into
         /// \param options Extra options for loading
+        ///
+        /// \return True if successfully loaded
         ///
         bool load(const std::string& filePath, Material& material, const LoadOptions& options = DefaultOptions);
 
@@ -98,7 +103,7 @@ namespace jop
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
         ///
-        /// \return True if successful
+        /// \return True if successfully loaded
         ///
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 

@@ -64,6 +64,8 @@ namespace jop
 
     bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        JOP_DEBUG_INFO("Invoked state save: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
+
         if (!scene && !sharedScene && !subsystems)
         {
             JOP_DEBUG_ERROR("Didn't save state; scene, sharedScene and subsystems are false: " << path);
@@ -97,7 +99,7 @@ namespace jop
 
                 if (redirItr == nameMap.end() || (itr = subCont.find(redirItr->second)) == subCont.end())
                 {
-                    JOP_DEBUG_WARNING("Couldn't save subsystem with id \"" << i->getID() << "\". Type not registered. Attempting to load the rest: " << path);
+                    JOP_DEBUG_WARNING("Couldn't save subsystem with id \"" << i->getID() << "\". Type not registered. Attempting to save the rest: " << path);
                     continue;
                 }
 
@@ -135,13 +137,42 @@ namespace jop
             doc.Accept(writer);
         }
 
-        return FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize());
+        if (FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize()))
+        {
+            JOP_DEBUG_INFO("State successfully saved");
+            return true;
+        }
+        else
+            JOP_DEBUG_ERROR("Couldn't save state, writing to file failed");
+
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
     {
+        #pragma warning(push)
+        #pragma warning(disable: 4822)
+        class LoadFlagger
+        {
+            JOP_DISALLOW_COPY_MOVE(LoadFlagger);
+            bool& m_flag;
+        public:
+            LoadFlagger(bool& flag)
+                : m_flag(flag)
+            {
+                flag = true;
+            }
+            ~LoadFlagger()
+            {
+                m_flag = false;
+            }
+        } loadingFlag(getInstance().m_loading);
+        #pragma warning(pop)
+
+        JOP_DEBUG_INFO("Invoked state load: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
+
         if (!scene && !sharedScene && !subsystems)
         {
             JOP_DEBUG_ERROR("Didn't load state; scene, sharedScene and subsystems are false: " << path);
@@ -236,6 +267,8 @@ namespace jop
                 return false;
         }
 
+        JOP_DEBUG_INFO("State successfully loaded");
+
         return true;
     }
 
@@ -244,6 +277,13 @@ namespace jop
     const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer()
     {
         return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
+    }
+
+    //////////////////////////////////////////////
+
+    bool StateLoader::currentlyLoading()
+    {
+        return getInstance().m_loading;
     }
 
     //////////////////////////////////////////////

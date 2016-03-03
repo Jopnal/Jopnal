@@ -64,10 +64,10 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : m_objects         (),
+        : Activateable      (true),
+          m_objects         (),
           m_layers          (),
-          m_ID              (ID),
-          m_active          (true)
+          m_ID              (ID)
     {}
 
     Scene::~Scene()
@@ -88,21 +88,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Scene::createObject(const std::string& ID)
+    WeakReference<Object> Scene::createObject(const std::string& ID)
     {
         m_objects.emplace_back(ID);
-        return m_objects.back();
+        return m_objects.back().getReference();
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Scene::cloneObject(const std::string& ID)
+    WeakReference<Object> Scene::cloneObject(const std::string& ID, const std::string& clonedID)
     {
         auto ptr = getObject(ID);
 
         if (!ptr.expired())
         {
-            m_objects.emplace_back(*ptr);
+            m_objects.push_back(Object(*ptr, clonedID));
             return m_objects.back().getReference();
         }
 
@@ -174,12 +174,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Layer& Scene::getDefaultLayer() const
+    WeakReference<Layer> Scene::getDefaultLayer() const
     {
         if (m_layers.empty())
-            m_layers.emplace_back(std::make_unique<Layer>("Default Layer"));
+            m_layers.emplace_back(std::make_unique<Layer>("jop_default_layer"));
 
-        return *m_layers.front();
+        return static_ref_cast<Layer>(m_layers.front()->getReference());
     }
 
     //////////////////////////////////////////////
@@ -251,19 +251,6 @@ namespace jop
         }
 
         return Message::Result::Continue;
-    }
-    //////////////////////////////////////////////
-
-    void Scene::setActive(const bool active)
-    {
-        m_active = active;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Scene::isActive() const
-    {
-        return m_active;
     }
 
     //////////////////////////////////////////////
