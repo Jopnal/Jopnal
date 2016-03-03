@@ -28,6 +28,9 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include FT_OUTLINE_H
+#include FT_BITMAP_H
 
 
 //////////////////////////////////////////////
@@ -38,8 +41,11 @@ namespace jop
     Font::Font(const std::string& path) : Resource(path),
         m_texture("")
     {
-        FT_Init_FreeType(&m_library);
-
+        FT_Error err = FT_Init_FreeType(&m_library);
+        if (err)
+        {
+            JOP_DEBUG_ERROR("Could not initialize freetype: " << err);
+        }
 
         if (path != "")
         {
@@ -49,6 +55,7 @@ namespace jop
 
     Font::~Font()
     {
+        FT_Done_FreeType(m_library);
         //for (auto pair : m_bitmaps)
         //{
         //    delete[] pair.second.data;
@@ -89,8 +96,22 @@ namespace jop
 
             FT_Select_Charmap(m_face, ft_encoding_unicode);
 
+            //char size
+            FT_Set_Char_Size(m_face, 0, 16*64, 300, 300);
+
             //set pixel size, whatever it is...
             FT_Set_Pixel_Sizes(m_face, 16, 16);
+            error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
+            JOP_ASSERT(!error, "Failed to select charmap!");
+
+            //m_face->available_sizes = 
+            //new FT_Bitmap_Size {
+            //    32,
+            //    32,
+            //    1,
+            //    32,
+            //    32
+            //};
 
             m_context = std::move(context_ptr);
             return true;
@@ -140,16 +161,41 @@ namespace jop
         else
         {
             //load glyph
-            FT_UInt index = FT_Get_Char_Index(m_face, codepoint);
-            FT_Load_Glyph(m_face, index, FT_LOAD_DEFAULT);
-            FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
+            FT_UInt index = 50;//FT_Get_Char_Index(m_face, codepoint);
+            //FT_Load_Char(m_face, codepoint, FT_LOAD_DEFAULT);
+
             FT_GlyphSlot slot = m_face->glyph;
+
+            FT_Error err = FT_Load_Glyph(m_face, index, FT_LOAD_DEFAULT);
+            if (err)
+            {
+                JOP_DEBUG_ERROR("Error while loading glyph: " << err);
+            }
+
+            //err = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
+            //if (err)
+            //{
+            //    JOP_DEBUG_ERROR("Error while rendering glyph: " << err);
+            //}
+
+            FT_Glyph glyphDesc;
+            err = FT_Get_Glyph(slot, &glyphDesc);
+            if (err)
+            {
+                JOP_DEBUG_ERROR("FAILED!: " << err);
+            }
+            FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, 0, 1);
+            FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyphDesc;
+
+            FT_Bitmap& bitmap = bitmapGlyph->bitmap;
+
+            FT_Done_Glyph(glyphDesc);
 
             // Get glyph rectangle size in pixels
             std::pair<glm::ivec2, glm::ivec2> bounds = getBounds(codepoint); // X, Y, width & height
            
             // Create a bitmap
-            unsigned char* pixelData = slot->bitmap.buffer;
+            unsigned char* pixelData = bitmap.buffer;//slot->bitmap.buffer;
             
             // Find an empty spot in the texture
             stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y};
