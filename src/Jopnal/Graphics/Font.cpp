@@ -95,23 +95,40 @@ namespace jop
             FT_Select_Charmap(m_face, ft_encoding_unicode);
 
             //char size
-            FT_Set_Char_Size(m_face, 0, 16*64, 300, 300);
+            //FT_Set_Char_Size(m_face, 0, 8*64, 300, 300);
 
-            //set pixel size, whatever it is...
-            FT_Set_Pixel_Sizes(m_face, 64, 64);
+            //set glyph size in pixels
+            FT_Set_Pixel_Sizes(m_face, 128, 128);
             error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
             JOP_ASSERT(!error, "Failed to select charmap!");
 
-            //m_face->available_sizes = 
-            //new FT_Bitmap_Size {
-            //    32,
-            //    32,
-            //    1,
-            //    32,
-            //    32
-            //};
-
             m_context = std::move(context_ptr);
+            
+            //create default glyph
+            unsigned char data[4] = { 255, 255, 255, 255 };
+
+            m_texture.setPixels(0, 0, 2, 2, data);
+
+            std::pair<glm::ivec2, glm::ivec2> bounds; // X, Y, width & height
+
+            bounds.first.x = 0;
+            bounds.first.y = 0;
+            bounds.second.x = 2;
+            bounds.second.y = 2;
+
+            stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y };
+            stbrp_pack_rects(m_context.get(), &rectangle, 1);
+
+            if (rectangle.was_packed != 0)
+            {
+                GlState::setBlendFunc(true);
+                m_texture.setPixels(rectangle.x, rectangle.y, rectangle.w, rectangle.h, data);
+                m_bitmaps[0] = bounds;
+            }
+            else
+            {
+                JOP_DEBUG_ERROR("Can't create white rectangle");
+            }
             return true;
         }
         return false;
@@ -145,6 +162,7 @@ namespace jop
     
     void Font::getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y)
     {
+        
         auto it = m_bitmaps.find(codepoint);
         if (it != m_bitmaps.end())
         {
@@ -160,7 +178,6 @@ namespace jop
         {
             //load glyph
             FT_UInt index = FT_Get_Char_Index(m_face, codepoint);
-            //FT_Load_Char(m_face, codepoint, FT_LOAD_DEFAULT);
 
             FT_GlyphSlot slot = m_face->glyph;
 
@@ -170,17 +187,11 @@ namespace jop
                 JOP_DEBUG_ERROR("Error while loading glyph: " << err);
             }
 
-            //err = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
-            //if (err)
-            //{
-            //    JOP_DEBUG_ERROR("Error while rendering glyph: " << err);
-            //}
-
             FT_Glyph glyphDesc;
             err = FT_Get_Glyph(slot, &glyphDesc);
             if (err)
             {
-                JOP_DEBUG_ERROR("FAILED!: " << err);
+                JOP_DEBUG_ERROR("Gylph not found: " << err);
             }
             FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, 0, 1);
             FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyphDesc;
@@ -230,73 +241,4 @@ namespace jop
     }
 
     //////////////////////////////////////////////
-
-    int Font::getCharacters(uint8_t buffer[], unsigned long *id, size_t strlen, uint32_t *cp)
-    {
-        int remainUnits;
-        uint8_t next, mask;
-
-        if (*id >= strlen)
-            return -1;
-
-        next = buffer[(*id)++];
-        if (next & 0x80)
-        {
-            mask = 0xe0;
-            for (remainUnits = 1; (next & mask) != (mask << 1); remainUnits++)
-            {
-                mask = (mask >> 1) | 0x80;
-            }
-        }
-        else
-        {
-            remainUnits = 0;
-            mask = 0;
-        }
-
-        *cp = next ^ mask;
-
-        while (remainUnits-- > 0)
-        {
-            *cp <<= 6;
-            if (*id >= strlen)
-                return -1;
-            *cp |= buffer[(*id)++] & 0x3f;
-        }
-
-        return 0;
-    }
-
-    //////////////////////////////////////////////
-
-    int Font::codePointCount(uint8_t chars[], size_t strlen, size_t *outSize)
-    {
-        unsigned long id = 0;
-
-        for (*outSize = 0; *outSize < strlen; *outSize++)
-        {
-            uint32_t cp;
-            getCharacters(chars, &id, strlen, &cp);
-            if (!(cp < 0xd800 || cp > 0xdfff))
-                return -1;
-        }
-        
-        return 0;
-    }
-
-    //////////////////////////////////////////////
-
-    int Font::convert(uint8_t input[], uint32_t output[], size_t count, size_t *outSize)
-    {
-        unsigned long id = 0;
-
-        for (*outSize = 0; *outSize < count; *outSize++)
-        {
-            getCharacters(input, &id, count, &output[count]);
-            if (!(id < 0xd800 || id > 0xdfff))
-                return -1;
-        }
-
-        return 0;
-    }
 }

@@ -73,14 +73,6 @@ namespace jop
         /// \param height Height of a single character
         ///
         void getCodepointBitmap(const float scaleX, const float scaleY, const int codepoint, int* width, int* height, int* x, int* y);
-        
-        /// \brief Converts UTF-8 to UTF-32
-        ///
-        ///
-        static int getCharacters(uint8_t buffer[], unsigned long *id, size_t strlen, uint32_t *cp);
-        int codePointCount(uint8_t chars[], size_t strlen, size_t *outSize);
-        int convert(uint8_t input[], uint32_t output[], size_t count, size_t *outSize);
-
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
@@ -103,9 +95,9 @@ namespace jop
 
         Texture m_texture; ///< Texture
 
-        std::vector<unsigned char> m_buffer;
+        std::vector<unsigned char> m_buffer; ///< File buffer
 
-        std::unique_ptr<stbrp_context> m_context;
+        std::unique_ptr<stbrp_context> m_context; ///< Rectangle packing context
         stbrp_node* m_nodes;
         int m_numNodes = 0;
 

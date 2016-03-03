@@ -181,6 +181,8 @@ namespace jop
             return false;
         }
 
+        gl::PixelStorei(gl::UNPACK_ALIGNMENT, bytesPerPixel == 4 ? 4 : 1);
+
         destroy();
         glCheck(gl::GenTextures(1, &m_texture));
         bind();
@@ -256,12 +258,12 @@ namespace jop
             return;
         }
 
-        std::vector<unsigned char> buf(m_bytesPerPixel * width * height);
-        std::memcpy(&buf[0], pixels, buf.size());
-        flip(width, height, m_bytesPerPixel, &buf[0]);
+        //std::vector<unsigned char> buf(m_bytesPerPixel * width * height);
+        //std::memcpy(&buf[0], pixels, buf.size());
+        //flip(width, height, m_bytesPerPixel, &buf[0]);
 
         bind(0);
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, buf.data()));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
