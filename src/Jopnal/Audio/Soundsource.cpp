@@ -34,6 +34,7 @@ namespace jop
         : Component(other),
         m_sound()
     {}
+
     //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
@@ -42,15 +43,19 @@ namespace jop
     //////////////////////////////////////////////
     //////////////////////////////////////////////
 
-    void SoundSource::update(const float)
+    void SoundSource::update(const float deltaTime)
     {
-        glm::vec3 pos = getObject()->getPosition();
+        glm::vec3 pos = getObject()->getGlobalPosition();
         m_sound->setPosition(pos.x, pos.y, pos.z);
+
+        if (m_playOnce)
+            if (m_playWithSpeed)
+                allowSound(deltaTime);
     }
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setVolume(const float& vol)
+    SoundSource& SoundSource::setVolume(const float vol)
     {
         m_sound->setVolume(vol);
 
@@ -59,24 +64,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const float SoundSource::getVolume()
+    float SoundSource::getVolume()
     {
         return m_sound->getVolume();
     }
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setPitch(const float& value)
+    SoundSource& SoundSource::setPitch(const float value)
     {
-        if (value >= 0.0 && value < 8.9)
-        m_sound->setPitch(value);
+        m_sound->setPitch(std::max(value,0.f));
 
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    const float SoundSource::getPitch()
+    float SoundSource::getPitch()
     {
         return m_sound->getPitch();
     }
@@ -92,9 +96,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setAttenuationAndMinDistance(const float& at, const float& min)
+    bool SoundSource::getListener()
+    {
+        return m_sound->isRelativeToListener();
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setAttenuation(const float at)
     {
         m_sound->setAttenuation(at);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::setMinDistance(const float min)
+    {
         m_sound->setMinDistance(min);
 
         return *this;
@@ -102,15 +121,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const float SoundSource::getAttenuation()
+    float SoundSource::getAttenuation()
     {
         return m_sound->getAttenuation();
     }
 
     //////////////////////////////////////////////
 
-    const float SoundSource::getMinDistance()
+    float SoundSource::getMinDistance()
     {
         return  m_sound->getMinDistance();
+    }
+
+    //////////////////////////////////////////////
+
+    SoundSource& SoundSource::speedOfSound(const bool use)
+    {
+        m_playWithSpeed = use;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::calculateSound()
+    {
+        m_speedCounter.y = 20.0f;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundSource::allowSound(const float deltaTime)
+    {
+        if (m_speedCounter.y <= 0.0f)
+        {
+            static_cast<sf::Sound*>(m_sound.get())->play();
+            m_playOnce = false;
+        }
+        else
+            std::cout << m_speedCounter.y << "\n";
+            m_speedCounter.y -= deltaTime;
     }
 }

@@ -92,8 +92,8 @@
     <ClCompile Include="..\src\Jopnal\Audio\Listener.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\SoundEffect.cpp" />
-    <ClCompile Include="..\src\Jopnal\Audio\Soundsource.cpp" />
     <ClCompile Include="..\src\Jopnal\AABB.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp" />
     <ClCompile Include="..\src\Jopnal\Audio\SoundStream.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />

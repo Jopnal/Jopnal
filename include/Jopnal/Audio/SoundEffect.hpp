@@ -70,29 +70,29 @@ namespace jop
         ///
         /// If true audio doesn't start over from beginging
         ///
-        SoundEffect& Play(bool reset);
+        SoundEffect& play(bool reset);
 
         /// \brief Play sound from start
         ///
-        SoundEffect& Play();
+        SoundEffect& play();
 
         /// \brief Stop playing sound
         ///
-        SoundEffect& Stop();
+        SoundEffect& stop();
 
         /// \brief Pause sound
         ///
-        SoundEffect& Pause();
+        SoundEffect& pause();
 
         /// \brief Set from which point as seconds the sound starts playing
         ///
         /// \param Float time
         ///
-        SoundEffect& setOffset(const float& time);
+        SoundEffect& setOffset(const float time);
 
         /// \brief Returns point where sound is playing as seconds
         ///
-        const float getOffset();
+        float getOffset();
 
         /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
         ///
@@ -102,13 +102,7 @@ namespace jop
         ///
         /// \param Boolean true iquals on and false iquals off
         ///
-        SoundEffect& setLoop(bool loop);
-
-        /// \brief Copy information from stream component
-        ///
-        /// \param sf::Sound object
-        ///
-        void copy(sf::Sound* sound);
+        SoundEffect& setLoop(const bool loop);
     };
 }
 #endif

@@ -64,7 +64,7 @@ namespace jop
         ///
         /// \param Path to audio file
         ///
-        SoundStream& setPath(const std::string& path);
+        SoundStream& setPath(const std::string path);
 
         /// \brief Get information from member variables
         ///
@@ -77,29 +77,29 @@ namespace jop
         ///
         /// If true audio doesn't start over from beginging
         ///
-        SoundStream& Play(bool reset);
+        SoundStream& play(bool reset);
 
         /// \brief Play sound from start
         ///
-        SoundStream& Play();
+        SoundStream& play();
 
         /// \brief Stop playing sound
         ///
-        SoundStream& Stop();
+        SoundStream& stop();
 
         /// \brief Pause sound
         ///
-        SoundStream& Pause();
+        SoundStream& pause();
 
         /// \brief Set from which point as seconds the sound starts playing
         ///
         /// \param Float time
         ///
-        SoundStream& setOffset(const float& time);
+        SoundStream& setOffset(const float time);
 
         /// \brief Returns point where sound is playing as seconds
         ///
-        const float getOffset();
+        float getOffset();
 
         /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
         ///
@@ -110,12 +110,6 @@ namespace jop
         /// \param Boolean true iquals on and false iquals off
         ///
         SoundStream& setLoop(bool loop);
-
-        /// \brief Copy information from stream component
-        ///
-        /// \param sf::music object
-        ///
-        void copy(sf::Music* sound);
 
     private:
         std::string m_path;                     ///< Remembers streaming path for cloning

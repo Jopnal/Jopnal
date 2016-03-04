@@ -30,13 +30,17 @@ namespace jop
         :SoundSource(object, ID)
     {
         m_sound = std::make_unique < sf::Sound >();
+        m_playOnce = false;
+        m_playWithSpeed = false;
     }
 
     SoundEffect::SoundEffect(const SoundEffect& other)
         : SoundSource(other)
     {
         m_sound = std::make_unique < sf::Sound >();
-        other.clone()->copy(static_cast<sf::Sound*>(m_sound.get()));
+        m_playOnce = false;
+        static_cast<sf::Sound*>(m_sound.get()) == static_cast<sf::Sound*>(other.m_sound.get());
+        m_playWithSpeed = other.m_playWithSpeed;
     }
     //////////////////////////////////////////////
 
@@ -54,28 +58,72 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::Play(bool reset)
+    SoundEffect& SoundEffect::play(bool reset)
     {
-        if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+        m_resetSound = reset;
+
+        if (!m_playWithSpeed)
         {
-            if (reset);
+            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+            {
+                if (reset)
+                    return *this;
+            }
+            static_cast<sf::Sound*>(m_sound.get())->play();
             return *this;
         }
-        static_cast<sf::Sound*>(m_sound.get())->play();
-        return *this;
+        else
+        {
+            if (m_playOnce)
+            {
+                if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+                {
+                    if (reset)
+                        return *this;
+                }
+                static_cast<sf::Sound*>(m_sound.get())->play();
+                return *this;
+            }
+            else
+            {
+                calculateSound();
+                m_playOnce = true;
+                return *this;
+            }
+        }
     }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::Play()
+    SoundEffect& SoundEffect::play()
     {
-        static_cast<sf::Sound*>(m_sound.get())->play();
-        return *this;
+        m_resetSound = false;
+
+        if (!m_playWithSpeed)
+        {
+            static_cast<sf::Sound*>(m_sound.get())->play();
+            return *this;
+        }
+        else
+        {
+            if (m_playOnce)
+            {
+                static_cast<sf::Sound*>(m_sound.get())->play();
+                return *this;
+            }
+            else
+            {
+                calculateSound();
+                m_playOnce = true;
+                return *this;
+            }
+        }
+
     }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::Stop()
+    SoundEffect& SoundEffect::stop()
     {
         static_cast<sf::Sound*>(m_sound.get())->stop();
 
@@ -84,7 +132,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::Pause()
+    SoundEffect& SoundEffect::pause()
     {
         static_cast<sf::Sound*>(m_sound.get())->pause();
 
@@ -93,7 +141,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setOffset(const float& time)
+    SoundEffect& SoundEffect::setOffset(const float time)
     {
         sf::Time t(sf::seconds(time));
         static_cast<sf::Sound*>(m_sound.get())->setPlayingOffset(t);
@@ -103,7 +151,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const float SoundEffect::getOffset()
+    float SoundEffect::getOffset()
     {
         return static_cast<sf::Sound*>(m_sound.get())->getPlayingOffset().asSeconds();
     }
@@ -117,17 +165,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setLoop(bool loop)
+    SoundEffect& SoundEffect::setLoop(const bool loop)
     {
         static_cast<sf::Sound*>(m_sound.get())->setLoop(loop);
 
         return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundEffect::copy(sf::Sound* sound)
-    {
-        static_cast<sf::Sound*>(sound)=static_cast<sf::Sound*>(m_sound.get());
     }
 }

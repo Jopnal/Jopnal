@@ -71,44 +71,74 @@ namespace jop
         ///
         /// \param Float 0-100.0f default is 100.0f
         ///
-        SoundSource& setVolume(const float& vol);
+        SoundSource& setVolume(const float vol);
 
         /// \brief Returns float volume
         ///
-        const float getVolume();
+        float getVolume();
 
         /// \brief Set pitch
         ///
-        /// \param Float pitch value default is 1 min is 0.0 max is 8.9
+        /// \param Float pitch value default is 1 min is 0.0 crashes after 8.9
         ///
-        SoundSource& setPitch(const float& value);
+        SoundSource& setPitch(const float value);
 
         /// \brief Returns pitch
         ///
-        const float getPitch();
+        float getPitch();
 
         /// \brief Toggle listener on/off
         ///
         /// \param Boolean true plays sound at listener's position and false enables spatialization in 3d space
         ///
-        SoundSource& setListener(bool toggle);
+        SoundSource& setListener(const bool toggle);
 
-        /// \brief Change stream's fade and distance of max volume
+        /// \brief Returns relativity to listener
+        ///
+        bool getListener();
+
+        /// \brief Change stream's fadein distance
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
-        SoundSource& setAttenuationAndMinDistance(const float& at, const float& min); 
+        SoundSource& setAttenuation(const float at);
+        
+        /// \brief Change sound's distance when it is heard in max volume
+        ///
+        /// \param Attenuation 0-100.0f and minDistance 1<x
+        ///
+        SoundSource& setMinDistance(const float min);
        
         /// \brief Returns fadein value
         ///
-        const float getAttenuation();
+        float getAttenuation();
 
         /// \brief Returns distance of max volume
         ///
-        const float getMinDistance();
+        float getMinDistance();
+
+        /// \brief Change sound's distance when it is heard in max volume
+        ///
+        /// \param Attenuation 0-100.0f and minDistance 1<x
+        ///
+        SoundSource& speedOfSound(const bool use);
+
+        /// \brief Automated calculation when sound is allowed to play
+        ///
+        void calculateSound();
+
+        /// \brief  Automatic check if sound is allowed to play
+        ///
+        /// \param Deltatime for calculation
+        ///
+        void allowSound(const float deltaTime);
 
     protected:
         std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
+        glm::vec2 m_speedCounter;                      ///< Counter for speed of sound
+        bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
+        bool m_playOnce;                               ///< Breaks link from update to calculate sound()
+        bool m_resetSound;
     };
 }
 

@@ -44,7 +44,7 @@ namespace jop
 
     void Listener::update(const float)
     {
-        glm::vec3 var = getObject()->getPosition();
+        glm::vec3 var = getObject()->getGlobalPosition();
         sf::Listener::setPosition(var.x, var.y, var.z);
 
         var = getObject()->getGlobalFront();
