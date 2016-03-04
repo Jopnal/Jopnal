@@ -114,7 +114,7 @@ namespace jop
     
     std::pair<glm::ivec2, glm::ivec2> Font::getBounds(const int codepoint)
     {
-        FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_NO_BITMAP);
+        FT_Load_Glyph(m_face, FT_Get_Char_Index(m_face, codepoint), FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
 
         // X and Y are offset from glyph origo
         int x, y, w, h;
@@ -137,7 +137,7 @@ namespace jop
 
     //////////////////////////////////////////////
     
-    void Font::getCodepointBitmap(const int codepoint, int* width, int* height, int* x, int* y)
+    void Font::getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y)
     {
         
         auto it = m_bitmaps.find(codepoint);

@@ -41,10 +41,12 @@ namespace jop
         
         void setString(const std::string &string); //generates vertices
         void draw(const Camera&, const LightContainer&)override;
-
+        void setPosition(const glm::vec2 position);
 
     private:
         WeakReference<Font> m_font;
+        std::vector<Vertex> m_vertices;
+        glm::vec2 m_position;
     };
 }
 

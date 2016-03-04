@@ -32,6 +32,12 @@ namespace jop
     {
 
     }
+
+    void Text::setPosition(const glm::vec2 position)
+    {
+        m_position = position;
+    }
+
     void Text::setString(const std::string &string)
     {
         std::vector<Vertex> vertices;
@@ -51,7 +57,7 @@ namespace jop
             float kerning;
 
             //get bitmap location and size inside the texture in pixels
-            m_font->getCodepointBitmap(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
+            m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
             //pixels to texture coordinates
             Texture tex = m_font->getTexture();
@@ -60,6 +66,23 @@ namespace jop
             glyphPos.x = (float)bitmapX / (float)tex.getWidth();
             glyphPos.y = (float)bitmapY / (float)tex.getHeight();
 
+            std::pair<glm::ivec2, glm::ivec2> metrics = m_font->getBounds(i);
+
+            Vertex v;
+            v.position.x = x + metrics.first.x;
+            v.position.y = metrics.first.y;
+            v.position.z = 0;
+            vertices.push_back(v);
+
+            v.position.y = metrics.first.y - (float)bitmapHeight / (float)tex.getHeight();
+            vertices.push_back(v);
+
+            v.position.x = x + metrics.first.x + (float)bitmapWidth / (float)tex.getWidth();
+            vertices.push_back(v);
+
+            v.position.y = metrics.first.y;
+            vertices.push_back(v);
+
             //advance!
             x += (float)bitmapWidth / (float)tex.getWidth() + kerning;
         }
@@ -67,5 +90,11 @@ namespace jop
         Mesh::load(vertices, std::vector<unsigned int>());
     }
 
+    void Text::draw(const Camera& cam, const LightContainer& light)
+    {
+        Texture tex = m_font->getTexture();
+        tex.bind();
+        //???
+    }
 }
 

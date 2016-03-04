@@ -82,7 +82,7 @@ namespace jop
         /// \param width Width of a single character
         /// \param height Height of a single character
         ///
-        void getCodepointBitmap(const int codepoint, int* width, int* height, int* x, int* y);
+        void getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y);
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
