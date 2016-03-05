@@ -59,7 +59,8 @@ namespace jop
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
           samples       (0),
-          visible       (false)
+          visible       (false),
+          vSync         (true)
     {
         if (loadSettings)
         {
@@ -67,7 +68,7 @@ namespace jop
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
-            visible = true;
+            visible = SettingManager::getBool("uDefaultWindowVisible", true);
             vSync = SettingManager::getBool("bDefaultWindowVSync", true);
         }
     }
@@ -211,7 +212,7 @@ namespace jop
     WindowHandle Window::getNativeHandle()
     {
         if (isOpen())
-            m_impl->getNativeHandle();
+            return m_impl->getNativeHandle();
 
         return nullptr;
     }
@@ -251,5 +252,51 @@ namespace jop
     {
         if (isOpen())
             m_impl->setMouseMode(mode);
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setPosition(const int x, const int y)
+    {
+        if (isOpen())
+            m_impl->setPosition(x, y);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getPosition() const
+    {
+        if (isOpen())
+            return m_impl->getPosition();
+
+        return glm::ivec2();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setSize(const int width, const int height)
+    {
+        if (isOpen())
+            m_impl->setSize(width, height);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getSize(const bool includeFrame) const
+    {
+        if (isOpen())
+            return m_impl->getSize(includeFrame);
+
+        return glm::ivec2();
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getFrameSize() const
+    {
+        if (isOpen())
+            return m_impl->getFrameSize();
+
+        return glm::ivec2();
     }
 }

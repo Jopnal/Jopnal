@@ -189,6 +189,8 @@ namespace jop
         ///
         void updateBase(const float deltaTime);
 
+        void updateTransformTree();
+
         /// \brief fixedUpdate method for scene
         ///
         /// \param timeStep Double holding time step

@@ -88,7 +88,7 @@ namespace jop
         clip.PushBack(cam.getClippingPlanes().first, alloc)
             .PushBack(cam.getClippingPlanes().second, alloc);
 
-        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc);
+        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc)["projdata"];
 
         if (cam.getProjectionMode() == Camera::Projection::Perspective)
         {
@@ -266,14 +266,5 @@ namespace jop
     float Camera::getFieldOfView() const
     {
         return m_projData.perspective.fov;
-    }
-
-    //////////////////////////////////////////////
-
-    Camera& Camera::getDefault()
-    {
-        static Object obj("jop_default_camera_object");
-        static Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
-        return cam;
     }
 }

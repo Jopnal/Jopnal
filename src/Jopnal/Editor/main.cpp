@@ -21,21 +21,30 @@
 
 // Headers
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
-#include <windows.h>
 
 //////////////////////////////////////////////
 
 
 int main(int argc, char* argv[])
 {
-    JOP_ENGINE_INIT("Jopnal Editor", argc, argv);
+    jop::Engine e("Jopnal Editor", argc, argv);
+    e.createSubsystem<jop::SettingManager>();
+    e.createSubsystem<jop::FileLoader>(argv[0]);
+    e.createSubsystem<jop::ResourceManager>();
+    e.createSubsystem<jop::ShaderManager>();
+    e.setPaused(true);
+    e.setRenderingFrozen(true);
 
-    std::thread t([]
-    {
-        JOP_MAIN_LOOP;
-    });
+    e.createScene<jop::Scene>("");
 
     jope::MainWindow form;
+
+    std::thread t([argc, argv, &form]
+    {
+        jop::Engine::createSubsystem<jope::WindowUpdater>(form);
+
+        JOP_MAIN_LOOP;
+    });
     
     nana::exec();
     t.join();

@@ -19,9 +19,33 @@
 
 //////////////////////////////////////////////
 
-// Disable warning C4512 and C4503
-#pragma warning(disable: 4512)
-#pragma warning(disable: 4503)
+
+// Windows
+#ifdef _WIN32
+
+    // Disable warning C4512 and C4503
+    #pragma warning(disable: 4512)
+    #pragma warning(disable: 4503)
+
+    #define _CRT_SECURE_NO_WARNINGS
+
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef VC_EXTRALEAN
+        #define VC_EXTRALEAN
+    #endif
+
+    #include <windows.h>
+    #include <GL/wgl_jop.hpp>
+
+#endif
+
+// OpenGL
+#include <GL/GL.hpp>
 
 // Standard
 #include <iostream>
@@ -30,9 +54,12 @@
 // Nana
 #include <nana/gui/wvl.hpp> 
 #include <nana/gui/widgets/label.hpp>
+#include <nana/gui/timer.hpp>
 
 // Jopnal Engine
 #include <Jopnal/Jopnal.hpp>
 
 // Jopnal Editor
 #include <Jopnal/Editor/Forms/MainWindow.hpp>
+#include <Jopnal/Editor/CommandBuffer.hpp>
+#include <Jopnal/Editor/WindowUpdater.hpp>

@@ -279,6 +279,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Scene::updateTransformTree()
+    {
+        for (auto& i : m_objects)
+            i.updateTransformTree(nullptr, false);
+    }
+
+    //////////////////////////////////////////////
+
     void Scene::fixedUpdateBase(const float timeStep)
     {
         if (isActive())

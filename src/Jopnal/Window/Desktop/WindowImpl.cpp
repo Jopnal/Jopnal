@@ -180,6 +180,54 @@ namespace jop { namespace detail
 
         glfwSetInputMode(m_window, GLFW_CURSOR, modes[static_cast<int>(mode)]);
     }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setPosition(const int x, const int y)
+    {
+        glfwSetWindowPos(m_window, x, y);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getPosition() const
+    {
+        glm::ivec2 p;
+        glfwGetWindowPos(m_window, &p.x, &p.y);
+
+        return p;
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setSize(const int width, const int height)
+    {
+        glfwSetWindowSize(m_window, width, height);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getSize(const bool includeFrame) const
+    {
+        glm::ivec2 s;
+        glfwGetWindowSize(m_window, &s.x, &s.y);
+
+        if (includeFrame)
+            s += getFrameSize();
+
+        return s;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getFrameSize() const
+    {
+        int left, right, top, bottom;
+        glfwGetWindowFrameSize(m_window, &left, &top, &right, &bottom);
+        
+        return glm::ivec2(left + right, top + bottom);
+    }
+
 }}
 
 #endif

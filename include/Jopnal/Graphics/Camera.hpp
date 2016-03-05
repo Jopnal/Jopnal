@@ -200,14 +200,6 @@ namespace jop
         ///
         float getFieldOfView() const;
 
-        /// \brief Get the default camera
-        ///
-        /// This camera is a const object and it's not meant to be used actively.
-        ///
-        /// \return Const reference to the camera
-        ///
-        static Camera& getDefault();
-
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix

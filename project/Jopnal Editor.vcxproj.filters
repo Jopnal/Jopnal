@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Precompiled">
       <UniqueIdentifier>{9893c849-833c-4c37-8a35-4ee0f2e12fb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\WGL">
+      <UniqueIdentifier>{0a8b5ae9-8191-4f6b-ab0c-8b5738889d89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Editor\main.cpp">
@@ -33,6 +36,18 @@
     <ClCompile Include="..\src\Jopnal\Editor\Precompiled\Precompiled.cpp">
       <Filter>Source Files\Precompiled</Filter>
     </ClCompile>
+    <ClCompile Include="..\extlibs\include\GL\wgl_jop.cpp">
+      <Filter>Source Files\WGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\CommandBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\ObjectWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Editor\Forms\MainWindow.hpp">
@@ -40,6 +55,15 @@
     </ClInclude>
     <ClInclude Include="..\src\Jopnal\Editor\Precompiled\Precompiled.hpp">
       <Filter>Source Files\Precompiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\CommandBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\WindowUpdater.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\ObjectWindow.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

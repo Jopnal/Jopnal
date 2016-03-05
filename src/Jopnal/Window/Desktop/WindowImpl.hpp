@@ -56,6 +56,16 @@ namespace jop { namespace detail
 
         void setMouseMode(const Mouse::Mode mode);
 
+        void setPosition(const int x, const int y);
+
+        glm::ivec2 getPosition() const;
+
+        void setSize(const int width, const int height);
+
+        glm::ivec2 getSize(const bool includeFrame) const;
+
+        glm::ivec2 getFrameSize() const;
+
     private:
 
         GLFWwindow* m_window;

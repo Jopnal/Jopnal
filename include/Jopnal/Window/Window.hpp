@@ -64,7 +64,7 @@ namespace jop
 
         /// Window settings
         ///
-        struct Settings
+        struct JOP_API Settings
         {
             Settings(const bool loadSettings);
 
@@ -205,6 +205,16 @@ namespace jop
         /// \param mode Enum mouse mode.
         ///
         void setMouseMode(const Mouse::Mode mode);
+
+        void setPosition(const int x, const int y);
+
+        glm::ivec2 getPosition() const;
+
+        void setSize(const int width, const int height);
+
+        glm::ivec2 getSize(const bool includeFrame = false) const;
+
+        glm::ivec2 getFrameSize() const;
 
     private:
 
