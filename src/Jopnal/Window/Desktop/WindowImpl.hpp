@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Window.hpp>
+#include <Jopnal/Window/WindowHandle.hpp>
 #include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
@@ -49,9 +50,21 @@ namespace jop { namespace detail
 
         GLFWwindow* getLibraryHandle();
 
+        WindowHandle getNativeHandle();
+
         static void pollEvents();
 
         void setMouseMode(const Mouse::Mode mode);
+
+        void setPosition(const int x, const int y);
+
+        glm::ivec2 getPosition() const;
+
+        void setSize(const int width, const int height);
+
+        glm::ivec2 getSize(const bool includeFrame) const;
+
+        glm::ivec2 getFrameSize() const;
 
     private:
 

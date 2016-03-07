@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Forms">
+      <UniqueIdentifier>{83cba140-d049-4520-b0f3-7215e14db247}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Forms">
+      <UniqueIdentifier>{5bb190e8-4a45-4efd-9dfb-e15fce04ee0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Precompiled">
+      <UniqueIdentifier>{9893c849-833c-4c37-8a35-4ee0f2e12fb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WGL">
+      <UniqueIdentifier>{0a8b5ae9-8191-4f6b-ab0c-8b5738889d89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{363f103e-054b-4be5-bbd2-9312c320f519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{343a1cba-fbc6-44e9-97ac-72f62bb48abf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Editor\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\MainWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Precompiled\Precompiled.cpp">
+      <Filter>Source Files\Precompiled</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extlibs\include\GL\wgl_jop.cpp">
+      <Filter>Source Files\WGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\ObjectWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\OpenGLWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\CommandBuffer.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\MainWindow.hpp">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Editor\Precompiled\Precompiled.hpp">
+      <Filter>Source Files\Precompiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\ObjectWindow.hpp">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\OpenGLWindow.hpp">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\WindowUpdater.hpp">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\CommandBuffer.hpp">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

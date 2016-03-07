@@ -84,6 +84,8 @@ namespace jop
         ///
         WeakReference<Component> getComponent(const std::string& ID);
 
+        const std::vector<std::unique_ptr<Component>>& getCmponents() const;
+
         /// \brief Get a component using type info
         ///
         /// \return Pointer to the component. Empty if not found
@@ -123,6 +125,8 @@ namespace jop
         /// \return Pointer to the child if found, nullptr otherwise
         ///
         WeakReference<Object> getChild(const std::string& ID);
+
+        const std::vector<Object>& getChildren() const;
 
         /// \brief Clone a child with the given id
         ///

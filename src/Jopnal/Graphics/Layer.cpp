@@ -120,7 +120,10 @@ namespace jop
         if (isActive())
         {
             if (m_camera.expired())
-                setCamera(Camera::getDefault());
+            {
+                JOP_DEBUG_WARNING("Couldn't draw layer with id \"" << getID() << "\", no camera bound");
+                return;
+            }
 
             if (m_renderTexture)
                 m_renderTexture->bind();

@@ -140,7 +140,7 @@ namespace jop
             Color::Black,
             Color::White,
             Color::White,
-            Color::White
+            Color::Black
         )
         .setMap(Map::Diffuse, Texture::getDefault());
     }
@@ -159,7 +159,7 @@ namespace jop
             Color::Black,
             Color::White,
             Color::White,
-            Color::White
+            Color::Black
         )
         .setMap(Map::Diffuse, Texture::getDefault());
     }

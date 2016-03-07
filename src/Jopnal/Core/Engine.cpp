@@ -52,7 +52,9 @@ namespace jop
           m_subsystems      (),
           m_currentScene    (),
           m_running         (true),
-          m_paused          (false)
+          m_paused          (false),
+          m_advance         (false),
+          m_frozen          (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -88,8 +90,7 @@ namespace jop
         createSubsystem<ResourceManager>();
 
         // Main window
-        const Window::Settings wSettings(true);
-        createSubsystem<Window>(wSettings);
+        createSubsystem<Window>(Window::Settings(true));
 
         // Shader manager
         createSubsystem<ShaderManager>();
@@ -101,7 +102,11 @@ namespace jop
 
     int Engine::runMainLoop()
     {
-        if (!m_currentScene)
+        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop without a valid jop::Engine instance!");
+
+        auto& eng = *m_engineObject;
+
+        if (!eng.m_currentScene)
             JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
         const float timeStep = 1.0f / SettingManager::getUint("uFixedUpdateFrequency", 30);
@@ -109,12 +114,14 @@ namespace jop
 
         Clock frameClock;
 
-        while (m_running)
+        while (eng.m_running)
         {
             // Clamp the delta time to a certain value. This is to prevent
             // a "spiral of death" if fps goes below 5.
             const float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
-            m_totalTime += frameTime;
+            eng.m_totalTime += frameTime;
+
+            bool advance = !isPaused() || eng.m_advance;
 
             // Fixed update
             {
@@ -122,21 +129,21 @@ namespace jop
 
                 while (accumulator >= timeStep)
                 {
-                    for (auto& i : m_subsystems)
+                    for (auto& i : eng.m_subsystems)
                     {
                         if (i->isActive())
                             i->preFixedUpdate(timeStep);
                     }
 
-                    if (!isPaused())
+                    if (advance)
                     {
-                        if (m_currentScene)
-                            m_currentScene->fixedUpdateBase(timeStep);
+                        if (eng.m_currentScene)
+                            eng.m_currentScene->fixedUpdateBase(timeStep);
 
-                        m_sharedScene->fixedUpdateBase(timeStep);
+                        eng.m_sharedScene->fixedUpdateBase(timeStep);
                     }
 
-                    for (auto& i : m_subsystems)
+                    for (auto& i : eng.m_subsystems)
                     {
                         if (i->isActive())
                             i->postFixedUpdate(timeStep);
@@ -147,21 +154,21 @@ namespace jop
 
             // Update
             {
-                for (auto& i : m_subsystems)
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->preUpdate(frameTime);
                 }
 
-                if (!isPaused())
+                if (advance)
                 {
-                    if (m_currentScene)
-                        m_currentScene->updateBase(frameTime);
+                    if (eng.m_currentScene)
+                        eng.m_currentScene->updateBase(frameTime);
 
-                    m_sharedScene->updateBase(frameTime);
+                    eng.m_sharedScene->updateBase(frameTime);
                 }
 
-                for (auto& i : m_subsystems)
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->postUpdate(frameTime);
@@ -170,17 +177,24 @@ namespace jop
 
             // Draw
             {
-                if (m_currentScene)
-                    m_currentScene->drawBase();
+                if (!isRenderingFrozen() || eng.m_advanceFrame)
+                {
+                    if (eng.m_currentScene)
+                        eng.m_currentScene->drawBase();
 
-                m_sharedScene->drawBase();
+                    eng.m_sharedScene->drawBase();
 
-                for (auto& i : m_subsystems)
+                    eng.m_advanceFrame = false;
+                }
+
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->draw();
                 }
             }
+
+            eng.m_advance = false;
         }
 
         // #TODO Threaded event loop
@@ -340,6 +354,51 @@ namespace jop
             return m_engineObject->m_totalTime;
 
         return 0.0;
+    }
+
+    //////////////////////////////////////////////
+
+
+    bool Engine::hasCurrentScene()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_currentScene.operator bool();
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::setRenderingFrozen(const bool freeze)
+    {
+        if (m_engineObject)
+            m_engineObject->m_frozen = freeze;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::isRenderingFrozen()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_frozen;
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::advanceFrame()
+    {
+        if (m_engineObject)
+            m_engineObject->m_advance = true;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::renderFrame()
+    {
+        if (m_engineObject)
+            m_engineObject->m_advanceFrame = true;
     }
 
     //////////////////////////////////////////////

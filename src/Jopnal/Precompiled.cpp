@@ -17,8 +17,10 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#pragma message("Started compiling the precompiled header...")
+//////////////////////////////////////////////
+
+#pragma message("(Jopnal) Started compiling the precompiled header...")
 
 #include <Jopnal/Precompiled.hpp>
 
-#pragma message("Precompiled header compilation finished!")
+#pragma message("(Jopnal) Precompiled header compilation finished!")

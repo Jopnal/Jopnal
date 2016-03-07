@@ -118,7 +118,7 @@ namespace detail
 }
 
 template<typename T, typename ... Args>
-WeakReference<T> Object::createComponent(Args& ... args)
+WeakReference<T> Object::createComponent(Args&... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
     

@@ -54,7 +54,15 @@
 #include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW
-#include <GLFW/glfw3.h>
+#ifdef JOP_OS_DESKTOP
+
+    #include <GLFW/glfw3.h>
+
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #define GLFW_EXPOSE_NATIVE_WGL
+    #include <GLFW/glfw3native.h>
+
+#endif
 
 // GLM
 #include <Jopnal/MathInclude.hpp>

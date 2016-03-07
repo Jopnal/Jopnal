@@ -66,6 +66,8 @@ namespace jop
         ///
         WeakReference<Object> getObject(const std::string& ID);
 
+        const std::vector<Object>& getObjects() const;
+
         /// \brief Method that creates object
         ///
         /// \param ID Object identifier
@@ -188,6 +190,8 @@ namespace jop
         /// \param deltaTime Double holding time step
         ///
         void updateBase(const float deltaTime);
+
+        void updateTransformTree();
 
         /// \brief fixedUpdate method for scene
         ///

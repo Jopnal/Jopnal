@@ -27,6 +27,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <vector>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -77,7 +78,13 @@ namespace jop
         ///
         /// \return An integer return value. To be used as the main() return value
         ///
-        int runMainLoop();
+        static int runMainLoop();
+
+
+        static void advanceFrame();
+
+
+        static void renderFrame();
 
 
         /// \brief Create a scene
@@ -93,6 +100,8 @@ namespace jop
         ///
         template<typename T, typename ... Args>
         static T& createScene(Args&&... args);
+
+        static bool hasCurrentScene();
 
         /// \brief Get the current scene
         ///
@@ -158,6 +167,10 @@ namespace jop
         ///
         static bool isPaused();
 
+        static void setRenderingFrozen(const bool freeze);
+
+        static bool isRenderingFrozen();
+
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
@@ -219,8 +232,11 @@ namespace jop
         double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
-        bool m_running;                                       ///< A boolean telling if the engine is running
+        std::atomic<bool> m_running;                          ///< A boolean telling if the engine is running
         bool m_paused;                                        ///< A boolean telling if the engine is paused
+        bool m_advance;
+        bool m_advanceFrame;
+        bool m_frozen;
     };
 
     /// \brief Get the project name
@@ -278,7 +294,7 @@ namespace jop
 ///
 /// This macro must appear in the same scope as JOP_ENGINE_INIT
 ///
-#define JOP_MAIN_LOOP jop_engine.runMainLoop();
+#define JOP_MAIN_LOOP jop::Engine::runMainLoop();
 
 #endif
 

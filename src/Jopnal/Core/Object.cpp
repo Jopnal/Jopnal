@@ -149,6 +149,13 @@ namespace jop
         return WeakReference<Component>();
     }
 
+    //////////////////////////////////////////////
+
+    const std::vector<std::unique_ptr<Component>>& Object::getCmponents() const
+    {
+        return m_components;
+    }
+
     /////////////////////////////////////////////
 
     void Object::removeComponents(const std::string& ID)
@@ -186,6 +193,13 @@ namespace jop
         }
 
         return WeakReference<Object>();
+    }
+
+    //////////////////////////////////////////////
+
+    const std::vector<Object>& Object::getChildren() const
+    {
+        return m_children;
     }
 
     //////////////////////////////////////////////
