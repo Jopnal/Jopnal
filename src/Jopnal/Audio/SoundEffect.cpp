@@ -39,7 +39,8 @@ namespace jop
     {
         m_sound = std::make_unique < sf::Sound >();
         m_playOnce = false;
-        static_cast<sf::Sound*>(m_sound.get()) == static_cast<sf::Sound*>(other.m_sound.get());
+		m_ms = 343.0f;
+      //  dynamic_cast<sf::Sound*>(*m_sound.get) = dynamic_cast<sf::Sound*>(other.m_sound.get());
         m_playWithSpeed = other.m_playWithSpeed;
     }
     //////////////////////////////////////////////
@@ -160,7 +161,7 @@ namespace jop
 
     enum status SoundEffect::getStatus()
     {
-        return status(static_cast<sf::Sound*>(m_sound.get())->getStatus());
+        return status(static_cast<sf::Music*>(m_sound.get())->getStatus());
     }
 
     //////////////////////////////////////////////

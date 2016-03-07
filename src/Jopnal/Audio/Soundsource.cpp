@@ -145,21 +145,52 @@ namespace jop
     //////////////////////////////////////////////
 
     void SoundSource::calculateSound()
-    {
-        m_speedCounter.y = 20.0f;
+	{
+		glm::vec3 source = getObject()->getGlobalPosition();
+		glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
+        m_speedCounter = (glm::sqrt 
+			(pow((target.x-source.x),2)+
+			pow((target.y-source.y),2)+pow((target.z-source.z),2))
+			)/m_ms;
+		std::cout << m_speedCounter;
     }
 
     //////////////////////////////////////////////
 
     void SoundSource::allowSound(const float deltaTime)
     {
-        if (m_speedCounter.y <= 0.0f)
+        if (m_speedCounter <= 0.0f)
         {
             static_cast<sf::Sound*>(m_sound.get())->play();
             m_playOnce = false;
         }
         else
-            std::cout << m_speedCounter.y << "\n";
-            m_speedCounter.y -= deltaTime;
+            std::cout << m_speedCounter << "\n";
+            m_speedCounter -= deltaTime;
     }
+
+	//////////////////////////////////////////////
+
+	SoundSource& SoundSource::setSpeedForSound(const float ms)
+	{
+		m_ms = ms;
+
+		return *this;
+	}
+
+	//////////////////////////////////////////////
+
+	float SoundSource::getSpeedForSound()
+	{
+		return m_ms;
+	}
+
+	//////////////////////////////////////////////
+
+	SoundSource& SoundSource::setDefaultSpeedForSound()
+	{
+		m_ms = 343.0f;
+
+		return *this;
+	}
 }
