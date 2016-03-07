@@ -151,7 +151,7 @@ namespace jop
         fBegin = fBegin == std::string::npos ? endPos - 1 : fBegin - 1;
         if (filter[fBegin] != '[')
         {
-            static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Engine | Subsystem | SharedScene | Scene | Layer | Object | Component));
+            static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Engine | Subsystem | SharedScene | Scene | Object | Component));
             m_filterBits &= systemBitsInv;
 
             static const char* symbols[]
@@ -160,7 +160,6 @@ namespace jop
                 "Su",
                 "Sh",
                 "Sc",
-                "La",
                 "Ob",
                 "Co"
             };

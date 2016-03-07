@@ -33,6 +33,10 @@ namespace jop
 {
     class JOP_API GenericDrawable : public Drawable
     {
+    private:
+
+        JOP_GENERIC_CLONE(GenericDrawable);
+
     public:
 
         /// \brief Constructor
@@ -40,16 +44,12 @@ namespace jop
         /// \param object Reference to the object this drawable will be bound to
         /// \param ID Unique component identifier
         ///
-        GenericDrawable(Object& object, const std::string& ID);
+        GenericDrawable(Object& object, const std::string& ID, Renderer& renderer);
 
-
-        /// \copydoc jop::Component::clone()
-        ///
-        virtual GenericDrawable* clone() const override;
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera& camera, const LightContainer& lights) override;
+        virtual void draw(const Camera& camera, const LightContainer& lights) const override;
 
     };
 }

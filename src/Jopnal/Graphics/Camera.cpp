@@ -37,13 +37,13 @@ namespace jop
 
     JOP_END_COMMAND_HANDLER(Camera)
 
-    JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    /*JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
         Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
                                   static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
                                   Camera::Projection::Perspective;
 
-        auto cam = obj.createComponent<Camera>(proj);
+        auto cam = obj.createComponent<Camera>("", proj);
 
         if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
         {
@@ -88,7 +88,7 @@ namespace jop
         clip.PushBack(cam.getClippingPlanes().first, alloc)
             .PushBack(cam.getClippingPlanes().second, alloc);
 
-        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc)["projdata"];
+        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc);
 
         if (cam.getProjectionMode() == Camera::Projection::Perspective)
         {
@@ -104,51 +104,57 @@ namespace jop
 
         return Drawable::saveStateBase(cam, val, alloc);
     }
-    JOP_END_SAVEABLE_REGISTRATION(Camera)
+    JOP_END_SAVEABLE_REGISTRATION(Camera)*/
 }
 
 namespace jop
 {
 
-    Camera::Camera(Object& object, const Projection mode)
-        : Drawable                  (object, "Camera"),
+    Camera::Camera(Object& object, const std::string& ID, Renderer& renderer, const Projection mode)
+        : Component                 (object, ID),
           m_projectionMatrix        (),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
+          m_rendererRef             (renderer),
+          m_renderMask              (0xFFFFFFFF),
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
-        const float y = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
+        const float x = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
+        const float y = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
 
         if (mode == Projection::Orthographic)
         {
-            setID("OrthoCamera");
             setClippingPlanes(SettingManager::getFloat("fOrthoCameraClipNear", -1.f), SettingManager::getFloat("fOrthoCameraClipFar", 1.f));
             setSize(x, y);
         }
         else
         {
-            setID("PerspCamera");
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
             setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
             setSize(x, y);
         }
+
+        renderer.bind(*this);
     }
 
     Camera::Camera(const Camera& other)
-        : Drawable                  (other),
+        : Component                 (other),
           m_projectionMatrix        (other.m_projectionMatrix),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),
+          m_rendererRef             (other.m_rendererRef),
+          m_renderMask              (other.m_renderMask),
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Camera::draw(const Camera&, const LightContainer&)
-    {}
+    {
+        m_rendererRef.bind(*this);
+    }
+    
+    Camera::~Camera()
+    {
+        m_rendererRef.unbind(*this);
+    }
 
     //////////////////////////////////////////////
 
@@ -178,6 +184,20 @@ namespace jop
     const glm::mat4& Camera::getViewMatrix() const
     {
         return getObject()->getInverseMatrix();
+    }
+
+    //////////////////////////////////////////////
+
+    void Camera::setRenderMask(const uint32 mask)
+    {
+        m_renderMask = mask;
+    }
+
+    //////////////////////////////////////////////
+
+    uint32 Camera::getRenderMask() const
+    {
+        return m_renderMask;
     }
 
     //////////////////////////////////////////////

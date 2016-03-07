@@ -129,8 +129,6 @@ namespace jop { namespace detail
 
     WindowImpl::~WindowImpl()
     {
-        GlState::reset();
-
         glCheck(gl::BindVertexArray(0));
         glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
 

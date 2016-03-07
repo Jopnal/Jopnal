@@ -27,7 +27,6 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <Jopnal/Core/Resource.hpp>
@@ -46,9 +45,6 @@ namespace jop
     typedef std::function<bool(Object&, const Scene&, const json::Value&)>                      ComponentLoadFunc;
     typedef std::function<bool(const Component&, json::Value&, json::Value::AllocatorType&)>    ComponentSaveFunc;
 
-    typedef std::function<bool(std::unique_ptr<Layer>&, const json::Value&)>                    LayerLoadFunc;
-    typedef std::function<bool(const Layer&, json::Value&, json::Value::AllocatorType&)>        LayerSaveFunc;
-
     typedef std::function<bool(std::unique_ptr<Scene>&, const json::Value&)>                    SceneLoadFunc;
     typedef std::function<bool(const Scene&, json::Value&, json::Value::AllocatorType&)>        SceneSaveFunc;
 
@@ -64,7 +60,6 @@ namespace jop
         <
             typename T,
             bool IsComp      = std::is_base_of<Component, T>::value,
-            bool IsLayer     = std::is_base_of<Layer, T>::value,
             bool IsScene     = std::is_base_of<Scene, T>::value,
             bool IsSubsystem = std::is_base_of<Subsystem, T>::value
 
@@ -73,10 +68,10 @@ namespace jop
             typedef CustomLoadFunc LoadFunc;
             typedef CustomSaveFunc SaveFunc;
             typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
-            enum{ContainerID = 4};
+            enum{ContainerID = 3};
         };
         template<typename T>
-        struct FuncChooser<T, true, false, false, false>
+        struct FuncChooser<T, true, false, false>
         {
             typedef ComponentLoadFunc LoadFunc;
             typedef ComponentSaveFunc SaveFunc;
@@ -84,28 +79,20 @@ namespace jop
             enum{ContainerID = 0};
         };
         template<typename T>
-        struct FuncChooser<T, false, true, false, true>
-        {
-            typedef LayerLoadFunc LoadFunc;
-            typedef LayerSaveFunc SaveFunc;
-            typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
-            enum{ContainerID = 1};
-        };
-        template<typename T>
-        struct FuncChooser<T, false, false, true, false>
+        struct FuncChooser<T, false, true, false>
         {
             typedef SceneLoadFunc LoadFunc;
             typedef SceneSaveFunc SaveFunc;
             typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
-            enum{ContainerID = 2};
+            enum{ContainerID = 1};
         };
         template<typename T>
-        struct FuncChooser<T, false, false, false, true>
+        struct FuncChooser<T, false, false, true>
         {
             typedef SubsystemLoadFunc LoadFunc;
             typedef SubsystemSaveFunc SaveFunc;
             typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
-            enum{ContainerID = 3};
+            enum{ContainerID = 2};
         };
     }
 
@@ -159,7 +146,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = true);
+        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false);
 
         /// \brief Load the current state
         ///
@@ -170,7 +157,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false, const bool subsystems = true);
+        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false);
 
 
         /// \brief Get the container with the registered load/save functions for the type T
@@ -196,16 +183,12 @@ namespace jop
 
         bool loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
 
-        bool loadLayers(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
-
         bool loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path);
 
         bool loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path);
 
 
         bool saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
-
-        bool saveLayers(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
 
         bool saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path);
 
@@ -217,7 +200,6 @@ namespace jop
         std::tuple
         <
             detail::FuncChooser<Component>::FuncContainer,  // Component
-            detail::FuncChooser<Layer>::FuncContainer,      // Layer
             detail::FuncChooser<Scene>::FuncContainer,      // Scene
             detail::FuncChooser<Subsystem>::FuncContainer,  // Subsystem
             detail::FuncChooser<void>::FuncContainer,       // Custom (other)

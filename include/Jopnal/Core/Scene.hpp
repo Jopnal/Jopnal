@@ -35,7 +35,7 @@
 namespace jop
 {
     class Object;
-    class Layer;
+    class Renderer;
 
     class JOP_API Scene : public Activateable
     {
@@ -100,51 +100,12 @@ namespace jop
         ///
         unsigned int objectCount() const;
 
-        /// \brief Get a layer with the given id
-        ///
-        /// \param ID The identifier to search with
-        ///
-        /// \return Pointer to the layer if found, empty otherwise
-        ///
-        WeakReference<Layer> getLayer(const std::string& ID) const;
 
-        /// \brief Get a layer using type info
-        ///
-        /// \return Pointer to the layer. Empty if not found
-        ///
-        template<typename T>
-        WeakReference<T> getLayer() const;
-
-        /// \brief Create a new layer
-        ///
-        /// \param args Arguments to pass into the constructor
-        ///
-        /// \return Reference to the newly created layer
-        ///
         template<typename T, typename ... Args>
-        WeakReference<T> createLayer(Args&&... args);
-
-        /// \brief Delete a layer with the given id
-        ///
-        /// \param ID The id to search with
-        ///
-        void deleteLayer(const std::string& ID);
-
-        /// \brief Delete all layers
-        ///
-        void clearLayers();
+        T& setRenderer(Args&&... args);
 
 
-        /// \brief Replace the default layer
-        ///
-        template<typename T, typename ... Args>
-        WeakReference<T> setDefaultLayer(Args&&... args);
-
-        /// \brief Get the default layer
-        ///
-        /// \return Reference to the default layer
-        ///
-        WeakReference<Layer> getDefaultLayer() const;
+        Renderer& getRenderer()const ;
 
 
         /// \brief Set the ID of this scene
@@ -262,9 +223,9 @@ namespace jop
         virtual Message::Result sendMessageImpl(const Message& message);
 
 
-        std::vector<Object> m_objects;         ///< Container holding objects
-        mutable std::vector<std::unique_ptr<Layer>> m_layers;   ///< Container holding layers
-        std::string m_ID;                                       ///< String holding scene identifier
+        std::unique_ptr<Renderer> m_renderer;
+        std::vector<Object> m_objects;  ///< Container holding objects
+        std::string m_ID;               ///< String holding scene identifier
     };
 
     // Include the template implementation file

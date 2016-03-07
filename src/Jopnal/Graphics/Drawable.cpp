@@ -37,31 +37,61 @@ namespace jop
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, const std::string& ID)
+    Drawable::Drawable(Object& object, const std::string& ID, Renderer& renderer)
         : Component         (object, ID),
           m_model           (Model::getDefault()),
-          m_boundToLayers   (),
           m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
-          m_receiveLights   (true)
-    {}
-
-    //////////////////////////////////////////////
+          m_rendererRef     (renderer),
+          m_renderGroup     (0),
+          m_receiveLights   (true),
+          m_receiveShadows  (false)
+    {
+        renderer.bind(*this);
+    }
 
     Drawable::Drawable(const Drawable& other)
-        : Component(other),
-          m_model(other.m_model),
-          m_boundToLayers(),
-          m_shader(other.m_shader),
-          m_receiveLights(other.m_receiveLights)
+        : Component         (other),
+          m_model           (other.m_model),
+          m_shader          (other.m_shader),
+          m_rendererRef     (other.m_rendererRef),
+          m_renderGroup     (other.m_renderGroup),
+          m_receiveLights   (other.m_receiveLights),
+          m_receiveShadows  (other.m_receiveShadows)
     {
-        for (auto& i : other.m_boundToLayers)
-            i->addDrawable(*this);
+        m_rendererRef.bind(*this);
     }
 
     Drawable::~Drawable()
     {
-        for (auto itr = m_boundToLayers.begin(); itr != m_boundToLayers.end(); ++itr)
-            (*itr)->removeDrawable(getID());
+        m_rendererRef.unbind(*this);
+    }
+
+    //////////////////////////////////////////////
+
+    Renderer& Drawable::getRendrer()
+    {
+        return m_rendererRef;
+    }
+
+    //////////////////////////////////////////////
+
+    const Renderer& Drawable::getRenderer() const
+    {
+        return m_rendererRef;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setRenderGroup(const uint8 group)
+    {
+        m_renderGroup = std::min(static_cast<uint8>(31), group);
+    }
+
+    //////////////////////////////////////////////
+
+    uint8 Drawable::getRenderGroup() const
+    {
+        return m_renderGroup;
     }
 
     //////////////////////////////////////////////
@@ -100,13 +130,6 @@ namespace jop
     {
         return m_shader;
     }
-    
-    //////////////////////////////////////////////
-
-    const std::unordered_set<Layer*> Drawable::getBoundLayers() const
-    {
-        return m_boundToLayers;
-    }
 
     //////////////////////////////////////////////
 
@@ -124,36 +147,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Drawable::loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val)
+    bool Drawable::lightTouches(const LightSource& light) const
+    {
+        // TODO: Take AABB into account
+        return (this->getObject()->getPosition() - light->getObject()->getPosition()).length() < light->getAttenuation(LightSource::Attenuation::Range);
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setReceiveShadows(const bool receive)
+    {
+        m_receiveShadows = receive;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::receiveShadows() const
+    {
+        return m_receiveShadows;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::loadStateBase(Drawable& drawable, const Scene&, const json::Value& val)
     {
         drawable.setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
-
-        std::vector<Layer*> layers;
-        if (val.HasMember("layers") && val["layers"].IsArray())
-        {
-            for (auto& i : val["layers"])
-            {
-                if (!i.IsString())
-                    continue;
-
-                auto layer = scene.getLayer(i.GetString());
-
-                if (!layer.expired())
-                    layers.push_back(layer.get());
-            }
-        }
-
-        for (auto itr = layers.begin(); itr != layers.end(); ++itr)
-        {   
-            if (typeid(drawable) == typeid(Camera))
-                (*itr)->setCamera(static_cast<Camera&>(drawable));
-
-            else if (typeid(drawable) == typeid(LightSource))
-                (*itr)->addLight(static_cast<LightSource&>(drawable));
-
-            else
-                (*itr)->addDrawable(drawable);
-        }
 
         if (val.HasMember("shader") && val["shader"].IsString())
         {
@@ -192,15 +210,6 @@ namespace jop
     bool Drawable::saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc)
     {
         val.AddMember(json::StringRef("id"), json::StringRef(drawable.getID().c_str()), alloc);
-
-        auto& boundLayers = drawable.getBoundLayers();
-        if (!boundLayers.empty())
-        {
-            auto& layers = val.AddMember(json::StringRef("layers"), json::kArrayType, alloc)["layers"];
-
-            for (auto& i : boundLayers)
-                layers.PushBack(json::StringRef(i->getID().c_str()), alloc);
-        }
 
         if (!drawable.m_shader.expired())
             val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);

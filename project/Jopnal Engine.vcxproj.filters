@@ -73,6 +73,15 @@
     <Filter Include="Graphics\Source\Mesh">
       <UniqueIdentifier>{836452c1-2bc8-4f50-8f78-2f715b596dd2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{61b6523f-a84f-4c7c-ac30-d4d0d0321046}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Headers">
+      <UniqueIdentifier>{0b379d10-70d4-4ee3-8022-bc01f119e3db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Source">
+      <UniqueIdentifier>{e2f02073-e375-4894-8ebe-7e12d1a7bcae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -186,9 +195,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\Layer.hpp">
-      <Filter>Graphics\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
@@ -267,6 +273,15 @@
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics.hpp">
+      <Filter>Root\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\PhysicsWorld.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Renderer.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -330,9 +345,6 @@
       <Filter>Graphics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp">
-      <Filter>Graphics\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\Layer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp">
@@ -412,6 +424,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp">
       <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\PhysicsWorld.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Renderer.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

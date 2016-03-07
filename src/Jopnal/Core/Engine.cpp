@@ -47,7 +47,7 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
-        : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+        : m_sharedScene     (),
           m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
@@ -95,6 +95,9 @@ namespace jop
         // Shader manager
         createSubsystem<ShaderManager>();
 
+        // Shared scene
+        m_sharedScene = std::make_unique<Scene>("SharedScene");
+
         JOP_DEBUG_INFO("Default engine configuration loaded");
     }
 
@@ -125,7 +128,7 @@ namespace jop
 
             // Fixed update
             {
-                accumulator += frameTime;
+                accumulator += advance * frameTime;
 
                 while (accumulator >= timeStep)
                 {
@@ -140,7 +143,8 @@ namespace jop
                         if (eng.m_currentScene)
                             eng.m_currentScene->fixedUpdateBase(timeStep);
 
-                        eng.m_sharedScene->fixedUpdateBase(timeStep);
+                        if (eng.m_sharedScene)
+                            eng.m_sharedScene->fixedUpdateBase(timeStep);
                     }
 
                     for (auto& i : eng.m_subsystems)
@@ -148,6 +152,7 @@ namespace jop
                         if (i->isActive())
                             i->postFixedUpdate(timeStep);
                     }
+
                     accumulator -= timeStep;
                 }
             }
@@ -165,7 +170,8 @@ namespace jop
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
 
-                    eng.m_sharedScene->updateBase(frameTime);
+                    if (eng.m_sharedScene)
+                        eng.m_sharedScene->updateBase(frameTime);
                 }
 
                 for (auto& i : eng.m_subsystems)
@@ -182,7 +188,8 @@ namespace jop
                     if (eng.m_currentScene)
                         eng.m_currentScene->drawBase();
 
-                    eng.m_sharedScene->drawBase();
+                    if (eng.m_sharedScene)
+                        eng.m_sharedScene->drawBase();
 
                     eng.m_advanceFrame = false;
                 }
@@ -313,7 +320,6 @@ namespace jop
 
             static const unsigned short sceneField = Message::SharedScene   |
                                                      Message::Scene         |
-                                                     Message::Layer         |
                                                      Message::Object        |
                                                      Message::Component;
 
@@ -343,6 +349,8 @@ namespace jop
     Scene& Engine::getSharedScene()
     {
         JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::getSharedScene()!");
+        JOP_ASSERT(m_engineObject->m_sharedScene.operator bool(), "Tried to get the shared scene when it didn't exist!");
+
         return *m_engineObject->m_sharedScene;
     }
 

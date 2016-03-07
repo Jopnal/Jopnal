@@ -152,15 +152,15 @@
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
-        // Calculate reflection direction
-        vec3 reflectDir = reflect(-lightDir, norm);
+        // Calculate reflection direction (use a half-way vector)
+        vec3 reflectDir = normalize(lightDir + viewDir);
 
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(viewDir, reflectDir), 0.0)
+            max(dot(norm, reflectDir), 0.0)
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -216,15 +216,15 @@
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
-        // Calculate reflection direction
-        vec3 reflectDir = reflect(-lightDir, norm);
+        // Calculate reflection direction (use a half-way vector)
+        vec3 reflectDir = normalize(lightDir + viewDir);
 
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(viewDir, reflectDir), 0.0)
+            max(dot(norm, reflectDir), 0.0)
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -275,15 +275,15 @@
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
-        // Calculate reflection direction
-        vec3 reflectDir = reflect(-lightDir, norm);
+        // Calculate reflection direction (use a half-way vector)
+        vec3 reflectDir = normalize(lightDir + viewDir);
 
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(viewDir, reflectDir), 0.0)
+            max(dot(norm, reflectDir), 0.0)
         #endif
         ;
         vec3 specular = l.specular * spec

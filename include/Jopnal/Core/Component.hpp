@@ -45,6 +45,8 @@ namespace jop
 
         friend class Object;
 
+        virtual Component* clone() const = 0;
+
     protected:
 
         /// \brief Copy constructor
@@ -63,13 +65,6 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Component() = 0;
-
-
-        /// \brief Copy this component
-        ///
-        /// This function exists for internal use only. Do not call directly.
-        ///
-        virtual Component* clone() const = 0;
 
 
         /// \brief Function to handle messages
@@ -139,10 +134,6 @@ namespace jop
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }
-
-/// \brief Convenience macro for defining a component's/scene's clone function.
-///
-#define JOP_GENERIC_CLONE(className) virtual className* clone() const override{return new className(*this);}
 
 #endif
 

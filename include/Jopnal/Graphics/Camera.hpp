@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,13 +32,17 @@
 
 namespace jop
 {
-    class JOP_API Camera final : public Drawable
+    class Renderer;
+
+    class JOP_API Camera final : public Component
     {
     private:
 
         JOP_DISALLOW_MOVE(Camera);
 
         void operator =(const Camera&) = delete;
+
+        JOP_GENERIC_CLONE(Camera);
 
     public:
 
@@ -76,20 +80,13 @@ namespace jop
         /// \param object The object this camera will be bound to
         /// \param mode The initial projection mode
         ///
-        Camera(Object& object, const Projection mode);
+        Camera(Object& object, const std::string& ID, Renderer& renderer, const Projection mode);
 
         /// \brief Copy constructor
         ///
         Camera(const Camera& other);
 
-        JOP_GENERIC_CLONE(Camera);
-
-
-        /// \brief Overridden draw function
-        ///
-        /// Doesn't do anything.
-        ///
-        void draw(const Camera&, const LightContainer&) override;
+        ~Camera() override;
 
 
         /// \brief Get the projection matrix
@@ -105,6 +102,11 @@ namespace jop
         /// \return The view matrix
         ///
         const glm::mat4& getViewMatrix() const;
+
+
+        void setRenderMask(const uint32 mask);
+
+        uint32 getRenderMask() const;
 
 
         /// \brief Set the projection mode
@@ -205,6 +207,8 @@ namespace jop
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
+        Renderer& m_rendererRef;
+        uint32 m_renderMask;
         Projection m_mode;                      ///< Projection mode
         mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
         

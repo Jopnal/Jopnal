@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>(""), scene, val);
+        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>("", scene.getRenderer()), scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
 
@@ -42,20 +42,13 @@ namespace jop
 
 namespace jop
 {
-    GenericDrawable::GenericDrawable(Object& object, const std::string& ID)
-        : Drawable(object, ID)
+    GenericDrawable::GenericDrawable(Object& object, const std::string& ID, Renderer& renderer)
+        : Drawable(object, ID, renderer)
     {}
 
     //////////////////////////////////////////////
 
-    GenericDrawable* GenericDrawable::clone() const
-    {
-        return new GenericDrawable(*this);
-    }
-
-    //////////////////////////////////////////////
-
-    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights)
+    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights) const
     {
         if (getShader().expired() || getModel().getMesh().expired())
             return;

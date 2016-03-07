@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <array>
 
@@ -34,9 +34,20 @@
 namespace jop
 {
     class Object;
+    class Shader;
+    class Renderer;
+    class RenderTexture;
 
-    class JOP_API LightSource final : public Drawable
+    class JOP_API LightSource final : public Component
     {
+    private:
+
+        JOP_DISALLOW_MOVE(LightSource);
+
+        void operator =(const LightSource&) = delete;
+
+        JOP_GENERIC_CLONE(LightSource);
+
     public:
         
         /// The light type
@@ -81,31 +92,33 @@ namespace jop
         /// \param object Reference to created object in object class 
         /// \param ID Unique string id for created light source as object
         ///
-        LightSource(Object& object, const std::string& ID);
+        LightSource(Object& object, const std::string& ID, Renderer& renderer, const Type type);
 
-        JOP_GENERIC_CLONE(LightSource);
+        LightSource(const LightSource& other);
 
-
-        /// \brief Overridden draw function
-        ///
-        /// Doesn't do anything.
-        ///
-        void draw(const Camera&, const LightContainer&) override;
+        ~LightSource() override;
 
 
-        /// \brief Sets light type
-        ///
-        /// \param type The light type
-        ///
-        /// \return Reference to self
-        ///
-        LightSource& setType(const Type type);
+        void setRenderMask(const uint32 mask);
+
+        uint32 getRenderMask() const;
+
 
         /// \brief Get the light type
         ///
         /// \return The light type
         ///
         Type getType() const;
+
+
+        LightSource& setCastShadows(const bool castShadows);
+
+        bool castShadows() const;
+
+
+        bool drawShadowMap(const std::set<const Drawable*>& drawables);
+
+        const Texture* getShadowMap() const;
 
 
         /// \brief Sets m_intensities array to color
@@ -232,6 +245,10 @@ namespace jop
         std::array<Color, 3> m_intensities; ///< The intensities
         glm::vec4 m_attenuation;            ///< The attenuation values    
         glm::vec2 m_cutoff;                 ///< Spot light cutoff
+        Renderer& m_rendererRef;
+        uint32 m_renderMask;
+        std::unique_ptr<RenderTexture> m_shadowMap;
+        bool m_castShadows;
     };
 
     /// \brief Container for lights

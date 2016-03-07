@@ -32,8 +32,6 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Scene::cloneObject, "cloneObject");
         JOP_BIND_MEMBER_COMMAND(&Scene::deleteObject, "deleteObject");
         JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
-        JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
-        JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
         JOP_BIND_MEMBER_COMMAND(&Scene::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
 
@@ -64,10 +62,10 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : Activateable      (true),
-          m_objects         (),
-          m_layers          (),
-          m_ID              (ID)
+        : Activateable  (true),
+          m_renderer    (std::make_unique<Renderer>()),
+          m_objects     (),
+          m_ID          (ID)
     {}
 
     Scene::~Scene()
@@ -146,47 +144,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Layer> Scene::getLayer(const std::string& ID) const
+    Renderer& Scene::getRenderer() const
     {
-        for (auto& i : m_layers)
-        {
-            if (i->getID() == ID)
-                return static_ref_cast<Layer>(i->getReference());
-        }
-
-        return WeakReference<Layer>();
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::deleteLayer(const std::string& ID)
-    {
-        for (auto itr = m_layers.begin() + 1; itr != m_layers.end(); ++itr)
-        {
-            if ((*itr)->getID() == ID)
-            {
-                m_layers.erase(itr);
-                return;
-            }
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::clearLayers()
-    {
-        if (!m_layers.empty())
-            m_layers.erase(m_layers.begin() + 1, m_layers.end());
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Layer> Scene::getDefaultLayer() const
-    {
-        if (m_layers.empty())
-            m_layers.emplace_back(std::make_unique<Layer>("jop_default_layer"));
-
-        return static_ref_cast<Layer>(m_layers.front()->getReference());
+        return *m_renderer;
     }
 
     //////////////////////////////////////////////
@@ -248,15 +208,6 @@ namespace jop
             }
         }
 
-        if (message.passFilter(Message::Layer))
-        {
-            for (auto& i : m_layers)
-            {
-                if (i->sendMessage(message) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-        }
-
         return Message::Result::Continue;
     }
 
@@ -268,17 +219,11 @@ namespace jop
         {
             preUpdate(deltaTime);
 
-            for (auto& i : m_layers)
-                i->preUpdate(deltaTime);
-
             for (auto& i : m_objects)
             {
                 i.update(deltaTime);
                 i.updateTransformTree(nullptr, false);
             }
-
-            for (auto& i : m_layers)
-                i->postUpdate(deltaTime);
 
             postUpdate(deltaTime);
         }
@@ -300,14 +245,8 @@ namespace jop
         {
             preFixedUpdate(timeStep);
 
-            for (auto& i : m_layers)
-                i->preFixedUpdate(timeStep);
-
             for (auto& i : m_objects)
                 i.fixedUpdate(timeStep);
-
-            for (auto& i : m_layers)
-                i->postFixedUpdate(timeStep);
 
             postFixedUpdate(timeStep);
         }
@@ -321,8 +260,7 @@ namespace jop
         {
             preDraw();
 
-            for (auto& i : m_layers)
-                i->drawBase();
+            m_renderer->draw();
 
             postDraw();
         }
