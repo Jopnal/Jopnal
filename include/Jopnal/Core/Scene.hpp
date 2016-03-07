@@ -66,6 +66,8 @@ namespace jop
         ///
         WeakReference<Object> getObject(const std::string& ID);
 
+        const std::vector<Object>& getObjects() const;
+
         /// \brief Method that creates object
         ///
         /// \param ID Object identifier

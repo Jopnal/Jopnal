@@ -27,7 +27,7 @@
 
 namespace jope
 {
-    WindowUpdater::WindowUpdater(MainWindow& mw)
+    WindowUpdater::WindowUpdater(const OpenGLWindow& mw)
         : jop::Subsystem("Window Updater"),
           m_mainWindowRef(mw)
     {}

@@ -39,12 +39,7 @@ int main(int argc, char* argv[])
 
     jope::MainWindow form;
 
-    std::thread t([argc, argv, &form]
-    {
-        jop::Engine::createSubsystem<jope::WindowUpdater>(form);
-
-        JOP_MAIN_LOOP;
-    });
+    std::thread t([]{JOP_MAIN_LOOP;});
     
     nana::exec();
     t.join();

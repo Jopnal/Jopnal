@@ -19,9 +19,11 @@
 
 //////////////////////////////////////////////
 
+// Headers
+#include <Jopnal/OS.hpp>
 
 // Windows
-#ifdef _WIN32
+#ifdef JOP_OS_WINDOWS
 
     // Disable warning C4512 and C4503
     #pragma warning(disable: 4512)
@@ -63,3 +65,4 @@
 #include <Jopnal/Editor/Forms/MainWindow.hpp>
 #include <Jopnal/Editor/CommandBuffer.hpp>
 #include <Jopnal/Editor/WindowUpdater.hpp>
+#include <Jopnal/Editor/Forms/OpenGLWindow.hpp>

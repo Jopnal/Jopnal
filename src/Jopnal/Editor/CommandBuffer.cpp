@@ -109,6 +109,13 @@ namespace jope
             (itr++)->get()->execute();
     }
 
+    //////////////////////////////////////////////
+
+    std::mutex& CommandBuffer::acquireMutex()
+    {
+        return m_instance->m_mutex;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
     CommandBuffer* CommandBuffer::m_instance = nullptr;

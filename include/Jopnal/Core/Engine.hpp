@@ -27,6 +27,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <vector>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -231,7 +232,7 @@ namespace jop
         double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
-        bool m_running;                                       ///< A boolean telling if the engine is running
+        std::atomic<bool> m_running;                          ///< A boolean telling if the engine is running
         bool m_paused;                                        ///< A boolean telling if the engine is paused
         bool m_advance;
         bool m_advanceFrame;

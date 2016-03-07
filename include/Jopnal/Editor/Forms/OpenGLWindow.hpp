@@ -19,32 +19,37 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOPE_OBJECTWINDOW_HPP
-#define JOPE_OBJECTWINDOW_HPP
+#ifndef JOPE_OPENGLWINDOW_HPP
+#define JOPE_OPENGLWINDOW_HPP
 
 // Headers
 #include <nana/gui/wvl.hpp>
-#include <nana/gui/widgets/treebox.hpp>
-#include <nana/gui/widgets/button.hpp>
-#include <nana/gui/place.hpp>
 
 //////////////////////////////////////////////
 
 
+struct HGLRC__;
+
 namespace jope
 {
-    class ObjectWindow final : public nana::nested_form
+    class OpenGLWindow final : public nana::nested_form
     {
     public:
 
-        ObjectWindow(nana::window parent);
+        OpenGLWindow(nana::window parent);
+
+        ~OpenGLWindow() override;
+
+
+        void makeCurrent() const;
+
+        void draw() const;
+
 
 
     private:
 
-        nana::place m_layout;
-        nana::button m_newObjButton;
-        nana::treebox m_objTree;
+        HGLRC__* m_context;
 
     };
 }

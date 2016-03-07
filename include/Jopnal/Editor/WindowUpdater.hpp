@@ -30,13 +30,13 @@
 
 namespace jope
 {
-    class MainWindow;
+    class OpenGLWindow;
 
     class WindowUpdater final : public jop::Subsystem
     {
     public:
 
-        WindowUpdater(MainWindow& mw);
+        WindowUpdater(const OpenGLWindow& mw);
 
 
         void postUpdate(const float) override;
@@ -44,7 +44,7 @@ namespace jope
 
     private:
 
-        MainWindow& m_mainWindowRef;
+        const OpenGLWindow& m_mainWindowRef;
 
     };
 }

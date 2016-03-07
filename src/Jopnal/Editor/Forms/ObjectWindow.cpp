@@ -37,31 +37,39 @@ namespace
         /* Maximize    */ false,
         /* Resizeable  */ true
     );
+
+    void createObjTree(const jop::Object& parent, nana::treebox::item_proxy itemRoot)
+    {
+        for (auto& i : parent.getChildren())
+            createObjTree(i, itemRoot.append(i.getID(), i.getID()));
+    }
 }
 
 namespace jope
 {
-    ObjectWindow::ObjectWindow(nana::form& parent)
+    ObjectWindow::ObjectWindow(nana::window parent)
         : nana::nested_form(parent, nana::rectangle(10, 200, 200, 600), ns_objWindowAppearance),
           m_newObjButton(*this, true),
           m_objTree(*this, true),
           m_layout(*this)
     {
-        this->bgcolor(parent.bgcolor());
-
-        EnableMenuItem(GetSystemMenu(reinterpret_cast<HWND>(this->native_handle()), FALSE), SC_CLOSE, MF_GRAYED);
-
+        this->bgcolor(nana::API::bgcolor(parent));
         m_newObjButton.caption("New");
         
+        // Fill the object tree
+        if (jop::Engine::hasCurrentScene())
+        {
+            for (auto& i : jop::Engine::getCurrentScene().getObjects())
+                createObjTree(i, m_objTree.insert(i.getID(), i.getID()));
+        }
 
-        m_layout.div("<vertical <button margin=5 weight=10%><tree>>");
+        // Set the layout
+        m_layout.div("<vertical <button margin=10 weight=8%><tree>>");
         m_layout.field("button") << m_newObjButton;
         m_layout.field("tree") << m_objTree;
         m_layout.collocate();
 
-
-        // Keep last
-        this->show();
-        nana::API::refresh_window(*this);
+        // Disable the close button
+        EnableMenuItem(GetSystemMenu(reinterpret_cast<HWND>(this->native_handle()), FALSE), SC_CLOSE, MF_GRAYED);
     }
 }

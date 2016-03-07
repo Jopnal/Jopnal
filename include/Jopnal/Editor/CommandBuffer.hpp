@@ -58,6 +58,8 @@ namespace jope
 
         static void redoCurrent();
 
+        static std::mutex& acquireMutex();
+
 
     private:
 

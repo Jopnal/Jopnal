@@ -24,7 +24,9 @@
 
 // Headers
 #include <nana/gui/wvl.hpp>
+#include <nana/gui/widgets/toolbar.hpp>
 #include <Jopnal/Editor/Forms/ObjectWindow.hpp>
+#include <Jopnal/Editor/Forms/OpenGLWindow.hpp>
 
 //////////////////////////////////////////////
 
@@ -37,19 +39,11 @@ namespace jope
 
         MainWindow();
 
-        ~MainWindow() override;
-
-
-        void makeContextCurrent();
-
-        void draw();
-
-        
     private:
 
         nana::place m_layout;
-        nana::nested_form m_oglWindow;
         ObjectWindow m_objWindow;
+        OpenGLWindow m_oglWindow;
 
     };
 }

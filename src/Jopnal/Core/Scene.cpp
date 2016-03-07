@@ -88,6 +88,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const std::vector<Object>& Scene::getObjects() const
+    {
+        return m_objects;
+    }
+
+    //////////////////////////////////////////////
+
     WeakReference<Object> Scene::createObject(const std::string& ID)
     {
         m_objects.emplace_back(ID);
