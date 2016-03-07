@@ -76,7 +76,7 @@ namespace jop
         /// \param object The object this camera will be bound to
         /// \param mode The initial projection mode
         ///
-        Camera(Object& object, const Projection mode);
+        Camera(Object& object, const Projection mode, const std::string& ID);
 
         /// \brief Copy constructor
         ///

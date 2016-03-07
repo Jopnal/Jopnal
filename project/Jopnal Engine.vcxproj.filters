@@ -73,6 +73,15 @@
     <Filter Include="Graphics\Source\Mesh">
       <UniqueIdentifier>{836452c1-2bc8-4f50-8f78-2f715b596dd2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{1ae71316-61cf-4b4c-9726-634177b287ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Headers">
+      <UniqueIdentifier>{c2f78048-d64e-4142-af43-4479a8646b2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Source">
+      <UniqueIdentifier>{9f19e5d4-f759-4af3-a636-3a521eb9613c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -264,6 +273,10 @@
     <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\PhysicsWorld.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -409,6 +422,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp">
       <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\PhysicsWorld.cpp">
+      <Filter>Physics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

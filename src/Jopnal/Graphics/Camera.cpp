@@ -43,7 +43,7 @@ namespace jop
                                   static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
                                   Camera::Projection::Perspective;
 
-        auto cam = obj.createComponent<Camera>(proj);
+        auto cam = obj.createComponent<Camera>(proj, "");
 
         if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
         {
@@ -110,26 +110,24 @@ namespace jop
 namespace jop
 {
 
-    Camera::Camera(Object& object, const Projection mode)
-        : Drawable                  (object, "Camera"),
+    Camera::Camera(Object& object, const Projection mode, const std::string& ID)
+        : Drawable                  (object, ID),
           m_projectionMatrix        (),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
-        const float y = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
+        const float x = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
+        const float y = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
 
         if (mode == Projection::Orthographic)
         {
-            setID("OrthoCamera");
             setClippingPlanes(SettingManager::getFloat("fOrthoCameraClipNear", -1.f), SettingManager::getFloat("fOrthoCameraClipFar", 1.f));
             setSize(x, y);
         }
         else
         {
-            setID("PerspCamera");
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
             setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
             setSize(x, y);
@@ -273,7 +271,7 @@ namespace jop
     Camera& Camera::getDefault()
     {
         static Object obj("jop_default_camera_object");
-        static Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
+        static Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))), "jop_default_camera_component");
         return cam;
     }
 }

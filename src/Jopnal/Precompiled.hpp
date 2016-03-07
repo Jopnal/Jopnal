@@ -59,6 +59,13 @@
 // GLM
 #include <Jopnal/MathInclude.hpp>
 
+// Bullet
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#include <Bullet/btBulletCollisionCommon.h>
+#include <Bullet/btBulletDynamicsCommon.h>
+#pragma warning(pop)
+
 // RapidJSON
 #pragma warning(push)
 #pragma warning(disable: 4244)
