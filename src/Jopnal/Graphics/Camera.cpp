@@ -116,7 +116,7 @@ namespace jop
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
           m_rendererRef             (renderer),
-          m_renderMask              (0xFFFFFFFF),
+          m_renderMask              (1),
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {

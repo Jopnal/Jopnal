@@ -66,6 +66,8 @@ namespace jop
         ///
         void clear();
 
+        void clearDepth();
+
         /// \brief Initialize the frame buffer
         ///
         /// \param size Size of the frame buffer texture
@@ -75,6 +77,8 @@ namespace jop
         /// \return True if successful
         ///
         bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+
+        bool createDepth(const glm::ivec2& size);
 
         /// \brief Destroy this frame buffer
         ///
@@ -96,7 +100,7 @@ namespace jop
         ///
         /// \return glm::vec2 with the size
         ///
-        glm::vec2 getSize() const;
+        const glm::ivec2& getSize() const;
 
         /// \brief Check if this frame buffer is valid
         ///
@@ -120,7 +124,7 @@ namespace jop
         ///
         /// \return Const reference to the internal texture
         ///
-        const Texture& getTexture() const;
+        const Texture* getTexture() const;
 
         /// \brief Get the depth bits
         ///
@@ -155,7 +159,8 @@ namespace jop
 
     private:
 
-        Texture m_texture;              ///< The attached texture
+        std::unique_ptr<Texture> m_texture;              ///< The attached texture
+        glm::ivec2 m_size;
         Color m_clearColor;             ///< The color to use when clearing the buffer
         unsigned int m_frameBuffer;     ///< Handle for the frame buffer
         unsigned int m_depthBuffer;     ///< Handle for the depth buffer

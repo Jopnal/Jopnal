@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <array>
+#include <set>
 
 ///////////////////////////////////////////
 
@@ -49,6 +50,17 @@ namespace jop
         JOP_GENERIC_CLONE(LightSource);
 
     public:
+
+        enum class DepthFace
+        {
+            Right,
+            First = Right,
+            Left,
+            Top,
+            Bottom,
+            Back,
+            Front
+        };
         
         /// The light type
         ///
@@ -116,7 +128,10 @@ namespace jop
         bool castShadows() const;
 
 
-        bool drawShadowMap(const std::set<const Drawable*>& drawables);
+        const glm::mat4& getLightspaceMatrix(const DepthFace face = DepthFace::First) const;
+
+
+        bool drawShadowMap(const std::set<const Drawable*>& drawables) const;
 
         const Texture* getShadowMap() const;
 
@@ -241,7 +256,8 @@ namespace jop
         
     private:
 
-        Type m_type;                        ///< The light type
+        mutable std::vector<glm::mat4> m_lightSpaceMatrices;
+        const Type m_type;                   ///< The light type
         std::array<Color, 3> m_intensities; ///< The intensities
         glm::vec4 m_attenuation;            ///< The attenuation values    
         glm::vec2 m_cutoff;                 ///< Spot light cutoff
@@ -260,6 +276,7 @@ namespace jop
     public:
 
         typedef std::vector<const LightSource*> ContainerType;
+        typedef std::vector<const Texture*> ShadowContainerType;
 
     public:
 

@@ -122,15 +122,16 @@ namespace jop
 namespace jop
 {
     LightSource::LightSource(Object& object, const std::string& ID, Renderer& renderer, const Type type)
-        : Component     (object, ID),
-          m_type        (type),
-          m_intensities (),
-          m_attenuation (1.f, 1.f, 2.f, 5.f),
-          m_cutoff      (glm::radians(10.f), glm::radians(12.f)),
-          m_rendererRef (renderer),
-          m_renderMask  (0xFFFFFFFF),
-          m_shadowMap   (),
-          m_castShadows (false)
+        : Component             (object, ID),
+          m_lightSpaceMatrices  (),
+          m_type                (type),
+          m_intensities         (),
+          m_attenuation         (1.f, 1.f, 2.f, 5.f),
+          m_cutoff              (0.17f, 0.17f), // ~10 degrees
+          m_rendererRef         (renderer),
+          m_renderMask          (1),
+          m_shadowMap           (),
+          m_castShadows         (false)
     {
         m_intensities[0] = Color::Black; // Ambient
         m_intensities[1] = Color::White; // Diffuse
@@ -178,10 +179,158 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    LightSource& LightSource::setCastShadows(const bool castShadows)
+    {
+        if (m_castShadows != castShadows)
+        {
+            if (castShadows)
+            {
+                static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 1024);
+
+                m_shadowMap = std::make_unique<RenderTexture>();
+                
+                if (!m_shadowMap->createDepth(glm::ivec2(mapSize, mapSize)))
+                {
+                    m_shadowMap.reset();
+                    m_castShadows = false;
+                    return *this;
+                }
+
+                m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);
+            }
+            else
+            {
+                m_shadowMap.reset();
+                m_lightSpaceMatrices.clear();
+            }
+
+            m_castShadows = castShadows;
+        }
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool LightSource::castShadows() const
+    {
+        return m_castShadows;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::mat4& LightSource::getLightspaceMatrix(const DepthFace face) const
+    {
+        if (!castShadows())
+        {
+            static const glm::mat4 dummy;
+            return dummy;
+        }
+
+        return m_lightSpaceMatrices[static_cast<int>(face)];
+    }
+
+    //////////////////////////////////////////////
+
+    bool LightSource::drawShadowMap(const std::set<const Drawable*>& drawables) const
+    {
+        if (!castShadows())
+            return false;
+
+        static WeakReference<Shader> dirSpotShader, pointShader;
+
+        // Directional/spot light recorder
+        if (dirSpotShader.expired())
+        {
+            dirSpotShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader").getReference());
+            dirSpotShader->setPersistent(true);
+
+            std::vector<unsigned char> vert, frag;
+            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
+
+            JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
+        }
+
+        // Point light recorder
+        if (pointShader.expired())
+        {
+            pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
+            pointShader->setPersistent(true);
+
+            std::vector<unsigned char> vert, frag;
+            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+
+            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
+        }
+
+        auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;
+
+        if (!m_shadowMap->bind() || !shdr.bind())
+            return false;
+
+        m_shadowMap->clearDepth();
+
+        auto& scl = getObject()->getScale();
+        switch (m_type)
+        {
+            case Type::Point:
+            {
+
+
+                shdr.setUniform("u_MVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+
+                break;
+            }
+            case Type::Directional:
+            {
+                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 1.f, scl.z) * getObject()->getInverseMatrix();
+                shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
+                break;
+            }
+            case Type::Spot:
+            {
+                auto s = glm::vec2(m_shadowMap->getSize());
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y, s.x / s.y, 1.f, getAttenuation(Attenuation::Range)) * getObject()->getInverseMatrix();
+                shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
+                break;
+            }
+        }
+
+        bool drawn = false;
+
+        for (auto d : drawables)
+        {
+            if (!d->isActive() || (getRenderMask() & (1 << d->getRenderGroup())) == 0 || !d->lightTouches(*this))
+                continue;
+
+            drawn = true;
+
+            auto& mesh = *d->getModel().getMesh();
+            mesh.getVertexBuffer().bind();
+
+            shdr.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
+            shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
+
+            if (mesh.getElementAmount())
+            {
+                mesh.getIndexBuffer().bind();
+                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+            }
+            else
+            {
+                glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mesh.getVertexAmount()));
+            }
+        }
+
+        return drawn;
+    }
+
+    //////////////////////////////////////////////
+
     const Texture* LightSource::getShadowMap() const
     {
         if (m_shadowMap)
-            return &m_shadowMap->getTexture();
+            return m_shadowMap->getTexture();
 
         return nullptr;
     }
@@ -303,47 +452,6 @@ namespace jop
         return maxLights[static_cast<int>(type)];
     }
 
-    //////////////////////////////////////////////
-
-    LightSource& LightSource::setCastShadows(const bool castShadows)
-    {
-        if (m_castShadows != castShadows)
-        {
-            if (castShadows)
-                m_shadowMap = std::make_unique<RenderTexture>();
-            else
-                m_shadowMap.reset();
-
-            m_castShadows = castShadows;
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    bool LightSource::castShadows() const
-    {
-        return m_castShadows;
-    }
-
-    //////////////////////////////////////////////
-
-    bool LightSource::drawShadowMap(const std::set<const Drawable*>& drawables)
-    {
-        static WeakReference<Shader> shader;
-
-        if (shader.expired())
-        {
-
-        }
-
-        for (auto d : drawables)
-        {
-            if (!d->isActive() || (getRenderMask() & (1 << d->getRenderGroup())) == 0 || !d->lightTouches(*this))
-                continue;
-
-
-        }
-    }
 
     //////////////////////////////////////////////
 
@@ -383,6 +491,9 @@ namespace jop
 
     void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
     {
+        static const unsigned int shadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 20);
+        unsigned int currentShadowUnit = shadowStartUnit;
+
         // Send camera position to shader
         shader.setUniform("u_CameraPosition", camera.getObject()->getGlobalPosition());
 
@@ -406,6 +517,15 @@ namespace jop
 
                 // Attenuation
                 shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
+
+                // Shadow map
+                shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                if (li.castShadows())
+                {
+                    shader.setUniform(indexed + "lsMatrix", glm::value_ptr(li.getLightspaceMatrix()), 6);
+                    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                }
             }
         }
 
@@ -426,6 +546,15 @@ namespace jop
                 shader.setUniform(indexed + "ambient", li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
                 shader.setUniform(indexed + "diffuse", li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
                 shader.setUniform(indexed + "specular", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+
+                // Shadow map
+                shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                if (li.castShadows())
+                {
+                    shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
+                    shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                }
             }
         }
 
@@ -455,6 +584,15 @@ namespace jop
 
                 // Cutoff
                 shader.setUniform(indexed + "cutoff", glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));
+
+                // Shadow map
+                shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                if (li.castShadows())
+                {
+                    shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
+                    shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                }
             }
         }
     }

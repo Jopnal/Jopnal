@@ -28,16 +28,21 @@
 namespace
 {
     unsigned int ns_currentBuffer = 0;
+
+    int ns_lastZeroViewport[] =
+    {
+        0, 0, 0, 0
+    };
 }
 
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : m_texture ("")
+        : m_texture()
     {}
 
     RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : m_texture ("")
+        : m_texture()
     {
         create(size, depthBits, stencilBits);
     }
@@ -65,6 +70,17 @@ namespace jop
             }
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void RenderTexture::clearDepth()
+    {
+        if (bind())
+        {
+            glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::Clear(gl::DEPTH_BUFFER_BIT));
         }
     }
 
@@ -110,10 +126,12 @@ namespace jop
         };
 
         destroy();
+        m_texture = std::make_unique<Texture2D>("");
 
-        if (!m_texture.load(size.x, size.y, 4))
+        if (!static_cast<Texture2D&>(*m_texture).load(size.x, size.y, 4))
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
+            destroy();
             return false;
         }
 
@@ -122,8 +140,11 @@ namespace jop
         if (!m_frameBuffer)
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't generate frame buffer");
+            destroy();
             return false;
         }
+
+        m_size = size;
 
         bind();
 
@@ -139,7 +160,7 @@ namespace jop
             }
 
             glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depthBits), m_texture.getWidth(), m_texture.getHeight()));
+            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depthBits), m_size.x, m_size.y));
             glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
         }
 
@@ -155,11 +176,11 @@ namespace jop
             }
 
             glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencilBits), m_texture.getWidth(), m_texture.getHeight()));
+            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencilBits), m_size.x, m_size.y));
             glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
         }
 
-        glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, m_texture.getHandle(), 0));
+        glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, m_texture->getHandle(), 0));
 
         auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
         if (status != gl::FRAMEBUFFER_COMPLETE)
@@ -170,7 +191,53 @@ namespace jop
         }
 
         clear();
-        glCheck(gl::Viewport(0, 0, m_texture.getWidth(), m_texture.getHeight()));
+        unbind();
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool RenderTexture::createDepth(const glm::ivec2& size)
+    {
+        destroy();
+        m_texture = std::make_unique<TextureDepth>("");
+
+        if (!static_cast<TextureDepth&>(*m_texture).load(size.x, size.y))
+        {
+            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
+            destroy();
+            return false;
+        }
+
+        glCheck(gl::GenFramebuffers(1, &m_frameBuffer));
+
+        if (!m_frameBuffer)
+        {
+            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't generate frame buffer");
+            destroy();
+            return false;
+        }
+
+        m_size = size;
+
+        bind();
+
+        gl::DrawBuffer(gl::NONE);
+        gl::ReadBuffer(gl::NONE);
+
+        gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_texture->getHandle(), 0);
+
+        auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
+        if (status != gl::FRAMEBUFFER_COMPLETE)
+        {
+            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to create frame buffer");
+            destroy();
+            return false;
+        }
+
+        clear();
+        unbind();
 
         return true;
     }
@@ -199,7 +266,8 @@ namespace jop
             m_stencilBuffer = 0;
         }
 
-        m_texture.destroy();
+        m_texture.reset();
+        m_size = glm::ivec2();
     }
 
     //////////////////////////////////////////////
@@ -210,6 +278,10 @@ namespace jop
         {
             if (m_frameBuffer != ns_currentBuffer)
             {
+                if (!ns_currentBuffer)
+                    glCheck(gl::GetIntegerv(gl::VIEWPORT, ns_lastZeroViewport));
+
+                glCheck(gl::Viewport(0, 0, m_size.x, m_size.y));
                 glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
                 ns_currentBuffer = m_frameBuffer;
             }
@@ -224,6 +296,7 @@ namespace jop
     {
         if (ns_currentBuffer != 0)
         {
+            gl::Viewport(ns_lastZeroViewport[0], ns_lastZeroViewport[1], ns_lastZeroViewport[2], ns_lastZeroViewport[3]);
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
             ns_currentBuffer = 0;
         }
@@ -231,9 +304,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec2 RenderTexture::getSize() const
+    const glm::ivec2& RenderTexture::getSize() const
     {
-        return glm::vec2(m_texture.getWidth(), m_texture.getHeight());
+        return m_size;
     }
 
     //////////////////////////////////////////////
@@ -260,9 +333,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture& RenderTexture::getTexture() const
+    const Texture* RenderTexture::getTexture() const
     {
-        return m_texture;
+        return m_texture.get();
     }
 
     //////////////////////////////////////////////
@@ -293,8 +366,8 @@ namespace jop
     {
         if (isValid())
         {
-            float textureX = getSize().x;
-            float textureY = getSize().y;
+            const int textureX = getSize().x;
+            const int textureY = getSize().y;
 
             glCheck(gl::Viewport(static_cast<int>(x * textureX), static_cast<int>(y * textureY),
                                  static_cast<unsigned int>(width * textureX), static_cast<unsigned int>(height * textureY)));

@@ -36,5 +36,17 @@
     <None Include="Resources\Shaders\defaultUber.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\depthRecord.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\depthRecord.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\depthRecordPoint.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\depthRecordPoint.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

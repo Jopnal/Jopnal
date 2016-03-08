@@ -39,6 +39,7 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Buffer.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\CubemapDepth.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp" />
@@ -53,6 +54,8 @@
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\Texture2D.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\TextureDepth.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Transform.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Vertex.hpp" />
@@ -105,6 +108,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\CubemapDepth.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
@@ -119,6 +123,8 @@
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\Texture2D.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\TextureDepth.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\TextureSampler.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Transform.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Vertex.cpp" />

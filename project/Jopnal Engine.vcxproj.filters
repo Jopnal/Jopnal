@@ -82,6 +82,12 @@
     <Filter Include="Physics\Source">
       <UniqueIdentifier>{e2f02073-e375-4894-8ebe-7e12d1a7bcae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Headers\Texture">
+      <UniqueIdentifier>{5fcb2964-a2e5-484c-936d-1fec7e84027b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Source\Texture">
+      <UniqueIdentifier>{36308d76-9b24-4dee-8b71-9f580d0b289a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -207,12 +213,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp">
-      <Filter>Graphics\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp">
-      <Filter>Graphics\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
@@ -281,6 +281,21 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Renderer.hpp">
       <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\CubemapDepth.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Texture2D.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\TextureDepth.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -359,12 +374,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp">
-      <Filter>Graphics\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\TextureSampler.cpp">
-      <Filter>Graphics\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
@@ -430,6 +439,21 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Renderer.cpp">
       <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\CubemapDepth.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\TextureSampler.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Texture2D.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\TextureDepth.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

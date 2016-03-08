@@ -96,6 +96,10 @@
     <None Include="Resources\Shaders\default.vert" />
     <None Include="Resources\Shaders\defaultUber.frag" />
     <None Include="Resources\Shaders\defaultUber.vert" />
+    <None Include="Resources\Shaders\depthRecord.frag" />
+    <None Include="Resources\Shaders\depthRecord.vert" />
+    <None Include="Resources\Shaders\depthRecordPoint.frag" />
+    <None Include="Resources\Shaders\depthRecordPoint.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -35,6 +35,7 @@
 namespace jop
 {
     class Shader;
+    class LightSource;
     class LightContainer;
     class Renderer;
 

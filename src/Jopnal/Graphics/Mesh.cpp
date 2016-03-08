@@ -313,7 +313,7 @@ namespace jop
             
             // The default texture will be used in case of failure
             if (!mat.diffuse_texname.empty())
-                material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(rootPath + mat.diffuse_texname));
+                material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(rootPath + mat.diffuse_texname));
         }
 
         m_options = options;

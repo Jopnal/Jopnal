@@ -59,13 +59,13 @@ namespace jop
             m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
 
         if (val.HasMember("diffmap") && val["diffmap"].IsString())
-            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(val["diffmap"].GetString()));
+            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
 
         if (val.HasMember("specmap") && val["specmap"].IsString())
-            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture>(val["specmap"].GetString()));
+            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
 
         if (val.HasMember("emissmap") && val["emissmap"].IsString())
-            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture>(val["emissmap"].GetString()));
+            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
 
         return true;
     }

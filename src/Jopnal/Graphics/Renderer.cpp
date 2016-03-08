@@ -34,7 +34,6 @@ namespace jop
           m_mask(0xFFFFFFFF)
     {
         GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
     }
 
     Renderer::~Renderer()
@@ -101,20 +100,16 @@ namespace jop
     void Renderer::draw()
     {
         // Render shadow maps
-        std::vector<const Texture*> maps;
+        GlState::setFaceCull(true, GlState::FaceCull::Front);
         for (auto light : m_lights)
         {
-            if (!light->isActive() || !light->castShadows())
+            if (!light->isActive() || (m_mask & light->getRenderMask()) == 0)
                 continue;
 
-            const uint32 lightMask = light->getRenderMask();
-            if ((m_mask & lightMask) == 0)
-                continue;
-
-            light->drawShadowMap(m_drawables);
-
-            maps.push_back(light->getShadowMap());
+            // TODO Optimize when no objects were drawn
+            /*if (*/light->drawShadowMap(m_drawables);
         }
+        GlState::setFaceCull(true, GlState::FaceCull::Back);
 
         // Render objects
         for (uint32 i = 1; i != 0; i <<= 1)

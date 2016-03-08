@@ -293,10 +293,17 @@ namespace jop
 
     bool Shader::setUniform(const std::string& name, const glm::mat4& matrix)
     {
+        return setUniform(name, glm::value_ptr(matrix), 1);
+    }
+    
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const float* matrices, const unsigned int amount)
+    {
         const int loc = getUniformLocation(name);
-        
+
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
+            glCheck(gl::UniformMatrix4fv(loc, amount, gl::FALSE_, matrices));
 
         return loc != -1;
     }
@@ -355,8 +362,11 @@ namespace jop
     {
         const int loc = getUniformLocation(name);
 
-        if (loc != -1 && texture.bind(unit))
+        if (loc != -1)
+        {
+            texture.bind(unit);
             glCheck(gl::Uniform1i(loc, unit));
+        }
 
         return loc != -1;
     }
@@ -395,6 +405,13 @@ namespace jop
             glCheck(gl::Uniform1ui(loc, value));
 
         return loc != -1;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const bool value)
+    {
+        return setUniform(name, value ? 1 : 0);
     }
 
     //////////////////////////////////////////////

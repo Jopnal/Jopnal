@@ -102,6 +102,8 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const glm::mat4& matrix);
 
+        bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
+
         /// \brief method setting 3x3 matrix with unique name
         ///
         /// \param name unique name
@@ -165,6 +167,8 @@ namespace jop
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const int value);
+
+        bool setUniform(const std::string& name, const bool value);
 
         /// \brief Set an unsigned integer uniform
         ///

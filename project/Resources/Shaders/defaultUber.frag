@@ -4,10 +4,6 @@
 
 //////////////////////////////////////////////
 
-// Camera position
-#ifdef JMAT_PHONG
-    uniform vec3 u_CameraPosition;
-#endif
 
 // Diffuse map
 #ifdef JMAT_DIFFUSEMAP
@@ -32,11 +28,16 @@
     in vec2 vf_TexCoords;
 #endif
 #ifdef JMAT_PHONG
+
+    // Camera position
+    uniform vec3 u_CameraPosition;
+
     // Normal vector
     in vec3 vf_Normal;
 
     // Fragment position from vertex shader
     in vec3 vf_FragPosition;
+
 #endif
 
 // Surface material
@@ -73,8 +74,13 @@
         // y = linear
         // z = quadratic
         vec3 attenuation;
+
+        // Shadow map info
+        bool castShadow;        ///< Cast shadows?
+        mat4 lsMatrix[6];       ///< Light space matrices
     };
     uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
+    uniform samplerCube u_PointLightShadowMaps[JMAT_MAX_POINT_LIGHTS];
     uniform uint u_NumPointLights;
 
     // Directional lights
@@ -89,8 +95,13 @@
         vec3 specular;
 
         // No attenuation for directional lights
+
+        // Shadow map info
+        bool castShadow;        ///< Cast shadows?
+        mat4 lsMatrix;          ///< Light space matrix
     };
     uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
+    uniform sampler2D u_DirectionalLightShadowMaps[JMAT_MAX_DIRECTIONAL_LIGHTS];
     uniform uint u_NumDirectionalLights;
 
     // Spot lights
@@ -114,8 +125,13 @@
         // x = inner
         // y = outer
         vec2 cutoff;
+
+        // Shadow map info
+        bool castShadow;        ///< Cast shadows?
+        mat4 lsMatrix;          ///< Light space matrix
     };
     uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
+    uniform sampler2D u_SpotLightShadowMaps[JMAT_MAX_SPOT_LIGHTS];
     uniform uint u_NumSpotLights;
 
     // Point light calculation
@@ -129,7 +145,6 @@
             * u_Material.ambient
         #endif
         ;
-
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
@@ -148,7 +163,6 @@
         #endif
         ;
 
-
         // Direction from fragment to eye
         vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
 
@@ -158,7 +172,7 @@
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
             max(dot(norm, reflectDir), 0.0)
         #endif
@@ -177,7 +191,14 @@
         float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
         ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
 
-        // Combine all the colors
+        // Shadow calculation
+        #ifdef JMAT_PHONG
+            if (l.castShadow)
+            {
+
+            }
+        #endif
+
         return ambient + diffuse + specular;
     }
 
@@ -192,7 +213,6 @@
             * u_Material.ambient
         #endif
         ;
-
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
@@ -222,7 +242,7 @@
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
             max(dot(norm, reflectDir), 0.0)
         #endif
@@ -239,6 +259,32 @@
         // No attenuation calculations here
         // Directional Light is infinite, Directional Light is eternal
 
+        // Shadow calculation
+        #ifdef JMAT_PHONG
+            if (l.castShadow)
+            {
+                vec3 projCoords = vec3(l.lsMatrix * vec4(vf_FragPosition, 1.0));
+
+                // Transform to [0,1] range
+                projCoords = projCoords * 0.5 + 0.5;
+
+                // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+                float closestDepth = texture(u_DirectionalLightShadowMaps[index], projCoords.xy).r; 
+
+                // Get depth of current fragment from light's perspective
+                float currentDepth = projCoords.z;
+
+                // Check whether current frag pos is in shadow
+                float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+                float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+                if (projCoords.z > 1.0)
+                    shadow = 0.0;
+
+                return (ambient + (1.0 - shadow) * (diffuse + specular));
+            }
+        #endif
+        
         return ambient + diffuse + specular;
     }
 
@@ -253,7 +299,6 @@
             * u_Material.ambient
         #endif
         ;
-
 
         // Normal vector
         vec3 norm = normalize(vf_Normal);
@@ -281,7 +326,7 @@
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
             max(dot(norm, reflectDir), 0.0)
         #endif
@@ -309,6 +354,34 @@
         float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
         ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
 
+        // Shadow calculation
+        #ifdef JMAT_PHONG
+            if (l.castShadow)
+            {
+                vec4 coords = l.lsMatrix * vec4(vf_FragPosition, 1.0);
+
+                // Perspective divide
+                vec3 projCoords = coords.xyz / coords.w;
+
+                // Transform to [0,1] range
+                projCoords = projCoords * 0.5 + 0.5;
+
+                // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+                float closestDepth = texture(u_SpotLightShadowMaps[index], projCoords.xy).r;
+
+                // Get depth of current fragment from light's perspective
+                float currentDepth = projCoords.z;
+
+                // Check whether current frag pos is in shadow
+                float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+                float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+                if (projCoords.z > 1.0)
+                    shadow = 0.0;
+
+                return (ambient + (1.0 - shadow) * (diffuse + specular));
+            }
+        #endif
 
         return ambient + diffuse + specular;
     }
