@@ -88,7 +88,7 @@ namespace jop
         glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
         glCheck(gl::BindTexture(m_target, m_texture));
 
-        if (!m_sampler.expired())
+        if (m_sampler.expired())
             m_sampler = static_ref_cast<const TextureSampler>(TextureSampler::getDefault().getReference());
 
         m_sampler->bind(texUnit);

@@ -77,7 +77,7 @@ namespace jop
                 s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
                 // Set lights
-                lights.sendToShader(s, camera);
+                lights.sendToShader(s, camera, *this);
             }
 
             // Set material

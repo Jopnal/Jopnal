@@ -34,6 +34,7 @@ namespace jop
           m_mask(0xFFFFFFFF)
     {
         GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
     }
 
     Renderer::~Renderer()
@@ -100,7 +101,6 @@ namespace jop
     void Renderer::draw()
     {
         // Render shadow maps
-        GlState::setFaceCull(true, GlState::FaceCull::Front);
         for (auto light : m_lights)
         {
             if (!light->isActive() || (m_mask & light->getRenderMask()) == 0)
@@ -109,7 +109,8 @@ namespace jop
             // TODO Optimize when no objects were drawn
             /*if (*/light->drawShadowMap(m_drawables);
         }
-        GlState::setFaceCull(true, GlState::FaceCull::Back);
+
+        RenderTexture::unbind();
 
         // Render objects
         for (uint32 i = 1; i != 0; i <<= 1)
@@ -147,7 +148,7 @@ namespace jop
         {
             auto& container = lights[l->getType()];
 
-            if (!l->isActive() || LightSource::getMaximumLights(l->getType()) <= container.size())
+            if (!l->isActive() || !drawable.receiveLights() || LightSource::getMaximumLights(l->getType()) <= container.size())
                 continue;
 
             const uint32 lightMask = l->getRenderMask();

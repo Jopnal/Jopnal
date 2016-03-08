@@ -44,7 +44,8 @@ namespace jop
           m_rendererRef     (renderer),
           m_renderGroup     (0),
           m_receiveLights   (true),
-          m_receiveShadows  (false)
+          m_receiveShadows  (false),
+          m_castShadows     (true)
     {
         renderer.bind(*this);
     }
@@ -56,7 +57,8 @@ namespace jop
           m_rendererRef     (other.m_rendererRef),
           m_renderGroup     (other.m_renderGroup),
           m_receiveLights   (other.m_receiveLights),
-          m_receiveShadows  (other.m_receiveShadows)
+          m_receiveShadows  (other.m_receiveShadows),
+          m_castShadows     (other.m_castShadows)
     {
         m_rendererRef.bind(*this);
     }
@@ -150,7 +152,7 @@ namespace jop
     bool Drawable::lightTouches(const LightSource& light) const
     {
         // TODO: Take AABB into account
-        return (this->getObject()->getPosition() - light.getObject()->getPosition()).length() < light.getAttenuation(LightSource::Attenuation::Range);
+        return light.getType() == LightSource::Type::Directional || (this->getObject()->getPosition() - light.getObject()->getPosition()).length() < light.getAttenuation(LightSource::Attenuation::Range);
     }
 
     //////////////////////////////////////////////
@@ -165,6 +167,20 @@ namespace jop
     bool Drawable::receiveShadows() const
     {
         return m_receiveShadows;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setCastShadows(const bool cast)
+    {
+        m_castShadows = cast;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::castShadows() const
+    {
+        return m_castShadows;
     }
 
     //////////////////////////////////////////////

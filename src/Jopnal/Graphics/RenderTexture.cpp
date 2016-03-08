@@ -80,7 +80,7 @@ namespace jop
         if (bind())
         {
             glCheck(gl::ClearDepth(1.0));
-            glCheck(gl::Clear(gl::DEPTH_BUFFER_BIT));
+            glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
         }
     }
 
@@ -236,7 +236,7 @@ namespace jop
             return false;
         }
 
-        clear();
+        clearDepth();
         unbind();
 
         return true;

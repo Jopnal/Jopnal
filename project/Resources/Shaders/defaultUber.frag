@@ -32,6 +32,12 @@
     // Camera position
     uniform vec3 u_CameraPosition;
 
+    // Does the object receive lights?
+    uniform bool u_ReceiveLights;
+
+    // Does the object receive shadows?
+    uniform bool u_ReceiveShadows;
+
     // Normal vector
     in vec3 vf_Normal;
 
@@ -193,7 +199,7 @@
 
         // Shadow calculation
         #ifdef JMAT_PHONG
-            if (l.castShadow)
+            if (l.castShadow && u_ReceiveShadows)
             {
 
             }
@@ -261,7 +267,7 @@
 
         // Shadow calculation
         #ifdef JMAT_PHONG
-            if (l.castShadow)
+            if (l.castShadow && u_ReceiveShadows)
             {
                 vec3 projCoords = vec3(l.lsMatrix * vec4(vf_FragPosition, 1.0));
 
@@ -276,10 +282,26 @@
 
                 // Check whether current frag pos is in shadow
                 float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
-                float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+                float shadow = 0.0;
 
                 if (projCoords.z > 1.0)
                     shadow = 0.0;
+
+                // Do percentage-closer filtering
+                else
+                {
+                    vec2 texelSize = 1.0 / textureSize(u_DirectionalLightShadowMaps[index], 0);
+                    for(int x = -1; x <= 1; ++x)
+                    {
+                        for(int y = -1; y <= 1; ++y)
+                        {
+                            float pcfDepth = texture(u_DirectionalLightShadowMaps[index], projCoords.xy + vec2(x, y) * texelSize).r; 
+                            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+                        }    
+                    }
+                    shadow /= 9.0;
+                }
 
                 return (ambient + (1.0 - shadow) * (diffuse + specular));
             }
@@ -356,7 +378,7 @@
 
         // Shadow calculation
         #ifdef JMAT_PHONG
-            if (l.castShadow)
+            if (l.castShadow && u_ReceiveShadows)
             {
                 vec4 coords = l.lsMatrix * vec4(vf_FragPosition, 1.0);
 
@@ -407,17 +429,20 @@ void main()
 
     // Do lighting calculations
     #if defined(JMAT_PHONG)
-        // Point lights
-        for (uint i = 0u; i < u_NumPointLights; ++i)
-            tempColor += calculatePointLight(i);
+        if (u_ReceiveLights)
+        {
+            // Point lights
+            for (uint i = 0u; i < u_NumPointLights; ++i)
+                tempColor += calculatePointLight(i);
 
-        // Directional lights
-        for (uint i = 0u; i < u_NumDirectionalLights; ++i)
-            tempColor += calculateDirectionalLight(i);
+            // Directional lights
+            for (uint i = 0u; i < u_NumDirectionalLights; ++i)
+                tempColor += calculateDirectionalLight(i);
 
-        // Spot lights
-        for (uint i = 0u; i < u_NumSpotLights; ++i)
-            tempColor += calculateSpotLight(i);
+            // Spot lights
+            for (uint i = 0u; i < u_NumSpotLights; ++i)
+                tempColor += calculateSpotLight(i);
+        }
     #endif
 
     // Emission

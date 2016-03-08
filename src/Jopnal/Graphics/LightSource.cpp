@@ -270,7 +270,13 @@ namespace jop
 
         m_shadowMap->clearDepth();
 
-        auto& scl = getObject()->getScale();
+        // Use the object's scale to construct the frustum
+        auto scl = getObject()->getScale();
+
+        // We need scale at 1 to avoid messing up the view transform
+        Transform trans = *getObject();
+        trans.setScale(1.f);
+
         switch (m_type)
         {
             case Type::Point:
@@ -283,14 +289,14 @@ namespace jop
             }
             case Type::Directional:
             {
-                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 1.f, scl.z) * getObject()->getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap->getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y, s.x / s.y, 1.f, getAttenuation(Attenuation::Range)) * getObject()->getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y, s.x / s.y, 1.f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
@@ -300,7 +306,7 @@ namespace jop
 
         for (auto d : drawables)
         {
-            if (!d->isActive() || (getRenderMask() & (1 << d->getRenderGroup())) == 0 || !d->lightTouches(*this))
+            if (!d->isActive() || !d->castShadows() || (getRenderMask() & (1 << d->getRenderGroup())) == 0 || !d->lightTouches(*this))
                 continue;
 
             drawn = true;
@@ -489,8 +495,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Camera& camera) const
+    void LightContainer::sendToShader(Shader& shader, const Camera& camera, const Drawable& drawable) const
     {
+        shader.setUniform("u_ReceiveLights", drawable.receiveLights());
+
+        if (!drawable.receiveLights())
+            return;
+
+        shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
+
         static const unsigned int shadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 20);
         unsigned int currentShadowUnit = shadowStartUnit;
 
@@ -519,12 +532,15 @@ namespace jop
                 shader.setUniform(indexed + "attenuation", li.getAttenuationVec());
 
                 // Shadow map
-                shader.setUniform(indexed + "castShadow", li.castShadows());
-
-                if (li.castShadows())
+                if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "lsMatrix", glm::value_ptr(li.getLightspaceMatrix()), 6);
-                    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                    if (li.castShadows())
+                    {
+                        shader.setUniform(indexed + "lsMatrix", glm::value_ptr(li.getLightspaceMatrix()), 6);
+                        shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    }
                 }
             }
         }
@@ -548,12 +564,15 @@ namespace jop
                 shader.setUniform(indexed + "specular", li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
 
                 // Shadow map
-                shader.setUniform(indexed + "castShadow", li.castShadows());
-
-                if (li.castShadows())
+                if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
-                    shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                    if (li.castShadows())
+                    {
+                        shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
+                        shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    }
                 }
             }
         }
@@ -586,12 +605,15 @@ namespace jop
                 shader.setUniform(indexed + "cutoff", glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));
 
                 // Shadow map
-                shader.setUniform(indexed + "castShadow", li.castShadows());
-
-                if (li.castShadows())
+                if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
-                    shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    shader.setUniform(indexed + "castShadow", li.castShadows());
+
+                    if (li.castShadows())
+                    {
+                        shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
+                        shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                    }
                 }
             }
         }

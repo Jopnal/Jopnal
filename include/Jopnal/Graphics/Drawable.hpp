@@ -136,6 +136,10 @@ namespace jop
 
         bool receiveShadows() const;
 
+        void setCastShadows(const bool cast);
+
+        bool castShadows() const;
+
 
         /// \brief Load the state
         ///
@@ -169,6 +173,7 @@ namespace jop
         uint8 m_renderGroup;
         bool m_receiveLights;                               ///< Does this drawable receive lights
         bool m_receiveShadows;
+        bool m_castShadows;
         
     };
 }

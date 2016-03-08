@@ -302,7 +302,7 @@ namespace jop
         /// \param shader The shader to send the lights to
         /// \param camera The camera used currently
         ///
-        void sendToShader(Shader& shader, const Camera& camera) const;
+        void sendToShader(Shader& shader, const Camera& camera, const Drawable& drawable) const;
 
         /// \brief Access the individual containers for each light type
         ///

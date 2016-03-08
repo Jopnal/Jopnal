@@ -35,6 +35,7 @@ namespace jop
         if (sampler.expired())
         {
             sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_depth_sampler").getReference());
+            sampler->setPersistent(true);
 
             sampler->setFilterMode(TextureSampler::Filter::Bilinear);
             sampler->setRepeatMode(TextureSampler::Repeat::ClampBorder);
