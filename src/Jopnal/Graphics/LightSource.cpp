@@ -189,7 +189,7 @@ namespace jop
 
                 m_shadowMap = std::make_unique<RenderTexture>();
                 
-                if (!m_shadowMap->createDepth(glm::ivec2(mapSize, mapSize)))
+                if (!m_shadowMap->createDepth(glm::ivec2(mapSize, mapSize), m_type == Type::Point))
                 {
                     m_shadowMap.reset();
                     m_castShadows = false;
@@ -257,10 +257,10 @@ namespace jop
             pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
             pointShader->setPersistent(true);
 
-            std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+            std::vector<unsigned char> vert, geom, frag;
+            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
 
-            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
+            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
         }
 
         auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;
@@ -281,10 +281,20 @@ namespace jop
         {
             case Type::Point:
             {
+                auto pos = getObject()->getGlobalPosition();
 
+                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getAttenuation(Attenuation::Range));
 
-                shdr.setUniform("u_MVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+                m_lightSpaceMatrices[0] = proj * glm::lookAt(pos, pos + glm::vec3( 1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Right
+                m_lightSpaceMatrices[1] = proj * glm::lookAt(pos, pos + glm::vec3(-1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Left
+                m_lightSpaceMatrices[2] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  1.0,  0.0), glm::vec3(0.0,  0.0,  1.0)); // Top
+                m_lightSpaceMatrices[3] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0, -1.0,  0.0), glm::vec3(0.0,  0.0, -1.0)); // Bottom
+                m_lightSpaceMatrices[4] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
+                m_lightSpaceMatrices[5] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
 
+                shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+                shdr.setUniform("u_FarClippingPlane", getAttenuation(Attenuation::Range));
+                shdr.setUniform("u_LightPosition", pos);
                 break;
             }
             case Type::Directional:
@@ -296,7 +306,7 @@ namespace jop
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap->getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y, s.x / s.y, 1.f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.1f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
@@ -538,8 +548,8 @@ namespace jop
 
                     if (li.castShadows())
                     {
-                        shader.setUniform(indexed + "lsMatrix", glm::value_ptr(li.getLightspaceMatrix()), 6);
                         shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                        shader.setUniform(indexed + "farPlane", li.getAttenuation(LightSource::Attenuation::Range));
                     }
                 }
             }

@@ -114,6 +114,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Texture::getMaxTextureUnits()
+    {
+        static unsigned int maxUnits = 0;
+        if (!maxUnits)
+            glCheck(gl::GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<int*>(&maxUnits)));
+
+        return maxUnits;
+    }
+
+    //////////////////////////////////////////////
+
     Texture& Texture::getError()
     {
         static WeakReference<Texture2D> errTex;

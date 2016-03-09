@@ -78,7 +78,7 @@ namespace jop
         ///
         bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
-        bool createDepth(const glm::ivec2& size);
+        bool createDepth(const glm::ivec2& size, const bool cube);
 
         /// \brief Destroy this frame buffer
         ///

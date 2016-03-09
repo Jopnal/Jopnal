@@ -79,6 +79,8 @@ namespace jop
         ///
         static int getMaximumSize();
 
+        static unsigned int getMaxTextureUnits();
+
 
         /// \brief Get the error texture
         ///

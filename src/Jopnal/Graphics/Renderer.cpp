@@ -35,6 +35,7 @@ namespace jop
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
+        GlState::setSeamlessCubemap(true);
     }
 
     Renderer::~Renderer()
@@ -101,6 +102,7 @@ namespace jop
     void Renderer::draw()
     {
         // Render shadow maps
+        //GlState::setFaceCull(true, GlState::FaceCull::Front);
         for (auto light : m_lights)
         {
             if (!light->isActive() || (m_mask & light->getRenderMask()) == 0)
@@ -109,6 +111,7 @@ namespace jop
             // TODO Optimize when no objects were drawn
             /*if (*/light->drawShadowMap(m_drawables);
         }
+        //GlState::setFaceCull(true);
 
         RenderTexture::unbind();
 

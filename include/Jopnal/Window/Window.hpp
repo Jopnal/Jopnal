@@ -74,6 +74,7 @@ namespace jop
             unsigned int samples;
             bool visible;
             bool vSync;
+            bool debug;
         };
 
     public:

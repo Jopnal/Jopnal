@@ -99,6 +99,7 @@
     <None Include="Resources\Shaders\depthRecord.frag" />
     <None Include="Resources\Shaders\depthRecord.vert" />
     <None Include="Resources\Shaders\depthRecordPoint.frag" />
+    <None Include="Resources\Shaders\depthRecordPoint.geom" />
     <None Include="Resources\Shaders\depthRecordPoint.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

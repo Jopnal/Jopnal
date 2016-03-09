@@ -60,7 +60,8 @@ namespace jop
           displayMode   (DisplayMode::Windowed),
           samples       (0),
           visible       (false),
-          vSync         (true)
+          vSync         (true),
+          debug         (false)
     {
         if (loadSettings)
         {
@@ -70,6 +71,7 @@ namespace jop
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
             visible = SettingManager::getBool("uDefaultWindowVisible", true);
             vSync = SettingManager::getBool("bDefaultWindowVSync", true);
+            debug = SettingManager::getBool("bDefaultWindowDebugContext", false);
         }
     }
 
@@ -92,6 +94,22 @@ namespace jop
     {
         open(settings);
         setEventHandler<jop_DefaultEventHandler>();
+
+#ifdef JOP_DEBUG_MODE
+        if (gl::exts::var_KHR_debug)
+        {
+            gl::DebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data)
+            {
+                if (severity == gl::DEBUG_SEVERITY_HIGH)
+                {
+                    JOP_DEBUG_ERROR("GL ERROR: " << msg);
+                }
+                else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
+                    JOP_DEBUG_WARNING("GL WARNING: " << msg);
+
+            }, NULL);
+        }
+#endif
     }
 
     Window::~Window()

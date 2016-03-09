@@ -326,6 +326,9 @@ namespace jop
 
     void Object::updateTransformTree(const Object* parent, bool parentUpdated)
     {
+        if (isActive())
+            return;
+
         if (parent)
         {
             if (m_transformNeedUpdate || ((m_transformNeedUpdate = parentUpdated) == true))

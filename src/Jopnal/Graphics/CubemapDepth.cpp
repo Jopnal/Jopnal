@@ -36,15 +36,19 @@ namespace jop
 
         if (sampler.expired())
         {
-            sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_depth_sampler").getReference());
-            sampler->setPersistent(true);
+            if (ResourceManager::resourceExists<TextureSampler>("jop_depth_sampler_point"))
+                sampler = static_ref_cast<TextureSampler>(ResourceManager::getExistingResource<TextureSampler>("jop_depth_sampler_point").getReference());
+            else
+            {
+                sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_depth_sampler_point").getReference());
+                sampler->setPersistent(true);
 
-            sampler->setFilterMode(TextureSampler::Filter::None);
-            sampler->setRepeatMode(TextureSampler::Repeat::ClampBorder);
-            sampler->setBorderColor(Color::White);
-
-            setSampler(*sampler);
+                sampler->setFilterMode(TextureSampler::Filter::None);
+                sampler->setRepeatMode(TextureSampler::Repeat::ClampEdge);
+            }
         }
+
+        setSampler(*sampler);
     }
 
     //////////////////////////////////////////////
@@ -68,6 +72,8 @@ namespace jop
         {
             glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl::DEPTH_COMPONENT, width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
         }
+
+        //glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP));
         
         m_width = width;
         m_height = height;

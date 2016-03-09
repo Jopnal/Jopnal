@@ -79,8 +79,10 @@ namespace jop
     {
         if (bind())
         {
-            glCheck(gl::ClearDepth(1.0));
-            glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
+            if (m_colorChanged)
+                glCheck(gl::ClearDepth(1.0));
+
+            glCheck(gl::Clear(gl::DEPTH_BUFFER_BIT));
         }
     }
 
@@ -198,12 +200,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::createDepth(const glm::ivec2& size)
+    bool RenderTexture::createDepth(const glm::ivec2& size, const bool cube)
     {
         destroy();
-        m_texture = std::make_unique<TextureDepth>("");
 
-        if (!static_cast<TextureDepth&>(*m_texture).load(size.x, size.y))
+        bool err = false;
+
+        if (cube)
+        {
+            m_texture = std::make_unique<CubemapDepth>("");
+            err = !static_cast<CubemapDepth&>(*m_texture).load(size.x, size.y);
+        }
+        else
+        {
+            m_texture = std::make_unique<TextureDepth>("");
+            err = !static_cast<TextureDepth&>(*m_texture).load(size.x, size.y);
+        }
+
+        if (err)
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
             destroy();
@@ -226,7 +240,14 @@ namespace jop
         gl::DrawBuffer(gl::NONE);
         gl::ReadBuffer(gl::NONE);
 
-        gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_texture->getHandle(), 0);
+        if (cube)
+        {
+            glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_texture->getHandle(), 0));
+        }
+        else
+        {
+            glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_texture->getHandle(), 0));
+        }
 
         auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
         if (status != gl::FRAMEBUFFER_COMPLETE)

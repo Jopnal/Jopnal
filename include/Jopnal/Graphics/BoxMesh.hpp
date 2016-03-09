@@ -50,6 +50,8 @@ namespace jop
         ///
         BoxMesh(const std::string& name, const float size);
 
+        BoxMesh(const std::string& name, const float size, const bool invert);
+
 
         /// \brief Load this box
         ///
@@ -60,6 +62,8 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
+        bool load(const float size, const bool invert);
 
         /// \brief Get the size
         ///
