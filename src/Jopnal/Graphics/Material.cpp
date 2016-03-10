@@ -181,14 +181,14 @@ namespace jop
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
-            if (hasAttribute(Attribute::Diffusemap) && !m_maps[ns_diffMapIndex].expired())
-                shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
+            if (hasAttribute(Attribute::Diffusemap) && !getMap(Map::Diffuse).expired())
+                shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
-            if (hasAttribute(Attribute::Specularmap) && !m_maps[ns_specMapIndex].expired())
-                shader.setUniform("u_SpecularMap", *m_maps[ns_specMapIndex], ns_specMapIndex);
+            if (hasAttribute(Attribute::Specularmap) && !getMap(Map::Specular).expired())
+                shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
 
-            if (hasAttribute(Attribute::Emissionmap) && !m_maps[ns_emissMapIndex].expired())
-                shader.setUniform("u_EmissionMap", *m_maps[ns_emissMapIndex], ns_emissMapIndex);
+            if (hasAttribute(Attribute::Emissionmap) && !getMap(Map::Emission).expired())
+                shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
         }
     }
 
@@ -236,7 +236,7 @@ namespace jop
 
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        m_maps[static_cast<int>(map)] = static_ref_cast<const Texture>(tex.getReference());
+        m_maps[static_cast<int>(map) - 1] = static_ref_cast<const Texture>(tex.getReference());
         return *this;
     }
 
@@ -244,7 +244,7 @@ namespace jop
 
     WeakReference<const Texture> Material::getMap(const Map map) const
     {
-        return m_maps[static_cast<int>(map)];
+        return m_maps[static_cast<int>(map) - 1];
     }
 
     //////////////////////////////////////////////

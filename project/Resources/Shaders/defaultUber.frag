@@ -212,48 +212,47 @@
         // Shadow calculation
         if (l.castShadow && u_ReceiveShadows)
         {
-            //// Get a vector between fragment and light positions
-            //vec3 fragToLight = vf_FragPosition - l.position;
-
-            //// Get current linear depth as the length between the fragment and light position
-            //float currentDepth = length(fragToLight);
-
-            //// Test for shadows with PCF
-            //float shadow = 0.0;
-            //float bias = 0.15;
-            //int samples = 20;
-
-            //float viewDistance = length(u_CameraPosition - vf_FragPosition);
-            //float diskRadius = (1.0 + (viewDistance / l.farPlane)) / 25.0;
-            //for (int i = 0; i < samples; ++i)
-            //{
-            //    vec3 samp = fragToLight + g_gridSamplingDisk[i] * diskRadius;
-            //    
-            //    float closestDepth = texture(u_PointLightShadowMaps[index], samp).r;
-
-            //    // Undo mapping [0,1]
-            //    closestDepth *= l.farPlane;
-            //    //float closestDepth = 1.0 * l.farPlane;
-
-            //    if (currentDepth - bias > closestDepth)
-            //        shadow += 1.0;
-            //}
-            //shadow /= float(samples);
-
-            //return (ambient + (1.0 - shadow) * (diffuse + specular));
-
+            // Get a vector between fragment and light positions
             vec3 fragToLight = vf_FragPosition - l.position;
-            // Use the light to fragment vector to sample from the depth map    
-            float closestDepth = texture(u_PointLightShadowMaps[index], fragToLight).r;
-            // It is currently in linear range between [0,1]. Re-transform back to original value
-            closestDepth *= l.farPlane;
-            // Now get current linear depth as the length between the fragment and light position
+
+            // Get current linear depth as the length between the fragment and light position
             float currentDepth = length(fragToLight);
-            // Now test for shadows
-            float bias = 0.05; 
-            float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+            // Test for shadows with PCF
+            float shadow = 0.0;
+            float bias = 0.15;
+            int samples = 20;
+
+            float viewDistance = length(u_CameraPosition - vf_FragPosition);
+            float diskRadius = (1.0 + (viewDistance / l.farPlane)) / 25.0;
+            for (int i = 0; i < samples; ++i)
+            {
+                vec3 samp = fragToLight + g_gridSamplingDisk[i] * diskRadius;
+                
+                float closestDepth = texture(u_PointLightShadowMaps[index], samp).r;
+
+                // Undo mapping [0,1]
+                closestDepth *= l.farPlane;
+
+                if (currentDepth - bias > closestDepth)
+                    shadow += 1.0;
+            }
+            shadow /= float(samples);
 
             return (ambient + (1.0 - shadow) * (diffuse + specular));
+
+            //vec3 fragToLight = vf_FragPosition - l.position;
+            //// Use the light to fragment vector to sample from the depth map    
+            //float closestDepth = texture(u_PointLightShadowMaps[index], fragToLight).r;
+            //// It is currently in linear range between [0,1]. Re-transform back to original value
+            //closestDepth *= l.farPlane;
+            //// Now get current linear depth as the length between the fragment and light position
+            //float currentDepth = length(fragToLight);
+            //// Now test for shadows
+            //float bias = 0.05; 
+            //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+            //return (ambient + (1.0 - shadow) * (diffuse + specular));
         }
 
         return ambient + diffuse + specular;
@@ -418,7 +417,6 @@
         ambient *= intensity;
         diffuse *= intensity;
         specular *= intensity;
-
 
         // Attenuation
         float dist = length(l.position - vf_FragPosition);

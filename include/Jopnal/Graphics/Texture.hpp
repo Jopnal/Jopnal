@@ -61,7 +61,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        void bind(const unsigned int texUnit = 0) const;
+        void bind(const unsigned int texUnit = 1) const;
 
 
         /// \brief Bind a texture sampler

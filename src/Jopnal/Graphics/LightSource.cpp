@@ -306,7 +306,7 @@ namespace jop
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap->getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.1f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
@@ -514,8 +514,14 @@ namespace jop
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
 
-        static const unsigned int shadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 20);
-        unsigned int currentShadowUnit = shadowStartUnit;
+        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 10);
+        unsigned int currentPointShadowUnit = pointShadowStartUnit;
+
+        static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Point);
+        unsigned int currentDirShadowUnit = dirShadowStartUnit;
+
+        static const unsigned int spotShadowStartUnit = dirShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Directional);
+        unsigned int currentSpotShadowUnit = spotShadowStartUnit;
 
         // Send camera position to shader
         shader.setUniform("u_CameraPosition", camera.getObject()->getGlobalPosition());
@@ -548,10 +554,14 @@ namespace jop
 
                     if (li.castShadows())
                     {
-                        shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                        shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentPointShadowUnit++);
                         shader.setUniform(indexed + "farPlane", li.getAttenuation(LightSource::Attenuation::Range));
                     }
+                    //else
+                    //    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", static_cast<int>(currentPointShadowUnit++));
                 }
+               // else
+                //    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", static_cast<int>(currentPointShadowUnit++));
             }
         }
 
@@ -581,7 +591,7 @@ namespace jop
                     if (li.castShadows())
                     {
                         shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
-                        shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                        shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentDirShadowUnit++);
                     }
                 }
             }
@@ -622,7 +632,7 @@ namespace jop
                     if (li.castShadows())
                     {
                         shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
-                        shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentShadowUnit++);
+                        shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentSpotShadowUnit++);
                     }
                 }
             }

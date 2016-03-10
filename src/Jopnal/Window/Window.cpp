@@ -102,10 +102,16 @@ namespace jop
             {
                 if (severity == gl::DEBUG_SEVERITY_HIGH)
                 {
-                    JOP_DEBUG_ERROR("GL ERROR: " << msg);
+                    JOP_DEBUG_ERROR(msg);
                 }
                 else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
-                    JOP_DEBUG_WARNING("GL WARNING: " << msg);
+                {
+                    JOP_DEBUG_WARNING(msg);
+                }
+                else
+                {
+                    JOP_DEBUG_INFO(msg);
+                }
 
             }, NULL);
         }

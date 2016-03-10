@@ -43,7 +43,7 @@ namespace jop
                 sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_depth_sampler_point").getReference());
                 sampler->setPersistent(true);
 
-                sampler->setFilterMode(TextureSampler::Filter::None);
+                sampler->setFilterMode(TextureSampler::Filter::Bilinear);
                 sampler->setRepeatMode(TextureSampler::Repeat::ClampEdge);
             }
         }
