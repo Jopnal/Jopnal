@@ -35,19 +35,28 @@ namespace
         gl::TRANSFORM_FEEDBACK_BUFFER,
         gl::UNIFORM_BUFFER
     };
+
+    static const int ns_usageType[] =
+    {
+        gl::STATIC_DRAW,
+        gl::DYNAMIC_DRAW,
+        gl::STREAM_DRAW
+    };
 }
 
 namespace jop
 {
 
-    Buffer::Buffer(BufferType type) 
+    Buffer::Buffer(const Type type, const Usage usage)
         : m_bytesAllocated  (0),
           m_buffer          (0),
-          m_bufferType      (ns_bufferType[static_cast<unsigned int>(type)])
+          m_bufferType      (ns_bufferType[static_cast<int>(type)]),
+          m_usage           (ns_usageType[static_cast<int>(usage)])
     {}
 
     Buffer::Buffer(const Buffer& other)
-        : m_bufferType(other.m_bufferType)
+        : m_bufferType  (other.m_bufferType),
+          m_usage       (other.m_usage)
     {
         *this = other;
     }
@@ -62,7 +71,8 @@ namespace jop
     }
 
     Buffer::Buffer(Buffer&& other)
-        : m_bufferType(other.m_bufferType)
+        : m_bufferType  (other.m_bufferType),
+          m_usage       (other.m_usage)
     {
         *this = std::move(other);
     }
@@ -96,16 +106,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Buffer::unbind(BufferType type)
+    void Buffer::unbind(const Type type)
     {
         glCheck(gl::BindBuffer(ns_bufferType[static_cast<const unsigned int>(type)], 0));
-    }
-
-    //////////////////////////////////////////////
-
-    void Buffer::unbind(const unsigned int& type)
-    {
-        glCheck(gl::BindBuffer(type, 0));
     }
 
     //////////////////////////////////////////////
@@ -116,7 +119,7 @@ namespace jop
         {
             bind();
 
-            glCheck(gl::BufferData(m_bufferType, 0, NULL, gl::STATIC_DRAW));
+            glCheck(gl::BufferData(m_bufferType, 0, NULL, m_usage));
 
             m_bytesAllocated = 0;
         }
@@ -128,7 +131,7 @@ namespace jop
     {
         if (m_buffer)
         {
-            unbind(m_bufferType);
+            glCheck(gl::BindBuffer(m_bufferType, m_buffer));
             glCheck(gl::DeleteBuffers(1, &m_buffer));
             m_bytesAllocated = 0;
             m_buffer = 0;

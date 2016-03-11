@@ -43,11 +43,10 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_MOVE(LightSource);
+        LightSource(const LightSource& other, Object& newObj);
 
-        void operator =(const LightSource&) = delete;
-
-        JOP_GENERIC_CLONE(LightSource);
+        JOP_DISALLOW_COPY_MOVE(LightSource);
+        JOP_GENERIC_COMPONENT_CLONE(LightSource);
 
     public:
 
@@ -104,9 +103,7 @@ namespace jop
         /// \param object Reference to created object in object class 
         /// \param ID Unique string id for created light source as object
         ///
-        LightSource(Object& object, const std::string& ID, Renderer& renderer, const Type type);
-
-        LightSource(const LightSource& other);
+        LightSource(Object& object, Renderer& renderer, const Type type);
 
         ~LightSource() override;
 

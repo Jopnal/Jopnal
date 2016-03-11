@@ -59,7 +59,7 @@ namespace jope
         // Fill the object tree
         if (jop::Engine::hasCurrentScene())
         {
-            for (auto& i : jop::Engine::getCurrentScene().getObjects())
+            for (auto& i : jop::Engine::getCurrentScene().getChildren())
                 createObjTree(i, m_objTree.insert(i.getID(), i.getID()));
         }
 

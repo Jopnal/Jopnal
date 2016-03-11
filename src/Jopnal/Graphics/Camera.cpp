@@ -110,8 +110,8 @@ namespace jop
 namespace jop
 {
 
-    Camera::Camera(Object& object, const std::string& ID, Renderer& renderer, const Projection mode)
-        : Component                 (object, ID),
+    Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
+        : Component                 (object, "camera"),
           m_projectionMatrix        (),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
@@ -138,8 +138,8 @@ namespace jop
         renderer.bind(*this);
     }
 
-    Camera::Camera(const Camera& other)
-        : Component                 (other),
+    Camera::Camera(const Camera& other, Object& newObj)
+        : Component                 (other, newObj),
           m_projectionMatrix        (other.m_projectionMatrix),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),

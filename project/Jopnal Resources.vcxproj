@@ -101,6 +101,8 @@
     <None Include="Resources\Shaders\depthRecordPoint.frag" />
     <None Include="Resources\Shaders\depthRecordPoint.geom" />
     <None Include="Resources\Shaders\depthRecordPoint.vert" />
+    <None Include="Resources\Shaders\physicsDebug.frag" />
+    <None Include="Resources\Shaders\physicsDebug.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

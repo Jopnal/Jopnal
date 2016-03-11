@@ -28,7 +28,6 @@ T& Engine::createScene(Args&&... args)
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
 
     m_engineObject->m_currentScene = std::make_unique<T>(std::forward<Args>(args)...);
-    m_engineObject->m_currentScene->initialize();
     return static_cast<T&>(*m_engineObject->m_currentScene);
 }
 

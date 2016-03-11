@@ -27,10 +27,10 @@
 
 namespace jop
 {
-    VertexBuffer::VertexBuffer(BufferType type)
-        : Buffer(type)
+    VertexBuffer::VertexBuffer(const Type type, const Usage usage)
+        : Buffer(type, usage)
     {
-        JOP_ASSERT(type == BufferType::ArrayBuffer || type == BufferType::ElementArrayBuffer, "Invalid buffer type specified in VertexBuffer. Must be either ArrayBuffer or IndexBuffer");
+        JOP_ASSERT(type == Type::ArrayBuffer || type == Type::ElementArrayBuffer, "Invalid buffer type specified in VertexBuffer. Must be either ArrayBuffer or IndexBuffer");
     }
 
     VertexBuffer::VertexBuffer(const VertexBuffer& other)
@@ -71,13 +71,13 @@ namespace jop
   
     //////////////////////////////////////////////
 
-    void VertexBuffer::setData(const void* data, std::size_t bytes)
+    void VertexBuffer::setData(const void* data, const std::size_t bytes)
     {
         bind();
 
         if (m_buffer && bytes > 0 && data)
         {
-            glCheck(gl::BufferData(m_bufferType, bytes, NULL, gl::STATIC_DRAW));
+            glCheck(gl::BufferData(m_bufferType, bytes, NULL, m_usage));
             m_bytesAllocated = bytes;
             setSubData(data, 0, bytes);
             return;
@@ -86,7 +86,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void VertexBuffer::setSubData(const void* data, std::size_t offset, std::size_t size)
+    void VertexBuffer::setSubData(const void* data, const std::size_t offset, const std::size_t size)
     {
         if (m_buffer && data && size)
             glCheck(gl::BufferSubData(m_bufferType, offset, size, data));

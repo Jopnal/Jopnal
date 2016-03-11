@@ -43,13 +43,11 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_MOVE(Drawable);
-
-        void operator =(const Drawable&) = delete;
+        JOP_DISALLOW_COPY_MOVE(Drawable);
 
     protected:
 
-        Drawable(const Drawable& other);
+        Drawable(const Drawable& other, Object& newObj);
 
     public:
     
@@ -64,10 +62,6 @@ namespace jop
         ///
         virtual ~Drawable() override = 0;
 
-
-        /// \copydoc jop::Component::clone()
-        ///
-        virtual Drawable* clone() const override = 0;
 
         /// \brief Draw function
         ///
@@ -90,7 +84,7 @@ namespace jop
         ///
         /// \param model Reference to the model
         ///
-        Drawable& setModel(const Model& model);
+        Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
 
         /// \brief Get the model
         ///

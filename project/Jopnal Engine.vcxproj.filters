@@ -88,6 +88,15 @@
     <Filter Include="Graphics\Source\Texture">
       <UniqueIdentifier>{36308d76-9b24-4dee-8b71-9f580d0b289a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics\Source\Shape">
+      <UniqueIdentifier>{8106b9ab-2862-4726-8ac2-edbb96b3dbf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Headers\Shape">
+      <UniqueIdentifier>{1bac09cd-8dd0-4b05-b0f3-af1719f8ac6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Source\Detail">
+      <UniqueIdentifier>{b1b812a3-cb9c-40f1-a7c4-7d0039e252b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -267,17 +276,11 @@
     <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Utility\Activateable.hpp">
-      <Filter>Utility\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp">
       <Filter>Window\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Physics.hpp">
       <Filter>Root\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Physics\PhysicsWorld.hpp">
-      <Filter>Physics\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Renderer.hpp">
       <Filter>Graphics\Headers</Filter>
@@ -296,6 +299,27 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp">
       <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Collider.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\World.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl.hpp">
+      <Filter>Physics\Source\Detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\RigidBody.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\InfinitePlaneShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -431,12 +455,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\ShaderManager.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Utility\Activateable.cpp">
-      <Filter>Utility\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Physics\PhysicsWorld.cpp">
-      <Filter>Physics\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Renderer.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
@@ -454,6 +472,27 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\TextureDepth.cpp">
       <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Collider.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\World.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl.cpp">
+      <Filter>Physics\Source\Detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\RigidBody.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\InfinitePlaneShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -56,7 +56,9 @@ namespace jop
                 Diffusemap      = 1 << 2,
                 Specularmap     = 1 << 3,
                 Emissionmap     = 1 << 4,
-                Phong           = 1 << 5
+                Phong           = 1 << 5,
+
+                Lighting        = Phong
             };
         };
 

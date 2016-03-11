@@ -50,8 +50,8 @@ namespace jop
         renderer.bind(*this);
     }
 
-    Drawable::Drawable(const Drawable& other)
-        : Component         (other),
+    Drawable::Drawable(const Drawable& other, Object& newObj)
+        : Component         (other, newObj),
           m_model           (other.m_model),
           m_shader          (other.m_shader),
           m_rendererRef     (other.m_rendererRef),
@@ -98,9 +98,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setModel(const Model& model)
+    Drawable& Drawable::setModel(const Model& model, const bool loadMaterialShader)
     {
         m_model = model;
+
+        if (loadMaterialShader && !m_model.getMaterial().expired())
+            setShader(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()));
+
         return *this;
     }
 

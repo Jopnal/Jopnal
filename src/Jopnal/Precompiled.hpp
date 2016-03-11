@@ -72,6 +72,7 @@
 #pragma warning(disable: 4127)
 #include <Bullet/btBulletCollisionCommon.h>
 #include <Bullet/btBulletDynamicsCommon.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #pragma warning(pop)
 
 // RapidJSON
@@ -101,5 +102,7 @@
 // Jopnal
 #include <Jopnal/Jopnal.hpp>
 
+// Implementation classes
+#include <Jopnal/Physics/Detail/WorldImpl.hpp>
 
 #endif

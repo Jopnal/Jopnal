@@ -36,7 +36,7 @@ namespace jop
         
         /// \brief Enum class consisting of buffer types
         ///
-        enum class BufferType
+        enum class Type
         {
             ArrayBuffer,
             ElementArrayBuffer,
@@ -47,7 +47,7 @@ namespace jop
 
         /// \brief Enum of usage types
         ///
-        enum UsageType
+        enum Usage
         {
             StaticDraw,
             DynamicDraw,
@@ -60,7 +60,7 @@ namespace jop
         ///
         /// \param type Buffer type 
         ///
-        Buffer(const BufferType type);
+        Buffer(const Type type, const Usage usage);
 
         /// \brief Constructor to another buffer
         ///
@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \param type Name of the type that is unbound
         ///
-        static void unbind(BufferType type);
+        static void unbind(const Type type);
 
         /// \brief Clears this buffer
         ///
@@ -114,16 +114,11 @@ namespace jop
         std::size_t getAllocatedSize() const;
 
     protected:
-
-        /// \brief Unbinds buffer
-        ///
-        /// \param type Name of the type that is unbound
-        ///
-        static void unbind(const unsigned int& type);
   
         std::size_t m_bytesAllocated;   ///< Size of the allocated buffer
         mutable unsigned int m_buffer;  ///< Buffer's OpenGL handle
         const int m_bufferType;         ///< Type of the buffer
+        const int m_usage;
     };
 }
 #endif

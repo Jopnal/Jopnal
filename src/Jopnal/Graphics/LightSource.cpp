@@ -121,8 +121,8 @@ namespace jop
 
 namespace jop
 {
-    LightSource::LightSource(Object& object, const std::string& ID, Renderer& renderer, const Type type)
-        : Component             (object, ID),
+    LightSource::LightSource(Object& object, Renderer& renderer, const Type type)
+        : Component             (object, "lightsource"),
           m_lightSpaceMatrices  (),
           m_type                (type),
           m_intensities         (),
@@ -140,8 +140,8 @@ namespace jop
         renderer.bind(*this);
     }
 
-    LightSource::LightSource(const LightSource& other)
-        : Component     (other),
+    LightSource::LightSource(const LightSource& other, Object& newObj)
+        : Component     (other, newObj),
           m_type        (other.m_type),
           m_intensities (other.m_intensities),
           m_attenuation (other.m_attenuation),

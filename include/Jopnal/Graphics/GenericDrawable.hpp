@@ -35,7 +35,10 @@ namespace jop
     {
     private:
 
-        JOP_GENERIC_CLONE(GenericDrawable);
+        GenericDrawable(const GenericDrawable& other, Object& newObj);
+
+        JOP_DISALLOW_COPY_MOVE(GenericDrawable);
+        JOP_GENERIC_COMPONENT_CLONE(GenericDrawable);
 
     public:
 
@@ -44,7 +47,7 @@ namespace jop
         /// \param object Reference to the object this drawable will be bound to
         /// \param ID Unique component identifier
         ///
-        GenericDrawable(Object& object, const std::string& ID, Renderer& renderer);
+        GenericDrawable(Object& object, Renderer& renderer);
 
 
         /// \brief Draw function

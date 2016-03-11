@@ -37,15 +37,13 @@ namespace jop
 namespace jop
 {
     Component::Component(Object& object, const std::string& ID)
-        : SafeReferenceable<Component>   (this),
-          m_objectRef                               (object),
-          m_ID                                      (ID)
+        : m_objectRef                    (object),
+          m_ID                           (ID)
     {}
 
-    Component::Component(const Component& other)
-        : SafeReferenceable<Component>(this),
-        m_objectRef(other.m_objectRef),
-        m_ID(other.m_ID)
+    Component::Component(const Component& other, Object& newObj)
+        : m_objectRef                   (newObj),
+          m_ID                          (other.m_ID)
     {}
 
     Component::~Component()
@@ -92,11 +90,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Component::fixedUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
     const std::string& Component::getID() const
     {
         return m_ID;
@@ -129,6 +122,11 @@ namespace jop
     {
         return getObject()->isActive();
     }
+
+    void Component::setActive(const bool)
+    {}
+
+    //////////////////////////////////////////////
 
     Message::Result Component::sendMessageImpl(const Message&)
     {

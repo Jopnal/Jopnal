@@ -240,19 +240,6 @@
             shadow /= float(samples);
 
             return (ambient + (1.0 - shadow) * (diffuse + specular));
-
-            //vec3 fragToLight = vf_FragPosition - l.position;
-            //// Use the light to fragment vector to sample from the depth map    
-            //float closestDepth = texture(u_PointLightShadowMaps[index], fragToLight).r;
-            //// It is currently in linear range between [0,1]. Re-transform back to original value
-            //closestDepth *= l.farPlane;
-            //// Now get current linear depth as the length between the fragment and light position
-            //float currentDepth = length(fragToLight);
-            //// Now test for shadows
-            //float bias = 0.05; 
-            //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
-            //return (ambient + (1.0 - shadow) * (diffuse + specular));
         }
 
         return ambient + diffuse + specular;

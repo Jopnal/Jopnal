@@ -21,7 +21,7 @@
 
 
 template<typename T>
-WeakReference<T> Object::getComponent()
+T* Object::getComponent()
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
 
@@ -30,19 +30,35 @@ WeakReference<T> Object::getComponent()
     for (auto& i : m_components)
     {
         if (typeid(*i) == ti)
-            return static_ref_cast<T>(i->getReference());
+            return static_cast<T*>(i.get());
     }
 
-    return WeakReference<T>();
+    return nullptr;
+}
+
+template<typename T>
+const T* Object::getComponent() const
+{
+    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_components)
+    {
+        if (typeid(*i) == ti)
+            return static_cast<const T*>(i.get());
+    }
+
+    return nullptr;
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-WeakReference<T> Object::createComponent(Args&&... args)
+T& Object::createComponent(Args&&... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
     
     m_components.emplace_back(std::make_unique<T>(*this, std::forward<Args>(args)...));
-    return static_ref_cast<T>(m_components.back()->getReference());
+    return static_cast<T&>(*m_components.back());
 }

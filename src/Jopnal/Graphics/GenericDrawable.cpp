@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>("", scene.getRenderer()), scene, val);
+        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(scene.getRenderer()), scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
 
@@ -42,8 +42,12 @@ namespace jop
 
 namespace jop
 {
-    GenericDrawable::GenericDrawable(Object& object, const std::string& ID, Renderer& renderer)
-        : Drawable(object, ID, renderer)
+    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
+        : Drawable(object, "genericdrawable", renderer)
+    {}
+
+    GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)
+        : Drawable(other, newObj)
     {}
 
     //////////////////////////////////////////////
@@ -71,7 +75,7 @@ namespace jop
 
         if (!mod.getMaterial().expired())
         {
-            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Phong))
+            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Lighting))
             {
                 s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);

@@ -99,9 +99,9 @@ namespace jope
             makeCurrent();
 
             if (jop::Engine::hasCurrentScene())
-                jop::Engine::getCurrentScene().updateTransformTree();
+                jop::Engine::getCurrentScene().updateTransformTree(nullptr, false);
 
-            jop::Engine::getSharedScene().updateTransformTree();
+            jop::Engine::getSharedScene().updateTransformTree(nullptr, false);
 
             RECT r;
             GetClientRect(hwnd, &r);

@@ -139,6 +139,9 @@ namespace jop
 
                     drawable->draw(*cam, lights);
                 }
+
+                if (m_physicsWorld)
+                    m_physicsWorld->draw(*cam);
             }
         }
     }

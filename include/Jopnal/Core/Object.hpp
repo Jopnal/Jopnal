@@ -24,7 +24,6 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 
@@ -33,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API Object : public Transform, public Activateable, public SafeReferenceable<Object>
+    class JOP_API Object : public Transform, public SafeReferenceable<Object>
     {
     private:
 
@@ -42,10 +41,6 @@ namespace jop
         friend class StateLoader;
 
     public:
-
-        /// \brief Default constructor
-        ///
-        Object();
 
         /// \brief Constructor
         ///
@@ -56,6 +51,10 @@ namespace jop
         /// \brief Copy constructor
         ///
         Object(const Object& other, const std::string& newName);
+
+        ///
+        ///
+        Object(const Object& other, const std::string& newName, const Transform& newTransform);
 
         /// \brief Move constructor
         ///
@@ -72,23 +71,28 @@ namespace jop
         ///
         /// \return Weak reference with the component, empty if the component wasn't found
         ///
-        WeakReference<Component> getComponent(const std::string& ID);
+        Component* getComponent(const std::string& ID);
 
-        const std::vector<std::unique_ptr<Component>>& getCmponents() const;
+        const Component* getComponent(const std::string& ID) const;
+
+        const std::vector<std::unique_ptr<Component>>& getComponents() const;
 
         /// \brief Get a component using type info
         ///
         /// \return Pointer to the component. Empty if not found
         ///
         template<typename T>
-        WeakReference<T> getComponent();
+        T* getComponent();
+
+        template<typename T>
+        const T* getComponent() const;
 
         /// \brief Template function to create components
         ///
         /// \param args User determined arguments
         ///
         template<typename T, typename ... Args>
-        WeakReference<T> createComponent(Args&&... args);
+        T& createComponent(Args&&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -96,9 +100,12 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        void clearComponents();
+
         /// \brief Get amount of components
         ///
         unsigned int componentCount() const;
+
 
         /// \brief Create a new child
         ///
@@ -130,6 +137,8 @@ namespace jop
         ///
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
+        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
+
 
 
         /// \brief Remove children with the given id
@@ -152,6 +161,11 @@ namespace jop
         /// and return the total amount of children
         ///
         unsigned int childCountRecursive() const;
+
+
+        void setIgnoreParent(const bool ignore);
+
+        bool ignoresParent() const;
 
 
         /// \brief Method to send messages
@@ -178,6 +192,11 @@ namespace jop
         Message::Result sendMessage(const Message& message);
 
 
+        void setActive(const bool active);
+
+        bool isActive() const;
+
+
         /// \brief Method for getting m_ID
         ///
         const std::string& getID() const;
@@ -192,13 +211,7 @@ namespace jop
         ///
         /// \param deltaTime Double holding delta time
         ///
-        void update(const float deltaTime); 
-
-        /// \brief Fixed Update method for object - forwarded for its components
-        ///
-        /// \param timeStep Double holding time step
-        ///
-        void fixedUpdate(const float timeStep);
+        void update(const float deltaTime);
 
         /// \brief Update the transformation tree
         ///
@@ -211,6 +224,9 @@ namespace jop
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
+        WeakReference<Object> m_parent;
+        bool m_ignoreParent;
+        bool m_active;
     };
 
     // Include the template implementation file

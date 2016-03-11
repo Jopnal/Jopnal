@@ -35,23 +35,21 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component : public SafeReferenceable<Component>
+    class JOP_API Component
     {
     private:
 
-        JOP_DISALLOW_MOVE(Component);
-
-        void operator =(const Component&) = delete;
+        JOP_DISALLOW_COPY_MOVE(Component);
 
         friend class Object;
 
-        virtual Component* clone() const = 0;
+        virtual Component* clone(Object& newObj) const = 0;
 
     protected:
 
         /// \brief Copy constructor
         ///
-        Component(const Component& other);
+        Component(const Component& other, Object& newObj);
 
     public:
 
@@ -92,12 +90,6 @@ namespace jop
         ///
         virtual void update(const float deltaTime);
 
-        /// \brief Fixed update function for component
-        ///
-        /// \param timeStep Double holding time step
-        ///
-        virtual void fixedUpdate(const float timeStep);
-
         /// \brief Function to get components unique identifier m_ID
         ///
         const std::string& getID() const;
@@ -125,6 +117,8 @@ namespace jop
         bool isActive() const;
         
     private:
+
+        virtual void setActive(const bool active);
 
         /// \brief Virtual sendMessage
         ///

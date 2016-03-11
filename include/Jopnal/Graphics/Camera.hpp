@@ -38,11 +38,10 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_MOVE(Camera);
+        Camera(const Camera& other, Object& newObj);
 
-        void operator =(const Camera&) = delete;
-
-        JOP_GENERIC_CLONE(Camera);
+        JOP_DISALLOW_COPY_MOVE(Camera);
+        JOP_GENERIC_COMPONENT_CLONE(Camera);
 
     public:
 
@@ -80,11 +79,7 @@ namespace jop
         /// \param object The object this camera will be bound to
         /// \param mode The initial projection mode
         ///
-        Camera(Object& object, const std::string& ID, Renderer& renderer, const Projection mode);
-
-        /// \brief Copy constructor
-        ///
-        Camera(const Camera& other);
+        Camera(Object& object, Renderer& renderer, const Projection mode);
 
         ~Camera() override;
 

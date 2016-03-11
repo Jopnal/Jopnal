@@ -20,7 +20,12 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/PhysicsWorld.hpp>
+#include <Jopnal/Physics/World.hpp>
+#include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/Physics/RigidBody.hpp>
+#include <Jopnal/Physics/Shape/BoxShape.hpp>
+#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
 
 //////////////////////////////////////////////
 

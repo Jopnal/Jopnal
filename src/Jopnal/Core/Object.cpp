@@ -43,7 +43,7 @@ namespace jop
         // Object
         JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND(&Object::cloneChild, "cloneChild");
+        JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
@@ -53,38 +53,28 @@ namespace jop
 
 namespace jop
 {
-    Object::Object()
-        : Transform                 (),
-          Activateable              (true),
-          SafeReferenceable<Object> (this),
-          m_children                (),
-          m_components              (),
-          m_ID                      ()
-    {}
-
     Object::Object(const std::string& ID)
         : Transform                 (),
-          Activateable              (true),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (ID)
+          m_ID                      (ID),
+          m_ignoreParent            (false),
+          m_active                  (true)
     {}
 
     Object::Object(const Object& other, const std::string& newName)
         : Transform                 (other),
-          Activateable              (other.isActive()),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (newName)
+          m_ID                      (newName),
+          m_ignoreParent            (other.m_ignoreParent),
+          m_active                  (other.m_active)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
-        {
-            m_components.emplace_back(std::unique_ptr<Component>(i->clone()));
-            m_components.back()->m_objectRef = getReference();
-        }
+            m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
@@ -93,12 +83,31 @@ namespace jop
 
     Object::Object(Object&& other)
         : Transform                 (other),
-          Activateable              (other.isActive()),
           SafeReferenceable<Object> (std::move(other)),
           m_children                (std::move(other.m_children)),
           m_components              (std::move(other.m_components)),
-          m_ID                      (std::move(other.m_ID))
+          m_ID                      (std::move(other.m_ID)),
+          m_ignoreParent            (other.m_ignoreParent),
+          m_active                  (other.m_active)
     {}
+
+    Object::Object(const Object& other, const std::string& newName, const Transform& newTransform)
+        : Transform                 (newTransform),
+          SafeReferenceable<Object> (this),
+          m_children                (),
+          m_components              (),
+          m_ID                      (newName),
+          m_ignoreParent            (other.m_ignoreParent),
+          m_active                  (other.m_active)
+    {
+        m_components.reserve(other.m_components.size());
+        for (auto& i : other.m_components)
+            m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
+
+        m_children.reserve(other.m_children.size());
+        for (auto& i : other.m_children)
+            m_children.emplace_back(i, i.getID());
+    }
 
     Object& Object::operator=(Object&& other)
     {
@@ -108,28 +117,39 @@ namespace jop
         m_children      = std::move(other.m_children);
         m_components    = std::move(other.m_components);
         m_ID            = std::move(other.m_ID);
-
-        setActive(other.isActive());
+        m_ignoreParent  = other.m_ignoreParent;
+        m_active        = other.m_active;
 
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Component> Object::getComponent(const std::string& ID)
+    Component* Object::getComponent(const std::string& ID)
     {
         for (auto& i : m_components)
         {
             if (i->getID() == ID)
-                return i->getReference();
+                return i.get();
         }
 
-        return WeakReference<Component>();
+        return nullptr;
+    }
+
+    const Component* Object::getComponent(const std::string& ID) const
+    {
+        for (auto& i : m_components)
+        {
+            if (i->getID() == ID)
+                return i.get();
+        }
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////
 
-    const std::vector<std::unique_ptr<Component>>& Object::getCmponents() const
+    const std::vector<std::unique_ptr<Component>>& Object::getComponents() const
     {
         return m_components;
     }
@@ -143,6 +163,13 @@ namespace jop
             return comp->getID() == ID;
 
         }), m_components.end());
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::clearComponents()
+    {
+        m_components.clear();
     }
 
     //////////////////////////////////////////////
@@ -188,7 +215,26 @@ namespace jop
 
         if (!ptr.expired())
         {
+            m_children.reserve(m_children.size() + 2);
+
             m_children.emplace_back(*ptr, clonedID);
+            return m_children.back().getReference();
+        }
+
+        return WeakReference<Object>();
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform)
+    {
+        auto ptr = getChild(ID);
+
+        if (!ptr.expired())
+        {
+            m_children.reserve(m_children.size() + 2);
+
+            m_children.emplace_back(*ptr, clonedID, newTransform);
             return m_children.back().getReference();
         }
 
@@ -230,6 +276,20 @@ namespace jop
             count += i.childCountRecursive();
 
         return count;
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::setIgnoreParent(const bool ignore)
+    {
+        m_ignoreParent = ignore;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::ignoresParent() const
+    {
+        return m_ignoreParent;
     }
 
     //////////////////////////////////////////////
@@ -280,6 +340,29 @@ namespace jop
         return Message::Result::Continue;
     }
 
+    //////////////////////////////////////////////
+
+    void Object::setActive(const bool active)
+    {
+        if (active != m_active)
+        {
+            m_active = active;
+
+            for (auto& i : m_components)
+                i->setActive(active);
+
+            for (auto& i : m_children)
+                i.setActive(active);
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::isActive() const
+    {
+        return m_active;
+    }
+
     /////////////////////////////////////////////
 
     void Object::update(const float deltaTime)
@@ -291,20 +374,6 @@ namespace jop
 
             for (auto& i : m_children)
                 i.update(deltaTime);
-        }
-    }
-
-    /////////////////////////////////////////////
-
-    void Object::fixedUpdate(const float timeStep)
-    {
-        if (isActive())
-        {
-            for (auto& i : m_components)
-                i->fixedUpdate(timeStep);
-
-            for (auto& i : m_children)
-                i.fixedUpdate(timeStep);
         }
     }
 
@@ -329,7 +398,7 @@ namespace jop
         if (isActive())
             return;
 
-        if (parent)
+        if (parent && !ignoresParent())
         {
             if (m_transformNeedUpdate || ((m_transformNeedUpdate = parentUpdated) == true))
             {

@@ -24,7 +24,6 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
@@ -35,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Subsystem : public Activateable, public SafeReferenceable<Subsystem>
+    class JOP_API Subsystem : public SafeReferenceable<Subsystem>
     {
     private:
 
@@ -61,22 +60,6 @@ namespace jop
         /// \param deltaTime Delta time
         ///
         virtual void preUpdate(const float deltaTime);
-
-        /// \brief Pre-fixed update
-        ///
-        /// This will be called before the engine calls the scene's fixedUpdate.
-        ///
-        /// \param timeStep Time step
-        ///
-        virtual void preFixedUpdate(const float timeStep);
-
-        /// \brief Post-fixed update
-        ///
-        /// This will be called after the engine calls the scene's fixedUpdate.
-        ///
-        /// \param timeStep Time step
-        ///
-        virtual void postFixedUpdate(const float timeStep);
 
         /// \brief Post-update
         ///
@@ -112,6 +95,12 @@ namespace jop
         /// \param message The message
         ///
         Message::Result sendMessage(const Message& message);
+
+
+        void setActive(const bool active);
+
+
+        bool isActive() const;
 
 
         /// \brief Set the name

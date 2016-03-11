@@ -51,5 +51,11 @@
     <None Include="Resources\Shaders\depthRecordPoint.geom">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\physicsDebug.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\physicsDebug.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

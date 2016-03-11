@@ -145,8 +145,8 @@ namespace jop
     Mesh::Mesh(const std::string& name)
         : Resource          (name),
           m_options         (DefaultOptions),
-          m_vertexbuffer    (Buffer::BufferType::ArrayBuffer),
-          m_indexbuffer     (Buffer::BufferType::ElementArrayBuffer)
+          m_vertexbuffer    (Buffer::Type::ArrayBuffer),
+          m_indexbuffer     (Buffer::Type::ElementArrayBuffer)
     {}
 
     //////////////////////////////////////////////

@@ -27,15 +27,11 @@
 
 namespace jop
 {
-    JOP_REGISTER_COMMAND_HANDLER(Scene)
-
-        JOP_BIND_MEMBER_COMMAND(&Scene::cloneObject, "cloneObject");
-        JOP_BIND_MEMBER_COMMAND(&Scene::deleteObject, "deleteObject");
-        JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
-        JOP_BIND_MEMBER_COMMAND(&Scene::setActive, "setActive");
-        JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
-
+    #pragma warning(push)
+    #pragma warning(disable: 4189)
+    JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
     JOP_END_COMMAND_HANDLER(Scene)
+    #pragma warning(pop)
 
     JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
     {
@@ -62,84 +58,16 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : Activateable  (true),
+        : Object        (ID),
           m_renderer    (std::make_unique<Renderer>()),
-          m_objects     (),
-          m_ID          (ID)
+          m_world       (*m_renderer)
     {}
 
     Scene::~Scene()
-    {}
-
-    //////////////////////////////////////////////
-
-    WeakReference<Object> Scene::getObject(const std::string& ID)
     {
-        for (auto& i : m_objects)
-        {
-            if (i.getID() == ID)
-                return i.getReference();
-        }
-
-        return WeakReference<Object>();
-    }
-
-    //////////////////////////////////////////////
-
-    const std::vector<Object>& Scene::getObjects() const
-    {
-        return m_objects;
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Object> Scene::createObject(const std::string& ID)
-    {
-        m_objects.emplace_back(ID);
-        return m_objects.back().getReference();
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Object> Scene::cloneObject(const std::string& ID, const std::string& clonedID)
-    {
-        auto ptr = getObject(ID);
-
-        if (!ptr.expired())
-        {
-            m_objects.push_back(Object(*ptr, clonedID));
-            return m_objects.back().getReference();
-        }
-
-        return WeakReference<Object>();
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::deleteObject(const std::string& ID)
-    {
-        for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
-        {
-            if (itr->getID() == ID)
-            {
-                m_objects.erase(itr);
-                return;
-            }
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::clearObjects()
-    {
-        m_objects.clear();
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Scene::objectCount() const
-    {
-        return m_objects.size();
+        // Objects need to be deinitialized before the renderer and world
+        Object::clearComponents();
+        Object::clearChildren();
     }
 
     //////////////////////////////////////////////
@@ -151,16 +79,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::setID(const std::string& ID)
+    World& Scene::getWorld() const
     {
-        m_ID = ID;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::string& Scene::getID() const
-    {
-        return m_ID;
+        return m_world;
     }
 
     //////////////////////////////////////////////
@@ -188,7 +109,7 @@ namespace jop
             if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
             {
                 Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
 
@@ -199,14 +120,8 @@ namespace jop
         static const unsigned short objectField = Message::Object |
                                                   Message::Component;
 
-        if (message.passFilter(objectField))
-        {
-            for (auto& i : m_objects)
-            {
-                if (i.sendMessage(message) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-        }
+        if (message.passFilter(objectField) && Object::sendMessage(message) == Message::Result::Escape)
+            return Message::Result::Escape;
 
         return Message::Result::Continue;
     }
@@ -219,36 +134,11 @@ namespace jop
         {
             preUpdate(deltaTime);
 
-            for (auto& i : m_objects)
-            {
-                i.update(deltaTime);
-                i.updateTransformTree(nullptr, false);
-            }
+            Object::update(deltaTime);
+            m_world.update(deltaTime);
+            Object::updateTransformTree(nullptr, false);
 
             postUpdate(deltaTime);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::updateTransformTree()
-    {
-        for (auto& i : m_objects)
-            i.updateTransformTree(nullptr, false);
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::fixedUpdateBase(const float timeStep)
-    {
-        if (isActive())
-        {
-            preFixedUpdate(timeStep);
-
-            for (auto& i : m_objects)
-                i.fixedUpdate(timeStep);
-
-            postFixedUpdate(timeStep);
         }
     }
 
@@ -268,27 +158,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::initialize()
-    {}
-
-    //////////////////////////////////////////////
-
     void Scene::preUpdate(const float)
     {}
 
     //////////////////////////////////////////////
 
     void Scene::postUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::preFixedUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////

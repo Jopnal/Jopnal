@@ -335,9 +335,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
+    bool StateLoader::loadObjects(std::unique_ptr<Scene>& /*scene*/, const json::Value& /*data*/, const std::string& /*path*/)
     {
-        for (auto& i : data)
+        /*for (auto& i : data)
         {
             if (!i.IsObject())
                 continue;
@@ -350,7 +350,7 @@ namespace jop
                 JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
                 return false;
             }
-        }
+        }*/
 
         return true;
     }
@@ -469,14 +469,14 @@ namespace jop
         if (std::get<SaveID>(itr->second)(scene, data.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
         {
             // Attempt to save objects
-            if (!scene.m_objects.empty())
+            /*if (!scene.m_objects.empty())
             {
                 if (!saveObjects(scene, data.AddMember(json::StringRef(ns_objectField), json::kArrayType, alloc)[ns_objectField], alloc, path))
                 {
                     JOP_DEBUG_ERROR("Couldn't save scene, an object failed to save: " << path);
                     return false;
                 }
-            }
+            }*/
         }
         else
         {
@@ -489,9 +489,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    bool StateLoader::saveObjects(const Scene& /*scene*/, json::Value& /*data*/, json::Value::AllocatorType& /*alloc*/, const std::string& /*path*/)
     {
-        for (auto& i : scene.m_objects)
+        /*for (auto& i : scene.m_objects)
         {
             data.PushBack(json::kObjectType, alloc);
             auto& obj = data[data.Size() - 1u];
@@ -503,7 +503,7 @@ namespace jop
                 JOP_DEBUG_ERROR("Failed to save object with id \"" << i.getID() << "\": " << path);
                 return false;
             }
-        }
+        }*/
 
         return true;
     }

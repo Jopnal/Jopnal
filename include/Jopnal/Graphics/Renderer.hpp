@@ -31,6 +31,8 @@
 
 namespace jop
 {
+    class World;
+
     class JOP_API Renderer
     {
     private:
@@ -41,6 +43,7 @@ namespace jop
         friend class Camera;
         friend class LightSource;
         friend class Scene;
+        friend class World;
 
     public:
 
@@ -78,6 +81,7 @@ namespace jop
         std::set<const Camera*> m_cameras;
         std::set<const Drawable*> m_drawables;
         uint32 m_mask;
+        World* m_physicsWorld;
 
     };
 }

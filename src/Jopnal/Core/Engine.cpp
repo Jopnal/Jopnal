@@ -112,9 +112,6 @@ namespace jop
         if (!eng.m_currentScene)
             JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
-        const float timeStep = 1.0f / SettingManager::getUint("uFixedUpdateFrequency", 30);
-        float accumulator = 0.0;
-
         Clock frameClock;
 
         while (eng.m_running)
@@ -125,37 +122,6 @@ namespace jop
             eng.m_totalTime += frameTime;
 
             bool advance = !isPaused() || eng.m_advance;
-
-            // Fixed update
-            {
-                accumulator += advance * frameTime;
-
-                while (accumulator >= timeStep)
-                {
-                    for (auto& i : eng.m_subsystems)
-                    {
-                        if (i->isActive())
-                            i->preFixedUpdate(timeStep);
-                    }
-
-                    if (advance)
-                    {
-                        if (eng.m_currentScene)
-                            eng.m_currentScene->fixedUpdateBase(timeStep);
-
-                        if (eng.m_sharedScene)
-                            eng.m_sharedScene->fixedUpdateBase(timeStep);
-                    }
-
-                    for (auto& i : eng.m_subsystems)
-                    {
-                        if (i->isActive())
-                            i->postFixedUpdate(timeStep);
-                    }
-
-                    accumulator -= timeStep;
-                }
-            }
 
             // Update
             {

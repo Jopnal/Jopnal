@@ -95,7 +95,7 @@ namespace jop
         const float half = (invert ? -0.5f : 0.5f) * size;
         const float norm = /*invert ? -1.f : */1.f;
 
-        const std::vector<Vertex> vertexArray
+        const std::vector<Vertex> vertices
         ({
             // Front
             Vertex(glm::vec3(-half, -half,  half), glm::vec2(0.f, 0.f), glm::vec3( 0.f,  0.f,  norm )), // 0, Left, Bottom, Front   
@@ -160,7 +160,7 @@ namespace jop
             22, 21, 23
         });
 
-        return Mesh::load(vertexArray, indices);
+        return Mesh::load(vertices, indices);
     }
 
     //////////////////////////////////////////////
