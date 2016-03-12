@@ -23,27 +23,3 @@
 #include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
-
-
-namespace jop
-{
-    InfinitePlaneShape::InfinitePlaneShape(const std::string& name)
-        : CollisionShape(name)
-    {}
-
-    InfinitePlaneShape::InfinitePlaneShape(const std::string& name, const glm::vec3& normal)
-        : CollisionShape(name)
-    {
-        load(normal);
-    }
-
-    //////////////////////////////////////////////
-
-    bool InfinitePlaneShape::load(const glm::vec3& normal)
-    {
-        m_shape = std::make_unique<btStaticPlaneShape>(btVector3(normal.x, normal.y, normal.z), 0.f);
-        m_shape->setUserPointer(this);
-        
-        return true;
-    }
-}

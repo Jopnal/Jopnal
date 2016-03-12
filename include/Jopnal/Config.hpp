@@ -39,10 +39,12 @@
 #endif
 
 // Console
-#ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 2
-#else
-    #define JOP_CONSOLE_VERBOSITY 0
+#ifndef JOP_CONSOLE_VERBOSITY
+    #ifdef JOP_DEBUG_MODE
+        #define JOP_CONSOLE_VERBOSITY 2
+    #else
+        #define JOP_CONSOLE_VERBOSITY 0
+    #endif
 #endif
 
 // Asserts

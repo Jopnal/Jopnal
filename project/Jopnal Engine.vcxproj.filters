@@ -321,6 +321,9 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\InfinitePlaneShape.hpp">
       <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -493,6 +496,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\InfinitePlaneShape.cpp">
       <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp">
+      <Filter>Physics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

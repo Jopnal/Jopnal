@@ -37,10 +37,10 @@ namespace jop
 
         InfinitePlaneShape(const std::string& name);
 
-        InfinitePlaneShape(const std::string& name, const float y);
+        InfinitePlaneShape(const std::string& name, const glm::vec3& normal);
 
 
-        bool load(const float y);
+        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
 
     };
 }

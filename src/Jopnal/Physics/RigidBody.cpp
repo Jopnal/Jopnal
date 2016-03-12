@@ -30,7 +30,7 @@ namespace jop
     RigidBody::RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type, const float mass, const int16 group, const int16 mask)
         : Collider  (object, world, "rigidbody"),
           m_type    (type),
-          m_mass    (type == Type::Static ? 0.f : mass)
+          m_mass    (type == Type::Dynamic ? mass : 0.f)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (type == Type::Dynamic)
@@ -46,6 +46,7 @@ namespace jop
         rb->setUserPointer(this);
         m_body = std::move(rb);
 
+        object.setIgnoreParent(true);
         setActive(isActive());
     }
 
@@ -66,6 +67,7 @@ namespace jop
         rb->setUserPointer(this);
         m_body = std::move(rb);
 
+        newObj.setIgnoreParent(true);
         setActive(isActive());
     }
 
