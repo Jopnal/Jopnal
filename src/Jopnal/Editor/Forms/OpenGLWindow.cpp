@@ -42,7 +42,7 @@ namespace
 namespace jope
 {
     OpenGLWindow::OpenGLWindow(nana::window parent)
-        : nana::nested_form (parent),
+        : nana::nested_form (parent, ns_oglAppearance),
           m_context         (nullptr)
     {
         HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
@@ -50,6 +50,10 @@ namespace jope
         LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
         SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_CHILD | WS_CLIPSIBLINGS);
 
+        // Disable the close button
+        EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_GRAYED);
+
+        this->caption("Preview");
         this->z_order(nullptr, nana::z_order_action::bottom);
 
         // Create context
@@ -126,9 +130,6 @@ namespace jope
             SwapBuffers(GetDC(hwnd));
             gl::Flush();
         });
-
-        // Disable the close button
-        EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_GRAYED);
 
         // Add the updater sub system
         jop::Engine::createSubsystem<jope::WindowUpdater>(*this);

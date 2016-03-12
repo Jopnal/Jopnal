@@ -67,3 +67,5 @@
 #include <Jopnal/Editor/WindowUpdater.hpp>
 #include <Jopnal/Editor/Forms/OpenGLWindow.hpp>
 #include <Jopnal/Editor/Command.hpp>
+#include <Jopnal/Editor/Forms/PropertyWindow.hpp>
+#include <Jopnal/Editor/Forms/ToolWindow.hpp>

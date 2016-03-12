@@ -23,3 +23,41 @@
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
+
+
+namespace
+{
+    static const nana::appearance ns_toolAppearance
+    (
+        /* Decoration  */ false,
+        /* Task bar    */ true,
+        /* Floating    */ false,
+        /* No activate */ false,
+        /* Minimize    */ false,
+        /* Maximize    */ false,
+        /* Resizeable  */ false
+    );
+}
+
+namespace jope
+{
+    ToolWindow::ToolWindow(nana::window parent, const nana::color color)
+        : nana::nested_form(parent, ns_toolAppearance),
+          m_layout(*this),
+          m_toolBoxes()
+    {
+        {
+            HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
+
+            LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
+            SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_CHILD | WS_CLIPSIBLINGS);
+
+            // Disable the close button
+            EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_GRAYED);
+        }
+
+        this->caption("Tools");
+        this->z_order(nullptr, nana::z_order_action::top);
+        this->bgcolor(color);
+    }
+}

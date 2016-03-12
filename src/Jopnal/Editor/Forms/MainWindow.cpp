@@ -39,6 +39,8 @@ namespace
         /* Maximize    */ true,
         /* Resizeable  */ true
     );
+
+    static const nana::color ns_commonColor(nana::color_rgb(0x222222));
 }
 
 namespace jope
@@ -47,25 +49,39 @@ namespace jope
         : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
           m_layout(*this),
           m_oglWindow(*this),
-          m_objWindow(*this)
+          m_objWindow(*this),
+          m_toolWindow(*this, ns_commonColor),
+          m_propertyWindow(*this, ns_commonColor)
     {
         this->caption("Jopnal Editor");
-        this->bgcolor(nana::color(nana::color_rgb(0x222222)));
+        this->bgcolor(ns_commonColor);
         
         this->events().unload([]
         {
             jop::Engine::exit();
         });
+        this->events().shortkey([](nana::arg_keyboard arg)
+        {
+            if (arg.ctrl && arg.key == L'Z')
+                CommandBuffer::undoLast();
+        });
+        nana::API::register_shortkey(*this, L'Z');
         
-        m_layout.div("<obj weight=10% margin=[0,0,48]><ogl margin=[0, 18, 48, 20]>");
+        // margin=[top,right,bottom,left]
+
+        m_layout.div("<vertical <tool weight=14%><<obj weight=10% margin=[0,0,40,2]><ogl margin=[0,18,40,18]><prop weight=18% margin=[0,18,40]>>>");
+        m_layout.field("tool") << m_toolWindow;
         m_layout.field("obj") << m_objWindow;
         m_layout.field("ogl") << m_oglWindow;
+        m_layout.field("prop") << m_propertyWindow;
         
         // Keep last
         this->zoom(true);
         this->show();
 
+        m_toolWindow.show();
         m_oglWindow.show();
         m_objWindow.show();
+        m_propertyWindow.show();
     }
 }

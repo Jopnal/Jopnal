@@ -27,6 +27,8 @@
 #include <nana/gui/widgets/toolbar.hpp>
 #include <Jopnal/Editor/Forms/ObjectWindow.hpp>
 #include <Jopnal/Editor/Forms/OpenGLWindow.hpp>
+#include <Jopnal/Editor/Forms/ToolWindow.hpp>
+#include <Jopnal/Editor/Forms/PropertyWindow.hpp>
 
 //////////////////////////////////////////////
 
@@ -44,6 +46,8 @@ namespace jope
         nana::place m_layout;
         ObjectWindow m_objWindow;
         OpenGLWindow m_oglWindow;
+        ToolWindow m_toolWindow;
+        PropertyWindow m_propertyWindow;
 
     };
 }

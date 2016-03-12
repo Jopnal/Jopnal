@@ -74,6 +74,20 @@ namespace jope
         jop::WeakReference<jop::Object>& m_ref;
 
     };
+
+    //////////////////////////////////////////////
+
+    struct RemoveObjectCommand : Command
+    {
+        RemoveObjectCommand();
+
+    private:
+
+        void execute() override;
+        void undo() override;
+
+
+    };
 }
 
 #endif

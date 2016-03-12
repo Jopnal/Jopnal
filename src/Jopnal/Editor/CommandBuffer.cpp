@@ -85,9 +85,12 @@ namespace jope
     {
         std::lock_guard<std::mutex> lock(m_instance->m_mutex);
 
+        if (m_instance->m_commands.empty())
+            return;
+
         auto& itr = m_instance->m_currentDepth;
 
-        while (itr != m_instance->m_commands.begin())
+        if (itr != m_instance->m_commands.begin())
             (itr--)->get()->undo();
     }
 

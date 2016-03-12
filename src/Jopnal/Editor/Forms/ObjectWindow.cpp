@@ -23,7 +23,7 @@
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
-#include <nana/gui/widgets/listbox.hpp>
+
 
 namespace
 {
@@ -48,12 +48,12 @@ namespace
 namespace jope
 {
     ObjectWindow::ObjectWindow(nana::window parent)
-        : nana::nested_form(parent, nana::rectangle(10, 200, 200, 600), ns_objWindowAppearance),
+        : nana::nested_form(parent, ns_objWindowAppearance),
+          m_layout(*this),
           m_newObjButton(*this, true),
           m_delObjButton(*this, true),
           m_objTree(*this, true),
-          m_layout(*this),
-          m_rootObjects(0)
+          m_sceneItem(m_objTree.insert("Scene", "Scene"))
     {
         HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
 
@@ -62,33 +62,58 @@ namespace jope
 
         this->z_order(nullptr, nana::z_order_action::top);
         this->bgcolor(nana::colors::white);
+        this->caption("Object Browser");
+
+        m_objTree.bgcolor(this->bgcolor());
         
         m_newObjButton.caption("New");
-        m_newObjButton.events().click([this](nana::arg_click a)
+        m_newObjButton.events().click([this](nana::arg_click arg)
         {
-            if (!a.mouse_args->is_left_button() || !jop::Engine::hasCurrentScene())
+            if (!arg.mouse_args->is_left_button() || !jop::Engine::hasCurrentScene())
                 return;
 
             typedef jop::WeakReference<jop::Object> ObjRef;
-            const char* const emptyStr = "Empty Object";
+
+            auto countSubnodes = [](nana::treebox::item_proxy item) -> std::size_t
+            {
+                std::size_t num = 0;
+                for (auto& i : item)
+                {
+                    i;
+                    ++num;
+                }
+
+                return num;
+            };
 
             if (m_objTree.selected().empty())
+                m_sceneItem.select(true);
+
+            if (m_objTree.selected() == m_sceneItem)
             {
-                auto& newItem = m_objTree.insert(std::to_string(m_rootObjects++), emptyStr).value(ObjRef());
-                CommandBuffer::pushCommand(new CreateObjectCommand(ObjRef(), newItem.value<ObjRef>(), emptyStr));
+                const std::string name("Object " + std::to_string(countSubnodes(m_sceneItem)));
+
+                auto newItem = m_sceneItem.append(std::to_string(countSubnodes(m_sceneItem)), name, ObjRef());
+                m_sceneItem.expand(true);
+
+                CommandBuffer::pushCommand(new CreateObjectCommand(ObjRef(), newItem.value<ObjRef>(), name));
             }
             else
             {
-                auto parent = m_objTree.selected().value<ObjRef>();
-                auto newItem = m_objTree.selected().append(std::to_string(m_objTree.selected().size() + 1), emptyStr, ObjRef());
+                const std::string name("Child " + std::to_string(countSubnodes(m_objTree.selected())));
 
-                CommandBuffer::pushCommand(new CreateObjectCommand(parent, newItem.value<ObjRef>(), emptyStr));
+                auto parent = m_objTree.selected().value<ObjRef>();
+                auto newItem = m_objTree.selected().append(std::to_string(countSubnodes(m_objTree.selected())), name, ObjRef());
+                m_objTree.selected().expand(true);
+
+                CommandBuffer::pushCommand(new CreateObjectCommand(parent, newItem.value<ObjRef>(), name));
             }
         });
 
         m_delObjButton.caption("Delete");
         
         // Fill the object tree
+        m_sceneItem.select(true);
         buildObjectTree();
 
         // Set the layout
@@ -105,11 +130,10 @@ namespace jope
 
     void ObjectWindow::buildObjectTree()
     {
-        
         if (jop::Engine::hasCurrentScene())
         {
             for (auto& i : jop::Engine::getCurrentScene().getChildren())
-                createObjTree(i, m_objTree.insert(i.getID(), i.getID()).value(&i));
+                createObjTree(i, m_sceneItem.append(i.getID(), i.getID()).value(&i));
         }
     }
 }

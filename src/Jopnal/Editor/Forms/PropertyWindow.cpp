@@ -23,3 +23,125 @@
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
+
+
+namespace
+{
+    static const nana::appearance ns_propertyAppearance
+    (
+        /* Decoration  */ true,
+        /* Task bar    */ true,
+        /* Floating    */ false,
+        /* No activate */ false,
+        /* Minimize    */ true,
+        /* Maximize    */ false,
+        /* Resizeable  */ true
+    );
+
+    void clearLayout(nana::place& layout, std::vector<std::unique_ptr<nana::group>>& comps)
+    {
+        for (auto& i : comps)
+            layout.erase(*i);
+
+        comps.clear();
+    }
+}
+
+namespace comp
+{
+    struct Scene : nana::group
+    {
+        Scene(nana::window parent, ::jop::Scene& scene)
+            : nana::group(parent, "Scene"),
+              m_scene(scene)
+        {
+            
+        }
+
+    private:
+
+        ::jop::Scene& m_scene;
+    };
+
+    //////////////////////////////////////////////
+
+    struct Object : nana::group
+    {
+        Object(nana::window parent, ::jop::Object& obj)
+            : nana::group(parent, "Object"),
+              m_obj(obj)
+        {
+
+
+        }
+
+    private:
+
+        jop::WeakReference<::jop::Object> m_obj;
+    };
+
+    //////////////////////////////////////////////
+
+    struct Transform : nana::group
+    {
+        Transform(nana::window parent, ::jop::Object& obj)
+            : nana::group(parent, "Transform"),
+              m_obj(obj)
+        {
+            
+        }
+
+    private:
+
+        jop::WeakReference<::jop::Object> m_obj;
+    };
+}
+
+namespace jope
+{
+    PropertyWindow::PropertyWindow(nana::window parent, const nana::color color)
+        : nana::nested_form(parent, ns_propertyAppearance),
+          m_layout(*this),
+          m_components()
+    {
+        {
+            HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
+
+            LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
+            SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_CHILD | WS_CLIPSIBLINGS);
+
+            // Disable the close button
+            EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_GRAYED);
+        }
+
+        this->caption("Properties");
+        this->z_order(nullptr, nana::z_order_action::top);
+        this->bgcolor(color);
+
+        // margin=[top,right,bottom,left]
+
+        m_layout.div("<vertical comps margin=[5,5,0,5]>");
+    }
+
+    //////////////////////////////////////////////
+
+    void PropertyWindow::updateComponents(jop::Object& obj)
+    {
+        clearLayout(m_layout, m_components);
+
+        m_components.emplace_back(std::make_unique<comp::Transform>(*this, obj));
+        m_layout.field("comps") << *m_components.back();
+
+
+    }
+
+    //////////////////////////////////////////////
+
+    void PropertyWindow::updateComponents(jop::Scene& scene)
+    {
+        clearLayout(m_layout, m_components);
+
+        m_components.emplace_back(std::make_unique<comp::Scene>(*this, scene));
+        m_layout.field("comps") << *m_components.back();
+    }
+}

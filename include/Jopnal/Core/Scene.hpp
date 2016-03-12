@@ -159,6 +159,8 @@ namespace jop
         ///
         virtual void postDraw();
 
+        Object& getAsObject();
+
     private:
 
         /// \brief Virtual sendMessage

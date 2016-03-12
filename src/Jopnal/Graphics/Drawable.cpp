@@ -44,7 +44,7 @@ namespace jop
           m_rendererRef     (renderer),
           m_renderGroup     (0),
           m_receiveLights   (true),
-          m_receiveShadows  (false),
+          m_receiveShadows  (true),
           m_castShadows     (true)
     {
         renderer.bind(*this);

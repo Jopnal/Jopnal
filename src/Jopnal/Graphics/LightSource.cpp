@@ -141,13 +141,18 @@ namespace jop
     }
 
     LightSource::LightSource(const LightSource& other, Object& newObj)
-        : Component     (other, newObj),
-          m_type        (other.m_type),
-          m_intensities (other.m_intensities),
-          m_attenuation (other.m_attenuation),
-          m_cutoff      (other.m_cutoff),
-          m_rendererRef (other.m_rendererRef)
+        : Component             (other, newObj),
+          m_lightSpaceMatrices  (),
+          m_type                (other.m_type),
+          m_intensities         (other.m_intensities),
+          m_attenuation         (other.m_attenuation),
+          m_cutoff              (other.m_cutoff),
+          m_rendererRef         (other.m_rendererRef),
+          m_renderMask          (other.m_renderMask),
+          m_shadowMap           (),
+          m_castShadows         (false)
     {
+        setCastShadows(other.m_castShadows);
         m_rendererRef.bind(*this);
     }
 

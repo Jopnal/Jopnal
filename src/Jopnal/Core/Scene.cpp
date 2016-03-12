@@ -178,6 +178,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Object& Scene::getAsObject()
+    {
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     Message::Result Scene::sendMessageImpl(const Message&)
     {
         return Message::Result::Continue;
