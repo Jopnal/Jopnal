@@ -25,6 +25,7 @@
 //////////////////////////////////////////////
 
 
+#ifdef JOP_DEBUG_MODE
 namespace detail
 {
     class DebugDrawer final : public btIDebugDraw
@@ -111,12 +112,22 @@ namespace detail
     };
 }
 
+    #define CREATE_DRAWER new ::detail::DebugDrawer
+
+#else
+    #define CREATE_DRAWER nullptr
+#endif
+
 namespace jop
 {
     World::World(Renderer& renderer)
-        : m_worldData(std::make_unique<detail::WorldImpl>(new ::detail::DebugDrawer))
+        : m_worldData(std::make_unique<detail::WorldImpl>(CREATE_DRAWER))
     {
+    #ifdef JOP_DEBUG_MODE
         renderer.m_physicsWorld = this;
+    #else
+        renderer;
+    #endif
 
         static const float gravity = SettingManager::getFloat("fDefaultWorldGravity", -9.81f);
 
@@ -142,6 +153,7 @@ namespace jop
 
     void World::draw(const Camera& camera)
     {
+    #ifdef JOP_DEBUG_MODE
         if (!m_worldData->world->getDebugDrawer()->getDebugMode())
             return;
 
@@ -150,19 +162,30 @@ namespace jop
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         m_worldData->world->debugDrawWorld();
         GlState::setDepthTest(true);
+    #else
+        camera;
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void World::setDebugMode(const bool enable)
     {
+    #ifdef JOP_DEBUG_MODE
         m_worldData->world->getDebugDrawer()->setDebugMode(enable ? btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE : btIDebugDraw::DBG_NoDebug);
+    #else
+        enable;
+    #endif
     }
 
     //////////////////////////////////////////////
 
     bool World::debugMode() const
     {
+    #ifdef JOP_DEBUG_MODE
         return m_worldData->world->getDebugDrawer()->getDebugMode() != btIDebugDraw::DBG_NoDebug;
+    #else
+        return false;
+    #endif
     }
 }

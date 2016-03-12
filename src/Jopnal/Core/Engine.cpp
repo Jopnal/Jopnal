@@ -322,6 +322,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Engine::hasSharedScene()
+    {
+        JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::hasSharedScene()!");
+        return m_engineObject->m_sharedScene.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
     double Engine::getTotalTime()
     {
         if (m_engineObject)

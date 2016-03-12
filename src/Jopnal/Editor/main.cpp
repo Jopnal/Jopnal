@@ -27,17 +27,19 @@
 
 int main(int argc, char* argv[])
 {
+
     jop::Engine e("Jopnal Editor", argc, argv);
     e.createSubsystem<jop::SettingManager>();
     e.createSubsystem<jop::FileLoader>(argv[0]);
     e.createSubsystem<jop::ResourceManager>();
     e.createSubsystem<jop::ShaderManager>();
+    e.createSubsystem<jope::CommandBuffer>();
     e.setPaused(true);
     e.setRenderingFrozen(true);
 
-    e.createScene<jop::Scene>("");
-
     jope::MainWindow form;
+
+    e.createScene<jop::Scene>("NewScene");
 
     std::thread t([]{JOP_MAIN_LOOP;});
     

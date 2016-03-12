@@ -34,13 +34,19 @@ namespace jop { namespace detail
           solver                (std::make_unique<btSequentialImpulseConstraintSolver>()),
           world                 (std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), overlappingPairCache.get(), solver.get(), config.get()))
     {
+    #ifdef JOP_DEBUG_MODE
         world->setDebugDrawer(debugDraw);
+    #else
+        debugDraw;
+    #endif
     }
 
     //////////////////////////////////////////////
 
     WorldImpl::~WorldImpl()
     {
+    #ifdef JOP_DEBUG_MODE
         delete world->getDebugDrawer();
+    #endif
     }
 }}

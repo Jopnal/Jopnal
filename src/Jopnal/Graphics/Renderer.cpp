@@ -101,17 +101,17 @@ namespace jop
 
     void Renderer::draw()
     {
+        // Dummy LightContainer to pass into drawables when no lights were selected
+        static const LightContainer dummyLightCont;
+
         // Render shadow maps
-        //GlState::setFaceCull(true, GlState::FaceCull::Front);
         for (auto light : m_lights)
         {
             if (!light->isActive() || (m_mask & light->getRenderMask()) == 0)
                 continue;
 
-            // TODO Optimize when no objects were drawn
-            /*if (*/light->drawShadowMap(m_drawables);
+            light->drawShadowMap(m_drawables);
         }
-        //GlState::setFaceCull(true);
 
         RenderTexture::unbind();
 
@@ -133,15 +133,21 @@ namespace jop
                     if (!drawable->isActive() || (i & groupBit) == 0 || (camMask & groupBit) == 0)
                         continue;
 
-                    // Select lights
-                    LightContainer lights;
-                    chooseLights(*drawable, lights);
-
-                    drawable->draw(*cam, lights);
+                    if (drawable->receiveLights())
+                    {
+                        // Select lights
+                        LightContainer lights;
+                        chooseLights(*drawable, lights);
+                        drawable->draw(*cam, lights);
+                    }
+                    else
+                        drawable->draw(*cam, dummyLightCont);
                 }
 
+            #ifdef JOP_DEBUG_MODE
                 if (m_physicsWorld)
                     m_physicsWorld->draw(*cam);
+            #endif
             }
         }
     }
@@ -154,7 +160,7 @@ namespace jop
         {
             auto& container = lights[l->getType()];
 
-            if (!l->isActive() || !drawable.receiveLights() || LightSource::getMaximumLights(l->getType()) <= container.size())
+            if (!l->isActive() || LightSource::getMaximumLights(l->getType()) <= container.size())
                 continue;
 
             const uint32 lightMask = l->getRenderMask();

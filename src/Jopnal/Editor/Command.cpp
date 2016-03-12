@@ -21,51 +21,36 @@
 
 // Headers
 #include <Jopnal/Editor/Precompiled/Precompiled.hpp>
-#include <nana/gui/widgets/button.hpp>
-#include <nana/gui/place.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace
-{
-    static const nana::appearance ns_mainAppearance
-    (
-        /* Decoration  */ true,  
-        /* Task bar    */ true,
-        /* Floating    */ false,
-        /* No activate */ false,
-        /* Minimize    */ true,
-        /* Maximize    */ true,
-        /* Resizeable  */ true
-    );
-}
-
 namespace jope
 {
-    MainWindow::MainWindow()
-        : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
-          m_layout(*this),
-          m_oglWindow(*this),
-          m_objWindow(*this)
-    {
-        this->caption("Jopnal Editor");
-        this->bgcolor(nana::color(nana::color_rgb(0x222222)));
-        
-        this->events().unload([]
-        {
-            jop::Engine::exit();
-        });
-        
-        m_layout.div("<obj weight=10% margin=[0,0,48]><ogl margin=[0, 18, 48, 20]>");
-        m_layout.field("obj") << m_objWindow;
-        m_layout.field("ogl") << m_oglWindow;
-        
-        // Keep last
-        this->zoom(true);
-        this->show();
+    Command::Command()
+    {}
 
-        m_oglWindow.show();
-        m_objWindow.show();
+    Command::~Command()
+    {}
+
+    //////////////////////////////////////////////
+
+    CreateObjectCommand::CreateObjectCommand(jop::WeakReference<jop::Object> parent, jop::WeakReference<jop::Object>& ref, const std::string& ID)
+        : m_id(ID),
+          m_parent(parent),
+          m_ref(ref)
+    {}
+
+    void CreateObjectCommand::execute()
+    {
+        if (m_parent.expired())
+            m_ref = jop::Engine::getCurrentScene().createChild(m_id);
+        else
+            m_ref = m_parent->createChild(m_id);
+    }
+
+    void CreateObjectCommand::undo()
+    {
+        
     }
 }

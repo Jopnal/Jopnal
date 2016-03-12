@@ -53,6 +53,15 @@
     <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\ToolWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Command.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\PropertyWindow.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Editor\Forms\MainWindow.hpp">
@@ -72,6 +81,15 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Editor\CommandBuffer.hpp">
       <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\ToolWindow.hpp">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Command.hpp">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\PropertyWindow.hpp">
+      <Filter>Header Files\Forms</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

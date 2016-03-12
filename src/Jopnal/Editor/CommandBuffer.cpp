@@ -51,9 +51,9 @@ namespace jope
         if (!lock.owns_lock())
             return;
 
-        const bool newCommands = !m_newCommands.empty();
+        bool newCommands = !m_newCommands.empty();
 
-        while (!newCommands)
+        while (newCommands)
         {
             m_commands.push_back(std::move(m_newCommands.front()));
             m_newCommands.pop();
@@ -62,6 +62,8 @@ namespace jope
                 m_commands.pop_front();
 
             m_commands.back()->execute();
+
+            newCommands = !m_newCommands.empty();
         }
 
         if (newCommands)
@@ -70,11 +72,11 @@ namespace jope
 
     //////////////////////////////////////////////
 
-    void CommandBuffer::pushCommand(const Command* const command)
+    void CommandBuffer::pushCommand(Command* const command)
     {
         std::lock_guard<std::mutex> lock(m_instance->m_mutex);
 
-        m_instance->m_newCommands.push(std::unique_ptr<const Command>(command));
+        m_instance->m_newCommands.push(std::unique_ptr<Command>(command));
     }
 
     //////////////////////////////////////////////

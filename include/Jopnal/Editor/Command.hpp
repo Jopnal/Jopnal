@@ -1,4 +1,4 @@
-// Jopnal Engine C++ Library
+// Jopnal Editor C++ Application
 // Copyright (c) 2016 Team Jopnal
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,39 +19,61 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CONFIG_HPP
-#define JOP_CONFIG_HPP
+#ifndef JOPE_COMMAND_HPP
+#define JOPE_COMMAND_HPP
+
+// Headers
+#include <Jopnal/Utility/SafeReferenceable.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
-// This file contains the configuration options for the engine compilation
 
-// OpenGL
-#define JOP_OPENGL_VERSION_MAJOR 3
-#define JOP_OPENGL_VERSION_MINOR 3
+namespace jop
+{
+    class Object;
+}
 
-// Define to enable gl error checks
-#define JOP_OPENGL_ERROR_CHECKS
+namespace jope
+{
+    class Command
+    {
+    private:
 
-// Debug
-#if defined(_DEBUG) && !defined(JOP_DEBUG_MODE)
-    #define JOP_DEBUG_MODE
-#endif
+        friend class CommandBuffer;
 
-// Console
-#ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 2
-#else
-    #define JOP_CONSOLE_VERBOSITY 0
-#endif
+    protected:
 
-// Asserts
-#define JOP_ENABLE_ASSERTS
+        Command();
 
-// Exceptions
-//#define JOP_ENABLE_EXCEPTIONS
+    public:
 
-// Dynamic build (.dll)
-//#define JOP_DYNAMIC
+        virtual ~Command() = 0;
+
+    private:
+
+        virtual void execute() = 0;
+
+        virtual void undo() = 0;
+
+    };
+
+    //////////////////////////////////////////////
+
+    struct CreateObjectCommand : Command
+    {
+        CreateObjectCommand(jop::WeakReference<jop::Object> parent, jop::WeakReference<jop::Object>& ref, const std::string& ID);
+
+    private:
+
+        void execute() override;
+        void undo() override;
+
+        std::string m_id;
+        jop::WeakReference<jop::Object> m_parent;
+        jop::WeakReference<jop::Object>& m_ref;
+
+    };
+}
 
 #endif

@@ -205,6 +205,8 @@ namespace jop
         ///
         static Scene& getSharedScene();
 
+        static bool hasSharedScene();
+
         /// \brief Set the shared scene
         ///
         /// This will replace the previous shared scene with a new one of the given type.

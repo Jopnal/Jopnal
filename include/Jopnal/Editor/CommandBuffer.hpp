@@ -39,7 +39,7 @@ namespace jope
     {
     private:
 
-        typedef std::deque<std::unique_ptr<const Command>> CommandQueue;
+        typedef std::deque<std::unique_ptr<Command>> CommandQueue;
 
     public:
 
@@ -50,7 +50,7 @@ namespace jope
         void preUpdate(const float deltaTime) override;
 
 
-        static void pushCommand(const Command* const command);
+        static void pushCommand(Command* const command);
 
         static void undoLast();
 
@@ -67,25 +67,8 @@ namespace jope
 
         std::mutex m_mutex;
         CommandQueue m_commands;
-        std::queue<std::unique_ptr<const Command>> m_newCommands;
+        std::queue<std::unique_ptr<Command>> m_newCommands;
         CommandQueue::iterator m_currentDepth;
-
-    };
-
-    class Command
-    {
-    protected:
-
-        Command();
-
-    public:
-
-        virtual ~Command() = 0;
-
-
-        virtual void execute() const = 0;
-
-        virtual void undo() const = 0;
 
     };
 };

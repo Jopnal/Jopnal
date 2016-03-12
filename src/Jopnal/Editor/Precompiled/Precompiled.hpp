@@ -66,3 +66,4 @@
 #include <Jopnal/Editor/CommandBuffer.hpp>
 #include <Jopnal/Editor/WindowUpdater.hpp>
 #include <Jopnal/Editor/Forms/OpenGLWindow.hpp>
+#include <Jopnal/Editor/Command.hpp>

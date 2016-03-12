@@ -81,7 +81,10 @@ namespace jop
         std::set<const Camera*> m_cameras;
         std::set<const Drawable*> m_drawables;
         uint32 m_mask;
+
+    #ifdef JOP_DEBUG_MODE
         World* m_physicsWorld;
+    #endif
 
     };
 }

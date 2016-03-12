@@ -87,10 +87,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\extlibs\include\GL\wgl_jop.cpp" />
+    <ClCompile Include="..\src\Jopnal\Editor\Command.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\CommandBuffer.cpp" />
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\PropertyWindow.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\Forms\MainWindow.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\Forms\ObjectWindow.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\Forms\OpenGLWindow.cpp" />
+    <ClCompile Include="..\src\Jopnal\Editor\Forms\ToolWindow.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\main.cpp" />
     <ClCompile Include="..\src\Jopnal\Editor\Precompiled\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -99,10 +102,13 @@
     <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Jopnal\Editor\Command.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\CommandBuffer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\PropertyWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\Forms\MainWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\Forms\ObjectWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\Forms\OpenGLWindow.hpp" />
+    <ClInclude Include="..\include\Jopnal\Editor\Forms\ToolWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\WindowUpdater.hpp" />
     <ClInclude Include="..\src\Jopnal\Editor\Precompiled\Precompiled.hpp" />
   </ItemGroup>

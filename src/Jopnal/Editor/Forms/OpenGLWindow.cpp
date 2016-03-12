@@ -47,16 +47,23 @@ namespace jope
     {
         HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
 
+        LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_CHILD | WS_CLIPSIBLINGS);
+
+        this->z_order(nullptr, nana::z_order_action::bottom);
+
         // Create context
         {
             HDC hdc = GetDC(hwnd);
 
             // Create glfw window to be able to load extensions
-            jop::Window::Settings ws(false);
-            jop::Window w(ws);
+            {
+                jop::Window::Settings ws(false);
+                jop::Window w(ws);
 
-            wgl::sys::LoadFunctions(hdc);
-            gl::sys::LoadFunctions();
+                wgl::sys::LoadFunctions(hdc);
+                gl::sys::LoadFunctions();
+            }
 
             JOP_ASSERT(wgl::exts::var_ARB_create_context && wgl::exts::var_ARB_pixel_format, "Failed to load context creation functions!");
 
@@ -101,7 +108,8 @@ namespace jope
             if (jop::Engine::hasCurrentScene())
                 jop::Engine::getCurrentScene().updateTransformTree(nullptr, false);
 
-            jop::Engine::getSharedScene().updateTransformTree(nullptr, false);
+            if (jop::Engine::hasSharedScene())
+                jop::Engine::getSharedScene().updateTransformTree(nullptr, false);
 
             RECT r;
             GetClientRect(hwnd, &r);
@@ -124,6 +132,8 @@ namespace jope
 
         // Add the updater sub system
         jop::Engine::createSubsystem<jope::WindowUpdater>(*this);
+
+        makeCurrent();
     }
 
     OpenGLWindow::~OpenGLWindow()

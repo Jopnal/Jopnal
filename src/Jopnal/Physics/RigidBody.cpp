@@ -24,7 +24,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     RigidBody::RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type, const float mass, const int16 group, const int16 mask)
@@ -43,9 +42,10 @@ namespace jop
 
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), group, mask);
 
+        auto rest = rb->getRestitution();
         rb->setUserPointer(this);
         m_body = std::move(rb);
-
+        
         object.setIgnoreParent(true);
         setActive(isActive());
     }

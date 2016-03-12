@@ -215,7 +215,8 @@ namespace jop
 
         if (!ptr.expired())
         {
-            m_children.reserve(m_children.size() + 2);
+            if (m_children.size() == m_children.capacity())
+                m_children.reserve(m_children.size() + 1);
 
             m_children.emplace_back(*ptr, clonedID);
             return m_children.back().getReference();
@@ -232,7 +233,8 @@ namespace jop
 
         if (!ptr.expired())
         {
-            m_children.reserve(m_children.size() + 2);
+            if (m_children.size() == m_children.capacity())
+                m_children.reserve(m_children.size() + 1);
 
             m_children.emplace_back(*ptr, clonedID, newTransform);
             return m_children.back().getReference();

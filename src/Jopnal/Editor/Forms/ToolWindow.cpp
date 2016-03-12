@@ -1,4 +1,4 @@
-// Jopnal Engine C++ Library
+// Jopnal Editor C++ Application
 // Copyright (c) 2016 Team Jopnal
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,39 +19,7 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CONFIG_HPP
-#define JOP_CONFIG_HPP
+// Headers
+#include <Jopnal/Editor/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
-
-// This file contains the configuration options for the engine compilation
-
-// OpenGL
-#define JOP_OPENGL_VERSION_MAJOR 3
-#define JOP_OPENGL_VERSION_MINOR 3
-
-// Define to enable gl error checks
-#define JOP_OPENGL_ERROR_CHECKS
-
-// Debug
-#if defined(_DEBUG) && !defined(JOP_DEBUG_MODE)
-    #define JOP_DEBUG_MODE
-#endif
-
-// Console
-#ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 2
-#else
-    #define JOP_CONSOLE_VERBOSITY 0
-#endif
-
-// Asserts
-#define JOP_ENABLE_ASSERTS
-
-// Exceptions
-//#define JOP_ENABLE_EXCEPTIONS
-
-// Dynamic build (.dll)
-//#define JOP_DYNAMIC
-
-#endif

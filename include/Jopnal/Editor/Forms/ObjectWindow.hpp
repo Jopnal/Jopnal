@@ -24,7 +24,7 @@
 
 // Headers
 #include <nana/gui/wvl.hpp>
-#include <nana/gui/widgets/treebox.hpp>
+#include <nana/gui/widgets/listbox.hpp>
 #include <nana/gui/widgets/button.hpp>
 #include <nana/gui/place.hpp>
 
@@ -39,12 +39,15 @@ namespace jope
 
         ObjectWindow(nana::window parent);
 
+        void buildObjectTree();
 
     private:
 
         nana::place m_layout;
         nana::button m_newObjButton;
-        nana::treebox m_objTree;
+        nana::button m_delObjButton;
+        nana::listbox m_objTree;
+        unsigned int m_rootObjects;
 
     };
 }
