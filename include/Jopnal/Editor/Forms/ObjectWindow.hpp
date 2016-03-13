@@ -33,21 +33,28 @@
 
 namespace jope
 {
+    class PropertyWindow;
+
     class ObjectWindow final : public nana::nested_form
     {
     public:
 
-        ObjectWindow(nana::window parent);
+        ObjectWindow(nana::window parent, PropertyWindow& propWindow);
 
         void buildObjectTree();
 
+        static void refresh();
+
     private:
+
+        static ObjectWindow* m_instance;
 
         nana::place m_layout;
         nana::button m_newObjButton;
         nana::button m_delObjButton;
         nana::treebox m_objTree;
         nana::treebox::item_proxy m_sceneItem;
+        PropertyWindow& m_propWindowRef;
 
     };
 }

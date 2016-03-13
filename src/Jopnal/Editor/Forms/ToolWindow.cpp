@@ -57,7 +57,7 @@ namespace jope
         }
 
         this->caption("Tools");
-        this->z_order(nullptr, nana::z_order_action::top);
+        this->z_order(nullptr, nana::z_order_action::bottom);
         this->bgcolor(color);
     }
 }

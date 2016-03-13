@@ -39,7 +39,16 @@ int main(int argc, char* argv[])
 
     jope::MainWindow form;
 
-    e.createScene<jop::Scene>("NewScene");
+    e.createScene<jop::Scene>("New Scene");
+    e.getCurrentScene().createChild("Default Camera")
+    ->createComponent<jop::Camera>(e.getCurrentScene().getRenderer(), jop::Camera::Projection::Perspective);
+
+    //e.getCurrentScene().createChild("Obj")
+    //    ->createComponent<jop::GenericDrawable>(e.getCurrentScene().getRenderer());
+
+    form.m_objWindow.buildObjectTree();
+
+    wglMakeCurrent(NULL, NULL);
 
     std::thread t([]{JOP_MAIN_LOOP;});
     

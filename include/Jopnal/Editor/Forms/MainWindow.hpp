@@ -41,13 +41,13 @@ namespace jope
 
         MainWindow();
 
-    private:
+
 
         nana::place m_layout;
+        PropertyWindow m_propertyWindow;
         ObjectWindow m_objWindow;
         OpenGLWindow m_oglWindow;
         ToolWindow m_toolWindow;
-        PropertyWindow m_propertyWindow;
 
     };
 }

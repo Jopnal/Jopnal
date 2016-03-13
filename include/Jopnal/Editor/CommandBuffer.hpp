@@ -58,14 +58,14 @@ namespace jope
 
         static void redoCurrent();
 
-        static std::mutex& acquireMutex();
+        static std::recursive_mutex& acquireMutex();
 
 
     private:
 
         static CommandBuffer* m_instance;
 
-        std::mutex m_mutex;
+        std::recursive_mutex m_mutex;
         CommandQueue m_commands;
         std::queue<std::unique_ptr<Command>> m_newCommands;
         CommandQueue::iterator m_currentDepth;

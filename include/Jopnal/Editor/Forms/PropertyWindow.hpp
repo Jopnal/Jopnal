@@ -26,6 +26,7 @@
 #include <nana/gui/wvl.hpp>
 #include <nana/gui/place.hpp>
 #include <nana/gui/widgets/group.hpp>
+#include <nana/gui/widgets/treebox.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -43,18 +44,29 @@ namespace jope
     {
     public:
 
+        typedef std::vector<std::unique_ptr<nana::group>> CompVec;
+
+    public:
+
         PropertyWindow(nana::window parent, const nana::color color);
 
-        void updateComponents(jop::Object& obj);
+        void updateComponents(jop::Object& obj, nana::treebox::item_proxy item);
 
-        void updateComponents(jop::Scene& scene);
+        void updateComponents(jop::Scene& scene, nana::treebox::item_proxy item);
 
+        static void refresh();
 
     private:
 
-        nana::place m_layout;
-        std::vector<std::unique_ptr<nana::group>> m_components;
+        static PropertyWindow* m_instance;
 
+        void pushComponents(jop::Object& obj);
+
+        nana::place m_layout;
+        CompVec m_components;
+        jop::WeakReference<jop::Object> m_lastObject;
+        jop::Scene* m_lastScene;
+        nana::treebox::item_proxy m_lastItem;
     };
 }
 

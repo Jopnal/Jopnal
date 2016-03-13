@@ -48,10 +48,10 @@ namespace jope
     MainWindow::MainWindow()
         : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
           m_layout(*this),
+          m_propertyWindow(*this, ns_commonColor),
+          m_objWindow(*this, m_propertyWindow),
           m_oglWindow(*this),
-          m_objWindow(*this),
-          m_toolWindow(*this, ns_commonColor),
-          m_propertyWindow(*this, ns_commonColor)
+          m_toolWindow(*this, ns_commonColor)
     {
         this->caption("Jopnal Editor");
         this->bgcolor(ns_commonColor);
@@ -60,12 +60,26 @@ namespace jope
         {
             jop::Engine::exit();
         });
-        this->events().shortkey([](nana::arg_keyboard arg)
+        this->events().resized([this](nana::arg_resized)
         {
-            if (arg.ctrl && arg.key == L'Z')
-                CommandBuffer::undoLast();
+            // Prevent corrupting the layout
+            nana::API::refresh_window_tree(*this);
         });
-        nana::API::register_shortkey(*this, L'Z');
+        this->events().key_press([](nana::arg_keyboard arg)
+        {
+            if (arg.ctrl)
+            {
+                switch (arg.key)
+                {
+                    case L'Z':
+                        CommandBuffer::undoLast();
+                        break;
+                    case L'R':
+                        CommandBuffer::redoCurrent();
+                        break;
+                }
+            }
+        });
         
         // margin=[top,right,bottom,left]
 
@@ -79,9 +93,18 @@ namespace jope
         this->zoom(true);
         this->show();
 
+        // Hot keys need to be registered after show()
+        // Undo
+        this->register_shortkey(L'Z');
+        // Redo
+        this->register_shortkey(L'R');
+
         m_toolWindow.show();
         m_oglWindow.show();
         m_objWindow.show();
         m_propertyWindow.show();
+
+        // Prevents the tool window turning gray upon start
+        nana::API::refresh_window(m_toolWindow);
     }
 }

@@ -45,6 +45,8 @@ namespace jope
         : nana::nested_form (parent, ns_oglAppearance),
           m_context         (nullptr)
     {
+        m_instance = this;
+
         HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
 
         LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
@@ -61,13 +63,13 @@ namespace jope
             HDC hdc = GetDC(hwnd);
 
             // Create glfw window to be able to load extensions
-            {
+            //{
                 jop::Window::Settings ws(false);
-                jop::Window w(ws);
+                static jop::Window w(ws);
 
                 wgl::sys::LoadFunctions(hdc);
                 gl::sys::LoadFunctions();
-            }
+            //}
 
             JOP_ASSERT(wgl::exts::var_ARB_create_context && wgl::exts::var_ARB_pixel_format, "Failed to load context creation functions!");
 
@@ -96,8 +98,8 @@ namespace jope
 
             PIXELFORMATDESCRIPTOR pfd;
             SetPixelFormat(hdc, pixelFormat, &pfd);
-
-            m_context = wgl::CreateContextAttribsARB(hdc, 0, contextAttribs);
+            
+            m_context = wgl::CreateContextAttribsARB(hdc, NULL, contextAttribs);
 
             JOP_ASSERT(m_context != nullptr, "Couldn't create context!");
         }
@@ -129,6 +131,9 @@ namespace jope
 
             SwapBuffers(GetDC(hwnd));
             gl::Flush();
+            gl::Finish();
+
+            wglMakeCurrent(NULL, NULL);
         });
 
         // Add the updater sub system
@@ -148,10 +153,10 @@ namespace jope
 
     //////////////////////////////////////////////
 
-    void OpenGLWindow::makeCurrent() const
+    void OpenGLWindow::makeCurrent()
     {
-        if (!wglMakeCurrent(GetDC(reinterpret_cast<HWND>(this->native_handle())), m_context))
-            JOP_DEBUG_ERROR("Failed to set context current");
+        if (!wglMakeCurrent(GetDC(reinterpret_cast<HWND>(m_instance->native_handle())), m_instance->m_context))
+            JOP_DEBUG_ERROR("Failed to set context current, " << GetLastError());
     }
 
     //////////////////////////////////////////////
@@ -164,4 +169,8 @@ namespace jope
         GetClientRect(w, &r);
         InvalidateRect(w, &r, FALSE);
     }
+
+    //////////////////////////////////////////////
+    
+    OpenGLWindow* OpenGLWindow::m_instance = nullptr;
 }

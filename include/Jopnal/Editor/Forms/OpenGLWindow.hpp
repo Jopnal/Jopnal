@@ -41,13 +41,15 @@ namespace jope
         ~OpenGLWindow() override;
 
 
-        void makeCurrent() const;
+        static void makeCurrent();
 
         void draw() const;
 
 
 
     private:
+
+        static OpenGLWindow* m_instance;
 
         HGLRC__* m_context;
 

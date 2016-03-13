@@ -46,10 +46,12 @@ namespace jope
     {
         static const unsigned int maxSize = jop::SettingManager::getUint("uMaxCommandBufferSize", 100);
 
-        std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+        std::unique_lock<decltype(m_mutex)> lock(m_mutex, std::try_to_lock);
 
         if (!lock.owns_lock())
             return;
+
+        OpenGLWindow::makeCurrent();
 
         bool newCommands = !m_newCommands.empty();
 
@@ -68,13 +70,15 @@ namespace jope
 
         if (newCommands)
             m_currentDepth = m_commands.end();
+
+        wglMakeCurrent(NULL, NULL);
     }
 
     //////////////////////////////////////////////
 
     void CommandBuffer::pushCommand(Command* const command)
     {
-        std::lock_guard<std::mutex> lock(m_instance->m_mutex);
+        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
 
         m_instance->m_newCommands.push(std::unique_ptr<Command>(command));
     }
@@ -83,7 +87,7 @@ namespace jope
 
     void CommandBuffer::undoLast()
     {
-        std::lock_guard<std::mutex> lock(m_instance->m_mutex);
+        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
 
         if (m_instance->m_commands.empty())
             return;
@@ -106,7 +110,7 @@ namespace jope
 
     void CommandBuffer::redoCurrent()
     {
-        std::lock_guard<std::mutex> lock(m_instance->m_mutex);
+        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
 
         auto& itr = m_instance->m_currentDepth;
 
@@ -116,7 +120,7 @@ namespace jope
 
     //////////////////////////////////////////////
 
-    std::mutex& CommandBuffer::acquireMutex()
+    std::recursive_mutex& CommandBuffer::acquireMutex()
     {
         return m_instance->m_mutex;
     }

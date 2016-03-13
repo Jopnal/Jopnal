@@ -41,20 +41,23 @@ namespace
     void createObjTree(const jop::Object& parent, nana::treebox::item_proxy itemRoot)
     {
         for (auto& i : parent.getChildren())
-            createObjTree(i, itemRoot.append(i.getID(), i.getID()).value(&i));
+            createObjTree(i, itemRoot.append(i.getID(), i.getID()).value(i.getReference()));
     }
 }
 
 namespace jope
 {
-    ObjectWindow::ObjectWindow(nana::window parent)
+    ObjectWindow::ObjectWindow(nana::window parent, PropertyWindow& propWindow)
         : nana::nested_form(parent, ns_objWindowAppearance),
           m_layout(*this),
           m_newObjButton(*this, true),
           m_delObjButton(*this, true),
           m_objTree(*this, true),
-          m_sceneItem(m_objTree.insert("Scene", "Scene"))
+          m_sceneItem(m_objTree.insert("Scene", "New Scene")),
+          m_propWindowRef(propWindow)
     {
+        m_instance = this;
+
         HWND hwnd = reinterpret_cast<HWND>(this->native_handle());
 
         LONG style = GetWindowLongPtr(hwnd, GWL_STYLE);
@@ -64,8 +67,23 @@ namespace jope
         this->bgcolor(nana::colors::white);
         this->caption("Object Browser");
 
+        // Object tree
         m_objTree.bgcolor(this->bgcolor());
+        m_objTree.auto_draw(true);
+        m_objTree.events().selected([this](nana::arg_treebox arg)
+        {
+            std::lock_guard<std::recursive_mutex> lock(CommandBuffer::acquireMutex());
+
+            if (!jop::Engine::hasCurrentScene())
+                return;
+
+            if (arg.item == m_sceneItem)
+                m_propWindowRef.updateComponents(jop::Engine::getCurrentScene(), m_sceneItem);
+            else
+                m_propWindowRef.updateComponents(*arg.item.value<jop::WeakReference<jop::Object>>(), arg.item);
+        });
         
+        // New object button
         m_newObjButton.caption("New");
         m_newObjButton.events().click([this](nana::arg_click arg)
         {
@@ -110,11 +128,8 @@ namespace jope
             }
         });
 
+        // Delete button
         m_delObjButton.caption("Delete");
-        
-        // Fill the object tree
-        m_sceneItem.select(true);
-        buildObjectTree();
 
         // Set the layout
         m_layout.div("<vertical <button margin=10 weight=8% max=50 gap=5><tree>>");
@@ -133,7 +148,18 @@ namespace jope
         if (jop::Engine::hasCurrentScene())
         {
             for (auto& i : jop::Engine::getCurrentScene().getChildren())
-                createObjTree(i, m_sceneItem.append(i.getID(), i.getID()).value(&i));
+                createObjTree(i, m_sceneItem.append(i.getID(), i.getID()).value(i.getReference()));
         }
     }
+
+    //////////////////////////////////////////////
+
+    void ObjectWindow::refresh()
+    {
+        nana::API::refresh_window(m_instance->m_objTree);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ObjectWindow* ObjectWindow::m_instance = nullptr;
 }

@@ -88,6 +88,70 @@ namespace jope
 
 
     };
+
+    //////////////////////////////////////////////
+
+    struct ChangeObjectIDCommand : Command
+    {
+        ChangeObjectIDCommand(jop::Object& obj, const std::string& newID);
+
+        void execute() override;
+
+        void undo() override;
+
+    private:
+
+        std::string m_newID;
+        std::string m_oldID;
+        jop::WeakReference<jop::Object> m_ref;
+    };
+
+    //////////////////////////////////////////////
+
+    struct SetAciveCommand : Command
+    {
+        SetAciveCommand(jop::Object& obj, const bool active);
+
+        virtual void execute() override;
+
+        virtual void undo() override;
+
+    private:
+
+        jop::WeakReference<jop::Object> m_ref;
+        bool m_setActive;
+    };
+
+    //////////////////////////////////////////////
+
+    struct SetObjectObjectPositionCommand : Command
+    {
+        SetObjectObjectPositionCommand(jop::Object& obj, const glm::vec3& pos);
+
+        virtual void execute() override;
+
+        virtual void undo() override;
+
+    private:
+
+        glm::vec3 m_pos;
+        glm::vec3 m_oldPos;
+        jop::WeakReference<jop::Object> m_ref;
+    };
+
+    //////////////////////////////////////////////
+
+    struct SetObjectScaleCommand : Command
+    {
+
+    };
+
+    //////////////////////////////////////////////
+
+    struct SetObjectRotCommand : Command
+    {
+
+    };
 }
 
 #endif
