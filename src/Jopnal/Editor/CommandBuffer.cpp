@@ -28,10 +28,8 @@
 namespace jope
 {
     CommandBuffer::CommandBuffer()
-        : jop::Subsystem("Command Buffer")
     {
         JOP_ASSERT(m_instance == nullptr, "Only one CommandBuffer may exist at a time!");
-
         m_instance = this;
     }
 
@@ -42,53 +40,23 @@ namespace jope
 
     //////////////////////////////////////////////
 
-    void CommandBuffer::preUpdate(const float)
+    void CommandBuffer::pushCommand(Command* const command)
     {
         static const unsigned int maxSize = jop::SettingManager::getUint("uMaxCommandBufferSize", 100);
 
-        std::unique_lock<decltype(m_mutex)> lock(m_mutex, std::try_to_lock);
+        auto& inst = *m_instance;
 
-        if (!lock.owns_lock())
-            return;
+        command->execute();
+        inst.m_commands.emplace_back(command);
 
-        OpenGLWindow::makeCurrent();
-
-        bool newCommands = !m_newCommands.empty();
-
-        while (newCommands)
-        {
-            m_commands.push_back(std::move(m_newCommands.front()));
-            m_newCommands.pop();
-
-            if (m_commands.size() > maxSize)
-                m_commands.pop_front();
-
-            m_commands.back()->execute();
-
-            newCommands = !m_newCommands.empty();
-        }
-
-        if (newCommands)
-            m_currentDepth = m_commands.end();
-
-        wglMakeCurrent(NULL, NULL);
-    }
-
-    //////////////////////////////////////////////
-
-    void CommandBuffer::pushCommand(Command* const command)
-    {
-        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
-
-        m_instance->m_newCommands.push(std::unique_ptr<Command>(command));
+        if (inst.m_commands.size() > maxSize)
+            inst.m_commands.pop_front();
     }
 
     //////////////////////////////////////////////
 
     void CommandBuffer::undoLast()
     {
-        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
-
         if (m_instance->m_commands.empty())
             return;
 
@@ -110,19 +78,10 @@ namespace jope
 
     void CommandBuffer::redoCurrent()
     {
-        std::lock_guard<decltype(m_mutex)> lock(m_instance->m_mutex);
-
         auto& itr = m_instance->m_currentDepth;
 
         if (itr != m_instance->m_commands.end())
             (itr++)->get()->execute();
-    }
-
-    //////////////////////////////////////////////
-
-    std::recursive_mutex& CommandBuffer::acquireMutex()
-    {
-        return m_instance->m_mutex;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////

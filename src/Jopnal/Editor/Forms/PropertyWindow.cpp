@@ -229,7 +229,7 @@ namespace comp
             {
                 parent.focus();
 
-                jope::CommandBuffer::pushCommand(new jope::SetObjectObjectPositionCommand(obj, obj.getPosition() + pos));
+                jope::CommandBuffer::pushCommand(new jope::SetObjectObjectPositionCommand(obj, pos));
             };
             
             // Position
@@ -241,7 +241,7 @@ namespace comp
             m_posBoxX.value(std::to_string(obj.getPosition().x));
             m_posBoxX.events().text_changed([handlePos, this](nana::arg_spinbox arg)
             {
-                handlePos(*m_obj, glm::vec3(static_cast<float>(arg.widget.to_double()), 0.f, 0.f), *this);
+                handlePos(*m_obj, glm::vec3(static_cast<float>(arg.widget.to_double()), m_obj->getPosition().y, m_obj->getPosition().z), *this);
             });
             // Y
             m_posBoxY.editable(true);
@@ -250,7 +250,7 @@ namespace comp
             m_posBoxY.value(std::to_string(obj.getPosition().y));
             m_posBoxY.events().text_changed([handlePos, this](nana::arg_spinbox arg)
             {
-                handlePos(*m_obj, glm::vec3(static_cast<float>(0.f, arg.widget.to_double(), 0.f)), *this);
+                handlePos(*m_obj, glm::vec3(m_obj->getPosition().x, static_cast<float>(arg.widget.to_double()), m_obj->getPosition().z), *this);
             });
             //Z
             m_posBoxZ.editable(true);
@@ -259,7 +259,7 @@ namespace comp
             m_posBoxZ.value(std::to_string(obj.getPosition().z));
             m_posBoxZ.events().text_changed([handlePos, this](nana::arg_spinbox arg)
             {
-                handlePos(*m_obj, glm::vec3(static_cast<float>(0.f, 0.f, arg.widget.to_double())), *this);
+                handlePos(*m_obj, glm::vec3(m_obj->getPosition().x, m_obj->getPosition().y, static_cast<float>(arg.widget.to_double())), *this);
             });
 
             this->collocate();
@@ -333,8 +333,6 @@ namespace jope
     {
         clearLayout(m_layout, m_components);
 
-        std::lock_guard<std::recursive_mutex> lock(CommandBuffer::acquireMutex());
-
         m_components.reserve(obj.componentCount() + 2);
 
         // margin=[top,right,bottom,left]
@@ -362,8 +360,6 @@ namespace jope
     void PropertyWindow::updateComponents(jop::Scene& scene, nana::treebox::item_proxy item)
     {
         clearLayout(m_layout, m_components);
-        
-        std::lock_guard<std::recursive_mutex> lock(CommandBuffer::acquireMutex());
 
         m_components.reserve(scene.componentCount() + 1);
 

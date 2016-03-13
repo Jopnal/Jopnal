@@ -33,10 +33,8 @@ int main(int argc, char* argv[])
     e.createSubsystem<jop::FileLoader>(argv[0]);
     e.createSubsystem<jop::ResourceManager>();
     e.createSubsystem<jop::ShaderManager>();
-    e.createSubsystem<jope::CommandBuffer>();
-    e.setPaused(true);
-    e.setRenderingFrozen(true);
-
+    
+    jope::CommandBuffer cb;
     jope::MainWindow form;
 
     e.createScene<jop::Scene>("New Scene");
@@ -47,13 +45,8 @@ int main(int argc, char* argv[])
     //    ->createComponent<jop::GenericDrawable>(e.getCurrentScene().getRenderer());
 
     form.m_objWindow.buildObjectTree();
-
-    wglMakeCurrent(NULL, NULL);
-
-    std::thread t([]{JOP_MAIN_LOOP;});
     
     nana::exec();
-    t.join();
 
     return EXIT_SUCCESS;
 }

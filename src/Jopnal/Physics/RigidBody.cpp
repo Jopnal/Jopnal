@@ -42,7 +42,6 @@ namespace jop
 
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), group, mask);
 
-        auto rest = rb->getRestitution();
         rb->setUserPointer(this);
         m_body = std::move(rb);
         

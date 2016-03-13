@@ -50,9 +50,6 @@
     <ClCompile Include="..\src\Jopnal\Editor\CommandBuffer.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Editor\Forms\ToolWindow.cpp">
       <Filter>Source Files\Forms</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Editor\Forms\OpenGLWindow.hpp">
       <Filter>Header Files\Forms</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Editor\WindowUpdater.hpp">
-      <Filter>Header Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Editor\CommandBuffer.hpp">
       <Filter>Header Files\Common</Filter>

@@ -87,9 +87,6 @@
 // PhysFS
 #include <PhysicsFS/physfs.h>
 
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
 // Standard headers
 #include <algorithm>
 #include <iostream>

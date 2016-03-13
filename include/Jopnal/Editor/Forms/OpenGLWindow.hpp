@@ -24,6 +24,7 @@
 
 // Headers
 #include <nana/gui/wvl.hpp>
+#include <nana/gui/timer.hpp>
 
 //////////////////////////////////////////////
 
@@ -40,18 +41,13 @@ namespace jope
 
         ~OpenGLWindow() override;
 
-
-        static void makeCurrent();
-
-        void draw() const;
-
-
-
     private:
 
         static OpenGLWindow* m_instance;
 
+        nana::timer m_timer;
         HGLRC__* m_context;
+        unsigned int m_vao;
 
     };
 }

@@ -81,12 +81,6 @@ namespace jop
         static int runMainLoop();
 
 
-        static void advanceFrame();
-
-
-        static void renderFrame();
-
-
         /// \brief Create a scene
         ///
         /// This function will construct the scene and then set it as active.
@@ -167,10 +161,6 @@ namespace jop
         ///
         static bool isPaused();
 
-        static void setRenderingFrozen(const bool freeze);
-
-        static bool isRenderingFrozen();
-
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
@@ -236,9 +226,6 @@ namespace jop
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         std::atomic<bool> m_running;                          ///< A boolean telling if the engine is running
         bool m_paused;                                        ///< A boolean telling if the engine is paused
-        bool m_advance;
-        bool m_advanceFrame;
-        bool m_frozen;
     };
 
     /// \brief Get the project name

@@ -99,7 +99,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Editor\WindowUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Editor\Command.hpp" />
@@ -109,7 +108,6 @@
     <ClInclude Include="..\include\Jopnal\Editor\Forms\ObjectWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\Forms\OpenGLWindow.hpp" />
     <ClInclude Include="..\include\Jopnal\Editor\Forms\ToolWindow.hpp" />
-    <ClInclude Include="..\include\Jopnal\Editor\WindowUpdater.hpp" />
     <ClInclude Include="..\src\Jopnal\Editor\Precompiled\Precompiled.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

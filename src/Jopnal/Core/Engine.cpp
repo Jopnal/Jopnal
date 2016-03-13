@@ -52,9 +52,7 @@ namespace jop
           m_subsystems      (),
           m_currentScene    (),
           m_running         (true),
-          m_paused          (false),
-          m_advance         (false),
-          m_frozen          (false)
+          m_paused          (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -121,8 +119,6 @@ namespace jop
             const float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
             eng.m_totalTime += frameTime;
 
-            bool advance = !isPaused() || eng.m_advance;
-
             // Update
             {
                 for (auto& i : eng.m_subsystems)
@@ -131,7 +127,7 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (advance)
+                if (!isPaused())
                 {
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
@@ -149,16 +145,11 @@ namespace jop
 
             // Draw
             {
-                if (!isRenderingFrozen() || eng.m_advanceFrame)
-                {
-                    if (eng.m_currentScene)
-                        eng.m_currentScene->drawBase();
+                if (eng.m_currentScene)
+                    eng.m_currentScene->drawBase();
 
-                    if (eng.m_sharedScene)
-                        eng.m_sharedScene->drawBase();
-
-                    eng.m_advanceFrame = false;
-                }
+                if (eng.m_sharedScene)
+                    eng.m_sharedScene->drawBase();
 
                 for (auto& i : eng.m_subsystems)
                 {
@@ -166,8 +157,6 @@ namespace jop
                         i->draw();
                 }
             }
-
-            eng.m_advance = false;
         }
 
         // #TODO Threaded event loop
@@ -347,40 +336,6 @@ namespace jop
             return m_engineObject->m_currentScene.operator bool();
 
         return false;
-    }
-
-    //////////////////////////////////////////////
-
-    void Engine::setRenderingFrozen(const bool freeze)
-    {
-        if (m_engineObject)
-            m_engineObject->m_frozen = freeze;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Engine::isRenderingFrozen()
-    {
-        if (m_engineObject)
-            return m_engineObject->m_frozen;
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    void Engine::advanceFrame()
-    {
-        if (m_engineObject)
-            m_engineObject->m_advance = true;
-    }
-
-    //////////////////////////////////////////////
-
-    void Engine::renderFrame()
-    {
-        if (m_engineObject)
-            m_engineObject->m_advanceFrame = true;
     }
 
     //////////////////////////////////////////////

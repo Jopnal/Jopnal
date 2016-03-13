@@ -433,8 +433,8 @@ namespace jop
 
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
-        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
         GlState::setVertexAttribute(true, loc);
+        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
     }
 
     //////////////////////////////////////////////

@@ -43,7 +43,9 @@ namespace jope
 {
     OpenGLWindow::OpenGLWindow(nana::window parent)
         : nana::nested_form (parent, ns_oglAppearance),
-          m_context         (nullptr)
+          m_timer(),
+          m_context         (nullptr),
+          m_vao(0)
     {
         m_instance = this;
 
@@ -63,13 +65,13 @@ namespace jope
             HDC hdc = GetDC(hwnd);
 
             // Create glfw window to be able to load extensions
-            //{
+            {
                 jop::Window::Settings ws(false);
                 static jop::Window w(ws);
 
                 wgl::sys::LoadFunctions(hdc);
                 gl::sys::LoadFunctions();
-            //}
+            }
 
             JOP_ASSERT(wgl::exts::var_ARB_create_context && wgl::exts::var_ARB_pixel_format, "Failed to load context creation functions!");
 
@@ -102,14 +104,17 @@ namespace jope
             m_context = wgl::CreateContextAttribsARB(hdc, NULL, contextAttribs);
 
             JOP_ASSERT(m_context != nullptr, "Couldn't create context!");
+
+            JOP_ASSERT_EVAL(wglMakeCurrent(GetDC(reinterpret_cast<HWND>(m_instance->native_handle())), m_instance->m_context) == TRUE, "Failed to set context current, " + std::to_string(GetLastError()));
+
+            gl::GenVertexArrays(1, &m_vao);
+            gl::BindVertexArray(m_vao);
         }
 
         // Set the draw-through callback
         this->draw_through([this, hwnd]
         {
             static const glm::vec4 col = jop::Color(jop::SettingManager::getString("uDefaultWindowClearColor", "222222FF")).asRGBAFloatVector();
-
-            makeCurrent();
 
             if (jop::Engine::hasCurrentScene())
                 jop::Engine::getCurrentScene().updateTransformTree(nullptr, false);
@@ -127,47 +132,35 @@ namespace jope
             gl::ClearStencil(0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT);
 
-            jop::Engine::renderFrame();
+            if (jop::Engine::hasCurrentScene())
+                jop::Engine::getCurrentScene().drawBase();
 
             SwapBuffers(GetDC(hwnd));
-            gl::Flush();
             gl::Finish();
-
-            wglMakeCurrent(NULL, NULL);
         });
 
-        // Add the updater sub system
-        jop::Engine::createSubsystem<jope::WindowUpdater>(*this);
+        m_timer.interval(20);
+        m_timer.elapse([this]
+        {
+            HWND w = reinterpret_cast<HWND>(this->native_handle());
 
-        makeCurrent();
+            RECT r;
+            GetClientRect(w, &r);
+            InvalidateRect(w, &r, FALSE);
+        });
+        m_timer.start();
     }
 
     OpenGLWindow::~OpenGLWindow()
     {
+        gl::BindVertexArray(0);
+        gl::DeleteVertexArrays(1, &m_vao);
+
         wglMakeCurrent(NULL, NULL);
         wglDeleteContext(m_context);
 
         HWND w = reinterpret_cast<HWND>(this->native_handle());
         ReleaseDC(w, GetDC(w));
-    }
-
-    //////////////////////////////////////////////
-
-    void OpenGLWindow::makeCurrent()
-    {
-        if (!wglMakeCurrent(GetDC(reinterpret_cast<HWND>(m_instance->native_handle())), m_instance->m_context))
-            JOP_DEBUG_ERROR("Failed to set context current, " << GetLastError());
-    }
-
-    //////////////////////////////////////////////
-
-    void OpenGLWindow::draw() const
-    {
-        HWND w = reinterpret_cast<HWND>(this->native_handle());
-
-        RECT r;
-        GetClientRect(w, &r);
-        InvalidateRect(w, &r, FALSE);
     }
 
     //////////////////////////////////////////////

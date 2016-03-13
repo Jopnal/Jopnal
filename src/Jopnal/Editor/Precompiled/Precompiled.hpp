@@ -51,7 +51,6 @@
 
 // Standard
 #include <iostream>
-#include <thread>
 
 // Nana
 #include <nana/gui/wvl.hpp> 
@@ -64,6 +63,7 @@
 #include <nana/gui/widgets/checkbox.hpp>
 #include <nana/gui/widgets/scroll.hpp>
 #include <nana/gui/widgets/textbox.hpp>
+#include <nana/gui/timer.hpp>
 
 // Jopnal Engine
 #include <Jopnal/Jopnal.hpp>
@@ -71,7 +71,6 @@
 // Jopnal Editor
 #include <Jopnal/Editor/Forms/MainWindow.hpp>
 #include <Jopnal/Editor/CommandBuffer.hpp>
-#include <Jopnal/Editor/WindowUpdater.hpp>
 #include <Jopnal/Editor/Forms/OpenGLWindow.hpp>
 #include <Jopnal/Editor/Command.hpp>
 #include <Jopnal/Editor/Forms/PropertyWindow.hpp>

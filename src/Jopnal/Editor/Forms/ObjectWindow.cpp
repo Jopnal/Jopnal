@@ -72,8 +72,6 @@ namespace jope
         m_objTree.auto_draw(true);
         m_objTree.events().selected([this](nana::arg_treebox arg)
         {
-            std::lock_guard<std::recursive_mutex> lock(CommandBuffer::acquireMutex());
-
             if (!jop::Engine::hasCurrentScene())
                 return;
 

@@ -23,7 +23,6 @@
 #define JOPE_COMMANDBUFFER_HPP
 
 // Headers
-#include <Jopnal/Core/SubSystem.hpp>
 #include <queue>
 #include <memory>
 #include <mutex>
@@ -35,7 +34,7 @@ namespace jope
 {
     class Command;
 
-    class CommandBuffer final : public jop::Subsystem
+    class CommandBuffer
     {
     private:
 
@@ -45,9 +44,7 @@ namespace jope
 
         CommandBuffer();
 
-        ~CommandBuffer() override;
-
-        void preUpdate(const float deltaTime) override;
+        ~CommandBuffer() ;
 
 
         static void pushCommand(Command* const command);
@@ -58,16 +55,12 @@ namespace jope
 
         static void redoCurrent();
 
-        static std::recursive_mutex& acquireMutex();
-
 
     private:
 
         static CommandBuffer* m_instance;
 
-        std::recursive_mutex m_mutex;
         CommandQueue m_commands;
-        std::queue<std::unique_ptr<Command>> m_newCommands;
         CommandQueue::iterator m_currentDepth;
 
     };
