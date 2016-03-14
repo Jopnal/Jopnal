@@ -45,21 +45,17 @@ namespace
 
 namespace jope
 {
-    MainWindow::MainWindow()
+    MainWindow::MainWindow(std::unique_ptr<jop::Engine>& eng)
         : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
           m_layout(*this),
           m_propertyWindow(*this, ns_commonColor),
           m_objWindow(*this, m_propertyWindow),
-          m_oglWindow(*this),
+          m_oglWindow(*this, eng),
           m_toolWindow(*this, ns_commonColor)
     {
         this->caption("Jopnal Editor");
         this->bgcolor(ns_commonColor);
         
-        this->events().unload([]
-        {
-            jop::Engine::exit();
-        });
         this->events().resized([this](nana::arg_resized)
         {
             // Prevent corrupting the layout

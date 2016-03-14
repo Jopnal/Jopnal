@@ -132,7 +132,7 @@ namespace jop
 
     void Window::postUpdate(const float)
     {
-        if (isOpen())
+        if (isOpen() && Engine::getState() != Engine::State::Frozen)
         {
             if (m_colorChanged)
             {
@@ -153,7 +153,7 @@ namespace jop
 
     void Window::draw()
     {
-        if (isOpen())
+        if (isOpen() && Engine::getState() != Engine::State::Frozen)
             m_impl->swapBuffers();
 
         // Only poll the events if they haven't yet been during this frame.

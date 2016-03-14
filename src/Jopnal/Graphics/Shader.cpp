@@ -49,7 +49,7 @@ namespace jop
                                                   arr[2u].IsString() ? arr[2u].GetString() : "",
                                                   arr[3u].IsString() ? arr[3u].GetString() : "")
             
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -60,7 +60,7 @@ namespace jop
         const Shader& ref = *static_cast<const Shader*>(shader);
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
            .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
@@ -463,7 +463,7 @@ namespace jop
                                             std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
                                             "Couldn't compile the default shader!");
 
-            defShader->setPersistent(true);
+            defShader->setPersistence(0);
             defShader->setManaged(true);
         }
 

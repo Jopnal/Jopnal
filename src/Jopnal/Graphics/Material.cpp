@@ -41,7 +41,7 @@ namespace jop
             JOP_DEBUG_WARNING("No attribute field found in material \"" << val["name"].GetString() << "\", using defaults");
 
         auto& m = ResourceManager::getEmptyResource<Material>(val["name"].GetString(), attr);
-        m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        //m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         if (val.HasMember("reflection") && val["reflection"].IsArray() && val["reflection"].Size() >= 4)
         {
@@ -76,7 +76,7 @@ namespace jop
         auto& ref = *static_cast<const Material*>(material);
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         val.AddMember(json::StringRef("attributes"), ref.getAttributeField(), alloc);
 

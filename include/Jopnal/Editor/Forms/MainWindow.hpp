@@ -33,13 +33,18 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    class Engine;
+}
+
 namespace jope
 {
     class MainWindow : public nana::form
     {
     public:
 
-        MainWindow();
+        MainWindow(std::unique_ptr<jop::Engine>& eng);
 
 
 

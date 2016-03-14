@@ -41,11 +41,12 @@ namespace
 
 namespace jope
 {
-    OpenGLWindow::OpenGLWindow(nana::window parent)
+    OpenGLWindow::OpenGLWindow(nana::window parent, std::unique_ptr<jop::Engine>& eng)
         : nana::nested_form (parent, ns_oglAppearance),
           m_timer(),
           m_context         (nullptr),
-          m_vao(0)
+          m_vao(0),
+          m_engRef(eng)
     {
         m_instance = this;
 
@@ -67,7 +68,7 @@ namespace jope
             // Create glfw window to be able to load extensions
             {
                 jop::Window::Settings ws(false);
-                static jop::Window w(ws);
+                jop::Window w(ws);
 
                 wgl::sys::LoadFunctions(hdc);
                 gl::sys::LoadFunctions();
@@ -153,6 +154,8 @@ namespace jope
 
     OpenGLWindow::~OpenGLWindow()
     {
+        m_engRef.reset();
+
         gl::BindVertexArray(0);
         gl::DeleteVertexArrays(1, &m_vao);
 

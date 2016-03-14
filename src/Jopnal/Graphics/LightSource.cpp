@@ -248,7 +248,7 @@ namespace jop
         if (dirSpotShader.expired())
         {
             dirSpotShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader").getReference());
-            dirSpotShader->setPersistent(true);
+//            dirSpotShader->setPersistent(true);
 
             std::vector<unsigned char> vert, frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
@@ -260,7 +260,7 @@ namespace jop
         if (pointShader.expired())
         {
             pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
-            pointShader->setPersistent(true);
+  //          pointShader->setPersistent(true);
 
             std::vector<unsigned char> vert, geom, frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");

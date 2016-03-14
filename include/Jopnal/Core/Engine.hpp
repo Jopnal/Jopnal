@@ -45,6 +45,16 @@ namespace jop
 
     public:
 
+        enum class State
+        {
+            Running,
+            ZeroDelta,
+            RenderOnly,
+            Frozen
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// This will initialize the engine and all associated systems.
@@ -141,7 +151,7 @@ namespace jop
         ///
         /// \return True if an engine object exists & m_running is true
         ///
-        static bool isRunning();
+        static bool exiting();
 
         /// \brief Exit the main loop
         ///
@@ -155,11 +165,11 @@ namespace jop
         ///
         /// \param paused Boolean to set m_paused
         ///
-        static void setPaused(const bool paused);
+        static void setState(const State state);
 
         /// \brief Sets paused state to all update methods not including subsystems also returns m_paused
         ///
-        static bool isPaused();
+        static State getState();
 
         /// \brief Send a message to the whole engine
         ///
@@ -224,8 +234,8 @@ namespace jop
         double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
-        std::atomic<bool> m_running;                          ///< A boolean telling if the engine is running
-        bool m_paused;                                        ///< A boolean telling if the engine is paused
+        std::atomic<bool> m_exit;                             ///< 
+        State m_state;                                        ///< 
     };
 
     /// \brief Get the project name

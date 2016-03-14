@@ -77,7 +77,7 @@ namespace jop
         }
 
         ResourceManager::getResource<Mesh>(val["name"].GetString(), opts)
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -89,7 +89,7 @@ namespace jop
         const Mesh::LoadOptions& opts = ref.getOptions();
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+//        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         if (!(opts == Mesh::DefaultOptions))
         {
@@ -380,7 +380,7 @@ namespace jop
 
             JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
 
-            defMesh->setPersistent(true);
+            defMesh->setPersistence(0);
             defMesh->setManaged(true);
         }
 

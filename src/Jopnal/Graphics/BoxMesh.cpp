@@ -40,7 +40,7 @@ namespace jop
             size = static_cast<float>(val["size"].GetDouble());
 
         ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(), size)
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        ;//    .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -52,7 +52,7 @@ namespace jop
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
         val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         return true;
     }

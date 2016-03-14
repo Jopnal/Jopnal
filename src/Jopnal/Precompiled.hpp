@@ -95,6 +95,7 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <climits>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

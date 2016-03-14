@@ -27,19 +27,18 @@
 
 int main(int argc, char* argv[])
 {
-
-    jop::Engine e("Jopnal Editor", argc, argv);
-    e.createSubsystem<jop::SettingManager>();
-    e.createSubsystem<jop::FileLoader>(argv[0]);
-    e.createSubsystem<jop::ResourceManager>();
-    e.createSubsystem<jop::ShaderManager>();
+    auto e(std::make_unique<jop::Engine>("Jopnal Editor", argc, argv));
+    e->createSubsystem<jop::SettingManager>();
+    e->createSubsystem<jop::FileLoader>(argv[0]);
+    e->createSubsystem<jop::ResourceManager>();
+    e->createSubsystem<jop::ShaderManager>();
     
     jope::CommandBuffer cb;
-    jope::MainWindow form;
+    jope::MainWindow form(e);
 
-    e.createScene<jop::Scene>("New Scene");
-    e.getCurrentScene().createChild("Default Camera")
-    ->createComponent<jop::Camera>(e.getCurrentScene().getRenderer(), jop::Camera::Projection::Perspective);
+    e->createScene<jop::Scene>("New Scene");
+    e->getCurrentScene().createChild("Default Camera")
+     ->createComponent<jop::Camera>(e->getCurrentScene().getRenderer(), jop::Camera::Projection::Perspective);
 
     //e.getCurrentScene().createChild("Obj")
     //    ->createComponent<jop::GenericDrawable>(e.getCurrentScene().getRenderer());

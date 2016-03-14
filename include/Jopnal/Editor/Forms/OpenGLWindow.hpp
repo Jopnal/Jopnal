@@ -37,7 +37,7 @@ namespace jope
     {
     public:
 
-        OpenGLWindow(nana::window parent);
+        OpenGLWindow(nana::window parent, std::unique_ptr<jop::Engine>& eng);
 
         ~OpenGLWindow() override;
 
@@ -48,6 +48,7 @@ namespace jope
         nana::timer m_timer;
         HGLRC__* m_context;
         unsigned int m_vao;
+        std::unique_ptr<jop::Engine>& m_engRef;
 
     };
 }
