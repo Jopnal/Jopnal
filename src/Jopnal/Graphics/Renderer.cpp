@@ -31,6 +31,7 @@ namespace jop
         : m_lights(),
           m_cameras(),
           m_drawables(),
+          m_envRecorders(),
           m_mask(0xFFFFFFFF)
     {
         GlState::setDepthTest(true);
@@ -78,6 +79,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Renderer::bind(const EnvironmentRecorder& envRecorder)
+    {
+        m_envRecorders.insert(&envRecorder);
+    }
+
+    //////////////////////////////////////////////
+
     void Renderer::unbind(const LightSource& light)
     {
         m_lights.erase(&light);
@@ -95,6 +103,13 @@ namespace jop
     void Renderer::unbind(const Drawable& drawable)
     {
         m_drawables.erase(&drawable);
+    }
+
+    //////////////////////////////////////////////
+
+    void Renderer::unbind(const EnvironmentRecorder& envRecorder)
+    {
+        m_envRecorders.erase(&envRecorder);
     }
 
     //////////////////////////////////////////////

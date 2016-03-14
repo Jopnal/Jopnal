@@ -248,7 +248,7 @@ namespace jop
         if (dirSpotShader.expired())
         {
             dirSpotShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader").getReference());
-//            dirSpotShader->setPersistent(true);
+            dirSpotShader->setPersistence(0);
 
             std::vector<unsigned char> vert, frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
@@ -260,7 +260,7 @@ namespace jop
         if (pointShader.expired())
         {
             pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
-  //          pointShader->setPersistent(true);
+            pointShader->setPersistence(0);
 
             std::vector<unsigned char> vert, geom, frag;
             JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
@@ -288,7 +288,7 @@ namespace jop
             {
                 auto pos = getObject()->getGlobalPosition();
 
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getAttenuation(Attenuation::Range));
+                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getRange());
 
                 m_lightSpaceMatrices[0] = proj * glm::lookAt(pos, pos + glm::vec3( 1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Right
                 m_lightSpaceMatrices[1] = proj * glm::lookAt(pos, pos + glm::vec3(-1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Left
@@ -298,7 +298,7 @@ namespace jop
                 m_lightSpaceMatrices[5] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
 
                 shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-                shdr.setUniform("u_FarClippingPlane", getAttenuation(Attenuation::Range));
+                shdr.setUniform("u_FarClippingPlane", getRange());
                 shdr.setUniform("u_LightPosition", pos);
                 break;
             }
@@ -311,7 +311,7 @@ namespace jop
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap->getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getAttenuation(Attenuation::Range)) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
@@ -399,9 +399,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic, const float range)
+    LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic)
     {
-        m_attenuation = glm::vec4(constant, linear, quadratic, range);
+        m_attenuation = glm::vec4(constant, linear, quadratic, m_attenuation[3]);
         return *this;
     }
 
@@ -427,7 +427,7 @@ namespace jop
         };
 
         auto& v = att[static_cast<int>(preset)];
-        return setAttenuation(v[1], v[2], v[3], v[0]);
+        return setAttenuation(v[1], v[2], v[3]).setRange(v[0]);
     }
 
     //////////////////////////////////////////////
@@ -442,6 +442,21 @@ namespace jop
     glm::vec3 LightSource::getAttenuationVec() const
     {
         return glm::vec3(m_attenuation);
+    }
+
+    //////////////////////////////////////////////
+
+    LightSource& LightSource::setRange(const float range)
+    {
+        m_attenuation[3] = range;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    float LightSource::getRange() const
+    {
+        return m_attenuation[3];
     }
 
     //////////////////////////////////////////////
@@ -560,13 +575,9 @@ namespace jop
                     if (li.castShadows())
                     {
                         shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentPointShadowUnit++);
-                        shader.setUniform(indexed + "farPlane", li.getAttenuation(LightSource::Attenuation::Range));
+                        shader.setUniform(indexed + "farPlane", li.getRange());
                     }
-                    //else
-                    //    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", static_cast<int>(currentPointShadowUnit++));
                 }
-               // else
-                //    shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", static_cast<int>(currentPointShadowUnit++));
             }
         }
 

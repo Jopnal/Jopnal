@@ -56,8 +56,12 @@ namespace jop
                 Diffusemap      = 1 << 2,
                 Specularmap     = 1 << 3,
                 Emissionmap     = 1 << 4,
-                Phong           = 1 << 5,
+                EnvironmentMap  = 1 << 5,
+                ReflectionMap   = 1 << 6,
+                Phong           = 1 << 7,
 
+                // For internal functionality, do not use
+                RecordEnv       = 1 << 31,
                 Lighting        = Phong
             };
         };
@@ -72,6 +76,7 @@ namespace jop
             Diffuse,
             Specular,
             Emission,
+
             Solid = Emission
         };
 
@@ -81,7 +86,9 @@ namespace jop
         {
             Diffuse = 1,
             Specular,
-            Emission
+            Emission,
+            Environment,
+            Reflection
         };
 
         /// Predefined material properties
@@ -230,7 +237,7 @@ namespace jop
         std::array<Color, 4> m_reflection;                  ///< The reflection values
         AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
-        std::array<WeakReference<const Texture>, 3> m_maps; ///< An array with the bound maps
+        std::array<WeakReference<const Texture>, 5> m_maps; ///< An array with the bound maps
 
     };
 }

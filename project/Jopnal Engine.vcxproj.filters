@@ -324,6 +324,10 @@
     <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Cubemap.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\EnvironmentRecorder.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -499,6 +503,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp">
       <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Cubemap.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\EnvironmentRecorder.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

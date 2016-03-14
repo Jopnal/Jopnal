@@ -25,6 +25,18 @@
     #define JMAT_USE_TEXTURE
 #endif
 
+// Environment map
+#ifdef JMAT_ENVIRONMENTMAP
+    uniform samplerCube m_EnvironmentMap;
+    #define JMAT_USE_TEXTURE
+#endif
+
+// Reflection map
+#ifdef JMAT_REFLECTIONMAP
+    uniform sampler2D u_ReflectionMap;
+    #define JMAT_USE_TEXTURE
+#endif
+
 // Attributes from vertex shader
 #if defined(JMAT_USE_TEXTURE)
     in vec2 vf_TexCoords;

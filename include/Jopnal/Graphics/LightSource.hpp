@@ -85,8 +85,7 @@ namespace jop
         {
             Constant,
             Linear,
-            Quadratic,
-            Range
+            Quadratic
         };
 
         /// Some good predefined attenuation values
@@ -185,11 +184,10 @@ namespace jop
         /// \param constant The constant attenuation
         /// \param linear The linear attenuation
         /// \param quadratic The quadratic attenuation
-        /// \param range Range of this light. Only affects culling
         ///
         /// \return Reference to self
         /// 
-        LightSource& setAttenuation(const float constant, const float linear, const float quadratic, const float range);
+        LightSource& setAttenuation(const float constant, const float linear, const float quadratic);
 
         /// \brief Set the attenuation values using a preset
         ///
@@ -217,6 +215,11 @@ namespace jop
         /// \return A vector with the attenuation values
         ///
         glm::vec3 getAttenuationVec() const;
+
+
+        LightSource& setRange(const float range);
+
+        float getRange() const;
 
 
         /// \brief Set the cutoff

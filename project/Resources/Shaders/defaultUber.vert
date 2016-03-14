@@ -20,7 +20,11 @@ out vec2 vf_TexCoords;
 out vec3 vf_Normal;
 
 // Fragment position to fragment shader
-out vec3 vf_FragPosition;
+// If this shader used to record an environment map, geometry shader will
+// take care if the fragment position
+#ifndef JMAT_ENVIRONMENT_RECORD
+    out vec3 vf_FragPosition;
+#endif
 
 void main()
 {
@@ -29,7 +33,9 @@ void main()
     vf_Normal = u_NMatrix * a_Normal;
 
     // Calculate and assign fragment position
-    vf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
+    #ifndef JMAT_ENVIRONMENT_RECORD
+        vf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
+    #endif
 
     // Calculate and assign position
     gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * vec4(a_Position, 1.0);
