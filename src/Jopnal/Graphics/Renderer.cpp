@@ -32,7 +32,7 @@ namespace jop
           m_cameras(),
           m_drawables(),
           m_envRecorders(),
-          m_mask(0xFFFFFFFF)
+          m_mask(1)
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);

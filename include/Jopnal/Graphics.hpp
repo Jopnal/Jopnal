@@ -44,6 +44,8 @@
 #include <Jopnal/Graphics/RectangleMesh.hpp>
 #include <Jopnal/Graphics/ShaderManager.hpp>
 #include <Jopnal/Graphics/Renderer.hpp>
+#include <Jopnal/Graphics/Cubemap.hpp>
+#include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 
 //////////////////////////////////////////////
 

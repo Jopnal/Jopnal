@@ -41,10 +41,8 @@
 #if defined(JMAT_USE_TEXTURE)
     in vec2 vf_TexCoords;
 #endif
-#ifdef JMAT_PHONG
 
-    // Camera position
-    uniform vec3 u_CameraPosition;
+#if defined(JMAT_PHONG)
 
     // Does the object receive lights?
     uniform bool u_ReceiveLights;
@@ -52,11 +50,24 @@
     // Does the object receive shadows?
     uniform bool u_ReceiveShadows;
 
+#endif
+
+#ifdef JMAT_ENVIRONMENT_RECORD
+    #define IN_FRAGPOS gf_FragPosition
+#else
+    #define IN_FRAGPOS vf_FragPosition
+#endif
+
+#if defined(JMAT_ENVIRONMENT_RECORD) || defined(JMAT_PHONG)
+
+    // Camera position
+    uniform vec3 u_CameraPosition;
+
     // Normal vector
     in vec3 vf_Normal;
 
-    // Fragment position from vertex shader
-    in vec3 vf_FragPosition;
+    // Fragment position from vertex/geometry shader
+    in vec3 IN_FRAGPOS;
 
 #endif
 
@@ -69,6 +80,10 @@
         vec3 specular;
         vec3 emission;
         float shininess;
+
+        #ifdef JMAT_ENVIRONMENTMAP
+            float reflectivity;
+        #endif
     };
     uniform Material u_Material;
 #else
@@ -470,6 +485,10 @@
 
 #endif
 
+#ifdef JMAT_ENVIRONMENTMAP
+    in vec3 vf_Position;
+#endif
+
 // Final fragment color
 out vec4 out_FinalColor;
 
@@ -485,6 +504,29 @@ void main()
         #endif
     #else
         vec3(0.0, 0.0, 0.0);
+    #endif
+
+    #ifdef JMAT_ENVIRONMENTMAP
+
+        vec3 I = normalize(vf_Position - u_CameraPosition);
+        vec3 R = reflect(I, normalize(vf_Normal));
+
+        vec3 refl = vec(0.0, 0.0, 0.0);
+
+        #ifdef JMAT_REFLECTIONMAP
+            float reflIntensity = texture(texture_reflection1, TexCoords).r;
+            if (reflIntensity > 0.1)
+                refl = vec3(texture(u_EnvironmentMap, R)) * reflIntensity
+        #else
+            refl = vec3(texture(u_EnvironmentMap, R))
+        #endif
+        #ifdef JMAT_MATERIAL
+            * u_Material.reflectivity
+        #endif
+        ;
+
+        tempColor += refl;
+
     #endif
 
     // Do lighting calculations

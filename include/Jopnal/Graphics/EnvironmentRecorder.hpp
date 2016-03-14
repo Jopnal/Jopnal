@@ -27,16 +27,35 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Cubemap.hpp>
 #include <memory>
+#include <set>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Drawable;
+
     class JOP_API EnvironmentRecorder final : public Component
     {
+    private:
+
+        EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj);
+
+        JOP_DISALLOW_COPY_MOVE(EnvironmentRecorder);
+        JOP_GENERIC_COMPONENT_CLONE(EnvironmentRecorder);
+
     public:
 
+        EnvironmentRecorder(Object& obj);
+
+
+        void record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& lights);
+
+
+    private:
+
+        Cubemap m_map;
 
     };
 }

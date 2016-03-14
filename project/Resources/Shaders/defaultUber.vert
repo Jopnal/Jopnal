@@ -16,6 +16,9 @@ uniform mat4 u_MMatrix; // Model
 uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
 // Vertex attributes to fragment shader
+#ifdef JMAT_ENVIRONMENTMAP
+    out vec3 vf_Position;
+#endif
 out vec2 vf_TexCoords;
 out vec3 vf_Normal;
 
@@ -29,10 +32,13 @@ out vec3 vf_Normal;
 void main()
 {
     // Assign attributes
+    #ifdef JMAT_ENVIRONMENTMAP
+        vf_Position = a_Position;
+    #endif
     vf_TexCoords = a_TexCoords;
     vf_Normal = u_NMatrix * a_Normal;
 
-    // Calculate and assign fragment position
+    // Calculate and assign fragment position, not used when recording environment map
     #ifndef JMAT_ENVIRONMENT_RECORD
         vf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
     #endif

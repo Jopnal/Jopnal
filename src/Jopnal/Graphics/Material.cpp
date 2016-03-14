@@ -179,6 +179,9 @@ namespace jop
                 shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.shininess", m_shininess);
+
+                if (hasAttribute(Attribute::EnvironmentMap))
+                    shader.setUniform("u_Material.reflectivity", m_reflectivity);
             }
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
@@ -193,10 +196,12 @@ namespace jop
                 shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
 
             if (hasAttribute(Attribute::EnvironmentMap) && !getMap(Material::Map::Environment).expired())
+            {
                 shader.setUniform("u_EnvironmentMap", *getMap(Material::Map::Environment), ns_envMapIndex);
 
-            if (hasAttribute(Attribute::ReflectionMap) && !getMap(Map::Reflection).expired())
-                shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
+                if (hasAttribute(Attribute::ReflectionMap) && !getMap(Map::Reflection).expired())
+                    shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
+            }
         }
     }
 
@@ -238,6 +243,21 @@ namespace jop
     float Material::getShininess() const
     {
         return m_shininess;
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::setReflectivity(const float reflectivity)
+    {
+        m_reflectivity = reflectivity;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    float Material::getReflectivity() const
+    {
+        return m_reflectivity;
     }
 
     //////////////////////////////////////////////

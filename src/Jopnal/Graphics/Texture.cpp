@@ -103,6 +103,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Texture::isValid() const
+    {
+        return m_texture != 0;
+    }
+
+    //////////////////////////////////////////////
+
     int Texture::getMaximumSize()
     {
         static int size = 0;

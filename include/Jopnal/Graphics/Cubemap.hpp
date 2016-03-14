@@ -38,7 +38,9 @@ namespace jop
         Cubemap(const std::string& name);
 
 
-        bool load(
+        bool load(const std::string& right, const std::string& left,
+                  const std::string& top, const std::string& bottom,
+                  const std::string& back, const std::string& front);
 
         bool load(const int width, const int height, const int bpp);
 

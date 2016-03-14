@@ -61,7 +61,7 @@ namespace jop
                 Phong           = 1 << 7,
 
                 // For internal functionality, do not use
-                RecordEnv       = 1 << 31,
+                RecordEnv       = 1 << 30,
                 Lighting        = Phong
             };
         };
@@ -186,6 +186,10 @@ namespace jop
         ///
         float getShininess() const;
 
+        Material& setReflectivity(const float reflectivity);
+
+        float getReflectivity() const;
+
 
         /// \brief Set a map
         ///
@@ -235,6 +239,7 @@ namespace jop
     private:
 
         std::array<Color, 4> m_reflection;                  ///< The reflection values
+        float m_reflectivity;
         AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
         std::array<WeakReference<const Texture>, 5> m_maps; ///< An array with the bound maps

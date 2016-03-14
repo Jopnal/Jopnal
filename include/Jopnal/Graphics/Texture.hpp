@@ -71,6 +71,9 @@ namespace jop
         void setSampler(const TextureSampler& sampler);
 
 
+        bool isValid() const;
+
+
         /// \brief Get the OpenGL handle for this texture
         ///
         unsigned int getHandle() const;
