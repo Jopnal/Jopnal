@@ -99,11 +99,15 @@ namespace jop
         ///
         int getDepth() const;
 
+        static unsigned int getFormatEnum(const int bytesPerPixel);
+
+        static unsigned int getInternalFormatEnum(const int formatEnum);
+
+        static bool checkDepthValid(const int depth);
+
     private:
 
         bool load(const int id);
-
-        bool checkDepthValid(const int depth) const;
 
 
         int m_width;            ///< Width of the texture

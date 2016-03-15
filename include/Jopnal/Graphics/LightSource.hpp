@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/MathInclude.hpp>
 #include <array>
 #include <set>
 
@@ -253,6 +254,8 @@ namespace jop
         /// \return The maximum number of lights
         ///
         static unsigned int getMaximumLights(const Type type);
+
+        static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
         
     private:
 
@@ -302,7 +305,7 @@ namespace jop
         /// \param shader The shader to send the lights to
         /// \param camera The camera used currently
         ///
-        void sendToShader(Shader& shader, const Camera& camera, const Drawable& drawable) const;
+        void sendToShader(Shader& shader, const Camera* camera, const Drawable& drawable) const;
 
         /// \brief Access the individual containers for each light type
         ///

@@ -67,7 +67,7 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&, const LightContainer&, Shader& shader) const = 0;
+        virtual void draw(const Camera*, const LightContainer&, Shader& shader) const = 0;
 
 
         Renderer& getRendrer();

@@ -52,36 +52,6 @@ namespace
             }
         }
     }
-
-    GLenum getDepthEnum(const unsigned int depth)
-    {
-        switch (depth)
-        {
-            case 1:
-                return gl::RED;
-            case 3:
-                return gl::RGB;
-            case 4:
-                return gl::RGBA;
-        }
-
-        return gl::RED;
-    }
-
-    GLenum getInternalFormatEnum(const GLenum format)
-    {
-        switch (format)
-        {
-            case gl::RED:
-                return gl::R8;
-            case gl::RGB:
-                return gl::RGB8;
-            case gl::RGBA:
-                return gl::RGBA8;
-        }
-
-        return gl::R8;
-    }
 }
 
 namespace jop
@@ -148,7 +118,7 @@ namespace jop
         m_width = x; m_height = y;
         m_bytesPerPixel = bytesPerPixel;
 
-        const GLenum depthEnum = getDepthEnum(bytesPerPixel);
+        const GLenum depthEnum = getFormatEnum(bytesPerPixel);
         glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
@@ -170,7 +140,7 @@ namespace jop
         }
 
         bind();
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getDepthEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -219,7 +189,41 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::checkDepthValid(const int depth) const
+    unsigned int Texture2D::getFormatEnum(const int bytesPerPixel)
+    {
+        switch (bytesPerPixel)
+        {
+            case 1:
+                return gl::RED;
+            case 3:
+                return gl::RGB;
+            case 4:
+                return gl::RGBA;
+        }
+
+        return gl::RED;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Texture2D::getInternalFormatEnum(const int formatEnum)
+    {
+        switch (formatEnum)
+        {
+            case gl::RED:
+                return gl::R8;
+            case gl::RGB:
+                return gl::RGB8;
+            case gl::RGBA:
+                return gl::RGBA8;
+        }
+
+        return gl::R8;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture2D::checkDepthValid(const int depth)
     {
         return depth == 1 || depth == 3 || depth == 4;
     }

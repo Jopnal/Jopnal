@@ -52,7 +52,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights, Shader& shader) const
+    void GenericDrawable::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
     {
         if (getModel().getMesh().expired())
             return;
@@ -64,8 +64,11 @@ namespace jop
         auto& modelMat = getObject()->getMatrix();
 
         // Set common uniforms
-        s.setUniform("u_PMatrix", camera.getProjectionMatrix());
-        s.setUniform("u_VMatrix", camera.getViewMatrix());
+        if (camera)
+        {
+            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
+            s.setUniform("u_VMatrix", camera->getViewMatrix());
+        }
         s.setUniform("u_MMatrix", modelMat);
 
         // Set vertex attributes

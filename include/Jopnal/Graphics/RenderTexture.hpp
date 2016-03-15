@@ -41,19 +41,51 @@ namespace jop
 
     public:
 
+        enum class ColorAttachment
+        {
+            RGB2D,
+            RGBA2D,
+
+            RGBCube,
+            RGBACube,
+
+            RGB2DFloat16,
+            RGBA2DFloat16,
+            RGB2DFloat32,
+            RGBA2DFloat32,
+
+            Depth2D,
+            DepthCube
+        };
+
+        enum class DepthAttachment
+        {
+            None,
+
+            Renderbuffer16,
+            Renderbuffer24,
+            Renderbuffer32,
+
+            Texture16,
+            Texture24,
+            Texture32
+        };
+
+        enum class StencilAttachment
+        {
+            None,
+
+            Int8,
+            Int16
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// Doesn't initialize anything. To create the frame buffer, call create()
         ///
         RenderTexture();
-
-        /// \brief Constructor for initialization
-        ///
-        /// \param size Size of the frame buffer texture
-        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
-        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
-        ///
-        RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
 
         /// \brief Destructor
         ///
@@ -76,9 +108,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
-
-        bool createDepth(const glm::ivec2& size, const bool cube);
+        bool create(const ColorAttachment color, const glm::ivec2& size, const DepthAttachment depth = DepthAttachment::None, const StencilAttachment stencil = StencilAttachment::None);
 
         /// \brief Destroy this frame buffer
         ///
@@ -126,17 +156,7 @@ namespace jop
         ///
         const Texture* getTexture() const;
 
-        /// \brief Get the depth bits
-        ///
-        /// \return The depth bits
-        ///
-        unsigned int getDepthBits() const;
-
-        /// \brief Get the stencil bits
-        ///
-        /// \return The stencil bits
-        ///
-        unsigned int getStencilBits() const;
+        const Texture* getDepthTexture() const;
 
         /// \brief Sets absolute Viewport for the frame buffer
         ///
@@ -160,13 +180,12 @@ namespace jop
     private:
 
         std::unique_ptr<Texture> m_texture;              ///< The attached texture
+        std::unique_ptr<Texture> m_depthTexture;
         glm::ivec2 m_size;
         Color m_clearColor;             ///< The color to use when clearing the buffer
         unsigned int m_frameBuffer;     ///< Handle for the frame buffer
         unsigned int m_depthBuffer;     ///< Handle for the depth buffer
         unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
-        unsigned int m_depthBits;       ///< The depth bits
-        unsigned int m_stencilBits;     ///< The stencil bits
         bool m_colorChanged;            ///< Has the clear color been changed?
 
     };

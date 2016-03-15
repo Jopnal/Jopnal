@@ -38,14 +38,9 @@ namespace
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : m_texture()
+        : m_texture(),
+          m_colorChanged(true)
     {}
-
-    RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : m_texture()
-    {
-        create(size, depthBits, stencilBits);
-    }
 
     RenderTexture::~RenderTexture()
     {
@@ -88,53 +83,97 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+    bool RenderTexture::create(const ColorAttachment color, const glm::ivec2& size, const DepthAttachment depth, const StencilAttachment stencil)
     {
-        auto getDepthEnum = [](const unsigned int bits) -> GLenum
+        auto getDepthEnum = [](const DepthAttachment dpth) -> GLenum
         {
-            if (bits % 8 == 0 && bits <= 32 && bits >= 16)
+            switch (dpth)
             {
-                switch (bits)
-                {
-                    case 16:
-                        return gl::DEPTH_COMPONENT16;
-                    case 24:
-                        return gl::DEPTH_COMPONENT24;
-                    case 32:
-                        return gl::DEPTH_COMPONENT32;
-                }
+                case DepthAttachment::Renderbuffer16:
+                case DepthAttachment::Texture16:
+                    return gl::DEPTH_COMPONENT16;
+
+                case DepthAttachment::Renderbuffer24:
+                case DepthAttachment::Texture24:
+                    return gl::DEPTH_COMPONENT24;
+
+                case DepthAttachment::Renderbuffer32:
+                case DepthAttachment::Texture32:
+                    return gl::DEPTH_COMPONENT32;
+
+                default:
+                    return gl::DEPTH_COMPONENT;
             }
-
-            JOP_DEBUG_ERROR("Invalid RenderTexture depth bit value (" << bits << ") specified. Defaulting to 24");
-
-            return gl::DEPTH_COMPONENT24;
         };
-        auto getStencilEnum = [](const unsigned int bits) -> GLenum
+        auto getStencilEnum = [](const StencilAttachment stncl) -> GLenum
         {
-            if (bits % 8 == 0 && bits <= 16 && bits >= 8)
+            switch (stncl)
             {
-                switch (bits)
-                {
-                    case 8:
-                        return gl::STENCIL_INDEX8;
-                    case 16:
-                        return gl::STENCIL_INDEX16;
-                }
+                case StencilAttachment::Int8:
+                    return gl::STENCIL_INDEX8;
+
+                case StencilAttachment::Int16:
+                    return gl::STENCIL_INDEX16;
+
+                default:
+                    return gl::STENCIL_INDEX;
             }
-
-            JOP_DEBUG_ERROR("Invalid RenderTexture stencil bit value (" << bits << ") specified. Defaulting to 8");
-
-            return gl::STENCIL_INDEX8;
         };
+
+        if (size.x < 1 || size.y < 1)
+        {
+            JOP_DEBUG_ERROR("Failed to create RenderTexture, invalid size specified");
+            return false;
+        }
 
         destroy();
-        m_texture = std::make_unique<Texture2D>("");
 
-        if (!static_cast<Texture2D&>(*m_texture).load(size.x, size.y, 4))
+        m_size = size;
+
+        // Create texture
+        switch (color)
         {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
-            destroy();
-            return false;
+            case ColorAttachment::RGB2D:
+            case ColorAttachment::RGBA2D:
+            {
+                auto tex = std::make_unique<Texture2D>("");
+                tex->load(size.x, size.y, color == ColorAttachment::RGB2D ? 3 : 4);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::RGBCube:
+            case ColorAttachment::RGBACube:
+            {
+                auto tex = std::make_unique<Cubemap>("");
+                tex->load(size.x, size.y, color == ColorAttachment::RGBCube ? 3 : 4);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::Depth2D:
+            {
+                auto tex = std::make_unique<TextureDepth>("");
+                tex->load(size.x, size.y);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::DepthCube:
+            {
+                auto tex = std::make_unique<CubemapDepth>("");
+                tex->load(size.x, size.y);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
         }
 
         glCheck(gl::GenFramebuffers(1, &m_frameBuffer));
@@ -146,27 +185,32 @@ namespace jop
             return false;
         }
 
-        m_size = size;
-
         bind();
 
-        if (depthBits)
+        if (depth != DepthAttachment::None)
         {
-            glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
-
-            if (!m_depthBuffer)
+            if (depth < DepthAttachment::Texture16)
             {
-                JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create depth buffer");
-                destroy();
-                return false;
-            }
+                glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
 
-            glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depthBits), m_size.x, m_size.y));
-            glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+                if (!m_depthBuffer)
+                {
+                    JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create depth buffer");
+                    destroy();
+                    return false;
+                }
+
+                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
+                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depth), size.x, size.y));
+                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+            }
+            else
+            {
+
+            }
         }
 
-        if (stencilBits)
+        if (stencil != StencilAttachment::None)
         {
             glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
 
@@ -178,86 +222,31 @@ namespace jop
             }
 
             glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencilBits), m_size.x, m_size.y));
+            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencil), size.x, size.y));
             glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
         }
 
-        glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, m_texture->getHandle(), 0));
+        GLenum colorAttEnum = gl::COLOR_ATTACHMENT0;
+
+        if (color == ColorAttachment::Depth2D || color == ColorAttachment::DepthCube)
+        {
+            colorAttEnum = gl::DEPTH_ATTACHMENT;
+            glCheck(gl::DrawBuffer(gl::NONE));
+            glCheck(gl::ReadBuffer(gl::NONE));
+        }
+
+        m_texture->bind();
+
+        glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, colorAttEnum, m_texture->getHandle(), 0));
 
         auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
         if (status != gl::FRAMEBUFFER_COMPLETE)
         {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to create frame buffer");
+            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer");
             destroy();
             return false;
         }
 
-        clear();
-        unbind();
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    bool RenderTexture::createDepth(const glm::ivec2& size, const bool cube)
-    {
-        destroy();
-
-        bool err = false;
-
-        if (cube)
-        {
-            m_texture = std::make_unique<CubemapDepth>("");
-            err = !static_cast<CubemapDepth&>(*m_texture).load(size.x, size.y);
-        }
-        else
-        {
-            m_texture = std::make_unique<TextureDepth>("");
-            err = !static_cast<TextureDepth&>(*m_texture).load(size.x, size.y);
-        }
-
-        if (err)
-        {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
-            destroy();
-            return false;
-        }
-
-        glCheck(gl::GenFramebuffers(1, &m_frameBuffer));
-
-        if (!m_frameBuffer)
-        {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't generate frame buffer");
-            destroy();
-            return false;
-        }
-
-        m_size = size;
-
-        bind();
-
-        gl::DrawBuffer(gl::NONE);
-        gl::ReadBuffer(gl::NONE);
-
-        if (cube)
-        {
-            glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_texture->getHandle(), 0));
-        }
-        else
-        {
-            glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_texture->getHandle(), 0));
-        }
-
-        auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
-        if (status != gl::FRAMEBUFFER_COMPLETE)
-        {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to create frame buffer");
-            destroy();
-            return false;
-        }
-
-        clearDepth();
         unbind();
 
         return true;
@@ -288,7 +277,9 @@ namespace jop
         }
 
         m_texture.reset();
+        m_depthTexture.reset();
         m_size = glm::ivec2();
+        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////
@@ -361,16 +352,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int RenderTexture::getDepthBits() const
+    const Texture* RenderTexture::getDepthTexture() const
     {
-        return m_depthBits;
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int RenderTexture::getStencilBits() const
-    {
-        return m_stencilBits;
+        return m_depthTexture.get();
     }
 
     //////////////////////////////////////////////

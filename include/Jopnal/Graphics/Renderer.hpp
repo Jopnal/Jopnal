@@ -66,7 +66,7 @@ namespace jop
 
         void bind(const Drawable& drawable);
 
-        void bind(const EnvironmentRecorder& envRecorder);
+        void bind(EnvironmentRecorder& envRecorder);
 
         void unbind(const LightSource& light);
 
@@ -74,7 +74,7 @@ namespace jop
 
         void unbind(const Drawable& drawable);
 
-        void unbind(const EnvironmentRecorder& envRecorder);
+        void unbind(EnvironmentRecorder& envRecorder);
 
         virtual void draw();
 
@@ -85,7 +85,7 @@ namespace jop
         std::set<const LightSource*> m_lights;
         std::set<const Camera*> m_cameras;
         std::set<const Drawable*> m_drawables;
-        std::set<const EnvironmentRecorder*> m_envRecorders;
+        std::set<EnvironmentRecorder*> m_envRecorders;
         uint32 m_mask;
 
     #ifdef JOP_DEBUG_MODE

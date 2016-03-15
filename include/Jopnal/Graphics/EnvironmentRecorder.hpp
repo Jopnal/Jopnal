@@ -53,16 +53,19 @@ namespace jop
         ~EnvironmentRecorder() override;
 
 
-        void record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& lights, const uint32 mask);
+        void record();
 
         void setRenderMask(const uint32 mask);
 
         uint32 getRenderMask() const;
 
+        const Texture* getTexture() const;
+
 
     private:
 
         RenderTexture m_fbo;
+        std::vector<glm::mat4> m_matrices;
         uint32 m_mask;
         Renderer& m_rendererRef;
     };

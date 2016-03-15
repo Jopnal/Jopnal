@@ -79,7 +79,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const EnvironmentRecorder& envRecorder)
+    void Renderer::bind(EnvironmentRecorder& envRecorder)
     {
         m_envRecorders.insert(&envRecorder);
     }
@@ -107,7 +107,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const EnvironmentRecorder& envRecorder)
+    void Renderer::unbind(EnvironmentRecorder& envRecorder)
     {
         m_envRecorders.erase(&envRecorder);
     }
@@ -129,10 +129,13 @@ namespace jop
         }
 
         // Render environment maps
-        /*for (auto envmap : m_envRecorders)
+        for (auto envmap : m_envRecorders)
         {
-            if (!
-        }*/
+            if (!envmap->isActive() || (m_mask & envmap->getRenderMask()) == 0)
+                continue;
+
+            envmap->record();
+        }
 
         RenderTexture::unbind();
 

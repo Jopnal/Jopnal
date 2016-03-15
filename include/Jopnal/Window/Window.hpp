@@ -222,7 +222,6 @@ namespace jop
         Color m_clearColor;                                 ///< The color to use when clearing the buffer
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
-        bool m_colorChanged;                                ///< Has the clear color changed?
 
     };
 

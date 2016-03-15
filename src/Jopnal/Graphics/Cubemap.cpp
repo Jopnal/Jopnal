@@ -26,6 +26,28 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
+    {
+        int rowSize = width * bpp;
+
+        for (int y = 0; y < height; ++y)
+        {
+            unsigned char* left = pixels + y * rowSize;
+            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
+
+            for (int x = 0; x < width / 2; ++x)
+            {
+                std::swap_ranges(left, left + bpp, right);
+
+                left += bpp;
+                right -= bpp;
+            }
+        }
+    }
+}
+
 namespace jop
 {
     Cubemap::Cubemap(const std::string& name)
@@ -33,20 +55,38 @@ namespace jop
           m_width(0),
           m_height(0),
           m_bytesPerPixel(0)
-    {}
+    {
+        static WeakReference<TextureSampler> sampler;
+
+        if (sampler.expired())
+        {
+            if (ResourceManager::resourceExists<TextureSampler>("jop_cube_sampler"))
+                sampler = static_ref_cast<TextureSampler>(ResourceManager::getExistingResource<TextureSampler>("jop_cube_sampler").getReference());
+            else
+            {
+                sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_cube_sampler").getReference());
+                sampler->setPersistence(0);
+
+                sampler->setFilterMode(TextureSampler::Filter::Bilinear);
+                sampler->setRepeatMode(TextureSampler::Repeat::ClampEdge);
+            }
+        }
+
+        setSampler(*sampler);
+    }
 
     //////////////////////////////////////////////
 
     bool Cubemap::load(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& back, const std::string& front)
     {
-
-
         const std::string* const paths[] =
         {
             &right, &left,
             &top, &bottom,
             &back, &front
         };
+
+        bind();
 
         for (std::size_t i = 0; i < 6; ++i)
         {
@@ -57,7 +97,7 @@ namespace jop
                 return false;
             }
 
-            unsigned char* pix = stbi_load_from_memory(buf.data(), 0, &m_width, &m_height, &m_bytesPerPixel, 0);
+            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &m_width, &m_height, &m_bytesPerPixel, 0);
 
             if (!pix)
             {
@@ -66,7 +106,8 @@ namespace jop
                 return false;
             }
 
-            //gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
+            GLenum depthEnum = Texture2D::getFormatEnum(m_bytesPerPixel);
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), m_width, m_height, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
 
             stbi_image_free(pix);
         }
@@ -76,8 +117,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const int /*width*/, const int /*height*/, const int /*bpp*/)
+    bool Cubemap::load(const int width, const int height, const int bpp)
     {
+        bind();
+
+        GLenum depthEnum = Texture2D::getFormatEnum(bpp);
+        for (std::size_t i = 0; i < 6; ++i)
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), width, height, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+
+        m_width = width;
+        m_height = height;
+        m_bytesPerPixel = bpp;
+
         return true;
     }
 }

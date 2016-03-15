@@ -27,7 +27,7 @@
 
 // Environment map
 #ifdef JMAT_ENVIRONMENTMAP
-    uniform samplerCube m_EnvironmentMap;
+    uniform samplerCube u_EnvironmentMap;
     #define JMAT_USE_TEXTURE
 #endif
 
@@ -195,7 +195,7 @@
         vec3 norm = normalize(vf_Normal);
 
         // Direction from fragment to light
-        vec3 lightDir = normalize(l.position - vf_FragPosition);
+        vec3 lightDir = normalize(l.position - IN_FRAGPOS);
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
@@ -209,7 +209,7 @@
         ;
 
         // Direction from fragment to eye
-        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
+        vec3 viewDir = normalize(u_CameraPosition - IN_FRAGPOS);
 
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
@@ -232,7 +232,7 @@
         ;
 
         // Attenuation
-        float dist = length(l.position - vf_FragPosition);
+        float dist = length(l.position - IN_FRAGPOS);
         float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
         ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
 
@@ -240,7 +240,7 @@
         if (l.castShadow && u_ReceiveShadows)
         {
             // Get a vector between fragment and light positions
-            vec3 fragToLight = vf_FragPosition - l.position;
+            vec3 fragToLight = IN_FRAGPOS - l.position;
 
             // Get current linear depth as the length between the fragment and light position
             float currentDepth = length(fragToLight);
@@ -250,7 +250,7 @@
             float bias = 0.15;
             int samples = 20;
 
-            float viewDistance = length(u_CameraPosition - vf_FragPosition);
+            float viewDistance = length(u_CameraPosition - IN_FRAGPOS);
             float diskRadius = (1.0 + (viewDistance / l.farPlane)) / 25.0;
             for (int i = 0; i < samples; ++i)
             {
@@ -304,7 +304,7 @@
         ;
 
         // Direction from fragment to eye
-        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
+        vec3 viewDir = normalize(u_CameraPosition - IN_FRAGPOS);
 
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
@@ -332,7 +332,7 @@
         // Shadow calculation
         if (l.castShadow && u_ReceiveShadows)
         {
-            vec3 projCoords = vec3(l.lsMatrix * vec4(vf_FragPosition, 1.0));
+            vec3 projCoords = vec3(l.lsMatrix * vec4(IN_FRAGPOS, 1.0));
 
             // Transform to [0,1] range
             projCoords = projCoords * 0.5 + 0.5;
@@ -388,7 +388,7 @@
         vec3 norm = normalize(vf_Normal);
 
         // Direction from fragment to light
-        vec3 lightDir = normalize(l.position - vf_FragPosition);
+        vec3 lightDir = normalize(l.position - IN_FRAGPOS);
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
@@ -402,7 +402,7 @@
         ;
 
         // Direction from fragment to eye
-        vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
+        vec3 viewDir = normalize(u_CameraPosition - IN_FRAGPOS);
 
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
@@ -433,14 +433,14 @@
         specular *= intensity;
 
         // Attenuation
-        float dist = length(l.position - vf_FragPosition);
+        float dist = length(l.position - IN_FRAGPOS);
         float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
         ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
 
         // Shadow calculation
         if (l.castShadow && u_ReceiveShadows)
         {
-            vec4 tempCoords = l.lsMatrix * vec4(vf_FragPosition, 1.0);
+            vec4 tempCoords = l.lsMatrix * vec4(IN_FRAGPOS, 1.0);
 
             // Perspective divide
             vec3 projCoords = tempCoords.xyz / tempCoords.w;
@@ -511,10 +511,10 @@ void main()
         vec3 I = normalize(vf_Position - u_CameraPosition);
         vec3 R = reflect(I, normalize(vf_Normal));
 
-        vec3 refl = vec(0.0, 0.0, 0.0);
+        vec3 refl = vec3(0.0, 0.0, 0.0);
 
         #ifdef JMAT_REFLECTIONMAP
-            float reflIntensity = texture(texture_reflection1, TexCoords).r;
+            float reflIntensity = texture(u_ReflectionMap, vf_TexCoords).r;
             if (reflIntensity > 0.1)
                 refl = vec3(texture(u_EnvironmentMap, R)) * reflIntensity
         #else
@@ -530,7 +530,7 @@ void main()
     #endif
 
     // Do lighting calculations
-    #if defined(JMAT_PHONG)
+    #ifdef JMAT_PHONG
         if (u_ReceiveLights)
         {
             // Point lights

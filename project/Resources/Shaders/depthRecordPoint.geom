@@ -4,7 +4,6 @@
 
 //////////////////////////////////////////////
 
-
 // Input triangle
 layout(triangles) in;
 
@@ -15,7 +14,12 @@ layout(triangle_strip, max_vertices = 18) out;
 uniform mat4 u_PVMatrices[6];
 
 // Fragment position to fragment shader
-out vec4 gf_FragPosition;
+#ifndef JMAT_ENVIRONMENT_RECORD
+    out vec4
+#else
+    out vec3
+#endif
+gf_FragPosition;
 
 void main()
 {
@@ -25,8 +29,14 @@ void main()
 
         for (int i = 0; i < 3; ++i)
         {
-            gf_FragPosition = gl_in[i].gl_Position;
-            gl_Position = u_PVMatrices[face] * gf_FragPosition;
+            vec4 temp = gl_in[i].gl_Position;
+            gl_Position = u_PVMatrices[face] * temp;
+
+            #ifdef JMAT_ENVIRONMENT_RECORD
+                gf_FragPosition = vec3(temp);
+            #else
+                gf_FragPosition = temp;
+            #endif
 
             EmitVertex();
         }

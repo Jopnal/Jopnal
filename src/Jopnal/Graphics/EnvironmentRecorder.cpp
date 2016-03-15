@@ -29,9 +29,16 @@ namespace jop
 {
     EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
         : Component (obj, "environmentrecorder"),
+          m_matrices(6),
           m_fbo     (),
           m_rendererRef(renderer)
-    {}
+    {
+        static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
+
+        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution)/*, RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8*/);
+
+        m_rendererRef.bind(*this);
+    }
 
     EnvironmentRecorder::EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj)
         : Component (other, newObj),
@@ -48,22 +55,50 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void EnvironmentRecorder::record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& /*lights*/, const uint32 /*mask*/)
+    void EnvironmentRecorder::record()
     {
-        static const unsigned int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
+        static const float farPlane = SettingManager::getFloat("fEnvirinmentMapFarPlane", 1000.f);
+        static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 1.f, farPlane);
 
+        LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);
 
-        for (auto& i : drawables)
+        auto& rend = m_rendererRef;
+
+        m_fbo.clear();
+
+        Shader* lastShader = nullptr;
+
+        for (uint32 i = 1; i != 0; i <<= 1)
         {
-            auto shdr = &ShaderManager::getShader(i->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);
-
-            if (shdr == &Shader::getDefault())
-            {
-                JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
+            if ((rend.m_mask & i) == 0)
                 continue;
+
+            for (auto drawable : rend.m_drawables)
+            {
+                uint32 drawableBit = 1 << drawable->getRenderGroup();
+                if (!drawable->isActive() || (i & drawableBit) == 0)
+                    continue;
+
+                auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);
+
+                if (shdr == &Shader::getDefault())
+                {
+                    JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
+                    continue;
+                }
+
+                if (lastShader != shdr)
+                {
+                    shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
+
+                    lastShader = shdr;
+                }
+
+                LightContainer lights;
+                rend.chooseLights(*drawable, lights);
+
+                drawable->draw(nullptr, lights, *shdr);
             }
-
-
         }
     }
 
@@ -79,5 +114,12 @@ namespace jop
     uint32 EnvironmentRecorder::getRenderMask() const
     {
         return m_mask;
+    }
+
+    //////////////////////////////////////////////
+
+    const Texture* EnvironmentRecorder::getTexture() const
+    {
+        return m_fbo.getTexture();
     }
 }

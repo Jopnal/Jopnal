@@ -194,7 +194,7 @@ namespace jop
 
                 m_shadowMap = std::make_unique<RenderTexture>();
                 
-                if (!m_shadowMap->createDepth(glm::ivec2(mapSize, mapSize), m_type == Type::Point))
+                if (!m_shadowMap->create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube : RenderTexture::ColorAttachment::Depth2D, glm::ivec2(mapSize)))
                 {
                     m_shadowMap.reset();
                     m_castShadows = false;
@@ -290,12 +290,7 @@ namespace jop
 
                 const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getRange());
 
-                m_lightSpaceMatrices[0] = proj * glm::lookAt(pos, pos + glm::vec3( 1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Right
-                m_lightSpaceMatrices[1] = proj * glm::lookAt(pos, pos + glm::vec3(-1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Left
-                m_lightSpaceMatrices[2] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  1.0,  0.0), glm::vec3(0.0,  0.0,  1.0)); // Top
-                m_lightSpaceMatrices[3] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0, -1.0,  0.0), glm::vec3(0.0,  0.0, -1.0)); // Bottom
-                m_lightSpaceMatrices[4] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
-                m_lightSpaceMatrices[5] = proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
+                makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 
                 shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
                 shdr.setUniform("u_FarClippingPlane", getRange());
@@ -488,6 +483,18 @@ namespace jop
         return maxLights[static_cast<int>(type)];
     }
 
+    //////////////////////////////////////////////
+
+    void LightSource::makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats)
+    {
+        viewMats[0] = projection * glm::lookAt(position, position + glm::vec3( 1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Right
+        viewMats[1] = projection * glm::lookAt(position, position + glm::vec3(-1.0,  0.0,  0.0), glm::vec3(0.0, -1.0,  0.0)); // Left
+        viewMats[2] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  1.0,  0.0), glm::vec3(0.0,  0.0,  1.0)); // Top
+        viewMats[3] = projection * glm::lookAt(position, position + glm::vec3( 0.0, -1.0,  0.0), glm::vec3(0.0,  0.0, -1.0)); // Bottom
+        viewMats[4] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
+        viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
+    }
+
 
     //////////////////////////////////////////////
 
@@ -525,7 +532,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Camera& camera, const Drawable& drawable) const
+    void LightContainer::sendToShader(Shader& shader, const Camera* camera, const Drawable& drawable) const
     {
         shader.setUniform("u_ReceiveLights", drawable.receiveLights());
 
@@ -544,7 +551,8 @@ namespace jop
         unsigned int currentSpotShadowUnit = spotShadowStartUnit;
 
         // Send camera position to shader
-        shader.setUniform("u_CameraPosition", camera.getObject()->getGlobalPosition());
+        if (camera)
+            shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
 
         // Point lights
         {

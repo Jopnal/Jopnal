@@ -10,8 +10,10 @@ layout(location = 1) in vec2 a_TexCoords;
 layout(location = 2) in vec3 a_Normal;
 
 // Matrices
-uniform mat4 u_PMatrix; // Perspective
-uniform mat4 u_VMatrix; // View
+#ifndef JMAT_ENVIRONMENT_RECORD
+    uniform mat4 u_PMatrix; // Perspective
+    uniform mat4 u_VMatrix; // View
+#endif
 uniform mat4 u_MMatrix; // Model
 uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
@@ -33,7 +35,7 @@ void main()
 {
     // Assign attributes
     #ifdef JMAT_ENVIRONMENTMAP
-        vf_Position = a_Position;
+        vf_Position = vec3(u_MMatrix * vec4(a_Position, 1.0));
     #endif
     vf_TexCoords = a_TexCoords;
     vf_Normal = u_NMatrix * a_Normal;
@@ -44,5 +46,11 @@ void main()
     #endif
 
     // Calculate and assign position
-    gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * vec4(a_Position, 1.0);
+    gl_Position =
+
+    #ifndef JMAT_ENVIRONMENT_RECORD
+        u_PMatrix * u_VMatrix *
+    #endif
+        
+    u_MMatrix * vec4(a_Position, 1.0);
 }
