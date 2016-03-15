@@ -21,6 +21,7 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Graphics/stb/stb_image.h>
 
 //////////////////////////////////////////////
 
@@ -47,12 +48,35 @@ namespace jop
             &back, &front
         };
 
+        for (std::size_t i = 0; i < 6; ++i)
+        {
+            std::vector<unsigned char> buf;
+            if (!FileLoader::read(*paths[i], buf))
+            {
+
+                return false;
+            }
+
+            unsigned char* pix = stbi_load_from_memory(buf.data(), 0, &m_width, &m_height, &m_bytesPerPixel, 0);
+
+            if (!pix)
+            {
+
+                stbi_image_free(pix);
+                return false;
+            }
+
+            //gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
+
+            stbi_image_free(pix);
+        }
+
         return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const int width, const int height, const int bpp)
+    bool Cubemap::load(const int /*width*/, const int /*height*/, const int /*bpp*/)
     {
         return true;
     }

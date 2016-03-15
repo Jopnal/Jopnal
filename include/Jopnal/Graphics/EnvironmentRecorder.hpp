@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Graphics/Cubemap.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <memory>
 #include <set>
 
@@ -35,6 +35,7 @@
 namespace jop
 {
     class Drawable;
+    class Renderer;
 
     class JOP_API EnvironmentRecorder final : public Component
     {
@@ -47,16 +48,23 @@ namespace jop
 
     public:
 
-        EnvironmentRecorder(Object& obj);
+        EnvironmentRecorder(Object& obj, Renderer& renderer);
+
+        ~EnvironmentRecorder() override;
 
 
-        void record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& lights);
+        void record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& lights, const uint32 mask);
+
+        void setRenderMask(const uint32 mask);
+
+        uint32 getRenderMask() const;
 
 
     private:
 
-        Cubemap m_map;
-
+        RenderTexture m_fbo;
+        uint32 m_mask;
+        Renderer& m_rendererRef;
     };
 }
 

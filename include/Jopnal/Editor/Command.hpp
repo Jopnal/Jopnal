@@ -112,9 +112,9 @@ namespace jope
     {
         SetAciveCommand(jop::Object& obj, const bool active);
 
-        virtual void execute() override;
+        void execute() override;
 
-        virtual void undo() override;
+        void undo() override;
 
     private:
 
@@ -128,9 +128,9 @@ namespace jope
     {
         SetObjectObjectPositionCommand(jop::Object& obj, const glm::vec3& pos);
 
-        virtual void execute() override;
+        void execute() override;
 
-        virtual void undo() override;
+        void undo() override;
 
     private:
 
@@ -143,14 +143,34 @@ namespace jope
 
     struct SetObjectScaleCommand : Command
     {
+        SetObjectScaleCommand(jop::Object& obj, const glm::vec3& scl);
 
+        void execute() override;
+
+        void undo() override;
+
+    private:
+
+        glm::vec3 m_scl;
+        glm::vec3 m_oldScl;
+        jop::WeakReference<jop::Object> m_ref;
     };
 
     //////////////////////////////////////////////
 
     struct SetObjectRotCommand : Command
     {
+        SetObjectRotCommand(jop::Object& obj, const glm::vec3& rot);
 
+        void execute() override;
+
+        void undo() override;
+
+    private:
+
+        glm::quat m_rot;
+        glm::quat m_oldRot;
+        jop::WeakReference<jop::Object> m_ref;
     };
 }
 

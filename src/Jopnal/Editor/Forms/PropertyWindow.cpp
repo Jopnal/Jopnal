@@ -75,7 +75,8 @@ namespace comp
 
             // ID box
             m_idLabel.format(true).caption("<white>ID</>");
-            
+            m_idBox.bgcolor(nana::API::bgcolor(parent));
+            m_idBox.fgcolor(nana::colors::white);
             m_idBox.multi_lines(false).editable(true).events().key_press([this](nana::arg_keyboard arg)
             {
                 if (arg.key == nana::keyboard::enter && m_idBox.edited())
@@ -144,6 +145,8 @@ namespace comp
 
             // ID box
             m_idLabel.format(true).caption("<white>ID</>");
+            m_idBox.bgcolor(nana::API::bgcolor(parent));
+            m_idBox.fgcolor(nana::colors::white);
             m_idBox.multi_lines(false).editable(true).events().key_press([this](nana::arg_keyboard arg)
             {
                 if (arg.key == nana::keyboard::enter && m_idBox.edited())
@@ -202,65 +205,235 @@ namespace comp
             : nana::group(parent),
 
               // Position
-              m_posLabel(*create_child<nana::label>("pos")),
-              m_posBoxX(*create_child<nana::spinbox>("pos")),
-              m_posBoxY(*create_child<nana::spinbox>("pos")),
-              m_posBoxZ(*create_child<nana::spinbox>("pos")),
+              m_posGroup(*create_child<nana::group>("grp")),
 
+              // Scale
+              m_sclGroup(*create_child<nana::group>("grp")),
+
+              // Rotation
+              m_rotGroup(*create_child<nana::group>("grp")),
               
               m_obj(obj)
         {
             this->enable_format_caption(true).caption("<white>Transform</>");
             this->div("<vertical margin=5 "
                     
-                      // Position
-                      "<vertical pos margin=5 gap=4 arrange=[25%,25%,25%,25%]>"
-
-                      // Scale
-                      //"<scl>"
-
-                      // Rotation
-                      //"<rot>"
+                      // Groups
+                      "<vertical grp margin=5 gap=4 arrange=[33%,repeated]>"
 
                       ">");
 
-            std::function<void(jop::Object&, const glm::vec3&, Transform&)> handlePos =
-            [](jop::Object& obj, const glm::vec3& pos, Transform& parent)
+            std::function<bool(wchar_t)> acceptFunc = [](wchar_t chr) -> bool
             {
-                parent.focus();
-
-                jope::CommandBuffer::pushCommand(new jope::SetObjectObjectPositionCommand(obj, pos));
+                return (chr <= L'9' && chr >= L'0') || chr == L'.' || chr == '\b' || chr == L'-';
             };
-            
+
             // Position
-            m_posLabel.format(true).caption("<white>Position</>");
-            // X
-            m_posBoxX.editable(true);
-            m_posBoxX.modifier("X ", "");
-            m_posBoxX.range(-FLT_MAX, FLT_MAX, 0.1);
-            m_posBoxX.value(std::to_string(obj.getPosition().x));
-            m_posBoxX.events().text_changed([handlePos, this](nana::arg_spinbox arg)
             {
-                handlePos(*m_obj, glm::vec3(static_cast<float>(arg.widget.to_double()), m_obj->getPosition().y, m_obj->getPosition().z), *this);
-            });
-            // Y
-            m_posBoxY.editable(true);
-            m_posBoxY.modifier("Y ", "");
-            m_posBoxY.range(-FLT_MAX, FLT_MAX, 0.1);
-            m_posBoxY.value(std::to_string(obj.getPosition().y));
-            m_posBoxY.events().text_changed([handlePos, this](nana::arg_spinbox arg)
+                auto makeBox = [acceptFunc, this](nana::group& parent, const float value, const std::size_t index) -> void
+                {
+                    auto& box = *parent.create_child<nana::textbox>("p");
+
+                    box.bgcolor(nana::API::bgcolor(parent));
+                    box.fgcolor(nana::colors::white);
+                    box.editable(true).multi_lines(false).reset(std::to_string(value))
+                       .set_accept(acceptFunc);
+
+                    std::function<void(nana::textbox&)> applyFunc = [index, this](nana::textbox& tb)
+                    {
+                        std::string id;
+                        tb.getline(0, id);
+                        tb.edited_reset();
+                        tb.select(false);
+
+                        glm::vec3 newPos(m_obj->getPosition());
+                        newPos[index] = static_cast<float>(tb.to_double());
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectObjectPositionCommand(*m_obj, newPos));
+                    };
+
+                    box.events().key_press([&parent, &box, applyFunc](nana::arg_keyboard arg)
+                    {
+                        if (arg.key == nana::keyboard::enter && box.edited())
+                        {
+                            std::string id;
+                            box.getline(0, id);
+                            box.edited_reset();
+                            box.select(false);
+                            parent.focus();
+                        }
+                    });
+                    box.events().focus([&box, applyFunc](nana::arg_focus arg)
+                    {
+                        if (!arg.getting)
+                            applyFunc(box);
+                    });
+                    box.events().dbl_click([&box]()
+                    {
+                        box.focus();
+                        box.select(true);
+                    });
+                    box.events().click([&box](nana::arg_click arg)
+                    {
+                        box.focus();
+                        box.caret_pos(nana::upoint(arg.mouse_args->pos.x, arg.mouse_args->pos.y));
+                    });
+                    box.events().mouse_wheel([index, this, &box](nana::arg_wheel arg)
+                    {
+                        glm::vec3 tempPos(m_obj->getPosition());
+                        tempPos[index] += (arg.upwards ? 1.f : -1.f) * 0.25f;
+
+
+
+                        box.reset(std::to_string(tempPos[index]));
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectObjectPositionCommand(*m_obj, tempPos));
+                    });
+                };
+
+                m_posGroup.enable_format_caption(true).caption("<white>Position [x,y,z]</>");
+                m_posGroup.bgcolor(nana::API::bgcolor(parent));
+                m_posGroup.div("<vertical p gap=4 margin=[2,5,0,5]>");
+
+                for (std::size_t i = 0; i < 3; ++i)
+                    makeBox(m_posGroup, obj.getPosition()[i], i);
+            }
+
+            //////////////////////////////////////////////
+
+            // Scale
             {
-                handlePos(*m_obj, glm::vec3(m_obj->getPosition().x, static_cast<float>(arg.widget.to_double()), m_obj->getPosition().z), *this);
-            });
-            //Z
-            m_posBoxZ.editable(true);
-            m_posBoxZ.modifier("Z ", "");
-            m_posBoxZ.range(-FLT_MAX, FLT_MAX, 0.1);
-            m_posBoxZ.value(std::to_string(obj.getPosition().z));
-            m_posBoxZ.events().text_changed([handlePos, this](nana::arg_spinbox arg)
+                auto makeBox = [acceptFunc, this](nana::group& parent, const float value, const std::size_t index) -> void
+                {
+                    auto& box = *parent.create_child<nana::textbox>("p");
+
+                    box.bgcolor(nana::API::bgcolor(parent));
+                    box.fgcolor(nana::colors::white);
+                    box.editable(true).multi_lines(false).reset(std::to_string(value))
+                       .set_accept(acceptFunc);
+
+                    std::function<void(nana::textbox&)> applyFunc = [index, this](nana::textbox& tb)
+                    {
+                        std::string id;
+                        tb.getline(0, id);
+                        tb.edited_reset();
+                        tb.select(false);
+
+                        glm::vec3 newScl(m_obj->getScale());
+                        newScl[index] = static_cast<float>(tb.to_double());
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectScaleCommand(*m_obj, newScl));
+                    };
+
+                    box.events().key_press([&parent, &box, applyFunc](nana::arg_keyboard arg)
+                    {
+                        if (arg.key == nana::keyboard::enter && box.edited())
+                        {
+                            std::string id;
+                            box.getline(0, id);
+                            box.edited_reset();
+                            box.select(false);
+                            parent.focus();
+                        }
+                    });
+                    box.events().focus([&box, applyFunc](nana::arg_focus arg)
+                    {
+                        if (!arg.getting)
+                            applyFunc(box);
+                    });
+                    box.events().dbl_click([&box]()
+                    {
+                        box.focus();
+                        box.select(true);
+                    });
+                    box.events().click([&box](nana::arg_click arg)
+                    {
+                        box.focus();
+                        box.caret_pos(nana::upoint(arg.mouse_args->pos.x, arg.mouse_args->pos.y));
+                    });
+                    box.events().mouse_wheel([index, this, &box](nana::arg_wheel arg)
+                    {
+                        glm::vec3 tempScale(m_obj->getScale());
+                        tempScale[index] += (arg.upwards ? 1.f : -1.f) * 0.05f;
+                        box.reset(std::to_string(tempScale[index]));
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectScaleCommand(*m_obj, tempScale));
+                    });
+                };
+
+                m_sclGroup.enable_format_caption(true).caption("<white>Scale [x,y,z]</>");
+                m_sclGroup.bgcolor(nana::API::bgcolor(parent));
+                m_sclGroup.div("<vertical p gap=4 margin=[2,5,0,5]>");
+
+                for (std::size_t i = 0; i < 3; ++i)
+                    makeBox(m_sclGroup, obj.getScale()[i], i);
+            }
+
+            //////////////////////////////////////////////
+
+            // Rotation
             {
-                handlePos(*m_obj, glm::vec3(m_obj->getPosition().x, m_obj->getPosition().y, static_cast<float>(arg.widget.to_double())), *this);
-            });
+                auto makeBox = [acceptFunc, this](nana::group& parent, const float value, const std::size_t index) -> void
+                {
+                    auto& box = *parent.create_child<nana::textbox>("p");
+
+                    box.bgcolor(nana::API::bgcolor(parent));
+                    box.fgcolor(nana::colors::white);
+                    box.editable(true).multi_lines(false).reset(std::to_string(glm::degrees(value)))
+                       .set_accept(acceptFunc);
+
+                    std::function<void(nana::textbox&)> applyFunc = [index, this](nana::textbox& tb)
+                    {
+                        std::string id;
+                        tb.getline(0, id);
+                        tb.edited_reset();
+                        tb.select(false);
+
+                        glm::vec3 newRot(glm::eulerAngles(m_obj->getRotation()));
+                        newRot[index] = glm::radians(static_cast<float>(tb.to_double()));
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectRotCommand(*m_obj, newRot));
+                    };
+
+                    box.events().key_press([&parent, &box, applyFunc](nana::arg_keyboard arg)
+                    {
+                        if (arg.key == nana::keyboard::enter && box.edited())
+                        {
+                            std::string id;
+                            box.getline(0, id);
+                            box.edited_reset();
+                            box.select(false);
+                            parent.focus();
+                        }
+                    });
+                    box.events().focus([&box, applyFunc](nana::arg_focus arg)
+                    {
+                        if (!arg.getting)
+                            applyFunc(box);
+                    });
+                    box.events().dbl_click([&box]()
+                    {
+                        box.focus();
+                        box.select(true);
+                    });
+                    box.events().click([&box](nana::arg_click arg)
+                    {
+                        box.focus();
+                        box.caret_pos(nana::upoint(arg.mouse_args->pos.x, arg.mouse_args->pos.y));
+                    });
+                    box.events().mouse_wheel([index, this, &box](nana::arg_wheel arg)
+                    {
+                        glm::vec3 tempRot(glm::eulerAngles(m_obj->getRotation()));
+                        tempRot[index] += (arg.upwards ? 1.f : -1.f) * glm::radians(5.f);
+                        box.reset(std::to_string(glm::degrees(tempRot[index])));
+
+                        jope::CommandBuffer::pushCommand(new jope::SetObjectRotCommand(*m_obj, tempRot));
+                    });
+                };
+
+                m_rotGroup.enable_format_caption(true).caption("<white>Rotation [x,y,z]</>");
+                m_rotGroup.bgcolor(nana::API::bgcolor(parent));
+                m_rotGroup.div("<vertical p gap=4 margin=[2,5,0,5]>");
+
+                const glm::vec3 rot(glm::eulerAngles(m_obj->getRotation()));
+                for (std::size_t i = 0; i < 3; ++i)
+                    makeBox(m_rotGroup, rot[i], i);
+            }
 
             this->collocate();
         }
@@ -268,17 +441,16 @@ namespace comp
     private:
 
         // Position
-        nana::label& m_posLabel;
-        nana::spinbox& m_posBoxX;
-        nana::spinbox& m_posBoxY;
-        nana::spinbox& m_posBoxZ;
+        nana::group& m_posGroup;
 
         // Scale
-
-
+        nana::group& m_sclGroup;
+        
         // Rotation
+        nana::group& m_rotGroup;
 
 
+        glm::vec3 m_rotation;
         jop::WeakReference<::jop::Object> m_obj;
     };
 
@@ -287,13 +459,13 @@ namespace comp
     const std::unordered_map<std::type_index, void(*)(jope::PropertyWindow::CompVec&)> factories
     ({
         // Camera
-        std::make_pair(std::type_index(typeid(jop::Camera)), [](jope::PropertyWindow::CompVec& comps)
+        std::make_pair(std::type_index(typeid(jop::Camera)), [](jope::PropertyWindow::CompVec& /*comps*/)
         {
 
         }),
 
         // Light source
-        std::make_pair(std::type_index(typeid(jop::LightSource)), [](jope::PropertyWindow::CompVec& comps)
+        std::make_pair(std::type_index(typeid(jop::LightSource)), [](jope::PropertyWindow::CompVec& /*comps*/)
         {
 
         })
@@ -336,7 +508,7 @@ namespace jope
         m_components.reserve(obj.componentCount() + 2);
 
         // margin=[top,right,bottom,left]
-        m_layout.div("<vertical comps margin=[5,5,0,5] arrange=[80,300,variable,repeated]>");
+        m_layout.div("<vertical comps margin=[2,4,0,4] arrange=[80,300,variable,repeated]>");
 
         // Object properties
         m_components.emplace_back(std::make_unique<comp::Object>(*this, item, obj));

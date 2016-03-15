@@ -128,6 +128,12 @@ namespace jop
             light->drawShadowMap(m_drawables);
         }
 
+        // Render environment maps
+        /*for (auto envmap : m_envRecorders)
+        {
+            if (!
+        }*/
+
         RenderTexture::unbind();
 
         // Render objects

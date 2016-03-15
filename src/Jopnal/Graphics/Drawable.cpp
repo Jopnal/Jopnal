@@ -70,6 +70,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Drawable::draw(const Camera& camera, const LightContainer& lights) const
+    {
+        draw(camera, lights, *getShader());
+    }
+
+    //////////////////////////////////////////////
+
     Renderer& Drawable::getRendrer()
     {
         return m_rendererRef;

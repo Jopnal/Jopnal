@@ -110,4 +110,40 @@ namespace jope
         m_ref->setPosition(m_oldPos);
     }
 
+    //////////////////////////////////////////////
+
+    SetObjectScaleCommand::SetObjectScaleCommand(jop::Object& obj, const glm::vec3& scl)
+        : m_scl(scl),
+          m_oldScl(obj.getScale()),
+          m_ref(obj)
+    {}
+
+    void SetObjectScaleCommand::execute()
+    {
+        m_ref->setScale(m_scl);
+    }
+
+    void SetObjectScaleCommand::undo()
+    {
+        m_ref->setScale(m_oldScl);
+    }
+
+    //////////////////////////////////////////////
+
+    SetObjectRotCommand::SetObjectRotCommand(jop::Object& obj, const glm::vec3& rot)
+        : m_rot(rot),
+          m_oldRot(obj.getRotation()),
+          m_ref(obj)
+    {}
+
+    void SetObjectRotCommand::execute()
+    {
+        m_ref->setRotation(m_rot);
+    }
+
+    void SetObjectRotCommand::undo()
+    {
+        m_ref->setRotation(m_oldRot);
+    }
+
 }

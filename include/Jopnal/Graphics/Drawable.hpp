@@ -63,9 +63,11 @@ namespace jop
         virtual ~Drawable() override = 0;
 
 
+        void draw(const Camera&, const LightContainer&) const;
+
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&, const LightContainer&) const = 0;
+        virtual void draw(const Camera&, const LightContainer&, Shader& shader) const = 0;
 
 
         Renderer& getRendrer();

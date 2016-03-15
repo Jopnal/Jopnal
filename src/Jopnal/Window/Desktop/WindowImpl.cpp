@@ -124,6 +124,15 @@ namespace jop { namespace detail
         initExtensions();
         glfwSwapInterval(static_cast<int>(settings.vSync));
 
+        // Window icon
+        {
+            std::vector<unsigned char> buf;
+            if (!FileLoader::readFromDll(IDR_WINDOWICON, buf))
+                JOP_DEBUG_ERROR("Failed to load window icon image");
+
+
+        }
+        
         glCheck(gl::GenVertexArrays(1, &m_vertexArray));
         glCheck(gl::BindVertexArray(m_vertexArray));
     }

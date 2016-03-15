@@ -100,6 +100,14 @@ namespace jop
         if ((attrib & m::Emissionmap) != 0)
             str += "#define JMAT_EMISSIONMAP\n";
 
+        // Environment map
+        if ((attrib & m::EnvironmentMap) != 0)
+            str += "#define JMAT_ENVIRONMENTMAP\n";
+
+        // Reflection map
+        if ((attrib & m::ReflectionMap) != 0)
+            str += "#define JMAT_REFLECTIONMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =
@@ -111,6 +119,10 @@ namespace jop
             if ((attrib & m::Phong) != 0)
                 str += "#define JMAT_PHONG\n" + maxLights;
         }
+
+        // Environment map record
+        if ((attrib & m::RecordEnv) != 0)
+            str += "#define JMAT_ENVIRONMENT_RECORD\n";
     }
 
     ShaderManager::~ShaderManager()

@@ -27,25 +27,57 @@
 
 namespace jop
 {
-    EnvironmentRecorder::EnvironmentRecorder(Object& obj)
+    EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
         : Component (obj, "environmentrecorder"),
-          m_map     ("")
+          m_fbo     (),
+          m_rendererRef(renderer)
     {}
 
     EnvironmentRecorder::EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj)
         : Component (other, newObj),
-          m_map     ("")
-    {}
+          m_fbo     (),
+          m_rendererRef(other.m_rendererRef)
+    {
+        m_rendererRef.bind(*this);
+    }
+
+    EnvironmentRecorder::~EnvironmentRecorder()
+    {
+        m_rendererRef.unbind(*this);
+    }
 
     //////////////////////////////////////////////
 
-    void EnvironmentRecorder::record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& lights)
+    void EnvironmentRecorder::record(const std::set<const Drawable*>& drawables, const std::set<const LightSource*>& /*lights*/, const uint32 /*mask*/)
     {
         static const unsigned int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
 
-        if (!m_map.isValid())
+
+        for (auto& i : drawables)
         {
+            auto shdr = &ShaderManager::getShader(i->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);
+
+            if (shdr == &Shader::getDefault())
+            {
+                JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
+                continue;
+            }
+
 
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void EnvironmentRecorder::setRenderMask(const uint32 mask)
+    {
+        m_mask = mask;
+    }
+
+    //////////////////////////////////////////////
+
+    uint32 EnvironmentRecorder::getRenderMask() const
+    {
+        return m_mask;
     }
 }

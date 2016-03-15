@@ -52,12 +52,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights) const
+    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights, Shader& shader) const
     {
-        if (getShader().expired() || getModel().getMesh().expired())
+        if (getModel().getMesh().expired())
             return;
 
-        auto& s = *getShader();
+        auto& s = shader;
         auto& mod = getModel();
         auto& msh = *mod.getMesh();
 
