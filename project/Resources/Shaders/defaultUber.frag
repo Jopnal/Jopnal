@@ -52,11 +52,7 @@
 
 #endif
 
-#ifdef JMAT_ENVIRONMENT_RECORD
-    #define IN_FRAGPOS gf_FragPosition
-#else
-    #define IN_FRAGPOS vf_FragPosition
-#endif
+#define IN_FRAGPOS vgf_FragPosition
 
 #if defined(JMAT_ENVIRONMENT_RECORD) || defined(JMAT_PHONG)
 

@@ -28,7 +28,7 @@ out vec3 vf_Normal;
 // If this shader used to record an environment map, geometry shader will
 // take care if the fragment position
 #ifndef JMAT_ENVIRONMENT_RECORD
-    out vec3 vf_FragPosition;
+    out vec3 vgf_FragPosition;
 #endif
 
 void main()
@@ -42,7 +42,7 @@ void main()
 
     // Calculate and assign fragment position, not used when recording environment map
     #ifndef JMAT_ENVIRONMENT_RECORD
-        vf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
+        vgf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
     #endif
 
     // Calculate and assign position

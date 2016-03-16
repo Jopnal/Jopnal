@@ -19,7 +19,7 @@ uniform mat4 u_PVMatrices[6];
 #else
     out vec3
 #endif
-gf_FragPosition;
+vgf_FragPosition;
 
 void main()
 {
@@ -33,9 +33,9 @@ void main()
             gl_Position = u_PVMatrices[face] * temp;
 
             #ifdef JMAT_ENVIRONMENT_RECORD
-                gf_FragPosition = vec3(temp);
+                vgf_FragPosition = vec3(temp);
             #else
-                gf_FragPosition = temp;
+                vgf_FragPosition = temp;
             #endif
 
             EmitVertex();

@@ -6,7 +6,7 @@
 
 
 // Fragment position from geometry shader
-in vec4 gf_FragPosition;
+in vec4 vgf_FragPosition;
 
 // Light position
 uniform vec3 u_LightPosition;
@@ -17,7 +17,7 @@ uniform float u_FarClippingPlane;
 void main()
 {
     // Get the distance between fragment and light source
-    float lightDistance = length(gf_FragPosition.xyz - u_LightPosition);
+    float lightDistance = length(vgf_FragPosition.xyz - u_LightPosition);
 
     // Map to [0,1] range
     lightDistance = lightDistance / u_FarClippingPlane;
