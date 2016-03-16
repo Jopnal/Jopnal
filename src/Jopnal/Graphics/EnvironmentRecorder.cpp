@@ -57,7 +57,7 @@ namespace jop
 
     void EnvironmentRecorder::record()
     {
-        static const float farPlane = SettingManager::getFloat("fEnvirinmentMapFarPlane", 1000.f);
+        static const float farPlane = SettingManager::getFloat("fEnvironmentMapFarPlane", 1000.f);
         static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 1.f, farPlane);
 
         LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);
@@ -89,6 +89,7 @@ namespace jop
 
                 if (lastShader != shdr)
                 {
+                    shdr->bind();
                     shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
 
                     lastShader = shdr;

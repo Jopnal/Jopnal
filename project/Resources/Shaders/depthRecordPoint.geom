@@ -14,12 +14,21 @@ layout(triangle_strip, max_vertices = 18) out;
 uniform mat4 u_PVMatrices[6];
 
 // Fragment position to fragment shader
-#ifndef JMAT_ENVIRONMENT_RECORD
-    out vec4
-#else
-    out vec3
-#endif
-vgf_FragPosition;
+out vec3 vgf_FragPosition;
+
+in VertexData
+{
+    vec3 Position;
+    vec2 TexCoords;
+    vec3 Normal;
+} inVert[];
+
+out FragVertexData
+{
+    vec3 Position;
+    vec2 TexCoords;
+    vec3 Normal;
+} outVert;
 
 void main()
 {
@@ -32,11 +41,11 @@ void main()
             vec4 temp = gl_in[i].gl_Position;
             gl_Position = u_PVMatrices[face] * temp;
 
-            #ifdef JMAT_ENVIRONMENT_RECORD
-                vgf_FragPosition = vec3(temp);
-            #else
-                vgf_FragPosition = temp;
-            #endif
+            vgf_FragPosition = vec3(temp);
+
+            outVert.Position = inVert[i].Position;
+            outVert.TexCoords = inVert[i].TexCoords;
+            outVert.Normal = inVert[i].Normal;
 
             EmitVertex();
         }

@@ -53,6 +53,11 @@ namespace jop
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderManager instance!");
 
+        auto& cont = m_instance->m_shaders;
+        auto itr = cont.find(attributes);
+        if (itr != cont.end() && !itr->second.expired())
+            return *itr->second;
+
         const auto& uber = m_instance->m_uber;
         const std::string shaderName = "jop_shader_" + std::to_string(attributes);
 
@@ -64,6 +69,8 @@ namespace jop
 
         auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::RecordEnv) ? uber[1] : "", uber[2], pp);
         //s.setManaged(true);
+
+        cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
         return s;
     }
