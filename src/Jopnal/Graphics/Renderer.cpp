@@ -140,8 +140,11 @@ namespace jop
         RenderTexture::unbind();
 
         // Render objects
-        for (uint32 i = 1; i != 0; i <<= 1)
+        uint32 done = 0;
+        for (uint32 i = 1; i != 0 && m_mask > done; i <<= 1)
         {
+            done |= i;
+
             if ((m_mask & i) == 0)
                 continue;
 

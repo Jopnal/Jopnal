@@ -71,37 +71,31 @@ namespace jop
 
         Shader* lastShader = nullptr;
 
-        for (uint32 i = 1; i != 0; i <<= 1)
+        for (auto drawable : rend.m_drawables)
         {
-            if ((rend.m_mask & i) == 0 || (m_mask & i) == 0)
+            uint32 drawableBit = 1 << drawable->getRenderGroup();
+            if (!drawable->isActive() || (m_mask & drawableBit) == 0)
                 continue;
 
-            for (auto drawable : rend.m_drawables)
+            auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);
+
+            if (shdr == &Shader::getDefault())
             {
-                uint32 drawableBit = 1 << drawable->getRenderGroup();
-                if (!drawable->isActive() || (i & drawableBit) == 0)
-                    continue;
-
-                auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);
-
-                if (shdr == &Shader::getDefault())
-                {
-                    JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
-                    continue;
-                }
-
-                if (lastShader != shdr)
-                {
-                    shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
-
-                    lastShader = shdr;
-                }
-
-                LightContainer lights;
-                rend.chooseLights(*drawable, lights);
-
-                drawable->draw(nullptr, lights, *shdr);
+                JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
+                continue;
             }
+
+            if (lastShader != shdr)
+            {
+                shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
+
+                lastShader = shdr;
+            }
+
+            LightContainer lights;
+            rend.chooseLights(*drawable, lights);
+
+            drawable->draw(nullptr, lights, *shdr);
         }
     }
 
