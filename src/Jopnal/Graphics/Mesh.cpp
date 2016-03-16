@@ -305,9 +305,9 @@ namespace jop
         {
             const auto& mat = materials.front();
 
-            material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[3], mat.dissolve),
-                                   Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[3], mat.dissolve),
-                                   Color(mat.specular[0], mat.specular[1], mat.specular[3], mat.dissolve),
+            material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[2], mat.dissolve),
+                                   Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], mat.dissolve),
+                                   Color(mat.specular[0], mat.specular[1], mat.specular[2], mat.dissolve),
                                    Color(mat.emission[0], mat.emission[1], mat.emission[2], mat.dissolve))
                                    .setShininess(mat.shininess);
             

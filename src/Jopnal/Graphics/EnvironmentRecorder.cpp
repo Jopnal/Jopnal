@@ -31,18 +31,21 @@ namespace jop
         : Component (obj, "environmentrecorder"),
           m_matrices(6),
           m_fbo     (),
+          m_mask    (1),
           m_rendererRef(renderer)
     {
         static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
 
-        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution)/*, RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8*/);
+        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution), RenderTexture::DepthAttachment::Texture24);
 
         m_rendererRef.bind(*this);
     }
 
     EnvironmentRecorder::EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj)
         : Component (other, newObj),
+          m_matrices(6),
           m_fbo     (),
+          m_mask(other.m_mask),
           m_rendererRef(other.m_rendererRef)
     {
         m_rendererRef.bind(*this);
@@ -58,7 +61,7 @@ namespace jop
     void EnvironmentRecorder::record()
     {
         static const float farPlane = SettingManager::getFloat("fEnvironmentMapFarPlane", 1000.f);
-        static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 1.f, farPlane);
+        static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
 
         LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);
 
@@ -70,7 +73,7 @@ namespace jop
 
         for (uint32 i = 1; i != 0; i <<= 1)
         {
-            if ((rend.m_mask & i) == 0)
+            if ((rend.m_mask & i) == 0 || (m_mask & i) == 0)
                 continue;
 
             for (auto drawable : rend.m_drawables)
@@ -89,7 +92,6 @@ namespace jop
 
                 if (lastShader != shdr)
                 {
-                    shdr->bind();
                     shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
 
                     lastShader = shdr;

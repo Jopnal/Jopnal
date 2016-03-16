@@ -100,6 +100,7 @@ namespace jope
             wgl::ChoosePixelFormatARB(hdc, pixelFormatAttribList, NULL, 1, &pixelFormat, &numFormats);
 
             PIXELFORMATDESCRIPTOR pfd;
+#pragma warning(suppress: 6001)
             SetPixelFormat(hdc, pixelFormat, &pfd);
             
             m_context = wgl::CreateContextAttribsARB(hdc, NULL, contextAttribs);

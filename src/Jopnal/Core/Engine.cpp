@@ -103,6 +103,7 @@ namespace jop
     {
         JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop without a valid jop::Engine instance!");
 
+#pragma warning(suppress: 6011)
         auto& eng = *m_engineObject;
 
         if (!eng.m_currentScene)

@@ -39,7 +39,12 @@ namespace jop
 {
     RenderTexture::RenderTexture()
         : m_texture(),
-          m_colorChanged(true)
+          m_depthTexture(),
+          m_size(),
+          m_clearColor(),
+          m_frameBuffer(0),
+          m_depthBuffer(0),
+          m_stencilBuffer(0)          
     {}
 
     RenderTexture::~RenderTexture()
@@ -53,16 +58,11 @@ namespace jop
     {
         if (bind())
         {
-            if (m_colorChanged)
-            {
-                glm::vec4 col = m_clearColor.asRGBAFloatVector();
+            glm::vec4 col = m_clearColor.asRGBAFloatVector();
 
-                glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
-                glCheck(gl::ClearDepth(1.0));
-                glCheck(gl::ClearStencil(0));
-
-                m_colorChanged = false;
-            }
+            glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
+            glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::ClearStencil(0));
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -74,8 +74,7 @@ namespace jop
     {
         if (bind())
         {
-            if (m_colorChanged)
-                glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::ClearDepth(1.0));
 
             glCheck(gl::Clear(gl::DEPTH_BUFFER_BIT));
         }
@@ -158,7 +157,7 @@ namespace jop
             case ColorAttachment::Depth2D:
             {
                 auto tex = std::make_unique<TextureDepth>("");
-                tex->load(size.x, size.y);
+                tex->load(size.x, size.y, 0);
 
                 m_texture = std::move(tex);
 
@@ -168,7 +167,7 @@ namespace jop
             case ColorAttachment::DepthCube:
             {
                 auto tex = std::make_unique<CubemapDepth>("");
-                tex->load(size.x, size.y);
+                tex->load(size.x, size.y, 0);
 
                 m_texture = std::move(tex);
 
@@ -186,6 +185,17 @@ namespace jop
         }
 
         bind();
+
+        GLenum colorAttEnum = gl::COLOR_ATTACHMENT0;
+
+        if (color == ColorAttachment::Depth2D || color == ColorAttachment::DepthCube)
+        {
+            colorAttEnum = gl::DEPTH_ATTACHMENT;
+            glCheck(gl::DrawBuffer(gl::NONE));
+            glCheck(gl::ReadBuffer(gl::NONE));
+        }
+
+        glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, colorAttEnum, m_texture->getHandle(), 0));
 
         if (depth != DepthAttachment::None)
         {
@@ -206,7 +216,39 @@ namespace jop
             }
             else
             {
+                int bytes;
+                switch (depth)
+                {
+                    case DepthAttachment::Texture16:
+                        bytes = 2;
+                        break;
+                    case DepthAttachment::Texture24:
+                        bytes = 3;
+                        break;
+                    case DepthAttachment::Texture32:
+                        bytes = 4;
+                        break;
 
+                    default:
+                        bytes = 0;
+                }
+
+                if (color == ColorAttachment::RGBCube || color == ColorAttachment::RGBACube)
+                {
+                    auto tex = std::make_unique<CubemapDepth>("");
+                    tex->load(size.x, size.y, bytes);
+
+                    m_depthTexture = std::move(tex);
+                }
+                else
+                {
+                    auto tex = std::make_unique<TextureDepth>("");
+                    tex->load(size.x, size.y, bytes);
+
+                    m_depthTexture = std::move(tex);
+                }
+
+                glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_depthTexture->getHandle(), 0));
             }
         }
 
@@ -225,19 +267,6 @@ namespace jop
             glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencil), size.x, size.y));
             glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
         }
-
-        GLenum colorAttEnum = gl::COLOR_ATTACHMENT0;
-
-        if (color == ColorAttachment::Depth2D || color == ColorAttachment::DepthCube)
-        {
-            colorAttEnum = gl::DEPTH_ATTACHMENT;
-            glCheck(gl::DrawBuffer(gl::NONE));
-            glCheck(gl::ReadBuffer(gl::NONE));
-        }
-
-        m_texture->bind();
-
-        glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, colorAttEnum, m_texture->getHandle(), 0));
 
         auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
         if (status != gl::FRAMEBUFFER_COMPLETE)
@@ -279,7 +308,6 @@ namespace jop
         m_texture.reset();
         m_depthTexture.reset();
         m_size = glm::ivec2();
-        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////
@@ -333,7 +361,6 @@ namespace jop
     void RenderTexture::setClearColor(const Color& color)
     {
         m_clearColor = color;
-        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////

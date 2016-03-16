@@ -186,7 +186,6 @@ namespace jop
         unsigned int m_frameBuffer;     ///< Handle for the frame buffer
         unsigned int m_depthBuffer;     ///< Handle for the depth buffer
         unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
-        bool m_colorChanged;            ///< Has the clear color been changed?
 
     };
 }

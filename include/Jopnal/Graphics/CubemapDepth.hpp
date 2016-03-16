@@ -38,7 +38,7 @@ namespace jop
         CubemapDepth(const std::string& name);
 
 
-        bool load(const int width, const int height);
+        bool load(const int width, const int height, const int bytes);
 
     private:
 

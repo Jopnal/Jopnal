@@ -52,7 +52,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool TextureDepth::load(const int width, const int height)
+    bool TextureDepth::load(const int width, const int height, const int bytes)
     {
         if (width > getMaximumSize() || height > getMaximumSize())
         {
@@ -65,9 +65,28 @@ namespace jop
             return false;
         }
 
+        GLenum depthEnum;
+        switch (bytes)
+        {
+            case 2:
+                depthEnum = gl::DEPTH_COMPONENT16;
+                break;
+
+            case 3:
+                depthEnum = gl::DEPTH_COMPONENT24;
+                break;
+
+            case 4:
+                depthEnum = gl::DEPTH_COMPONENT32;
+                break;
+
+            default:
+                depthEnum = gl::DEPTH_COMPONENT;
+        }
+
         bind();
 
-        gl::TexImage2D(gl::TEXTURE_2D, 0, gl::DEPTH_COMPONENT, width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL);
+        gl::TexImage2D(gl::TEXTURE_2D, 0, depthEnum, width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL);
 
         m_width = width;
         m_height = height;

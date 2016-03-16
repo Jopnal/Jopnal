@@ -27,6 +27,7 @@ T& Engine::createScene(Args&&... args)
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
 
+#pragma warning(suppress: 6011)
     m_engineObject->m_currentScene = std::make_unique<T>(std::forward<Args>(args)...);
     return static_cast<T&>(*m_engineObject->m_currentScene);
 }
@@ -40,6 +41,7 @@ WeakReference<T> Engine::createSubsystem(Args&&... args)
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
 
+#pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 
     JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");

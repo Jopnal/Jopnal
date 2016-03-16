@@ -142,9 +142,9 @@ namespace jop
                 }
 
                 UnlockResource(locked);
-            }
 
-            FreeResource(res);
+                FreeResource(res);
+            }
         }
 
         return success;
