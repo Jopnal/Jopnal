@@ -46,7 +46,7 @@ namespace
 namespace jope
 {
     MainWindow::MainWindow(std::unique_ptr<jop::Engine>& eng)
-        : nana::form(nana::API::make_center(1280, 720), ns_mainAppearance),
+        : nana::form(nana::rectangle(), ns_mainAppearance),
           m_layout(*this),
           m_propertyWindow(*this, ns_commonColor),
           m_objWindow(*this, m_propertyWindow),
