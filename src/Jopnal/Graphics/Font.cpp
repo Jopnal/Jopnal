@@ -21,6 +21,8 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+#define STB_RECT_PACK_IMPLEMENTATION
+#include <Jopnal/Graphics/stb/stb_rect_pack.h>
 
 //////////////////////////////////////////////
 

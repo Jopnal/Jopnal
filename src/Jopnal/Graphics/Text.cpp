@@ -27,8 +27,10 @@
 namespace jop
 {
     Text::Text(Object& object, const std::string& ID)
-        :Drawable(object, ID),
-        Mesh(ID)
+        :GenericDrawable(object, ID),
+        Mesh(ID),
+        m_material("", Material::Attribute::Diffusemap),
+        m_size(10, 10)
     {
 
     }
@@ -42,59 +44,89 @@ namespace jop
     {
         std::vector<Vertex> vertices;
 
-        float x;
+        float x = 0;
 
         for (auto i : string)
         {
-            //init ints
-            int bitmapX = 0;
-            int bitmapY = 0;
+            if (i == ' ')
+            {
+                x += 0.0275;
+            }
+            else
+            {
+                //init ints
+                int bitmapX = 0;
+                int bitmapY = 0;
 
-            int bitmapWidth = 0;
-            int bitmapHeight = 0;
+                int bitmapWidth = 0;
+                int bitmapHeight = 0;
 
-            glm::vec2 glyphOrigin;
-            float kerning;
+                glm::vec2 glyphOrigin;
 
-            //get bitmap location and size inside the texture in pixels
-            m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
+                float kerning = 0.01;
 
-            //pixels to texture coordinates
-            Texture tex = m_font->getTexture();
+                //get bitmap location and size inside the texture in pixels
+                m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
-            glm::vec2 glyphPos;
-            glyphPos.x = (float)bitmapX / (float)tex.getWidth();
-            glyphPos.y = (float)bitmapY / (float)tex.getHeight();
+                Texture& tex = m_font->getTexture();
 
-            std::pair<glm::ivec2, glm::ivec2> metrics = m_font->getBounds(i);
+                glm::vec2 glyphPos;
+                glyphPos.x = (float)bitmapX / (float)tex.getWidth();
+                glyphPos.y = (float)bitmapY / (float)tex.getHeight();
 
-            Vertex v;
-            v.position.x = x + metrics.first.x;
-            v.position.y = metrics.first.y;
-            v.position.z = 0;
-            vertices.push_back(v);
+                glm::vec2 glyphSize;
+                glyphSize.x = (float)bitmapWidth / (float)tex.getWidth();
+                glyphSize.y = (float)bitmapHeight / (float)tex.getHeight();
 
-            v.position.y = metrics.first.y - (float)bitmapHeight / (float)tex.getHeight();
-            vertices.push_back(v);
+                std::pair<glm::ivec2, glm::ivec2> metrics = m_font->getBounds(i);
 
-            v.position.x = x + metrics.first.x + (float)bitmapWidth / (float)tex.getWidth();
-            vertices.push_back(v);
+                Vertex v;
+                v.position.x = (x + metrics.first.x) * m_size.x;
+                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.position.z = 0;
+                v.texCoords.x = glyphPos.x;
+                v.texCoords.y = glyphPos.y;
+                vertices.push_back(v);
 
-            v.position.y = metrics.first.y;
-            vertices.push_back(v);
+                v.position.y = ((float)metrics.first.y - glyphSize.y) * m_size.y;
+                v.texCoords.y = glyphPos.y + glyphSize.y;
+                vertices.push_back(v);
 
-            //advance!
-            x += (float)bitmapWidth / (float)tex.getWidth() + kerning;
+                v.position.x = (x + metrics.first.x + glyphSize.x) * m_size.x;
+                v.texCoords.x = glyphPos.x + glyphSize.x;
+                vertices.push_back(v);
+                vertices.push_back(v);
+
+                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.texCoords.y = glyphPos.y;
+                vertices.push_back(v);
+
+                v.position.x = (x + metrics.first.x) * m_size.x;
+                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.texCoords.x = glyphPos.x;
+                v.texCoords.y = glyphPos.y;
+                vertices.push_back(v);
+
+                //advance!
+                x += (float)bitmapWidth / (float)tex.getWidth() + kerning;
+            }
         }
 
         Mesh::load(vertices, std::vector<unsigned int>());
+        m_material.setMap(Material::Map::Diffuse, m_font->getTexture());
+        GenericDrawable::setModel(Model(*this, m_material));
     }
 
-    void Text::draw(const Camera& cam, const LightContainer& light)
+    void Text::setFont(Font& font)
     {
-        Texture tex = m_font->getTexture();
-        tex.bind();
-        //???
+        m_font = static_ref_cast<Font>(font.getReference());
     }
+
+    //void Text::draw(const Camera& cam, const LightContainer& light)
+    //{
+    //    Texture tex = m_font->getTexture();
+    //    tex.bind();
+
+    //}
 }
 

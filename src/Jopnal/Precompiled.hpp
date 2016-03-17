@@ -69,8 +69,6 @@
 #pragma warning(pop)
 
 // FreeType
-#define STB_RECT_PACK_IMPLEMENTATION
-#include <Jopnal/Graphics/stb/stb_rect_pack.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H

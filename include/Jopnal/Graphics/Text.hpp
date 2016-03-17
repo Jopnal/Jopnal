@@ -28,25 +28,27 @@
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
+#include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
 
 namespace jop
 {
     class JOP_API Text
-        :public Drawable, public Mesh
+        :public GenericDrawable, private Mesh
     {
     public:
         Text(Object& object, const std::string& ID);
         
         void setString(const std::string &string); //generates vertices
-        void draw(const Camera&, const LightContainer&)override;
+        //void draw(const Camera&, const LightContainer&)override;
         void setPosition(const glm::vec2 position);
-
+        void setFont(Font& font);
     private:
         WeakReference<Font> m_font;
-        std::vector<Vertex> m_vertices;
+        Material m_material;
         glm::vec2 m_position;
+        glm::vec2 m_size;
     };
 }
 
