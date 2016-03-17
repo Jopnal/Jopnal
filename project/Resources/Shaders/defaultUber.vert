@@ -17,9 +17,7 @@ layout(location = 2) in vec3 a_Normal;
 uniform mat4 u_MMatrix; // Model
 uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
-// Vertex attributes to fragment shader
-
-
+// Vertex attributes to fragment/geometry shader
 #ifdef JMAT_ENVIRONMENT_RECORD
     #define OUTVERT_NAME inVert
     out VertexData

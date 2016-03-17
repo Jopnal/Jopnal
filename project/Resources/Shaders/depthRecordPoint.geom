@@ -16,19 +16,21 @@ uniform mat4 u_PVMatrices[6];
 // Fragment position to fragment shader
 out vec3 vgf_FragPosition;
 
-in VertexData
-{
-    vec3 Position;
-    vec2 TexCoords;
-    vec3 Normal;
-} inVert[];
-
-out FragVertexData
-{
-    vec3 Position;
-    vec2 TexCoords;
-    vec3 Normal;
-} outVert;
+#ifdef JMAT_ENVIRONMENT_RECORD
+    in VertexData
+    {
+        vec3 Position;
+        vec2 TexCoords;
+        vec3 Normal;
+    } inVert[];
+    
+    out FragVertexData
+    {
+        vec3 Position;
+        vec2 TexCoords;
+        vec3 Normal;
+    } outVert;
+#endif
 
 void main()
 {
@@ -43,9 +45,11 @@ void main()
 
             vgf_FragPosition = vec3(temp);
 
-            outVert.Position = inVert[i].Position;
-            outVert.TexCoords = inVert[i].TexCoords;
-            outVert.Normal = inVert[i].Normal;
+            #ifdef JMAT_ENVIRONMENT_RECORD
+                outVert.Position = inVert[i].Position;
+                outVert.TexCoords = inVert[i].TexCoords;
+                outVert.Normal = inVert[i].Normal;
+            #endif
 
             EmitVertex();
         }
