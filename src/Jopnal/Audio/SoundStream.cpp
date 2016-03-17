@@ -36,14 +36,17 @@ namespace jop
         : SoundSource(other)
     {
         m_sound = std::make_unique < sf::Music >();
-        if (bool listener = static_cast<sf::Music*>(other.m_sound.get())->isRelativeToListener())
-        {
-            static_cast<sf::Music*>(m_sound.get())->setRelativeToListener(other.m_sound.get()->isRelativeToListener());
-            static_cast<sf::Music*>(m_sound.get())->setVolume(static_cast<sf::Music*>(other.m_sound.get())->getVolume());
-            static_cast<sf::Music*>(m_sound.get())->setPitch(static_cast<sf::Music*>(other.m_sound.get())->getPitch());
-        }
-
-        static_cast<sf::Music*>(m_sound.get())->openFromFile(other.m_path);
+       
+        auto& s = static_cast<sf::Music&>(*m_sound);
+        auto& o = static_cast<const sf::Music&>(*other.m_sound);
+        
+        s.setPitch(o.getPitch());
+        s.setVolume(o.getVolume());
+        s.setRelativeToListener(o.isRelativeToListener());
+        s.setMinDistance(o.getMinDistance());
+        s.setAttenuation(o.getAttenuation());
+        s.setLoop(o.getLoop());       
+        s.openFromFile(other.m_path);
     }
     //////////////////////////////////////////////
 
@@ -55,15 +58,13 @@ namespace jop
 
     SoundStream& SoundStream::setPath(const std::string path)
     {
-        if (static_cast<sf::Music*>(m_sound.get())->openFromFile(
-            SettingManager::getString("sResourceDirectory/", "Resources/")+path))
-        {
-            m_path = path;
-
+        static const std::string m_relativity = SettingManager::getString("sResourceDirectory", "Resources")+"/";
+       
+        m_path = m_relativity + path;
+        if (!static_cast<sf::Music*>(m_sound.get())->openFromFile(path))
             return *this;
-        }
-            JOP_DEBUG_ERROR("Error in SoundStream::setStream: "<<path)
-
+        else
+            JOP_DEBUG_ERROR("Error in SoundStream::setPath: "<<path)
             return *this;
     }
 
@@ -85,6 +86,7 @@ namespace jop
     SoundStream& SoundStream::play()
     {
         static_cast<sf::Music*>(m_sound.get())->play();
+       
         return *this;
     }
 

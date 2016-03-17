@@ -51,11 +51,4 @@ namespace jop
         JOP_DEBUG_ERROR("Error in SoundBuffer::load: "<<path)
         return false;
     }
-
-    //////////////////////////////////////////////
-
-    const sf::SoundBuffer& SoundBuffer::getSfmlBuffer()const
-    {
-        return *m_soundBuf;
-    }
 }

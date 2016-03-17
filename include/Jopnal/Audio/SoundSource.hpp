@@ -125,10 +125,10 @@ namespace jop
 
     protected:
         std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
-        float m_speedCounter;                      ///< Counter for speed of sound
+        float m_speedCounter;                          ///< Counter for speed of sound
         bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
         bool m_playOnce;                               ///< Breaks link from update to calculate sound()
-        bool m_resetSound;
+        bool m_resetSound;                             ///< When using speed of sound saves value from play(bool)
     };
 }
 

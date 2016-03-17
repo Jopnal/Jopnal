@@ -142,8 +142,8 @@ namespace jop
         SoundEffect& useModifiedSpeed();
 
     private:
-        int m_useSpeedFactor;
-        float m_uniqueSpeedFactor;
+        int m_useSpeedFactor;                   ///< Which speed is used for sound. 0 = default, 1 = unique 2 = modified/global
+        float m_uniqueSpeedFactor;              ///< Sound's own personal speed of sound
     };
 }
 #endif

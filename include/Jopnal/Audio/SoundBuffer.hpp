@@ -36,8 +36,8 @@ namespace jop
 {
     class SoundBuffer : public Resource
     {
+    friend class SoundEffect;
     public:
-
         /// \brief Constructor
         ///
         SoundBuffer(const std::string& name);
@@ -51,10 +51,6 @@ namespace jop
         /// \param path Name or path for wanted resource
         ///
         bool load(const std::string& path);
-
-        /// \brief Returns buffer
-        ///
-        const sf::SoundBuffer& getSfmlBuffer() const;
 
     private:
         std::unique_ptr<sf::SoundBuffer>m_soundBuf;     ///< Unique audio buffer
