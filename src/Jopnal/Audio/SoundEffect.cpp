@@ -32,15 +32,14 @@ namespace jop
         m_sound = std::make_unique < sf::Sound >();
         m_playOnce = false;
         m_playWithSpeed = false;
+        m_uniqueSpeedFactor = -1;
     }
 
     SoundEffect::SoundEffect(const SoundEffect& other)
         : SoundSource(other)
     {
-        m_sound = std::make_unique < sf::Sound >();
+        m_sound = std::make_unique < sf::Sound >(static_cast<const sf::Sound&>(*other.m_sound));
         m_playOnce = false;
-		m_ms = 343.0f;
-      //  dynamic_cast<sf::Sound*>(*m_sound.get) = dynamic_cast<sf::Sound*>(other.m_sound.get());
         m_playWithSpeed = other.m_playWithSpeed;
     }
     //////////////////////////////////////////////
@@ -77,12 +76,6 @@ namespace jop
         {
             if (m_playOnce)
             {
-                if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
-                {
-                    if (reset)
-                        return *this;
-                }
-                static_cast<sf::Sound*>(m_sound.get())->play();
                 return *this;
             }
             else
@@ -107,17 +100,10 @@ namespace jop
         }
         else
         {
-            if (m_playOnce)
-            {
-                static_cast<sf::Sound*>(m_sound.get())->play();
-                return *this;
-            }
-            else
-            {
                 calculateSound();
                 m_playOnce = true;
                 return *this;
-            }
+            
         }
 
     }
@@ -127,6 +113,7 @@ namespace jop
     SoundEffect& SoundEffect::stop()
     {
         static_cast<sf::Sound*>(m_sound.get())->stop();
+        m_playOnce = false;
 
         return *this;
     }
@@ -161,7 +148,7 @@ namespace jop
 
     enum status SoundEffect::getStatus()
     {
-        return status(static_cast<sf::Music*>(m_sound.get())->getStatus());
+        return status(static_cast<sf::Sound*>(m_sound.get())->getStatus());
     }
 
     //////////////////////////////////////////////
@@ -169,6 +156,96 @@ namespace jop
     SoundEffect& SoundEffect::setLoop(const bool loop)
     {
         static_cast<sf::Sound*>(m_sound.get())->setLoop(loop);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::speedOfSound(const bool use)
+    {
+        m_playWithSpeed = use;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundEffect::calculateSound()
+    {
+        glm::vec3 origin = getObject()->getGlobalPosition();
+        glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
+        float lenght = sqrt(pow(target.x - origin.x, 2.0) + pow(target.y - origin.y, 2.0) + pow(target.z - origin.z, 2.0));
+ 
+        switch (m_useSpeedFactor)
+        {
+        case 0:
+        {
+            m_speedCounter = lenght / 343.f;
+            break;
+        }
+        case 1:
+        {
+            m_speedCounter = lenght / m_uniqueSpeedFactor;
+            break;
+        }
+        case 2:
+        {
+            m_speedCounter = lenght / m_speedFactor;
+            break;
+        }
+        default:
+        {
+            if (m_speedFactor==NULL)
+                m_speedCounter = lenght / 343.f;
+            else
+                m_speedCounter = lenght / m_speedFactor;
+            break;
+        }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::setSpeedOfSound(float speed)
+    {
+        m_speedFactor = speed;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::setUniqueSpeed(const float speed)
+    {
+        m_uniqueSpeedFactor = speed;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::useDefaultSpeed()
+    {
+        m_useSpeedFactor = 0;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::useUniqueSpeed()
+    {
+        m_useSpeedFactor = 1;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    SoundEffect& SoundEffect::useModifiedSpeed()
+    {
+        m_useSpeedFactor = 2;
 
         return *this;
     }

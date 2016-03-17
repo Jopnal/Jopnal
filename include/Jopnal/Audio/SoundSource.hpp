@@ -35,8 +35,6 @@ namespace sf
     class SoundSource;
 }
 
-static float m_ms;							   ///< m/s for speed of sound
-
 namespace jop
 {
     class Object;
@@ -119,41 +117,16 @@ namespace jop
         ///
         float getMinDistance();
 
-        /// \brief Change sound's distance when it is heard in max volume
-        ///
-        /// \param Attenuation 0-100.0f and minDistance 1<x
-        ///
-        SoundSource& speedOfSound(const bool use);
-
-        /// \brief Automated calculation when sound is allowed to play
-        ///
-        void calculateSound();
-
         /// \brief  Automatic check if sound is allowed to play
         ///
         /// \param Deltatime for calculation
         ///
         void allowSound(const float deltaTime);
 
-		/// \brief  Set m/s value that counts time when sound is heard, from distance/speed
-		///
-		/// \param Speed as meters per second
-		///
-		SoundSource& setSpeedForSound(const float ms);
-
-		/// \brief  Get m/s value that counts time when sound is heard, from distance/speed
-		///
-		float getSpeedForSound();
-
-		/// \brief  Set speed of sound to 343 m/s
-		///
-		SoundSource& setDefaultSpeedForSound();
-
-
     protected:
         std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
-        float m_speedCounter;						   ///< Counter for speed of sound
-		bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
+        float m_speedCounter;                      ///< Counter for speed of sound
+        bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
         bool m_playOnce;                               ///< Breaks link from update to calculate sound()
         bool m_resetSound;
     };

@@ -135,62 +135,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::speedOfSound(const bool use)
-    {
-        m_playWithSpeed = use;
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundSource::calculateSound()
-	{
-		glm::vec3 source = getObject()->getGlobalPosition();
-		glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
-        m_speedCounter = (glm::sqrt 
-			(pow((target.x-source.x),2)+
-			pow((target.y-source.y),2)+pow((target.z-source.z),2))
-			)/m_ms;
-		std::cout << m_speedCounter;
-    }
-
-    //////////////////////////////////////////////
-
     void SoundSource::allowSound(const float deltaTime)
     {
         if (m_speedCounter <= 0.0f)
         {
-            static_cast<sf::Sound*>(m_sound.get())->play();
-            m_playOnce = false;
+            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+            {
+                if (m_resetSound)
+                {
+                    m_playOnce = false;
+                }
+                else
+                  static_cast<sf::Sound*>(m_sound.get())->play();
+                  m_playOnce = false;
+            }
+            else
+            {
+                static_cast<sf::Sound*>(m_sound.get())->play();
+                m_playOnce = false;
+            }
         }
         else
-            std::cout << m_speedCounter << "\n";
             m_speedCounter -= deltaTime;
+        std::cout << m_speedCounter << "\n";
     }
-
-	//////////////////////////////////////////////
-
-	SoundSource& SoundSource::setSpeedForSound(const float ms)
-	{
-		m_ms = ms;
-
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-
-	float SoundSource::getSpeedForSound()
-	{
-		return m_ms;
-	}
-
-	//////////////////////////////////////////////
-
-	SoundSource& SoundSource::setDefaultSpeedForSound()
-	{
-		m_ms = 343.0f;
-
-		return *this;
-	}
 }

@@ -24,6 +24,8 @@
 
 //////////////////////////////////////////////
 
+static float m_speedFactor;
+
 namespace sf
 {
     class Sound;
@@ -103,6 +105,45 @@ namespace jop
         /// \param Boolean true iquals on and false iquals off
         ///
         SoundEffect& setLoop(const bool loop);
+
+
+        /// \brief Change sound's distance when it is heard in max volume
+        ///
+        /// \param Attenuation 0-100.0f and minDistance 1<x
+        ///
+        SoundEffect& speedOfSound(const bool use);
+
+        /// \brief Automated calculation when sound is allowed to play
+        ///
+        void calculateSound();
+
+        /// \brief Change sound's speed
+        ///
+        /// \param float meters per second
+        ///
+        SoundEffect& setSpeedOfSound(float speed);
+
+        /// \brief Change sound's unique speed
+        ///
+        /// \param float meters per second
+        ///
+        SoundEffect& setUniqueSpeed(const float speed);
+
+        /// \brief Use default sound speed
+        ///
+        SoundEffect& useDefaultSpeed();
+
+        /// \brief Use unique sound's speed
+        ///
+        SoundEffect& useUniqueSpeed();
+
+        /// \brief Use modified sound's speed
+        ///
+        SoundEffect& useModifiedSpeed();
+
+    private:
+        int m_useSpeedFactor;
+        float m_uniqueSpeedFactor;
     };
 }
 #endif
