@@ -73,7 +73,7 @@ namespace jop
 
         /// \brief Play sound
         ///
-        /// \param Boolean Does sound start from beginning or continue if already playing
+        /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
         ///
         /// If true audio doesn't start over from beginging
         ///

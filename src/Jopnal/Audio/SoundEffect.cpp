@@ -76,6 +76,10 @@ namespace jop
         {
             if (m_playOnce)
             {
+                if (reset)
+                    return *this;
+                else
+                    m_playOnce = true;
                 return *this;
             }
             else

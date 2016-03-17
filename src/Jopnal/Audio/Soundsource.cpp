@@ -157,6 +157,5 @@ namespace jop
         }
         else
             m_speedCounter -= deltaTime;
-        std::cout << m_speedCounter << "\n";
     }
 }
