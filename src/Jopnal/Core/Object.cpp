@@ -290,6 +290,47 @@ namespace jop
 
     /////////////////////////////////////////////
 
+    WeakReference<Object> Object::findChild(const std::string& ID, const bool recursive, const bool strict)
+    {
+        for (auto &i : m_children)
+        {
+            if (strict ? i.getID() == ID : i.getID().find(ID) != std::string::npos)
+                return i.getReference();
+
+            if (recursive)
+            {
+                auto ref = i.findChild(ID, recursive, strict);
+                if (!ref.expired())
+                    return ref;
+            }
+        }
+        return WeakReference<Object>();
+    }
+
+    /////////////////////////////////////////////
+
+    std::vector<WeakReference<Object>> Object::findChildren(const std::string &ID, const bool recursive, const bool strict)
+    {
+        std::vector<WeakReference<Object>> vec;
+
+        for (auto &i : m_children)
+        {
+            if (strict ? i.getID() == ID : i.getID().find(ID) != std::string::npos)
+            {
+                vec.push_back(i.getReference());
+            }
+
+            if (recursive)
+            {
+                auto ref = i.findChildren(ID, recursive, strict);
+                vec.insert(vec.end(), ref.begin(), ref.end());
+            }
+        }
+        return vec;
+    }
+
+    /////////////////////////////////////////////
+
     void Object::update(const float deltaTime)
     {
         if (isActive())

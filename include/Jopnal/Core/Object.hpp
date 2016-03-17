@@ -181,6 +181,25 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
+        /// \brief Function to find child returns weak reference of the child object
+        ///
+        /// \param ID Unique object identifier
+        /// \param recursive Tells if object if recursive
+        /// \param strict Tells if object is strict
+        ///
+        /// \return Objects child reference, nullptr otherwise
+        ///
+        WeakReference<Object> findChild(const std::string& ID, const bool recursive, const bool strict);
+
+        /// \brief Function to find all child objects 
+        /// 
+        /// \param ID Unique object identifier
+        /// \param recursive Tells if object is recursive
+        /// \param strict Tells if object is strict
+        ///
+        /// \return Vector consisting all objects children, nullptr otherwise
+        ///
+        std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict);
 
         /// \brief Method for getting m_ID
         ///
