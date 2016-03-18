@@ -195,12 +195,9 @@ namespace jop
         glm::vec3 origin = getObject()->getGlobalPosition();
         glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
         float lenght = sqrt(pow(target.x - origin.x, 2.f) + pow(target.y - origin.y, 2.f) + pow(target.z - origin.z, 2.f));
-        float multiplier = 343.f*ns_globalFactor*m_personalSpeed;
+        float multiplier =std::max(FLT_MIN,343.f*ns_globalFactor*m_personalSpeed);
 
         m_speedCounter = lenght / multiplier;
-
-        if (multiplier < 0.f)
-            JOP_DEBUG_WARNING("SoundEffect: "<<getID()<<"'s speed of sound multiplier is negative. Global speed multiplier: "<<ns_globalFactor<<" Personal speed multiplier: "<<m_personalSpeed);
     }
 
     //////////////////////////////////////////////
