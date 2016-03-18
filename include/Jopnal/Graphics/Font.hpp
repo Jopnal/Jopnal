@@ -67,7 +67,7 @@ namespace jop
         ///
         /// \param codepoint Numerical value pointing to a single character
         ///
-        std::pair<glm::ivec2, glm::ivec2> getBounds(const int codepoint);
+        std::pair<glm::vec2, glm::vec2> getBounds(const int codepoint);
 
         /// \brief Returns the necessary kerning between characters
         ///

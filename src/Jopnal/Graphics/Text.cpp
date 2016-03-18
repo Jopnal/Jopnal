@@ -45,12 +45,14 @@ namespace jop
         std::vector<Vertex> vertices;
 
         float x = 0;
+        int previous = -1;
 
         for (auto i : string)
         {
             if (i == ' ')
             {
-                x += 0.0275;
+                x += 0.00275 * m_size.x;
+                previous = -1;
             }
             else
             {
@@ -62,13 +64,26 @@ namespace jop
                 int bitmapHeight = 0;
 
                 glm::vec2 glyphOrigin;
-
                 float kerning = 0.01;
+
+                if (previous != -1)
+                {
+                    kerning = 0.01;//m_font->getKerning(previous, i);
+                }
+                previous = i;
 
                 //get bitmap location and size inside the texture in pixels
                 m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
                 Texture& tex = m_font->getTexture();
+
+                std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
+
+                metrics.first.x /= (32 * tex.getWidth());
+                metrics.first.y /= (32 * tex.getHeight());
+                metrics.second.x /= (64 * tex.getWidth());
+                metrics.second.y /= (64 * tex.getHeight());
+
 
                 glm::vec2 glyphPos;
                 glyphPos.x = (float)bitmapX / (float)tex.getWidth();
@@ -78,31 +93,29 @@ namespace jop
                 glyphSize.x = (float)bitmapWidth / (float)tex.getWidth();
                 glyphSize.y = (float)bitmapHeight / (float)tex.getHeight();
 
-                std::pair<glm::ivec2, glm::ivec2> metrics = m_font->getBounds(i);
-
                 Vertex v;
                 v.position.x = (x + metrics.first.x) * m_size.x;
-                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.position.y = metrics.first.y * m_size.y;
                 v.position.z = 0;
                 v.texCoords.x = glyphPos.x;
                 v.texCoords.y = glyphPos.y;
                 vertices.push_back(v);
 
-                v.position.y = ((float)metrics.first.y - glyphSize.y) * m_size.y;
+                v.position.y = (metrics.first.y - glyphSize.y) * m_size.y;
                 v.texCoords.y = glyphPos.y + glyphSize.y;
                 vertices.push_back(v);
 
-                v.position.x = (x + metrics.first.x + glyphSize.x) * m_size.x;
+                v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / tex.getWidth()) * m_size.x;
                 v.texCoords.x = glyphPos.x + glyphSize.x;
                 vertices.push_back(v);
                 vertices.push_back(v);
 
-                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.position.y = (metrics.first.y) * m_size.y;
                 v.texCoords.y = glyphPos.y;
                 vertices.push_back(v);
 
                 v.position.x = (x + metrics.first.x) * m_size.x;
-                v.position.y = ((float)metrics.first.y) * m_size.y;
+                v.position.y = metrics.first.y * m_size.y;
                 v.texCoords.x = glyphPos.x;
                 v.texCoords.y = glyphPos.y;
                 vertices.push_back(v);
