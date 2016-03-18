@@ -24,8 +24,6 @@
 
 //////////////////////////////////////////////
 
-static float m_speedFactor;
-
 namespace sf
 {
     class Sound;
@@ -107,9 +105,9 @@ namespace jop
         SoundEffect& setLoop(const bool loop);
 
 
-        /// \brief Change sound's distance when it is heard in max volume
+        /// \brief Use speed of sound (default = 343.0f * global(1.f) * personal(1.f))
         ///
-        /// \param Attenuation 0-100.0f and minDistance 1<x
+        /// \param On/off
         ///
         SoundEffect& speedOfSound(const bool use);
 
@@ -117,33 +115,29 @@ namespace jop
         ///
         void calculateSound();
 
-        /// \brief Change sound's speed
+        /// \brief Change global speed multiplier for sounds
         ///
         /// \param float meters per second
         ///
-        SoundEffect& setSpeedOfSound(float speed);
+        static void setGlobalSpeedOfSound(float speed);
 
-        /// \brief Change sound's unique speed
+        /// \brief Returns global speed multiplier for sounds
+        ///
+        static float getGlobalSpeedOfSound();
+
+
+        /// \brief Change sound's personal speed multiplier
         ///
         /// \param float meters per second
         ///
-        SoundEffect& setUniqueSpeed(const float speed);
+        SoundEffect& setPersonalSpeed(float speed);
 
-        /// \brief Use default sound speed
+        /// \brief Returns sound's personal speed multiplier
         ///
-        SoundEffect& useDefaultSpeed();
-
-        /// \brief Use unique sound's speed
-        ///
-        SoundEffect& useUniqueSpeed();
-
-        /// \brief Use modified sound's speed
-        ///
-        SoundEffect& useModifiedSpeed();
+        float getPersonalSpeed();
 
     private:
-        int m_useSpeedFactor;                   ///< Which speed is used for sound. 0 = default, 1 = unique 2 = modified/global
-        float m_uniqueSpeedFactor;              ///< Sound's own personal speed of sound
+        float m_personalSpeed;              ///< Sound's own personal speed of sound multiplier
     };
 }
 #endif

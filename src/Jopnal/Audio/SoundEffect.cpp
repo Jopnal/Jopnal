@@ -24,6 +24,11 @@
 
 //////////////////////////////////////////////
 
+namespace
+{
+    float ns_globalFactor=1.f;
+}
+
 namespace jop
 {
     SoundEffect::SoundEffect(Object& object, const std::string& ID)
@@ -32,7 +37,7 @@ namespace jop
         m_sound = std::make_unique < sf::Sound >();
         m_playOnce = false;
         m_playWithSpeed = false;
-        m_uniqueSpeedFactor = -1;
+        m_personalSpeed = 1.f;
     }
 
     SoundEffect::SoundEffect(const SoundEffect& other)
@@ -41,6 +46,7 @@ namespace jop
         m_sound = std::make_unique < sf::Sound >(static_cast<const sf::Sound&>(*other.m_sound));
         m_playOnce = false;
         m_playWithSpeed = other.m_playWithSpeed;
+        m_personalSpeed = 1.f;
     }
     //////////////////////////////////////////////
 
@@ -54,7 +60,7 @@ namespace jop
         static_cast<sf::Sound*>(m_sound.get())->setBuffer(*ResourceManager::getResource<SoundBuffer>(path).m_soundBuf);
         if (sizeof(static_cast<sf::Sound*>(m_sound.get())->getBuffer()) < 1)
         {
-            JOP_DEBUG_WARNING("Size of " << getObject()->getID() << "'s buffer is smaller than one.");
+            JOP_DEBUG_WARNING("Size of " << getID() << "'s buffer is smaller than one.");
         }
         return *this;
     }
@@ -107,12 +113,18 @@ namespace jop
         }
         else
         {
+            if (m_playOnce)
+            {
+                m_playOnce = true;
+                return *this;
+            }
+            else
+            {
                 calculateSound();
                 m_playOnce = true;
                 return *this;
-            
+            }
         }
-
     }
 
     //////////////////////////////////////////////
@@ -182,78 +194,44 @@ namespace jop
     {
         glm::vec3 origin = getObject()->getGlobalPosition();
         glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
-        float lenght = sqrt(pow(target.x - origin.x, 2.0) + pow(target.y - origin.y, 2.0) + pow(target.z - origin.z, 2.0));
- 
-        switch (m_useSpeedFactor)
-        {
-        case 0:
-        {
-            m_speedCounter = lenght / 343.f;
-            break;
-        }
-        case 1:
-        {
-            m_speedCounter = lenght / m_uniqueSpeedFactor;
-            break;
-        }
-        case 2:
-        {
-            m_speedCounter = lenght / m_speedFactor;
-            break;
-        }
-        default:
-        {
-            if (m_speedFactor==NULL)
-                m_speedCounter = lenght / 343.f;
-            else
-                m_speedCounter = lenght / m_speedFactor;
-            break;
-        }
-        }
+        float lenght = sqrt(pow(target.x - origin.x, 2.f) + pow(target.y - origin.y, 2.f) + pow(target.z - origin.z, 2.f));
+        float multiplier = 343.f*ns_globalFactor*m_personalSpeed;
+
+        m_speedCounter = lenght / multiplier;
+
+        if (multiplier < 0.f)
+            JOP_DEBUG_WARNING("SoundEffect: "<<getID()<<"'s speed of sound multiplier is negative. Global speed multiplier: "<<ns_globalFactor<<" Personal speed multiplier: "<<m_personalSpeed);
     }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setSpeedOfSound(float speed)
+    void SoundEffect::setGlobalSpeedOfSound(float speed)
     {
-        m_speedFactor = speed;
+        ns_globalFactor = speed;
+    }
 
-        return *this;
+
+    //////////////////////////////////////////////
+
+    float SoundEffect::getGlobalSpeedOfSound()
+    {
+       return ns_globalFactor;
     }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setUniqueSpeed(const float speed)
+    SoundEffect& SoundEffect::setPersonalSpeed(float speed)
     {
-        m_uniqueSpeedFactor = speed;
+        m_personalSpeed = speed;
 
         return *this;
     }
 
-    //////////////////////////////////////////////
-
-    SoundEffect& SoundEffect::useDefaultSpeed()
-    {
-        m_useSpeedFactor = 0;
-
-        return *this;
-    }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::useUniqueSpeed()
+    float SoundEffect::getPersonalSpeed()
     {
-        m_useSpeedFactor = 1;
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    SoundEffect& SoundEffect::useModifiedSpeed()
-    {
-        m_useSpeedFactor = 2;
-
-        return *this;
+        return m_personalSpeed;
     }
 }
