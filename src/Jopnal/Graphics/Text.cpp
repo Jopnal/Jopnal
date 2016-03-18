@@ -51,7 +51,7 @@ namespace jop
         {
             if (i == ' ')
             {
-                x += 0.00275 * m_size.x;
+                x += (1.0 / 64.0);
                 previous = -1;
             }
             else
@@ -68,7 +68,7 @@ namespace jop
 
                 if (previous != -1)
                 {
-                    kerning = 0.01;//m_font->getKerning(previous, i);
+                    kerning = 1.0 / 256.0;//m_font->getKerning(previous, i);
                 }
                 previous = i;
 
@@ -92,6 +92,8 @@ namespace jop
                 glm::vec2 glyphSize;
                 glyphSize.x = (float)bitmapWidth / (float)tex.getWidth();
                 glyphSize.y = (float)bitmapHeight / (float)tex.getHeight();
+
+                x += kerning;
 
                 Vertex v;
                 v.position.x = (x + metrics.first.x) * m_size.x;
@@ -120,8 +122,8 @@ namespace jop
                 v.texCoords.y = glyphPos.y;
                 vertices.push_back(v);
 
-                //advance!
-                x += (float)bitmapWidth / (float)tex.getWidth() + kerning;
+                //advance
+                x += (float)bitmapWidth / (float)tex.getWidth();
             }
         }
 

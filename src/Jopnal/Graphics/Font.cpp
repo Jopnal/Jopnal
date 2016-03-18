@@ -95,7 +95,7 @@ namespace jop
             bounds.second.x = 2;
             bounds.second.y = 2;
 
-            stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y };
+            stbrp_rect rectangle = { 0, bounds.second.x+1, bounds.second.y+1 };
             stbrp_pack_rects(m_context.get(), &rectangle, 1);
 
             if (rectangle.was_packed != 0)
@@ -132,6 +132,7 @@ namespace jop
 
     float Font::getKerning(const int codepoint1, const int codepoint2)
     {
+        FT_Set_Pixel_Sizes(m_face, 0, 64);
         FT_Vector vector;
         FT_Get_Kerning(m_face, FT_Get_Char_Index(m_face, codepoint1), FT_Get_Char_Index(m_face, codepoint2), FT_KERNING_DEFAULT, &vector);
         return vector.x;
@@ -186,8 +187,10 @@ namespace jop
             unsigned char* pixelData = bitmap.buffer;
             
             // Find an empty spot in the texture
-            stbrp_rect rectangle = { 0, bounds.second.x, bounds.second.y};
+            stbrp_rect rectangle = { 0, bounds.second.x + 1, bounds.second.y + 1};
             stbrp_pack_rects(m_context.get(), &rectangle, 1);
+            rectangle.w -= 1;
+            rectangle.h -= 1;
 
             if (rectangle.was_packed != 0)
             {
