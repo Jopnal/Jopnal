@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    TextureDepth::TextureDepth(const std::string& name)
+    Texture2DDepth::Texture2DDepth(const std::string& name)
         : Texture(name, gl::TEXTURE_2D)
     {
         static WeakReference<TextureSampler> sampler;
@@ -52,45 +52,39 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool TextureDepth::load(const int width, const int height, const int bytes)
+    bool Texture2DDepth::load(const unsigned int width, const unsigned int height, const unsigned int bytes)
     {
         if (width > getMaximumSize() || height > getMaximumSize())
         {
-
+            JOP_DEBUG_ERROR("Couldn't create depth texture, maximum size is " << getMaximumSize());
             return false;
-        }
-        else if (width <= 0 || height <= 0)
-        {
-
-            return false;
-        }
-
-        GLenum depthEnum;
-        switch (bytes)
-        {
-            case 2:
-                depthEnum = gl::DEPTH_COMPONENT16;
-                break;
-
-            case 3:
-                depthEnum = gl::DEPTH_COMPONENT24;
-                break;
-
-            case 4:
-                depthEnum = gl::DEPTH_COMPONENT32;
-                break;
-
-            default:
-                depthEnum = gl::DEPTH_COMPONENT;
         }
 
         bind();
 
-        gl::TexImage2D(gl::TEXTURE_2D, 0, depthEnum, width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL);
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getFormatEnum(bytes), width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
 
         m_width = width;
         m_height = height;
+        m_bytes = bytes;
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Texture2DDepth::getFormatEnum(const unsigned int bytes)
+    {
+        switch (bytes)
+        {
+            case 2:
+                return gl::DEPTH_COMPONENT16;
+            case 3:
+                return gl::DEPTH_COMPONENT24;
+            case 4:
+                return gl::DEPTH_COMPONENT32;
+            default:
+                return gl::DEPTH_COMPONENT;
+        }
     }
 }

@@ -66,7 +66,7 @@ namespace jop
         rb->setUserPointer(this);
         m_body = std::move(rb);
 
-        newObj.setIgnoreParent(true);
+        newObj.setIgnoreParent(other.getObject()->ignoresParent());
         setActive(isActive());
     }
 

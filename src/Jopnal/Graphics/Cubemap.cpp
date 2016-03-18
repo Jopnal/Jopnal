@@ -26,28 +26,6 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
-    {
-        int rowSize = width * bpp;
-
-        for (int y = 0; y < height; ++y)
-        {
-            unsigned char* left = pixels + y * rowSize;
-            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
-
-            for (int x = 0; x < width / 2; ++x)
-            {
-                std::swap_ranges(left, left + bpp, right);
-
-                left += bpp;
-                right -= bpp;
-            }
-        }
-    }
-}
-
 namespace jop
 {
     Cubemap::Cubemap(const std::string& name)
@@ -88,20 +66,21 @@ namespace jop
 
         bind();
 
+        int width, height, bytes;
         for (std::size_t i = 0; i < 6; ++i)
         {
             std::vector<unsigned char> buf;
             if (!FileLoader::read(*paths[i], buf))
             {
-
+                JOP_DEBUG_ERROR("Couldn't read cube map texture, face " << i);
                 return false;
             }
 
-            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &m_width, &m_height, &m_bytesPerPixel, 0);
+            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &width, &height, &bytes, 0);
 
             if (!pix)
             {
-
+                JOP_DEBUG_ERROR("Couldn't load cube map texture, face " << i);
                 stbi_image_free(pix);
                 return false;
             }
@@ -112,18 +91,24 @@ namespace jop
             stbi_image_free(pix);
         }
 
+        m_width = width;
+        m_height = height;
+        m_bytesPerPixel = bytes;
+
         return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const int width, const int height, const int bpp)
+    bool Cubemap::load(const unsigned int width, const unsigned int height, const unsigned int bpp)
     {
         bind();
 
         GLenum depthEnum = Texture2D::getFormatEnum(bpp);
         for (std::size_t i = 0; i < 6; ++i)
+        {
             glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), width, height, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+        }
 
         m_width = width;
         m_height = height;

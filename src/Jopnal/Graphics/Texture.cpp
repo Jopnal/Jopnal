@@ -110,11 +110,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int Texture::getMaximumSize()
+    unsigned int Texture::getHandle() const
     {
-        static int size = 0;
+        return m_texture;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Texture::getMaximumSize()
+    {
+        static unsigned int size = 0;
         if (!size)
-            glCheck(gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, &size));
+            glCheck(gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, reinterpret_cast<GLint*>(&size)));
 
         return size;
     }
@@ -125,7 +132,7 @@ namespace jop
     {
         static unsigned int maxUnits = 0;
         if (!maxUnits)
-            glCheck(gl::GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<int*>(&maxUnits)));
+            glCheck(gl::GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint*>(&maxUnits)));
 
         return maxUnits;
     }
@@ -166,12 +173,5 @@ namespace jop
         }
 
         return *defTex;
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Texture::getHandle() const
-    {
-        return m_texture;
     }
 }

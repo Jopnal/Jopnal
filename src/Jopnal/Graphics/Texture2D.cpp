@@ -34,16 +34,16 @@
 
 namespace
 {
-    void flip(const int width, const int height, const int bpp, unsigned char* pixels)
+    void flip(const unsigned int width, const unsigned int height, const unsigned int bpp, unsigned char* pixels)
     {
-        int rowSize = width * bpp;
+        unsigned int rowSize = width * bpp;
 
-        for (int y = 0; y < height; ++y)
+        for (std::size_t y = 0; y < height; ++y)
         {
             unsigned char* left = pixels + y * rowSize;
             unsigned char* right = pixels + (y + 1) * rowSize - bpp;
 
-            for (int x = 0; x < width / 2; ++x)
+            for (std::size_t x = 0; x < width / 2; ++x)
             {
                 std::swap_ranges(left, left + bpp, right);
 
@@ -87,46 +87,42 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const int x, const int y, const int bytesPerPixel)
+    bool Texture2D::load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel)
     {
-        return load(x, y, bytesPerPixel, nullptr);
+        return load(width, height, bytesPerPixel, nullptr);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels)
+    bool Texture2D::load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const unsigned char* pixels)
     {
-        if (!x || !y)
-        {
-            JOP_DEBUG_ERROR("Couldn't load texture. One or both dimensions are less than 1");
-            return false;
-        }
-        if (x > getMaximumSize() || y > getMaximumSize())
+        if (width > getMaximumSize() || height > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
             return false;
         }
         else if (!checkDepthValid(bytesPerPixel))
         {
-            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be either 1, 3 or 4");
+            JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be between 1 and 4");
             return false;
         }
 
         destroy();
         bind();
 
-        m_width = x; m_height = y;
+        m_width = width;
+        m_height = height;
         m_bytesPerPixel = bytesPerPixel;
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), width, height, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
 
     //////////////////////////////////////////////
 
-    void Texture2D::setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels)
+    void Texture2D::setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels)
     {
         if ((x + width > m_width) || (y + height > m_height))
         {
@@ -145,21 +141,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int Texture2D::getWidth() const
+    unsigned int Texture2D::getWidth() const
     {
         return m_width;
     }
 
     //////////////////////////////////////////////
 
-    int Texture2D::getHeight() const
+    unsigned int Texture2D::getHeight() const
     {
         return m_height;
     }
 
     //////////////////////////////////////////////
 
-    int Texture2D::getDepth() const
+    unsigned int Texture2D::getDepth() const
     {
         return m_bytesPerPixel;
     }
@@ -195,13 +191,14 @@ namespace jop
         {
             case 1:
                 return gl::RED;
+            case 2:
+                return gl::RG;
             case 3:
                 return gl::RGB;
             case 4:
+            default:
                 return gl::RGBA;
         }
-
-        return gl::RED;
     }
 
     //////////////////////////////////////////////
@@ -212,19 +209,20 @@ namespace jop
         {
             case gl::RED:
                 return gl::R8;
+            case gl::RG:
+                return gl::RG8;
             case gl::RGB:
                 return gl::RGB8;
             case gl::RGBA:
+            default:
                 return gl::RGBA8;
         }
-
-        return gl::R8;
     }
 
     //////////////////////////////////////////////
 
     bool Texture2D::checkDepthValid(const int depth)
     {
-        return depth == 1 || depth == 3 || depth == 4;
+        return depth >= 1 && depth <= 4;
     }
 }

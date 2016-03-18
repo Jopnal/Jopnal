@@ -31,20 +31,23 @@
 
 namespace jop
 {
-    class JOP_API TextureDepth final : public Texture
+    class JOP_API Texture2DDepth final : public Texture
     {
     public:
 
-        TextureDepth(const std::string& name);
+        Texture2DDepth(const std::string& name);
 
 
-        bool load(const int width, const int height, const int bytes);
+        bool load(const unsigned int width, const unsigned int height, const unsigned int bytes);
 
+
+        static unsigned int getFormatEnum(const unsigned int bytes);
 
     private:
 
-        int m_width;
-        int m_height;
+        unsigned int m_width;
+        unsigned int m_height;
+        unsigned int m_bytes;
 
     };
 }

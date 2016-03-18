@@ -63,12 +63,12 @@ namespace jop
           m_active                  (true)
     {}
 
-    Object::Object(const Object& other, const std::string& newName)
+    Object::Object(const Object& other, const std::string& newID)
         : Transform                 (other),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (newName),
+          m_ID                      (newID),
           m_ignoreParent            (other.m_ignoreParent),
           m_active                  (other.m_active)
     {
@@ -91,12 +91,12 @@ namespace jop
           m_active                  (other.m_active)
     {}
 
-    Object::Object(const Object& other, const std::string& newName, const Transform& newTransform)
+    Object::Object(const Object& other, const std::string& newID, const Transform& newTransform)
         : Transform                 (newTransform),
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (newName),
+          m_ID                      (newID),
           m_ignoreParent            (other.m_ignoreParent),
           m_active                  (other.m_active)
     {

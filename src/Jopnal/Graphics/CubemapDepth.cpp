@@ -53,49 +53,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool CubemapDepth::load(const int width, const int height, const int bytes)
+    bool CubemapDepth::load(const unsigned int width, const unsigned int height, const unsigned int bytes)
     {
         if (width > getMaximumSize() || height > getMaximumSize())
         {
-
+            JOP_DEBUG_ERROR("Couldn't create depth texture, maximum size is " << getMaximumSize());
             return false;
-        }
-        else if (width <= 0 || height <= 0)
-        {
-
-            return false;
-        }
-
-        GLenum depthEnum;
-        switch (bytes)
-        {
-            case 2:
-                depthEnum = gl::DEPTH_COMPONENT16;
-                break;
-
-            case 3:
-                depthEnum = gl::DEPTH_COMPONENT24;
-                break;
-
-            case 4:
-                depthEnum = gl::DEPTH_COMPONENT32;
-                break;
-
-            default:
-                depthEnum = gl::DEPTH_COMPONENT;
         }
 
         bind();
 
         for (unsigned int i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, depthEnum, width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2DDepth::getFormatEnum(bytes), width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
         }
-
-        //glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP));
         
         m_width = width;
         m_height = height;
+        m_bytes = bytes;
 
         return true;
     }

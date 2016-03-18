@@ -82,7 +82,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const ColorAttachment color, const glm::ivec2& size, const DepthAttachment depth, const StencilAttachment stencil)
+    bool RenderTexture::create(const ColorAttachment color, const glm::uvec2& size, const DepthAttachment depth, const StencilAttachment stencil)
     {
         auto getDepthEnum = [](const DepthAttachment dpth) -> GLenum
         {
@@ -156,7 +156,7 @@ namespace jop
 
             case ColorAttachment::Depth2D:
             {
-                auto tex = std::make_unique<TextureDepth>("");
+                auto tex = std::make_unique<Texture2DDepth>("");
                 tex->load(size.x, size.y, 0);
 
                 m_texture = std::move(tex);
@@ -242,7 +242,7 @@ namespace jop
                 }
                 else
                 {
-                    auto tex = std::make_unique<TextureDepth>("");
+                    auto tex = std::make_unique<Texture2DDepth>("");
                     tex->load(size.x, size.y, bytes);
 
                     m_depthTexture = std::move(tex);
@@ -307,7 +307,7 @@ namespace jop
 
         m_texture.reset();
         m_depthTexture.reset();
-        m_size = glm::ivec2();
+        m_size = glm::uvec2();
     }
 
     //////////////////////////////////////////////
@@ -344,7 +344,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::ivec2& RenderTexture::getSize() const
+    const glm::uvec2& RenderTexture::getSize() const
     {
         return m_size;
     }

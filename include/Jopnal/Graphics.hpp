@@ -26,7 +26,7 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/Graphics/TextureDepth.hpp>
+#include <Jopnal/Graphics/Texture2DDepth.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
 #include <Jopnal/Graphics/Shader.hpp>

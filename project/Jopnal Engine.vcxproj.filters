@@ -294,9 +294,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Texture2D.hpp">
       <Filter>Graphics\Headers\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\TextureDepth.hpp">
-      <Filter>Graphics\Headers\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\TextureSampler.hpp">
       <Filter>Graphics\Headers\Texture</Filter>
     </ClInclude>
@@ -329,6 +326,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\EnvironmentRecorder.hpp">
       <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Texture2DDepth.hpp">
+      <Filter>Graphics\Headers\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -479,9 +479,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Texture2D.cpp">
       <Filter>Graphics\Source\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Graphics\TextureDepth.cpp">
-      <Filter>Graphics\Source\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Collider.cpp">
       <Filter>Physics\Source</Filter>
     </ClCompile>
@@ -511,6 +508,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\EnvironmentRecorder.cpp">
       <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Texture2DDepth.cpp">
+      <Filter>Graphics\Source\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -52,26 +52,26 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param x The desired width
-        /// \param y The desired height
+        /// \param width The desired width
+        /// \param height The desired height
         /// \param bytesPerPixel The byte depth
         ///
         /// \return True if loading was successful
         ///
-        bool load(const int x, const int y, const int bytesPerPixel);
+        bool load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel);
 
         /// \brief Create a texture from an array of pixels
         ///
         /// The accepted pixel depth values are 1, 3 and 4.
         ///
-        /// \param x Width of the texture
-        /// \param y Height of the texture
+        /// \param width Width of the texture
+        /// \param height Height of the texture
         /// \param bytesPerPixel The byte depth of the image
         /// \param pixels Pointer to the beginning of the pixel array
         ///
         /// \return True if loading was successful
         ///
-        bool load(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
+        bool load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const unsigned char* pixels);
 
 
         /// \brief Set a subset of pixels
@@ -84,20 +84,20 @@ namespace jop
         /// \param height Height
         /// \param pixels Pointer to the pixels
         ///
-        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
+        void setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels);
 
 
         /// \brief Returns image's width
         ///
-        int getWidth() const;
+        unsigned int getWidth() const;
 
         /// \brief Returns image's height
         ///
-        int getHeight() const;
+        unsigned int getHeight() const;
 
         /// \brief Returns image's bytes per pixel value
         ///
-        int getDepth() const;
+        unsigned int getDepth() const;
 
         static unsigned int getFormatEnum(const int bytesPerPixel);
 
@@ -110,9 +110,9 @@ namespace jop
         bool load(const int id);
 
 
-        int m_width;            ///< Width of the texture
-        int m_height;           ///< Height of the texture
-        int m_bytesPerPixel;    ///< Byte depth of the texture
+        unsigned int m_width;            ///< Width of the texture
+        unsigned int m_height;           ///< Height of the texture
+        unsigned int m_bytesPerPixel;    ///< Byte depth of the texture
 
     };
 }

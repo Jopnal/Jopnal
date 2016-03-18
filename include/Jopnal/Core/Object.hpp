@@ -44,23 +44,32 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param ID Unique object identifier m_ID
+        /// \param ID Object id
         ///
         Object(const std::string& ID);
 
         /// \brief Copy constructor
+        /// 
+        /// \param other The other object to copy
+        /// \param newName The ID of the new object
         ///
-        Object(const Object& other, const std::string& newName);
+        Object(const Object& other, const std::string& newID);
 
+        /// \copydoc Object(const Object&,const std::string&)
         ///
+        /// \param newTransform Transform for the new object
         ///
-        Object(const Object& other, const std::string& newName, const Transform& newTransform);
+        Object(const Object& other, const std::string& newID, const Transform& newTransform);
 
         /// \brief Move constructor
+        ///
+        /// \param other The other object to move
         ///
         Object(Object&& other);
 
         /// \brief Move assignment operator
+        ///
+        /// \param other The other object to move
         ///
         Object& operator =(Object&& other);
 
@@ -69,27 +78,36 @@ namespace jop
         ///
         /// \param ID Component identifier to search with
         ///
-        /// \return Weak reference with the component, empty if the component wasn't found
+        /// \return Pointer to the component, nullptr if the component wasn't found
         ///
         Component* getComponent(const std::string& ID);
 
+        /// \copycod getComponent()
+        ///
         const Component* getComponent(const std::string& ID) const;
 
+        
+        /// \brief Get all components
+        ///
+        /// \return Reference to the internal vector with the components
+        ///
         const std::vector<std::unique_ptr<Component>>& getComponents() const;
 
         /// \brief Get a component using type info
         ///
-        /// \return Pointer to the component. Empty if not found
+        /// \return Pointer to the component. Nullptr if not found
         ///
         template<typename T>
         T* getComponent();
 
+        /// \copydoc getComponent()
+        ///
         template<typename T>
         const T* getComponent() const;
 
         /// \brief Template function to create components
         ///
-        /// \param args User determined arguments
+        /// \param args Arguments to use with construction
         ///
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
@@ -100,9 +118,13 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        /// \brief Remove all components
+        ///
         void clearComponents();
 
         /// \brief Get amount of components
+        ///
+        /// \return Amount of components
         ///
         unsigned int componentCount() const;
 
@@ -123,6 +145,10 @@ namespace jop
         ///
         WeakReference<Object> getChild(const std::string& ID);
 
+        /// \brief Get all children
+        ///
+        /// \return Reference to the internal vector with the components
+        ///
         const std::vector<Object>& getChildren() const;
 
         /// \brief Clone a child with the given id
@@ -137,6 +163,10 @@ namespace jop
         ///
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
+        /// \copydoc cloneChild(const std::string&, const std::string&)
+        ///
+        /// \param newTransform 
+        ///
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
 
 
@@ -153,6 +183,8 @@ namespace jop
 
         /// \brief Get amount of children
         ///
+        /// \return Amount of children
+        ///
         unsigned int childCount() const;
 
         /// \brief Get amount of children recursively
@@ -160,11 +192,24 @@ namespace jop
         /// Goes through the children and their children all the way down the tree
         /// and return the total amount of children
         ///
+        /// \return Amount of children, summed recursively
+        ///
         unsigned int childCountRecursive() const;
 
 
+        /// \brief Set this object to ignore its parent
+        ///
+        /// This only affects transformations. Objects that ignore their parent will not take
+        /// into account the parent's tranformation.
+        ///
+        /// \param ignore The flag to set
+        ///
         void setIgnoreParent(const bool ignore);
 
+        /// \brief Check if this object ignores its parent
+        ///
+        /// \return True if ignores parent
+        ///
         bool ignoresParent() const;
 
 
@@ -192,12 +237,22 @@ namespace jop
         Message::Result sendMessage(const Message& message);
 
 
+        /// \brief Set this object active/inactive
+        ///
+        /// \param active Activity flag to set
+        ///
         void setActive(const bool active);
 
+        /// \brief Check if this object is active
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
 
 
-        /// \brief Method for getting m_ID
+        /// \brief Get this object's id
+        ///
+        /// \return Reference to the internal id string
         ///
         const std::string& getID() const;
 
@@ -206,6 +261,7 @@ namespace jop
         /// \param ID unique object identifier
         ///
         void setID(const std::string& ID);
+
 
         /// \brief Update method for object - forwarded for its components
         ///

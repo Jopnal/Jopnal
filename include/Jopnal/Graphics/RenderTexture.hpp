@@ -108,7 +108,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool create(const ColorAttachment color, const glm::ivec2& size, const DepthAttachment depth = DepthAttachment::None, const StencilAttachment stencil = StencilAttachment::None);
+        bool create(const ColorAttachment color, const glm::uvec2& size, const DepthAttachment depth = DepthAttachment::None, const StencilAttachment stencil = StencilAttachment::None);
 
         /// \brief Destroy this frame buffer
         ///
@@ -130,7 +130,7 @@ namespace jop
         ///
         /// \return glm::vec2 with the size
         ///
-        const glm::ivec2& getSize() const;
+        const glm::uvec2& getSize() const;
 
         /// \brief Check if this frame buffer is valid
         ///
@@ -181,7 +181,7 @@ namespace jop
 
         std::unique_ptr<Texture> m_texture;              ///< The attached texture
         std::unique_ptr<Texture> m_depthTexture;
-        glm::ivec2 m_size;
+        glm::uvec2 m_size;
         Color m_clearColor;             ///< The color to use when clearing the buffer
         unsigned int m_frameBuffer;     ///< Handle for the frame buffer
         unsigned int m_depthBuffer;     ///< Handle for the depth buffer

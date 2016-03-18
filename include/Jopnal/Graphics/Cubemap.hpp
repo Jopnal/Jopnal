@@ -42,13 +42,13 @@ namespace jop
                   const std::string& top, const std::string& bottom,
                   const std::string& back, const std::string& front);
 
-        bool load(const int width, const int height, const int bpp);
+        bool load(const unsigned int width, const unsigned int height, const unsigned int bpp);
 
     private:
 
-        int m_width;
-        int m_height;
-        int m_bytesPerPixel;
+        unsigned int m_width;
+        unsigned int m_height;
+        unsigned int m_bytesPerPixel;
 
     };
 }

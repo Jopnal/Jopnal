@@ -54,7 +54,8 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
+        /// \param ID Component identifier
+        /// \param renderer Reference to the renderer
         ///
         Drawable(Object& object, const std::string& ID, Renderer& renderer);
 
@@ -63,20 +64,44 @@ namespace jop
         virtual ~Drawable() override = 0;
 
 
-        void draw(const Camera&, const LightContainer&) const;
+        
+        /// \brief Base draw function
+        ///
+        /// This will use the shader bound to this drawable.
+        /// 
+        /// \param camera The camera to use
+        /// \param lights The light container
+        ///
+        void draw(const Camera& camera, const LightContainer& lights) const;
 
         /// \brief Draw function
         ///
         virtual void draw(const Camera*, const LightContainer&, Shader& shader) const = 0;
 
 
+        /// \brief Get the renderer this drawable is bound to
+        ///
+        /// \return Reference to the renderer
+        ///
         Renderer& getRendrer();
 
+        /// \copydoc getRenderer()
+        ///
         const Renderer& getRenderer() const;
 
 
+        /// \brief Set the render group
+        ///
+        /// The value will be clamped between 0 and 31.
+        ///
+        /// \param group The new group to set
+        ///
         void setRenderGroup(const uint8 group);
 
+        /// \brief Get the render group
+        ///
+        /// \return The render group 
+        ///
         uint8 getRenderGroup() const;
 
 
@@ -125,15 +150,37 @@ namespace jop
         bool receiveLights() const;
 
 
+        /// \brief Check if a light affects this drawable
+        /// 
+        /// \param light The light to check against
+        ///
+        /// \return True if the light affects
+        ///
         bool lightTouches(const LightSource& light) const;
 
 
+        /// \brief Set the flag to receive shadows
+        ///
+        /// \param receive True to set this to receive shadows
+        ///
         void setReceiveShadows(const bool receive);
 
+        /// \brief Check if this drawable receives shadows
+        ///
+        /// \return True if this drawable receives shadows
+        ///
         bool receiveShadows() const;
 
+        /// \brief Set the flag to cast shadows
+        /// 
+        /// \param cast True to set this to cast shadows
+        ///
         void setCastShadows(const bool cast);
 
+        /// \brief Check if this drawable casts shadows
+        ///
+        /// \return True if this drawable casts shadows
+        ///
         bool castShadows() const;
 
 

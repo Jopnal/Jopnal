@@ -80,7 +80,7 @@ namespace jop
 
         /// \brief Get the maximum supported texture size of this system
         ///
-        static int getMaximumSize();
+        static unsigned int getMaximumSize();
 
         static unsigned int getMaxTextureUnits();
 
