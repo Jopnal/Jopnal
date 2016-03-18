@@ -185,7 +185,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getFormatEnum(const int bytesPerPixel)
+    unsigned int Texture2D::getFormatEnum(const unsigned int bytesPerPixel)
     {
         switch (bytesPerPixel)
         {
@@ -203,7 +203,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getInternalFormatEnum(const int formatEnum)
+    unsigned int Texture2D::getInternalFormatEnum(const unsigned int formatEnum)
     {
         switch (formatEnum)
         {
@@ -221,7 +221,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::checkDepthValid(const int depth)
+    bool Texture2D::checkDepthValid(const unsigned int depth)
     {
         return depth >= 1 && depth <= 4;
     }

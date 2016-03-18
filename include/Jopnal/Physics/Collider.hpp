@@ -45,21 +45,34 @@ namespace jop
 
     protected:
 
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object
+        /// \param world Reference to the physics world
+        /// \param ID Id of this component
+        ///
         Collider(Object& object, World& world, const std::string& ID);
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other collider to copy
+        /// \param newObj The new object
+        ///
         Collider(const Collider& other, Object& newObj);
 
+        /// \brief Virtual destructor
+        ///
         virtual ~Collider() override = 0;
 
     private:
 
-        void setActive(const bool active) override = 0;
+        void setActive(const bool) override = 0;
 
     protected:
 
-        std::unique_ptr<btMotionState> m_motionState;
-        std::unique_ptr<btCollisionObject> m_body;
-        World& m_worldRef;
+        std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
+        std::unique_ptr<btCollisionObject> m_body;      ///< Body data
+        World& m_worldRef;                              ///< Reference to the world
 
     };
 }

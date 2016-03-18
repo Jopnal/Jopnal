@@ -35,13 +35,27 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
         BoxShape(const std::string& name);
 
+        /// \brief Constructor
+        /// 
+        /// \param name Name of the resource
+        /// \param size Size of the box
+        ///
         BoxShape(const std::string& name, const float size);
 
 
+        /// \brief Load this shape
+        ///
+        /// \param size Size of the box
+        ///
+        /// \return True if successful
+        ///
         bool load(const float size);
-
     };
 }
 

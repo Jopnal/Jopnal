@@ -42,16 +42,21 @@ namespace jop
 
     protected:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
         CollisionShape(const std::string& name);
 
     public:
 
+        /// \brief Virtual destructor
+        ///
         virtual ~CollisionShape() override = 0;
 
     protected:
 
-        std::unique_ptr<btCollisionShape> m_shape;
-
+        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
     };
 }
 

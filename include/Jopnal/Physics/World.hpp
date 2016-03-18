@@ -49,26 +49,46 @@ namespace jop
 
     private:
 
+        /// \brief Constructor
+        ///
+        /// \param renderer Reference to the renderer, needed for debug drawing
+        ///
         World(Renderer& renderer);
 
+        /// \brief Destructor
+        ///
         ~World();
 
 
+        /// \brief Update the world
+        ///
+        /// \param deltaTime The delta time
+        ///
         void update(const float deltaTime);
 
+        /// \brief Debug draw the world
+        ///
+        /// \param camera Camera to use
+        ///
         void draw(const Camera& camera);
 
     public:
 
+        /// \brief Enable/disable debug drawing
+        ///
+        /// \param enable True to enable
+        ///
         void setDebugMode(const bool enable);
 
+        /// \brief Check if debug drawing is enabled
+        ///
+        /// \return True if enabled
+        ///
         bool debugMode() const;
-
 
     private:
 
-        std::unique_ptr<detail::WorldImpl> m_worldData;
-
+        std::unique_ptr<detail::WorldImpl> m_worldData; ///< The world data
     };
 }
 

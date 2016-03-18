@@ -130,8 +130,7 @@ namespace jop
           m_cutoff              (0.17f, 0.17f), // ~10 degrees
           m_rendererRef         (renderer),
           m_renderMask          (1),
-          m_shadowMap           (),
-          m_castShadows         (false)
+          m_shadowMap           ()
     {
         m_intensities[0] = Color::Black; // Ambient
         m_intensities[1] = Color::White; // Diffuse
@@ -149,10 +148,9 @@ namespace jop
           m_cutoff              (other.m_cutoff),
           m_rendererRef         (other.m_rendererRef),
           m_renderMask          (other.m_renderMask),
-          m_shadowMap           (),
-          m_castShadows         (false)
+          m_shadowMap           ()
     {
-        setCastShadows(other.m_castShadows);
+        setCastShadows(other.castShadows());
         m_rendererRef.bind(*this);
     }
 
@@ -186,30 +184,22 @@ namespace jop
 
     LightSource& LightSource::setCastShadows(const bool castShadows)
     {
-        if (m_castShadows != castShadows)
+        if (this->castShadows() != castShadows)
         {
             if (castShadows)
             {
                 static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 1024);
-
-                m_shadowMap = std::make_unique<RenderTexture>();
                 
-                if (!m_shadowMap->create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube : RenderTexture::ColorAttachment::Depth2D, glm::ivec2(mapSize)))
-                {
-                    m_shadowMap.reset();
-                    m_castShadows = false;
+                if (!m_shadowMap.create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube : RenderTexture::ColorAttachment::Depth2D, glm::ivec2(mapSize)))
                     return *this;
-                }
 
                 m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);
             }
             else
             {
-                m_shadowMap.reset();
+                m_shadowMap.destroy();
                 m_lightSpaceMatrices.clear();
             }
-
-            m_castShadows = castShadows;
         }
 
         return *this;
@@ -219,7 +209,7 @@ namespace jop
 
     bool LightSource::castShadows() const
     {
-        return m_castShadows;
+        return m_shadowMap.isValid();
     }
 
     //////////////////////////////////////////////
@@ -270,10 +260,10 @@ namespace jop
 
         auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;
 
-        if (!m_shadowMap->bind() || !shdr.bind())
+        if (!m_shadowMap.bind() || !shdr.bind())
             return false;
 
-        m_shadowMap->clearDepth();
+        m_shadowMap.clear();
 
         // Use the object's scale to construct the frustum
         auto scl = getObject()->getScale();
@@ -305,7 +295,7 @@ namespace jop
             }
             case Type::Spot:
             {
-                auto s = glm::vec2(m_shadowMap->getSize());
+                auto s = glm::vec2(m_shadowMap.getSize());
                 m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
@@ -345,10 +335,7 @@ namespace jop
 
     const Texture* LightSource::getShadowMap() const
     {
-        if (m_shadowMap)
-            return m_shadowMap->getTexture();
-
-        return nullptr;
+        return m_shadowMap.getTexture();
     }
 
     ///////////////////////////////////////////

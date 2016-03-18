@@ -39,6 +39,10 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
         Texture2D(const std::string& name);
 
 
@@ -99,20 +103,40 @@ namespace jop
         ///
         unsigned int getDepth() const;
 
-        static unsigned int getFormatEnum(const int bytesPerPixel);
+        /// \brief Get the OpenGL format enum
+        ///
+        /// \param bytesPerPixel Bytes per pixel
+        ///
+        /// \return The OpenGL format enum
+        ///
+        static unsigned int getFormatEnum(const unsigned int bytesPerPixel);
 
-        static unsigned int getInternalFormatEnum(const int formatEnum);
+        /// \brief Get the OpenGL internal format enum
+        ///
+        /// \param formatEnum The external format enum fetched with getFormatEnum()
+        ///
+        /// \return The OpenGL internal format enum
+        ///
+        static unsigned int getInternalFormatEnum(const unsigned int formatEnum);
 
-        static bool checkDepthValid(const int depth);
+        /// \brief Check if the pixel depth value is supported
+        ///
+        /// \param depth The pixel depth in bytes
+        ///
+        /// \return True if the fepth is supported
+        ///
+        static bool checkDepthValid(const unsigned int depth);
 
     private:
 
+        /// For internal use
+        ///
         bool load(const int id);
 
 
-        unsigned int m_width;            ///< Width of the texture
-        unsigned int m_height;           ///< Height of the texture
-        unsigned int m_bytesPerPixel;    ///< Byte depth of the texture
+        unsigned int m_width;           ///< Width of the texture
+        unsigned int m_height;          ///< Height of the texture
+        unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
 
     };
 }

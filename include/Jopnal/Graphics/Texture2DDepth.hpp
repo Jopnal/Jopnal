@@ -35,19 +35,37 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name if the resource
+        ///
         Texture2DDepth(const std::string& name);
 
 
+        /// \brief Load this texture
+        ///
+        /// \param width Width
+        /// \param height Height
+        /// \param bytes Bytes per pixel
+        ///
+        /// \return True if loading was successful
+        ///
         bool load(const unsigned int width, const unsigned int height, const unsigned int bytes);
 
 
+        /// \brief Get the OpenGL format enum for the given pixel depth
+        ///
+        /// \param bytes Bytes per pixel
+        ///
+        /// \return The format OpenGL enum
+        ///
         static unsigned int getFormatEnum(const unsigned int bytes);
 
     private:
 
-        unsigned int m_width;
-        unsigned int m_height;
-        unsigned int m_bytes;
+        unsigned int m_width;   ///< Width
+        unsigned int m_height;  ///< Height
+        unsigned int m_bytes;   ///< Bytes per pixel
 
     };
 }

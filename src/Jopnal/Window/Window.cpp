@@ -34,8 +34,6 @@ namespace jop
     JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
 
         JOP_BIND_MEMBER_COMMAND(&Window::setClearColor, "setClearColor");
-        JOP_BIND_MEMBER_COMMAND(&Window::setViewport, "setViewport");
-        JOP_BIND_MEMBER_COMMAND(&Window::setViewportRelative, "setViewportRelative");
         JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
 
     JOP_END_COMMAND_HANDLER(Window)
@@ -172,7 +170,8 @@ namespace jop
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
-        setViewportRelative(0.f, 0.f, 1.f, 1.f);
+        auto s = getSize();
+        gl::Viewport(0, 0, s.x, s.y);
 
         static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "222222FF"));
         setClearColor(defColor);
@@ -240,28 +239,6 @@ namespace jop
     void Window::pollEvents()
     {
         detail::WindowImpl::pollEvents();
-    }
-
-    void Window::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
-    {
-        if (isOpen())
-            glCheck(gl::Viewport(x, y, width, height));
-    }
-
-    //////////////////////////////////////////////
-
-    void Window::setViewportRelative(const float x, const float y, const float width, const float height)
-    {
-        if (isOpen())
-        {
-            int windowX;
-            int windowY;
-
-            glfwGetWindowSize(getLibraryHandle(), &windowX, &windowY);
-
-            glCheck(gl::Viewport(static_cast<int>(x * windowX), static_cast<int>(y * windowY),
-                                 static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
-        }
     }
 
     //////////////////////////////////////////////

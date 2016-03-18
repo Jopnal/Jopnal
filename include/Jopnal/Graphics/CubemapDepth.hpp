@@ -35,16 +35,28 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of this resource
+        ///
         CubemapDepth(const std::string& name);
 
 
+        /// \brief Load this cube map
+        ///
+        /// \param width Width of a single face
+        /// \param height Height of a single face
+        /// \param bytes Bytes per pixel
+        ///
+        /// \return True if loaded successfully
+        ///
         bool load(const unsigned int width, const unsigned int height, const unsigned int bytes);
 
     private:
 
-        unsigned int m_width;
-        unsigned int m_height;
-        unsigned int m_bytes;
+        unsigned int m_width;   ///< Width
+        unsigned int m_height;  ///< Height
+        unsigned int m_bytes;   ///< Bytes per pixel
     };
 }
 

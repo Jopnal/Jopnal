@@ -41,42 +41,52 @@ namespace jop
 
     public:
 
+        /// Color attachment type
+        ///
         enum class ColorAttachment
         {
-            RGB2D,
-            RGBA2D,
+            RGB2D,          ///< 24 bit 2D texture
+            RGBA2D,         ///< 32 bit 2D texture
 
-            RGBCube,
-            RGBACube,
+            RGBCube,        ///< 24 bit cube map texture
+            RGBACube,       ///< 32 bit cube map texture
+            
+            RGB2DFloat16,   ///< 48 bit 2D texture
+            RGBA2DFloat16,  ///< 64 but 2D texture
+            RGB2DFloat32,   ///< 96 bit 2D texture
+            RGBA2DFloat32,  ///< 128 bit 2D texture
 
-            RGB2DFloat16,
-            RGBA2DFloat16,
-            RGB2DFloat32,
-            RGBA2DFloat32,
-
-            Depth2D,
-            DepthCube
+            Depth2D,        ///< 2D depth texture
+            DepthCube       ///< Cube map depth texture
         };
 
+        /// Depth attachment type
+        ///
+        /// Render buffer attachments cannot be used with cube map color attachments.
+        ///
         enum class DepthAttachment
         {
-            None,
+            None,           ///< No depth attachment
 
-            Renderbuffer16,
-            Renderbuffer24,
-            Renderbuffer32,
+            Renderbuffer16, ///< 16 bit render buffer
+            Renderbuffer24, ///< 24 bit render buffer
+            Renderbuffer32, ///< 32 bit render buffer
 
-            Texture16,
-            Texture24,
-            Texture32
+            Texture16,      ///< 16 bit depth texture
+            Texture24,      ///< 24 bit depth texture
+            Texture32       ///< 32 bit depth texture
         };
-
+        
+        /// Stencil attachment type
+        ///
+        /// Stencil attachments cannot be used with cube map color attachments.
+        ///
         enum class StencilAttachment
         {
-            None,
+            None,   ///< No stencil attachment
 
-            Int8,
-            Int16
+            Int8,   ///< 8 bit stencil render buffer
+            Int16   ///< 16 bit stencil render buffer
         };
 
     public:
@@ -98,13 +108,12 @@ namespace jop
         ///
         void clear();
 
-        void clearDepth();
-
         /// \brief Initialize the frame buffer
         ///
-        /// \param size Size of the frame buffer texture
-        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
-        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
+        /// \param color The color attachment type
+        /// \param size Size of the color attachment texture
+        /// \param depth The depth attachment
+        /// \param stencil The stencil attachment
         ///
         /// \return True if successful
         ///
@@ -114,7 +123,7 @@ namespace jop
         ///
         void destroy();
 
-        /// \brief Bind this frame buffer for drawing on
+        /// \brief Bind this frame buffer for drawing
         ///
         /// \return True if successful
         ///
@@ -152,41 +161,25 @@ namespace jop
 
         /// \brief Get the texture
         ///
-        /// \return Const reference to the internal texture
+        /// \return Const pointer to the internal texture, nullptr if no texture exists
         ///
         const Texture* getTexture() const;
 
+        /// \brief Get the depth texture
+        ///
+        /// \return Const pointer to the internal depth texture, nullptr if no depth texture exists
+        ///
         const Texture* getDepthTexture() const;
-
-        /// \brief Sets absolute Viewport for the frame buffer
-        ///
-        /// \param x The upper left x coordinate
-        /// \param y The upper left y coordinate
-        /// \param width Width of the view port in pixels
-        /// \param height Height of the view port in pixels
-        ///
-        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
-
-        /// \brief Sets relative Viewport for the frame buffer
-        ///
-        /// \param x The relative upper left x coordinate
-        /// \param y The relative upper left y coordinate
-        /// \param width Relative width of the view port in pixels
-        /// \param height Relative height of the view port in pixels
-        ///
-        void setViewportRelative(const float x, const float y, const float width, const float height);
-
 
     private:
 
-        std::unique_ptr<Texture> m_texture;              ///< The attached texture
-        std::unique_ptr<Texture> m_depthTexture;
-        glm::uvec2 m_size;
-        Color m_clearColor;             ///< The color to use when clearing the buffer
-        unsigned int m_frameBuffer;     ///< Handle for the frame buffer
-        unsigned int m_depthBuffer;     ///< Handle for the depth buffer
-        unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
-
+        std::unique_ptr<Texture> m_texture;         ///< The attached texture
+        std::unique_ptr<Texture> m_depthTexture;    ///< The attached depth texture
+        glm::uvec2 m_size;                          ///< Size of the texture
+        Color m_clearColor;                         ///< The color to use when clearing the buffer
+        unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
+        unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
+        unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
     };
 }
 

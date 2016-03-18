@@ -51,6 +51,8 @@ namespace jop
 
     public:
 
+        /// The shadow map faces
+        ///
         enum class DepthFace
         {
             Right,
@@ -101,15 +103,26 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to created object in object class 
-        /// \param ID Unique string id for created light source as object
+        /// \param renderer Reference to the renderer
+        /// \param type The light type
         ///
         LightSource(Object& object, Renderer& renderer, const Type type);
 
+        /// \brief Destructor
+        ///
         ~LightSource() override;
 
 
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
         void setRenderMask(const uint32 mask);
 
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
         uint32 getRenderMask() const;
 
 
@@ -120,16 +133,48 @@ namespace jop
         Type getType() const;
 
 
+        /// \brief Set shadow casting for this light
+        ///
+        /// \param castShadows True to cast shadows
+        ///
+        /// \return Reference to self
+        ///
         LightSource& setCastShadows(const bool castShadows);
 
+        /// \brief Check if this light casts shadows
+        ///
+        /// \return True if this light casts shadows
+        ///
         bool castShadows() const;
 
 
+        /// \brief Get a light space matrix
+        ///
+        /// Faces other than First are only available with point lights.
+        /// Trying to get these matrices when the light type is Spot or
+        /// Directional will result in overstepping the array
+        /// 
+        /// \param face The face whose matrix to fetch
+        ///
+        /// \return Reference to the matrix
+        ///
         const glm::mat4& getLightspaceMatrix(const DepthFace face = DepthFace::First) const;
 
 
+        /// \brief Render the shadow map
+        ///
+        /// This is only meant to be called by Renderer.
+        /// 
+        /// \param drawables The drawables to render into the shadow map
+        ///
+        /// \return True if any objects were drawn
+        ///
         bool drawShadowMap(const std::set<const Drawable*>& drawables) const;
 
+        /// \brief Get the shadow map
+        ///
+        /// \return Const reference to the shadow map. Nullptr if no shadow map exists
+        ///
         const Texture* getShadowMap() const;
 
 
@@ -192,6 +237,8 @@ namespace jop
 
         /// \brief Set the attenuation values using a preset
         ///
+        /// This will also update the range value.
+        ///
         /// \param preset The preset
         ///
         /// \return Reference to self
@@ -211,15 +258,24 @@ namespace jop
         /// x = constant
         /// y = linear
         /// z = quadratic
-        /// Doesn't include the range parameter
         ///
         /// \return A vector with the attenuation values
         ///
         glm::vec3 getAttenuationVec() const;
 
 
+        /// \brief Set the range of the light
+        ///
+        /// \param range The new range to set
+        ///
+        /// \return Reference to self
+        ///
         LightSource& setRange(const float range);
 
+        /// \brief Get the range of the light
+        ///
+        /// \return Range of the light
+        ///
         float getRange() const;
 
 
@@ -255,19 +311,25 @@ namespace jop
         ///
         static unsigned int getMaximumLights(const Type type);
 
+
+        /// \brief Calculate cube map view matrices
+        ///
+        /// \param projection The projection matrix
+        /// \param position The view position
+        /// \param viewMats Reference to a vector with the matrices. This must have a size of at least 6
+        ///
         static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
         
     private:
 
-        mutable std::vector<glm::mat4> m_lightSpaceMatrices;
-        const Type m_type;                   ///< The light type
-        std::array<Color, 3> m_intensities; ///< The intensities
-        glm::vec4 m_attenuation;            ///< The attenuation values    
-        glm::vec2 m_cutoff;                 ///< Spot light cutoff
-        Renderer& m_rendererRef;
-        uint32 m_renderMask;
-        std::unique_ptr<RenderTexture> m_shadowMap;
-        bool m_castShadows;
+        mutable RenderTexture m_shadowMap;                      ///< The shadow map
+        mutable std::vector<glm::mat4> m_lightSpaceMatrices;    ///< Light space matrices. Used when rendering the shadow map
+        const Type m_type;                                      ///< The light type
+        std::array<Color, 3> m_intensities;                     ///< The intensities
+        glm::vec4 m_attenuation;                                ///< The attenuation values    
+        glm::vec2 m_cutoff;                                     ///< Spot light cutoff
+        Renderer& m_rendererRef;                                ///< Reference to the renderer
+        uint32 m_renderMask;                                    ///< The render mask
     };
 
     /// \brief Container for lights
@@ -304,6 +366,7 @@ namespace jop
         ///
         /// \param shader The shader to send the lights to
         /// \param camera The camera used currently
+        /// \param drawable The drawable
         ///
         void sendToShader(Shader& shader, const Camera* camera, const Drawable& drawable) const;
 

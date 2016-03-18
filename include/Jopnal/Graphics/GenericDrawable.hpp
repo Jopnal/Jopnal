@@ -45,15 +45,18 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
+        /// \param renderer Reference to the renderer
         ///
         GenericDrawable(Object& object, Renderer& renderer);
 
 
         /// \brief Draw function
         ///
+        /// \param camera The camera, this can be null in some cases
+        /// \param lights Container with the lights. The lights have already been culled according to their visibility
+        /// \param shader The shader to use
+        ///
         virtual void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
-
     };
 }
 

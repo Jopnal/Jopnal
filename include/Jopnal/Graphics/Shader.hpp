@@ -102,6 +102,16 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const glm::mat4& matrix);
 
+        /// \brief Set an array of matrices
+        ///
+        /// This is for 4x4 matrices (glm::mat4).
+        ///
+        /// \param name The uniform name
+        /// \param matrices Pointer to the first element of the first matrix
+        /// \param amount Amount of the matrices
+        ///
+        /// \return True if set successfully
+        ///
         bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
 
         /// \brief method setting 3x3 matrix with unique name
@@ -168,6 +178,13 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const int value);
 
+        /// \brief Set a boolean uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The boolean to set
+        ///
+        /// \return True if set successfully
+        ///
         bool setUniform(const std::string& name, const bool value);
 
         /// \brief Set an unsigned integer uniform

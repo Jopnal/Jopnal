@@ -77,10 +77,13 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object The object this camera will be bound to
+        /// \param renderer Reference to the renderer
         /// \param mode The initial projection mode
         ///
         Camera(Object& object, Renderer& renderer, const Projection mode);
 
+        /// \brief Destructor
+        ///
         ~Camera() override;
 
 
@@ -98,9 +101,16 @@ namespace jop
         ///
         const glm::mat4& getViewMatrix() const;
 
-
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
         void setRenderMask(const uint32 mask);
 
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
         uint32 getRenderMask() const;
 
 
@@ -202,8 +212,8 @@ namespace jop
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
-        Renderer& m_rendererRef;
-        uint32 m_renderMask;
+        Renderer& m_rendererRef;                ///< Reference to the renderer
+        uint32 m_renderMask;                    ///< The render mask
         Projection m_mode;                      ///< Projection mode
         mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
         

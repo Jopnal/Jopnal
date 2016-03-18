@@ -37,7 +37,8 @@ namespace jop
 
         /// \brief Constructor 
         ///
-        /// \param type Buffer type 
+        /// \param type Buffer type
+        /// \param usage Usage type
         ///
         VertexBuffer(const Type type, const Usage usage = Buffer::StaticDraw);
 

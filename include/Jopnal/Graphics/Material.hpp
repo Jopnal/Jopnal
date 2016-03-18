@@ -186,8 +186,24 @@ namespace jop
         ///
         float getShininess() const;
 
+
+        /// \brief Set the reflectivity
+        ///
+        /// Do not confuse this with reflection. What this defines is how
+        /// strongly an environment map is reflected. 0 means there's no
+        /// reflection and 1 makes the surface mirror-like. This attribute
+        /// has no effect if there's no environment map
+        ///
+        /// \param reflectivity The reflectivity value
+        ///
+        /// \return Reference to self
+        ///
         Material& setReflectivity(const float reflectivity);
 
+        /// \brief Get the reflectivity value
+        ///
+        /// \return The reflectivity value
+        ///
         float getReflectivity() const;
 
 
@@ -239,11 +255,10 @@ namespace jop
     private:
 
         std::array<Color, 4> m_reflection;                  ///< The reflection values
-        float m_reflectivity;
+        float m_reflectivity;                               ///< The reflectivity value
         AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
         std::array<WeakReference<const Texture>, 5> m_maps; ///< An array with the bound maps
-
     };
 }
 

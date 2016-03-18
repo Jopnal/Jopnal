@@ -76,7 +76,10 @@ namespace jop
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera*, const LightContainer&, Shader& shader) const = 0;
+        /// The camera pointer can be null some times. In these cases it means that the view & perspective
+        /// matrices have already been taken care of and you shouldn't try to set them.
+        ///
+        virtual void draw(const Camera*, const LightContainer&, Shader&) const = 0;
 
 
         /// \brief Get the renderer this drawable is bound to
@@ -110,6 +113,7 @@ namespace jop
         /// The model will be copied.
         ///
         /// \param model Reference to the model
+        /// \param loadMaterialShader Automatically load the shader from ShaderManager?
         ///
         Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
 
@@ -210,13 +214,13 @@ namespace jop
 
     private:
 
-        Model m_model;                                      ///< The bound model
-        WeakReference<Shader> m_shader;                     ///< The bound shader
-        Renderer& m_rendererRef;
-        uint8 m_renderGroup;
-        bool m_receiveLights;                               ///< Does this drawable receive lights
-        bool m_receiveShadows;
-        bool m_castShadows;
+        Model m_model;                  ///< The bound model
+        WeakReference<Shader> m_shader; ///< The bound shader
+        Renderer& m_rendererRef;        ///< Reference to the renderer
+        uint8 m_renderGroup;            ///< The render group
+        bool m_receiveLights;           ///< Does this drawable receive lights?
+        bool m_receiveShadows;          ///< Does this drawable receive shadows?
+        bool m_castShadows;             ///< Does this drawable cast shadows?
         
     };
 }

@@ -48,15 +48,26 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
         Renderer();
 
+        /// \brief Virtual destructor
+        ///
         virtual ~Renderer();
 
 
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
         void setMask(const uint32 mask);
 
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
         uint32 getMask() const;
-
 
     private:
 
@@ -78,20 +89,26 @@ namespace jop
 
         virtual void draw();
 
+    protected:
+
+        /// \brief Select the lights that affect the drawable
+        ///
+        /// \param drawable The drawable
+        /// \param lights Reference to a light container to fill
+        ///
         void chooseLights(const Drawable& drawable, LightContainer& lights) const;
 
     private:
 
-        std::set<const LightSource*> m_lights;
-        std::set<const Camera*> m_cameras;
-        std::set<const Drawable*> m_drawables;
-        std::set<EnvironmentRecorder*> m_envRecorders;
-        uint32 m_mask;
+        std::set<const LightSource*> m_lights;          ///< The bound lights
+        std::set<const Camera*> m_cameras;              ///< The bound cameras
+        std::set<const Drawable*> m_drawables;          ///< The bound drawables
+        std::set<EnvironmentRecorder*> m_envRecorders;  ///< The bound environment recorders
+        uint32 m_mask;                                  ///< The rendering mask
 
     #ifdef JOP_DEBUG_MODE
-        World* m_physicsWorld;
+        World* m_physicsWorld;                          ///< Pointer to the physics world, used for debug drawing
     #endif
-
     };
 }
 

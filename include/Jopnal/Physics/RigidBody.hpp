@@ -44,28 +44,45 @@ namespace jop
 
     public:
 
+        /// Rigid body type
+        ///
         enum class Type
         {
-            Static,
-            Dynamic,
-            Kinematic
+            Static,     ///< Non-moving body
+            Dynamic,    ///< Moving body
+            Kinematic   ///< User-animated body
         };
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object
+        /// \param world The physics world
+        /// \param shape The collision shape
+        /// \param type Body type
+        /// \param mass Mass
+        /// \param group Collision group
+        /// \param mask Collision mask
+        ///
         RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type = Type::Static, const float mass = 0.f, const int16 group = 1, const int16 mask = 1);
 
+        /// \brief Destructor
+        ///
         ~RigidBody() override;
-
-
-
 
     private:
 
+        /// \brief Called when the bound object is set active/inactive
+        ///
+        /// Sets the physics body activity
+        ///
+        /// \param active Was the object set active?
+        ///
         void setActive(const bool active) override;
 
-        const Type m_type;
-        const float m_mass;
+        const Type m_type;  ///< The body type
+        const float m_mass; ///< The mass
 
     };
 }

@@ -48,26 +48,48 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param obj Reference to the object
+        /// \param renderer The renderer
+        ///
         EnvironmentRecorder(Object& obj, Renderer& renderer);
 
+        /// \brief Destructor
+        ///
         ~EnvironmentRecorder() override;
 
 
+        /// \brief Record/render the environment map
+        ///
+        /// This will fetch the drawables & lights straight from the renderer.
+        ///
         void record();
 
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
         void setRenderMask(const uint32 mask);
 
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
         uint32 getRenderMask() const;
 
+        /// \brief Get the texture
+        ///
+        /// \return Const pointer to the texture, nullptr the creation of one failed
+        ///
         const Texture* getTexture() const;
-
 
     private:
 
-        RenderTexture m_fbo;
-        std::vector<glm::mat4> m_matrices;
-        uint32 m_mask;
-        Renderer& m_rendererRef;
+        RenderTexture m_fbo;                ///< The frame buffer
+        std::vector<glm::mat4> m_matrices;  ///< Matrices for each cube face
+        uint32 m_mask;                      ///< Render mask
+        Renderer& m_rendererRef;            ///< Reference to the renderer
     };
 }
 

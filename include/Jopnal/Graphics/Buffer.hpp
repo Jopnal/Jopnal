@@ -59,6 +59,7 @@ namespace jop
         /// \brief Constructor 
         ///
         /// \param type Buffer type 
+        /// \param usage Usage type
         ///
         Buffer(const Type type, const Usage usage);
 

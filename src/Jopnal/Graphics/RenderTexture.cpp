@@ -38,13 +38,13 @@ namespace
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : m_texture(),
-          m_depthTexture(),
-          m_size(),
-          m_clearColor(),
-          m_frameBuffer(0),
-          m_depthBuffer(0),
-          m_stencilBuffer(0)          
+        : m_texture         (),
+          m_depthTexture    (),
+          m_size            (),
+          m_clearColor      (),
+          m_frameBuffer     (0),
+          m_depthBuffer     (0),
+          m_stencilBuffer   (0)          
     {}
 
     RenderTexture::~RenderTexture()
@@ -65,18 +65,6 @@ namespace jop
             glCheck(gl::ClearStencil(0));
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::clearDepth()
-    {
-        if (bind())
-        {
-            glCheck(gl::ClearDepth(1.0));
-
-            glCheck(gl::Clear(gl::DEPTH_BUFFER_BIT));
         }
     }
 
@@ -199,7 +187,8 @@ namespace jop
 
         if (depth != DepthAttachment::None)
         {
-            if (depth < DepthAttachment::Texture16)
+            if (depth < DepthAttachment::Texture16 && color != ColorAttachment::DepthCube &&
+                color != ColorAttachment::RGBCube && color != ColorAttachment::RGBACube)
             {
                 glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
 
@@ -252,7 +241,8 @@ namespace jop
             }
         }
 
-        if (stencil != StencilAttachment::None)
+        if (stencil != StencilAttachment::None && color != ColorAttachment::DepthCube &&
+            color != ColorAttachment::RGBCube && color != ColorAttachment::RGBACube)
         {
             glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
 
@@ -382,27 +372,5 @@ namespace jop
     const Texture* RenderTexture::getDepthTexture() const
     {
         return m_depthTexture.get();
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
-    {
-        if (isValid())
-            glCheck(gl::Viewport(x, y, width, height));
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::setViewportRelative(const float x, const float y, const float width, const float height)
-    {
-        if (isValid())
-        {
-            const int textureX = getSize().x;
-            const int textureY = getSize().y;
-
-            glCheck(gl::Viewport(static_cast<int>(x * textureX), static_cast<int>(y * textureY),
-                                 static_cast<unsigned int>(width * textureX), static_cast<unsigned int>(height * textureY)));
-        }
     }
 }

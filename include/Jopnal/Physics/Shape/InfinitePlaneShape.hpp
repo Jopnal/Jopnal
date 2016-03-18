@@ -35,13 +35,27 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
         InfinitePlaneShape(const std::string& name);
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        /// \param normal The surface normal
+        ///
         InfinitePlaneShape(const std::string& name, const glm::vec3& normal);
 
 
+        /// \brief Load this shape
+        ///
+        /// \param normal The surface normal
+        ///
+        /// \return True if successful
+        ///
         bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
-
     };
 }
 
