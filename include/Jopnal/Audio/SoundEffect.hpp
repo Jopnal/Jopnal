@@ -111,10 +111,6 @@ namespace jop
         ///
         SoundEffect& speedOfSound(const bool use);
 
-        /// \brief Automated calculation when sound is allowed to play
-        ///
-        void calculateSound();
-
         /// \brief Change global speed multiplier for sounds
         ///
         /// \param float meters per second
@@ -137,6 +133,10 @@ namespace jop
         float getPersonalSpeed();
 
     private:
+        /// \brief Automated calculation when sound is allowed to play
+        ///
+        void calculateSound();
+
         float m_personalSpeed;              ///< Sound's own personal speed of sound multiplier
     };
 }

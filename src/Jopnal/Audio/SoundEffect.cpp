@@ -187,19 +187,6 @@ namespace jop
 
         return *this;
     }
-
-    //////////////////////////////////////////////
-
-    void SoundEffect::calculateSound()
-    {
-        glm::vec3 origin = getObject()->getGlobalPosition();
-        glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
-        float lenght = sqrt(pow(target.x - origin.x, 2.f) + pow(target.y - origin.y, 2.f) + pow(target.z - origin.z, 2.f));
-        float multiplier =std::max(FLT_MIN,343.f*ns_globalFactor*m_personalSpeed);
-
-        m_speedCounter = lenght / multiplier;
-    }
-
     //////////////////////////////////////////////
 
     void SoundEffect::setGlobalSpeedOfSound(float speed)
@@ -230,5 +217,17 @@ namespace jop
     float SoundEffect::getPersonalSpeed()
     {
         return m_personalSpeed;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundEffect::calculateSound()
+    {
+        glm::vec3 origin = getObject()->getGlobalPosition();
+        glm::vec3 target = Camera::getDefault().getObject()->getGlobalPosition();
+        float lenght = sqrt(pow(target.x - origin.x, 2.f) + pow(target.y - origin.y, 2.f) + pow(target.z - origin.z, 2.f));
+        float multiplier = std::max(FLT_MIN, 343.f*ns_globalFactor*m_personalSpeed);
+
+        m_speedCounter = lenght / multiplier;
     }
 }

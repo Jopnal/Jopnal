@@ -117,13 +117,13 @@ namespace jop
         ///
         float getMinDistance();
 
+    protected:
         /// \brief  Automatic check if sound is allowed to play
         ///
         /// \param Deltatime for calculation
         ///
         void allowSound(const float deltaTime);
 
-    protected:
         std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
         float m_speedCounter;                          ///< Counter for speed of sound
         bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
