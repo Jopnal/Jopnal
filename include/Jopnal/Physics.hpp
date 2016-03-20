@@ -26,7 +26,6 @@
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
 
 //////////////////////////////////////////////
 

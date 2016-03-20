@@ -32,6 +32,10 @@
 
 class btCollisionObject;
 class btMotionState;
+namespace detail
+{
+    struct GhostCallback;
+}
 
 namespace jop
 {
@@ -64,6 +68,14 @@ namespace jop
         ///
         virtual ~Collider() override = 0;
 
+    public:
+
+        bool checkOverlap(const Collider& other) const;
+
+        bool checkContact(const Collider& other) const;
+
+        bool checkRay(const glm::vec3& start, const glm::vec3& ray);
+
     private:
 
         void setActive(const bool) override = 0;
@@ -73,7 +85,6 @@ namespace jop
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
-
     };
 }
 

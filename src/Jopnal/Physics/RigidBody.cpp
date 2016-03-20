@@ -24,6 +24,7 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     RigidBody::RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type, const float mass, const int16 group, const int16 mask)
@@ -37,15 +38,20 @@ namespace jop
 
         auto rb = std::make_unique<btRigidBody>(m_mass, m_motionState.get(), shape.m_shape.get(), inertia);
         
-        if (type == Type::Kinematic)
+        if (type == Type::Kinematic || type == Type::KinematicSensor)
             rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+        else
+            object.setIgnoreParent(true);
+
+        // Remove contact response if body is a sensor
+        if (type > Type::Kinematic)
+            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), group, mask);
-
+        
         rb->setUserPointer(this);
         m_body = std::move(rb);
         
-        object.setIgnoreParent(true);
         setActive(isActive());
     }
 
@@ -61,7 +67,8 @@ namespace jop
         auto rb = std::make_unique<btRigidBody>(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), inertia);
         rb->setCollisionFlags(other.m_body->getCollisionFlags());
 
-        m_worldRef.m_worldData->world->addRigidBody(rb.get(), other.m_body->getBroadphaseHandle()->m_collisionFilterGroup, other.m_body->getBroadphaseHandle()->m_collisionFilterMask);
+        auto bpHandle = other.m_body->getBroadphaseHandle();
+        m_worldRef.m_worldData->world->addRigidBody(rb.get(), bpHandle->m_collisionFilterGroup, bpHandle->m_collisionFilterMask);
 
         rb->setUserPointer(this);
         m_body = std::move(rb);

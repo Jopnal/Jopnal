@@ -50,7 +50,11 @@ namespace jop
         {
             Static,     ///< Non-moving body
             Dynamic,    ///< Moving body
-            Kinematic   ///< User-animated body
+            Kinematic,  ///< User-animated body
+
+            // Sensor types (no collision response)
+            StaticSensor,   ///< Non-moving
+            KinematicSensor ///< User-animated
         };
 
     public:
@@ -61,7 +65,7 @@ namespace jop
         /// \param world The physics world
         /// \param shape The collision shape
         /// \param type Body type
-        /// \param mass Mass
+        /// \param mass Mass, will default to 0 when type is static or kinematic
         /// \param group Collision group
         /// \param mask Collision mask
         ///

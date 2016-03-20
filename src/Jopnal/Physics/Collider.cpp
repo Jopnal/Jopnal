@@ -77,4 +77,92 @@ namespace jop
 
     Collider::~Collider()
     {}
+
+    //////////////////////////////////////////////
+
+    bool Collider::checkOverlap(const Collider& other) const
+    {
+        struct Callback : btBroadphaseAabbCallback
+        {
+            const void* m_against;
+            bool hit;
+
+            Callback(const void* against)
+                : m_against (against),
+                  hit       (false)
+            {}
+
+            bool process(const btBroadphaseProxy* proxy) override
+            {
+                return (hit = (m_against == proxy->m_clientObject)) != true;
+            }
+
+        } cb(other.m_body->getBroadphaseHandle()->m_clientObject);
+
+        auto& bp = *m_worldRef.m_worldData->world->getBroadphase();
+
+        btVector3 min, max;
+        bp.getAabb(m_body->getBroadphaseHandle(), min, max);
+        bp.aabbTest(min, max, cb);
+
+        return cb.hit;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::checkContact(const Collider& other) const
+    {
+        struct Callback : btCollisionWorld::ContactResultCallback
+        {
+            bool hit;
+
+            Callback()
+                : hit(false)
+            {}
+
+            btScalar addSingleResult(btManifoldPoint&, const btCollisionObjectWrapper*, int, int, const btCollisionObjectWrapper*, int, int) override
+            {
+                hit = true;
+                return 0.f;
+            }
+
+        } cb;
+
+        m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
+
+        return cb.hit;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::checkRay(const glm::vec3& start, const glm::vec3& ray)
+    {
+        struct Callback : btCollisionWorld::RayResultCallback
+        {
+            const void* m_against;
+            bool hit;
+
+            Callback(const void* against)
+                : m_against (against),
+                  hit       (false)
+            {}
+
+            btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool) override
+            {
+                hit = rayResult.m_collisionObject->getUserPointer() == m_against;
+                return 0.f;
+            }
+
+        } cb(this);
+
+        btTransform from;
+        from.setOrigin(btVector3(start.x, start.y, start.z));
+        btTransform to;
+        const glm::vec3 fromTo(start + ray);
+        to.setOrigin(btVector3(fromTo.x, fromTo.y, fromTo.z));
+
+        m_worldRef.m_worldData->world->rayTestSingle(from, to, m_body.get(), m_body->getCollisionShape(), m_body->getWorldTransform(), cb);
+
+        return cb.hit;
+    }
 }

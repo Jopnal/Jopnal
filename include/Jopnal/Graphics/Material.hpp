@@ -61,7 +61,7 @@ namespace jop
                 Phong           = 1 << 7,
 
                 // For internal functionality, do not use
-                RecordEnv       = 1 << 30,
+                RecordEnv       = 1u << 31,
                 Lighting        = Phong
             };
         };
@@ -92,6 +92,8 @@ namespace jop
         };
 
         /// Predefined material properties
+        ///
+        /// TODO: Implement method to set this
         ///
         enum class Property
         {

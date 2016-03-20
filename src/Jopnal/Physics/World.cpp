@@ -110,10 +110,12 @@ namespace detail
             m_lines.clear();
         }
     };
+
+#endif
 }
 
+#ifdef JOP_DEBUG_MODE
     #define CREATE_DRAWER new ::detail::DebugDrawer
-
 #else
     #define CREATE_DRAWER nullptr
 #endif
@@ -132,12 +134,14 @@ namespace jop
         static const float gravity = SettingManager::getFloat("fDefaultWorldGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
+        m_worldData->world->setWorldUserInfo(this);
+        
         setDebugMode(false);
     }
 
     World::~World()
     {
-        // Need to define destructor because of forward declaration
+        // Need to define destructor because of forward declarations
     }
 
     //////////////////////////////////////////////

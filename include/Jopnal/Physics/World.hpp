@@ -29,6 +29,8 @@
 //////////////////////////////////////////////
 
 
+class btGhostPairCallback;
+
 namespace jop
 {
     namespace detail
@@ -46,6 +48,7 @@ namespace jop
         friend class Scene;
         friend class Renderer;
         friend class RigidBody;
+        friend class Collider;
 
     private:
 
