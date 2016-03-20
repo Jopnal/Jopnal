@@ -50,7 +50,8 @@ namespace jop
           m_subsystems      (),
           m_currentScene    (),
           m_exit            (false),
-          m_state           (State::Running)
+          m_state           (State::Running),
+          m_advanceFrame    (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -118,7 +119,7 @@ namespace jop
             float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
             eng.m_totalTime += frameTime;
 
-            if (getState() == State::ZeroDelta)
+            if (getState() == State::ZeroDelta && !eng.m_advanceFrame)
                 frameTime = 0.f;
 
             // Update
@@ -131,7 +132,7 @@ namespace jop
 
                 static const int runState = static_cast<int>(State::ZeroDelta);
 
-                if (static_cast<int>(getState()) <= runState)
+                if (static_cast<int>(getState()) <= runState || eng.m_advanceFrame)
                 {
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
@@ -146,6 +147,8 @@ namespace jop
                         i->postUpdate(frameTime);
                 }
             }
+
+            eng.m_advanceFrame = false;
 
             // Draw
             {
@@ -347,6 +350,14 @@ namespace jop
     {
         JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getCurrentScene()!");
         return m_engineObject->m_currentScene.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::advanceFrame()
+    {
+        if (!exiting())
+            m_engineObject->m_advanceFrame = true;
     }
 
     //////////////////////////////////////////////

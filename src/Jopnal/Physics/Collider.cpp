@@ -97,12 +97,12 @@ namespace jop
                 return (hit = (m_against == proxy->m_clientObject)) != true;
             }
 
-        } cb(other.m_body->getBroadphaseHandle()->m_clientObject);
+        } cb(m_body->getBroadphaseHandle()->m_clientObject);
 
         auto& bp = *m_worldRef.m_worldData->world->getBroadphase();
 
         btVector3 min, max;
-        bp.getAabb(m_body->getBroadphaseHandle(), min, max);
+        bp.getAabb(other.m_body->getBroadphaseHandle(), min, max);
         bp.aabbTest(min, max, cb);
 
         return cb.hit;

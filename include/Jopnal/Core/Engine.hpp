@@ -91,6 +91,9 @@ namespace jop
         static int runMainLoop();
 
 
+        static void advanceFrame();
+
+
         /// \brief Create a scene
         ///
         /// This function will construct the scene and then set it as active.
@@ -236,6 +239,7 @@ namespace jop
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         std::atomic<bool> m_exit;                             ///< 
         State m_state;                                        ///< 
+        bool m_advanceFrame;
     };
 
     /// \brief Get the project name
