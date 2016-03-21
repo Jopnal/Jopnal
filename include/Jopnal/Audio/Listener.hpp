@@ -68,10 +68,6 @@ namespace jop
         /// \brief Get the current value of the global volume
         ///
         float getGlobalVolume();
-
-        /// \brief Get the current orientation of the listener in the scene
-        ///
-        const glm::fvec3 getDirection();
     };
 }
 #endif
