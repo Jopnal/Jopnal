@@ -74,7 +74,7 @@ namespace jop
 
         bool checkContact(const Collider& other) const;
 
-        bool checkRay(const glm::vec3& start, const glm::vec3& ray);
+        bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
     private:
 

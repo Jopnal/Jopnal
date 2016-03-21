@@ -135,7 +135,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Collider::checkRay(const glm::vec3& start, const glm::vec3& ray)
+    bool Collider::checkRay(const glm::vec3& start, const glm::vec3& ray) const
     {
         struct Callback : btCollisionWorld::RayResultCallback
         {

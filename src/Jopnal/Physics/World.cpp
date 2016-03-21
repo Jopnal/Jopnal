@@ -35,7 +35,7 @@ namespace detail
         friend class jop::World;
 
         typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
-        ::jop::VertexBuffer m_buffer;
+        jop::VertexBuffer m_buffer;
         LineVec m_lines;
         int m_mode;
         const jop::Camera* m_cam;
