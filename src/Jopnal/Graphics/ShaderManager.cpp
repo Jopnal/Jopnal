@@ -72,6 +72,15 @@ namespace jop
 
         cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
+        // Needed so that different samplers don't all point to zero
+        if ((attributes & Material::Attribute::Lighting) != 0)
+        {
+            static const int maxUnits = Texture::getMaxTextureUnits();
+
+            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
+                s.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
+        }
+
         return s;
     }
 
