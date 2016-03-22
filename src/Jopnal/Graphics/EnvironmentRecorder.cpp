@@ -28,11 +28,11 @@
 namespace jop
 {
     EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
-        : Component (obj, "environmentrecorder"),
-          m_matrices(6),
-          m_fbo     (),
-          m_mask    (1),
-          m_rendererRef(renderer)
+        : Component     (obj, "environmentrecorder"),
+          m_matrices    (6),
+          m_fbo         (),
+          m_mask        (1),
+          m_rendererRef (renderer)
     {
         static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
 
@@ -42,11 +42,11 @@ namespace jop
     }
 
     EnvironmentRecorder::EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj)
-        : Component (other, newObj),
-          m_matrices(6),
-          m_fbo     (),
-          m_mask(other.m_mask),
-          m_rendererRef(other.m_rendererRef)
+        : Component     (other, newObj),
+          m_matrices    (6),
+          m_fbo         (),
+          m_mask        (other.m_mask),
+          m_rendererRef (other.m_rendererRef)
     {
         m_rendererRef.bind(*this);
     }

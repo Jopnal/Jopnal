@@ -231,6 +231,11 @@ namespace jop
         ///
         const std::string& getSource(const Type type) const;
 
+
+        unsigned int getHandle() const;
+
+        void validate() const;
+
         
         /// \brief Get the default shader
         ///

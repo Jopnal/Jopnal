@@ -446,6 +446,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Shader::getHandle() const
+    {
+        return m_shaderProgram;
+    }
+    
+    //////////////////////////////////////////////
+
+    void Shader::validate() const
+    {
+        glCheck(gl::ValidateProgram(m_shaderProgram));
+
+        GLint valid;
+        glCheck(gl::GetProgramiv(m_shaderProgram, gl::VALIDATE_STATUS, &valid));
+
+        if (valid == gl::FALSE_)
+        {
+            GLint size;
+            glCheck(gl::GetProgramiv(m_shaderProgram, gl::INFO_LOG_LENGTH, &size));
+
+            std::string log(size, '0');
+            glCheck(gl::GetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
+
+            JOP_ASSERT(false, log);
+        }
+    }
+
+    //////////////////////////////////////////////
+
     Shader& Shader::getDefault()
     {
         static WeakReference<Shader> defShader;

@@ -91,6 +91,15 @@ namespace jop
             mod.getMaterial()->sendToShader(s);
         }
 
+    #ifdef JOP_DEBUG_MODE
+
+        static const bool validate = SettingManager::getBool("bValidateProgram", false);
+
+        if (validate)
+            s.validate();
+
+    #endif
+
         // Use indices if they exist
         if (mod.getElementAmount())
         {
