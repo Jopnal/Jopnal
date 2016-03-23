@@ -111,8 +111,8 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_ALPHA_BITS, 8);
 
         // Depth & stencil exist in the renderer frame buffer
-        glfwWindowHint(GLFW_DEPTH_BITS, 0);
-        glfwWindowHint(GLFW_STENCIL_BITS, 0);
+        //glfwWindowHint(GLFW_DEPTH_BITS, 0);
+        //glfwWindowHint(GLFW_STENCIL_BITS, 0);
         
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);

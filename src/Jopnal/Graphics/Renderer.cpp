@@ -35,7 +35,7 @@ namespace jop
           m_envRecorders(),
           m_mask(1)
     {
-        m_renderTexture.create(RenderTexture::ColorAttachment::RGBA2D, glm::uvec2(1280, 720), RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8);
+        //m_renderTexture.create(RenderTexture::ColorAttachment::RGBA2D, glm::uvec2(1280, 720), RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8);
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
@@ -140,8 +140,8 @@ namespace jop
             envmap->record();
         }
 
-        //RenderTexture::unbind();
-        m_renderTexture.bind();
+        RenderTexture::unbind();
+        //m_renderTexture.bind();
 
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
@@ -181,7 +181,7 @@ namespace jop
             }
         }
 
-        RenderTexture::unbind();
+        //RenderTexture::unbind();
     }
 
     //////////////////////////////////////////////
