@@ -428,9 +428,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\AABB.cpp">
-      <Filter>Root\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>

@@ -164,6 +164,7 @@ namespace jop
         ///
         static void exit();
 
+
         /// \brief Sets paused to private m_paused member
         ///
         /// \param paused Boolean to set m_paused
@@ -173,6 +174,12 @@ namespace jop
         /// \brief Sets paused state to all update methods not including subsystems also returns m_paused
         ///
         static State getState();
+
+
+        static void setDeltaScale(const float scale);
+
+        static float getDeltaScale();
+
 
         /// \brief Send a message to the whole engine
         ///
@@ -239,6 +246,7 @@ namespace jop
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
         std::atomic<bool> m_exit;                             ///< 
         State m_state;                                        ///< 
+        float m_deltaScale;
         bool m_advanceFrame;
     };
 

@@ -232,9 +232,14 @@ namespace jop
                 itr += 3;
             }
 
-            const glm::vec3 centerPoint(glm::AABB(glm::vec3(minLeft, minBottom, minNegZ), glm::vec3(maxRight, maxTop, maxPosZ)).getCenter());
+            const glm::vec3 centerPoint
+            (
+                (minLeft + maxRight) * 0.5f,
+                (minBottom + maxTop) * 0.5f,
+                (minNegZ + maxPosZ)  * 0.5f
+            );
 
-            if (centerPoint.length() > 0.001f)
+            if (centerPoint.length() > 0.01f)
             {
                 auto itr2 = shapes.front().mesh.positions.begin();
 
@@ -268,8 +273,6 @@ namespace jop
         bool normalsGenerated = false;
         if (options.generateNormals && mesh.normals.empty() && mesh.indices.size() % 3 == 0)
         {
-            // #TODO This won't work with indices
-            /*
             for (auto itr = vertexArray.begin(); itr != vertexArray.end(); itr += 3)
             {
                 const glm::vec3 u((itr + 1)->position - itr->position);
@@ -280,7 +283,7 @@ namespace jop
                 (itr + 2)->normalVector = itr->normalVector;
             }
 
-            normalsGenerated = true;*/
+            normalsGenerated = true;
         }
 
         if (options.transform.getMatrix() != Transform::IdentityMatrix)
@@ -291,7 +294,7 @@ namespace jop
 
             for (auto& i : vertexArray)
             {
-                glm::vec4 transformed(m * glm::vec4(i.position, 0.f));
+                glm::vec4 transformed(m * glm::vec4(i.position, 1.f));
                 i.position.x = transformed.x;
                 i.position.y = transformed.y;
                 i.position.z = transformed.z;
@@ -311,9 +314,15 @@ namespace jop
                                    Color(mat.emission[0], mat.emission[1], mat.emission[2], mat.dissolve))
                                    .setShininess(mat.shininess);
             
-            // The default texture will be used in case of failure
+            // The default textures will be used in case of failure
+
+            // Diffuse map
             if (!mat.diffuse_texname.empty())
                 material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(rootPath + mat.diffuse_texname));
+
+            // Specular map
+            if (!mat.specular_texname.empty())
+                material.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(rootPath + mat.specular_texname));
         }
 
         m_options = options;

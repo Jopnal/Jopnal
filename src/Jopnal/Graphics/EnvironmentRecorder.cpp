@@ -34,9 +34,9 @@ namespace jop
           m_mask        (1),
           m_rendererRef (renderer)
     {
-        static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 256);
+        static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 128);
 
-        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution), RenderTexture::DepthAttachment::Texture24);
+        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution), RenderTexture::DepthAttachment::Texture16);
 
         m_rendererRef.bind(*this);
     }

@@ -93,7 +93,7 @@ namespace jop
 
     #ifdef JOP_DEBUG_MODE
 
-        static const bool validate = SettingManager::getBool("bValidateProgram", false);
+        static const bool validate = SettingManager::getBool("bValidateShaders", false);
 
         if (validate)
             s.validate();

@@ -188,9 +188,9 @@ namespace jop
         {
             if (castShadows)
             {
-                static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 1024);
+                static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 512);
                 
-                if (!m_shadowMap.create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube : RenderTexture::ColorAttachment::Depth2D, glm::ivec2(mapSize)))
+                if (!m_shadowMap.create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube16 : RenderTexture::ColorAttachment::Depth2D16, glm::ivec2(mapSize)))
                     return *this;
 
                 m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);

@@ -60,14 +60,15 @@ namespace jop
     Scene::Scene(const std::string& ID)
         : Object        (ID),
           m_renderer    (std::make_unique<Renderer>()),
-          m_world       (*m_renderer)
+          m_world       (createComponent<World>(*m_renderer)),
+          m_deltaScale  (1.f)
     {}
 
     Scene::~Scene()
     {
-        // Objects need to be deinitialized before the renderer and world
-        Object::clearComponents();
+        // Child objects need to be deinitialized before the renderer
         Object::clearChildren();
+        Object::clearComponents();
     }
 
     //////////////////////////////////////////////
@@ -82,6 +83,20 @@ namespace jop
     World& Scene::getWorld() const
     {
         return m_world;
+    }
+
+    //////////////////////////////////////////////
+
+    void Scene::setDeltaScale(const float scale)
+    {
+        m_deltaScale = scale;
+    }
+
+    //////////////////////////////////////////////
+
+    float Scene::getDeltaScale() const
+    {
+        return m_deltaScale;
     }
 
     //////////////////////////////////////////////
@@ -132,13 +147,14 @@ namespace jop
     {
         if (isActive())
         {
-            preUpdate(deltaTime);
+            const float dt = deltaTime * m_deltaScale;
 
-            Object::update(deltaTime);
-            m_world.update(deltaTime);
+            preUpdate(dt);
+
+            Object::update(dt);
             Object::updateTransformTree(nullptr, false);
 
-            postUpdate(deltaTime);
+            postUpdate(dt);
         }
     }
 

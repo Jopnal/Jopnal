@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <set>
 
 //////////////////////////////////////////////
@@ -32,6 +33,7 @@
 namespace jop
 {
     class World;
+    class Window;
 
     class JOP_API Renderer
     {
@@ -100,6 +102,7 @@ namespace jop
 
     private:
 
+        RenderTexture m_renderTexture;
         std::set<const LightSource*> m_lights;          ///< The bound lights
         std::set<const Camera*> m_cameras;              ///< The bound cameras
         std::set<const Drawable*> m_drawables;          ///< The bound drawables

@@ -26,7 +26,6 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <Jopnal/Physics/World.hpp>
 #include <vector>
 #include <memory>
 
@@ -36,6 +35,8 @@
 namespace jop
 {
     class Renderer;
+    class World;
+    class Window;
 
     class JOP_API Scene : private Object
     {
@@ -92,6 +93,10 @@ namespace jop
 
 
         World& getWorld() const;
+
+        void setDeltaScale(const float scale);
+
+        float getDeltaScale() const;
 
 
         /// \brief Base sendMessage function
@@ -169,7 +174,8 @@ namespace jop
 
 
         std::unique_ptr<Renderer> m_renderer;
-        mutable World m_world;
+        mutable World& m_world;
+        float m_deltaScale;
     };
 
     // Include the template implementation file

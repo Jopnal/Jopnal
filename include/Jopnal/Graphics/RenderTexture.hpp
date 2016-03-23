@@ -56,8 +56,15 @@ namespace jop
             RGB2DFloat32,   ///< 96 bit 2D texture
             RGBA2DFloat32,  ///< 128 bit 2D texture
 
-            Depth2D,        ///< 2D depth texture
-            DepthCube       ///< Cube map depth texture
+            // Keep depth enums last
+
+            Depth2D16,      ///< 16 bit 2D depth texture
+            Depth2D24,      ///< 24 bit 2D depth texture
+            Depth2D32,      ///< 32 bit 2D depth texture
+
+            DepthCube16,    ///< 16 bit cube map depth texture
+            DepthCube24,    ///< 24 bit cube map depth texture
+            DepthCube32     ///< 32 bit cube map depth texture
         };
 
         /// Depth attachment type
@@ -170,6 +177,8 @@ namespace jop
         /// \return Const pointer to the internal depth texture, nullptr if no depth texture exists
         ///
         const Texture* getDepthTexture() const;
+
+        unsigned int getFramebufferHandle() const;
 
     private:
 

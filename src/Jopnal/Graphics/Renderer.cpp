@@ -28,12 +28,15 @@
 namespace jop
 {
     Renderer::Renderer()
-        : m_lights(),
+        : m_renderTexture(),
+          m_lights(),
           m_cameras(),
           m_drawables(),
           m_envRecorders(),
           m_mask(1)
     {
+        m_renderTexture.create(RenderTexture::ColorAttachment::RGBA2D, glm::uvec2(1280, 720), RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8);
+
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
@@ -137,7 +140,8 @@ namespace jop
             envmap->record();
         }
 
-        RenderTexture::unbind();
+        //RenderTexture::unbind();
+        m_renderTexture.bind();
 
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
@@ -150,6 +154,8 @@ namespace jop
                 const uint32 camMask = cam->getRenderMask();
                 if (!cam->isActive() || (camMask & i) == 0)
                     continue;
+
+                //cam->getRenderTexture().bind();
 
                 for (auto drawable : m_drawables)
                 {
@@ -174,6 +180,8 @@ namespace jop
             #endif
             }
         }
+
+        RenderTexture::unbind();
     }
 
     //////////////////////////////////////////////

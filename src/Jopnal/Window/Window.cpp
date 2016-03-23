@@ -130,13 +130,11 @@ namespace jop
     {
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
         {
-            {
-                auto c = m_clearColor.asRGBAFloatVector();
+            auto c = m_clearColor.asRGBAFloatVector();
 
-                glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
-                glCheck(gl::ClearDepth(1.0));
-                glCheck(gl::ClearStencil(0));
-            }
+            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
+            glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::ClearStencil(0));
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -173,7 +171,7 @@ namespace jop
         auto s = getSize();
         gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "222222FF"));
+        static const Color defColor(SettingManager::getString("sDefaultWindowClearColor", "222222FF"));
         setClearColor(defColor);
     }
 

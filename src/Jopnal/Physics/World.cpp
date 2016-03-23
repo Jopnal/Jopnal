@@ -122,8 +122,9 @@ namespace detail
 
 namespace jop
 {
-    World::World(Renderer& renderer)
-        : m_worldData(std::make_unique<detail::WorldImpl>(CREATE_DRAWER))
+    World::World(Object& obj, Renderer& renderer)
+        : Component     (obj, "world"),
+          m_worldData   (std::make_unique<detail::WorldImpl>(CREATE_DRAWER))
     {
     #ifdef JOP_DEBUG_MODE
         renderer.m_physicsWorld = this;
@@ -142,6 +143,14 @@ namespace jop
     World::~World()
     {
         // Need to define destructor because of forward declarations
+    }
+
+    //////////////////////////////////////////////
+
+    World* World::clone(Object&) const
+    {
+        JOP_ASSERT(false, "Copying jop::World is forbidden!");
+        return nullptr;
     }
 
     //////////////////////////////////////////////

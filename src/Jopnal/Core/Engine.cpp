@@ -51,6 +51,7 @@ namespace jop
           m_currentScene    (),
           m_exit            (false),
           m_state           (State::Running),
+          m_deltaScale      (1.f),
           m_advanceFrame    (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
@@ -114,13 +115,10 @@ namespace jop
 
         while (!eng.m_exit)
         {
-            // Clamp the delta time to a certain value. This is to prevent
-            // a "spiral of death" if fps goes below 5.
-            float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
+            float frameTime = static_cast<float>(frameClock.reset().asSeconds());
             eng.m_totalTime += frameTime;
 
-            if (getState() == State::ZeroDelta && !eng.m_advanceFrame)
-                frameTime = 0.f;
+            frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
 
             // Update
             {
@@ -130,9 +128,7 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                static const int runState = static_cast<int>(State::ZeroDelta);
-
-                if (static_cast<int>(getState()) <= runState || eng.m_advanceFrame)
+                if (getState() <= State::ZeroDelta || eng.m_advanceFrame)
                 {
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
@@ -358,6 +354,21 @@ namespace jop
     {
         if (!exiting())
             m_engineObject->m_advanceFrame = true;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::setDeltaScale(const float scale)
+    {
+        if (m_engineObject)
+            m_engineObject->m_deltaScale = scale;
+    }
+
+    //////////////////////////////////////////////
+
+    float Engine::getDeltaScale()
+    {
+        return m_engineObject != nullptr ? m_engineObject->m_deltaScale : 1.f;
     }
 
     //////////////////////////////////////////////

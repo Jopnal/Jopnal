@@ -116,7 +116,7 @@ namespace jope
         // Set the draw-through callback
         this->draw_through([this, hwnd]
         {
-            static const glm::vec4 col = jop::Color(jop::SettingManager::getString("uDefaultWindowClearColor", "222222FF")).asRGBAFloatVector();
+            static const glm::vec4 col = jop::Color(jop::SettingManager::getString("sDefaultWindowClearColor", "222222FF")).asRGBAFloatVector();
 
             if (jop::Engine::hasCurrentScene())
                 jop::Engine::getCurrentScene().updateTransformTree(nullptr, false);

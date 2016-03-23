@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -39,7 +40,7 @@ namespace jop
     }
     class Camera;
 
-    class JOP_API World final
+    class JOP_API World final : public Component
     {
     private:
 
@@ -50,13 +51,15 @@ namespace jop
         friend class RigidBody;
         friend class Collider;
 
-    private:
+        World* clone(Object&) const override;
+
+    public:
 
         /// \brief Constructor
         ///
         /// \param renderer Reference to the renderer, needed for debug drawing
         ///
-        World(Renderer& renderer);
+        World(Object& obj, Renderer& renderer);
 
         /// \brief Destructor
         ///
@@ -67,7 +70,7 @@ namespace jop
         ///
         /// \param deltaTime The delta time
         ///
-        void update(const float deltaTime);
+        void update(const float deltaTime) override;
 
         /// \brief Debug draw the world
         ///

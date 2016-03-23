@@ -63,6 +63,8 @@ namespace jop
         ///
         void bind(const unsigned int texUnit = 1) const;
 
+        void unbind() const;
+
 
         /// \brief Bind a texture sampler
         ///

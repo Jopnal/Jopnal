@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -46,6 +47,7 @@ namespace jop
     public:
 
         typedef std::pair<float, float> ClippingPlanes;
+        typedef std::pair<glm::vec2, glm::vec2> ViewPort;
 
         /// Union with the projection data
         ///
@@ -123,7 +125,7 @@ namespace jop
         ///
         /// \param mode The mode to be set
         ///
-        void setProjectionMode(const Projection mode);
+        Camera& setProjectionMode(const Projection mode);
 
         /// \brief Get the projection mode
         ///
@@ -140,7 +142,7 @@ namespace jop
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
         ///
-        void setClippingPlanes(const float clipNear, const float clipFar);
+        Camera& setClippingPlanes(const float clipNear, const float clipFar);
 
         /// \brief Get the values of the clipping planes
         ///
@@ -158,14 +160,14 @@ namespace jop
         ///
         /// \param size The new size of the projection
         ///
-        void setSize(const glm::vec2& size);
+        Camera& setSize(const glm::vec2& size);
 
         /// \brief Brief set the size of the projection
         ///
         /// \param x The width
         /// \param y The height
         ///
-        void setSize(const float x, const float y);
+        Camera& setSize(const float x, const float y);
 
         /// \brief Get the size of the projection
         ///
@@ -181,7 +183,7 @@ namespace jop
         ///
         /// \param ratio The new aspect ratio to be set
         ///
-        void setAspectRatio(const float ratio);
+        Camera& setAspectRatio(const float ratio);
 
         /// \brief Get the aspect ratio
         ///
@@ -199,7 +201,7 @@ namespace jop
         ///
         /// \param fovY The new field of view value
         ///
-        void setFieldOfView(const float fovY);
+        Camera& setFieldOfView(const float fovY);
 
         /// \brief Get the field of view value
         ///
@@ -207,9 +209,37 @@ namespace jop
         ///
         float getFieldOfView() const;
 
+
+        ///
+        ///
+        Camera& setViewport(const glm::vec2& start, const glm::vec2& size);
+
+        ///
+        ///
+        const ViewPort& getViewport() const;
+
+        ///
+        ///
+        void applyViewport(glm::uvec2 windowSize) const;
+
+
+        ///
+        ///
+        bool enableRenderTexture(const bool enable,
+                                 const RenderTexture::ColorAttachment color,
+                                 const glm::uvec2& size,
+                                 const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
+                                 const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
+
+        ///
+        ///
+        const RenderTexture& getRenderTexture() const;
+
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
+        RenderTexture m_renderTexture;
+        ViewPort m_viewPort;
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
         Renderer& m_rendererRef;                ///< Reference to the renderer
