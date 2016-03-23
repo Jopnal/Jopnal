@@ -102,7 +102,6 @@ namespace jop
 
     private:
 
-        RenderTexture m_renderTexture;
         std::set<const LightSource*> m_lights;          ///< The bound lights
         std::set<const Camera*> m_cameras;              ///< The bound cameras
         std::set<const Drawable*> m_drawables;          ///< The bound drawables

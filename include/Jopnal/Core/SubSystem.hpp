@@ -34,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Subsystem : public SafeReferenceable<Subsystem>
+    class JOP_API Subsystem
     {
     private:
 

@@ -222,21 +222,25 @@ namespace jop { namespace detail
         glfwGetWindowSize(m_window, &s.x, &s.y);
 
         if (includeFrame)
-            s += getFrameSize();
+        {
+            glm::ivec2 topLeft, bottomRight;
+            glfwGetWindowFrameSize(m_window, &topLeft.x, &topLeft.y, &bottomRight.x, &bottomRight.y);
+
+            s += (topLeft + bottomRight);
+        }
 
         return s;
     }
 
     //////////////////////////////////////////////
 
-    glm::ivec2 WindowImpl::getFrameSize() const
+    glm::ivec2 WindowImpl::getFramebufferSize() const
     {
-        int left, right, top, bottom;
-        glfwGetWindowFrameSize(m_window, &left, &top, &right, &bottom);
-        
-        return glm::ivec2(left + right, top + bottom);
-    }
+        glm::ivec2 s;
+        glfwGetFramebufferSize(m_window, &s.x, &s.y);
 
+        return s;
+    }
 }}
 
 #endif

@@ -38,9 +38,8 @@ namespace jop
 namespace jop
 {
     Subsystem::Subsystem(const std::string& ID)
-        : SafeReferenceable<Subsystem> (this),
-          m_ID                         (ID),
-          m_active                     (true)
+        : m_ID      (ID),
+          m_active  (true)
     {}
 
     Subsystem::~Subsystem()

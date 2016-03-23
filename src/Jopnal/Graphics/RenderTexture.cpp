@@ -355,13 +355,18 @@ namespace jop
                 if (!ns_currentBuffer)
                     glCheck(gl::GetIntegerv(gl::VIEWPORT, ns_lastZeroViewport));
 
-                glCheck(gl::Viewport(0, 0, m_size.x, m_size.y));
                 glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
                 ns_currentBuffer = m_frameBuffer;
             }
         }
 
-        return isValid();
+        if (isValid())
+        {
+            glCheck(gl::Viewport(0, 0, m_size.x, m_size.y));
+            return true;
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////

@@ -28,15 +28,16 @@
 namespace jop
 {
     Renderer::Renderer()
-        : m_renderTexture(),
-          m_lights(),
-          m_cameras(),
-          m_drawables(),
-          m_envRecorders(),
-          m_mask(1)
-    {
-        //m_renderTexture.create(RenderTexture::ColorAttachment::RGBA2D, glm::uvec2(1280, 720), RenderTexture::DepthAttachment::Renderbuffer24, RenderTexture::StencilAttachment::Int8);
+        : m_lights          (),
+          m_cameras         (),
+          m_drawables       (),
+          m_envRecorders    (),
+          m_mask            (1)
 
+        #ifdef JOP_DEBUG_MODE
+        , m_physicsWorld   (nullptr)
+        #endif
+    {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
@@ -125,23 +126,18 @@ namespace jop
         // Render shadow maps
         for (auto light : m_lights)
         {
-            if (!light->isActive() || (m_mask & light->getRenderMask()) == 0)
-                continue;
-
-            light->drawShadowMap(m_drawables);
+            if (light->isActive() && (m_mask & light->getRenderMask()) != 0)
+                light->drawShadowMap(m_drawables);
         }
 
         // Render environment maps
         for (auto envmap : m_envRecorders)
         {
-            if (!envmap->isActive() || (m_mask & envmap->getRenderMask()) == 0)
-                continue;
-
-            envmap->record();
+            if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
+                envmap->record();
         }
 
         RenderTexture::unbind();
-        //m_renderTexture.bind();
 
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
@@ -155,7 +151,8 @@ namespace jop
                 if (!cam->isActive() || (camMask & i) == 0)
                     continue;
 
-                //cam->getRenderTexture().bind();
+                cam->getRenderTexture().bind();
+                //cam->applyViewport(m_renderTexture.getSize());
 
                 for (auto drawable : m_drawables)
                 {

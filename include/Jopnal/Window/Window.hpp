@@ -121,6 +121,7 @@ namespace jop
         ///
         void draw() override;
 
+
         /// \brief Open this window
         ///
         /// This will create a new window. If one already exists, it will be replaced.
@@ -139,11 +140,15 @@ namespace jop
         ///
         bool isOpen() const;
 
+
         /// \brief Set the clear color
         ///
         /// \param color The new color
         ///
         void setClearColor(const Color& color);
+
+        Color getClearColor() const;
+
 
         /// \brief Set the event handler
         ///
@@ -165,6 +170,7 @@ namespace jop
         ///
         void removeEventHandler();
 
+
         /// \brief Get the window library handle handle
         ///
         /// On desktop operating systems this is GLFWwindow*.
@@ -179,11 +185,13 @@ namespace jop
         ///
         WindowHandle getNativeHandle();
 
+
         /// \brief Poll the events of all open windows
         ///
         /// This will poll all events and invoke the appropriate callbacks.
         ///
         static void pollEvents();
+
 
         /// \brief Sets mouse mode
         ///
@@ -207,6 +215,7 @@ namespace jop
         ///
         glm::ivec2 getPosition() const;
 
+
         /// \brief Set the window size
         ///
         /// This will set the size of the client area.
@@ -224,11 +233,7 @@ namespace jop
         ///
         glm::ivec2 getSize(const bool includeFrame = false) const;
 
-        /// \brief Get the window frame/decoration size
-        ///
-        /// \return Frame/decoration size
-        ///
-        glm::ivec2 getFrameSize() const;
+        glm::ivec2 getFramebufferSize() const;
 
     private:
 

@@ -64,7 +64,7 @@ namespace jop { namespace detail
 
         glm::ivec2 getSize(const bool includeFrame) const;
 
-        glm::ivec2 getFrameSize() const;
+        glm::ivec2 getFramebufferSize() const;
 
     private:
 

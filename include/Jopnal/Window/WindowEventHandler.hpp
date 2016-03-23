@@ -60,6 +60,8 @@ namespace jop
         ///
         virtual void closed();
 
+        virtual void resized(const unsigned int newWidth, const unsigned int newHeight);
+
         /// \brief Focus lost callback
         ///
         /// This will be called when the window loses focus or is minimized.

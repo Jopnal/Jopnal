@@ -198,6 +198,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Color Window::getClearColor() const
+    {
+        return m_clearColor;
+    }
+
+    //////////////////////////////////////////////
+
     WindowEventHandler* Window::getEventHandler()
     {
         return m_eventHandler.get();
@@ -285,10 +292,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::ivec2 Window::getFrameSize() const
+    glm::ivec2 Window::getFramebufferSize() const
     {
         if (isOpen())
-            return m_impl->getFrameSize();
+            return m_impl->getFramebufferSize();
 
         return glm::ivec2();
     }
