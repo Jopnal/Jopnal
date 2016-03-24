@@ -75,6 +75,47 @@ namespace jop
         ///
         ~RigidBody() override;
 
+        /// \brief
+        RigidBody& setGravity(const glm::vec3& acceleration);
+
+        /// \brief
+        glm::vec3 getGravity()const;
+
+        /// \brief
+        RigidBody& setLinearFactor(const glm::vec3& linearFactor);
+
+        /// \brief
+        glm::vec3 getLinearFactor()const;
+
+        /// \brief
+        RigidBody& setAngularFactor(const glm::vec3& angularFactor);
+
+        /// \brief
+        glm::vec3 getAngularFactor()const;
+
+        /// \brief
+        RigidBody& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
+
+        /// \brief
+        RigidBody& applyImpulse(const glm::vec3& Impulse, const glm::vec3& rel_pos);
+
+        /// \brief
+        RigidBody& applyTorque(const glm::vec3& torque);
+
+        /// \brief
+        RigidBody& applyTorqueImpulse(const glm::vec3& torque);
+
+        /// \brief
+        RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
+
+        /// \brief
+        RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
+
+        /// \brief
+        RigidBody& applyCentralForce(const glm::vec3& force);
+
+        /// \brief
+        RigidBody& applyCentralImpulse(const glm::vec3& impulse);
     private:
 
         /// \brief Called when the bound object is set active/inactive
@@ -87,7 +128,6 @@ namespace jop
 
         const Type m_type;  ///< The body type
         const float m_mass; ///< The mass
-
     };
 }
 
