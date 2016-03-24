@@ -20,16 +20,30 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    SphereShape::SphereShape(const std::string& name)
+        : CollisionShape(name)
+    {}
+
+    SphereShape::SphereShape(const std::string& name, const float radius)
+        : CollisionShape(name)
+    {
+        load(radius);
+    }
+
+    //////////////////////////////////////////////
+
+    bool SphereShape::load(const float radius)
+    {
+        m_shape = std::make_unique<btSphereShape>(radius);
+        m_shape->setUserPointer(this);
+        
+        return true;
+    }
+}
