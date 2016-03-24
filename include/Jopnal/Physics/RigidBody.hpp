@@ -28,6 +28,7 @@
 
 //////////////////////////////////////////////
 
+class btRigidBody;
 
 namespace jop
 {
@@ -75,46 +76,84 @@ namespace jop
         ///
         ~RigidBody() override;
 
-        /// \brief
+        /// \brief Sets unique gravity to the rigid body object
+        ///
+        /// \param acceleration Amount of the gravity to be applied as vector
+        ///
         RigidBody& setGravity(const glm::vec3& acceleration);
 
-        /// \brief
+        /// \brief Gets m_gravity as glm::vec3
+        ///
         glm::vec3 getGravity()const;
 
-        /// \brief
+        /// \brief Sets the linear factor for rigid body
+        ///
+        /// \param linearFactor Unique vector for linear factor
+        ///
         RigidBody& setLinearFactor(const glm::vec3& linearFactor);
 
-        /// \brief
+        /// \brief Gets the linear factor as glm::vec3 
+        ///
         glm::vec3 getLinearFactor()const;
 
-        /// \brief
+        /// \brief Sets the angular factor for rigid body
+        ///
+        /// \param angularFactor Unique vector for angular factor
+        ///
         RigidBody& setAngularFactor(const glm::vec3& angularFactor);
 
-        /// \brief
+        /// \brief Gets the angular factor as glm::vec3 
+        ///
         glm::vec3 getAngularFactor()const;
 
-        /// \brief
+        /// \brief Applies costant force to rigid bodies relative position
+        ///
+        /// \param force Amount and direction of the force 
+        /// \param rel_pos Vector for the relative position on rigid body that the force applies on
+        ///
         RigidBody& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
 
-        /// \brief
+        /// \brief Applies an impulse to rigid bodies relative position
+        ///
+        /// \param impulse Amount and direction of the impulse
+        /// \param rel_pos Vector for the relative positino on rigid body that the impulse applies on
+        ///
         RigidBody& applyImpulse(const glm::vec3& Impulse, const glm::vec3& rel_pos);
 
-        /// \brief
+        /// \brief Applies torque to the rigid body
+        ///
+        /// \param torque Amount and direction as vector of the applied torque
+        ///
         RigidBody& applyTorque(const glm::vec3& torque);
 
-        /// \brief
+        /// \brief Applies torquational impulse to the rigid body
+        ///
+        /// \param torque Amount and direction as vector of the applied torque
+        ///
         RigidBody& applyTorqueImpulse(const glm::vec3& torque);
 
-        /// \brief
+        /// \brief Sets linear velocity to the rigid body
+        ///
+        /// \param linearVelocity Amount and direction of the linear velocity 
+        ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
-        /// \brief
+        /// \brief Sets angular velocity to the rigid body
+        ///
+        /// \param angularVelocity Amount and direction of the angular velocity
+        ///
         RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
 
-        /// \brief
+        /// \brief Applies force to the rigid bodys centre 
+        ///
+        /// \param force Amount and direction of the applied force
+        ///
         RigidBody& applyCentralForce(const glm::vec3& force);
 
-        /// \brief
+        /// \brief Applies impulse to the rigid bodys centre
+        ///
+        /// \param impulse Amount and direction of the applies impulse
+        ///
         RigidBody& applyCentralImpulse(const glm::vec3& impulse);
     private:
 
@@ -126,8 +165,9 @@ namespace jop
         ///
         void setActive(const bool active) override;
 
-        const Type m_type;  ///< The body type
-        const float m_mass; ///< The mass
+        const Type m_type;           ///< The body type
+        const float m_mass;          ///< The mass
+        btRigidBody* m_rigidBody;    ///< Unique rigidbody identifier
     };
 }
 
