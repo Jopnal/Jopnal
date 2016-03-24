@@ -55,9 +55,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setBuffer(const std::string& path)
+    SoundEffect& SoundEffect::setBuffer(const SoundBuffer& buffer)
     {
-        static_cast<sf::Sound*>(m_sound.get())->setBuffer(*ResourceManager::getResource<SoundBuffer>(path).m_soundBuf);
+        static_cast<sf::Sound*>(m_sound.get())->setBuffer(*buffer.m_soundBuf);
         if (sizeof(static_cast<sf::Sound*>(m_sound.get())->getBuffer()) < 1)
         {
             JOP_DEBUG_WARNING("Size of " << getID() << "'s buffer is smaller than one.");

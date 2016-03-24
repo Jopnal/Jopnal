@@ -62,7 +62,7 @@ namespace jop
         ///
         /// \param Path to audio file
         ///
-        SoundEffect& setBuffer(const std::string& path);
+        SoundEffect& setBuffer(const SoundBuffer& buffer);
 
         /// \brief Play sound
         ///

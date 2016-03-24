@@ -34,7 +34,7 @@ namespace sf
 
 namespace jop
 {
-    class SoundBuffer : public Resource
+    class JOP_API SoundBuffer : public Resource
     {
     friend class SoundEffect;
     public:
@@ -44,7 +44,7 @@ namespace jop
 
         /// \brief Virtual destructor
         ///
-       ~SoundBuffer();
+       ~SoundBuffer() override;
 
         /// \brief Uses fileLoader to load new buffer from file
         ///

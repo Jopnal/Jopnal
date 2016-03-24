@@ -45,7 +45,7 @@ namespace jop
     {
         std::vector<unsigned char> buf;
         FileLoader::read(path, buf);
-       if (m_soundBuf->loadFromMemory(buf.data(), buf.size()));
+        if (m_soundBuf->loadFromMemory(buf.data(), buf.size()))
         return true;
 
         JOP_DEBUG_ERROR("Error in SoundBuffer::load: "<<path)
