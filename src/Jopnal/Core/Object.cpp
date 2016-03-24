@@ -61,8 +61,7 @@ namespace jop
           m_tags                    (),
           m_ID                      (ID),
           m_parent                  (),
-          m_ignoreParent            (false),
-          m_active                  (true)
+          m_flags                   (ActiveFlag)
     {}
 
     Object::Object(const Object& other, const std::string& newID)
@@ -73,8 +72,7 @@ namespace jop
           m_tags                    (other.m_tags),
           m_ID                      (newID),
           m_parent                  (other.m_parent),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
+          m_flags                   (other.m_flags)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -82,7 +80,10 @@ namespace jop
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
+        {
             m_children.emplace_back(i, i.getID());
+            m_children.back().m_parent = *this;
+        }
     }
 
     Object::Object(Object&& other)
@@ -93,8 +94,7 @@ namespace jop
           m_tags                    (std::move(other.m_tags)),
           m_ID                      (std::move(other.m_ID)),
           m_parent                  (other.m_parent),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
+          m_flags                   (other.m_flags)
     {}
 
     Object::Object(const Object& other, const std::string& newID, const Transform& newTransform)
@@ -105,8 +105,7 @@ namespace jop
           m_tags                    (other.m_tags),
           m_ID                      (newID),
           m_parent                  (other.m_parent),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
+          m_flags                   (other.m_flags)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -114,21 +113,23 @@ namespace jop
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
+        {
             m_children.emplace_back(i, i.getID());
+            m_children.back().m_parent = *this;
+        }
     }
 
     Object& Object::operator=(Object&& other)
     {
         Transform::operator =(other);
-        SafeReferenceable<Object>::operator=(std::move(other));
+        SafeReferenceable<Object>::operator =(std::move(other));
 
         m_children      = std::move(other.m_children);
         m_components    = std::move(other.m_components);
         m_tags          = std::move(other.m_tags);
         m_ID            = std::move(other.m_ID);
-        m_ignoreParent  = other.m_ignoreParent;
         m_parent        = other.m_parent;
-        m_active        = other.m_active;
+        m_flags         = other.m_flags;
 
         return *this;
     }
@@ -213,9 +214,29 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::adoptChild(Object& /*child*/)
+    WeakReference<Object> Object::adoptChild(Object& child)
     {
-        return WeakReference<Object>();
+        JOP_ASSERT(!child.getParent().expired(), "You must not reparent a scene!");
+
+        if (child.getParent().get() == this)
+            return child.getReference();
+
+        m_children.emplace_back(std::move(child));
+        m_children.back().m_parent = *this;
+
+        auto& oldParentChildren = child.getParent()->m_children;
+
+        for (auto itr = oldParentChildren.begin(); itr != oldParentChildren.end(); ++itr)
+        {
+            if (&(*itr) == &child)
+            {
+                child.m_flags |= RemoveFlag;
+                child.getParent()->m_flags |= ChildrenRemovedFlag;
+                break;
+            }
+        }
+
+        return m_children.back().getReference();
     }
 
     //////////////////////////////////////////////
@@ -279,6 +300,20 @@ namespace jop
         m_children.clear();
     }
 
+    //////////////////////////////////////////////
+
+    void Object::removeSelf()
+    {
+        m_flags |= RemoveFlag;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::isRemoved() const
+    {
+        return (m_flags & RemoveFlag) != 0;
+    }
+
     /////////////////////////////////////////////
 
     unsigned int Object::childCount() const
@@ -302,14 +337,14 @@ namespace jop
 
     void Object::setIgnoreParent(const bool ignore)
     {
-        m_ignoreParent = ignore;
+        m_flags = (ignore ? m_flags | IgnoreParentFlag : m_flags & ~(IgnoreParentFlag));
     }
 
     //////////////////////////////////////////////
 
     bool Object::ignoresParent() const
     {
-        return m_ignoreParent;
+        return (m_flags & IgnoreParentFlag) != 0;
     }
 
     //////////////////////////////////////////////
@@ -498,9 +533,9 @@ namespace jop
 
     void Object::setActive(const bool active)
     {
-        if (active != m_active)
+        if (isActive() != active)
         {
-            m_active = active;
+            m_flags = (active ? m_flags | ActiveFlag : m_flags & ~(ActiveFlag));
 
             for (auto& i : m_components)
                 i->setActive(active);
@@ -514,7 +549,7 @@ namespace jop
 
     bool Object::isActive() const
     {
-        return m_active;
+        return (m_flags & ActiveFlag) != 0 && (m_flags & RemoveFlag) == 0;
     }
 
     /////////////////////////////////////////////
@@ -523,6 +558,14 @@ namespace jop
     {
         if (isActive())
         {
+            if ((m_flags & ChildrenRemovedFlag) != 0)
+            {
+                m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](const Object& obj)
+                {
+                    return obj.isRemoved();
+                }), m_children.end());
+            }
+
             for (auto& i : m_components)
                 i->update(deltaTime);
 

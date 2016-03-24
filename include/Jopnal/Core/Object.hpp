@@ -41,6 +41,14 @@ namespace jop
 
         friend class StateLoader;
 
+        enum
+        {
+            ActiveFlag          = 1,
+            IgnoreParentFlag    = 1 << 1,
+            RemoveFlag          = 1 << 2,
+            ChildrenRemovedFlag = 1 << 3
+        };
+
     public:
 
         /// \brief Constructor
@@ -182,6 +190,10 @@ namespace jop
         ///
         void clearChildren();
 
+        void removeSelf();
+
+        bool isRemoved() const;
+
         /// \brief Get amount of children
         ///
         /// \return Amount of children
@@ -201,7 +213,7 @@ namespace jop
         /// \brief Set this object to ignore its parent
         ///
         /// This only affects transformations. Objects that ignore their parent will not take
-        /// into account the parent's tranformation.
+        /// into account the parent's transformation.
         ///
         /// \param ignore The flag to set
         ///
@@ -352,8 +364,7 @@ namespace jop
         std::unordered_set<std::string> m_tags;               ///< Container holding tags
         std::string m_ID;                                     ///< Unique object identifier
         WeakReference<Object> m_parent;
-        bool m_ignoreParent;
-        bool m_active;
+        unsigned char m_flags;
     };
 
     // Include the template implementation file
