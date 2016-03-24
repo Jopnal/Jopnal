@@ -20,7 +20,11 @@
 //////////////////////////////////////////////
 
 // Headers
-
+#include <Jopnal/Audio/SoundBuffer.hpp>
+#include <Jopnal/Audio/SoundSource.hpp>
+#include <Jopnal/Audio/SoundStream.hpp>
+#include <Jopnal/Audio/SoundEffect.hpp>
+#include <Jopnal/Audio/Listener.hpp>
 
 //////////////////////////////////////////////
 

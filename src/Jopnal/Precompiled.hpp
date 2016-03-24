@@ -67,6 +67,9 @@
 // GLM
 #include <Jopnal/MathInclude.hpp>
 
+// SFML
+#include <SFML/Audio.hpp>
+
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)

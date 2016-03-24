@@ -20,6 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Audio.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\Listener.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundBuffer.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundEffect.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundSource.hpp" />
+    <ClInclude Include="..\include\Jopnal\Audio\SoundStream.hpp" />
     <ClInclude Include="..\include\Jopnal\Config.hpp" />
     <ClInclude Include="..\include\Jopnal\Core.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\DebugHandler.hpp" />
@@ -98,6 +103,11 @@
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Audio\Listener.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundBuffer.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundEffect.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp" />
+    <ClCompile Include="..\src\Jopnal\Audio\SoundStream.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Component.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\FileLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Object.cpp" />
@@ -284,7 +294,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <MinimalRebuild>true</MinimalRebuild>
@@ -293,10 +303,10 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -348,7 +358,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\src;$(ProjectDir)..\extlibs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <PreprocessorDefinitions>JOP_EXPORT_API;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>JOP_EXPORT_API;SFML_STATIC;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Jopnal\Precompiled.hpp</PrecompiledHeaderFile>
       <AdditionalOptions>/WL %(AdditionalOptions)</AdditionalOptions>
@@ -358,10 +368,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s.lib;sfml-audio-s.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s.lib;sfml-audio-s.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
