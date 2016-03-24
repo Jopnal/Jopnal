@@ -61,7 +61,9 @@ namespace jop
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      ()
+          m_tags                    (),
+          m_ID                      (),
+          m_parent                  ()
     {}
 
     Object::Object(const std::string& ID)
@@ -70,7 +72,9 @@ namespace jop
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (ID)
+          m_tags                    (),
+          m_ID                      (ID),
+          m_parent                  ()
     {}
 
     Object::Object(const Object& other)
@@ -99,7 +103,9 @@ namespace jop
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
-          m_ID                      (newName)
+          m_tags                    (other.m_tags),
+          m_ID                      (newName),
+          m_parent                  (other.m_parent)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -119,7 +125,9 @@ namespace jop
           SafeReferenceable<Object> (std::move(other)),
           m_children                (std::move(other.m_children)),
           m_components              (std::move(other.m_components)),
-          m_ID                      (std::move(other.m_ID))
+          m_tags                    (std::move(other.m_tags)),
+          m_ID                      (std::move(other.m_ID)),
+          m_parent                  (other.m_parent)
     {}
 
     Object& Object::operator=(Object&& other)
@@ -129,8 +137,9 @@ namespace jop
 
         m_children      = std::move(other.m_children);
         m_components    = std::move(other.m_components);
+        m_tags          = std::move(other.m_tags);
         m_ID            = std::move(other.m_ID);
-
+        m_parent        = other.m_parent;
         setActive(other.isActive());
 
         return *this;
@@ -172,6 +181,7 @@ namespace jop
     WeakReference<Object> Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(ID);
+        m_children.back().m_parent = *this;
         return m_children.back().getReference();
     }
 
@@ -307,6 +317,7 @@ namespace jop
         return WeakReference<Object>();
     }
 
+
     /////////////////////////////////////////////
 
     std::vector<WeakReference<Object>> Object::findChildren(const std::string &ID, const bool recursive, const bool strict)
@@ -319,7 +330,6 @@ namespace jop
             {
                 vec.push_back(i.getReference());
             }
-
             if (recursive)
             {
                 auto ref = i.findChildren(ID, recursive, strict);
@@ -327,6 +337,70 @@ namespace jop
             }
         }
         return vec;
+    }
+
+    /////////////////////////////////////////////
+
+    std::vector<WeakReference<Object>> Object::findChildrenWithTag(const std::string tag, const bool recursive)
+    {
+        std::vector<WeakReference<Object>> dudu;
+
+        for (auto &i : m_children)
+        {
+            if (i.hasTag(tag))
+            {
+                dudu.push_back(i.getReference());
+            }
+            if (recursive)
+            {
+                auto ref = i.findChildrenWithTag(tag, recursive);
+                dudu.insert(dudu.end(), ref.begin(), ref.end());
+            }
+        }
+        return dudu;
+    }
+
+    /////////////////////////////////////////////
+
+    WeakReference<Object> Object::findChild(const std::string& path)
+    {
+        if (!path.empty())
+        {
+            auto pos = path.find_first_of('>');
+
+            if (pos != 0)
+            {
+                if (pos != std::string::npos)
+                {
+                    auto ref = findChild(path.substr(0, pos), false, true);
+                    if (!ref.expired() && pos < path.length())
+                        return ref->findChild(path.substr(pos + 1));
+                }
+                else
+                {
+                    return findChild(path, false, true);
+                }
+            }
+            else
+            {
+                JOP_DEBUG_ERROR("Invalid path: "<< path);
+            }
+        }
+        return WeakReference<Object>();
+    }
+        
+    /////////////////////////////////////////////
+    std::string Object::makeSearchPath() const
+    {
+        WeakReference<Object> obj(m_parent);
+        std::string path((obj.expired() ? "" : ">") + getID());
+
+        while (!obj.expired())
+        {
+            path.insert(0, (obj->m_parent.expired() ? "" : ">") + obj->getID());
+            obj = obj->m_parent;
+        }
+        return path;
     }
 
     /////////////////////////////////////////////
@@ -369,6 +443,34 @@ namespace jop
     void Object::setID(const std::string& ID)
     {
         m_ID = ID;
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::addTag(const std::string& tag)
+    {
+        m_tags.insert(tag);
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::removeTag(const std::string tag)
+    {
+        m_tags.erase(tag);
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::clearTags()
+    {
+        m_tags.clear();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::hasTag(const std::string& tag) const
+    {
+        return m_tags.find(tag) != m_tags.end();
     }
 
     //////////////////////////////////////////////

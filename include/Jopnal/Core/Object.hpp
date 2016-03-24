@@ -31,6 +31,7 @@
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <unordered_set>
 
 //////////////////////////////////////////////
 
@@ -74,7 +75,6 @@ namespace jop
         /// \brief Move assignment operator
         ///
         Object& operator =(Object&& other);
-
 
         /// \brief Get a component with the given id
         ///
@@ -201,6 +201,27 @@ namespace jop
         ///
         std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict);
 
+        /// \brief Finds children by given tag
+        ///
+        /// \param tag Object identifier
+        /// \param recursive Tells if object is recursive
+        ///
+        /// \return vector consisting objects children, nullptr otherwise
+        ///
+        std::vector<WeakReference<Object>> findChildrenWithTag(const std::string tag, const bool recursive);
+
+        /// \brief finds children from path
+        /// 
+        /// \param path String that includes multiple ID:s 
+        ///
+        /// \return Weak reference to child
+        //
+        WeakReference<Object> findChild(const std::string& path);
+
+        /// \brief Makes path to children including all parents
+        ///
+        std::string makeSearchPath()const;
+
         /// \brief Method for getting m_ID
         ///
         const std::string& getID() const;
@@ -210,6 +231,26 @@ namespace jop
         /// \param ID unique object identifier
         ///
         void setID(const std::string& ID);
+
+        /// \brief Adds tag to m_tags set
+        ///
+        /// \param tag Name of the added tag
+        ///
+        void addTag(const std::string& tag);
+
+        /// \brief Removes tag from m_tags set
+        ///
+        /// \param tag Name of the removable tag 
+        ///
+        void removeTag(const std::string tag);
+
+        /// \brief Clears m_tags set
+        ///
+        void clearTags();
+
+        /// \brief Finds out if object has tag name tag
+        ///
+        bool hasTag(const std::string& tag)const;
 
         /// \brief Update method for object - forwarded for its components
         ///
@@ -233,7 +274,9 @@ namespace jop
 
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
+        std::unordered_set<std::string> m_tags;               ///< Container holding tags
         std::string m_ID;                                     ///< Unique object identifier
+        WeakReference<Object> m_parent;                       ///< Reference to objects parent
     };
 
     // Include the template implementation file
