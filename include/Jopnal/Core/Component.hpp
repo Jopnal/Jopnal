@@ -35,21 +35,21 @@ namespace jop
 {
     class Object;
 
-    class JOP_API Component : public SafeReferenceable<Component>
+    class JOP_API Component
     {
     private:
 
-        JOP_DISALLOW_MOVE(Component);
-
-        void operator =(const Component&) = delete;
+        JOP_DISALLOW_COPY_MOVE(Component);
 
         friend class Object;
+
+        virtual Component* clone(Object& newObj) const = 0;
 
     protected:
 
         /// \brief Copy constructor
         ///
-        Component(const Component& other);
+        Component(const Component& other, Object& newObj);
 
     public:
 
@@ -63,13 +63,6 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Component() = 0;
-
-
-        /// \brief Copy this component
-        ///
-        /// This function exists for internal use only. Do not call directly.
-        ///
-        virtual Component* clone() const = 0;
 
 
         /// \brief Function to handle messages
@@ -96,12 +89,6 @@ namespace jop
         /// \param deltaTime Double holding delta time
         ///
         virtual void update(const float deltaTime);
-
-        /// \brief Fixed update function for component
-        ///
-        /// \param timeStep Double holding time step
-        ///
-        virtual void fixedUpdate(const float timeStep);
 
         /// \brief Function to get components unique identifier m_ID
         ///
@@ -131,6 +118,8 @@ namespace jop
         
     private:
 
+        virtual void setActive(const bool active);
+
         /// \brief Virtual sendMessage
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
@@ -139,10 +128,6 @@ namespace jop
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }
-
-/// \brief Convenience macro for defining a component's/scene's clone function.
-///
-#define JOP_GENERIC_CLONE(className) virtual className* clone() const override{return new className(*this);}
 
 #endif
 

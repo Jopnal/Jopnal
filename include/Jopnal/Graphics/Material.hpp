@@ -56,7 +56,14 @@ namespace jop
                 Diffusemap      = 1 << 2,
                 Specularmap     = 1 << 3,
                 Emissionmap     = 1 << 4,
-                Phong           = 1 << 5
+                EnvironmentMap  = 1 << 5,
+                ReflectionMap   = 1 << 6,
+                Phong           = 1 << 7,
+                OpacityMap      = 1 << 8,
+
+                // For internal functionality, do not use
+                RecordEnv       = 1u << 31,
+                Lighting        = Phong
             };
         };
 
@@ -70,6 +77,7 @@ namespace jop
             Diffuse,
             Specular,
             Emission,
+
             Solid = Emission
         };
 
@@ -77,12 +85,16 @@ namespace jop
         ///
         enum class Map
         {
-            Diffuse,
+            Diffuse = 1,
             Specular,
-            Emission
+            Emission,
+            Environment,
+            Reflection
         };
 
         /// Predefined material properties
+        ///
+        /// TODO: Implement method to set this
         ///
         enum class Property
         {
@@ -178,6 +190,26 @@ namespace jop
         float getShininess() const;
 
 
+        /// \brief Set the reflectivity
+        ///
+        /// Do not confuse this with reflection. What this defines is how
+        /// strongly an environment map is reflected. 0 means there's no
+        /// reflection and 1 makes the surface mirror-like. This attribute
+        /// has no effect if there's no environment map
+        ///
+        /// \param reflectivity The reflectivity value
+        ///
+        /// \return Reference to self
+        ///
+        Material& setReflectivity(const float reflectivity);
+
+        /// \brief Get the reflectivity value
+        ///
+        /// \return The reflectivity value
+        ///
+        float getReflectivity() const;
+
+
         /// \brief Set a map
         ///
         /// \param map The map attribute
@@ -226,10 +258,10 @@ namespace jop
     private:
 
         std::array<Color, 4> m_reflection;                  ///< The reflection values
+        float m_reflectivity;                               ///< The reflectivity value
         AttribType m_attributes;                            ///< The attribute bit field
         float m_shininess;                                  ///< The shininess factor
-        std::array<WeakReference<const Texture>, 3> m_maps; ///< An array with the bound maps
-
+        std::array<WeakReference<const Texture>, 6> m_maps; ///< An array with the bound maps
     };
 }
 

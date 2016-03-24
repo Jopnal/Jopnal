@@ -34,9 +34,10 @@
 #define JOP_OPENGL_ERROR_CHECKS
 
 // Debug
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(JOP_DEBUG_MODE)
     #define JOP_DEBUG_MODE
 #endif
+#define JOP_DEBUG_MODE
 
 // Console
 #ifdef JOP_DEBUG_MODE

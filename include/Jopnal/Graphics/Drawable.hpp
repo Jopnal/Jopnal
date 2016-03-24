@@ -28,54 +28,84 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <memory>
-#include <vector>
-#include <unordered_set>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Model;
     class Shader;
-    class Camera;
-    class Scene;
     class LightSource;
     class LightContainer;
+    class Renderer;
 
     class JOP_API Drawable : public Component
     {
     private:
 
-        JOP_DISALLOW_MOVE(Drawable);
+        JOP_DISALLOW_COPY_MOVE(Drawable);
 
-        void operator =(const Drawable&) = delete;
+    protected:
 
-        friend class Layer;
+        Drawable(const Drawable& other, Object& newObj);
 
     public:
     
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
+        /// \param ID Component identifier
+        /// \param renderer Reference to the renderer
         ///
-        Drawable(Object& object, const std::string& ID);
-
-        Drawable(const Drawable& other);
+        Drawable(Object& object, const std::string& ID, Renderer& renderer);
 
         /// \brief Virtual destructor
         ///
-        virtual ~Drawable() = 0;
+        virtual ~Drawable() override = 0;
 
 
-        /// \copydoc jop::Component::clone()
+        
+        /// \brief Base draw function
         ///
-        virtual Drawable* clone() const override = 0;
+        /// This will use the shader bound to this drawable.
+        /// 
+        /// \param camera The camera to use
+        /// \param lights The light container
+        ///
+        void draw(const Camera& camera, const LightContainer& lights) const;
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera&, const LightContainer&) = 0;
+        /// The camera pointer can be null some times. In these cases it means that the view & perspective
+        /// matrices have already been taken care of and you shouldn't try to set them.
+        ///
+        virtual void draw(const Camera*, const LightContainer&, Shader&) const = 0;
+
+
+        /// \brief Get the renderer this drawable is bound to
+        ///
+        /// \return Reference to the renderer
+        ///
+        Renderer& getRendrer();
+
+        /// \copydoc getRenderer()
+        ///
+        const Renderer& getRenderer() const;
+
+
+        /// \brief Set the render group
+        ///
+        /// The value will be clamped between 0 and 31.
+        ///
+        /// \param group The new group to set
+        ///
+        void setRenderGroup(const uint8 group);
+
+        /// \brief Get the render group
+        ///
+        /// \return The render group 
+        ///
+        uint8 getRenderGroup() const;
 
 
         /// \brief Set the model
@@ -83,8 +113,9 @@ namespace jop
         /// The model will be copied.
         ///
         /// \param model Reference to the model
+        /// \param loadMaterialShader Automatically load the shader from ShaderManager?
         ///
-        Drawable& setModel(const Model& model);
+        Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
 
         /// \brief Get the model
         ///
@@ -93,6 +124,7 @@ namespace jop
         Model& getModel();
 
         /// \copydoc getModel()
+        ///
         const Model& getModel() const;
 
 
@@ -109,13 +141,6 @@ namespace jop
         WeakReference<Shader> getShader() const;
 
 
-        /// \brief Get the set with the bound layers
-        ///
-        /// \return Reference to the set
-        ///
-        const std::unordered_set<Layer*> getBoundLayers() const;
-
-
         /// \brief Set whether or not this drawable receives lights
         ///
         /// \param receive True to receive lights
@@ -127,6 +152,40 @@ namespace jop
         /// \return True if receives lights
         ///
         bool receiveLights() const;
+
+
+        /// \brief Check if a light affects this drawable
+        /// 
+        /// \param light The light to check against
+        ///
+        /// \return True if the light affects
+        ///
+        bool lightTouches(const LightSource& light) const;
+
+
+        /// \brief Set the flag to receive shadows
+        ///
+        /// \param receive True to set this to receive shadows
+        ///
+        void setReceiveShadows(const bool receive);
+
+        /// \brief Check if this drawable receives shadows
+        ///
+        /// \return True if this drawable receives shadows
+        ///
+        bool receiveShadows() const;
+
+        /// \brief Set the flag to cast shadows
+        /// 
+        /// \param cast True to set this to cast shadows
+        ///
+        void setCastShadows(const bool cast);
+
+        /// \brief Check if this drawable casts shadows
+        ///
+        /// \return True if this drawable casts shadows
+        ///
+        bool castShadows() const;
 
 
         /// \brief Load the state
@@ -155,10 +214,13 @@ namespace jop
 
     private:
 
-        Model m_model;                                      ///< The bound model
-        mutable std::unordered_set<Layer*> m_boundToLayers; ///< Set of layers this drawable is bound to
-        WeakReference<Shader> m_shader;                     ///< The bound shader
-        bool m_receiveLights;                               ///< Does this drawable receive lights
+        Model m_model;                  ///< The bound model
+        WeakReference<Shader> m_shader; ///< The bound shader
+        Renderer& m_rendererRef;        ///< Reference to the renderer
+        uint8 m_renderGroup;            ///< The render group
+        bool m_receiveLights;           ///< Does this drawable receive lights?
+        bool m_receiveShadows;          ///< Does this drawable receive shadows?
+        bool m_castShadows;             ///< Does this drawable cast shadows?
         
     };
 }

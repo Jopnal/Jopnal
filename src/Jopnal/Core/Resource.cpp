@@ -30,14 +30,14 @@ namespace jop
     Resource::Resource(const std::string& name)
         : SafeReferenceable<Resource>   (this),
           m_name                        (name),
-          m_persistent                  (false),
+          m_persistence                 (USHRT_MAX),
           m_managed                     (false)
     {}
 
     Resource::Resource(const Resource& other)
         : SafeReferenceable<Resource>   (this),
           m_name                        (other.m_name),
-          m_persistent                  (other.m_persistent),
+          m_persistence                 (other.m_persistence),
           m_managed                     (false)
     {}
 
@@ -53,16 +53,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Resource::setPersistent(const bool persistent)
+    void Resource::setPersistence(const unsigned short persistence)
     {
-        m_persistent = persistent;
+        m_persistence = persistence;
     }
 
     //////////////////////////////////////////////
 
-    bool Resource::isPersistent() const
+    unsigned short Resource::getPersistence() const
     {
-        return m_persistent;
+        return m_persistence;
     }
 
     //////////////////////////////////////////////

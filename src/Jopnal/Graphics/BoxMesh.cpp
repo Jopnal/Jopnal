@@ -40,7 +40,7 @@ namespace jop
             size = static_cast<float>(val["size"].GetDouble());
 
         ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(), size)
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        ;//    .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -52,7 +52,7 @@ namespace jop
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
         val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         return true;
     }
@@ -73,50 +73,65 @@ namespace jop
         load(size);
     }
 
+    BoxMesh::BoxMesh(const std::string& name, const float size, const bool invert)
+        : Mesh      (name),
+          m_size    (0.f)
+    {
+        load(size, invert);
+    }
+
     //////////////////////////////////////////////
 
     bool BoxMesh::load(const float size)
     {
-        m_size = size;
-        const float half = 0.5f * size;
+        return load(size, false);
+    }
 
-        const std::vector<Vertex> vertexArray
+    //////////////////////////////////////////////
+
+    bool BoxMesh::load(const float size, const bool invert)
+    {
+        m_size = size;
+        const float half = (invert ? -0.5f : 0.5f) * size;
+        const float norm = /*invert ? -1.f : */1.f;
+
+        const std::vector<Vertex> vertices
         ({
             // Front
-            Vertex(glm::vec3(-half, -half, half), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 0, Left, Bottom, Front   
-            Vertex(glm::vec3(half, -half, half), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)),  // 1, Right, Bottom, Front  
-            Vertex(glm::vec3(-half, half, half), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),  // 2, Left, Top, Front      
-            Vertex(glm::vec3(half, half, half), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)),   // 3, Right, Top, Front     
-
-            // Left
-            Vertex(glm::vec3(-half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3(-1.f, 0.f, 0.f)), // 4, Left, Bottom, Rear  
-            Vertex(glm::vec3(-half, -half, half), glm::vec2(1.f, 0.f), glm::vec3(-1.f, 0.f, 0.f)),  // 5, Left, Bottom, Front 
-            Vertex(glm::vec3(-half, half, -half), glm::vec2(0.f, 1.f), glm::vec3(-1.f, 0.f, 0.f)),  // 6, Left, Top, Rear     
-            Vertex(glm::vec3(-half, half, half), glm::vec2(1.f, 1.f), glm::vec3(-1.f, 0.f, 0.f)),   // 7, Left, Top, Front    
-
-            // Rear
-            Vertex(glm::vec3(half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, -1.f)),  // 8, Right, Bottom, Rear 
-            Vertex(glm::vec3(-half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, -1.f)), // 9, Left, Bottom, Rear  
-            Vertex(glm::vec3(half, half, -half), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, -1.f)),   // 10, Right, Top, Rear   
-            Vertex(glm::vec3(-half, half, -half), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, -1.f)),  // 11, Left, Top, Rear    
-
-            // Right
-            Vertex(glm::vec3(half, -half, half), glm::vec2(0.f, 0.f), glm::vec3(1.f, 0.f, 0.f)),    // 12, Right, Bottom, Front
-            Vertex(glm::vec3(half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3(1.f, 0.f, 0.f)),   // 13, Right, Bottom, Rear
-            Vertex(glm::vec3(half, half, half), glm::vec2(0.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),     // 14, Right, Top, Front  
-            Vertex(glm::vec3(half, half, -half), glm::vec2(1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),    // 15, Right, Top, Rear   
-
-            // Top
-            Vertex(glm::vec3(-half, half, half), glm::vec2(0.f, 0.f), glm::vec3(0.f, 1.f, 0.f)),    // 16, Left, Top, Front   
-            Vertex(glm::vec3(half, half, half), glm::vec2(1.f, 0.f), glm::vec3(0.f, 1.f, 0.f)),     // 17, Right, Top, Front
-            Vertex(glm::vec3(-half, half, -half), glm::vec2(0.f, 1.f), glm::vec3(0.f, 1.f, 0.f)),   // 18, Left, Top, Rear
-            Vertex(glm::vec3(half, half, -half), glm::vec2(1.f, 1.f), glm::vec3(0.f, 1.f, 0.f)),    // 19, Right, Top, Rear
-
-            // Bottom
-            Vertex(glm::vec3(-half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3(0.f, -1.f, 0.f)), // 20, Left, Bottom, Rear
-            Vertex(glm::vec3(half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),  // 21, Right, Bottom, Rear
-            Vertex(glm::vec3(-half, -half, half), glm::vec2(0.f, 1.f), glm::vec3(0.f, -1.f, 0.f)),  // 22, Left, Bottom, Front
-            Vertex(glm::vec3(half, -half, half), glm::vec2(1.f, 1.f), glm::vec3(0.f, -1.f, 0.f))    // 23, Right, Bottom, Front
+            Vertex(glm::vec3(-half, -half,  half), glm::vec2(0.f, 0.f), glm::vec3( 0.f,  0.f,  norm )), // 0, Left, Bottom, Front   
+            Vertex(glm::vec3( half, -half,  half), glm::vec2(1.f, 0.f), glm::vec3( 0.f,  0.f,  norm )), // 1, Right, Bottom, Front  
+            Vertex(glm::vec3(-half,  half,  half), glm::vec2(0.f, 1.f), glm::vec3( 0.f,  0.f,  norm )), // 2, Left, Top, Front      
+            Vertex(glm::vec3( half,  half,  half), glm::vec2(1.f, 1.f), glm::vec3( 0.f,  0.f,  norm )), // 3, Right, Top, Front     
+                                                                                                    
+            // Left                                                                                 
+            Vertex(glm::vec3(-half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3(-norm, 0.f,  0.f  )), // 4, Left, Bottom, Rear  
+            Vertex(glm::vec3(-half, -half,  half), glm::vec2(1.f, 0.f), glm::vec3(-norm, 0.f,  0.f  )), // 5, Left, Bottom, Front 
+            Vertex(glm::vec3(-half,  half, -half), glm::vec2(0.f, 1.f), glm::vec3(-norm, 0.f,  0.f  )), // 6, Left, Top, Rear     
+            Vertex(glm::vec3(-half,  half,  half), glm::vec2(1.f, 1.f), glm::vec3(-norm, 0.f,  0.f  )), // 7, Left, Top, Front    
+                                                                                                    
+            // Rear                                                                                 
+            Vertex(glm::vec3( half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3( 0.f,  0.f, -norm )), // 8, Right, Bottom, Rear 
+            Vertex(glm::vec3(-half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3( 0.f,  0.f, -norm )), // 9, Left, Bottom, Rear  
+            Vertex(glm::vec3( half,  half, -half), glm::vec2(0.f, 1.f), glm::vec3( 0.f,  0.f, -norm )), // 10, Right, Top, Rear   
+            Vertex(glm::vec3(-half,  half, -half), glm::vec2(1.f, 1.f), glm::vec3( 0.f,  0.f, -norm )), // 11, Left, Top, Rear    
+                                                                                                    
+            // Right                                                                                
+            Vertex(glm::vec3( half, -half,  half), glm::vec2(0.f, 0.f), glm::vec3( norm, 0.f,  0.f  )), // 12, Right, Bottom, Front
+            Vertex(glm::vec3( half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3( norm, 0.f,  0.f  )), // 13, Right, Bottom, Rear
+            Vertex(glm::vec3( half,  half,  half), glm::vec2(0.f, 1.f), glm::vec3( norm, 0.f,  0.f  )), // 14, Right, Top, Front  
+            Vertex(glm::vec3( half,  half, -half), glm::vec2(1.f, 1.f), glm::vec3( norm, 0.f,  0.f  )), // 15, Right, Top, Rear   
+                                                                                                    
+            // Top                                                                                  
+            Vertex(glm::vec3(-half,  half,  half), glm::vec2(0.f, 0.f), glm::vec3( 0.f,  norm, 0.f  )), // 16, Left, Top, Front   
+            Vertex(glm::vec3( half,  half,  half), glm::vec2(1.f, 0.f), glm::vec3( 0.f,  norm, 0.f  )), // 17, Right, Top, Front
+            Vertex(glm::vec3(-half,  half, -half), glm::vec2(0.f, 1.f), glm::vec3( 0.f,  norm, 0.f  )), // 18, Left, Top, Rear
+            Vertex(glm::vec3( half,  half, -half), glm::vec2(1.f, 1.f), glm::vec3( 0.f,  norm, 0.f  )), // 19, Right, Top, Rear
+                                                                                                    
+            // Bottom                                                                               
+            Vertex(glm::vec3(-half, -half, -half), glm::vec2(0.f, 0.f), glm::vec3( 0.f, -norm, 0.f  )), // 20, Left, Bottom, Rear
+            Vertex(glm::vec3( half, -half, -half), glm::vec2(1.f, 0.f), glm::vec3( 0.f, -norm, 0.f  )), // 21, Right, Bottom, Rear
+            Vertex(glm::vec3(-half, -half,  half), glm::vec2(0.f, 1.f), glm::vec3( 0.f, -norm, 0.f  )), // 22, Left, Bottom, Front
+            Vertex(glm::vec3( half, -half,  half), glm::vec2(1.f, 1.f), glm::vec3( 0.f, -norm, 0.f  ))  // 23, Right, Bottom, Front
         });
         static const std::vector<unsigned int> indices
         ({
@@ -145,7 +160,7 @@ namespace jop
             22, 21, 23
         });
 
-        return Mesh::load(vertexArray, indices);
+        return Mesh::load(vertices, indices);
     }
 
     //////////////////////////////////////////////

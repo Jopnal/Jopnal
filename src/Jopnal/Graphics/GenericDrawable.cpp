@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        return Drawable::loadStateBase(*obj.createComponent<GenericDrawable>(""), scene, val);
+        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(scene.getRenderer()), scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
 
@@ -42,33 +42,33 @@ namespace jop
 
 namespace jop
 {
-    GenericDrawable::GenericDrawable(Object& object, const std::string& ID)
-        : Drawable(object, ID)
+    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
+        : Drawable(object, "genericdrawable", renderer)
+    {}
+
+    GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)
+        : Drawable(other, newObj)
     {}
 
     //////////////////////////////////////////////
 
-    GenericDrawable* GenericDrawable::clone() const
+    void GenericDrawable::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
     {
-        return new GenericDrawable(*this);
-    }
-
-    //////////////////////////////////////////////
-
-    void GenericDrawable::draw(const Camera& camera, const LightContainer& lights)
-    {
-        if (getShader().expired() || getModel().getMesh().expired())
+        if (getModel().getMesh().expired())
             return;
 
-        auto& s = *getShader();
+        auto& s = shader;
         auto& mod = getModel();
         auto& msh = *mod.getMesh();
 
         auto& modelMat = getObject()->getMatrix();
 
         // Set common uniforms
-        s.setUniform("u_PMatrix", camera.getProjectionMatrix());
-        s.setUniform("u_VMatrix", camera.getViewMatrix());
+        if (camera)
+        {
+            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
+            s.setUniform("u_VMatrix", camera->getViewMatrix());
+        }
         s.setUniform("u_MMatrix", modelMat);
 
         // Set vertex attributes
@@ -78,18 +78,27 @@ namespace jop
 
         if (!mod.getMaterial().expired())
         {
-            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Phong))
+            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Lighting))
             {
                 s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
                 // Set lights
-                lights.sendToShader(s, camera);
+                lights.sendToShader(s, camera, *this);
             }
 
             // Set material
             mod.getMaterial()->sendToShader(s);
         }
+
+    #ifdef JOP_DEBUG_MODE
+
+        static const bool validate = SettingManager::getBool("bValidateShaders", false);
+
+        if (validate)
+            s.validate();
+
+    #endif
 
         // Use indices if they exist
         if (mod.getElementAmount())

@@ -49,7 +49,7 @@ namespace jop
                                                   arr[2u].IsString() ? arr[2u].GetString() : "",
                                                   arr[3u].IsString() ? arr[3u].GetString() : "")
             
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -60,7 +60,7 @@ namespace jop
         const Shader& ref = *static_cast<const Shader*>(shader);
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
            .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
@@ -293,10 +293,17 @@ namespace jop
 
     bool Shader::setUniform(const std::string& name, const glm::mat4& matrix)
     {
+        return setUniform(name, glm::value_ptr(matrix), 1);
+    }
+    
+    //////////////////////////////////////////////
+
+    bool Shader::setUniform(const std::string& name, const float* matrices, const unsigned int amount)
+    {
         const int loc = getUniformLocation(name);
-        
+
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
+            glCheck(gl::UniformMatrix4fv(loc, amount, gl::FALSE_, matrices));
 
         return loc != -1;
     }
@@ -355,8 +362,11 @@ namespace jop
     {
         const int loc = getUniformLocation(name);
 
-        if (loc != -1 && texture.bind(unit))
+        if (loc != -1)
+        {
+            texture.bind(unit);
             glCheck(gl::Uniform1i(loc, unit));
+        }
 
         return loc != -1;
     }
@@ -399,6 +409,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Shader::setUniform(const std::string& name, const bool value)
+    {
+        return setUniform(name, value ? 1 : 0);
+    }
+
+    //////////////////////////////////////////////
+
     bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         const int loc = getAttributeLocation(name);
@@ -416,8 +433,8 @@ namespace jop
 
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
-        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
         GlState::setVertexAttribute(true, loc);
+        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
     }
 
     //////////////////////////////////////////////
@@ -425,6 +442,34 @@ namespace jop
     const std::string& Shader::getSource(const Type type) const
     {
         return m_strings[static_cast<int>(type)];
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Shader::getHandle() const
+    {
+        return m_shaderProgram;
+    }
+    
+    //////////////////////////////////////////////
+
+    void Shader::validate() const
+    {
+        glCheck(gl::ValidateProgram(m_shaderProgram));
+
+        GLint valid;
+        glCheck(gl::GetProgramiv(m_shaderProgram, gl::VALIDATE_STATUS, &valid));
+
+        if (valid == gl::FALSE_)
+        {
+            GLint size;
+            glCheck(gl::GetProgramiv(m_shaderProgram, gl::INFO_LOG_LENGTH, &size));
+
+            std::string log(size, '0');
+            glCheck(gl::GetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
+
+            JOP_ASSERT(false, log);
+        }
     }
 
     //////////////////////////////////////////////
@@ -446,7 +491,7 @@ namespace jop
                                             std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
                                             "Couldn't compile the default shader!");
 
-            defShader->setPersistent(true);
+            defShader->setPersistence(0);
             defShader->setManaged(true);
         }
 

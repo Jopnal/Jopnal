@@ -67,13 +67,13 @@ namespace jop
         ///
         /// \param persistent Set this resource persistent?
         ///
-        void setPersistent(const bool persistent);
+        void setPersistence(const unsigned short level);
 
         /// \brief Check if this resource is persistent
         ///
         /// \return True if persistent
         ///
-        bool isPersistent() const;
+        unsigned short getPersistence() const;
 
 
         /// \brief Set the managed flag
@@ -94,7 +94,7 @@ namespace jop
     private:
 
         std::string m_name; ///< Name of this resource
-        bool m_persistent;  ///< Is this resource persistent?
+        unsigned short m_persistence;
         bool m_managed;     ///< Is this a managed resource?
     };
 }

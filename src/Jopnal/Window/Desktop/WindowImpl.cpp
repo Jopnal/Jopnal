@@ -102,6 +102,17 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_SAMPLES, settings.samples);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, settings.debug);
+
+        // Pixel format
+        glfwWindowHint(GLFW_RED_BITS, 8);
+        glfwWindowHint(GLFW_GREEN_BITS, 8);
+        glfwWindowHint(GLFW_BLUE_BITS, 8);
+        glfwWindowHint(GLFW_ALPHA_BITS, 8);
+
+        // Depth & stencil exist in the renderer frame buffer
+        //glfwWindowHint(GLFW_DEPTH_BITS, 0);
+        //glfwWindowHint(GLFW_STENCIL_BITS, 0);
         
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
@@ -122,15 +133,13 @@ namespace jop { namespace detail
         glfwMakeContextCurrent(m_window);
         initExtensions();
         glfwSwapInterval(static_cast<int>(settings.vSync));
-
+        
         glCheck(gl::GenVertexArrays(1, &m_vertexArray));
         glCheck(gl::BindVertexArray(m_vertexArray));
     }
 
     WindowImpl::~WindowImpl()
     {
-        GlState::reset();
-
         glCheck(gl::BindVertexArray(0));
         glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
 
@@ -155,6 +164,15 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
+    WindowHandle WindowImpl::getNativeHandle()
+    {
+    #ifdef JOP_OS_WINDOWS
+        return glfwGetWin32Window(m_window);
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
     void WindowImpl::pollEvents()
     {
         glfwPollEvents();
@@ -170,6 +188,58 @@ namespace jop { namespace detail
         };
 
         glfwSetInputMode(m_window, GLFW_CURSOR, modes[static_cast<int>(mode)]);
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setPosition(const int x, const int y)
+    {
+        glfwSetWindowPos(m_window, x, y);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getPosition() const
+    {
+        glm::ivec2 p;
+        glfwGetWindowPos(m_window, &p.x, &p.y);
+
+        return p;
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setSize(const int width, const int height)
+    {
+        glfwSetWindowSize(m_window, width, height);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getSize(const bool includeFrame) const
+    {
+        glm::ivec2 s;
+        glfwGetWindowSize(m_window, &s.x, &s.y);
+
+        if (includeFrame)
+        {
+            glm::ivec2 topLeft, bottomRight;
+            glfwGetWindowFrameSize(m_window, &topLeft.x, &topLeft.y, &bottomRight.x, &bottomRight.y);
+
+            s += (topLeft + bottomRight);
+        }
+
+        return s;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getFramebufferSize() const
+    {
+        glm::ivec2 s;
+        glfwGetFramebufferSize(m_window, &s.x, &s.y);
+
+        return s;
     }
 }}
 

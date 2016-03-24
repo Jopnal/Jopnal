@@ -54,10 +54,26 @@
 #include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW
-#include <GLFW/glfw3.h>
+#ifdef JOP_OS_DESKTOP
+
+    #include <GLFW/glfw3.h>
+
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #define GLFW_EXPOSE_NATIVE_WGL
+    #include <GLFW/glfw3native.h>
+
+#endif
 
 // GLM
 #include <Jopnal/MathInclude.hpp>
+
+// Bullet
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#include <Bullet/btBulletCollisionCommon.h>
+#include <Bullet/btBulletDynamicsCommon.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#pragma warning(pop)
 
 // RapidJSON
 #pragma warning(push)
@@ -78,9 +94,6 @@
 // PhysFS
 #include <PhysicsFS/physfs.h>
 
-// PhysicsFS
-#include <PhysicsFS/physfs.h>
-
 // Standard headers
 #include <algorithm>
 #include <iostream>
@@ -89,9 +102,12 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <climits>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>
 
+// Implementation classes
+#include <Jopnal/Physics/Detail/WorldImpl.hpp>
 
 #endif

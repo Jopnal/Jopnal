@@ -50,6 +50,14 @@ namespace jop
         ///
         BoxMesh(const std::string& name, const float size);
 
+        /// \brief Creates a cube model
+        ///
+        /// \param name Name of the box
+        /// \param size Size of the box
+        /// \param invert The cube is inside-out?
+        ///
+        BoxMesh(const std::string& name, const float size, const bool invert);
+
 
         /// \brief Load this box
         ///
@@ -60,6 +68,15 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
+        /// \brief Load this box
+        ///
+        /// \param size Size of the box
+        /// \param invert The cube is inside-out?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float size, const bool invert);
 
         /// \brief Get the size
         ///

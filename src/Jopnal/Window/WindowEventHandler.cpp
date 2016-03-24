@@ -435,6 +435,12 @@ namespace jop
             static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w))->mouseScrolled(static_cast<const float>(x), static_cast<const float>(y));
         });
 
+        // Frame buffer size change
+        glfwSetFramebufferSizeCallback(handle, [](GLFWwindow* w, int x, int y)
+        {
+            static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w))->resized(x, y);
+        });
+
     #endif
     }
 
@@ -452,6 +458,7 @@ namespace jop
         glfwSetMouseButtonCallback(handle, NULL);
         glfwSetCursorEnterCallback(handle, NULL);
         glfwSetScrollCallback(handle, NULL);
+        glfwSetFramebufferSizeCallback(handle, NULL);
 
     #endif
     }
@@ -459,6 +466,11 @@ namespace jop
     //////////////////////////////////////////////
 
     void WindowEventHandler::closed()
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::resized(const unsigned int, const unsigned int)
     {}
 
     //////////////////////////////////////////////

@@ -27,6 +27,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <memory>
 #include <vector>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -41,6 +42,16 @@ namespace jop
     private:
 
         friend class StateLoader;
+
+    public:
+
+        enum class State
+        {
+            Running,
+            ZeroDelta,
+            RenderOnly,
+            Frozen
+        };
 
     public:
 
@@ -77,7 +88,10 @@ namespace jop
         ///
         /// \return An integer return value. To be used as the main() return value
         ///
-        int runMainLoop();
+        static int runMainLoop();
+
+
+        static void advanceFrame();
 
 
         /// \brief Create a scene
@@ -93,6 +107,8 @@ namespace jop
         ///
         template<typename T, typename ... Args>
         static T& createScene(Args&&... args);
+
+        static bool hasCurrentScene();
 
         /// \brief Get the current scene
         ///
@@ -110,14 +126,14 @@ namespace jop
         /// \return A reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
-        static WeakReference<T> createSubsystem(Args&&... args);
+        static T& createSubsystem(Args&&... args);
 
         /// \brief Get a subsystem using type info
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        static WeakReference<T> getSubsystem();
+        static T* getSubsystem();
 
         /// \brief Get a subsystem
         ///
@@ -125,7 +141,7 @@ namespace jop
         ///
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
-        static WeakReference<Subsystem> getSubsystem(const std::string& ID);
+        static Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
         ///
@@ -138,7 +154,7 @@ namespace jop
         ///
         /// \return True if an engine object exists & m_running is true
         ///
-        static bool isRunning();
+        static bool exiting();
 
         /// \brief Exit the main loop
         ///
@@ -148,15 +164,22 @@ namespace jop
         ///
         static void exit();
 
+
         /// \brief Sets paused to private m_paused member
         ///
         /// \param paused Boolean to set m_paused
         ///
-        static void setPaused(const bool paused);
+        static void setState(const State state);
 
         /// \brief Sets paused state to all update methods not including subsystems also returns m_paused
         ///
-        static bool isPaused();
+        static State getState();
+
+
+        static void setDeltaScale(const float scale);
+
+        static float getDeltaScale();
+
 
         /// \brief Send a message to the whole engine
         ///
@@ -192,6 +215,8 @@ namespace jop
         ///
         static Scene& getSharedScene();
 
+        static bool hasSharedScene();
+
         /// \brief Set the shared scene
         ///
         /// This will replace the previous shared scene with a new one of the given type.
@@ -219,8 +244,10 @@ namespace jop
         double m_totalTime;                                   ///< The total time
         std::unique_ptr<Scene> m_currentScene;                ///< The current scene
         std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
-        bool m_running;                                       ///< A boolean telling if the engine is running
-        bool m_paused;                                        ///< A boolean telling if the engine is paused
+        std::atomic<bool> m_exit;                             ///< 
+        State m_state;                                        ///< 
+        float m_deltaScale;
+        bool m_advanceFrame;
     };
 
     /// \brief Get the project name
@@ -278,7 +305,7 @@ namespace jop
 ///
 /// This macro must appear in the same scope as JOP_ENGINE_INIT
 ///
-#define JOP_MAIN_LOOP jop_engine.runMainLoop();
+#define JOP_MAIN_LOOP jop::Engine::runMainLoop();
 
 #endif
 

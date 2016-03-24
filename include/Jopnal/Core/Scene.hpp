@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Activateable.hpp>
+#include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <vector>
 #include <memory>
@@ -34,11 +34,38 @@
 
 namespace jop
 {
-    class Object;
-    class Layer;
+    class Renderer;
+    class World;
+    class Window;
 
-    class JOP_API Scene : public Activateable
+    class JOP_API Scene : private Object
     {
+    public:
+
+        using Object::createComponent;
+        using Object::getComponent;
+        using Object::getComponents;
+        using Object::removeComponents;
+        using Object::clearComponents;
+        using Object::componentCount;
+
+        using Object::createChild;
+        using Object::getChild;
+        using Object::getChildren;
+        using Object::cloneChild;
+        using Object::removeChildren;
+        using Object::clearChildren;
+        using Object::childCount;
+        using Object::childCountRecursive;
+
+        using Object::isActive;
+        using Object::setActive;
+
+        using Object::getID;
+        using Object::setID;
+
+        using Object::updateTransformTree;
+
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);
@@ -58,104 +85,18 @@ namespace jop
         virtual ~Scene();
 
 
-        /// \brief Get an object with the given id
-        ///
-        /// \param ID Object identifier
-        ///
-        /// \return Pointer to the object if found, empty otherwise
-        ///
-        WeakReference<Object> getObject(const std::string& ID);
-
-        /// \brief Method that creates object
-        ///
-        /// \param ID Object identifier
-        ///
-        WeakReference<Object> createObject(const std::string& ID);
-
-        /// \brief Clone an object with the given id
-        ///
-        /// The object, if successfully cloned, will be added to the internal array
-        /// and then returned.
-        ///
-        /// \param ID The id to search with
-        /// \param clonedID The id of the cloned object
-        ///
-        /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
-        ///
-        WeakReference<Object> cloneObject(const std::string& ID, const std::string& clonedID);
-
-        /// \brief Method for deleting object 
-        ///
-        /// \param ID Object identifier 
-        ///
-        void deleteObject(const std::string& ID);
-
-        /// \brief Method for clearing m_objects 
-        ///
-        void clearObjects();
-
-        /// \brief Return the amount of objects
-        ///
-        unsigned int objectCount() const;
-
-        /// \brief Get a layer with the given id
-        ///
-        /// \param ID The identifier to search with
-        ///
-        /// \return Pointer to the layer if found, empty otherwise
-        ///
-        WeakReference<Layer> getLayer(const std::string& ID) const;
-
-        /// \brief Get a layer using type info
-        ///
-        /// \return Pointer to the layer. Empty if not found
-        ///
-        template<typename T>
-        WeakReference<T> getLayer() const;
-
-        /// \brief Create a new layer
-        ///
-        /// \param args Arguments to pass into the constructor
-        ///
-        /// \return Reference to the newly created layer
-        ///
         template<typename T, typename ... Args>
-        WeakReference<T> createLayer(Args&&... args);
-
-        /// \brief Delete a layer with the given id
-        ///
-        /// \param ID The id to search with
-        ///
-        void deleteLayer(const std::string& ID);
-
-        /// \brief Delete all layers
-        ///
-        void clearLayers();
+        T& setRenderer(Args&&... args);
 
 
-        /// \brief Replace the default layer
-        ///
-        template<typename T, typename ... Args>
-        WeakReference<T> setDefaultLayer(Args&&... args);
-
-        /// \brief Get the default layer
-        ///
-        /// \return Reference to the default layer
-        ///
-        WeakReference<Layer> getDefaultLayer() const;
+        Renderer& getRenderer() const;
 
 
-        /// \brief Set the ID of this scene
-        ///
-        /// \param ID The new identifier
-        ///
-        void setID(const std::string& ID);
+        World& getWorld() const;
 
-        /// \brief Get the ID of this scene
-        ///
-        /// \return Reference to the internal string with the id
-        ///
-        const std::string& getID() const;
+        void setDeltaScale(const float scale);
+
+        float getDeltaScale() const;
 
 
         /// \brief Base sendMessage function
@@ -183,28 +124,16 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
+
         /// \brief Update method for scene
         ///
         /// \param deltaTime Double holding time step
         ///
         void updateBase(const float deltaTime);
 
-        /// \brief fixedUpdate method for scene
-        ///
-        /// \param timeStep Double holding time step
-        ///
-        void fixedUpdateBase(const float timeStep);
-
         /// \brief Method for drawing
         ///
         void drawBase();
-
-
-        /// \brief Initialize this scene
-        ///
-        /// This function should be preferred when doing scene initialization.
-        ///
-        virtual void initialize();
         
 
         /// \brief Method for pre-updating
@@ -222,22 +151,6 @@ namespace jop
         /// \param deltaTime double holding delta time
         ///
         virtual void postUpdate(const float deltaTime);
-
-        /// \brief Method for pre-fixed updating
-        ///
-        /// This will be called before objects are updated.
-        ///
-        /// \param timeStep Double holding delta time
-        ///
-        virtual void preFixedUpdate(const float timeStep);
-
-        /// \brief Method for post-fixed updating
-        ///
-        /// This will be called after objects are updated.
-        ///
-        /// \param timeStep Double holding delta time
-        ///
-        virtual void postFixedUpdate(const float timeStep);
         
         /// \brief Method for pre-drawing
         ///
@@ -251,6 +164,8 @@ namespace jop
         ///
         virtual void postDraw();
 
+        Object& getAsObject();
+
     private:
 
         /// \brief Virtual sendMessage
@@ -258,9 +173,9 @@ namespace jop
         virtual Message::Result sendMessageImpl(const Message& message);
 
 
-        std::vector<Object> m_objects;         ///< Container holding objects
-        mutable std::vector<std::unique_ptr<Layer>> m_layers;   ///< Container holding layers
-        std::string m_ID;                                       ///< String holding scene identifier
+        std::unique_ptr<Renderer> m_renderer;
+        mutable World& m_world;
+        float m_deltaScale;
     };
 
     // Include the template implementation file

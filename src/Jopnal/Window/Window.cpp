@@ -34,8 +34,6 @@ namespace jop
     JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
 
         JOP_BIND_MEMBER_COMMAND(&Window::setClearColor, "setClearColor");
-        JOP_BIND_MEMBER_COMMAND(&Window::setViewport, "setViewport");
-        JOP_BIND_MEMBER_COMMAND(&Window::setViewportRelative, "setViewportRelative");
         JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
 
     JOP_END_COMMAND_HANDLER(Window)
@@ -59,7 +57,9 @@ namespace jop
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
           samples       (0),
-          visible       (false)
+          visible       (false),
+          vSync         (true),
+          debug         (false)
     {
         if (loadSettings)
         {
@@ -67,8 +67,9 @@ namespace jop
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
-            visible = true;
+            visible = SettingManager::getBool("uDefaultWindowVisible", true);
             vSync = SettingManager::getBool("bDefaultWindowVSync", true);
+            debug = SettingManager::getBool("bDefaultWindowDebugContext", false);
         }
     }
 
@@ -78,19 +79,39 @@ namespace jop
         : Subsystem         ("Window"),
           m_clearColor      (),
           m_impl            (),
-          m_eventHandler    (),
-          m_colorChanged    (true)
+          m_eventHandler    ()
     {}
 
     Window::Window(const Settings& settings)
         : Subsystem         ("Window"),
           m_clearColor      (),
           m_impl            (),
-          m_eventHandler    (),
-          m_colorChanged    (true)
+          m_eventHandler    ()
     {
         open(settings);
         setEventHandler<jop_DefaultEventHandler>();
+
+    #ifdef JOP_DEBUG_MODE
+        if (gl::exts::var_KHR_debug)
+        {
+            gl::DebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+            {
+                if (severity == gl::DEBUG_SEVERITY_HIGH)
+                {
+                    JOP_DEBUG_ERROR(msg);
+                }
+                else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
+                {
+                    JOP_DEBUG_WARNING(msg);
+                }
+                else if (severity == gl::DEBUG_SEVERITY_LOW)
+                {
+                    JOP_DEBUG_INFO(msg);
+                }
+
+            }, NULL);
+        }
+    #endif
     }
 
     Window::~Window()
@@ -107,18 +128,13 @@ namespace jop
 
     void Window::postUpdate(const float)
     {
-        if (isOpen())
+        if (isOpen() && Engine::getState() != Engine::State::Frozen)
         {
-            if (m_colorChanged)
-            {
-                auto c = m_clearColor.asRGBAFloatVector();
+            auto c = m_clearColor.asRGBAFloatVector();
 
-                glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
-                glCheck(gl::ClearDepth(1.0));
-                glCheck(gl::ClearStencil(0));
-
-                m_colorChanged = false;
-            }
+            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
+            glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::ClearStencil(0));
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -128,7 +144,7 @@ namespace jop
 
     void Window::draw()
     {
-        if (isOpen())
+        if (isOpen() && Engine::getState() != Engine::State::Frozen)
             m_impl->swapBuffers();
 
         // Only poll the events if they haven't yet been during this frame.
@@ -152,9 +168,10 @@ namespace jop
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
-        setViewportRelative(0.f, 0.f, 1.f, 1.f);
+        auto s = getSize();
+        gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::getString("uDefaultWindowClearColor", "222222FF"));
+        static const Color defColor(SettingManager::getString("sDefaultWindowClearColor", "222222FF"));
         setClearColor(defColor);
     }
 
@@ -177,7 +194,13 @@ namespace jop
     void Window::setClearColor(const Color& color)
     {
         m_clearColor = color;
-        m_colorChanged = true;
+    }
+
+    //////////////////////////////////////////////
+
+    Color Window::getClearColor() const
+    {
+        return m_clearColor;
     }
 
     //////////////////////////////////////////////
@@ -208,31 +231,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::pollEvents()
-    {
-        detail::WindowImpl::pollEvents();
-    }
-
-    void Window::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
+    WindowHandle Window::getNativeHandle()
     {
         if (isOpen())
-            glCheck(gl::Viewport(x, y, width, height));
+            return m_impl->getNativeHandle();
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////
 
-    void Window::setViewportRelative(const float x, const float y, const float width, const float height)
+    void Window::pollEvents()
     {
-        if (isOpen())
-        {
-            int windowX;
-            int windowY;
-
-            glfwGetWindowSize(getLibraryHandle(), &windowX, &windowY);
-
-            glCheck(gl::Viewport(static_cast<int>(x * windowX), static_cast<int>(y * windowY),
-                                 static_cast<unsigned int>(width * windowX), static_cast<unsigned int>(height * windowY)));
-        }
+        detail::WindowImpl::pollEvents();
     }
 
     //////////////////////////////////////////////
@@ -241,5 +252,51 @@ namespace jop
     {
         if (isOpen())
             m_impl->setMouseMode(mode);
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setPosition(const int x, const int y)
+    {
+        if (isOpen())
+            m_impl->setPosition(x, y);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getPosition() const
+    {
+        if (isOpen())
+            return m_impl->getPosition();
+
+        return glm::ivec2();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setSize(const int width, const int height)
+    {
+        if (isOpen())
+            m_impl->setSize(width, height);
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getSize(const bool includeFrame) const
+    {
+        if (isOpen())
+            return m_impl->getSize(includeFrame);
+
+        return glm::ivec2();
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 Window::getFramebufferSize() const
+    {
+        if (isOpen())
+            return m_impl->getFramebufferSize();
+
+        return glm::ivec2();
     }
 }

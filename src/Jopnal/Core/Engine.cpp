@@ -30,8 +30,6 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
         JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
-        JOP_BIND_COMMAND(&Engine::setPaused, "setPaused");
-        JOP_BIND_COMMAND(&Engine::exit, "exit");
 
     JOP_END_COMMAND_HANDLER(Engine)
 }
@@ -47,12 +45,14 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
-        : m_sharedScene     (std::make_unique<Scene>("SharedScene")),
+        : m_sharedScene     (),
           m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
-          m_running         (true),
-          m_paused          (false)
+          m_exit            (false),
+          m_state           (State::Running),
+          m_deltaScale      (1.f),
+          m_advanceFrame    (false)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -88,11 +88,13 @@ namespace jop
         createSubsystem<ResourceManager>();
 
         // Main window
-        const Window::Settings wSettings(true);
-        createSubsystem<Window>(wSettings);
+        createSubsystem<Window>(Window::Settings(true));
 
         // Shader manager
         createSubsystem<ShaderManager>();
+
+        // Shared scene
+        m_sharedScene = std::make_unique<Scene>("SharedScene");
 
         JOP_DEBUG_INFO("Default engine configuration loaded");
     }
@@ -101,81 +103,61 @@ namespace jop
 
     int Engine::runMainLoop()
     {
-        if (!m_currentScene)
-            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
+        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop without a valid jop::Engine instance!");
 
-        const float timeStep = 1.0f / SettingManager::getUint("uFixedUpdateFrequency", 30);
-        float accumulator = 0.0;
+#pragma warning(suppress: 6011)
+        auto& eng = *m_engineObject;
+
+        if (!eng.m_currentScene)
+            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
 
         Clock frameClock;
 
-        while (m_running)
+        while (!eng.m_exit)
         {
-            // Clamp the delta time to a certain value. This is to prevent
-            // a "spiral of death" if fps goes below 5.
-            const float frameTime = static_cast<float>(std::min(0.2, frameClock.reset().asSeconds()));
-            m_totalTime += frameTime;
+            float frameTime = static_cast<float>(frameClock.reset().asSeconds());
+            eng.m_totalTime += frameTime;
 
-            // Fixed update
-            {
-                accumulator += frameTime;
-
-                while (accumulator >= timeStep)
-                {
-                    for (auto& i : m_subsystems)
-                    {
-                        if (i->isActive())
-                            i->preFixedUpdate(timeStep);
-                    }
-
-                    if (!isPaused())
-                    {
-                        if (m_currentScene)
-                            m_currentScene->fixedUpdateBase(timeStep);
-
-                        m_sharedScene->fixedUpdateBase(timeStep);
-                    }
-
-                    for (auto& i : m_subsystems)
-                    {
-                        if (i->isActive())
-                            i->postFixedUpdate(timeStep);
-                    }
-                    accumulator -= timeStep;
-                }
-            }
+            frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
 
             // Update
             {
-                for (auto& i : m_subsystems)
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->preUpdate(frameTime);
                 }
 
-                if (!isPaused())
+                if (getState() <= State::ZeroDelta || eng.m_advanceFrame)
                 {
-                    if (m_currentScene)
-                        m_currentScene->updateBase(frameTime);
+                    if (eng.m_currentScene)
+                        eng.m_currentScene->updateBase(frameTime);
 
-                    m_sharedScene->updateBase(frameTime);
+                    if (eng.m_sharedScene)
+                        eng.m_sharedScene->updateBase(frameTime);
                 }
 
-                for (auto& i : m_subsystems)
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->postUpdate(frameTime);
                 }
             }
 
+            eng.m_advanceFrame = false;
+
             // Draw
             {
-                if (m_currentScene)
-                    m_currentScene->drawBase();
+                if (getState() != State::Frozen)
+                {
+                    if (eng.m_currentScene)
+                        eng.m_currentScene->drawBase();
 
-                m_sharedScene->drawBase();
+                    if (eng.m_sharedScene)
+                        eng.m_sharedScene->drawBase();
+                }
 
-                for (auto& i : m_subsystems)
+                for (auto& i : eng.m_subsystems)
                 {
                     if (i->isActive())
                         i->draw();
@@ -192,24 +174,24 @@ namespace jop
 
     Scene& Engine::getCurrentScene()
     {
-        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_currentScene, "Tried to get the current scene when it or the engine wasn't loaded!");
+        JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Subsystem> Engine::getSubsystem(const std::string& ID)
+    Subsystem* Engine::getSubsystem(const std::string& ID)
     {
         if (m_engineObject)
         {
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
-                    return i->getReference();
+                    return i.get();
             }
         }
 
-        return WeakReference<Subsystem>();
+        return nullptr;
     }
 
     //////////////////////////////////////////////
@@ -234,9 +216,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Engine::isRunning()
+    bool Engine::exiting()
     {
-        return m_engineObject && m_engineObject->m_running;
+        return (m_engineObject == nullptr ? true : m_engineObject->m_exit.load());
     }
 
     //////////////////////////////////////////////
@@ -246,26 +228,35 @@ namespace jop
         if (m_engineObject)
         {
             JOP_DEBUG_INFO("Exit signal received, exiting...");
-            m_engineObject->m_running = false;
+            m_engineObject->m_exit = true;
         }
     }
 
     //////////////////////////////////////////////
 
-    void Engine::setPaused(const bool paused)
+    void Engine::setState(const State state)
     {
-        if (isRunning())
+        if (!exiting() && getState() != state)
         {
-            JOP_DEBUG_INFO("Engine " << (paused ? "paused" : "unpaused"));
-            m_engineObject->m_paused = paused;
+            static const char* const stateStr[] =
+            {
+                "Running",
+                "ZeroDelta",
+                "RenderOnly",
+                "Frozen"
+            };
+
+            JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
+
+            m_engineObject->m_state = state;
         }
     }
 
     //////////////////////////////////////////////
 
-    bool Engine::isPaused()
+    Engine::State Engine::getState()
     {
-        return isRunning() ? m_engineObject->m_paused : false;
+        return exiting() ? State::Frozen : m_engineObject->m_state;
     }
 
     //////////////////////////////////////////////
@@ -299,7 +290,6 @@ namespace jop
 
             static const unsigned short sceneField = Message::SharedScene   |
                                                      Message::Scene         |
-                                                     Message::Layer         |
                                                      Message::Object        |
                                                      Message::Component;
 
@@ -328,8 +318,16 @@ namespace jop
 
     Scene& Engine::getSharedScene()
     {
-        JOP_ASSERT(isRunning(), "There must be a valid jop::Engine object in order to call jop::Engine::getSharedScene()!");
+        JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
         return *m_engineObject->m_sharedScene;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::hasSharedScene()
+    {
+        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getSharedScene()!");
+        return m_engineObject->m_sharedScene.operator bool();
     }
 
     //////////////////////////////////////////////
@@ -340,6 +338,37 @@ namespace jop
             return m_engineObject->m_totalTime;
 
         return 0.0;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::hasCurrentScene()
+    {
+        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getCurrentScene()!");
+        return m_engineObject->m_currentScene.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::advanceFrame()
+    {
+        if (!exiting())
+            m_engineObject->m_advanceFrame = true;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::setDeltaScale(const float scale)
+    {
+        if (m_engineObject)
+            m_engineObject->m_deltaScale = scale;
+    }
+
+    //////////////////////////////////////////////
+
+    float Engine::getDeltaScale()
+    {
+        return m_engineObject != nullptr ? m_engineObject->m_deltaScale : 1.f;
     }
 
     //////////////////////////////////////////////

@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/Texture2D.hpp>
 #include <Jopnal/MathInclude.hpp>
 #include <memory>
 #include <unordered_map>
@@ -86,13 +86,13 @@ namespace jop
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
-        Texture& getTexture();
+        Texture2D& getTexture();
 
 
 	private:
         FT_LibraryRec_* m_library; ///< Freetype library
         FT_FaceRec_* m_face; ///< Font info
-        Texture m_texture; ///< Texture
+        Texture2D m_texture; ///< Texture
         std::vector<unsigned char> m_buffer; ///< File buffer
         std::unique_ptr<stbrp_context> m_context; ///< Rectangle packing context
         stbrp_node* m_nodes;

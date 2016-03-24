@@ -34,7 +34,6 @@ namespace
     const char* const ns_versionField = "version";
     const char* const ns_typeField = "type";
     const char* const ns_sharedSceneField = "sharedscene";
-    const char* const ns_layerField = "layers";
     const char* const ns_objectField = "objects";
     const char* const ns_dataField = "data";
     const char* const ns_subsystemField = "subsystems";
@@ -42,7 +41,6 @@ namespace
     enum
     {
         CompID,
-        LayerID,
         SceneID,
         SubID,
         CustomID,
@@ -62,13 +60,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
+    bool StateLoader::saveState(const std::string& path, const bool scene, const bool sharedScene)
     {
-        JOP_DEBUG_INFO("Invoked state save: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
+        JOP_DEBUG_INFO("Invoked state save: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene);
 
-        if (!scene && !sharedScene && !subsystems)
+        if (!scene && !sharedScene)
         {
-            JOP_DEBUG_ERROR("Didn't save state; scene, sharedScene and subsystems are false: " << path);
+            JOP_DEBUG_ERROR("Didn't save state; scene and sharedScene are false: " << path);
             return false;
         }
 
@@ -85,7 +83,6 @@ namespace jop
 
         doc.AddMember(json::StringRef(ns_versionField), json::StringRef(ns_fileVersion), doc.GetAllocator());
 
-        if (subsystems)
         {
             const auto& subCont = std::get<SubID>(ls);
             const auto& nameMap = getSavenameContainer();
@@ -150,7 +147,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene, const bool subsystems)
+    bool StateLoader::loadState(const std::string& path, const bool scene, const bool sharedScene)
     {
         #pragma warning(push)
         #pragma warning(disable: 4822)
@@ -171,11 +168,11 @@ namespace jop
         } loadingFlag(getInstance().m_loading);
         #pragma warning(pop)
 
-        JOP_DEBUG_INFO("Invoked state load: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene << "\n\tSubsystems: " << std::boolalpha << subsystems);
+        JOP_DEBUG_INFO("Invoked state load: " << path << ".jop\n\t" << "Scene: " << std::boolalpha << scene << "\n\tShared scene: " << std::boolalpha << sharedScene);
 
-        if (!scene && !sharedScene && !subsystems)
+        if (!scene && !sharedScene)
         {
-            JOP_DEBUG_ERROR("Didn't load state; scene, sharedScene and subsystems are false: " << path);
+            JOP_DEBUG_ERROR("Didn't load state; scene and sharedScene are false: " << path);
             return false;
         }
 
@@ -205,7 +202,7 @@ namespace jop
             JOP_DEBUG_WARNING("The state file version doesn't match the current library version and there's no conversion method defined (ask the maintainer of this library to include a conversion method for " << ns_fileVersion << " -> " << doc[ns_versionField].GetString() << "). Attempting to load anyway...");
 
         // Load subsystems?
-        if (subsystems && doc.HasMember(ns_subsystemField) && doc[ns_subsystemField].IsArray())
+        if (doc.HasMember(ns_subsystemField) && doc[ns_subsystemField].IsArray())
         {
             const auto& subCont = std::get<SubID>(ls);
 
@@ -305,16 +302,6 @@ namespace jop
                 // Attempt to create the scene
                 if (std::get<LoadID>(itr->second)(scene, data.HasMember(ns_dataField) && data[ns_dataField].IsObject() ? data[ns_dataField] : v))
                 {
-                    // Attempt to load layers
-                    if (data.HasMember(ns_layerField) && data[ns_layerField].IsArray() && !data[ns_layerField].Empty())
-                    {
-                        if (!loadLayers(scene, data[ns_layerField], path))
-                        {
-                            JOP_DEBUG_ERROR("Couldn't load scene state, a layer reported loading failure: " << path);
-                            return false;
-                        }
-                    }
-
                     // Attempt to load objects
                     if (data.HasMember(ns_objectField) && data[ns_objectField].IsArray() && !data[ns_objectField].Empty())
                     {
@@ -348,85 +335,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadLayers(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
+    bool StateLoader::loadObjects(std::unique_ptr<Scene>& /*scene*/, const json::Value& /*data*/, const std::string& /*path*/)
     {
-        const auto& layerCont = std::get<LayerID>(m_loaderSavers);
-
-        // Load layers
-        for (auto& i : data)
-        {
-            if (!i.IsObject())
-                continue;
-
-            if (i.HasMember(ns_typeField) && i[ns_typeField].IsString())
-            {
-                auto itr = layerCont.find(i[ns_typeField].GetString());
-
-                if (itr != layerCont.end())
-                {
-                    std::unique_ptr<Layer> ptr;
-
-                    if (i.HasMember(ns_dataField) && i[ns_dataField].IsObject() && std::get<LoadID>(itr->second)(ptr, i[ns_dataField]))
-                        scene->m_layers.push_back(std::unique_ptr<Layer>(ptr.release()));
-                    else
-                    {
-                        JOP_DEBUG_ERROR("Couldn't load layer state, data object missing or the registered load function reported failure: " << path);
-                        return false;
-                    }
-                }
-                else
-                {
-                    JOP_DEBUG_ERROR("Couldn't load layer state, layer type (\"" << i[ns_typeField].GetString() << "\") not registered: " << path);
-                    return false;
-                }
-            }
-            else
-            {
-                JOP_DEBUG_ERROR("Couldn't create layer, no type specified: " << path);
-                return false;
-            }
-        }
-
-        // Link layers, we can assume all the objects are valid since they went through the previous loop
-        const char* const boundLayersField = "boundlayers";
-
-        for (auto& i : data)
-        {
-            if (!i.IsObject())
-                continue;
-
-            // It can be assumed that the id exists and is of right type
-            WeakReference<Layer> weakCurrLayer = scene->getLayer(i[ns_dataField]["id"].GetString());
-
-            if (weakCurrLayer.expired())
-            {
-                JOP_DEBUG_WARNING("Layer with id \"" << i["id"].GetString() << "\" expired while loading scene: " << path);
-                continue;
-            }
-
-            if (i.HasMember(boundLayersField) && i[boundLayersField].IsArray())
-            {
-                Layer& currLayer = *weakCurrLayer;
-
-                for (auto& j : i[boundLayersField])
-                {
-                    WeakReference<Layer> bound;
-                    if (j.IsString() && !(bound = scene->getLayer(j.GetString())).expired())
-                        currLayer.bindOtherLayer(*static_ref_cast<Layer>(bound));
-                    else
-                        JOP_DEBUG_WARNING("Couldn't bind layer to \"" << currLayer.getID() << "\". Array element not a string or layer couldn't be found: " << path);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    bool StateLoader::loadObjects(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
-    {
-        for (auto& i : data)
+        /*for (auto& i : data)
         {
             if (!i.IsObject())
                 continue;
@@ -439,7 +350,7 @@ namespace jop
                 JOP_DEBUG_ERROR("Failed to load object with id \"" << id << "\": " << path);
                 return false;
             }
-        }
+        }*/
 
         return true;
     }
@@ -557,25 +468,15 @@ namespace jop
 
         if (std::get<SaveID>(itr->second)(scene, data.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
         {
-            // Attempt to save layers
-            if (!scene.m_layers.empty())
-            {
-                if (!saveLayers(scene, data.AddMember(json::StringRef(ns_layerField), json::kArrayType, alloc)[ns_layerField], alloc, path))
-                {
-                    JOP_DEBUG_ERROR("Couldn't save scene, a layer failed to save: " << path);
-                    return false;
-                }
-            }
-
             // Attempt to save objects
-            if (!scene.m_objects.empty())
+            /*if (!scene.m_objects.empty())
             {
                 if (!saveObjects(scene, data.AddMember(json::StringRef(ns_objectField), json::kArrayType, alloc)[ns_objectField], alloc, path))
                 {
                     JOP_DEBUG_ERROR("Couldn't save scene, an object failed to save: " << path);
                     return false;
                 }
-            }
+            }*/
         }
         else
         {
@@ -588,57 +489,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveLayers(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    bool StateLoader::saveObjects(const Scene& /*scene*/, json::Value& /*data*/, json::Value::AllocatorType& /*alloc*/, const std::string& /*path*/)
     {
-        const auto& layerCont = std::get<LayerID>(m_loaderSavers);
-        const auto& nameMap = getSavenameContainer();
-
-        for (auto& i : scene.m_layers)
-        {
-            // Type name iterator
-            auto itrRedir = nameMap.find(std::type_index(typeid(*i)));
-            // Function iterator
-            auto itr = layerCont.end();
-
-            if (itrRedir == nameMap.end() || (itr = layerCont.find(itrRedir->second)) == layerCont.end())
-            {
-                JOP_DEBUG_WARNING("Couldn't save layer, type (name) not registered. Attempting to save the rest: " << path);
-                continue;
-            }
-
-            data.PushBack(json::kObjectType, alloc);
-            auto& obj = data[data.Size() - 1];
-
-            obj.AddMember(json::StringRef(ns_typeField), json::StringRef(itrRedir->second.c_str()), alloc);
-
-            if (!std::get<SaveID>(itr->second)(*i, obj.AddMember(json::StringRef(ns_dataField), json::kObjectType, alloc)[ns_dataField], alloc))
-            {
-                JOP_DEBUG_ERROR("Couldn't save layer, registered save function reported failure: " << path);
-                return false;
-            }
-
-            const char* const boundLayersField = "boundlayers";
-
-            if (!i->m_boundLayers.empty())
-            {
-                auto& boundArray = data.AddMember(json::StringRef(boundLayersField), json::kArrayType, alloc)[boundLayersField];
-
-                for (auto& j : i->m_boundLayers)
-                {
-                    if (!j.expired())
-                        boundArray.PushBack(json::StringRef(j->getID().c_str()), alloc);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    bool StateLoader::saveObjects(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
-    {
-        for (auto& i : scene.m_objects)
+        /*for (auto& i : scene.m_objects)
         {
             data.PushBack(json::kObjectType, alloc);
             auto& obj = data[data.Size() - 1u];
@@ -650,7 +503,7 @@ namespace jop
                 JOP_DEBUG_ERROR("Failed to save object with id \"" << i.getID() << "\": " << path);
                 return false;
             }
-        }
+        }*/
 
         return true;
     }

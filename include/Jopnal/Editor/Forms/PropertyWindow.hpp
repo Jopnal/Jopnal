@@ -1,4 +1,4 @@
-// Jopnal Engine C++ Library
+// Jopnal Editor C++ Application
 // Copyright (c) 2016 Team Jopnal
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,53 +19,54 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVATEABLE_HPP
-#define JOP_ACTIVATEABLE_HPP
+#ifndef JOPE_PROPERTYWINDOW_HPP
+#define JOPE_PROPERTYWINDOW_HPP
 
 // Headers
-#include <Jopnal/Header.hpp>
+#include <nana/gui/wvl.hpp>
+#include <nana/gui/place.hpp>
+#include <nana/gui/widgets/group.hpp>
+#include <nana/gui/widgets/treebox.hpp>
+#include <memory>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Activateable
+    class Object;
+    class Scene;
+}
+
+namespace jope
+{
+    class PropertyWindow final : public nana::nested_form
     {
-    private:
+    public:
 
-        JOP_DISALLOW_COPY_MOVE(Activateable);
-
-    protected:
-
-        /// \brief Constructor
-        ///
-        /// \param active The initial state
-        ///
-        Activateable(const bool active);
-
-        /// \brief Protected destructor
-        ///
-        ~Activateable();
+        typedef std::vector<std::unique_ptr<nana::group>> CompVec;
 
     public:
 
-        /// \brief Set this object active/inactive
-        ///
-        /// \param active Set this object active?
-        ///
-        void setActive(const bool active);
+        PropertyWindow(nana::window parent, const nana::color color);
 
-        /// \brief Check if this object is active
-        ///
-        /// \return True if active
-        ///
-        bool isActive() const;
+        void updateComponents(jop::Object& obj, nana::treebox::item_proxy item);
+
+        void updateComponents(jop::Scene& scene, nana::treebox::item_proxy item);
+
+        static void refresh();
 
     private:
 
-        bool m_active;  ///< Is this object active?
+        static PropertyWindow* m_instance;
 
+        void pushComponents(jop::Object& obj);
+
+        nana::place m_layout;
+        CompVec m_components;
+        jop::WeakReference<jop::Object> m_lastObject;
+        jop::Scene* m_lastScene;
+        nana::treebox::item_proxy m_lastItem;
     };
 }
 

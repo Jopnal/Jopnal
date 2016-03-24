@@ -41,7 +41,7 @@ namespace jop
         Color bcol(val.HasMember("bcolor") && val["bcolor"].IsUint() ? val["bcolor"].GetUint() : Color::White);
 
         auto& samp = ResourceManager::getNamedResource<TextureSampler>(val["name"].GetString(), filt, rep, anis);
-        samp.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        //samp.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
         samp.setBorderColor(bcol);
 
         return true;
@@ -53,7 +53,7 @@ namespace jop
         const TextureSampler& ref = *static_cast<const TextureSampler*>(sampler);
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
         val.AddMember(json::StringRef("filter"), static_cast<unsigned int>(ref.getFilteringMode()), alloc);
         val.AddMember(json::StringRef("repeat"), static_cast<unsigned int>(ref.getRepeatMode()), alloc);
         val.AddMember(json::StringRef("anis"), ref.getAnisotropyLevel(), alloc);
@@ -257,7 +257,7 @@ namespace jop
 
             ), "Couldn't create default sampler!");
 
-            defSampler->setPersistent(true);
+            defSampler->setPersistence(0);
             defSampler->setManaged(true);
         }
 

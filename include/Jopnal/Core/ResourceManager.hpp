@@ -136,7 +136,7 @@ namespace jop
         ///
         /// This will only delete the resources not flagged as persistent.
         ///
-        static void unloadResources();
+        static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
 
         /// \brief Load the contents

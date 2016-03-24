@@ -35,47 +35,20 @@ namespace jop
 
     class JOP_API Texture : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Texture);
+
     public:
 
         /// \brief Constructor
         ///
-        Texture(const std::string& name);
+        Texture(const std::string& name, const unsigned int glTarget);
 
         /// \brief Destructor
         ///
-        ~Texture() override;
+        virtual ~Texture() override = 0;
 
-
-        /// \brief Method for using file loader to load new resource from file
-        ///
-        /// \param path The file path
-        ///
-        /// \return True if loading was successful
-        ///
-        bool load(const std::string& path);
-
-        /// \brief Creates flat/empty texture
-        ///
-        /// \param x The desired width
-        /// \param y The desired height
-        /// \param bytesPerPixel The byte depth
-        ///
-        /// \return True if loading was successful
-        ///
-        bool load(const int x, const int y, const int bytesPerPixel);
-
-        /// \brief Create a texture from an array of pixels
-        ///
-        /// The accepted pixel depth values are 1, 3 and 4.
-        ///
-        /// \param x Width of the texture
-        /// \param y Height of the texture
-        /// \param bytesPerPixel The byte depth of the image
-        /// \param pixels Pointer to the beginning of the pixel array
-        ///
-        /// \return True if loading was successful
-        ///
-        bool load(const int x, const int y, const int bytesPerPixel, const unsigned char* pixels);
 
         /// \brief Destroy this texture, erasing it from video memory
         ///
@@ -88,46 +61,20 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool bind(const unsigned int texUnit = 0) const;
+        void bind(const unsigned int texUnit = 1) const;
 
-        /// \brief Unbind the texture bound to the given texture unit
-        ///
-        /// \param texUnit The texture unit to unbind the texture from
-        ///
-        static void unbind(const unsigned int texUnit);
+        void unbind() const;
 
 
         /// \brief Bind a texture sampler
         ///
         /// \param sampler The sampler
         ///
-        void setTextureSampler(const TextureSampler& sampler);
+        void setSampler(const TextureSampler& sampler);
 
 
-        /// \brief Set a subset of pixels
-        ///
-        /// The byte depth must be the same as this texture's!
-        ///
-        /// \param x The X starting point
-        /// \param y The Y starting point
-        /// \param width Width
-        /// \param height Height
-        /// \param pixels Pointer to the pixels
-        ///
-        void setPixels(const int x, const int y, const int width, const int height, const unsigned char* pixels);
+        bool isValid() const;
 
-
-        /// \brief Returns image's width
-        ///
-        int getWidth() const;
-
-        /// \brief Returns image's height
-        ///
-        int getHeight() const;
-
-        /// \brief Returns image's bytes per pixel value
-        ///
-        int getDepth() const;
 
         /// \brief Get the OpenGL handle for this texture
         ///
@@ -135,7 +82,10 @@ namespace jop
 
         /// \brief Get the maximum supported texture size of this system
         ///
-        static int getMaximumSize();
+        static unsigned int getMaximumSize();
+
+        static unsigned int getMaxTextureUnits();
+
 
         /// \brief Get the error texture
         ///
@@ -151,22 +101,9 @@ namespace jop
 
     private:
 
-        /// \brief Load from dll
-        ///
-        /// This is for internal use only
-        ///
-        bool load(const int id);
-
-        /// \brief Check if a byte depth is valid
-        ///
-        bool checkDepthValid(const int depth) const;
-
-
         mutable WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
-        int m_width;                                            ///< Width of the texture
-        int m_height;                                           ///< Height of the texture
-        int m_bytesPerPixel;                                    ///< Byte depth of the texture
-        unsigned int m_texture;                                 ///< The OpenGL handle
+        mutable unsigned int m_texture;                         ///< The OpenGL handle
+        const unsigned int m_target;
 
     };
 }

@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -30,19 +28,24 @@
 namespace
 {
     unsigned int ns_currentBuffer = 0;
+
+    int ns_lastZeroViewport[] =
+    {
+        0, 0, 0, 0
+    };
 }
 
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : m_texture ("")
+        : m_texture         (),
+          m_depthTexture    (),
+          m_size            (),
+          m_clearColor      (),
+          m_frameBuffer     (0),
+          m_depthBuffer     (0),
+          m_stencilBuffer   (0)          
     {}
-
-    RenderTexture::RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
-        : m_texture ("")
-    {
-        create(size, depthBits, stencilBits);
-    }
 
     RenderTexture::~RenderTexture()
     {
@@ -55,16 +58,11 @@ namespace jop
     {
         if (bind())
         {
-            if (m_colorChanged)
-            {
-                glm::vec4 col = m_clearColor.asRGBAFloatVector();
+            glm::vec4 col = m_clearColor.asRGBAFloatVector();
 
-                glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
-                glCheck(gl::ClearDepth(1.0));
-                glCheck(gl::ClearStencil(0));
-
-                m_colorChanged = false;
-            }
+            glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
+            glCheck(gl::ClearDepth(1.0));
+            glCheck(gl::ClearStencil(0));
 
             glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
         }
@@ -72,107 +70,247 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits)
+    bool RenderTexture::create(const ColorAttachment color, const glm::uvec2& size, const DepthAttachment depth, const StencilAttachment stencil)
     {
-        auto getDepthEnum = [](const unsigned int bits) -> GLenum
+        auto getDepthEnum = [](const DepthAttachment dpth) -> GLenum
         {
-            if (bits % 8 == 0 && bits <= 32 && bits >= 16)
+            switch (dpth)
             {
-                switch (bits)
-                {
-                    case 16:
-                        return gl::DEPTH_COMPONENT16;
-                    case 24:
-                        return gl::DEPTH_COMPONENT24;
-                    case 32:
-                        return gl::DEPTH_COMPONENT32;
-                }
+                case DepthAttachment::Renderbuffer16:
+                case DepthAttachment::Texture16:
+                    return gl::DEPTH_COMPONENT16;
+
+                case DepthAttachment::Renderbuffer24:
+                case DepthAttachment::Texture24:
+                    return gl::DEPTH_COMPONENT24;
+
+                case DepthAttachment::Renderbuffer32:
+                case DepthAttachment::Texture32:
+                    return gl::DEPTH_COMPONENT32;
+
+                default:
+                    return gl::DEPTH_COMPONENT;
             }
-
-            JOP_DEBUG_ERROR("Invalid RenderTexture depth bit value (" << bits << ") specified. Defaulting to 24");
-
-            return gl::DEPTH_COMPONENT24;
         };
-        auto getStencilEnum = [](const unsigned int bits) -> GLenum
+        auto getStencilEnum = [](const StencilAttachment stncl) -> GLenum
         {
-            if (bits % 8 == 0 && bits <= 16 && bits >= 8)
+            switch (stncl)
             {
-                switch (bits)
-                {
-                    case 8:
-                        return gl::STENCIL_INDEX8;
-                    case 16:
-                        return gl::STENCIL_INDEX16;
-                }
+                case StencilAttachment::Int8:
+                    return gl::STENCIL_INDEX8;
+
+                case StencilAttachment::Int16:
+                    return gl::STENCIL_INDEX16;
+
+                default:
+                    return gl::STENCIL_INDEX;
             }
-
-            JOP_DEBUG_ERROR("Invalid RenderTexture stencil bit value (" << bits << ") specified. Defaulting to 8");
-
-            return gl::STENCIL_INDEX8;
         };
+
+        if (size.x < 1 || size.y < 1)
+        {
+            JOP_DEBUG_ERROR("Failed to create RenderTexture, invalid size specified");
+            return false;
+        }
 
         destroy();
 
-        if (!m_texture.load(size.x, size.y, 4))
-        {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't create texture");
-            return false;
-        }
+        m_size = size;
 
         glCheck(gl::GenFramebuffers(1, &m_frameBuffer));
 
         if (!m_frameBuffer)
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture. Couldn't generate frame buffer");
+            destroy();
             return false;
+        }
+
+        auto getDepthColorBytes = [](const ColorAttachment att) -> unsigned int
+        {
+            switch (att)
+            {
+                case ColorAttachment::Depth2D16:
+                case ColorAttachment::DepthCube16:
+                    return 2;
+
+                case ColorAttachment::Depth2D24:
+                case ColorAttachment::DepthCube24:
+                    return 3;
+
+                case ColorAttachment::Depth2D32:
+                case ColorAttachment::DepthCube32:
+                    return 4;
+
+                default:
+                    return 0;
+            }
+        };
+
+        // Create texture
+        switch (color)
+        {
+            case ColorAttachment::RGB2D:
+            case ColorAttachment::RGBA2D:
+            {
+                auto tex = std::make_unique<Texture2D>("");
+                tex->load(size.x, size.y, color == ColorAttachment::RGB2D ? 3 : 4);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::RGBCube:
+            case ColorAttachment::RGBACube:
+            {
+                auto tex = std::make_unique<Cubemap>("");
+                tex->load(size.x, size.y, color == ColorAttachment::RGBCube ? 3 : 4);
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::Depth2D16:
+            case ColorAttachment::Depth2D24:
+            case ColorAttachment::Depth2D32:
+            {
+                auto tex = std::make_unique<Texture2DDepth>("");
+                tex->load(size.x, size.y, getDepthColorBytes(color));
+
+                m_texture = std::move(tex);
+
+                break;
+            }
+
+            case ColorAttachment::DepthCube16:
+            case ColorAttachment::DepthCube24:
+            case ColorAttachment::DepthCube32:
+            {
+                auto tex = std::make_unique<CubemapDepth>("");
+                tex->load(size.x, size.y, getDepthColorBytes(color));
+
+                m_texture = std::move(tex);
+
+                break;
+            }
         }
 
         bind();
 
-        if (depthBits)
+        GLenum colorAttEnum = gl::COLOR_ATTACHMENT0;
+
+        if (color >= ColorAttachment::Depth2D16)
+        {
+            colorAttEnum = gl::DEPTH_ATTACHMENT;
+            glCheck(gl::DrawBuffer(gl::NONE));
+            glCheck(gl::ReadBuffer(gl::NONE));
+        }
+
+        glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, colorAttEnum, m_texture->getHandle(), 0));
+
+        if ((depth == DepthAttachment::Renderbuffer24 || depth == DepthAttachment::Renderbuffer32) && stencil == StencilAttachment::Int8 &&
+            color < ColorAttachment::Depth2D16 && color != ColorAttachment::RGBCube && color != ColorAttachment::RGBACube)
         {
             glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
 
             if (!m_depthBuffer)
             {
-                JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create depth buffer");
+                JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create depth-stencil buffer");
                 destroy();
                 return false;
             }
 
             glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depthBits), m_texture.getWidth(), m_texture.getHeight()));
-            glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, depth == DepthAttachment::Renderbuffer24 ? gl::DEPTH24_STENCIL8 : gl::DEPTH32F_STENCIL8, size.x, size.y));
+            glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
         }
-
-        if (stencilBits)
+        else
         {
-            glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
-
-            if (!m_stencilBuffer)
+            if (depth != DepthAttachment::None)
             {
-                JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create stencil buffer");
-                destroy();
-                return false;
+                if (depth < DepthAttachment::Texture16 && color < ColorAttachment::Depth2D16 &&
+                    color != ColorAttachment::RGBCube && color != ColorAttachment::RGBACube)
+                {
+                    glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
+
+                    if (!m_depthBuffer)
+                    {
+                        JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create depth buffer");
+                        destroy();
+                        return false;
+                    }
+
+                    glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
+                    glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(depth), size.x, size.y));
+                    glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+                }
+                else
+                {
+                    unsigned int bytes;
+                    switch (depth)
+                    {
+                        case DepthAttachment::Texture16:
+                            bytes = 2;
+                            break;
+                        case DepthAttachment::Texture24:
+                            bytes = 3;
+                            break;
+                        case DepthAttachment::Texture32:
+                            bytes = 4;
+                            break;
+
+                        default:
+                            bytes = 0;
+                    }
+
+                    if (color == ColorAttachment::RGBCube || color == ColorAttachment::RGBACube)
+                    {
+                        auto tex = std::make_unique<CubemapDepth>("");
+                        tex->load(size.x, size.y, bytes);
+
+                        m_depthTexture = std::move(tex);
+                    }
+                    else
+                    {
+                        auto tex = std::make_unique<Texture2DDepth>("");
+                        tex->load(size.x, size.y, bytes);
+
+                        m_depthTexture = std::move(tex);
+                    }
+
+                    glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_depthTexture->getHandle(), 0));
+                }
             }
 
-            glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencilBits), m_texture.getWidth(), m_texture.getHeight()));
-            glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
-        }
+            if (stencil != StencilAttachment::None && color < ColorAttachment::Depth2D16 &&
+                color != ColorAttachment::RGBCube && color != ColorAttachment::RGBACube)
+            {
+                glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
 
-        glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, m_texture.getHandle(), 0));
+                if (!m_stencilBuffer)
+                {
+                    JOP_DEBUG_ERROR("Failed to create RenderTexture, Couldn't create stencil buffer");
+                    destroy();
+                    return false;
+                }
+
+                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
+                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(stencil), size.x, size.y));
+                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
+            }
+        }
 
         auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
         if (status != gl::FRAMEBUFFER_COMPLETE)
         {
-            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to create frame buffer");
+            JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer");
             destroy();
             return false;
         }
 
-        clear();
-        glCheck(gl::Viewport(0, 0, m_texture.getWidth(), m_texture.getHeight()));
+        unbind();
 
         return true;
     }
@@ -201,7 +339,9 @@ namespace jop
             m_stencilBuffer = 0;
         }
 
-        m_texture.destroy();
+        m_texture.reset();
+        m_depthTexture.reset();
+        m_size = glm::uvec2();
     }
 
     //////////////////////////////////////////////
@@ -212,12 +352,21 @@ namespace jop
         {
             if (m_frameBuffer != ns_currentBuffer)
             {
+                if (!ns_currentBuffer)
+                    glCheck(gl::GetIntegerv(gl::VIEWPORT, ns_lastZeroViewport));
+
                 glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
                 ns_currentBuffer = m_frameBuffer;
             }
         }
 
-        return isValid();
+        if (isValid())
+        {
+            glCheck(gl::Viewport(0, 0, m_size.x, m_size.y));
+            return true;
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -226,6 +375,7 @@ namespace jop
     {
         if (ns_currentBuffer != 0)
         {
+            gl::Viewport(ns_lastZeroViewport[0], ns_lastZeroViewport[1], ns_lastZeroViewport[2], ns_lastZeroViewport[3]);
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
             ns_currentBuffer = 0;
         }
@@ -233,9 +383,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec2 RenderTexture::getSize() const
+    const glm::uvec2& RenderTexture::getSize() const
     {
-        return glm::vec2(m_texture.getWidth(), m_texture.getHeight());
+        return m_size;
     }
 
     //////////////////////////////////////////////
@@ -250,7 +400,6 @@ namespace jop
     void RenderTexture::setClearColor(const Color& color)
     {
         m_clearColor = color;
-        m_colorChanged = true;
     }
 
     //////////////////////////////////////////////
@@ -262,44 +411,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture& RenderTexture::getTexture() const
+    const Texture* RenderTexture::getTexture() const
     {
-        return m_texture;
+        return m_texture.get();
     }
 
     //////////////////////////////////////////////
 
-    unsigned int RenderTexture::getDepthBits() const
+    const Texture* RenderTexture::getDepthTexture() const
     {
-        return m_depthBits;
+        return m_depthTexture.get();
     }
 
     //////////////////////////////////////////////
 
-    unsigned int RenderTexture::getStencilBits() const
+    unsigned int RenderTexture::getFramebufferHandle() const
     {
-        return m_stencilBits;
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::setViewport(const int x, const int y, const unsigned int width, const unsigned int height)
-    {
-        if (isValid())
-            glCheck(gl::Viewport(x, y, width, height));
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::setViewportRelative(const float x, const float y, const float width, const float height)
-    {
-        if (isValid())
-        {
-            float textureX = getSize().x;
-            float textureY = getSize().y;
-
-            glCheck(gl::Viewport(static_cast<int>(x * textureX), static_cast<int>(y * textureY),
-                                 static_cast<unsigned int>(width * textureX), static_cast<unsigned int>(height * textureY)));
-        }
+        return m_frameBuffer;
     }
 }

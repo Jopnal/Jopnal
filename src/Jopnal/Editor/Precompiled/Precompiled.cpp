@@ -1,4 +1,4 @@
-// Jopnal Engine C++ Library
+// Jopnal Editor C++ Application
 // Copyright (c) 2016 Team Jopnal
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,32 +19,8 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Precompiled.hpp>
+#pragma message("(Jopnal Editor) Started compiling the precompiled header...")
 
-//////////////////////////////////////////////
+#include <Jopnal/Editor/Precompiled/Precompiled.hpp>
 
-
-namespace jop
-{
-    Activateable::Activateable(const bool active)
-        : m_active(active)
-    {}
-
-    Activateable::~Activateable()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Activateable::setActive(const bool active)
-    {
-        m_active = active;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Activateable::isActive() const
-    {
-        return m_active;
-    }
-}
+#pragma message("(Jopnal Editor) Precompiled header compilation finished!")

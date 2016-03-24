@@ -49,7 +49,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Texture& Font::getTexture()
+    Texture2D& Font::getTexture()
     {
         return m_texture;
     }

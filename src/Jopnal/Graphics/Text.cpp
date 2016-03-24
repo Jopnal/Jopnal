@@ -26,9 +26,9 @@
 
 namespace jop
 {
-    Text::Text(Object& object, const std::string& ID)
-        :GenericDrawable(object, ID),
-        Mesh(ID),
+    Text::Text(Object& object, Renderer& renderer)
+        :GenericDrawable(object, renderer),
+        Mesh(""),
         m_material("", Material::Attribute::Diffusemap),
         m_size(10, 10)
     {
@@ -42,6 +42,8 @@ namespace jop
 
     void Text::setString(const std::string &string)
     {
+        m_string = string;
+
         std::vector<Vertex> vertices;
 
         float x = 0, y = 0;
@@ -80,7 +82,7 @@ namespace jop
             //get bitmap location and size inside the texture in pixels
             m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
-            Texture& tex = m_font->getTexture();
+            Texture2D& tex = m_font->getTexture();
 
             std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
 
@@ -141,11 +143,15 @@ namespace jop
         m_font = static_ref_cast<Font>(font.getReference());
     }
 
-    //void Text::draw(const Camera& cam, const LightContainer& light)
-    //{
-    //    Texture tex = m_font->getTexture();
-    //    tex.bind();
+    void Text::setScale(const float x, const float y)
+    {
+        setScale(glm::vec2(x, y));
+    }
 
-    //}
+    void Text::setScale(glm::vec2 scale)
+    {
+        m_size = scale;
+        setString(m_string);
+    }
 }
 

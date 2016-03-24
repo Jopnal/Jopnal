@@ -20,46 +20,9 @@
 //////////////////////////////////////////////
 
 
-template<typename T>
-WeakReference<T> Scene::getLayer() const
-{
-    static_assert(std::is_base_of<Layer, T>::value, "Scene::getLayer(): Attempted to get a layer which is not derived from jop::Layer");
-
-    const std::type_info& ti = typeid(T);
-
-    for (auto& i : m_layers)
-    {
-        if (typeid(*i) == ti)
-            return static_ref_cast<T>(i);
-    }
-
-    return WeakReference<T>();
-}
-
-//////////////////////////////////////////////
-
 template<typename T, typename ... Args>
-WeakReference<T> Scene::createLayer(Args&&... args)
+T& Scene::setRenderer(Args&&... args)
 {
-    static_assert(std::is_base_of<Layer, T>::value, "Scene::createLayer(): Attempted to create a layer which is not derived from jop::Layer");
-
-    // Make sure the default layer is created
-    getDefaultLayer();
-
-    m_layers.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
-    return static_ref_cast<T>(m_layers.back()->getReference());
-}
-
-//////////////////////////////////////////////
-
-template<typename T, typename ... Args>
-WeakReference<T> Scene::setDefaultLayer(Args&&... args)
-{
-    static_assert(std::is_base_of<Layer, T>::value, "Scene::createDefaultLayer(): Attempted to create a layer which is not derived from jop::Layer");
-
-    // Make sure the default layer is created
-    getDefaultLayer();
-
-    m_layers.front() = std::make_unique<T>(std::forward<Args>(args)...);
-    return static_ref_cast<T>(m_layers.front()->getReference());
+    m_renderer = std::make_unique<T>(std::forward<Args>(args)...);
+    return static_cast<T&>(*m_renderer);
 }

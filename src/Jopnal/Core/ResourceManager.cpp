@@ -60,12 +60,19 @@ namespace jop
     void ResourceManager::unloadResource(const std::string& path)
     {
         if (m_instance)
-            m_instance->m_resources.erase(path);
+        {
+            auto& inst = *m_instance;
+
+            auto itr = inst.m_resources.find(path);
+
+            if (itr != inst.m_resources.end() && itr->second->getPersistence() != 0)
+                inst.m_resources.erase(itr);
+        }
     }
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResources()
+    void ResourceManager::unloadResources(const unsigned short persistence, const bool descending)
     {
         if (m_instance)
         {
@@ -73,7 +80,8 @@ namespace jop
 
             for (auto itr = res.begin(); itr != res.end();)
             {
-                if (itr->second->isPersistent())
+                if (itr->second->getPersistence() == 0 ||
+                   (descending ? itr->second->getPersistence() < persistence : itr->second->getPersistence() != persistence))
                     ++itr;
                 else
                     itr = res.erase(itr);

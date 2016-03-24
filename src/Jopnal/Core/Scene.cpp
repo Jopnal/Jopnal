@@ -27,17 +27,11 @@
 
 namespace jop
 {
-    JOP_REGISTER_COMMAND_HANDLER(Scene)
-
-        JOP_BIND_MEMBER_COMMAND(&Scene::cloneObject, "cloneObject");
-        JOP_BIND_MEMBER_COMMAND(&Scene::deleteObject, "deleteObject");
-        JOP_BIND_MEMBER_COMMAND(&Scene::clearObjects, "clearObjects");
-        JOP_BIND_MEMBER_COMMAND(&Scene::deleteLayer, "deleteLayer");
-        JOP_BIND_MEMBER_COMMAND(&Scene::clearLayers, "clearLayers");
-        JOP_BIND_MEMBER_COMMAND(&Scene::setActive, "setActive");
-        JOP_BIND_MEMBER_COMMAND(&Scene::setID, "setID");
-
+    #pragma warning(push)
+    #pragma warning(disable: 4189)
+    JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
     JOP_END_COMMAND_HANDLER(Scene)
+    #pragma warning(pop)
 
     JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
     {
@@ -64,136 +58,45 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : Activateable      (true),
-          m_objects         (),
-          m_layers          (),
-          m_ID              (ID)
+        : Object        (ID),
+          m_renderer    (std::make_unique<Renderer>()),
+          m_world       (createComponent<World>(*m_renderer)),
+          m_deltaScale  (1.f)
     {}
 
     Scene::~Scene()
-    {}
-
-    //////////////////////////////////////////////
-
-    WeakReference<Object> Scene::getObject(const std::string& ID)
     {
-        for (auto& i : m_objects)
-        {
-            if (i.getID() == ID)
-                return i.getReference();
-        }
-
-        return WeakReference<Object>();
+        // Child objects need to be deinitialized before the renderer
+        Object::clearChildren();
+        Object::clearComponents();
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Scene::createObject(const std::string& ID)
+    Renderer& Scene::getRenderer() const
     {
-        m_objects.emplace_back(ID);
-        return m_objects.back().getReference();
+        return *m_renderer;
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Scene::cloneObject(const std::string& ID, const std::string& clonedID)
+    World& Scene::getWorld() const
     {
-        auto ptr = getObject(ID);
-
-        if (!ptr.expired())
-        {
-            m_objects.push_back(Object(*ptr, clonedID));
-            return m_objects.back().getReference();
-        }
-
-        return WeakReference<Object>();
+        return m_world;
     }
 
     //////////////////////////////////////////////
 
-    void Scene::deleteObject(const std::string& ID)
+    void Scene::setDeltaScale(const float scale)
     {
-        for (auto itr = m_objects.begin(); itr != m_objects.end(); ++itr)
-        {
-            if (itr->getID() == ID)
-            {
-                m_objects.erase(itr);
-                return;
-            }
-        }
+        m_deltaScale = scale;
     }
 
     //////////////////////////////////////////////
 
-    void Scene::clearObjects()
+    float Scene::getDeltaScale() const
     {
-        m_objects.clear();
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Scene::objectCount() const
-    {
-        return m_objects.size();
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Layer> Scene::getLayer(const std::string& ID) const
-    {
-        for (auto& i : m_layers)
-        {
-            if (i->getID() == ID)
-                return static_ref_cast<Layer>(i->getReference());
-        }
-
-        return WeakReference<Layer>();
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::deleteLayer(const std::string& ID)
-    {
-        for (auto itr = m_layers.begin() + 1; itr != m_layers.end(); ++itr)
-        {
-            if ((*itr)->getID() == ID)
-            {
-                m_layers.erase(itr);
-                return;
-            }
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::clearLayers()
-    {
-        if (!m_layers.empty())
-            m_layers.erase(m_layers.begin() + 1, m_layers.end());
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Layer> Scene::getDefaultLayer() const
-    {
-        if (m_layers.empty())
-            m_layers.emplace_back(std::make_unique<Layer>("jop_default_layer"));
-
-        return static_ref_cast<Layer>(m_layers.front()->getReference());
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::setID(const std::string& ID)
-    {
-        m_ID = ID;
-    }
-
-    //////////////////////////////////////////////
-
-    const std::string& Scene::getID() const
-    {
-        return m_ID;
+        return m_deltaScale;
     }
 
     //////////////////////////////////////////////
@@ -221,7 +124,7 @@ namespace jop
             if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
             {
                 Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Scene, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
 
@@ -232,23 +135,8 @@ namespace jop
         static const unsigned short objectField = Message::Object |
                                                   Message::Component;
 
-        if (message.passFilter(objectField))
-        {
-            for (auto& i : m_objects)
-            {
-                if (i.sendMessage(message) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-        }
-
-        if (message.passFilter(Message::Layer))
-        {
-            for (auto& i : m_layers)
-            {
-                if (i->sendMessage(message) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-        }
+        if (message.passFilter(objectField) && Object::sendMessage(message) == Message::Result::Escape)
+            return Message::Result::Escape;
 
         return Message::Result::Continue;
     }
@@ -259,42 +147,14 @@ namespace jop
     {
         if (isActive())
         {
-            preUpdate(deltaTime);
+            const float dt = deltaTime * m_deltaScale;
 
-            for (auto& i : m_layers)
-                i->preUpdate(deltaTime);
+            preUpdate(dt);
 
-            for (auto& i : m_objects)
-            {
-                i.update(deltaTime);
-                i.updateTransformTree(nullptr, false);
-            }
+            Object::update(dt);
+            Object::updateTransformTree(nullptr, false);
 
-            for (auto& i : m_layers)
-                i->postUpdate(deltaTime);
-
-            postUpdate(deltaTime);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::fixedUpdateBase(const float timeStep)
-    {
-        if (isActive())
-        {
-            preFixedUpdate(timeStep);
-
-            for (auto& i : m_layers)
-                i->preFixedUpdate(timeStep);
-
-            for (auto& i : m_objects)
-                i.fixedUpdate(timeStep);
-
-            for (auto& i : m_layers)
-                i->postFixedUpdate(timeStep);
-
-            postFixedUpdate(timeStep);
+            postUpdate(dt);
         }
     }
 
@@ -306,17 +166,11 @@ namespace jop
         {
             preDraw();
 
-            for (auto& i : m_layers)
-                i->drawBase();
+            m_renderer->draw();
 
             postDraw();
         }
     }
-
-    //////////////////////////////////////////////
-
-    void Scene::initialize()
-    {}
 
     //////////////////////////////////////////////
 
@@ -330,16 +184,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Scene::preFixedUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::postFixedUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
     void Scene::preDraw()
     {}
 
@@ -347,6 +191,13 @@ namespace jop
 
     void Scene::postDraw()
     {}
+
+    //////////////////////////////////////////////
+
+    Object& Scene::getAsObject()
+    {
+        return *this;
+    }
 
     //////////////////////////////////////////////
 

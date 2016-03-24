@@ -29,21 +29,21 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, Camera)
 
-        JOP_BIND_MEMBER_COMMAND(&Camera::setProjectionMode, "setProjectionMode");
-        JOP_BIND_MEMBER_COMMAND(&Camera::setClippingPlanes, "setClippingPlanes");
-        JOP_BIND_MEMBER_COMMAND((void (Camera::*)(const float, const float))&Camera::setSize, "setSize");
-        JOP_BIND_MEMBER_COMMAND(&Camera::setAspectRatio, "setAspectRatio");
-        JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setProjectionMode, "setProjectionMode");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setClippingPlanes, "setClippingPlanes");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
 
     JOP_END_COMMAND_HANDLER(Camera)
 
-    JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    /*JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
         Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
                                   static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
                                   Camera::Projection::Perspective;
 
-        auto cam = obj.createComponent<Camera>(proj);
+        auto cam = obj.createComponent<Camera>("", proj);
 
         if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
         {
@@ -104,51 +104,61 @@ namespace jop
 
         return Drawable::saveStateBase(cam, val, alloc);
     }
-    JOP_END_SAVEABLE_REGISTRATION(Camera)
+    JOP_END_SAVEABLE_REGISTRATION(Camera)*/
 }
 
 namespace jop
 {
 
-    Camera::Camera(Object& object, const Projection mode)
-        : Drawable                  (object, "Camera"),
+    Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
+        : Component                 (object, "camera"),
+          m_renderTexture           (),
           m_projectionMatrix        (),
+          m_viewPort                (glm::vec2(0.f), glm::vec2(1.f)),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
+          m_rendererRef             (renderer),
+          m_renderMask              (1),
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
-        const float y = static_cast<const float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
+        const float x = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
+        const float y = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
 
         if (mode == Projection::Orthographic)
         {
-            setID("OrthoCamera");
             setClippingPlanes(SettingManager::getFloat("fOrthoCameraClipNear", -1.f), SettingManager::getFloat("fOrthoCameraClipFar", 1.f));
             setSize(x, y);
         }
         else
         {
-            setID("PerspCamera");
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
             setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
             setSize(x, y);
         }
+
+        renderer.bind(*this);
     }
 
-    Camera::Camera(const Camera& other)
-        : Drawable                  (other),
+    Camera::Camera(const Camera& other, Object& newObj)
+        : Component                 (other, newObj),
           m_projectionMatrix        (other.m_projectionMatrix),
+          m_renderTexture           (),
+          m_viewPort                (other.m_viewPort),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),
+          m_rendererRef             (other.m_rendererRef),
+          m_renderMask              (other.m_renderMask),
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Camera::draw(const Camera&, const LightContainer&)
-    {}
+    {
+        m_rendererRef.bind(*this);
+    }
+    
+    Camera::~Camera()
+    {
+        m_rendererRef.unbind(*this);
+    }
 
     //////////////////////////////////////////////
 
@@ -182,10 +192,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setProjectionMode(const Projection mode)
+    void Camera::setRenderMask(const uint32 mask)
+    {
+        m_renderMask = mask;
+    }
+
+    //////////////////////////////////////////////
+
+    uint32 Camera::getRenderMask() const
+    {
+        return m_renderMask;
+    }
+
+    //////////////////////////////////////////////
+
+    Camera& Camera::setProjectionMode(const Projection mode)
     {
         m_mode = mode;
         m_projectionNeedUpdate = true;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -197,10 +223,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setClippingPlanes(const float clipNear, const float clipFar)
+    Camera& Camera::setClippingPlanes(const float clipNear, const float clipFar)
     {
         m_clippingPlanes = ClippingPlanes(clipNear, clipFar);
         m_projectionNeedUpdate = true;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -212,14 +240,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setSize(const glm::vec2& size)
+    Camera& Camera::setSize(const glm::vec2& size)
     {
-        setSize(size.x, size.y);
+        return setSize(size.x, size.y);
     }
 
     //////////////////////////////////////////////
 
-    void Camera::setSize(const float x, const float y)
+    Camera& Camera::setSize(const float x, const float y)
     {
         if (m_mode == Projection::Orthographic)
         {
@@ -229,6 +257,8 @@ namespace jop
         }
         else
             setAspectRatio(x / y);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -240,10 +270,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setAspectRatio(const float ratio)
+    Camera& Camera::setAspectRatio(const float ratio)
     {
         m_projData.perspective.aspectRatio = ratio;
         m_projectionNeedUpdate = true;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -255,10 +287,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setFieldOfView(const float fovY)
+    Camera& Camera::setFieldOfView(const float fovY)
     {
         m_projData.perspective.fov = fovY;
         m_projectionNeedUpdate = true;
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -270,10 +304,55 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Camera& Camera::getDefault()
+    Camera& Camera::setViewport(const glm::vec2& start, const glm::vec2& size)
     {
-        static Object obj("jop_default_camera_object");
-        static Camera& cam = *obj.createComponent<Camera>(static_cast<const Projection>(std::min(1u, SettingManager::getUint("uDefaultCameraMode", 1))));
-        return cam;
+        m_viewPort = std::make_pair(start, size);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const Camera::ViewPort& Camera::getViewport() const
+    {
+        return m_viewPort;
+    }
+
+    //////////////////////////////////////////////
+
+    void Camera::applyViewport(glm::uvec2 windowSize) const
+    {
+        if (m_renderTexture.isValid())
+            windowSize = m_renderTexture.getSize();
+
+        const auto p = glm::ivec2(m_viewPort.first * glm::vec2(windowSize));
+        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(windowSize));
+
+        glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
+    }
+
+    //////////////////////////////////////////////
+
+    bool Camera::enableRenderTexture(const bool enable,
+                                     const RenderTexture::ColorAttachment color,
+                                     const glm::uvec2& size,
+                                     const RenderTexture::DepthAttachment depth,
+                                     const RenderTexture::StencilAttachment stencil)
+    {
+        if (enable != m_renderTexture.isValid())
+        {
+            if (enable)
+                return m_renderTexture.create(color, size, depth, stencil);
+            else
+                m_renderTexture.destroy();
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const RenderTexture& Camera::getRenderTexture() const
+    {
+        return m_renderTexture;
     }
 }

@@ -24,7 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,17 +33,21 @@
 
 namespace jop
 {
-    class JOP_API Camera final : public Drawable
+    class Renderer;
+
+    class JOP_API Camera final : public Component
     {
     private:
 
-        JOP_DISALLOW_MOVE(Camera);
+        Camera(const Camera& other, Object& newObj);
 
-        void operator =(const Camera&) = delete;
+        JOP_DISALLOW_COPY_MOVE(Camera);
+        JOP_GENERIC_COMPONENT_CLONE(Camera);
 
     public:
 
         typedef std::pair<float, float> ClippingPlanes;
+        typedef std::pair<glm::vec2, glm::vec2> ViewPort;
 
         /// Union with the projection data
         ///
@@ -74,22 +79,14 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object The object this camera will be bound to
+        /// \param renderer Reference to the renderer
         /// \param mode The initial projection mode
         ///
-        Camera(Object& object, const Projection mode);
+        Camera(Object& object, Renderer& renderer, const Projection mode);
 
-        /// \brief Copy constructor
+        /// \brief Destructor
         ///
-        Camera(const Camera& other);
-
-        JOP_GENERIC_CLONE(Camera);
-
-
-        /// \brief Overridden draw function
-        ///
-        /// Doesn't do anything.
-        ///
-        void draw(const Camera&, const LightContainer&) override;
+        ~Camera() override;
 
 
         /// \brief Get the projection matrix
@@ -106,6 +103,18 @@ namespace jop
         ///
         const glm::mat4& getViewMatrix() const;
 
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
+        void setRenderMask(const uint32 mask);
+
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
+        uint32 getRenderMask() const;
+
 
         /// \brief Set the projection mode
         ///
@@ -116,7 +125,7 @@ namespace jop
         ///
         /// \param mode The mode to be set
         ///
-        void setProjectionMode(const Projection mode);
+        Camera& setProjectionMode(const Projection mode);
 
         /// \brief Get the projection mode
         ///
@@ -133,7 +142,7 @@ namespace jop
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
         ///
-        void setClippingPlanes(const float clipNear, const float clipFar);
+        Camera& setClippingPlanes(const float clipNear, const float clipFar);
 
         /// \brief Get the values of the clipping planes
         ///
@@ -151,14 +160,14 @@ namespace jop
         ///
         /// \param size The new size of the projection
         ///
-        void setSize(const glm::vec2& size);
+        Camera& setSize(const glm::vec2& size);
 
         /// \brief Brief set the size of the projection
         ///
         /// \param x The width
         /// \param y The height
         ///
-        void setSize(const float x, const float y);
+        Camera& setSize(const float x, const float y);
 
         /// \brief Get the size of the projection
         ///
@@ -174,7 +183,7 @@ namespace jop
         ///
         /// \param ratio The new aspect ratio to be set
         ///
-        void setAspectRatio(const float ratio);
+        Camera& setAspectRatio(const float ratio);
 
         /// \brief Get the aspect ratio
         ///
@@ -192,7 +201,7 @@ namespace jop
         ///
         /// \param fovY The new field of view value
         ///
-        void setFieldOfView(const float fovY);
+        Camera& setFieldOfView(const float fovY);
 
         /// \brief Get the field of view value
         ///
@@ -200,19 +209,41 @@ namespace jop
         ///
         float getFieldOfView() const;
 
-        /// \brief Get the default camera
+
         ///
-        /// This camera is a const object and it's not meant to be used actively.
         ///
-        /// \return Const reference to the camera
+        Camera& setViewport(const glm::vec2& start, const glm::vec2& size);
+
         ///
-        static Camera& getDefault();
+        ///
+        const ViewPort& getViewport() const;
+
+        ///
+        ///
+        void applyViewport(glm::uvec2 windowSize) const;
+
+
+        ///
+        ///
+        bool enableRenderTexture(const bool enable,
+                                 const RenderTexture::ColorAttachment color,
+                                 const glm::uvec2& size,
+                                 const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
+                                 const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
+
+        ///
+        ///
+        const RenderTexture& getRenderTexture() const;
 
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
+        RenderTexture m_renderTexture;
+        ViewPort m_viewPort;
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
+        Renderer& m_rendererRef;                ///< Reference to the renderer
+        uint32 m_renderMask;                    ///< The render mask
         Projection m_mode;                      ///< Projection mode
         mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
         

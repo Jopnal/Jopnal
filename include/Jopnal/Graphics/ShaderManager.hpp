@@ -58,9 +58,9 @@ namespace jop
         ///
         static Shader& getShader(const Material::AttribType attributes);
 
-    private:
-
         static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+
+    private:
 
         static ShaderManager* m_instance;   ///< The single instance
 

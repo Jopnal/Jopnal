@@ -1,9 +1,22 @@
-uniform sampler2D u_DiffuseMap; 
+// JOPNAL DEFAULT FRAGMENT SHADER
+//
+// Jopnal license applies
 
-in vec2 out_TexCoords; 
+//////////////////////////////////////////////
+
+// Diffuse map
+uniform sampler2D u_DiffuseMap;
+
+// Emission color
+uniform vec3 u_Emission;
+
+// Texture coordinates from vertex shader
+in vec2 vf_TexCoords;
+
+// Final color
 out vec4 out_FinalColor; 
 
 void main() 
 { 
-    out_FinalColor = vec4(1.0, 1.0, 1.0, texture2D(u_DiffuseMap, out_TexCoords).r);
+    out_FinalColor = texture2D(u_DiffuseMap, vf_TexCoords) + vec4(u_Emission, 1.0);
 }

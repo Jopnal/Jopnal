@@ -41,7 +41,7 @@ namespace jop
             JOP_DEBUG_WARNING("No attribute field found in material \"" << val["name"].GetString() << "\", using defaults");
 
         auto& m = ResourceManager::getEmptyResource<Material>(val["name"].GetString(), attr);
-        m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        //m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         if (val.HasMember("reflection") && val["reflection"].IsArray() && val["reflection"].Size() >= 4)
         {
@@ -59,13 +59,13 @@ namespace jop
             m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
 
         if (val.HasMember("diffmap") && val["diffmap"].IsString())
-            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture>(val["diffmap"].GetString()));
+            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
 
         if (val.HasMember("specmap") && val["specmap"].IsString())
-            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture>(val["specmap"].GetString()));
+            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
 
         if (val.HasMember("emissmap") && val["emissmap"].IsString())
-            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture>(val["emissmap"].GetString()));
+            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
 
         return true;
     }
@@ -76,7 +76,7 @@ namespace jop
         auto& ref = *static_cast<const Material*>(material);
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         val.AddMember(json::StringRef("attributes"), ref.getAttributeField(), alloc);
 
@@ -115,6 +115,8 @@ namespace
     static const int ns_diffMapIndex = static_cast<int>(jop::Material::Map::Diffuse);
     static const int ns_specMapIndex = static_cast<int>(jop::Material::Map::Specular);
     static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
+    static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
+    static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
 }
 
 namespace jop
@@ -140,7 +142,7 @@ namespace jop
             Color::Black,
             Color::White,
             Color::White,
-            Color::White
+            Color::Black
         )
         .setMap(Map::Diffuse, Texture::getDefault());
     }
@@ -159,7 +161,7 @@ namespace jop
             Color::Black,
             Color::White,
             Color::White,
-            Color::White
+            Color::Black
         )
         .setMap(Map::Diffuse, Texture::getDefault());
     }
@@ -177,18 +179,29 @@ namespace jop
                 shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.shininess", m_shininess);
+
+                if (hasAttribute(Attribute::EnvironmentMap))
+                    shader.setUniform("u_Material.reflectivity", m_reflectivity);
             }
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
-            if (hasAttribute(Attribute::Diffusemap) && !m_maps[ns_diffMapIndex].expired())
-                shader.setUniform("u_DiffuseMap", *m_maps[ns_diffMapIndex], ns_diffMapIndex);
+            if (hasAttribute(Attribute::Diffusemap) && !getMap(Map::Diffuse).expired())
+                shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
-            if (hasAttribute(Attribute::Specularmap) && !m_maps[ns_specMapIndex].expired())
-                shader.setUniform("u_SpecularMap", *m_maps[ns_specMapIndex], ns_specMapIndex);
+            if (hasAttribute(Attribute::Specularmap) && !getMap(Map::Specular).expired())
+                shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
 
-            if (hasAttribute(Attribute::Emissionmap) && !m_maps[ns_emissMapIndex].expired())
-                shader.setUniform("u_EmissionMap", *m_maps[ns_emissMapIndex], ns_emissMapIndex);
+            if (hasAttribute(Attribute::Emissionmap) && !getMap(Map::Emission).expired())
+                shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
+
+            if (hasAttribute(Attribute::EnvironmentMap) && !getMap(Material::Map::Environment).expired())
+            {
+                shader.setUniform("u_EnvironmentMap", *getMap(Material::Map::Environment), ns_envMapIndex);
+
+                if (hasAttribute(Attribute::ReflectionMap) && !getMap(Map::Reflection).expired())
+                    shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
+            }
         }
     }
 
@@ -234,9 +247,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Material& Material::setReflectivity(const float reflectivity)
+    {
+        m_reflectivity = reflectivity;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    float Material::getReflectivity() const
+    {
+        return m_reflectivity;
+    }
+
+    //////////////////////////////////////////////
+
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        m_maps[static_cast<int>(map)] = static_ref_cast<const Texture>(tex.getReference());
+        m_maps[static_cast<int>(map) - 1] = static_ref_cast<const Texture>(tex.getReference());
         return *this;
     }
 
@@ -244,7 +272,7 @@ namespace jop
 
     WeakReference<const Texture> Material::getMap(const Map map) const
     {
-        return m_maps[static_cast<int>(map)];
+        return m_maps[static_cast<int>(map) - 1];
     }
 
     //////////////////////////////////////////////

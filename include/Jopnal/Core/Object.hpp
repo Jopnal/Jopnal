@@ -1,23 +1,21 @@
-//Jopnal Engine C++ Library
-//Copyright(c) 2016 Team Jopnal
+// Jopnal Engine C++ Library
+// Copyright (c) 2016 Team Jopnal
 //
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files(the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
 //
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
 //
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -26,10 +24,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Activateable.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Graphics/Camera.hpp>
-#include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 
 //////////////////////////////////////////////
@@ -37,41 +32,44 @@
 
 namespace jop
 {
-    class Layer;
-
-    class JOP_API Object : public Transform, public Activateable, public SafeReferenceable<Object>
+    class JOP_API Object : public Transform, public SafeReferenceable<Object>
     {
     private:
 
-        void operator =(const Object&) = delete;
+        JOP_DISALLOW_COPY(Object);
 
         friend class StateLoader;
 
     public:
 
-        /// \brief Default constructor
-        ///
-        Object();
-
         /// \brief Constructor
         ///
-        /// \param ID Unique object identifier m_ID
+        /// \param ID Object id
         ///
         Object(const std::string& ID);
 
         /// \brief Copy constructor
+        /// 
+        /// \param other The other object to copy
+        /// \param newName The ID of the new object
         ///
-        Object(const Object& other);
+        Object(const Object& other, const std::string& newID);
 
-        /// \brief Overloaded copy constructor
+        /// \copydoc Object(const Object&,const std::string&)
         ///
-        Object(const Object& other, const std::string& newName);
+        /// \param newTransform Transform for the new object
+        ///
+        Object(const Object& other, const std::string& newID, const Transform& newTransform);
 
         /// \brief Move constructor
+        ///
+        /// \param other The other object to move
         ///
         Object(Object&& other);
 
         /// \brief Move assignment operator
+        ///
+        /// \param other The other object to move
         ///
         Object& operator =(Object&& other);
 
@@ -80,23 +78,39 @@ namespace jop
         ///
         /// \param ID Component identifier to search with
         ///
-        /// \return Weak reference with the component, empty if the component wasn't found
+        /// \return Pointer to the component, nullptr if the component wasn't found
         ///
-        WeakReference<Component> getComponent(const std::string& ID);
+        Component* getComponent(const std::string& ID);
+
+        /// \copycod getComponent()
+        ///
+        const Component* getComponent(const std::string& ID) const;
+
+        
+        /// \brief Get all components
+        ///
+        /// \return Reference to the internal vector with the components
+        ///
+        const std::vector<std::unique_ptr<Component>>& getComponents() const;
 
         /// \brief Get a component using type info
         ///
-        /// \return Pointer to the component. Empty if not found
+        /// \return Pointer to the component. Nullptr if not found
         ///
         template<typename T>
-        WeakReference<T> getComponent();
+        T* getComponent();
+
+        /// \copydoc getComponent()
+        ///
+        template<typename T>
+        const T* getComponent() const;
 
         /// \brief Template function to create components
         ///
-        /// \param args User determined arguments
+        /// \param args Arguments to use with construction
         ///
         template<typename T, typename ... Args>
-        WeakReference<T> createComponent(Args&... args);
+        T& createComponent(Args&&... args);
 
         /// \brief Method to remove components with 'ID'
         /// 
@@ -104,9 +118,16 @@ namespace jop
         ///
         void removeComponents(const std::string& ID);
 
+        /// \brief Remove all components
+        ///
+        void clearComponents();
+
         /// \brief Get amount of components
         ///
+        /// \return Amount of components
+        ///
         unsigned int componentCount() const;
+
 
         /// \brief Create a new child
         ///
@@ -124,6 +145,12 @@ namespace jop
         ///
         WeakReference<Object> getChild(const std::string& ID);
 
+        /// \brief Get all children
+        ///
+        /// \return Reference to the internal vector with the components
+        ///
+        const std::vector<Object>& getChildren() const;
+
         /// \brief Clone a child with the given id
         ///
         /// The child object, if successfully cloned, will be added to the internal array
@@ -135,6 +162,14 @@ namespace jop
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
+
+        /// \copydoc cloneChild(const std::string&, const std::string&)
+        ///
+        /// \param newTransform 
+        ///
+        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
+
+
 
         /// \brief Remove children with the given id
         ///
@@ -148,6 +183,8 @@ namespace jop
 
         /// \brief Get amount of children
         ///
+        /// \return Amount of children
+        ///
         unsigned int childCount() const;
 
         /// \brief Get amount of children recursively
@@ -155,7 +192,25 @@ namespace jop
         /// Goes through the children and their children all the way down the tree
         /// and return the total amount of children
         ///
+        /// \return Amount of children, summed recursively
+        ///
         unsigned int childCountRecursive() const;
+
+
+        /// \brief Set this object to ignore its parent
+        ///
+        /// This only affects transformations. Objects that ignore their parent will not take
+        /// into account the parent's tranformation.
+        ///
+        /// \param ignore The flag to set
+        ///
+        void setIgnoreParent(const bool ignore);
+
+        /// \brief Check if this object ignores its parent
+        ///
+        /// \return True if ignores parent
+        ///
+        bool ignoresParent() const;
 
 
         /// \brief Method to send messages
@@ -182,7 +237,22 @@ namespace jop
         Message::Result sendMessage(const Message& message);
 
 
-        /// \brief Method for getting m_ID
+        /// \brief Set this object active/inactive
+        ///
+        /// \param active Activity flag to set
+        ///
+        void setActive(const bool active);
+
+        /// \brief Check if this object is active
+        ///
+        /// \return True if active
+        ///
+        bool isActive() const;
+
+
+        /// \brief Get this object's id
+        ///
+        /// \return Reference to the internal id string
         ///
         const std::string& getID() const;
 
@@ -192,17 +262,12 @@ namespace jop
         ///
         void setID(const std::string& ID);
 
+
         /// \brief Update method for object - forwarded for its components
         ///
         /// \param deltaTime Double holding delta time
         ///
-        void update(const float deltaTime); 
-
-        /// \brief Fixed Update method for object - forwarded for its components
-        ///
-        /// \param timeStep Double holding time step
-        ///
-        void fixedUpdate(const float timeStep);
+        void update(const float deltaTime);
 
         /// \brief Update the transformation tree
         ///
@@ -215,6 +280,9 @@ namespace jop
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
         std::string m_ID;                                     ///< Unique object identifier
+        WeakReference<Object> m_parent;
+        bool m_ignoreParent;
+        bool m_active;
     };
 
     // Include the template implementation file

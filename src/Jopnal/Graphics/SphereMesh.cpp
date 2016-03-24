@@ -57,7 +57,7 @@ namespace jop
             norm = val["normtc"].GetBool();
 
         ResourceManager::getNamedResource<SphereMesh>(val["name"].GetString(), radius, rings, sectors, norm)
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
         return true;
     }
@@ -72,7 +72,7 @@ namespace jop
            .AddMember(json::StringRef("rings"), ref.getRings(), alloc)
            .AddMember(json::StringRef("sectors"), ref.getSectors(), alloc)
            .AddMember(json::StringRef("normtc"), ref.normalizedTexCoords(), alloc)
-           .AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+;//           .AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
         return true;
     }

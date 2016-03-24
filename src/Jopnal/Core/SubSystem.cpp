@@ -38,21 +38,11 @@ namespace jop
 namespace jop
 {
     Subsystem::Subsystem(const std::string& ID)
-        : Activateable                  (true),
-           SafeReferenceable<Subsystem> (this),
-           m_ID                         (ID),
-           m_active                     (true)
+        : m_ID      (ID),
+          m_active  (true)
     {}
 
     Subsystem::~Subsystem()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Subsystem::preFixedUpdate(const float)
-    {}
-
-    void Subsystem::postFixedUpdate(const float)
     {}
 
     //////////////////////////////////////////////
@@ -102,6 +92,20 @@ namespace jop
         }
 
         return Message::Result::Continue;
+    }
+
+    //////////////////////////////////////////////
+
+    void Subsystem::setActive(const bool active)
+    {
+        m_active = active;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Subsystem::isActive() const
+    {
+        return m_active;
     }
 
     //////////////////////////////////////////////
