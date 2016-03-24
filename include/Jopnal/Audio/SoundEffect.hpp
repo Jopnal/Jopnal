@@ -22,7 +22,12 @@
 #ifndef JOP_SOUNDEFFECT_HPP
 #define JOP_SOUNDEFFECT_HPP
 
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Audio/SoundSource.hpp>
+
 //////////////////////////////////////////////
+
 
 namespace sf
 {
@@ -31,8 +36,6 @@ namespace sf
 
 namespace jop
 {
-    class Object;
-
     class JOP_API SoundEffect : public SoundSource
     {
     protected:
@@ -41,8 +44,6 @@ namespace jop
         ///
         SoundEffect(const SoundEffect& other, Object& newObj);
 
-        /// \brief Check for copy constructor's need
-        ///
         JOP_DISALLOW_COPY_MOVE(SoundEffect);
         JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
 
@@ -51,13 +52,12 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Unique component identifier
         ///
-        SoundEffect(Object& object, const std::string& ID);
+        SoundEffect(Object& object);
 
-        /// \brief Virtual destructor
-        ///
-        ~SoundEffect();
+
+        void update(const float deltaTime) override;
+
         
         /// \brief Load sound buffer from resource manager
         ///
@@ -71,9 +71,9 @@ namespace jop
         ///
         /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
         ///
-        /// If true audio doesn't start over from beginging
+        /// If true audio doesn't start over from beginning
         ///
-        SoundEffect& play(bool reset);
+        SoundEffect& play(const bool reset);
 
         /// \brief Play sound from start
         ///
@@ -95,15 +95,15 @@ namespace jop
 
         /// \brief Returns point where sound is playing as seconds
         ///
-        float getOffset();
+        float getOffset() const;
 
         /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
         ///
-        enum status getStatus();
+        Status getStatus() const;
 
         /// \brief Toggle sound on/off
         ///
-        /// \param Boolean true iquals on and false iquals off
+        /// \param Boolean true equals on and false equals off
         ///
         SoundEffect& setLoop(const bool loop);
 
@@ -118,7 +118,7 @@ namespace jop
         ///
         /// \param float meters per second
         ///
-        static void setGlobalSpeedOfSound(float speed);
+        static void setGlobalSpeedOfSound(const float speed);
 
         /// \brief Returns global speed multiplier for sounds
         ///
@@ -133,14 +133,26 @@ namespace jop
 
         /// \brief Returns sound's personal speed multiplier
         ///
-        float getPersonalSpeed();
+        float getPersonalSpeed() const;
 
     private:
+
         /// \brief Automated calculation when sound is allowed to play
         ///
         void calculateSound();
 
-        float m_personalSpeed;              ///< Sound's own personal speed of sound multiplier
+        /// \brief Automatic check if sound is allowed to play
+        ///
+        /// \param Deltatime for calculation
+        ///
+        void allowSound(const float deltaTime);
+
+
+        float m_speedCounter;   ///< Counter for speed of sound
+        bool m_playWithSpeed;   ///< Calculate when sound is allowed to play
+        bool m_playOnce;        ///< Breaks link from update to calculate sound()
+        bool m_resetSound;      ///< When using speed of sound saves value from play(bool)
+        float m_personalSpeed;  ///< Sound's own personal speed of sound multiplier
     };
 }
 #endif

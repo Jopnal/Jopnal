@@ -26,78 +26,77 @@
 
 namespace
 {
-    float ns_globalFactor=1.f;
+    static float ns_globalFactor = 1.f;
 }
 
 namespace jop
 {
-    SoundEffect::SoundEffect(Object& object, const std::string& ID)
-        :SoundSource(object, ID)
+    SoundEffect::SoundEffect(Object& object)
+        : SoundSource       (object, "soundeffect"),
+          m_personalSpeed   (1.f),
+          m_speedCounter    (0.f),
+          m_playWithSpeed   (false),
+          m_playOnce        (false),
+          m_resetSound      (false)
     {
-        m_sound = std::make_unique < sf::Sound >();
+        m_sound = std::make_unique<sf::Sound>();
+
         m_playOnce = false;
         m_playWithSpeed = false;
-        m_personalSpeed = 1.f;
     }
 
     SoundEffect::SoundEffect(const SoundEffect& other, Object& newObj)
-        : SoundSource(other, newObj)
+        : SoundSource       (other, newObj),
+          m_personalSpeed   (other.m_personalSpeed),
+          m_speedCounter    (other.m_speedCounter),
+          m_playWithSpeed   (other.m_playWithSpeed),
+          m_playOnce        (false),
+          m_resetSound      (false)
     {
-        m_sound = std::make_unique < sf::Sound >(static_cast<const sf::Sound&>(*other.m_sound));
-        m_playOnce = false;
-        m_playWithSpeed = other.m_playWithSpeed;
-        m_personalSpeed = 1.f;
+        m_sound = std::make_unique<sf::Sound>(static_cast<const sf::Sound&>(*other.m_sound));
     }
+
     //////////////////////////////////////////////
 
-    SoundEffect::~SoundEffect()
-    {}
+    void SoundEffect::update(const float deltaTime)
+    {
+        SoundSource::update(deltaTime);
+
+        if (m_playOnce && m_playWithSpeed)
+            allowSound(deltaTime);
+    }
 
     //////////////////////////////////////////////
 
     SoundEffect& SoundEffect::setBuffer(const SoundBuffer& buffer)
     {
         static_cast<sf::Sound*>(m_sound.get())->setBuffer(*buffer.m_soundBuf);
-        if (sizeof(static_cast<sf::Sound*>(m_sound.get())->getBuffer()) < 1)
-        {
-            JOP_DEBUG_WARNING("Size of " << getID() << "'s buffer is smaller than one.");
-        }
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::play(bool reset)
+    SoundEffect& SoundEffect::play(const bool reset)
     {
         m_resetSound = reset;
 
         if (!m_playWithSpeed)
         {
-            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
-            {
-                if (reset)
-                    return *this;
-            }
-            static_cast<sf::Sound*>(m_sound.get())->play();
-            return *this;
+            if (reset || getStatus() < Status::Playing)
+                play();
         }
         else
         {
-            if (m_playOnce)
-            {
-                if (reset)
-                    return *this;
-                else
-                    m_playOnce = true;
-                return *this;
-            }
+            if (m_playOnce && !reset)
+                m_playOnce = true;
             else
             {
                 calculateSound();
                 m_playOnce = true;
-                return *this;
             }
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -107,24 +106,15 @@ namespace jop
         m_resetSound = false;
 
         if (!m_playWithSpeed)
-        {
             static_cast<sf::Sound*>(m_sound.get())->play();
-            return *this;
-        }
-        else
+
+        else if (!m_playOnce)
         {
-            if (m_playOnce)
-            {
-                m_playOnce = true;
-                return *this;
-            }
-            else
-            {
-                calculateSound();
-                m_playOnce = true;
-                return *this;
-            }
+            calculateSound();
+            m_playOnce = true;
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -142,7 +132,6 @@ namespace jop
     SoundEffect& SoundEffect::pause()
     {
         static_cast<sf::Sound*>(m_sound.get())->pause();
-
         return *this;
     }
 
@@ -158,16 +147,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float SoundEffect::getOffset()
+    float SoundEffect::getOffset() const
     {
         return static_cast<sf::Sound*>(m_sound.get())->getPlayingOffset().asSeconds();
     }
 
     //////////////////////////////////////////////
 
-    enum status SoundEffect::getStatus()
+    SoundSource::Status SoundEffect::getStatus() const
     {
-        return status(static_cast<sf::Sound*>(m_sound.get())->getStatus());
+        return static_cast<Status>(static_cast<sf::Sound*>(m_sound.get())->getStatus());
     }
 
     //////////////////////////////////////////////
@@ -175,7 +164,6 @@ namespace jop
     SoundEffect& SoundEffect::setLoop(const bool loop)
     {
         static_cast<sf::Sound*>(m_sound.get())->setLoop(loop);
-
         return *this;
     }
 
@@ -184,16 +172,15 @@ namespace jop
     SoundEffect& SoundEffect::speedOfSound(const bool use)
     {
         m_playWithSpeed = use;
-
         return *this;
     }
+
     //////////////////////////////////////////////
 
-    void SoundEffect::setGlobalSpeedOfSound(float speed)
+    void SoundEffect::setGlobalSpeedOfSound(const float speed)
     {
         ns_globalFactor = speed;
     }
-
 
     //////////////////////////////////////////////
 
@@ -207,14 +194,12 @@ namespace jop
     SoundEffect& SoundEffect::setPersonalSpeed(float speed)
     {
         m_personalSpeed = speed;
-
         return *this;
     }
 
-
     //////////////////////////////////////////////
 
-    float SoundEffect::getPersonalSpeed()
+    float SoundEffect::getPersonalSpeed() const
     {
         return m_personalSpeed;
     }
@@ -223,11 +208,34 @@ namespace jop
 
     void SoundEffect::calculateSound()
     {
-        glm::vec3 origin = getObject()->getGlobalPosition();
-        auto target = sf::Listener::getPosition();
-        float lenght = sqrt(pow(target.x - origin.x, 2.f) + pow(target.y - origin.y, 2.f) + pow(target.z - origin.z, 2.f));
-        float multiplier = std::max(FLT_MIN, 343.f*ns_globalFactor*m_personalSpeed);
+        const auto target = sf::Listener::getPosition();
+        const float lenght = glm::length(glm::vec3(target.x, target.y, target.z) - getObject()->getGlobalPosition());
+        const float multiplier = std::max(FLT_MIN, 343.f * ns_globalFactor * m_personalSpeed);
 
         m_speedCounter = lenght / multiplier;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundEffect::allowSound(const float deltaTime)
+    {
+        if ((m_speedCounter -= deltaTime) <= 0.0f)
+        {
+            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+            {
+                if (m_resetSound)
+                {
+                    m_playOnce = false;
+                }
+                else
+                    static_cast<sf::Sound*>(m_sound.get())->play();
+                m_playOnce = false;
+            }
+            else
+            {
+                static_cast<sf::Sound*>(m_sound.get())->play();
+                m_playOnce = false;
+            }
+        }
     }
 }

@@ -24,33 +24,28 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     SoundSource::SoundSource(Object& object, const std::string& ID)
-        :  Component(object,ID)
+        : Component         (object, ID),
+          m_sound           ()
     {}
 
     SoundSource::SoundSource(const SoundSource& other, Object& newObj)
-        : Component(other, newObj),
-          m_sound()
+        : Component         (other, newObj),
+          m_sound           ()
     {}
-
-    //////////////////////////////////////////////
 
     SoundSource::~SoundSource()
     {}
 
     //////////////////////////////////////////////
-    //////////////////////////////////////////////
 
-    void SoundSource::update(const float deltaTime)
+    void SoundSource::update(const float)
     {
         glm::vec3 pos = getObject()->getGlobalPosition();
         m_sound->setPosition(pos.x, pos.y, pos.z);
-
-        if (m_playOnce)
-            if (m_playWithSpeed)
-                allowSound(deltaTime);
     }
 
     //////////////////////////////////////////////
@@ -58,13 +53,12 @@ namespace jop
     SoundSource& SoundSource::setVolume(const float vol)
     {
         m_sound->setVolume(vol);
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    float SoundSource::getVolume()
+    float SoundSource::getVolume() const
     {
         return m_sound->getVolume();
     }
@@ -73,30 +67,28 @@ namespace jop
 
     SoundSource& SoundSource::setPitch(const float value)
     {
-        m_sound->setPitch(std::max(value,0.f));
-
+        m_sound->setPitch(std::max(value, 0.f));
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    float SoundSource::getPitch()
+    float SoundSource::getPitch() const
     {
         return m_sound->getPitch();
     }
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setListener(bool toggle)
+    SoundSource& SoundSource::setListener(const bool toggle)
     {
         m_sound->setRelativeToListener(toggle);
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    bool SoundSource::getListener()
+    bool SoundSource::getListener() const
     {
         return m_sound->isRelativeToListener();
     }
@@ -106,7 +98,6 @@ namespace jop
     SoundSource& SoundSource::setAttenuation(const float at)
     {
         m_sound->setAttenuation(at);
-
         return *this;
     }
 
@@ -115,47 +106,20 @@ namespace jop
     SoundSource& SoundSource::setMinDistance(const float min)
     {
         m_sound->setMinDistance(min);
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    float SoundSource::getAttenuation()
+    float SoundSource::getAttenuation() const
     {
         return m_sound->getAttenuation();
     }
 
     //////////////////////////////////////////////
 
-    float SoundSource::getMinDistance()
+    float SoundSource::getMinDistance() const
     {
         return  m_sound->getMinDistance();
-    }
-
-    //////////////////////////////////////////////
-
-    void SoundSource::allowSound(const float deltaTime)
-    {
-        if (m_speedCounter <= 0.0f)
-        {
-            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
-            {
-                if (m_resetSound)
-                {
-                    m_playOnce = false;
-                }
-                else
-                  static_cast<sf::Sound*>(m_sound.get())->play();
-                  m_playOnce = false;
-            }
-            else
-            {
-                static_cast<sf::Sound*>(m_sound.get())->play();
-                m_playOnce = false;
-            }
-        }
-        else
-            m_speedCounter -= deltaTime;
     }
 }

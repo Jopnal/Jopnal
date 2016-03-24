@@ -120,6 +120,8 @@ namespace jop
 
             frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
 
+            eng.m_advanceFrame = false;
+
             // Update
             {
                 for (auto& i : eng.m_subsystems)
@@ -143,8 +145,6 @@ namespace jop
                         i->postUpdate(frameTime);
                 }
             }
-
-            eng.m_advanceFrame = false;
 
             // Draw
             {
