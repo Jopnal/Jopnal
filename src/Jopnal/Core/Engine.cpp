@@ -238,6 +238,7 @@ namespace jop
     {
         if (!exiting() && getState() != state)
         {
+        #if JOP_CONSOLE_VERBOSITY >= 2
             static const char* const stateStr[] =
             {
                 "Running",
@@ -245,6 +246,7 @@ namespace jop
                 "RenderOnly",
                 "Frozen"
             };
+        #endif
 
             JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
 
