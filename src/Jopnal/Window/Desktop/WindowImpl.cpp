@@ -216,25 +216,7 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    glm::ivec2 WindowImpl::getSize(const bool includeFrame) const
-    {
-        glm::ivec2 s;
-        glfwGetWindowSize(m_window, &s.x, &s.y);
-
-        if (includeFrame)
-        {
-            glm::ivec2 topLeft, bottomRight;
-            glfwGetWindowFrameSize(m_window, &topLeft.x, &topLeft.y, &bottomRight.x, &bottomRight.y);
-
-            s += (topLeft + bottomRight);
-        }
-
-        return s;
-    }
-
-    //////////////////////////////////////////////
-
-    glm::ivec2 WindowImpl::getFramebufferSize() const
+    glm::ivec2 WindowImpl::getSize() const
     {
         glm::ivec2 s;
         glfwGetFramebufferSize(m_window, &s.x, &s.y);

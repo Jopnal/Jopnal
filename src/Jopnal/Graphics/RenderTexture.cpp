@@ -38,10 +38,9 @@ namespace
 namespace jop
 {
     RenderTexture::RenderTexture()
-        : m_texture         (),
+        : RenderTarget      ("rendertexture"),
+          m_texture         (),
           m_depthTexture    (),
-          m_size            (),
-          m_clearColor      (),
           m_frameBuffer     (0),
           m_depthBuffer     (0),
           m_stencilBuffer   (0)          
@@ -50,22 +49,6 @@ namespace jop
     RenderTexture::~RenderTexture()
     {
         destroy();
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::clear()
-    {
-        if (bind())
-        {
-            glm::vec4 col = m_clearColor.asRGBAFloatVector();
-
-            glCheck(gl::ClearColor(col.r, col.g, col.b, col.a));
-            glCheck(gl::ClearDepth(1.0));
-            glCheck(gl::ClearStencil(0));
-
-            glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
-        }
     }
 
     //////////////////////////////////////////////
@@ -107,15 +90,13 @@ namespace jop
             }
         };
 
-        if (size.x < 1 || size.y < 1)
+        if (size.x < 1 || size.y < 1 || size.x > Texture::getMaximumSize() || size.y > Texture::getMaximumSize())
         {
             JOP_DEBUG_ERROR("Failed to create RenderTexture, invalid size specified");
             return false;
         }
 
         destroy();
-
-        m_size = size;
 
         glCheck(gl::GenFramebuffers(1, &m_frameBuffer));
 
@@ -154,7 +135,7 @@ namespace jop
             case ColorAttachment::RGBA2D:
             {
                 auto tex = std::make_unique<Texture2D>("");
-                tex->load(size.x, size.y, color == ColorAttachment::RGB2D ? 3 : 4);
+                tex->load(size, color == ColorAttachment::RGB2D ? 3 : 4);
 
                 m_texture = std::move(tex);
 
@@ -165,7 +146,7 @@ namespace jop
             case ColorAttachment::RGBACube:
             {
                 auto tex = std::make_unique<Cubemap>("");
-                tex->load(size.x, size.y, color == ColorAttachment::RGBCube ? 3 : 4);
+                tex->load(size, color == ColorAttachment::RGBCube ? 3 : 4);
 
                 m_texture = std::move(tex);
 
@@ -177,7 +158,7 @@ namespace jop
             case ColorAttachment::Depth2D32:
             {
                 auto tex = std::make_unique<Texture2DDepth>("");
-                tex->load(size.x, size.y, getDepthColorBytes(color));
+                tex->load(size, getDepthColorBytes(color));
 
                 m_texture = std::move(tex);
 
@@ -189,7 +170,7 @@ namespace jop
             case ColorAttachment::DepthCube32:
             {
                 auto tex = std::make_unique<CubemapDepth>("");
-                tex->load(size.x, size.y, getDepthColorBytes(color));
+                tex->load(size, getDepthColorBytes(color));
 
                 m_texture = std::move(tex);
 
@@ -268,14 +249,14 @@ namespace jop
                     if (color == ColorAttachment::RGBCube || color == ColorAttachment::RGBACube)
                     {
                         auto tex = std::make_unique<CubemapDepth>("");
-                        tex->load(size.x, size.y, bytes);
+                        tex->load(size, bytes);
 
                         m_depthTexture = std::move(tex);
                     }
                     else
                     {
                         auto tex = std::make_unique<Texture2DDepth>("");
-                        tex->load(size.x, size.y, bytes);
+                        tex->load(size, bytes);
 
                         m_depthTexture = std::move(tex);
                     }
@@ -341,14 +322,13 @@ namespace jop
 
         m_texture.reset();
         m_depthTexture.reset();
-        m_size = glm::uvec2();
     }
 
     //////////////////////////////////////////////
 
     bool RenderTexture::bind() const
     {
-        if (m_frameBuffer && m_frameBuffer != ns_currentBuffer)
+        if (isValid() && m_frameBuffer != ns_currentBuffer)
         {
             if (m_frameBuffer != ns_currentBuffer)
             {
@@ -362,18 +342,17 @@ namespace jop
 
         if (isValid())
         {
-            glCheck(gl::Viewport(0, 0, m_size.x, m_size.y));
-            return true;
+            glCheck(gl::Viewport(0, 0, getSize().x, getSize().y));
         }
 
-        return false;
+        return isValid();
     }
 
     //////////////////////////////////////////////
 
     void RenderTexture::unbind()
     {
-        if (ns_currentBuffer != 0)
+        if (ns_currentBuffer)
         {
             gl::Viewport(ns_lastZeroViewport[0], ns_lastZeroViewport[1], ns_lastZeroViewport[2], ns_lastZeroViewport[3]);
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
@@ -383,9 +362,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::uvec2& RenderTexture::getSize() const
+    glm::uvec2 RenderTexture::getSize() const
     {
-        return m_size;
+        if (m_texture)
+            return m_texture->getSize();
+
+        return glm::uvec2();
     }
 
     //////////////////////////////////////////////
@@ -393,20 +375,6 @@ namespace jop
     bool RenderTexture::isValid() const
     {
         return m_frameBuffer != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    void RenderTexture::setClearColor(const Color& color)
-    {
-        m_clearColor = color;
-    }
-
-    //////////////////////////////////////////////
-
-    const Color& RenderTexture::getClearColor() const
-    {
-        return m_clearColor;
     }
 
     //////////////////////////////////////////////

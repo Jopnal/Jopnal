@@ -319,13 +319,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::applyViewport(glm::uvec2 windowSize) const
+    void Camera::applyViewport(const RenderTarget& mainTarget) const
     {
-        if (m_renderTexture.isValid())
-            windowSize = m_renderTexture.getSize();
+        glm::uvec2 mainSize = mainTarget.getSize();
 
-        const auto p = glm::ivec2(m_viewPort.first * glm::vec2(windowSize));
-        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(windowSize));
+        if (m_renderTexture.isValid())
+            mainSize = m_renderTexture.getSize();
+
+        const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
+        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize));
 
         glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
     }

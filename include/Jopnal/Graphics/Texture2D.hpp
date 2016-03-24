@@ -62,7 +62,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -75,7 +75,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const unsigned char* pixels);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels);
 
 
         /// \brief Set a subset of pixels
@@ -88,16 +88,12 @@ namespace jop
         /// \param height Height
         /// \param pixels Pointer to the pixels
         ///
-        void setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels);
+        void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
 
 
         /// \brief Returns image's width
         ///
-        unsigned int getWidth() const;
-
-        /// \brief Returns image's height
-        ///
-        unsigned int getHeight() const;
+        glm::uvec2 getSize() const override;
 
         /// \brief Returns image's bytes per pixel value
         ///
@@ -123,7 +119,7 @@ namespace jop
         ///
         /// \param depth The pixel depth in bytes
         ///
-        /// \return True if the fepth is supported
+        /// \return True if the depth is supported
         ///
         static bool checkDepthValid(const unsigned int depth);
 
@@ -134,8 +130,7 @@ namespace jop
         bool load(const int id);
 
 
-        unsigned int m_width;           ///< Width of the texture
-        unsigned int m_height;          ///< Height of the texture
+        glm::uvec2 m_size;
         unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
 
     };

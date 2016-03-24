@@ -28,9 +28,9 @@
 namespace jop
 {
     CubemapDepth::CubemapDepth(const std::string& name)
-        : Texture(name, gl::TEXTURE_CUBE_MAP),
-          m_width(0),
-          m_height(0)
+        : Texture   (name, gl::TEXTURE_CUBE_MAP),
+          m_size    (),
+          m_bytes   (0)
     {
         static WeakReference<TextureSampler> sampler;
 
@@ -53,9 +53,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool CubemapDepth::load(const unsigned int width, const unsigned int height, const unsigned int bytes)
+    bool CubemapDepth::load(const glm::uvec2& size, const unsigned int bytes)
     {
-        if (width > getMaximumSize() || height > getMaximumSize())
+        if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't create depth texture, maximum size is " << getMaximumSize());
             return false;
@@ -65,13 +65,19 @@ namespace jop
 
         for (unsigned int i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2DDepth::getFormatEnum(bytes), width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2DDepth::getFormatEnum(bytes), size.x, size.y, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
         }
         
-        m_width = width;
-        m_height = height;
+        m_size = size;
         m_bytes = bytes;
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::uvec2 CubemapDepth::getSize() const
+    {
+        return m_size;
     }
 }

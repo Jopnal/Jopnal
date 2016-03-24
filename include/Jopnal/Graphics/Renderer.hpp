@@ -34,6 +34,7 @@ namespace jop
 {
     class World;
     class Window;
+    class RenderTarget;
 
     class JOP_API Renderer
     {
@@ -52,7 +53,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        Renderer();
+        Renderer(const RenderTarget& mainTarget);
 
         /// \brief Virtual destructor
         ///
@@ -107,6 +108,7 @@ namespace jop
         std::set<const Drawable*> m_drawables;          ///< The bound drawables
         std::set<EnvironmentRecorder*> m_envRecorders;  ///< The bound environment recorders
         uint32 m_mask;                                  ///< The rendering mask
+        const RenderTarget& m_mainTarget;
 
     #ifdef JOP_DEBUG_MODE
         World* m_physicsWorld;                          ///< Pointer to the physics world, used for debug drawing

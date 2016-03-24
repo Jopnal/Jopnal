@@ -59,7 +59,7 @@ namespace jop
 {
     Scene::Scene(const std::string& ID)
         : Object        (ID),
-          m_renderer    (std::make_unique<Renderer>()),
+          m_renderer    (std::make_unique<Renderer>(*Engine::getSubsystem<Window>())),
           m_world       (createComponent<World>(*m_renderer)),
           m_deltaScale  (1.f)
     {}

@@ -34,6 +34,7 @@
 namespace jop
 {
     class Renderer;
+    class RenderTarget;
 
     class JOP_API Camera final : public Component
     {
@@ -220,7 +221,7 @@ namespace jop
 
         ///
         ///
-        void applyViewport(glm::uvec2 windowSize) const;
+        void applyViewport(const RenderTarget& mainTarget) const;
 
 
         ///

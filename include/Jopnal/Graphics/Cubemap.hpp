@@ -42,12 +42,13 @@ namespace jop
                   const std::string& top, const std::string& bottom,
                   const std::string& back, const std::string& front);
 
-        bool load(const unsigned int width, const unsigned int height, const unsigned int bpp);
+        bool load(const glm::uvec2& size, const unsigned int bpp);
+
+        glm::uvec2 getSize() const override;
 
     private:
 
-        unsigned int m_width;
-        unsigned int m_height;
+        glm::uvec2 m_size;
         unsigned int m_bytesPerPixel;
 
     };

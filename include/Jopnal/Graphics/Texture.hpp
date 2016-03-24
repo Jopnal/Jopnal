@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -74,6 +75,8 @@ namespace jop
 
 
         bool isValid() const;
+
+        virtual glm::uvec2 getSize() const = 0;
 
 
         /// \brief Get the OpenGL handle for this texture

@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
 #include <glm/vec2.hpp>
 #include <string>
@@ -33,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API RenderTexture final
+    class JOP_API RenderTexture final : public RenderTarget
     {
     private:
 
@@ -106,14 +107,8 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~RenderTexture();
+        ~RenderTexture() override;
 
-
-        /// \brief Clear the frame buffer
-        ///
-        /// This will clear the color, depth and stencil buffers.
-        ///
-        void clear();
 
         /// \brief Initialize the frame buffer
         ///
@@ -146,25 +141,13 @@ namespace jop
         ///
         /// \return glm::vec2 with the size
         ///
-        const glm::uvec2& getSize() const;
+        glm::uvec2 getSize() const override;
 
         /// \brief Check if this frame buffer is valid
         ///
         /// \return True if valid
         ///
         bool isValid() const;
-
-        /// \brief Set the color buffer clear color
-        ///
-        /// \param color The new color
-        ///
-        void setClearColor(const Color& color);
-
-        /// \brief Get the color buffer clear color
-        ///
-        /// \return Reference to the color
-        ///
-        const Color& getClearColor() const;
 
         /// \brief Get the texture
         ///
@@ -183,9 +166,7 @@ namespace jop
     private:
 
         std::unique_ptr<Texture> m_texture;         ///< The attached texture
-        std::unique_ptr<Texture> m_depthTexture;    ///< The attached depth texture
-        glm::uvec2 m_size;                          ///< Size of the texture
-        Color m_clearColor;                         ///< The color to use when clearing the buffer
+        std::unique_ptr<Texture> m_depthTexture;    ///< The possibly attached depth texture
         unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
         unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
         unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer

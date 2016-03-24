@@ -50,7 +50,9 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const unsigned int width, const unsigned int height, const unsigned int bytes);
+        bool load(const glm::uvec2& size, const unsigned int bytes);
+
+        glm::uvec2 getSize() const override;
 
 
         /// \brief Get the OpenGL format enum for the given pixel depth
@@ -63,8 +65,7 @@ namespace jop
 
     private:
 
-        unsigned int m_width;   ///< Width
-        unsigned int m_height;  ///< Height
+        glm::uvec2 m_size;
         unsigned int m_bytes;   ///< Bytes per pixel
 
     };

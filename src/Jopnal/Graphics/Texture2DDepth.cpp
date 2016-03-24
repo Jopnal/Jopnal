@@ -28,7 +28,9 @@
 namespace jop
 {
     Texture2DDepth::Texture2DDepth(const std::string& name)
-        : Texture(name, gl::TEXTURE_2D)
+        : Texture   (name, gl::TEXTURE_2D),
+          m_size    (),
+          m_bytes   (0)
     {
         static WeakReference<TextureSampler> sampler;
 
@@ -52,9 +54,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2DDepth::load(const unsigned int width, const unsigned int height, const unsigned int bytes)
+    bool Texture2DDepth::load(const glm::uvec2& size, const unsigned int bytes)
     {
-        if (width > getMaximumSize() || height > getMaximumSize())
+        if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't create depth texture, maximum size is " << getMaximumSize());
             return false;
@@ -62,13 +64,19 @@ namespace jop
 
         bind();
 
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getFormatEnum(bytes), width, height, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getFormatEnum(bytes), size.x, size.y, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
 
-        m_width = width;
-        m_height = height;
+        m_size = size;
         m_bytes = bytes;
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::uvec2 Texture2DDepth::getSize() const
+    {
+        return m_size;
     }
 
     //////////////////////////////////////////////

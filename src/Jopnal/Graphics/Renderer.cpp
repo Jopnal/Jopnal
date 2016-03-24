@@ -27,12 +27,13 @@
 
 namespace jop
 {
-    Renderer::Renderer()
+    Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
           m_drawables       (),
           m_envRecorders    (),
-          m_mask            (1)
+          m_mask            (1),
+          m_mainTarget      (mainTarget)
 
         #ifdef JOP_DEBUG_MODE
         , m_physicsWorld   (nullptr)
@@ -137,7 +138,7 @@ namespace jop
                 envmap->record();
         }
 
-        RenderTexture::unbind();
+        m_mainTarget.bind();
 
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
@@ -152,7 +153,7 @@ namespace jop
                     continue;
 
                 cam->getRenderTexture().bind();
-                //cam->applyViewport(m_renderTexture.getSize());
+                cam->applyViewport(m_mainTarget);
 
                 for (auto drawable : m_drawables)
                 {
@@ -177,8 +178,6 @@ namespace jop
             #endif
             }
         }
-
-        //RenderTexture::unbind();
     }
 
     //////////////////////////////////////////////

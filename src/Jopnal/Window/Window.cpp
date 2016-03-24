@@ -33,7 +33,6 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
 
-        JOP_BIND_MEMBER_COMMAND(&Window::setClearColor, "setClearColor");
         JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
 
     JOP_END_COMMAND_HANDLER(Window)
@@ -76,15 +75,13 @@ namespace jop
     //////////////////////////////////////////////
 
     Window::Window()
-        : Subsystem         ("Window"),
-          m_clearColor      (),
+        : RenderTarget      ("window"),
           m_impl            (),
           m_eventHandler    ()
     {}
 
     Window::Window(const Settings& settings)
-        : Subsystem         ("Window"),
-          m_clearColor      (),
+        : RenderTarget      ("window"),
           m_impl            (),
           m_eventHandler    ()
     {
@@ -129,15 +126,7 @@ namespace jop
     void Window::postUpdate(const float)
     {
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
-        {
-            auto c = m_clearColor.asRGBAFloatVector();
-
-            glCheck(gl::ClearColor(c.r, c.g, c.b, c.a));
-            glCheck(gl::ClearDepth(1.0));
-            glCheck(gl::ClearStencil(0));
-
-            glCheck(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
-        }
+            clear();
     }
 
     //////////////////////////////////////////////
@@ -165,6 +154,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Window::bind() const
+    {
+        if (isOpen())
+            RenderTexture::unbind();
+
+        return isOpen();
+    }
+
+    //////////////////////////////////////////////
+
     void Window::open(const Settings& settings)
     {
         m_impl = std::make_unique<detail::WindowImpl>(settings);
@@ -187,20 +186,6 @@ namespace jop
     bool Window::isOpen() const
     {
         return m_impl.operator bool();
-    }
-
-    //////////////////////////////////////////////
-
-    void Window::setClearColor(const Color& color)
-    {
-        m_clearColor = color;
-    }
-
-    //////////////////////////////////////////////
-
-    Color Window::getClearColor() const
-    {
-        return m_clearColor;
     }
 
     //////////////////////////////////////////////
@@ -282,21 +267,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::ivec2 Window::getSize(const bool includeFrame) const
+    glm::uvec2 Window::getSize() const
     {
         if (isOpen())
-            return m_impl->getSize(includeFrame);
+            return m_impl->getSize();
 
-        return glm::ivec2();
-    }
-
-    //////////////////////////////////////////////
-
-    glm::ivec2 Window::getFramebufferSize() const
-    {
-        if (isOpen())
-            return m_impl->getFramebufferSize();
-
-        return glm::ivec2();
+        return glm::uvec2();
     }
 }

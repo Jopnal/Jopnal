@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
 #include <glm/vec2.hpp>
@@ -45,7 +45,7 @@ namespace jop
         class WindowImpl;
     }
 
-    class JOP_API Window final : public Subsystem
+    class JOP_API Window : public RenderTarget
     {
     private:
 
@@ -122,6 +122,9 @@ namespace jop
         void draw() override;
 
 
+        bool bind() const override;
+
+
         /// \brief Open this window
         ///
         /// This will create a new window. If one already exists, it will be replaced.
@@ -139,15 +142,6 @@ namespace jop
         /// \return True if window is open
         ///
         bool isOpen() const;
-
-
-        /// \brief Set the clear color
-        ///
-        /// \param color The new color
-        ///
-        void setClearColor(const Color& color);
-
-        Color getClearColor() const;
 
 
         /// \brief Set the event handler
@@ -231,13 +225,10 @@ namespace jop
         ///
         /// \return Size of the window
         ///
-        glm::ivec2 getSize(const bool includeFrame = false) const;
-
-        glm::ivec2 getFramebufferSize() const;
+        glm::uvec2 getSize() const override;
 
     private:
 
-        Color m_clearColor;                                 ///< The color to use when clearing the buffer
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
 

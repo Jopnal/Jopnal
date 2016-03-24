@@ -37,6 +37,7 @@ namespace jop
     class Renderer;
     class World;
     class Window;
+    class RenderTarget;
 
     class JOP_API Scene : private Object
     {

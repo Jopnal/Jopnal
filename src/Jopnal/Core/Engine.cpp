@@ -94,7 +94,7 @@ namespace jop
         createSubsystem<ShaderManager>();
 
         // Shared scene
-        m_sharedScene = std::make_unique<Scene>("SharedScene");
+        m_sharedScene = std::make_unique<Scene>("sharedscene");
 
         JOP_DEBUG_INFO("Default engine configuration loaded");
     }

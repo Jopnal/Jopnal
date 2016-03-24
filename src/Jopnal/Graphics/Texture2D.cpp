@@ -70,14 +70,15 @@ namespace jop
         std::vector<unsigned char> buf;
         FileLoader::read(path, buf);
 
-        int x = 0, y = 0, bpp = 0;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+        glm::ivec2 size;
+        int bpp;
+        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bpp, 0);
 
         bool success = false;
         if (colorData && checkDepthValid(bpp))
         {
-            flip(x, y, bpp, colorData);
-            success = load(x, y, bpp, colorData);
+            flip(size.x, size.y, bpp, colorData);
+            success = load(size, bpp, colorData);
         }
 
         stbi_image_free(colorData);
@@ -87,16 +88,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel)
+    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel)
     {
-        return load(width, height, bytesPerPixel, nullptr);
+        return load(size, bytesPerPixel, nullptr);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const unsigned char* pixels)
+    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels)
     {
-        if (width > getMaximumSize() || height > getMaximumSize())
+        if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
             return false;
@@ -110,21 +111,20 @@ namespace jop
         destroy();
         bind();
 
-        m_width = width;
-        m_height = height;
+        m_size = size;
         m_bytesPerPixel = bytesPerPixel;
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), width, height, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
 
     //////////////////////////////////////////////
 
-    void Texture2D::setPixels(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const unsigned char* pixels)
+    void Texture2D::setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels)
     {
-        if ((x + width > m_width) || (y + height > m_height))
+        if ((start.x + size.x > m_size.x) || (start.y + size.y > m_size.y))
         {
             JOP_DEBUG_ERROR("Couldn't set texture pixels. Would cause overflow");
             return;
@@ -136,21 +136,14 @@ namespace jop
         }
 
         bind();
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, x, y, width, height, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getWidth() const
+    glm::uvec2 Texture2D::getSize() const
     {
-        return m_width;
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Texture2D::getHeight() const
-    {
-        return m_height;
+        return m_size;
     }
 
     //////////////////////////////////////////////
@@ -175,7 +168,7 @@ namespace jop
         if (pix && checkDepthValid(bpp))
         {
             flip(x, y, bpp, pix);
-            success = load(x, y, bpp, pix);
+            success = load(glm::uvec2(x, y), bpp, pix);
         }
 
         stbi_image_free(pix);
