@@ -103,7 +103,6 @@ namespace jop
     private:
 
         std::shared_ptr<T*> m_ref;  ///< The bound reference
-
     };
 
     //////////////////////////////////////////////

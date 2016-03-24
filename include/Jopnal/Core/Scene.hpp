@@ -72,6 +72,7 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(Scene);
 
         friend class StateLoader;
+        friend class Object;
 
     public:
 

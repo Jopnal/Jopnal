@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <unordered_set>
 
 //////////////////////////////////////////////
 
@@ -72,7 +73,6 @@ namespace jop
         /// \param other The other object to move
         ///
         Object& operator =(Object&& other);
-
 
         /// \brief Get a component with the given id
         ///
@@ -145,6 +145,8 @@ namespace jop
         ///
         WeakReference<Object> getChild(const std::string& ID);
 
+        WeakReference<Object> adoptChild(Object& child);
+
         /// \brief Get all children
         ///
         /// \return Reference to the internal vector with the components
@@ -168,7 +170,6 @@ namespace jop
         /// \param newTransform 
         ///
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
-
 
 
         /// \brief Remove children with the given id
@@ -212,6 +213,15 @@ namespace jop
         ///
         bool ignoresParent() const;
 
+        WeakReference<Object> getParent() const;
+
+        WeakReference<Object> setParent(Object& newParent);
+
+
+        Scene& getScene();
+
+        const Scene& getScene() const;
+
 
         /// \brief Method to send messages
         ///
@@ -236,6 +246,46 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
+        /// \brief Function to find child returns weak reference of the child object
+        ///
+        /// \param ID Unique object identifier
+        /// \param recursive Tells if object if recursive
+        /// \param strict Tells if object is strict
+        ///
+        /// \return Objects child reference, nullptr otherwise
+        ///
+        WeakReference<Object> findChild(const std::string& ID, const bool recursive, const bool strict);
+
+        /// \brief Function to find all child objects 
+        /// 
+        /// \param ID Unique object identifier
+        /// \param recursive Tells if object is recursive
+        /// \param strict Tells if object is strict
+        ///
+        /// \return Vector consisting all objects children, nullptr otherwise
+        ///
+        std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict);
+
+        /// \brief Finds children by given tag
+        ///
+        /// \param tag Object identifier
+        /// \param recursive Tells if object is recursive
+        ///
+        /// \return vector consisting objects children, nullptr otherwise
+        ///
+        std::vector<WeakReference<Object>> findChildrenWithTag(const std::string tag, const bool recursive);
+
+        /// \brief finds children from path
+        /// 
+        /// \param path String that includes multiple ID:s 
+        ///
+        /// \return Weak reference to child
+        //
+        WeakReference<Object> findChild(const std::string& path);
+
+        /// \brief Makes path to children including all parents
+        ///
+        std::string makeSearchPath() const;
 
         /// \brief Set this object active/inactive
         ///
@@ -263,6 +313,26 @@ namespace jop
         void setID(const std::string& ID);
 
 
+        /// \brief Adds tag to m_tags set
+        ///
+        /// \param tag Name of the added tag
+        ///
+        void addTag(const std::string& tag);
+
+        /// \brief Removes tag from m_tags set
+        ///
+        /// \param tag Name of the removable tag 
+        ///
+        void removeTag(const std::string tag);
+
+        /// \brief Clears m_tags set
+        ///
+        void clearTags();
+
+        /// \brief Finds out if object has tag name tag
+        ///
+        bool hasTag(const std::string& tag)const;
+
         /// \brief Update method for object - forwarded for its components
         ///
         /// \param deltaTime Double holding delta time
@@ -279,6 +349,7 @@ namespace jop
 
         std::vector<Object> m_children;                       ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
+        std::unordered_set<std::string> m_tags;               ///< Container holding tags
         std::string m_ID;                                     ///< Unique object identifier
         WeakReference<Object> m_parent;
         bool m_ignoreParent;
