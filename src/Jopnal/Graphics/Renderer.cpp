@@ -41,6 +41,7 @@ namespace jop
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
+        GlState::setBlendFunc(true);
     }
 
     Renderer::~Renderer()

@@ -89,7 +89,8 @@ namespace jop
             Specular,
             Emission,
             Environment,
-            Reflection
+            Reflection,
+            Opacity
         };
 
         /// Predefined material properties

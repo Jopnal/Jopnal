@@ -117,6 +117,7 @@ namespace
     static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
     static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
+    static const int ns_opacMapIndex = static_cast<int>(jop::Material::Map::Opacity);
 }
 
 namespace jop
@@ -126,7 +127,8 @@ namespace jop
                                                            | Material::Attribute::Diffusemap
                                                            | Material::Attribute::Specularmap
                                                            | Material::Attribute::Emissionmap
-                                                           | Material::Attribute::Phong;
+                                                           | Material::Attribute::Phong
+                                                           | Material::Attribute::OpacityMap;
 
     //////////////////////////////////////////////
 
@@ -202,6 +204,10 @@ namespace jop
                 if (hasAttribute(Attribute::ReflectionMap) && !getMap(Map::Reflection).expired())
                     shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
             }
+
+            if (hasAttribute(Attribute::OpacityMap) && !getMap(Map::Opacity).expired())
+                shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
+
         }
     }
 

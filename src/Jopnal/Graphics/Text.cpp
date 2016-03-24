@@ -134,13 +134,16 @@ namespace jop
         }
 
         Mesh::load(vertices, std::vector<unsigned int>());
-        m_material.setMap(Material::Map::Diffuse, m_font->getTexture());
+        m_material.setMap(Material::Map::Opacity, m_font->getTexture());
+        m_material.setAttributeField(Material::Attribute::OpacityMap);
+        m_material.setReflection(Material::Reflection::Solid, Color::Orange);
         GenericDrawable::setModel(Model(*this, m_material));
     }
 
     void Text::setFont(Font& font)
     {
         m_font = static_ref_cast<Font>(font.getReference());
+        setString(m_string);
     }
 
     void Text::setScale(const float x, const float y)
