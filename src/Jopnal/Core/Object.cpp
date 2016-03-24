@@ -417,30 +417,26 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    Object& Object::cloneComponent(const WeakReference<Object> other, const std::string& ID)
+    Component* Object::cloneComponent(Object& other, const std::string& ID)
     {
-        auto& i = *other->getComponent(ID);     
-        if (&i != NULL)
-        m_components.emplace_back(std::unique_ptr<Component>(i.clone(*this)));
-        else
-            JOP_DEBUG_ERROR("Error in cloning component " << ID<<" from object "<<other->getID()<<" to object "<<getID());
+        auto i = other.getComponent(ID);     
+        if (i)
+        m_components.emplace_back(i->clone(*this));
 
-        return *this;
+        return i;
     }
 
     /////////////////////////////////////////////
 
-    Object& Object::cloneComponent(const std::string& ID, const std::string& newID)
+    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
     {
-        auto& i = *getComponent(ID);
-        if (&i != NULL)
+        auto i = getComponent(ID);
+        if (i)
         {
-            m_components.emplace_back(std::unique_ptr<Component>(i.clone(*this)));
+            m_components.emplace_back(i->clone(*this));
             m_components.back()->setID(newID);
         }
-        else
-            JOP_DEBUG_ERROR("Error in duplicating component " << ID<<" at object "<<getID());
 
-        return *this;
+        return i;
     }
 }

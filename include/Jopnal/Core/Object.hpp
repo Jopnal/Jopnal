@@ -116,13 +116,13 @@ namespace jop
         ///
         /// \param Object to clone from and id of component to clone
         ///
-        Object& cloneComponent(WeakReference<Object>, const std::string& ID);
+        Component* cloneComponent(Object&, const std::string& ID);
 
         /// \brief Template function to duplicates component
         ///
         /// \param Components id and created clone's id
         ///
-        Object& cloneComponent(const std::string& ID, const std::string& newID);
+        Component* cloneComponent(const std::string& ID, const std::string& newID);
 
         /// \brief Method to remove components with 'ID'
         /// 
