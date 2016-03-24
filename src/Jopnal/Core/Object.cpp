@@ -43,10 +43,12 @@ namespace jop
         // Object
         JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }

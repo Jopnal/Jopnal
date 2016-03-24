@@ -96,6 +96,8 @@ namespace jop
 
         /// \brief Function to set components unique identifier m_ID
         ///
+        /// \comm setID
+        ///
         void setID(const std::string& ID);
 
         /// \brief Get the object this component is bound to

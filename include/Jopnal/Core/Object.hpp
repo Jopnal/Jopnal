@@ -128,10 +128,14 @@ namespace jop
         /// 
         /// \param ID Unique object identifier m_ID
         ///
+        /// \comm removeComponents
+        /// 
         void removeComponents(const std::string& ID);
 
         /// \brief Remove all components
         ///
+        /// \comm clearComponents
+        /// 
         void clearComponents();
 
         /// \brief Get amount of components
@@ -173,12 +177,16 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
+        /// \comm cloneChild
+        /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
         /// \copydoc cloneChild(const std::string&, const std::string&)
         ///
         /// \param newTransform 
         ///
+        /// \comm cloneChild_OverLoaded
+        /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
 
 
@@ -187,10 +195,14 @@ namespace jop
         ///
         /// \param ID The id to search with
         ///
+        /// \comm removeChild
+        /// 
         void removeChildren(const std::string& ID);
 
         /// \brief Remove all children
         ///
+        /// \comm clearChild
+        /// 
         void clearChildren();
 
         /// \brief Get amount of children
@@ -215,6 +227,8 @@ namespace jop
         /// into account the parent's tranformation.
         ///
         /// \param ignore The flag to set
+        ///
+        /// \comm setIgnoreParent
         ///
         void setIgnoreParent(const bool ignore);
 
@@ -253,6 +267,8 @@ namespace jop
         ///
         /// \param active Activity flag to set
         ///
+        /// \comm setActive
+        /// 
         void setActive(const bool active);
 
         /// \brief Check if this object is active
@@ -272,6 +288,8 @@ namespace jop
         ///
         /// \param ID unique object identifier
         ///
+        /// \comm setID
+        /// 
         void setID(const std::string& ID);
 
 

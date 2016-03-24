@@ -99,6 +99,8 @@ namespace jop
         ///
         /// \param group The new group to set
         ///
+        /// \comm setRenderGroup
+        ///
         void setRenderGroup(const uint8 group);
 
         /// \brief Get the render group
@@ -114,6 +116,8 @@ namespace jop
         ///
         /// \param model Reference to the model
         /// \param loadMaterialShader Automatically load the shader from ShaderManager?
+        ///
+        /// \comm setModel
         ///
         Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
 
@@ -132,6 +136,8 @@ namespace jop
         ///
         /// \param shader Reference to the shader
         ///
+        /// \comm setShader
+        ///
         Drawable& setShader(Shader& shader);
 
         /// \brief Get the shader
@@ -144,6 +150,8 @@ namespace jop
         /// \brief Set whether or not this drawable receives lights
         ///
         /// \param receive True to receive lights
+        ///
+        /// \comm setReceiveLights
         ///
         void setReceiveLights(const bool receive);
 
@@ -166,6 +174,8 @@ namespace jop
         /// \brief Set the flag to receive shadows
         ///
         /// \param receive True to set this to receive shadows
+        ///
+        /// \comm setReceiveShadows
         ///
         void setReceiveShadows(const bool receive);
 
