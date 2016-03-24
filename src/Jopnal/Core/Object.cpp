@@ -414,4 +414,33 @@ namespace jop
         for (auto& i : m_children)
             i.updateTransformTree(this, parentUpdated);
     }
+
+    /////////////////////////////////////////////
+
+    Object& Object::cloneComponent(const WeakReference<Object> other, const std::string& ID)
+    {
+        auto& i = *other->getComponent(ID);     
+        if (&i != NULL)
+        m_components.emplace_back(std::unique_ptr<Component>(i.clone(*this)));
+        else
+            JOP_DEBUG_ERROR("Error in cloning component " << ID<<" from object "<<other->getID()<<" to object "<<getID());
+
+        return *this;
+    }
+
+    /////////////////////////////////////////////
+
+    Object& Object::cloneComponent(const std::string& ID, const std::string& newID)
+    {
+        auto& i = *getComponent(ID);
+        if (&i != NULL)
+        {
+            m_components.emplace_back(std::unique_ptr<Component>(i.clone(*this)));
+            m_components.back()->setID(newID);
+        }
+        else
+            JOP_DEBUG_ERROR("Error in duplicating component " << ID<<" at object "<<getID());
+
+        return *this;
+    }
 }

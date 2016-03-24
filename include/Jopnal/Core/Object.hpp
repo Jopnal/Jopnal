@@ -112,6 +112,18 @@ namespace jop
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
 
+        /// \brief Template function to clones component from anothere object
+        ///
+        /// \param Object to clone from and id of component to clone
+        ///
+        Object& cloneComponent(WeakReference<Object>, const std::string& ID);
+
+        /// \brief Template function to duplicates component
+        ///
+        /// \param Components id and created clone's id
+        ///
+        Object& cloneComponent(const std::string& ID, const std::string& newID);
+
         /// \brief Method to remove components with 'ID'
         /// 
         /// \param ID Unique object identifier m_ID
