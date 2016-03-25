@@ -31,12 +31,6 @@ namespace jop
         : CollisionShape(name)
     {}
 
-    InfinitePlaneShape::InfinitePlaneShape(const std::string& name, const glm::vec3& normal)
-        : CollisionShape(name)
-    {
-        load(normal);
-    }
-
     //////////////////////////////////////////////
 
     bool InfinitePlaneShape::load(const glm::vec3& normal)

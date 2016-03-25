@@ -370,7 +370,7 @@ namespace jop
 
     Message::Result Object::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags) && message.passFilter(Message::Command))
         {
             Any instance(this);
             if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)

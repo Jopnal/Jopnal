@@ -166,8 +166,12 @@ namespace jop
         const T& operator *() const;
 
 
+        /// \copydoc operator*()
+        ///
         operator T&();
 
+        /// \copydoc operator*()
+        ///
         operator const T&() const;
 
 
@@ -199,7 +203,6 @@ namespace jop
     private:
 
         std::weak_ptr<T*> m_ref;    ///< The bound reference
-
     };
 
     // Include the template implementation file

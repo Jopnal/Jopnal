@@ -122,6 +122,10 @@ namespace jop
         void draw() override;
 
 
+        /// \brief Bind this window for drawing
+        ///
+        /// \return True if successful
+        ///
         bool bind() const override;
 
 

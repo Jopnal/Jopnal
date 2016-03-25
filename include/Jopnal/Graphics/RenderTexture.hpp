@@ -161,6 +161,10 @@ namespace jop
         ///
         const Texture* getDepthTexture() const;
 
+        /// \brief Get the OpenGL frame buffer handle
+        ///
+        /// \return The OpenGL frame buffer handle
+        ///
         unsigned int getFramebufferHandle() const;
 
     private:

@@ -31,12 +31,6 @@ namespace jop
         : CollisionShape(name)
     {}
 
-    BoxShape::BoxShape(const std::string& name, const float size)
-        : CollisionShape(name)
-    {
-        load(size);
-    }
-
     //////////////////////////////////////////////
 
     bool BoxShape::load(const float size)

@@ -327,7 +327,7 @@ namespace jop
             mainSize = m_renderTexture.getSize();
 
         const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
-        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize));
+        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;
 
         glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
     }

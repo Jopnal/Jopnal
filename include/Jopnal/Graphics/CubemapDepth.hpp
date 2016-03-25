@@ -52,11 +52,16 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const unsigned int bytes);
 
+
+        /// \brief Get the texture size
+        ///
+        /// \return The size
+        ///
         glm::uvec2 getSize() const override;
 
     private:
 
-        glm::uvec2 m_size;
+        glm::uvec2 m_size;      ///< Size
         unsigned int m_bytes;   ///< Bytes per pixel
     };
 }

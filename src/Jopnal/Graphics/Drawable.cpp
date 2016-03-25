@@ -43,9 +43,7 @@ namespace jop
           m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
           m_rendererRef     (renderer),
           m_renderGroup     (0),
-          m_receiveLights   (true),
-          m_receiveShadows  (true),
-          m_castShadows     (true)
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
         renderer.bind(*this);
     }
@@ -56,9 +54,7 @@ namespace jop
           m_shader          (other.m_shader),
           m_rendererRef     (other.m_rendererRef),
           m_renderGroup     (other.m_renderGroup),
-          m_receiveLights   (other.m_receiveLights),
-          m_receiveShadows  (other.m_receiveShadows),
-          m_castShadows     (other.m_castShadows)
+          m_flags           (other.m_flags)
     {
         m_rendererRef.bind(*this);
     }
@@ -148,14 +144,14 @@ namespace jop
 
     void Drawable::setReceiveLights(const bool receive)
     {
-        m_receiveLights = receive;
+        m_flags = (receive ? m_flags | ReceiveLights : m_flags & ~(ReceiveLights));
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::receiveLights() const
     {
-        return m_receiveLights;
+        return (m_flags & ReceiveLights) != 0;
     }
 
     //////////////////////////////////////////////
@@ -170,28 +166,42 @@ namespace jop
 
     void Drawable::setReceiveShadows(const bool receive)
     {
-        m_receiveShadows = receive;
+        m_flags = (receive ? m_flags | ReceiveShadows : m_flags & ~(ReceiveShadows));
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::receiveShadows() const
     {
-        return m_receiveShadows;
+        return (m_flags & ReceiveShadows) != 0;
     }
 
     //////////////////////////////////////////////
 
     void Drawable::setCastShadows(const bool cast)
     {
-        m_castShadows = cast;
+        m_flags = (cast ? m_flags | CastShadows : m_flags & ~(CastShadows));
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::castShadows() const
     {
-        return m_castShadows;
+        return (m_flags & CastShadows) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setReflected(const bool reflected)
+    {
+        m_flags = (reflected ? m_flags | Reflected : m_flags & ~(Reflected));
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::isReflected() const
+    {
+        return (m_flags & Reflected) != 0;
     }
 
     //////////////////////////////////////////////

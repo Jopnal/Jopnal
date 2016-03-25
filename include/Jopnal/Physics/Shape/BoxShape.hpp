@@ -41,13 +41,6 @@ namespace jop
         ///
         BoxShape(const std::string& name);
 
-        /// \brief Constructor
-        /// 
-        /// \param name Name of the resource
-        /// \param size Size of the box
-        ///
-        BoxShape(const std::string& name, const float size);
-
 
         /// \brief Load this shape
         ///

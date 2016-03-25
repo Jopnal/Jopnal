@@ -74,7 +74,7 @@ namespace jop
         for (auto drawable : rend.m_drawables)
         {
             uint32 drawableBit = 1 << drawable->getRenderGroup();
-            if (!drawable->isActive() || (m_mask & drawableBit) == 0)
+            if (!drawable->isActive() || !drawable->isReflected() || (m_mask & drawableBit) == 0)
                 continue;
 
             auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);

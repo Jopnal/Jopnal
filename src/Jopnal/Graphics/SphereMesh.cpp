@@ -85,12 +85,6 @@ namespace jop
         : Mesh(name)
     {}
 
-    SphereMesh::SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
-        : Mesh(name)
-    {
-        load(radius, rings, sectors, normalizedTexCoords);
-    }
-
     //////////////////////////////////////////////
 
     bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)

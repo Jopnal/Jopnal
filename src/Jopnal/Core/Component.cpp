@@ -67,7 +67,7 @@ namespace jop
 
     Message::Result Component::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Component, getID()))
+        if (message.passFilter(Message::Component) && message.passFilter(getID()))
         {
             if (message.passFilter(Message::Command))
             {

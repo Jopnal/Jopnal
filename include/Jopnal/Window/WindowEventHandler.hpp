@@ -60,6 +60,13 @@ namespace jop
         ///
         virtual void closed();
 
+        /// \brief Resize callback
+        ///
+        /// This will be called if/when the window frame buffer size changes
+        ///
+        /// \param newWidth The new width
+        /// \param newHeight The new height
+        ///
         virtual void resized(const unsigned int newWidth, const unsigned int newHeight);
 
         /// \brief Focus lost callback

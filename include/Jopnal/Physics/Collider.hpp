@@ -30,12 +30,8 @@
 //////////////////////////////////////////////
 
 
-class btCollisionObject;
 class btMotionState;
-namespace detail
-{
-    struct GhostCallback;
-}
+class btCollisionObject;
 
 namespace jop
 {
@@ -70,10 +66,32 @@ namespace jop
 
     public:
 
+        /// \brief Check if this collider overlaps with another
+        ///
+        /// This will compare the axis-aligned bounding boxes. To check if two
+        /// colliders are actually touching, use checkContact().
+        ///
+        /// \param other The other collider to check against
+        ///
+        /// \return True if the two colliders are overlapping
+        ///
         bool checkOverlap(const Collider& other) const;
 
+        /// \brief Check if this collider is in contact with another
+        ///
+        /// \param other The other collider to check against
+        ///
+        /// \return True if the two colliders are in contact
+        ///
         bool checkContact(const Collider& other) const;
 
+        /// \brief Check if a ray pierces this collider
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        ///
+        /// \return True if the ray pierces this collider
+        ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
     private:

@@ -43,13 +43,6 @@ namespace jop
         ///
         RectangleMesh(const std::string& name);
 
-        /// \brief Creates a rectangle model
-        ///
-        /// \param name Name of the rectangle
-        /// \param size Size of the rectangle
-        ///
-        RectangleMesh(const std::string& name, const float size);
-
 
         /// \brief Load this rectangle
         ///
