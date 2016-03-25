@@ -263,7 +263,7 @@ namespace jop
         if (!m_shadowMap.bind() || !shdr.bind())
             return false;
 
-        m_shadowMap.clear();
+        m_shadowMap.clear(RenderTarget::DepthBit);
 
         // Use the object's scale to construct the frustum
         auto scl = getObject()->getScale();

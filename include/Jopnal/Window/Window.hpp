@@ -231,7 +231,6 @@ namespace jop
 
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
-
     };
 
     // Include the template implementation file

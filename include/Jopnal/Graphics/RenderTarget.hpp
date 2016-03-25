@@ -57,7 +57,9 @@ namespace jop
         virtual ~RenderTarget() = 0;
 
 
-        void clear(const unsigned int bits = AllBit);
+        virtual void postUpdate(const float deltaTime) override;
+
+        void clear(const unsigned int bits);
 
         virtual bool bind() const = 0;
 

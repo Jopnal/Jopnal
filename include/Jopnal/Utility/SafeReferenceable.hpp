@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Assert.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -163,6 +164,11 @@ namespace jop
         /// \copydoc operator*()
         ///
         const T& operator *() const;
+
+
+        operator T&();
+
+        operator const T&() const;
 
 
         /// \copydoc get()

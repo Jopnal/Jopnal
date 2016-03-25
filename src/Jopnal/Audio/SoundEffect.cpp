@@ -139,8 +139,10 @@ namespace jop
 
     SoundEffect& SoundEffect::setOffset(const float time)
     {
-        sf::Time t(sf::seconds(time));
-        static_cast<sf::Sound*>(m_sound.get())->setPlayingOffset(t);
+        auto& sound = *static_cast<sf::Sound*>(m_sound.get());
+
+        sf::Time t(sf::seconds(glm::clamp(time, 0.f, sound.getBuffer()->getDuration().asSeconds())));
+        sound.setPlayingOffset(t);
 
         return *this;
     }
@@ -191,7 +193,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundEffect& SoundEffect::setPersonalSpeed(float speed)
+    SoundEffect& SoundEffect::setPersonalSpeed(const float speed)
     {
         m_personalSpeed = speed;
         return *this;
@@ -221,14 +223,13 @@ namespace jop
     {
         if ((m_speedCounter -= deltaTime) <= 0.0f)
         {
-            if (static_cast<sf::Sound*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
+            if (getStatus() == Status::Playing)
             {
                 if (m_resetSound)
-                {
                     m_playOnce = false;
-                }
                 else
                     static_cast<sf::Sound*>(m_sound.get())->play();
+
                 m_playOnce = false;
             }
             else

@@ -62,12 +62,6 @@ namespace jop
         /// \param other The other object to copy
         /// \param newName The ID of the new object
         ///
-        Object(const Object& other, const std::string& newID);
-
-        /// \copydoc Object(const Object&,const std::string&)
-        ///
-        /// \param newTransform Transform for the new object
-        ///
         Object(const Object& other, const std::string& newID, const Transform& newTransform);
 
         /// \brief Move constructor
@@ -81,6 +75,7 @@ namespace jop
         /// \param other The other object to move
         ///
         Object& operator =(Object&& other);
+
 
         /// \brief Get a component with the given id
         ///
@@ -153,6 +148,15 @@ namespace jop
         ///
         WeakReference<Object> getChild(const std::string& ID);
 
+        /// \brief Adopt a child
+        ///
+        /// This will move the child onto this object and remove it from its old parent.
+        /// If the child's parent is equal to this, this function does nothing.
+        ///
+        /// \param child The child to adopt
+        ///
+        /// \return Reference to the adopted child. The old reference will become invalid
+        ///
         WeakReference<Object> adoptChild(Object& child);
 
         /// \brief Get all children
@@ -182,16 +186,28 @@ namespace jop
 
         /// \brief Remove children with the given id
         ///
+        /// The children will actually be removed only at the beginning of the next update call.
+        ///
         /// \param ID The id to search with
         ///
         void removeChildren(const std::string& ID);
 
         /// \brief Remove all children
         ///
+        /// the children will be removed immediately.
+        ///
         void clearChildren();
 
+        /// \brief Mark this to be removed
+        ///
+        /// The object will be actually removed at the beginning of the next update call.
+        ///
         void removeSelf();
 
+        /// \brief Check if this object has been marked to be removed
+        ///
+        /// \return True if this is to be removed
+        ///
         bool isRemoved() const;
 
         /// \brief Get amount of children
@@ -225,13 +241,33 @@ namespace jop
         ///
         bool ignoresParent() const;
 
+        /// \brief Get this object's parent
+        ///
+        /// If the result is empty, it means that this is a scene.
+        ///
+        /// \return Reference to the parent
+        ///
         WeakReference<Object> getParent() const;
 
+        /// \brief Set a new parent
+        ///
+        /// This is equivalent to calling newParent.adoptChild(this)
+        ///
+        /// \param newParent The new parent
+        ///
+        /// \return Reference to this. The old reference will become invalid
+        ///
         WeakReference<Object> setParent(Object& newParent);
 
 
+        /// \brief Get the scene this objects is bound to
+        ///
+        /// \return Reference to the scene
+        ///
         Scene& getScene();
 
+        /// \copydoc getScene
+        ///
         const Scene& getScene() const;
 
 
@@ -359,12 +395,14 @@ namespace jop
 
     private:
 
-        std::vector<Object> m_children;                       ///< Container holding this object's children
-        std::vector<std::unique_ptr<Component>> m_components; ///< Container holding components
-        std::unordered_set<std::string> m_tags;               ///< Container holding tags
-        std::string m_ID;                                     ///< Unique object identifier
-        WeakReference<Object> m_parent;
-        unsigned char m_flags;
+        void sweepRemoved();
+
+        std::vector<Object> m_children;                         ///< Container holding this object's children
+        std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
+        std::unordered_set<std::string> m_tags;                 ///< Container holding tags
+        std::string m_ID;                                       ///< Unique object identifier
+        WeakReference<Object> m_parent;                         ///< The parent
+        unsigned char m_flags;                                  ///< Flags
     };
 
     // Include the template implementation file

@@ -97,9 +97,16 @@ namespace jop
         Message::Result sendMessage(const Message& message);
 
 
+        /// \brief Set this sub system active
+        ///
+        /// \param active True to set active
+        ///
         void setActive(const bool active);
 
-
+        /// \brief Check if this sub system is active
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
 
 

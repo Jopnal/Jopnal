@@ -62,6 +62,11 @@ namespace
     int getCastValue<int>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an int): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return val.GetInt();
     }
 
@@ -69,6 +74,11 @@ namespace
     unsigned int getCastValue<unsigned int>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an unsigned int): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return val.GetUint();
     }
 
@@ -76,6 +86,11 @@ namespace
     float getCastValue<float>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a float): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return static_cast<float>(val.GetDouble());
     }
 
@@ -83,6 +98,11 @@ namespace
     double getCastValue<double>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a double): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return val.GetDouble();
     }
 
@@ -90,6 +110,11 @@ namespace
     bool getCastValue<bool>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsBool(), "Setting type not convertible! (asked for a bool): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return val.GetBool();
     }
 
@@ -97,6 +122,11 @@ namespace
     std::string getCastValue<std::string>(const rj::Value& val, const std::string& name)
     {
         JOP_ASSERT(val.IsString(), "Setting type not convertible! (asked for an string): " + name);
+
+    #ifndef JOP_ENABLE_ASSERTS
+        name;
+    #endif
+
         return std::string(val.GetString());
     }
 

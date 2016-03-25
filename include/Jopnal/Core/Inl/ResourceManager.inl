@@ -103,6 +103,10 @@ namespace detail
     {
         static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
 
+    #ifndef JOP_ENABLE_ASSERTS
+        instance;
+    #endif
+
         JOP_ASSERT(instance != nullptr, "Tried to load a resource without there being a valid ResourceManager instance!");
     }
 }

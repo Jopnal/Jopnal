@@ -52,7 +52,7 @@ namespace jop
 
     SoundSource& SoundSource::setVolume(const float vol)
     {
-        m_sound->setVolume(vol);
+        m_sound->setVolume(glm::clamp(vol, 0.f, 100.f));
         return *this;
     }
 
@@ -97,7 +97,7 @@ namespace jop
 
     SoundSource& SoundSource::setAttenuation(const float at)
     {
-        m_sound->setAttenuation(at);
+        m_sound->setAttenuation(glm::clamp(at, 0.f, 100.f));
         return *this;
     }
 
@@ -105,7 +105,7 @@ namespace jop
 
     SoundSource& SoundSource::setMinDistance(const float min)
     {
-        m_sound->setMinDistance(min);
+        m_sound->setMinDistance(std::max(1.f, min));
         return *this;
     }
 

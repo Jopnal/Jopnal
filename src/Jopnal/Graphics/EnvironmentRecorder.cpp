@@ -67,7 +67,7 @@ namespace jop
 
         auto& rend = m_rendererRef;
 
-        m_fbo.clear();
+        m_fbo.clear(RenderTarget::ColorBit | RenderTarget::DepthBit);
 
         Shader* lastShader = nullptr;
 

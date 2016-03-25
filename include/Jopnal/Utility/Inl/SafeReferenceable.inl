@@ -47,16 +47,19 @@ SafeReferenceable<T>::SafeReferenceable(T* ref)
 
 template<typename T>
 SafeReferenceable<T>::SafeReferenceable(SafeReferenceable<T>&& other)
-    : m_ref(other.m_ref)
+    : m_ref(std::move(other.m_ref))
 {
-    *m_ref = static_cast<T*>(this);
+    if (m_ref)
+        *m_ref = static_cast<T*>(this);
 }
 
 template<typename T>
 SafeReferenceable<T>& SafeReferenceable<T>::operator =(SafeReferenceable<T>&& other)
 {
-    m_ref = other.m_ref;
-    *m_ref = static_cast<T*>(this);
+    m_ref = std::move(other.m_ref);
+
+    if (m_ref)
+        *m_ref = static_cast<T*>(this);
 
     return *this;
 }
@@ -125,6 +128,22 @@ const T& WeakReference<T>::operator *() const
 //////////////////////////////////////////////
 
 template<typename T>
+WeakReference<T>::operator T&()
+{
+    return *(*this);
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+WeakReference<T>::operator const T&() const
+{
+    return *(*this);
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
 T* WeakReference<T>::operator ->()
 {
     return get();
@@ -143,7 +162,7 @@ const T* WeakReference<T>::operator ->() const
 template<typename T>
 WeakReference<T>::operator bool() const
 {
-    return !m_ref.expired();
+    return !expired();
 }
 
 //////////////////////////////////////////////

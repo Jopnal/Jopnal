@@ -81,16 +81,20 @@ Any::Any(const T& data)
     : m_data(std::make_unique<Data<T>>(data))
 {}
 
+#ifdef JOP_ENABLE_ASSERTS
 inline void invalidCastMessage(const bool valid, const std::type_info& from, const std::type_info& to)
 {
     JOP_ASSERT(valid, "Tried to cast an empty Any object");
     JOP_ASSERT(from == to, "Tried to do an invalid Any cast from " + std::string(from.name()) + " to " + std::string(to.name()));
 }
+#endif
 
 template<typename T>
 T& Any::cast()
 {
+#ifdef JOP_ENABLE_ASSERTS
     invalidCastMessage(isValid(), getType(), typeid(T));
+#endif
 
     return static_cast<Data<T>*>(m_data.get())->getData();
 }
@@ -98,7 +102,9 @@ T& Any::cast()
 template<typename T>
 const T& Any::cast() const
 {
+#ifdef JOP_ENABLE_ASSERTS
     invalidCastMessage(isValid(), getType(), typeid(T));
+#endif
 
     return static_cast<const Data<T>*>(m_data.get())->getData();
 }
