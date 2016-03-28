@@ -53,7 +53,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::create(const ColorAttachment color, const glm::uvec2& size, const DepthAttachment depth, const StencilAttachment stencil)
+    bool RenderTexture::create(const glm::uvec2& size, const ColorAttachment color, const DepthAttachment depth, const StencilAttachment stencil)
     {
         auto getDepthEnum = [](const DepthAttachment dpth) -> GLenum
         {

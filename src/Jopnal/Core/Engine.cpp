@@ -119,6 +119,7 @@ namespace jop
             eng.m_totalTime += frameTime;
 
             frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
+            frameTime = std::min(0.1f, frameTime);
 
             eng.m_advanceFrame = false;
 

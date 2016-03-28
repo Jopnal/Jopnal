@@ -335,15 +335,15 @@ namespace jop
     //////////////////////////////////////////////
 
     bool Camera::enableRenderTexture(const bool enable,
-                                     const RenderTexture::ColorAttachment color,
                                      const glm::uvec2& size,
+                                     const RenderTexture::ColorAttachment color,
                                      const RenderTexture::DepthAttachment depth,
                                      const RenderTexture::StencilAttachment stencil)
     {
         if (enable != m_renderTexture.isValid())
         {
             if (enable)
-                return m_renderTexture.create(color, size, depth, stencil);
+                return m_renderTexture.create(size, color, depth, stencil);
             else
                 m_renderTexture.destroy();
         }

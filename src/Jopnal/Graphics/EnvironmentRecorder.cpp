@@ -36,7 +36,10 @@ namespace jop
     {
         static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 128);
 
-        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution), RenderTexture::DepthAttachment::Texture16);
+        using ca = RenderTexture::ColorAttachment;
+        using da = RenderTexture::DepthAttachment;
+
+        m_fbo.create(glm::uvec2(mapResolution), ca::RGBACube, da::Texture16);
 
         m_rendererRef.bind(*this);
     }

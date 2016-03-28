@@ -255,8 +255,8 @@ namespace jop
         /// \return True if set/unset successfully
         ///
         bool enableRenderTexture(const bool enable,
+                                 const glm::uvec2& size = glm::uvec2(0),
                                  const RenderTexture::ColorAttachment color = RenderTexture::ColorAttachment::RGBA2D,
-                                 const glm::uvec2& size = glm::uvec2(1),
                                  const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
                                  const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
 
