@@ -24,10 +24,6 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Material.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 #include <vector>
 

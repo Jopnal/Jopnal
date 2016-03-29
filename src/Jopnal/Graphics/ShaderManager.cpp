@@ -108,15 +108,15 @@ namespace jop
             str += "#define JMAT_MATERIAL\n";
         
         // Diffuse map
-        if ((attrib & m::Diffusemap) != 0)
+        if ((attrib & m::DiffuseMap) != 0)
             str += "#define JMAT_DIFFUSEMAP\n";
 
         // Specular map
-        if ((attrib & m::Specularmap) != 0)
+        if ((attrib & m::SpecularMap) != 0)
             str += "#define JMAT_SPECULARMAP\n";
 
         // Emission map
-        if ((attrib & m::Emissionmap) != 0)
+        if ((attrib & m::EmissionMap) != 0)
             str += "#define JMAT_EMISSIONMAP\n";
 
         // Environment map

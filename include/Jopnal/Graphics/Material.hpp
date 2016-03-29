@@ -51,14 +51,21 @@ namespace jop
         {
             enum : AttribType
             {
+                // Misc
                 AmbientConstant = 1,
                 Material        = 1 << 1,
-                Diffusemap      = 1 << 2,
-                Specularmap     = 1 << 3,
-                Emissionmap     = 1 << 4,
+
+                // Maps
+                DiffuseMap      = 1 << 2,
+                SpecularMap     = 1 << 3,
+                EmissionMap     = 1 << 4,
                 EnvironmentMap  = 1 << 5,
                 ReflectionMap   = 1 << 6,
-                Phong           = 1 << 7,
+
+                // Lighting models
+                Phong           = 1 << 12,
+                // BlinnPhong TODO
+                // Gouraud TODO
 
                 // For internal functionality, do not use
                 RecordEnv       = 1u << 31,
