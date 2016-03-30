@@ -89,13 +89,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RigidBody::setActive(const bool active)
-    {
-        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
-    }
-
-    //////////////////////////////////////////////
-
     RigidBody& RigidBody::setGravity(const glm::vec3& acceleration)
     {
         m_rigidBody->setGravity(btVector3(acceleration.x, acceleration.y, acceleration.z));
@@ -220,5 +213,19 @@ namespace jop
         m_rigidBody->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void RigidBody::clearForces()
+    {
+        m_rigidBody->clearForces();
+    }
+
+    //////////////////////////////////////////////
+
+    void RigidBody::setActive(const bool active)
+    {
+        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
 }

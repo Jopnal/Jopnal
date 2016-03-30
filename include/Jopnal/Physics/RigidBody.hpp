@@ -157,7 +157,9 @@ namespace jop
         ///
         RigidBody& applyCentralImpulse(const glm::vec3& impulse);
 
-        /// \brief Clear all the forces
+        /// \brief Clear all the forces affecting this body
+        ///
+        void clearForces();
 
     private:
 
