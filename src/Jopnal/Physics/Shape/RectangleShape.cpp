@@ -20,21 +20,41 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    RectangleShape::RectangleShape(const std::string& name)
+        : CollisionShape(name)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool RectangleShape::load(const float size)
+    {
+        return load(glm::vec2(size));
+    }
+
+    //////////////////////////////////////////////
+
+    bool RectangleShape::load(const glm::vec2& extents)
+    {
+        const glm::vec2 half = extents * 0.5f;
+
+        const btVector3 points[] =
+        {
+            btVector3( -half.x, -half.y, 0.f),
+            btVector3(  half.x, -half.y, 0.f),
+            btVector3(  half.x,  half.y, 0.f),
+            btVector3( -half.x,  half.x, 0.f)
+        };
+
+        m_shape = std::make_unique<btConvexHullShape>(points[0].operator const btScalar*(), 4);
+        m_shape->setUserPointer(this);
+
+        return true;
+    }
+}

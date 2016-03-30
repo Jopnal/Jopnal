@@ -20,21 +20,36 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    CompoundShape::CompoundShape(const std::string& name)
+        : CollisionShape(name)
+    {
+        m_shape = std::make_unique<btCompoundShape>();
+        m_shape->setUserPointer(this);
+    }
+
+    //////////////////////////////////////////////
+
+    void CompoundShape::addChild(CollisionShape& childShape, const Transform& childTransform)
+    {
+        if (!childShape.m_shape)
+        {
+            JOP_DEBUG_ERROR("Compound shape \"" << getName() << "\": Tried to add an empty child shape");
+            return;
+        }
+
+        auto shape = static_cast<btCompoundShape*>(m_shape.get());
+
+        auto& r = childTransform.getRotation();
+        auto& p = childTransform.getPosition();
+        const btTransform transform(btQuaternion(r.x, r.y, r.z, r.w), btVector3(p.x, p.y, p.z));
+
+        shape->addChildShape(transform, childShape.m_shape.get());
+    }
+}

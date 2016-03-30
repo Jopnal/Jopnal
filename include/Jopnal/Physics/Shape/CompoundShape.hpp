@@ -19,22 +19,38 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_COMPOUNDSHAPE_HPP
+#define JOP_COMPOUNDSHAPE_HPP
+
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class Transform;
+
+    class JOP_API CompoundShape final : public CollisionShape
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
+        CompoundShape(const std::string& name);
+
+
+        /// \brief Add a child shape
+        ///
+        /// \param childShape Reference to a valid shape
+        /// \param childTransform Local transform for the child
+        ///
+        void addChild(CollisionShape& childShape, const Transform& childTransform);
+    };
+}
+
+#endif

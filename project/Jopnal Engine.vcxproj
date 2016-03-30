@@ -77,7 +77,12 @@
     <ClInclude Include="..\include\Jopnal\Physics\Collider.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\RigidBody.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CapsuleShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConeShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CylinderShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\InfinitePlaneShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\RectangleShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\World.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape.hpp" />
@@ -154,7 +159,12 @@
     <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CapsuleShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CompoundShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConeShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CylinderShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\InfinitePlaneShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\RectangleShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\World.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape.cpp" />

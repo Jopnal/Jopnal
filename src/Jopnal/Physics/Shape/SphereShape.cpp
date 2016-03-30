@@ -35,7 +35,7 @@ namespace jop
 
     bool SphereShape::load(const float radius)
     {
-        m_shape = std::make_unique<btSphereShape>(radius * 0.5f);
+        m_shape = std::make_unique<btSphereShape>(radius);
         m_shape->setUserPointer(this);
         
         return true;

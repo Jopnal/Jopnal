@@ -348,6 +348,21 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp">
       <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\RectangleShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CapsuleShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConeShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CylinderShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -543,6 +558,21 @@
       <Filter>Audio\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\RectangleShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CapsuleShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConeShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CylinderShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CompoundShape.cpp">
       <Filter>Physics\Source\Shape</Filter>
     </ClCompile>
   </ItemGroup>

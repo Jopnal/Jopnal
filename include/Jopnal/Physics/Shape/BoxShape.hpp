@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
 

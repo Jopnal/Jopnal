@@ -19,22 +19,38 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_CYLINDERSHAPE_HPP
+#define JOP_CYLINDERSHAPE_HPP
+
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API CylinderShape final : public CollisionShape
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
+        CylinderShape(const std::string& name);
+
+
+        /// \brief Load this shape using different extents
+        ///
+        /// \param extents Extents of the cylinder
+        ///
+        /// \return True if successful
+        ///
+        bool load(const glm::vec3& extents);
+    };
+}
+
+#endif

@@ -20,21 +20,24 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    CylinderShape::CylinderShape(const std::string& name)
+        : CollisionShape(name)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool CylinderShape::load(const glm::vec3& extents)
+    {
+        m_shape = std::make_unique<btCylinderShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
+        m_shape->setUserPointer(this);
+
+        return true;
+    }
+}
