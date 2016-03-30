@@ -180,19 +180,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::getChild(const std::string& ID)
-    {
-        for (auto& i : m_children)
-        {
-            if (i.getID() == ID)
-                return i.getReference();
-        }
-
-        return WeakReference<Object>();
-    }
-
-    //////////////////////////////////////////////
-
     WeakReference<Object> Object::adoptChild(Object& child)
     {
         JOP_ASSERT(!child.getParent().expired(), "You must not reparent a scene!");
@@ -222,7 +209,7 @@ namespace jop
 
     WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID)
     {
-        auto ptr = getChild(ID);
+        auto ptr = findChild(ID);
 
         if (!ptr.expired())
         {
@@ -240,7 +227,7 @@ namespace jop
 
     WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform)
     {
-        auto ptr = getChild(ID);
+        auto ptr = findChild(ID);
 
         if (!ptr.expired())
         {
@@ -400,47 +387,67 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::findChild(const std::string& ID, const bool recursive, const bool strict)
+    namespace detail
     {
+        bool findChildStrict(const std::string& childID, const std::string& findID)
+        {
+            return childID == findID;
+        }
+
+        bool findChildLoose(const std::string& childID, const std::string& findID)
+        {
+            return childID.find(findID) != std::string::npos;
+        }
+    }
+
+    WeakReference<Object> Object::findChild(const std::string& ID, const bool recursive, const bool strict) const
+    {
+        auto method = strict ? &detail::findChildStrict : &detail::findChildLoose;
+
         for (auto& i : m_children)
         {
-            if (strict ? i.getID() == ID : i.getID().find(ID) != std::string::npos)
+            if (method(i.getID(), ID))
                 return i.getReference();
 
             if (recursive)
             {
-                auto ref = i.findChild(ID, recursive, strict);
+                auto ref = i.findChild(ID, true, strict);
+
                 if (!ref.expired())
                     return ref;
             }
         }
+
         return WeakReference<Object>();
     }
 
 
     /////////////////////////////////////////////
 
-    std::vector<WeakReference<Object>> Object::findChildren(const std::string &ID, const bool recursive, const bool strict)
+    std::vector<WeakReference<Object>> Object::findChildren(const std::string& ID, const bool recursive, const bool strict) const
     {
+        auto method = strict ? &detail::findChildStrict : &detail::findChildLoose;
+
         std::vector<WeakReference<Object>> vec;
 
         for (auto& i : m_children)
         {
-            if (strict ? i.getID() == ID : i.getID().find(ID) != std::string::npos)
+            if (method(i.getID(), ID))
                 vec.push_back(i.getReference());
 
             if (recursive)
             {
-                auto ref = i.findChildren(ID, recursive, strict);
+                auto ref = i.findChildren(ID, true, strict);
                 vec.insert(vec.end(), ref.begin(), ref.end());
             }
         }
+
         return vec;
     }
 
     /////////////////////////////////////////////
 
-    std::vector<WeakReference<Object>> Object::findChildrenWithTag(const std::string tag, const bool recursive)
+    std::vector<WeakReference<Object>> Object::findChildrenWithTag(const std::string& tag, const bool recursive) const
     {
         std::vector<WeakReference<Object>> vec;
 
@@ -451,16 +458,17 @@ namespace jop
 
             if (recursive)
             {
-                auto ref = i.findChildrenWithTag(tag, recursive);
+                auto ref = i.findChildrenWithTag(tag, true);
                 vec.insert(vec.end(), ref.begin(), ref.end());
             }
         }
+
         return vec;
     }
 
     /////////////////////////////////////////////
 
-    WeakReference<Object> Object::findChild(const std::string& path)
+    WeakReference<Object> Object::findChildWithPath(const std::string& path) const
     {
         if (!path.empty())
         {
@@ -563,7 +571,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::removeTag(const std::string tag)
+    void Object::removeTag(const std::string& tag)
     {
         m_tags.erase(tag);
     }

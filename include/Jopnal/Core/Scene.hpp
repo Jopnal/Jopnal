@@ -51,7 +51,6 @@ namespace jop
         using Object::componentCount;
 
         using Object::createChild;
-        using Object::getChild;
         using Object::getChildren;
         using Object::cloneChild;
         using Object::removeChildren;
@@ -59,6 +58,7 @@ namespace jop
         using Object::childCount;
         using Object::childCountRecursive;
         using Object::findChild;
+        using Object::findChildWithPath;
         using Object::findChildren;
         using Object::findChildrenWithTag;
 

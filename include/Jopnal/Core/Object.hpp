@@ -140,14 +140,6 @@ namespace jop
         ///
         WeakReference<Object> createChild(const std::string& ID);
 
-        /// \brief Get a child with the given id
-        ///
-        /// \param ID The id to search with
-        ///
-        /// \return Pointer to the child if found, nullptr otherwise
-        ///
-        WeakReference<Object> getChild(const std::string& ID);
-
         /// \brief Adopt a child
         ///
         /// This will move the child onto this object and remove it from its old parent.
@@ -302,7 +294,7 @@ namespace jop
         ///
         /// \return Objects child reference, nullptr otherwise
         ///
-        WeakReference<Object> findChild(const std::string& ID, const bool recursive, const bool strict);
+        WeakReference<Object> findChild(const std::string& ID, const bool recursive = false, const bool strict = true) const;
 
         /// \brief Function to find all child objects 
         /// 
@@ -312,7 +304,7 @@ namespace jop
         ///
         /// \return Vector consisting all objects children, nullptr otherwise
         ///
-        std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict);
+        std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict) const;
 
         /// \brief Finds children by given tag
         ///
@@ -321,7 +313,7 @@ namespace jop
         ///
         /// \return vector consisting objects children, nullptr otherwise
         ///
-        std::vector<WeakReference<Object>> findChildrenWithTag(const std::string tag, const bool recursive);
+        std::vector<WeakReference<Object>> findChildrenWithTag(const std::string& tag, const bool recursive) const;
 
         /// \brief finds children from path
         /// 
@@ -329,7 +321,7 @@ namespace jop
         ///
         /// \return Weak reference to child
         //
-        WeakReference<Object> findChild(const std::string& path);
+        WeakReference<Object> findChildWithPath(const std::string& path) const;
 
         /// \brief Makes path to children including all parents
         ///
@@ -371,7 +363,7 @@ namespace jop
         ///
         /// \param tag Name of the removable tag 
         ///
-        void removeTag(const std::string tag);
+        void removeTag(const std::string& tag);
 
         /// \brief Clears m_tags set
         ///
@@ -379,7 +371,7 @@ namespace jop
 
         /// \brief Finds out if object has tag name tag
         ///
-        bool hasTag(const std::string& tag)const;
+        bool hasTag(const std::string& tag) const;
 
         /// \brief Update method for object - forwarded for its components
         ///

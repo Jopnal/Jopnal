@@ -71,7 +71,7 @@ SafeReferenceable<T>::~SafeReferenceable()
 //////////////////////////////////////////////
 
 template<typename T>
-WeakReference<T> SafeReferenceable<T>::getReference() const
+inline WeakReference<T> SafeReferenceable<T>::getReference() const
 {
     return WeakReference<T>(*this);
 }
@@ -81,14 +81,14 @@ WeakReference<T> SafeReferenceable<T>::getReference() const
 
 
 template<typename T>
-WeakReference<T>::WeakReference(const SafeReferenceable<T>& ref)
+inline WeakReference<T>::WeakReference(const SafeReferenceable<T>& ref)
     : m_ref(ref.m_ref)
 {}
 
 //////////////////////////////////////////////
 
 template<typename T>
-bool WeakReference<T>::expired() const
+inline bool WeakReference<T>::expired() const
 {
     return m_ref.expired();
 }
@@ -96,7 +96,7 @@ bool WeakReference<T>::expired() const
 //////////////////////////////////////////////
 
 template<typename T>
-T* WeakReference<T>::get()
+inline T* WeakReference<T>::get()
 {
     return *m_ref.lock();
 }
@@ -104,7 +104,7 @@ T* WeakReference<T>::get()
 //////////////////////////////////////////////
 
 template<typename T>
-const T* WeakReference<T>::get() const
+inline const T* WeakReference<T>::get() const
 {
     return *m_ref.lock();
 }
@@ -112,7 +112,7 @@ const T* WeakReference<T>::get() const
 //////////////////////////////////////////////
 
 template<typename T>
-T& WeakReference<T>::operator *()
+inline T& WeakReference<T>::operator *()
 {
     return **m_ref.lock();
 }
@@ -120,7 +120,7 @@ T& WeakReference<T>::operator *()
 //////////////////////////////////////////////
 
 template<typename T>
-const T& WeakReference<T>::operator *() const
+inline const T& WeakReference<T>::operator *() const
 {
     return **m_ref.lock();
 }
@@ -128,7 +128,7 @@ const T& WeakReference<T>::operator *() const
 //////////////////////////////////////////////
 
 template<typename T>
-WeakReference<T>::operator T&()
+inline WeakReference<T>::operator T&()
 {
     return *(*this);
 }
@@ -136,7 +136,7 @@ WeakReference<T>::operator T&()
 //////////////////////////////////////////////
 
 template<typename T>
-WeakReference<T>::operator const T&() const
+inline WeakReference<T>::operator const T&() const
 {
     return *(*this);
 }
@@ -144,7 +144,7 @@ WeakReference<T>::operator const T&() const
 //////////////////////////////////////////////
 
 template<typename T>
-T* WeakReference<T>::operator ->()
+inline T* WeakReference<T>::operator ->()
 {
     return get();
 }
@@ -152,7 +152,7 @@ T* WeakReference<T>::operator ->()
 //////////////////////////////////////////////
 
 template<typename T>
-const T* WeakReference<T>::operator ->() const
+inline const T* WeakReference<T>::operator ->() const
 {
     return get();
 }
@@ -160,7 +160,7 @@ const T* WeakReference<T>::operator ->() const
 //////////////////////////////////////////////
 
 template<typename T>
-WeakReference<T>::operator bool() const
+inline WeakReference<T>::operator bool() const
 {
     return !expired();
 }
@@ -168,7 +168,7 @@ WeakReference<T>::operator bool() const
 //////////////////////////////////////////////
 
 template<typename T>
-WeakReference<T>& WeakReference<T>::operator =(const SafeReferenceable<T>& other)
+inline WeakReference<T>& WeakReference<T>::operator =(const SafeReferenceable<T>& other)
 {
     m_ref = other.m_ref;
     return *this;
