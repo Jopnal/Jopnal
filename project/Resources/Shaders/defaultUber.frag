@@ -175,6 +175,9 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
         #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #endif
         ;
 
         // Normal vector
@@ -205,7 +208,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -268,6 +271,9 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
         #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #endif
         ;
 
         // Normal vector
@@ -300,7 +306,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -368,6 +374,9 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
         #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #endif
         ;
 
         // Normal vector
@@ -398,7 +407,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
