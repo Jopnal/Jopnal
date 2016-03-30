@@ -58,19 +58,49 @@ namespace jop
             KinematicSensor ///< User-animated
         };
 
+        /// Rigid body construction info
+        ///
+        class JOP_API ConstructInfo
+        {
+        private:
+
+            JOP_DISALLOW_COPY_MOVE(ConstructInfo);
+
+            friend class RigidBody;
+
+        public:
+
+            /// \brief Constructor
+            ///
+            /// \param shape The collision shape
+            /// \param type Body type
+            /// \param mass Mass, will default to 0 when type is static or kinematic
+            ///
+            ConstructInfo(const CollisionShape& shape, const Type type = Type::Static, const float mass = 0.f);
+
+            int16 group;            ///< Collision filter group
+            int16 mask;             ///< Collision filter mask
+
+            float friction;         ///< Friction
+            float rollingFriction;  ///< Rolling friction
+            float restitution;      ///< Restitution
+
+        private:
+
+            const CollisionShape& m_shape;  ///< Collision shape
+            const Type m_type;              ///< Body type
+            const float m_mass;             ///< Mass
+        };
+
     public:
 
         /// \brief Constructor
         ///
         /// \param object Reference to the object
         /// \param world The physics world
-        /// \param shape The collision shape
-        /// \param type Body type
-        /// \param mass Mass, will default to 0 when type is static or kinematic
-        /// \param group Collision group
-        /// \param mask Collision mask
+        /// \param info Construction info
         ///
-        RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type = Type::Static, const float mass = 0.f, const int16 group = 1, const int16 mask = 1);
+        RigidBody(Object& object, World& world, const ConstructInfo& info);
 
         /// \brief Destructor
         ///
@@ -173,7 +203,7 @@ namespace jop
 
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass
-        btRigidBody* m_rigidBody;    ///< Unique rigidbody identifier
+        btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
     };
 }
 

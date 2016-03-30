@@ -27,31 +27,48 @@
 
 namespace jop
 {
-    RigidBody::RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type, const float mass, const int16 group, const int16 mask)
+    RigidBody::ConstructInfo::ConstructInfo(const CollisionShape& shape, const Type type, const float mass)
+        : group             (1),
+          mask              (1),
+          friction          (0.5f),
+          rollingFriction   (0.f),
+          restitution       (0.f),
+          m_shape           (shape),
+          m_type            (type),
+          m_mass            ((type == Type::Dynamic) * mass)
+    {}
+
+    //////////////////////////////////////////////
+
+    RigidBody::RigidBody(Object& object, World& world, const ConstructInfo& info)
         : Collider                  (object, world, "rigidbody"),
-          m_type                    (type),
-          m_mass                    (type == Type::Dynamic ? mass : 0.f),
+          m_type                    (info.m_type),
+          m_mass                    (info.m_mass),
           m_rigidBody               (nullptr)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
-        if (type == Type::Dynamic)
-            shape.m_shape->calculateLocalInertia(mass, inertia);
-
-        auto rb = std::make_unique<btRigidBody>(m_mass, m_motionState.get(), shape.m_shape.get(), inertia);
+        if (m_type == Type::Dynamic)
+            info.m_shape.m_shape->calculateLocalInertia(m_mass, inertia);
         
-        if (type == Type::Kinematic || type == Type::KinematicSensor)
+        btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), info.m_shape.m_shape.get(), inertia);
+        constInfo.m_friction = info.friction;
+        constInfo.m_rollingFriction = info.rollingFriction;
+        constInfo.m_restitution = info.restitution;
+
+        auto rb = std::make_unique<btRigidBody>(constInfo);
+        
+        if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)
             rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
         else
             object.setIgnoreParent(true);
 
         // Remove contact response if body is a sensor
-        if (type > Type::Kinematic)
+        if (m_type > Type::Kinematic)
             rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
-        m_worldRef.m_worldData->world->addRigidBody(rb.get(), group, mask);
+        m_worldRef.m_worldData->world->addRigidBody(rb.get(), info.group, info.mask);
 
         m_rigidBody = rb.get();
-
         rb->setUserPointer(this);
         m_body = std::move(rb);
         
@@ -68,7 +85,12 @@ namespace jop
         if (m_type == Type::Dynamic)
             other.m_body->getCollisionShape()->calculateLocalInertia(m_mass, inertia);
 
-        auto rb = std::make_unique<btRigidBody>(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), inertia);
+        btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), inertia);
+        constInfo.m_friction = other.m_body->getFriction();
+        constInfo.m_rollingFriction = other.m_body->getRollingFriction();
+        constInfo.m_restitution = other.m_body->getRestitution();
+
+        auto rb = std::make_unique<btRigidBody>(constInfo);
         rb->setCollisionFlags(other.m_body->getCollisionFlags());
 
         auto bpHandle = other.m_body->getBroadphaseHandle();
@@ -228,4 +250,5 @@ namespace jop
     {
         m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
+
 }
