@@ -28,9 +28,10 @@
 namespace jop
 {
     RigidBody::RigidBody(Object& object, World& world, const CollisionShape& shape, const Type type, const float mass, const int16 group, const int16 mask)
-        : Collider  (object, world, "rigidbody"),
-          m_type    (type),
-          m_mass    (type == Type::Dynamic ? mass : 0.f)
+        : Collider                  (object, world, "rigidbody"),
+          m_type                    (type),
+          m_mass                    (type == Type::Dynamic ? mass : 0.f),
+          m_rigidBody               (nullptr)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (type == Type::Dynamic)
@@ -48,7 +49,9 @@ namespace jop
             rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), group, mask);
-        
+
+        m_rigidBody = rb.get();
+
         rb->setUserPointer(this);
         m_body = std::move(rb);
         
@@ -56,9 +59,10 @@ namespace jop
     }
 
     RigidBody::RigidBody(const RigidBody& other, Object& newObj)
-        : Collider  (other, newObj),
-          m_type    (other.m_type),
-          m_mass    (other.m_mass)
+        : Collider                  (other, newObj),
+          m_type                    (other.m_type),
+          m_mass                    (other.m_mass),
+          m_rigidBody               (nullptr)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -70,6 +74,7 @@ namespace jop
         auto bpHandle = other.m_body->getBroadphaseHandle();
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), bpHandle->m_collisionFilterGroup, bpHandle->m_collisionFilterMask);
 
+        m_rigidBody = rb.get();
         rb->setUserPointer(this);
         m_body = std::move(rb);
 
@@ -87,5 +92,133 @@ namespace jop
     void RigidBody::setActive(const bool active)
     {
         m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::setGravity(const glm::vec3& acceleration)
+    {
+        m_rigidBody->setGravity(btVector3(acceleration.x, acceleration.y, acceleration.z));
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 RigidBody::getGravity()const
+    {
+        auto& gg = m_rigidBody->getGravity();
+        return glm::vec3(gg.x(), gg.y(), gg.z());
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::setLinearFactor(const glm::vec3& linearFactor)
+    {
+        m_rigidBody->setLinearFactor(btVector3(linearFactor.x, linearFactor.y, linearFactor.z));
+        return *this;
+    }
+    
+    //////////////////////////////////////////////
+
+    glm::vec3 RigidBody::getLinearFactor()const
+    {
+        auto& glf = m_rigidBody->getLinearFactor();
+        return glm::vec3(glf.x(), glf.y(), glf.z());
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::setAngularFactor(const glm::vec3& angularFactor)
+    {
+        m_rigidBody->setAngularFactor(btVector3(angularFactor.x, angularFactor.y, angularFactor.z));
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 RigidBody::getAngularFactor()const
+    {
+        auto& gaf = m_rigidBody->getAngularFactor();
+        return glm::vec3(gaf.x(), gaf.y(), gaf.z());
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyForce(const glm::vec3& force, const glm::vec3& rel_pos)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyForce(btVector3(force.x, force.y, force.z), btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyImpulse(btVector3(impulse.x, impulse.y, impulse.z), btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyTorque(const glm::vec3& torque)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyTorque(btVector3(torque.x, torque.y, torque.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyTorqueImpulse(const glm::vec3& torque)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyTorqueImpulse(btVector3(torque.x, torque.y, torque.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::setLinearVelocity(const glm::vec3& linearVelocity)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->setLinearVelocity(btVector3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::setAngularVelocity(const glm::vec3& angularVelocity)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->setAngularVelocity(btVector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyCentralForce(const glm::vec3& force)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyCentralForce(btVector3(force.x, force.y, force.z));
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody& RigidBody::applyCentralImpulse(const glm::vec3& impulse)
+    {
+        m_rigidBody->activate();
+        m_rigidBody->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
+
+        return *this;
     }
 }

@@ -35,7 +35,14 @@ namespace jop
 
     bool BoxShape::load(const float size)
     {
-        m_shape = std::make_unique<btBoxShape>(btVector3(size, size, size) * 0.5f);
+        return load(glm::vec3(size));
+    }
+
+    //////////////////////////////////////////////
+
+    bool BoxShape::load(const glm::vec3& extents)
+    {
+        m_shape = std::make_unique<btBoxShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
         m_shape->setUserPointer(this);
 
         return true;

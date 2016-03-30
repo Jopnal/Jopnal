@@ -19,17 +19,37 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_SPHERESHAPE_HPP
+#define JOP_SPHERESHAPE_HPP
+
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API SphereShape final : public CollisionShape
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
+        SphereShape(const std::string& name);
+
+
+        /// \brief Load this shape
+        ///
+        /// \param radius size of the spheres radius
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float radius);
+    };
+}
+
+#endif

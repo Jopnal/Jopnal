@@ -175,6 +175,13 @@ bool ResourceManager::resourceExists(const std::string& name)
     detail::basicErrorCheck<T>(m_instance);
 
     auto itr = m_instance->m_resources.find(name);
+
+#ifdef JOP_DEBUG_MODE
+
+    if (itr != m_instance->m_resources.end() && typeid(T) != typeid(*itr->second))
+        JOP_DEBUG_WARNING("Tried to get resource \"" << name << "\" (type: \"" << typeid(*itr->second).name() << "\"), asking for type \"" << typeid(T).name() << "\". This is not supported and might lead to errors, even if type is convertible");
+
+#endif
     
     return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
 }

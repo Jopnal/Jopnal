@@ -345,6 +345,9 @@
     <ClInclude Include="..\include\Jopnal\Audio\SoundStream.hpp">
       <Filter>Audio\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -538,6 +541,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
       <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
