@@ -35,9 +35,6 @@ namespace jop
         FT_Error err = FT_Init_FreeType(&m_library);
         if (err)
             JOP_DEBUG_ERROR("Could not initialize freetype: " << err);
-
-        if (path != "")
-            load(path);
     }
 
     Font::~Font()
@@ -56,13 +53,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Font::load(const std::string& path)
+    float Font::getPixelSize()
     {
+        return static_cast<float>(m_pixelSize);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Font::load(const std::string& path, const int pixelSize)
+    {
+        if (m_loaded)
+        {
+            return true;
+        }
+        m_pixelSize = pixelSize;
+
         // Create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
         m_nodes = new stbrp_node[1024];
         m_numNodes = 1024;
-        m_texture.load(1024, 1024, 1);
+        m_texture.load(m_pixelSize * 32, m_pixelSize * 32, 1);
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_nodes, m_numNodes);
 
         // Load font data from file
@@ -77,7 +87,7 @@ namespace jop
             FT_Select_Charmap(m_face, ft_encoding_unicode);
 
             // Set glyph size in pixels
-            FT_Set_Pixel_Sizes(m_face, 64, 64);
+            FT_Set_Pixel_Sizes(m_face, m_pixelSize, m_pixelSize);
             error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
             JOP_ASSERT(!error, "Failure selecting charmap!");
 
@@ -86,6 +96,7 @@ namespace jop
             // Create default glyph
             unsigned char data[4] = { 255, 255, 255, 255 };
 
+            gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
             m_texture.setPixels(0, 0, 2, 2, data);
 
             std::pair<glm::ivec2, glm::ivec2> bounds;
@@ -101,12 +112,12 @@ namespace jop
             if (rectangle.was_packed != 0)
             {
                 GlState::setBlendFunc(true);
-                m_texture.setPixels(rectangle.x, rectangle.y, rectangle.w, rectangle.h, data);
                 m_bitmaps[0] = bounds;
             }
             else
                 JOP_DEBUG_ERROR("Failure creating white rectangle!");
 
+            m_loaded = true;
             return true;
         }
         return false;
@@ -132,7 +143,7 @@ namespace jop
 
     float Font::getKerning(const int codepoint1, const int codepoint2)
     {
-        FT_Set_Pixel_Sizes(m_face, 0, 64);
+        FT_Set_Pixel_Sizes(m_face, 0, m_pixelSize);
         FT_Vector vector;
         FT_Get_Kerning(m_face, FT_Get_Char_Index(m_face, codepoint1), FT_Get_Char_Index(m_face, codepoint2), FT_KERNING_DEFAULT, &vector);
         return vector.x;

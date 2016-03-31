@@ -61,7 +61,7 @@ namespace jop
         ///
         /// \param path Path to desired .ttf font file
         ///
-        bool load(const std::string& path);
+        bool load(const std::string& path, const int pixelSize);
 
         /// \brief Calculates font boundaries
         ///
@@ -88,8 +88,14 @@ namespace jop
         ///
         Texture2D& getTexture();
 
+        /// \brief Returns pixel size 
+        ///
+        float getPixelSize();
+
 
 	private:
+        bool m_loaded = false;
+        int m_pixelSize = 64;
         FT_LibraryRec_* m_library; ///< Freetype library
         FT_FaceRec_* m_face; ///< Font info
         Texture2D m_texture; ///< Texture

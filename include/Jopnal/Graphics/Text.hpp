@@ -38,20 +38,43 @@ namespace jop
         :public GenericDrawable, private Mesh
     {
     public:
+
+        /// \brief Constructor
+        ///
+        /// \param object Parent
+        /// \param renderer Renderer
+        ///
         Text(Object& object, Renderer& renderer);
         
-        void setString(const std::string &string); //generates vertices
-        //void draw(const Camera&, const LightContainer&)override;
-        void setPosition(const glm::vec2 position);
+        /// \brief Set string that is displayed
+        ///
+        /// \param string text
+        ///
+        void setString(const std::wstring& string);
+
+        /// \brief Set string that is displayed and calculate vertex positions
+        ///
+        /// \param string text
+        ///
+        void setString(const std::string& string);
+
+        /// \brief Set font
+        ///
+        /// \param font Font
+        ///
         void setFont(Font& font);
-        void setScale(const float x, const float y);
-        void setScale(glm::vec2 scale);
+
+        /// \brief Set color
+        ///
+        /// \param color Color
+        ///
+        void setColor(Color color);
+
     private:
         WeakReference<Font> m_font;
         Material m_material;
-        glm::vec2 m_position;
-        glm::vec2 m_size;
-        std::string m_string;
+        std::wstring m_string;
+        Color m_color = Color::White;
     };
 }
 

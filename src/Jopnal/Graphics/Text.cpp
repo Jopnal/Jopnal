@@ -29,18 +29,21 @@ namespace jop
     Text::Text(Object& object, Renderer& renderer)
         :GenericDrawable(object, renderer),
         Mesh(""),
-        m_material("", Material::Attribute::Diffusemap),
-        m_size(10, 10)
+        m_material("", Material::Attribute::Diffusemap)
     {
 
     }
 
-    void Text::setPosition(const glm::vec2 position)
-    {
-        m_position = position;
-    }
+    //////////////////////////////////////////////
 
     void Text::setString(const std::string &string)
+    {
+        setString(std::wstring(string.begin(), string.end()));
+    }
+
+    //////////////////////////////////////////////
+
+    void Text::setString(const std::wstring &string)
     {
         m_string = string;
 
@@ -49,49 +52,52 @@ namespace jop
         float x = 0, y = 0;
         int previous = -1;
 
-        for (auto i : string)
+        for (auto i : m_string)
         {
-            if (i == ' ')
+            if (i == L' ')
             {
-                x += (1.0 / 64.0);
+                x += (1.0 / 128.0);
                 previous = -1;
                 continue;
             }
-            else if (i == '\n')
+            else if (i == L'\n')
             {
                 x = 1.0 / 256.0;
-                y -= 1.0 / 16.0;
+                y -= 1.0 / 24.0;
                 continue;
             }
-            //init ints
+            //init variables
             int bitmapX = 0;
             int bitmapY = 0;
 
             int bitmapWidth = 0;
             int bitmapHeight = 0;
 
-            glm::vec2 glyphOrigin;
             float kerning = 0.01;
 
             if (previous != -1)
             {
-                kerning = 1.0 / 256.0;//m_font->getKerning(previous, i);
+                kerning = 1.0 / 256.0;
+                //kerning not working... fix later if there's time
+                //m_font->getKerning(previous, i);
             }
             previous = i;
 
             //get bitmap location and size inside the texture in pixels
             m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
+            //get font texture
             Texture2D& tex = m_font->getTexture();
 
+            //get font origo
             std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
 
-            metrics.first.x /= (32 * tex.getWidth());
-            metrics.first.y /= (32 * tex.getHeight());
-            metrics.second.x /= (64 * tex.getWidth());
-            metrics.second.y /= (64 * tex.getHeight());
+            metrics.first.x /= (32.f * (64.f / m_font->getPixelSize()) * tex.getWidth());
+            metrics.first.y /= (32.f * (64.f / m_font->getPixelSize()) * tex.getHeight());
+            //metrics.second.x /= (64 * tex.getWidth());
+            //metrics.second.y /= (64 * tex.getHeight());
 
-
+            //calculate coordinates
             glm::vec2 glyphPos;
             glyphPos.x = (float)bitmapX / (float)tex.getWidth();
             glyphPos.y = (float)bitmapY / (float)tex.getHeight();
@@ -102,29 +108,35 @@ namespace jop
 
             x += kerning;
 
+            //calculate vertex positions
+            //top left
             Vertex v;
-            v.position.x = (x + metrics.first.x) * m_size.x;
-            v.position.y = (y + metrics.first.y) * m_size.y;
+            v.position.x = (x + metrics.first.x);
+            v.position.y = (y + metrics.first.y);
             v.position.z = 0;
             v.texCoords.x = glyphPos.x;
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
 
-            v.position.y = (y + metrics.first.y - glyphSize.y) * m_size.y;
+            //bottom left
+            v.position.y = (y + metrics.first.y - glyphSize.y);
             v.texCoords.y = glyphPos.y + glyphSize.y;
             vertices.push_back(v);
 
-            v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / tex.getWidth()) * m_size.x;
+            //bottom right
+            v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / tex.getWidth());
             v.texCoords.x = glyphPos.x + glyphSize.x;
             vertices.push_back(v);
             vertices.push_back(v);
 
-            v.position.y = (y + metrics.first.y) * m_size.y;
+            //top right
+            v.position.y = (y + metrics.first.y);
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
 
-            v.position.x = (x + metrics.first.x) * m_size.x;
-            v.position.y = (y + metrics.first.y) * m_size.y;
+            //top left
+            v.position.x = (x + metrics.first.x);
+            v.position.y = (y + metrics.first.y);
             v.texCoords.x = glyphPos.x;
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
@@ -133,12 +145,15 @@ namespace jop
             x += (float)bitmapWidth / (float)tex.getWidth();
         }
 
+        //load vertices to mesh and set material
         Mesh::load(vertices, std::vector<unsigned int>());
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setAttributeField(Material::Attribute::OpacityMap);
-        m_material.setReflection(Material::Reflection::Solid, Color::Orange);
+        m_material.setReflection(Material::Reflection::Solid, m_color);
         GenericDrawable::setModel(Model(*this, m_material));
     }
+
+    //////////////////////////////////////////////
 
     void Text::setFont(Font& font)
     {
@@ -146,14 +161,11 @@ namespace jop
         setString(m_string);
     }
 
-    void Text::setScale(const float x, const float y)
-    {
-        setScale(glm::vec2(x, y));
-    }
+    //////////////////////////////////////////////
 
-    void Text::setScale(glm::vec2 scale)
+    void Text::setColor(Color color)
     {
-        m_size = scale;
+        m_color = color;
         setString(m_string);
     }
 }
