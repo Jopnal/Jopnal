@@ -62,7 +62,7 @@ namespace jop
 
             struct
             {
-                float fov;          ///< The vertical field of view
+                float fov;          ///< The vertical field of view in radians
                 float aspectRatio;  ///< The aspect ratio
             } perspective;
         };
@@ -205,7 +205,7 @@ namespace jop
 
         /// \brief Set the vertical field of view
         ///
-        /// The minimum value is 1 and maximum 179.
+        /// The minimum value is glm::radians(1) and maximum glm::radians(179).
         /// The value will be clamped inside this range.
         ///
         /// \comm setFieldOfView

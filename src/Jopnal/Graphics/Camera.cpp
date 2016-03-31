@@ -134,7 +134,7 @@ namespace jop
         else
         {
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
-            setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
+            setFieldOfView(SettingManager::getFloat("fPerspCameraFovYRad", glm::radians(55.f)));
             setSize(x, y);
         }
 
@@ -175,7 +175,7 @@ namespace jop
             else
             {
                 const auto& p = m_projData.perspective;
-                m_projectionMatrix = glm::perspective(glm::radians(p.fov), p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
+                m_projectionMatrix = glm::perspective(p.fov, p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
             }
 
             m_projectionNeedUpdate = false;
