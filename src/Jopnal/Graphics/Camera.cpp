@@ -358,4 +358,17 @@ namespace jop
     {
         return m_renderTexture;
     }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Camera::getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const
+    {
+        return glm::normalize(glm::unProject
+               (
+                   glm::vec3(glm::vec2(mouseCoords.x, target.getSize().y - mouseCoords.y), -1.f),
+                   getViewMatrix() * getObject()->getMatrix(),
+                   getProjectionMatrix(),
+                   glm::vec4(glm::vec2(0.f), glm::vec2(target.getSize()))
+               ));
+    }
 }

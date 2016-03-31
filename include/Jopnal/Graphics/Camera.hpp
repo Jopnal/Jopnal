@@ -281,6 +281,18 @@ namespace jop
         ///
         const RenderTexture& getRenderTexture() const;
 
+
+        /// \brief Get a ray for mouse picking purposes
+        ///
+        /// The resulting ray is normalized
+        ///
+        /// \param mouseCoords Mouse coordinates. Origin is assumed to be in the upper left corner
+        /// \param target The render target (main usually). This is used to get the correct view port dimensions
+        ///
+        /// \return Normalized ray pointing from camera to the pointed position
+        ///
+        glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
+
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
