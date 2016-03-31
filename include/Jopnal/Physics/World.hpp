@@ -85,6 +85,8 @@ namespace jop
 
         /// \brief Enable/disable debug drawing
         ///
+        /// \comm setWorldDebugMode
+        ///
         /// \param enable True to enable
         ///
         void setDebugMode(const bool enable);
@@ -97,8 +99,8 @@ namespace jop
 
     private:
 
-        std::unique_ptr<detail::WorldImpl> m_worldData; ///< The world data
-        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;
+        std::unique_ptr<detail::WorldImpl> m_worldData;             ///< The world data
+        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback
     };
 }
 

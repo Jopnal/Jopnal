@@ -25,6 +25,15 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Component, World)
+
+        JOP_BIND_MEMBER_COMMAND(&World::setDebugMode, "setWorldDebugMode");
+
+    JOP_END_COMMAND_HANDLER(World)
+}
+
 #ifdef JOP_DEBUG_MODE
 namespace detail
 {
