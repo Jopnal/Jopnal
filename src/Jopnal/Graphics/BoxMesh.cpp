@@ -66,20 +66,6 @@ namespace jop
           m_size    (0.f)
     {}
 
-    BoxMesh::BoxMesh(const std::string& name, const float size)
-        : Mesh      (name),
-          m_size    (0.f)
-    {
-        load(size);
-    }
-
-    BoxMesh::BoxMesh(const std::string& name, const float size, const bool invert)
-        : Mesh      (name),
-          m_size    (0.f)
-    {
-        load(size, invert);
-    }
-
     //////////////////////////////////////////////
 
     bool BoxMesh::load(const float size)

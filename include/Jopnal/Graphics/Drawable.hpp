@@ -45,6 +45,14 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Drawable);
 
+        enum
+        {
+            ReceiveLights = 1,
+            ReceiveShadows = 1 << 1,
+            CastShadows = 1 << 2,
+            Reflected = 1 << 3
+        };
+
     protected:
 
         Drawable(const Drawable& other, Object& newObj);
@@ -189,6 +197,8 @@ namespace jop
         /// 
         /// \param cast True to set this to cast shadows
         ///
+        /// \comm setCastShadows
+        ///
         void setCastShadows(const bool cast);
 
         /// \brief Check if this drawable casts shadows
@@ -196,6 +206,21 @@ namespace jop
         /// \return True if this drawable casts shadows
         ///
         bool castShadows() const;
+
+
+        /// \brief Set whether or not this drawable should be reflected in dynamic environment maps
+        ///
+        /// \param reflected True to set this to be reflected
+        ///
+        /// \comm setReflected
+        ///
+        void setReflected(const bool reflected);
+
+        /// \brief Check if this drawable is reflected in dynamic environment maps
+        ///
+        /// \return True if this is reflected
+        ///
+        bool isReflected() const;
 
 
         /// \brief Load the state
@@ -228,10 +253,7 @@ namespace jop
         WeakReference<Shader> m_shader; ///< The bound shader
         Renderer& m_rendererRef;        ///< Reference to the renderer
         uint8 m_renderGroup;            ///< The render group
-        bool m_receiveLights;           ///< Does this drawable receive lights?
-        bool m_receiveShadows;          ///< Does this drawable receive shadows?
-        bool m_castShadows;             ///< Does this drawable cast shadows?
-        
+        unsigned char m_flags;          ///< Property flags
     };
 }
 

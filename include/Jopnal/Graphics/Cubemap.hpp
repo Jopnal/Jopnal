@@ -35,21 +35,47 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of this resource
+        ///
         Cubemap(const std::string& name);
 
 
+        /// \brief Load a cube map from files
+        ///
+        /// \param right Right side
+        /// \param left Left side
+        /// \param top Top side
+        /// \param bottom Bottom side
+        /// \param back Back side
+        /// \param front Front side
+        ///
+        /// \return True if successful
+        ///
         bool load(const std::string& right, const std::string& left,
                   const std::string& top, const std::string& bottom,
                   const std::string& back, const std::string& front);
 
+        /// \brief Load an empty cobe map
+        ///
+        /// \param size The size of a single face
+        /// \param bpp The pixel depth in bytes
+        ///
+        /// \return True if successful
+        ///
         bool load(const glm::uvec2& size, const unsigned int bpp);
 
+        /// \brief Get the texture size
+        ///
+        /// \return The size
+        ///
         glm::uvec2 getSize() const override;
 
     private:
 
-        glm::uvec2 m_size;
-        unsigned int m_bytesPerPixel;
+        glm::uvec2 m_size;              ///< Size
+        unsigned int m_bytesPerPixel;   ///< Pixel depth in bytes
 
     };
 }

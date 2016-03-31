@@ -26,12 +26,15 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Material;
+
     class JOP_API Mesh : public Resource
     {
     public:

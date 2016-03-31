@@ -24,22 +24,28 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    Listener::Listener(Object& object, const std::string& ID)
-        :Component(object, ID)
+    JOP_DERIVED_COMMAND_HANDLER(Component, Listener)
+
+        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+
+    JOP_END_COMMAND_HANDLER(Listener)
+}
+
+namespace jop
+{
+    Listener::Listener(Object& object)
+        : Component(object, "listener")
     {}
 
     Listener::Listener(const Listener& other, Object& newObj)
         : Component(other, newObj)
-    {}
+    {
+        JOP_DEBUG_WARNING("jop::Listener component is not meant to be copied, sounds will likely not behave correctly");
+    }
 
-    //////////////////////////////////////////////
-
-    Listener::~Listener()
-    {}
-
-    //////////////////////////////////////////////
     //////////////////////////////////////////////
 
     void Listener::update(const float)
@@ -53,14 +59,14 @@ namespace jop
 
     ///////////////////////////////////////
 
-    void Listener::setGlobalVolume(float vol)
+    void Listener::setGlobalVolume(const float volume)
     {
-        sf::Listener::setGlobalVolume(vol);
+        sf::Listener::setGlobalVolume(glm::clamp(volume, 0.f, 100.f));
     }
 
     ///////////////////////////////////////
 
-    float Listener::getGlobalVolume()
+    float Listener::getGlobalVolume() const
     {
         return sf::Listener::getGlobalVolume();
     }

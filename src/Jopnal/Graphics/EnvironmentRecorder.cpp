@@ -28,7 +28,7 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
 
-    JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setRenderMask");
+        JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
 
     JOP_END_COMMAND_HANDLER(EnvironmentRecorder)
 }
@@ -44,7 +44,10 @@ namespace jop
     {
         static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 128);
 
-        m_fbo.create(RenderTexture::ColorAttachment::RGBACube, glm::ivec2(mapResolution), RenderTexture::DepthAttachment::Texture16);
+        using ca = RenderTexture::ColorAttachment;
+        using da = RenderTexture::DepthAttachment;
+
+        m_fbo.create(glm::uvec2(mapResolution), ca::RGBACube, da::Texture16);
 
         m_rendererRef.bind(*this);
     }
@@ -75,14 +78,14 @@ namespace jop
 
         auto& rend = m_rendererRef;
 
-        m_fbo.clear();
+        m_fbo.clear(RenderTarget::ColorBit | RenderTarget::DepthBit);
 
         Shader* lastShader = nullptr;
 
         for (auto drawable : rend.m_drawables)
         {
             uint32 drawableBit = 1 << drawable->getRenderGroup();
-            if (!drawable->isActive() || (m_mask & drawableBit) == 0)
+            if (!drawable->isActive() || !drawable->isReflected() || (m_mask & drawableBit) == 0)
                 continue;
 
             auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::RecordEnv);

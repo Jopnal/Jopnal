@@ -64,8 +64,6 @@ namespace jop
         ///
         void bind(const unsigned int texUnit = 1) const;
 
-        void unbind() const;
-
 
         /// \brief Bind a texture sampler
         ///
@@ -74,8 +72,17 @@ namespace jop
         void setSampler(const TextureSampler& sampler);
 
 
+        /// \brief Check if this texture is valid
+        ///
+        /// \return True if a valid texture handle exists
+        ///
         bool isValid() const;
 
+
+        /// \brief Get the texture size
+        ///
+        /// \return The size
+        ///
         virtual glm::uvec2 getSize() const = 0;
 
 
@@ -87,6 +94,11 @@ namespace jop
         ///
         static unsigned int getMaximumSize();
 
+        /// \brief Get the maximum texture unit value
+        ///
+        /// \return The maximum texture unit value. Sampler cannot be bound to
+        ///         texture units which have a greater number than this
+        ///
         static unsigned int getMaxTextureUnits();
 
 
@@ -106,7 +118,7 @@ namespace jop
 
         mutable WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
         mutable unsigned int m_texture;                         ///< The OpenGL handle
-        const unsigned int m_target;
+        const unsigned int m_target;                            ///< The OpenGL texture target
 
     };
 }

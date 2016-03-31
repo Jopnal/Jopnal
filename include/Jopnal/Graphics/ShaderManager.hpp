@@ -58,6 +58,11 @@ namespace jop
         ///
         static Shader& getShader(const Material::AttribType attributes);
 
+        /// \brief Get a pre-processor shader string
+        ///
+        /// \param attrib Material attributes
+        /// \param str The string to put the definitions into
+        ///
         static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
 
     private:

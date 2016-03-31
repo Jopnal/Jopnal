@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
 
@@ -41,13 +42,6 @@ namespace jop
         ///
         BoxShape(const std::string& name);
 
-        /// \brief Constructor
-        /// 
-        /// \param name Name of the resource
-        /// \param size Size of the box
-        ///
-        BoxShape(const std::string& name, const float size);
-
 
         /// \brief Load this shape
         ///
@@ -56,6 +50,14 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size);
+
+        /// \brief Load this shape using different extents
+        ///
+        /// \param extents Extents of the box
+        ///
+        /// \return True if successful
+        ///
+        bool load(const glm::vec3& extents);
     };
 }
 

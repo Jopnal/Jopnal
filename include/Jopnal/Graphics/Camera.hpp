@@ -71,8 +71,8 @@ namespace jop
         ///
         enum class Projection
         {
-            Orthographic,
-            Perspective
+            Orthographic,   ///< Usually used in 2D rendering
+            Perspective     ///< Usually used in 3D rendering
         };
 
     public:
@@ -124,6 +124,8 @@ namespace jop
         /// Failing to set the properties will cause the projection to
         /// malfunction.
         ///
+        /// \comm setProjectionMode
+        ///
         /// \param mode The mode to be set
         ///
         Camera& setProjectionMode(const Projection mode);
@@ -139,6 +141,8 @@ namespace jop
         ///
         /// In perspective projection the clipping planes need to be positive.
         /// Otherwise, the projection result is undefined.
+        ///
+        /// \comm setClippingPlanes
         ///
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
@@ -165,6 +169,8 @@ namespace jop
 
         /// \brief Brief set the size of the projection
         ///
+        /// \comm setSize
+        ///
         /// \param x The width
         /// \param y The height
         ///
@@ -181,6 +187,8 @@ namespace jop
         /// \brief Set the aspect ratio
         ///
         /// This call is only valid in perspective mode.
+        ///
+        /// \comm setAspectRatio
         ///
         /// \param ratio The new aspect ratio to be set
         ///
@@ -200,6 +208,8 @@ namespace jop
         /// The minimum value is 1 and maximum 179.
         /// The value will be clamped inside this range.
         ///
+        /// \comm setFieldOfView
+        ///
         /// \param fovY The new field of view value
         ///
         Camera& setFieldOfView(const float fovY);
@@ -211,43 +221,77 @@ namespace jop
         float getFieldOfView() const;
 
 
+        /// \brief Set the view port
         ///
+        /// The values are in relative coordinates. For example, [0.5,0.5] and [1.0,1.0]
+        /// will select the right half of the screen
         ///
-        Camera& setViewport(const glm::vec2& start, const glm::vec2& size);
+        /// \comm setViewport
+        ///
+        /// \param start The start coordinates
+        /// \param end The end coordinates
+        ///
+        /// \return Reference to self
+        ///
+        Camera& setViewport(const glm::vec2& start, const glm::vec2& end);
 
+        /// \brief Get the view port
         ///
+        /// first = start
+        /// second = size
+        ///
+        /// \see setViewport
+        ///
+        /// \return Reference to the view port
         ///
         const ViewPort& getViewport() const;
 
+        /// \brief Apply this camera's view port
         ///
+        /// \param mainTarget The main render target. This will be used to calculate the absolute coordinates
         ///
         void applyViewport(const RenderTarget& mainTarget) const;
 
 
+        /// \brief Set this camera to use a render texture
         ///
+        /// This will effectively cause whatever is drawn using this camera to render into the frame buffer.
+        ///
+        /// \param enable Enable the render texture? If this is false and a render texture already exists,
+        ///               it will be destroyed and the rest of the arguments are ignored
+        /// \param color The desired color attachment type
+        /// \param size Size of the render texture
+        /// \param depth The desired depth attachment type
+        /// \param stencil The desired stencil attachment
+        ///
+        /// \return True if set/unset successfully
         ///
         bool enableRenderTexture(const bool enable,
-                                 const RenderTexture::ColorAttachment color,
-                                 const glm::uvec2& size,
+                                 const glm::uvec2& size = glm::uvec2(0),
+                                 const RenderTexture::ColorAttachment color = RenderTexture::ColorAttachment::RGBA2D,
                                  const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
                                  const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
 
+        /// \brief Get the internal render texture
         ///
+        /// The returned RenderTexture will not be valid if it wasn't set before
+        /// by using enableRenderTexture().
+        ///
+        /// \return Reference to the render texture
         ///
         const RenderTexture& getRenderTexture() const;
 
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
-        RenderTexture m_renderTexture;
-        ViewPort m_viewPort;
+        RenderTexture m_renderTexture;          ///< RenderTexture used for off-screen rendering
+        ViewPort m_viewPort;                    ///< Viewport in relative coordinates
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
         Renderer& m_rendererRef;                ///< Reference to the renderer
         uint32 m_renderMask;                    ///< The render mask
         Projection m_mode;                      ///< Projection mode
         mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
-        
     };
 }
 

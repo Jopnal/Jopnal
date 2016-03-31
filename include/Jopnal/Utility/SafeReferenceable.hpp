@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Assert.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -103,7 +104,6 @@ namespace jop
     private:
 
         std::shared_ptr<T*> m_ref;  ///< The bound reference
-
     };
 
     //////////////////////////////////////////////
@@ -166,6 +166,15 @@ namespace jop
         const T& operator *() const;
 
 
+        /// \copydoc operator*()
+        ///
+        operator T&();
+
+        /// \copydoc operator*()
+        ///
+        operator const T&() const;
+
+
         /// \copydoc get()
         ///
         T* operator ->();
@@ -194,7 +203,6 @@ namespace jop
     private:
 
         std::weak_ptr<T*> m_ref;    ///< The bound reference
-
     };
 
     // Include the template implementation file

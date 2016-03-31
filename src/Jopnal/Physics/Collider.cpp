@@ -165,4 +165,12 @@ namespace jop
 
         return cb.hit;
     }
+
+    //////////////////////////////////////////////
+
+    void Collider::beginOverlap(const Collider&)
+    {}
+
+    void Collider::endOverlap(const Collider&)
+    {}
 }

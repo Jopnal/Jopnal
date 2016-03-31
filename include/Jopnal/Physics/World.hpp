@@ -30,7 +30,10 @@
 //////////////////////////////////////////////
 
 
-class btGhostPairCallback;
+namespace detail
+{
+    struct GhostCallback;
+}
 
 namespace jop
 {
@@ -95,6 +98,7 @@ namespace jop
     private:
 
         std::unique_ptr<detail::WorldImpl> m_worldData; ///< The world data
+        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;
     };
 }
 

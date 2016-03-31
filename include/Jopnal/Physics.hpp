@@ -26,6 +26,12 @@
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
+#include <Jopnal/Physics/Shape/SphereShape.hpp>
+#include <Jopnal/Physics/Shape/RectangleShape.hpp>
+#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
+#include <Jopnal/Physics/Shape/CylinderShape.hpp>
+#include <Jopnal/Physics/Shape/ConeShape.hpp>
+#include <Jopnal/Physics/Shape/CompoundShape.hpp>
 
 //////////////////////////////////////////////
 

@@ -119,7 +119,10 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool create(const ColorAttachment color, const glm::uvec2& size, const DepthAttachment depth = DepthAttachment::None, const StencilAttachment stencil = StencilAttachment::None);
+        bool create(const glm::uvec2& size,
+                    const ColorAttachment color = ColorAttachment::RGBA2D,
+                    const DepthAttachment depth = DepthAttachment::None,
+                    const StencilAttachment stencil = StencilAttachment::None);
 
         /// \brief Destroy this frame buffer
         ///
@@ -161,6 +164,10 @@ namespace jop
         ///
         const Texture* getDepthTexture() const;
 
+        /// \brief Get the OpenGL frame buffer handle
+        ///
+        /// \return The OpenGL frame buffer handle
+        ///
         unsigned int getFramebufferHandle() const;
 
     private:

@@ -232,8 +232,17 @@ namespace jop
         const std::string& getSource(const Type type) const;
 
 
+        /// \brief Get the OpenGL handle
+        ///
+        /// \return The OpenGL handle
+        ///
         unsigned int getHandle() const;
 
+        /// \brief Validate this shader
+        ///
+        /// This is useful for catching shader errors. You should never call this
+        /// unless you have a need to debug your shaders.
+        ///
         void validate() const;
 
         

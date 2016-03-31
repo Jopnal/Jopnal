@@ -24,11 +24,12 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Message.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <memory>
 #include <string>
 
 //////////////////////////////////////////////
+
 
 namespace sf
 {
@@ -37,8 +38,6 @@ namespace sf
 
 namespace jop
 {
-    class Object;
-
     class JOP_API SoundSource : public Component
     {
     protected:
@@ -47,11 +46,16 @@ namespace jop
         ///
         SoundSource(const SoundSource& other, Object& newObj);
 
-
-        /// \brief Check for copy constructor's need
-        ///
         JOP_DISALLOW_COPY_MOVE(SoundSource);
-        JOP_GENERIC_COMPONENT_CLONE(SoundSource);
+
+    public:
+
+        enum class Status
+        {
+            Stopped,
+            Paused,
+            Playing
+        };
 
     public:
 
@@ -64,13 +68,16 @@ namespace jop
 
         /// \brief Virtual destructor
         ///
-        ~SoundSource();
+        virtual ~SoundSource() override = 0;
+
 
         /// \brief Automatically updates position
         ///
-        void update(const float deltaTime)override;
+        void update(const float deltaTime) override;
 
         /// \brief Set sound's volume
+        ///
+        /// \comm setVolume
         ///
         /// \param Float 0-100.0f default is 100.0f
         ///
@@ -78,9 +85,11 @@ namespace jop
 
         /// \brief Returns float volume
         ///
-        float getVolume();
+        float getVolume() const;
 
         /// \brief Set pitch
+        ///
+        /// \comm setPitch
         ///
         /// \param Float pitch value default is 1 min is 0.0 crashes after 8.9
         ///
@@ -88,9 +97,11 @@ namespace jop
 
         /// \brief Returns pitch
         ///
-        float getPitch();
+        float getPitch() const;
 
         /// \brief Toggle listener on/off
+        ///
+        /// \comm setListener
         ///
         /// \param Boolean true plays sound at listener's position and false enables spatialization in 3d space
         ///
@@ -98,9 +109,11 @@ namespace jop
 
         /// \brief Returns relativity to listener
         ///
-        bool getListener();
+        bool getListener() const;
 
         /// \brief Change stream's fadein distance
+        ///
+        /// \comm setAttenuation
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
@@ -108,30 +121,23 @@ namespace jop
         
         /// \brief Change sound's distance when it is heard in max volume
         ///
+        /// \comm setMinDistance
+        ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
         SoundSource& setMinDistance(const float min);
        
         /// \brief Returns fadein value
         ///
-        float getAttenuation();
+        float getAttenuation() const;
 
         /// \brief Returns distance of max volume
         ///
-        float getMinDistance();
+        float getMinDistance() const;
 
     protected:
-        /// \brief  Automatic check if sound is allowed to play
-        ///
-        /// \param Deltatime for calculation
-        ///
-        void allowSound(const float deltaTime);
 
-        std::unique_ptr<sf::SoundSource> m_sound;      ///< Unique audio sample
-        float m_speedCounter;                          ///< Counter for speed of sound
-        bool m_playWithSpeed;                          ///< Calculate when sound is allowed to play
-        bool m_playOnce;                               ///< Breaks link from update to calculate sound()
-        bool m_resetSound;                             ///< When using speed of sound saves value from play(bool)
+        std::unique_ptr<sf::SoundSource> m_sound;   ///< Unique audio sample
     };
 }
 

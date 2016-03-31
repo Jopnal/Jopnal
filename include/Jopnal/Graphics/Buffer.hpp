@@ -119,7 +119,7 @@ namespace jop
         std::size_t m_bytesAllocated;   ///< Size of the allocated buffer
         mutable unsigned int m_buffer;  ///< Buffer's OpenGL handle
         const int m_bufferType;         ///< Type of the buffer
-        const int m_usage;
+        const int m_usage;              ///< The usage type
     };
 }
 #endif

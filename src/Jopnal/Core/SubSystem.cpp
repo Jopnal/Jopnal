@@ -78,7 +78,7 @@ namespace jop
 
     Message::Result Subsystem::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Subsystem, getID()))
+        if (message.passFilter(Message::Subsystem) && message.passFilter(getID()))
         {
             if (message.passFilter(Message::Command))
             {

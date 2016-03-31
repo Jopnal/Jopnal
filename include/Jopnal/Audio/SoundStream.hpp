@@ -24,8 +24,10 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Audio/SoundSource.hpp>
 
 //////////////////////////////////////////////
+
 
 namespace sf
 {
@@ -34,8 +36,6 @@ namespace sf
 
 namespace jop
 {
-    class Object;
-
     class JOP_API SoundStream : public SoundSource
     {
     protected:
@@ -44,8 +44,6 @@ namespace jop
         ///
         SoundStream(const SoundStream& other, Object& newObj);
 
-        /// \brief Check for copy constructor's need
-        ///
         JOP_DISALLOW_COPY_MOVE(SoundStream);
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
 
@@ -56,31 +54,26 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
-        SoundStream(Object& object, const std::string& ID);
+        SoundStream(Object& object);
 
-        /// \brief Virtual destructor
-        ///
-        ~SoundStream();
+
         /// \brief Stream audio from file
         ///
-        /// Needs relative path to asset flodder
+        /// Needs relative path to resource folder
         ///
         /// \param Path to audio file
         ///
-        SoundStream& setPath(const std::string path);
-
-        /// \brief Get information from member variables
-        ///
-        /// \param SoundStream component to copy to
-        ///
+        SoundStream& setPath(const std::string& path);
 
         /// \brief Play sound
         ///
+        /// \comm playStream
+        ///
         /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
         ///
-        /// If true audio doesn't start over from beginging
+        /// If true audio doesn't start over from beginning
         ///
-        SoundStream& play(bool reset);
+        SoundStream& play(const bool reset);
 
         /// \brief Play sound from start
         ///
@@ -88,13 +81,19 @@ namespace jop
 
         /// \brief Stop playing sound
         ///
+        /// \comm stopStream
+        ///
         SoundStream& stop();
 
         /// \brief Pause sound
         ///
+        /// \comm pauseStream
+        ///
         SoundStream& pause();
 
         /// \brief Set from which point as seconds the sound starts playing
+        ///
+        /// \comm setStreamOffset
         ///
         /// \param Float time
         ///
@@ -102,20 +101,23 @@ namespace jop
 
         /// \brief Returns point where sound is playing as seconds
         ///
-        float getOffset();
+        float getOffset() const;
 
         /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
         ///
-        enum status getStatus();
+        Status getStatus() const;
 
         /// \brief Toggle sound on/off
         ///
-        /// \param Boolean true iquals on and false iquals off
+        /// \comm setStreamLoop
         ///
-        SoundStream& setLoop(bool loop);
+        /// \param Boolean true equals on and false equals off
+        ///
+        SoundStream& setLoop(const bool loop);
 
     private:
-        std::string m_path;                     ///< Remembers streaming path for cloning
+
+        std::string m_path; ///< Remembers streaming path for cloning
     };
 }
 #endif

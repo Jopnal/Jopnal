@@ -34,6 +34,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setViewport, "setViewport");
 
     JOP_END_COMMAND_HANDLER(Camera)
 
@@ -327,7 +328,7 @@ namespace jop
             mainSize = m_renderTexture.getSize();
 
         const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
-        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize));
+        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;
 
         glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
     }
@@ -335,15 +336,15 @@ namespace jop
     //////////////////////////////////////////////
 
     bool Camera::enableRenderTexture(const bool enable,
-                                     const RenderTexture::ColorAttachment color,
                                      const glm::uvec2& size,
+                                     const RenderTexture::ColorAttachment color,
                                      const RenderTexture::DepthAttachment depth,
                                      const RenderTexture::StencilAttachment stencil)
     {
         if (enable != m_renderTexture.isValid())
         {
             if (enable)
-                return m_renderTexture.create(color, size, depth, stencil);
+                return m_renderTexture.create(size, color, depth, stencil);
             else
                 m_renderTexture.destroy();
         }

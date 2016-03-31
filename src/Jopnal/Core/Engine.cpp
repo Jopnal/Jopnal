@@ -30,6 +30,10 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
         JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::exit, "exit");
+        JOP_BIND_COMMAND(&Engine::setState, "setState");
+        JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
+        JOP_BIND_COMMAND(&Engine::setDeltaScale, "setDeltaScale");
 
     JOP_END_COMMAND_HANDLER(Engine)
 }
@@ -119,6 +123,9 @@ namespace jop
             eng.m_totalTime += frameTime;
 
             frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
+            frameTime = std::min(0.1f, frameTime);
+
+            eng.m_advanceFrame = false;
 
             // Update
             {
@@ -143,8 +150,6 @@ namespace jop
                         i->postUpdate(frameTime);
                 }
             }
-
-            eng.m_advanceFrame = false;
 
             // Draw
             {

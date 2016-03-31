@@ -120,6 +120,12 @@ namespace jop
         
     private:
 
+        /// \brief Set active
+        ///
+        /// Some components need to know if the object they're bound to
+        /// goes active/inactive. This virtual method will be called by the object when
+        /// that happens.
+        ///
         virtual void setActive(const bool active);
 
         /// \brief Virtual sendMessage

@@ -151,6 +151,9 @@ namespace jop
 
             preUpdate(dt);
 
+            // Need to update transforms twice to ensure correct global state at all times.
+            // TODO: Redesign the transformation system to eliminate this requirement.
+            Object::updateTransformTree(nullptr, false);
             Object::update(dt);
             Object::updateTransformTree(nullptr, false);
 
@@ -191,13 +194,6 @@ namespace jop
 
     void Scene::postDraw()
     {}
-
-    //////////////////////////////////////////////
-
-    Object& Scene::getAsObject()
-    {
-        return *this;
-    }
 
     //////////////////////////////////////////////
 

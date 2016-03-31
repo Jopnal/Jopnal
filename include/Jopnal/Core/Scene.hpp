@@ -51,13 +51,19 @@ namespace jop
         using Object::componentCount;
 
         using Object::createChild;
-        using Object::getChild;
         using Object::getChildren;
         using Object::cloneChild;
         using Object::removeChildren;
         using Object::clearChildren;
         using Object::childCount;
         using Object::childCountRecursive;
+        using Object::findChild;
+        using Object::findChildWithPath;
+        using Object::findChildren;
+        using Object::findChildrenWithTag;
+
+        using Object::adoptChild;
+        using Object::setParent;
 
         using Object::isActive;
         using Object::setActive;
@@ -72,6 +78,7 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(Scene);
 
         friend class StateLoader;
+        friend class Object;
 
     public:
 
@@ -86,17 +93,41 @@ namespace jop
         virtual ~Scene();
 
 
+        /// \brief Set a new renderer
+        ///
+        /// \param args Arguments to pass into the renderer's constructor
+        ///
+        /// \return Reference to the newly constructed renderer
+        ///
         template<typename T, typename ... Args>
         T& setRenderer(Args&&... args);
 
-
+        /// \brief Get the renderer
+        ///
+        /// \return Reference to the renderer
+        ///
         Renderer& getRenderer() const;
 
 
+        /// \brief Get the physics world
+        ///
+        /// \return Reference to the world
+        ///
         World& getWorld() const;
 
+        
+        /// \brief Set the delta time scalar
+        ///
+        /// The delta time value will be multiplied by this value every frame.
+        /// 
+        /// \param scale The scale to set
+        ///
         void setDeltaScale(const float scale);
 
+        /// \brief Get the delta time scalar
+        ///
+        /// \eturn The delta time scalar
+        ///
         float getDeltaScale() const;
 
 
@@ -165,8 +196,6 @@ namespace jop
         ///
         virtual void postDraw();
 
-        Object& getAsObject();
-
     private:
 
         /// \brief Virtual sendMessage
@@ -174,9 +203,9 @@ namespace jop
         virtual Message::Result sendMessageImpl(const Message& message);
 
 
-        std::unique_ptr<Renderer> m_renderer;
-        mutable World& m_world;
-        float m_deltaScale;
+        std::unique_ptr<Renderer> m_renderer;   ///< The renderer
+        mutable World& m_world;                 ///< The physics world
+        float m_deltaScale;                     ///< Delta time scalar
     };
 
     // Include the template implementation file

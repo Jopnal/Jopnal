@@ -123,9 +123,9 @@ namespace jop
 {
     const Material::AttribType Material::DefaultAttributes = Material::Attribute::AmbientConstant
                                                            | Material::Attribute::Material
-                                                           | Material::Attribute::Diffusemap
-                                                           | Material::Attribute::Specularmap
-                                                           | Material::Attribute::Emissionmap
+                                                           | Material::Attribute::DiffuseMap
+                                                           | Material::Attribute::SpecularMap
+                                                           | Material::Attribute::EmissionMap
                                                            | Material::Attribute::Phong;
 
     //////////////////////////////////////////////
@@ -186,13 +186,13 @@ namespace jop
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
-            if (hasAttribute(Attribute::Diffusemap) && !getMap(Map::Diffuse).expired())
+            if (hasAttribute(Attribute::DiffuseMap) && !getMap(Map::Diffuse).expired())
                 shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
-            if (hasAttribute(Attribute::Specularmap) && !getMap(Map::Specular).expired())
+            if (hasAttribute(Attribute::SpecularMap) && !getMap(Map::Specular).expired())
                 shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
 
-            if (hasAttribute(Attribute::Emissionmap) && !getMap(Map::Emission).expired())
+            if (hasAttribute(Attribute::EmissionMap) && !getMap(Map::Emission).expired())
                 shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
 
             if (hasAttribute(Attribute::EnvironmentMap) && !getMap(Material::Map::Environment).expired())
@@ -304,7 +304,7 @@ namespace jop
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Attribute::Diffusemap).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Attribute::DiffuseMap).getReference());
             defMat->setManaged(true);
         }
 

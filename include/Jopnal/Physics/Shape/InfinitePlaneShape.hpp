@@ -41,13 +41,6 @@ namespace jop
         ///
         InfinitePlaneShape(const std::string& name);
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        /// \param normal The surface normal
-        ///
-        InfinitePlaneShape(const std::string& name, const glm::vec3& normal);
-
 
         /// \brief Load this shape
         ///

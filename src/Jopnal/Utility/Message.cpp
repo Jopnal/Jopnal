@@ -33,7 +33,8 @@ namespace jop
           m_idPattern       (),
           m_ptr             (ptr),
           m_filterBits      (Filter::Global),
-          m_idMatchMethod   (nullptr)
+          m_idMatchMethod   (nullptr),
+          m_tagMatchMethod  (nullptr)
     {
         if (!message.empty())
         {
@@ -79,13 +80,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Message::passFilter(const unsigned short filter, const std::string& id) const
-    {
-        return passFilter(filter) && passFilter(id);
-    }
-
-    //////////////////////////////////////////////
-
     bool Message::passFilter(const unsigned short filter) const
     {
         return (m_filterBits & filter) != 0;
@@ -99,6 +93,16 @@ namespace jop
             return true;
 
         return m_idMatchMethod(id, m_idPattern);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Message::passFilter(const std::unordered_set<std::string>& tags) const
+    {
+        if (!m_tagMatchMethod)
+            return true;
+
+        return m_tagMatchMethod(tags, m_tags);
     }
 
     //////////////////////////////////////////////
@@ -119,8 +123,15 @@ namespace jop
             return *this;
         }
 
+        // Tag filtering
+        std::size_t fBegin = filter.find_last_of(")>", endPos);
+        if (fBegin != std::string::npos && (endPos - fBegin) > 1)
+        {
+            // TODO: parse tags
+        }
+
         // Id filtering
-        std::size_t fBegin = filter.find_last_of("=*", endPos);
+        fBegin = filter.find_last_of("=*", endPos);
         if (fBegin != std::string::npos && (endPos - fBegin) > 1)
         {
             if (filter[fBegin] == '=')

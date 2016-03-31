@@ -146,6 +146,7 @@ namespace jop
         ///
         static void setString(const std::string& name, const std::string& value);
 
+
         /// \brief Reload the settings from file
         ///
         /// All individual settings need to be refreshed manually for changes to
@@ -156,7 +157,6 @@ namespace jop
         /// \brief Save the settings to file
         ///
         static void save();
-
     };
 }
 
