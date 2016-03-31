@@ -27,6 +27,15 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, Listener)
+
+        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+
+    JOP_END_COMMAND_HANDLER(Listener)
+}
+
+namespace jop
+{
     Listener::Listener(Object& object)
         : Component(object, "listener")
     {}

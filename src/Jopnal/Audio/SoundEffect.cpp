@@ -24,6 +24,22 @@
 
 //////////////////////////////////////////////
 
+
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Component, SoundEffect)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundEffect& (SoundEffect::*)(const bool reset))&SoundEffect::play, "playEffect");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::pause, "pauseEffect");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::stop, "stopEffect");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setOffset, "setEffectOffset");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setLoop, "setEffectLoop");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::speedOfSound, "speedOfSound");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setPersonalSpeed, "setPersonalSpeed");
+
+    JOP_END_COMMAND_HANDLER(SoundEffect)
+}
+
 namespace
 {
     static float ns_globalFactor = 1.f;
@@ -223,20 +239,10 @@ namespace jop
     {
         if ((m_speedCounter -= deltaTime) <= 0.0f)
         {
-            if (getStatus() == Status::Playing)
-            {
-                if (m_resetSound)
-                    m_playOnce = false;
-                else
-                    static_cast<sf::Sound*>(m_sound.get())->play();
-
-                m_playOnce = false;
-            }
-            else
-            {
+            if (getStatus() != Status::Playing || m_resetSound)
                 static_cast<sf::Sound*>(m_sound.get())->play();
-                m_playOnce = false;
-            }
+
+            m_playOnce = false;
         }
     }
 }

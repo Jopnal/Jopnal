@@ -70,6 +70,8 @@ namespace jop
         ///
         /// \param mask The new mask to set
         ///
+        /// \comm setEnvRecorderRenderMask
+        ///
         void setRenderMask(const uint32 mask);
 
         /// \brief Get the render mask

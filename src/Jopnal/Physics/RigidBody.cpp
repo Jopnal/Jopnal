@@ -28,14 +28,15 @@
 namespace jop
 {
     RigidBody::ConstructInfo::ConstructInfo(const CollisionShape& shape, const Type type, const float mass)
-        : group             (1),
-          mask              (1),
-          friction          (0.5f),
-          rollingFriction   (0.f),
-          restitution       (0.f),
-          m_shape           (shape),
-          m_type            (type),
-          m_mass            ((type == Type::Dynamic) * mass)
+        : group                 (1),
+          mask                  (1),
+          friction              (0.5f),
+          rollingFriction       (0.f),
+          restitution           (0.f),
+          enableContactCallback (false),
+          m_shape               (shape),
+          m_type                (type),
+          m_mass                ((type == Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
@@ -61,6 +62,8 @@ namespace jop
             rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
         else
             object.setIgnoreParent(true);
+        
+        rb->setCollisionFlags(rb->getCollisionFlags() | (info.enableContactCallback * btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK));
 
         // Remove contact response if body is a sensor
         if (m_type > Type::Kinematic)
@@ -71,7 +74,7 @@ namespace jop
         m_rigidBody = rb.get();
         rb->setUserPointer(this);
         m_body = std::move(rb);
-        
+
         setActive(isActive());
     }
 
@@ -81,11 +84,7 @@ namespace jop
           m_mass                    (other.m_mass),
           m_rigidBody               (nullptr)
     {
-        btVector3 inertia(0.f, 0.f, 0.f);
-        if (m_type == Type::Dynamic)
-            other.m_body->getCollisionShape()->calculateLocalInertia(m_mass, inertia);
-
-        btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), inertia);
+        btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), other.m_rigidBody->getLocalInertia());
         constInfo.m_friction = other.m_body->getFriction();
         constInfo.m_rollingFriction = other.m_body->getRollingFriction();
         constInfo.m_restitution = other.m_body->getRestitution();

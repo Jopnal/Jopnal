@@ -115,14 +115,30 @@ namespace jop
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
 
+        /// \brief Template function to clones component from another object
+        ///
+        /// \param Object to clone from and id of component to clone
+        ///
+        Component* cloneComponent(Object& object, const std::string& ID) const;
+
+        /// \brief Template function to duplicates component
+        ///
+        /// \param Components id and created clone's id
+        ///
+        Component* cloneComponent(const std::string& ID, const std::string& newID);
+
         /// \brief Method to remove components with 'ID'
         /// 
         /// \param ID Unique object identifier m_ID
         ///
+        /// \comm removeComponents
+        /// 
         void removeComponents(const std::string& ID);
 
         /// \brief Remove all components
         ///
+        /// \comm clearComponents
+        /// 
         void clearComponents();
 
         /// \brief Get amount of components
@@ -134,6 +150,8 @@ namespace jop
 
         /// \brief Create a new child
         ///
+        /// \comm createChild
+        ///
         /// \param ID Id for the new object
         ///
         /// \return Reference to the newly created child
@@ -144,6 +162,8 @@ namespace jop
         ///
         /// This will move the child onto this object and remove it from its old parent.
         /// If the child's parent is equal to this, this function does nothing.
+        ///
+        /// \comm adoptChild
         ///
         /// \param child The child to adopt
         ///
@@ -167,12 +187,16 @@ namespace jop
         ///
         /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
         ///
+        /// \comm cloneChild
+        /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID);
 
         /// \copydoc cloneChild(const std::string&, const std::string&)
         ///
         /// \param newTransform 
         ///
+        /// \comm cloneChild_OverLoaded
+        /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
 
 
@@ -182,10 +206,14 @@ namespace jop
         ///
         /// \param ID The id to search with
         ///
+        /// \comm removeChildren
+        /// 
         void removeChildren(const std::string& ID);
 
         /// \brief Remove all children
         ///
+        /// \comm clearChild
+        /// 
         /// the children will be removed immediately.
         ///
         void clearChildren();
@@ -193,6 +221,8 @@ namespace jop
         /// \brief Mark this to be removed
         ///
         /// The object will be actually removed at the beginning of the next update call.
+        ///
+        /// \comm removeSelf
         ///
         void removeSelf();
 
@@ -225,6 +255,8 @@ namespace jop
         ///
         /// \param ignore The flag to set
         ///
+        /// \comm setIgnoreParent
+        ///
         void setIgnoreParent(const bool ignore);
 
         /// \brief Check if this object ignores its parent
@@ -244,6 +276,8 @@ namespace jop
         /// \brief Set a new parent
         ///
         /// This is equivalent to calling newParent.adoptChild(this)
+        ///
+        /// \comm setParent
         ///
         /// \param newParent The new parent
         ///
@@ -331,6 +365,8 @@ namespace jop
         ///
         /// \param active Activity flag to set
         ///
+        /// \comm setActive
+        /// 
         void setActive(const bool active);
 
         /// \brief Check if this object is active
@@ -350,10 +386,14 @@ namespace jop
         ///
         /// \param ID unique object identifier
         ///
+        /// \comm setID
+        /// 
         void setID(const std::string& ID);
 
 
         /// \brief Adds tag to m_tags set
+        ///
+        /// \comm addTag
         ///
         /// \param tag Name of the added tag
         ///
@@ -361,17 +401,22 @@ namespace jop
 
         /// \brief Removes tag from m_tags set
         ///
+        /// \comm removeTag
+        ///
         /// \param tag Name of the removable tag 
         ///
         void removeTag(const std::string& tag);
 
         /// \brief Clears m_tags set
         ///
+        /// \comm clearTag
+        ///
         void clearTags();
 
         /// \brief Finds out if object has tag name tag
         ///
         bool hasTag(const std::string& tag) const;
+
 
         /// \brief Update method for object - forwarded for its components
         ///
@@ -389,12 +434,12 @@ namespace jop
 
         void sweepRemoved();
 
-        std::vector<Object> m_children;                         ///< Container holding this object's children
-        std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
         unsigned char m_flags;                                  ///< Flags
+        std::vector<Object> m_children;                         ///< Container holding this object's children
+        std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
     };
 
     // Include the template implementation file

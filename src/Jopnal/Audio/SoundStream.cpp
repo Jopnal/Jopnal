@@ -27,6 +27,19 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, SoundStream)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::pause, "pauseStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::stop, "stopStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setOffset, "setStreamOffset");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setLoop, "setStreamLoop");
+
+    JOP_END_COMMAND_HANDLER(SoundStream)
+}
+
+namespace jop
+{
     SoundStream::SoundStream(Object& object)
         : SoundSource   (object, "soundstream"),
           m_path        ()

@@ -41,12 +41,30 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
-        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
+        // Component
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
+
+        // Activity
+        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
+
+        // Children
+        JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
+        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
+
+        // Tags
+        JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
+
+        // Other
+        JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
         JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -56,23 +74,23 @@ namespace jop
     Object::Object(const std::string& ID)
         : Transform                 (),
           SafeReferenceable<Object> (this),
-          m_children                (),
-          m_components              (),
           m_tags                    (),
           m_ID                      (ID),
           m_parent                  (),
-          m_flags                   (ActiveFlag)
+          m_flags                   (ActiveFlag),
+          m_children                (),
+          m_components              ()
     {}
 
     Object::Object(const Object& other, const std::string& newID, const Transform& newTransform)
         : Transform                 (newTransform),
           SafeReferenceable<Object> (this),
-          m_children                (),
-          m_components              (),
           m_tags                    (other.m_tags),
           m_ID                      (newID),
           m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags)
+          m_flags                   (other.m_flags),
+          m_children                (),
+          m_components              ()
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -89,12 +107,12 @@ namespace jop
     Object::Object(Object&& other)
         : Transform                 (other),
           SafeReferenceable<Object> (std::move(other)),
-          m_children                (std::move(other.m_children)),
-          m_components              (std::move(other.m_components)),
           m_tags                    (std::move(other.m_tags)),
           m_ID                      (std::move(other.m_ID)),
           m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags)
+          m_flags                   (other.m_flags),
+          m_children                (std::move(other.m_children)),
+          m_components              (std::move(other.m_components))
     {}
 
     Object& Object::operator=(Object&& other)
@@ -102,12 +120,12 @@ namespace jop
         Transform::operator =(other);
         SafeReferenceable<Object>::operator =(std::move(other));
 
-        m_children      = std::move(other.m_children);
-        m_components    = std::move(other.m_components);
         m_tags          = std::move(other.m_tags);
         m_ID            = std::move(other.m_ID);
         m_parent        = other.m_parent;
         m_flags         = other.m_flags;
+        m_children      = std::move(other.m_children);
+        m_components    = std::move(other.m_components);
 
         return *this;
     }
@@ -134,6 +152,36 @@ namespace jop
         }
 
         return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    Component* Object::cloneComponent(Object& object, const std::string& ID) const
+    {
+        auto i = getComponent(ID);
+
+        if (i)
+        {
+            object.m_components.emplace_back(i->clone(object));
+            return object.m_components.back().get();
+        }
+
+        return nullptr;
+    }
+
+    /////////////////////////////////////////////
+
+    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
+    {
+        auto i = getComponent(ID);
+
+        if (i)
+        {
+            m_components.emplace_back(i->clone(*this));
+            m_components.back()->setID(newID);
+        }
+
+        return i;
     }
 
     //////////////////////////////////////////////
@@ -612,7 +660,7 @@ namespace jop
             i.updateTransformTree(this, parentUpdated);
     }
 
-    //////////////////////////////////////////////
+    /////////////////////////////////////////////
 
     void Object::sweepRemoved()
     {
@@ -626,4 +674,5 @@ namespace jop
             m_flags &= ~(ChildrenRemovedFlag);
         }
     }
+
 }

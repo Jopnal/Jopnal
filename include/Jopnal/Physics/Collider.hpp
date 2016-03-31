@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Physics/ContactInfo.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -32,6 +33,10 @@
 
 class btMotionState;
 class btCollisionObject;
+namespace detail
+{
+    struct GhostCallback;
+}
 
 namespace jop
 {
@@ -42,6 +47,8 @@ namespace jop
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider);
+
+        friend struct ::detail::GhostCallback;
 
     protected:
 
@@ -96,7 +103,11 @@ namespace jop
 
     private:
 
-        void setActive(const bool) override = 0;
+        virtual void beginOverlap(const Collider& other);
+
+        virtual void endOverlap(const Collider& other);
+
+        virtual void setActive(const bool) override = 0;
 
     protected:
 

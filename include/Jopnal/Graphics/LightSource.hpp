@@ -123,6 +123,8 @@ namespace jop
         ///
         /// \return The render mask
         ///
+        /// \comm setRenderMask_LightSource
+        ///
         uint32 getRenderMask() const;
 
 
@@ -144,6 +146,8 @@ namespace jop
         /// \brief Check if this light casts shadows
         ///
         /// \return True if this light casts shadows
+        ///
+        /// \comm setCastShadows
         ///
         bool castShadows() const;
 

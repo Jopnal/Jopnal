@@ -28,13 +28,14 @@
 
 //////////////////////////////////////////////
 
+
 class btRigidBody;
 
 namespace jop
 {
     class CollisionShape;
 
-    class JOP_API RigidBody final : public Collider
+    class JOP_API RigidBody : public Collider
     {
     private:
 
@@ -85,6 +86,10 @@ namespace jop
             float rollingFriction;  ///< Rolling friction
             float restitution;      ///< Restitution
 
+            /// Set this true to enable contact callbacks.
+            /// This is false by default due to performance concerns.
+            bool enableContactCallback;
+
         private:
 
             const CollisionShape& m_shape;  ///< Collision shape
@@ -104,7 +109,7 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~RigidBody() override;
+        virtual ~RigidBody() override;
 
 
         /// \brief Sets unique gravity to the rigid body object
@@ -115,7 +120,7 @@ namespace jop
 
         /// \brief Gets m_gravity as glm::vec3
         ///
-        glm::vec3 getGravity()const;
+        glm::vec3 getGravity() const;
 
         /// \brief Sets the linear factor for rigid body
         ///
@@ -125,7 +130,7 @@ namespace jop
 
         /// \brief Gets the linear factor as glm::vec3 
         ///
-        glm::vec3 getLinearFactor()const;
+        glm::vec3 getLinearFactor() const;
 
         /// \brief Sets the angular factor for rigid body
         ///
@@ -135,7 +140,7 @@ namespace jop
 
         /// \brief Gets the angular factor as glm::vec3 
         ///
-        glm::vec3 getAngularFactor()const;
+        glm::vec3 getAngularFactor() const;
 
         /// \brief Applies constant force to rigid bodies relative position
         ///
@@ -199,7 +204,7 @@ namespace jop
         ///
         /// \param active Was the object set active?
         ///
-        void setActive(const bool active) override;
+        void setActive(const bool active) final override;
 
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass

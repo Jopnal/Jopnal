@@ -31,6 +31,12 @@ namespace jop
 
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
+       
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveLights, "setReceiveLights");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveShadows, "setReceiveShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setCastShadows, "setCastShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReflected, "setReflected");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
 
     JOP_END_COMMAND_HANDLER(Drawable)
 }

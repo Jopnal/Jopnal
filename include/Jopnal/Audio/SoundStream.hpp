@@ -67,6 +67,8 @@ namespace jop
 
         /// \brief Play sound
         ///
+        /// \comm playStream
+        ///
         /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
         ///
         /// If true audio doesn't start over from beginning
@@ -79,13 +81,19 @@ namespace jop
 
         /// \brief Stop playing sound
         ///
+        /// \comm stopStream
+        ///
         SoundStream& stop();
 
         /// \brief Pause sound
         ///
+        /// \comm pauseStream
+        ///
         SoundStream& pause();
 
         /// \brief Set from which point as seconds the sound starts playing
+        ///
+        /// \comm setStreamOffset
         ///
         /// \param Float time
         ///
@@ -100,6 +108,8 @@ namespace jop
         Status getStatus() const;
 
         /// \brief Toggle sound on/off
+        ///
+        /// \comm setStreamLoop
         ///
         /// \param Boolean true equals on and false equals off
         ///

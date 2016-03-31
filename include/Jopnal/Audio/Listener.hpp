@@ -59,6 +59,8 @@ namespace jop
 
         /// \brief Change the global volume of all the sounds and musics
         ///
+        /// \comm setGlobalVolume
+        ///
         /// \param Global volume in range of 0-100.0f
         ///
         void setGlobalVolume(const float volume);

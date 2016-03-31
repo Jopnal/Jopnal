@@ -27,6 +27,19 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, SoundSource)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setVolume, "setVolume");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setPitch, "setPitch");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setListener, "setListener");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setMinDistance, "setMinDistance");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setAttenuation, "setAttenuation");
+
+    JOP_END_COMMAND_HANDLER(SoundSource)
+}
+
+namespace jop
+{
     SoundSource::SoundSource(Object& object, const std::string& ID)
         : Component         (object, ID),
           m_sound           ()
@@ -120,6 +133,6 @@ namespace jop
 
     float SoundSource::getMinDistance() const
     {
-        return  m_sound->getMinDistance();
+        return m_sound->getMinDistance();
     }
 }

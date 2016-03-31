@@ -363,6 +363,9 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp">
       <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\ContactInfo.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -574,6 +577,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CompoundShape.cpp">
       <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\ContactInfo.cpp">
+      <Filter>Physics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

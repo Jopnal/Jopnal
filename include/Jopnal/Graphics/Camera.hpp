@@ -124,6 +124,8 @@ namespace jop
         /// Failing to set the properties will cause the projection to
         /// malfunction.
         ///
+        /// \comm setProjectionMode
+        ///
         /// \param mode The mode to be set
         ///
         Camera& setProjectionMode(const Projection mode);
@@ -139,6 +141,8 @@ namespace jop
         ///
         /// In perspective projection the clipping planes need to be positive.
         /// Otherwise, the projection result is undefined.
+        ///
+        /// \comm setClippingPlanes
         ///
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
@@ -165,6 +169,8 @@ namespace jop
 
         /// \brief Brief set the size of the projection
         ///
+        /// \comm setSize
+        ///
         /// \param x The width
         /// \param y The height
         ///
@@ -181,6 +187,8 @@ namespace jop
         /// \brief Set the aspect ratio
         ///
         /// This call is only valid in perspective mode.
+        ///
+        /// \comm setAspectRatio
         ///
         /// \param ratio The new aspect ratio to be set
         ///
@@ -200,6 +208,8 @@ namespace jop
         /// The minimum value is 1 and maximum 179.
         /// The value will be clamped inside this range.
         ///
+        /// \comm setFieldOfView
+        ///
         /// \param fovY The new field of view value
         ///
         Camera& setFieldOfView(const float fovY);
@@ -215,6 +225,8 @@ namespace jop
         ///
         /// The values are in relative coordinates. For example, [0.5,0.5] and [1.0,1.0]
         /// will select the right half of the screen
+        ///
+        /// \comm setViewport
         ///
         /// \param start The start coordinates
         /// \param end The end coordinates

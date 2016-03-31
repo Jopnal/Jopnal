@@ -99,6 +99,8 @@ namespace jop
         ///
         /// When state is Running, this function has no effect.
         ///
+        /// \comm advanceFrame
+        ///
         static void advanceFrame();
 
 
@@ -157,6 +159,8 @@ namespace jop
 
         /// \brief Remove a subsystem
         ///
+        /// \comm removeSubsystem
+        ///
         /// \param ID Identifier of the subsystem to be removed
         ///
         static bool removeSubsystem(const std::string& ID);
@@ -174,10 +178,14 @@ namespace jop
         /// time of the call. The main loop returns only after the current
         /// frame has been processed.
         ///
+        /// \comm exit
+        ///
         static void exit();
 
 
         /// \brief Sets paused to private m_paused member
+        ///
+        /// \comm setState
         ///
         /// \param paused Boolean to set m_paused
         ///
@@ -189,6 +197,8 @@ namespace jop
 
 
         /// \brief Set the global delta time scalar
+        ///
+        /// \comm setDeltaScale
         ///
         /// \param The scalar to set
         ///

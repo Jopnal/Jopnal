@@ -56,18 +56,20 @@ namespace jop
         SoundEffect(Object& object);
 
 
+        /// \brief Automatically updates position
+        ///
         void update(const float deltaTime) override;
 
         
-        /// \brief Load sound buffer from resource manager
+        /// \brief Set the sound buffer
         ///
-        /// Can not be constant
-        ///
-        /// \param Path to audio file
+        /// \param buffer Reference to the buffer
         ///
         SoundEffect& setBuffer(const SoundBuffer& buffer);
 
         /// \brief Play sound
+        ///
+        /// \comm playEffect
         ///
         /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
         ///
@@ -81,13 +83,19 @@ namespace jop
 
         /// \brief Stop playing sound
         ///
+        /// \comm stopEffect
+        ///
         SoundEffect& stop();
 
         /// \brief Pause sound
         ///
+        /// \comm pauseEffect
+        ///
         SoundEffect& pause();
 
         /// \brief Set from which point as seconds the sound starts playing
+        ///
+        /// \comm setEffectOffset
         ///
         /// \param Float time
         ///
@@ -103,12 +111,16 @@ namespace jop
 
         /// \brief Toggle sound on/off
         ///
+        /// \comm setEffectLoop
+        ///
         /// \param Boolean true equals on and false equals off
         ///
         SoundEffect& setLoop(const bool loop);
 
 
         /// \brief Use speed of sound (default = 343.0f * global(1.f) * personal(1.f))
+        ///
+        /// \comm speedOfSound
         ///
         /// \param On/off
         ///
@@ -126,6 +138,8 @@ namespace jop
 
 
         /// \brief Change sound's personal speed multiplier
+        ///
+        /// \comm setPersonalSpeed
         ///
         /// \param float meters per second
         ///

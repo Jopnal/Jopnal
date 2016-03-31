@@ -77,6 +77,8 @@ namespace jop
 
         /// \brief Set sound's volume
         ///
+        /// \comm setVolume
+        ///
         /// \param Float 0-100.0f default is 100.0f
         ///
         SoundSource& setVolume(const float vol);
@@ -86,6 +88,8 @@ namespace jop
         float getVolume() const;
 
         /// \brief Set pitch
+        ///
+        /// \comm setPitch
         ///
         /// \param Float pitch value default is 1 min is 0.0 crashes after 8.9
         ///
@@ -97,6 +101,8 @@ namespace jop
 
         /// \brief Toggle listener on/off
         ///
+        /// \comm setListener
+        ///
         /// \param Boolean true plays sound at listener's position and false enables spatialization in 3d space
         ///
         SoundSource& setListener(const bool toggle);
@@ -107,11 +113,15 @@ namespace jop
 
         /// \brief Change stream's fadein distance
         ///
+        /// \comm setAttenuation
+        ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///
         SoundSource& setAttenuation(const float at);
         
         /// \brief Change sound's distance when it is heard in max volume
+        ///
+        /// \comm setMinDistance
         ///
         /// \param Attenuation 0-100.0f and minDistance 1<x
         ///

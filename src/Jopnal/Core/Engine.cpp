@@ -30,6 +30,10 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
         JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
+        JOP_BIND_COMMAND(&Engine::exit, "exit");
+        JOP_BIND_COMMAND(&Engine::setState, "setState");
+        JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
+        JOP_BIND_COMMAND(&Engine::setDeltaScale, "setDeltaScale");
 
     JOP_END_COMMAND_HANDLER(Engine)
 }

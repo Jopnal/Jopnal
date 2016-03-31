@@ -24,6 +24,14 @@
 
 //////////////////////////////////////////////
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
+
+        JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
+
+    JOP_END_COMMAND_HANDLER(EnvironmentRecorder)
+}
 
 namespace jop
 {

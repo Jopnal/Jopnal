@@ -107,6 +107,8 @@ namespace jop
         ///
         /// \param group The new group to set
         ///
+        /// \comm setRenderGroup
+        ///
         void setRenderGroup(const uint8 group);
 
         /// \brief Get the render group
@@ -122,6 +124,8 @@ namespace jop
         ///
         /// \param model Reference to the model
         /// \param loadMaterialShader Automatically load the shader from ShaderManager?
+        ///
+        /// \comm setModel
         ///
         Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
 
@@ -140,6 +144,8 @@ namespace jop
         ///
         /// \param shader Reference to the shader
         ///
+        /// \comm setShader
+        ///
         Drawable& setShader(Shader& shader);
 
         /// \brief Get the shader
@@ -152,6 +158,8 @@ namespace jop
         /// \brief Set whether or not this drawable receives lights
         ///
         /// \param receive True to receive lights
+        ///
+        /// \comm setReceiveLights
         ///
         void setReceiveLights(const bool receive);
 
@@ -175,6 +183,8 @@ namespace jop
         ///
         /// \param receive True to set this to receive shadows
         ///
+        /// \comm setReceiveShadows
+        ///
         void setReceiveShadows(const bool receive);
 
         /// \brief Check if this drawable receives shadows
@@ -186,6 +196,8 @@ namespace jop
         /// \brief Set the flag to cast shadows
         /// 
         /// \param cast True to set this to cast shadows
+        ///
+        /// \comm setCastShadows
         ///
         void setCastShadows(const bool cast);
 
@@ -199,6 +211,8 @@ namespace jop
         /// \brief Set whether or not this drawable should be reflected in dynamic environment maps
         ///
         /// \param reflected True to set this to be reflected
+        ///
+        /// \comm setReflected
         ///
         void setReflected(const bool reflected);
 
@@ -240,7 +254,6 @@ namespace jop
         Renderer& m_rendererRef;        ///< Reference to the renderer
         uint8 m_renderGroup;            ///< The render group
         unsigned char m_flags;          ///< Property flags
-        
     };
 }
 

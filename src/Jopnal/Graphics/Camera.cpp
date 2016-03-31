@@ -34,6 +34,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setViewport, "setViewport");
 
     JOP_END_COMMAND_HANDLER(Camera)
 

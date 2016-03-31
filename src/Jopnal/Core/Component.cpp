@@ -37,13 +37,13 @@ namespace jop
 namespace jop
 {
     Component::Component(Object& object, const std::string& ID)
-        : m_objectRef                    (object),
-          m_ID                           (ID)
+        : m_objectRef   (object),
+          m_ID          (ID)
     {}
 
     Component::Component(const Component& other, Object& newObj)
-        : m_objectRef                   (newObj),
-          m_ID                          (other.m_ID)
+        : m_objectRef   (newObj),
+          m_ID          (other.m_ID)
     {}
 
     Component::~Component()
@@ -122,6 +122,8 @@ namespace jop
     {
         return getObject()->isActive();
     }
+
+    //////////////////////////////////////////////
 
     void Component::setActive(const bool)
     {}
