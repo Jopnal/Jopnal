@@ -72,6 +72,27 @@ T* Engine::getSubsystem()
 
 //////////////////////////////////////////////
 
+template<typename T>
+T* Engine::getSubsystem(const std::string& ID)
+{
+    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
+
+    if (m_engineObject)
+    {
+        const std::type_info& ti = typeid(T);
+
+        for (auto& i : m_engineObject->m_subsystems)
+        {
+            if (typeid(*i) == ti && i->getID() == ID)
+                return static_cast<T*>(i.get());
+        }
+    }
+
+    return nullptr;
+}
+
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
 T& Engine::setSharedScene(Args&&... args)
 {
