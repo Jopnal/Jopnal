@@ -147,6 +147,13 @@ namespace jop
         template<typename T>
         static T* getSubsystem();
 
+        /// \brief Get a subsystem using subsystem ID
+        ///
+        /// \return Pointer to the subsystem. Nullptr if not found
+        ///
+        template<typename T>
+        static T* getSubsystem(const std::string& ID);
+
         /// \brief Get a subsystem
         ///
         /// \param ID Identifier of the subsystem

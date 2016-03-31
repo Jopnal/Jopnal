@@ -108,6 +108,18 @@ namespace jop
         template<typename T>
         const T* getComponent() const;
 
+        /// \brief Get a component using component ID
+        ///
+        /// \return Pointer to the component. Nullptr if not found
+        ///
+        template<typename T>
+        T* getComponent(const std::string& ID);
+
+        /// \copydoc getComponent()
+        ///
+        template<typename T>
+        const T* getComponent(const std::string& ID) const;
+
         /// \brief Template function to create components
         ///
         /// \param args Arguments to use with construction
