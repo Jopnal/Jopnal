@@ -40,7 +40,7 @@ namespace jop
         {
             setFilter(message);
             std::size_t startPos = message.find_first_of(']');
-            m_command << (startPos == std::string::npos ? message : message.substr(message.find_first_not_of(' ', startPos + 1)));
+            m_command << (startPos == std::string::npos ? message : message.substr(std::min(message.length() - 1, message.find_first_not_of(' ', startPos + 1))));
         }
     }
 
@@ -125,9 +125,52 @@ namespace jop
 
         // Tag filtering
         std::size_t fBegin = filter.find_last_of(")>", endPos);
-        if (fBegin != std::string::npos && (endPos - fBegin) > 1)
+        if (fBegin != std::string::npos && (endPos - fBegin) > 0)
         {
-            // TODO: parse tags
+            std::size_t nextPos;
+            while ((nextPos = filter.find_last_of("<(,", fBegin - 1)) != std::string::npos)
+            {
+                if (filter[nextPos] == ',')
+                {
+                    m_tags.insert(filter.substr(nextPos + 1, fBegin - nextPos - 1));
+                    fBegin = nextPos;
+                }
+                else if (filter[nextPos] == '(' || filter[nextPos] == '<')
+                {
+                    m_tags.insert(filter.substr(nextPos + 1, fBegin - nextPos - 1));
+
+                    if (filter[nextPos] == '(')
+                        m_tagMatchMethod = [](const std::unordered_set<std::string>& objTags, const std::unordered_set<std::string>& tags) -> bool
+                        {
+                            for (auto& i : tags)
+                            {
+                                if (objTags.find(i) != objTags.end())
+                                    return true;
+                            }
+
+                            return false;
+                        };
+                    else
+                        m_tagMatchMethod = [](const std::unordered_set<std::string>& objTags, const std::unordered_set<std::string>& tags) -> bool
+                        {
+                            for (auto& i : tags)
+                            {
+                                if (objTags.find(i) == objTags.end())
+                                    return false;
+                            }
+
+                            return true;
+                        };
+
+                    break;
+                }
+            }
+
+            if (nextPos == std::string::npos)
+            {
+                JOP_DEBUG_ERROR("Message filter tag brackets unmatched. Message: \"" << m_command.str() << "\"");
+                return *this;
+            }
         }
 
         // Id filtering
