@@ -54,6 +54,40 @@ const T* Object::getComponent() const
 
 //////////////////////////////////////////////
 
+template<typename T>
+T* Object::getComponent(const std::string& ID)
+{
+    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_components)
+    {
+        if (typeid(*i) == ti && i->getID() == ID)
+            return static_cast<T*>(i.get());
+    }
+
+    return nullptr;
+}
+
+template<typename T>
+const T* Object::getComponent(const std::string& ID) const
+{
+    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+
+    const std::type_info& ti = typeid(T);
+
+    for (auto& i : m_components)
+    {
+        if (typeid(*i) == ti && i->getID() == ID)
+            return static_cast<const T*>(i.get());
+    }
+
+    return nullptr;
+}
+
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
 T& Object::createComponent(Args&&... args)
 {
