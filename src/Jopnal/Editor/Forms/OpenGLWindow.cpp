@@ -43,10 +43,11 @@ namespace jope
 {
     OpenGLWindow::OpenGLWindow(nana::window parent, std::unique_ptr<jop::Engine>& eng)
         : nana::nested_form (parent, ns_oglAppearance),
-          m_timer(),
+          RenderTarget      (""),
+          m_timer           (),
           m_context         (nullptr),
-          m_vao(0),
-          m_engRef(eng)
+          m_vao             (0),
+          m_engRef          (eng)
     {
         m_instance = this;
 
@@ -165,6 +166,22 @@ namespace jope
 
         HWND w = reinterpret_cast<HWND>(this->native_handle());
         ReleaseDC(w, GetDC(w));
+    }
+
+    //////////////////////////////////////////////
+
+    bool OpenGLWindow::bind() const
+    {
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::uvec2 OpenGLWindow::getSize() const
+    {
+        auto size = nana::API::window_size(*this);
+
+        return glm::uvec2(size.width, size.height);
     }
 
     //////////////////////////////////////////////

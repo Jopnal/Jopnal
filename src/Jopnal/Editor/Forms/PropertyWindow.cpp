@@ -90,7 +90,7 @@ namespace comp
 
                     jope::ObjectWindow::refresh();
 
-                    //jope::CommandBuffer::pushCommand(new jope::ChangeObjectIDCommand(m_scene.getAsObject(), id));
+                    jope::CommandBuffer::pushCommand(new jope::ChangeObjectIDCommand(m_scene.getAsObject(), id));
                 }
             });
             m_idBox.events().click([this](nana::arg_click arg)
@@ -545,7 +545,7 @@ namespace jope
         m_layout.field("comps") << *m_components.back();
 
         // Components
-        //pushComponents(scene.getAsObject());
+        pushComponents(scene.getAsObject());
 
 
         m_lastObject = jop::WeakReference<jop::Object>();

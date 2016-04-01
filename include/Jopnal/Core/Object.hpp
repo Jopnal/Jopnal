@@ -76,6 +76,10 @@ namespace jop
         ///
         Object& operator =(Object&& other);
 
+        /// \brief Destructor
+        ///
+        ~Object();
+
 
         /// \brief Get a component with the given id
         ///
@@ -446,12 +450,12 @@ namespace jop
 
         void sweepRemoved();
 
+        std::vector<Object> m_children;                         ///< Container holding this object's children
+        std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
         unsigned char m_flags;                                  ///< Flags
-        std::vector<Object> m_children;                         ///< Container holding this object's children
-        std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
     };
 
     // Include the template implementation file

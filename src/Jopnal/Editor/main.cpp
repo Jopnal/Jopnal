@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     jope::CommandBuffer cb;
     jope::MainWindow form(e);
 
-    e->createScene<jop::Scene>("New Scene");
+    e->createScene<jop::Scene>("New Scene", form.m_oglWindow);
     e->getCurrentScene().createChild("Default Camera")
      ->createComponent<jop::Camera>(e->getCurrentScene().getRenderer(), jop::Camera::Projection::Perspective);
 

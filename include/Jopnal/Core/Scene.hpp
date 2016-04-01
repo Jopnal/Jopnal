@@ -88,6 +88,8 @@ namespace jop
         ///
         Scene(const std::string& ID);
 
+        Scene(const std::string& ID, const RenderTarget& mainTarget);
+
         /// \brief Destructor for scene class
         ///
         virtual ~Scene();
@@ -126,7 +128,7 @@ namespace jop
 
         /// \brief Get the delta time scalar
         ///
-        /// \eturn The delta time scalar
+        /// \return The delta time scalar
         ///
         float getDeltaScale() const;
 
@@ -195,6 +197,20 @@ namespace jop
         /// This will be called after objects are drawn.
         ///
         virtual void postDraw();
+
+
+        /// \brief Get this scene as object
+        ///
+        /// This can be used to work around the privately inherited Object.
+        /// Do not ever call this unless you know what you're doing.
+        ///
+        /// \return Reference to this as Object
+        ///
+        Object& getAsObject();
+
+        /// \copydoc getAsObject()
+        ///
+        const Object& getAsObject() const;
 
     private:
 
