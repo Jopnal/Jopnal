@@ -59,6 +59,7 @@ namespace jop
 
     bool Model::load(const std::string& filePath, const Mesh::LoadOptions& options)
     {
+        m_material = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>(filePath + ".mat").getReference());
         setMesh(ResourceManager::getResource<Mesh>(filePath, *m_material, options));
 
         return m_mesh.get() != &Mesh::getDefault();

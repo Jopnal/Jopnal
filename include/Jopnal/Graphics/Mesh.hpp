@@ -41,7 +41,7 @@ namespace jop
 
         /// \brief Struct for passing extra options to the load function
         ///
-        struct LoadOptions
+        struct JOP_API LoadOptions
         {
             /// \brief Default constructor
             ///

@@ -207,7 +207,7 @@ namespace jop
         std::vector<tinyobj::material_t> materials;
 
         const auto slashPos = filepath.find_last_of("/\\");
-        const std::string rootPath = slashPos == std::string::npos ? filepath : filepath.substr(0, slashPos + 1);
+        const std::string rootPath = slashPos == std::string::npos ? "" : filepath.substr(0, slashPos + 1);
 
         MatRead matReader(rootPath);
 
@@ -286,7 +286,7 @@ namespace jop
             normalsGenerated = true;
         }
 
-        if (options.transform.getMatrix() != Transform::IdentityMatrix)
+        if (/*options.transform.getMatrix() != Transform::IdentityMatrix*/false)
         {
             const auto& m = options.transform.getMatrix();
             const glm::mat3 m3(m);
@@ -308,6 +308,10 @@ namespace jop
         {
             const auto& mat = materials.front();
 
+            Material::AttribType attribs = Material::Attribute::AmbientConstant
+                | Material::Attribute::Phong
+                | Material::Attribute::Material;
+
             material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[2], mat.dissolve),
                                    Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], mat.dissolve),
                                    Color(mat.specular[0], mat.specular[1], mat.specular[2], mat.dissolve),
@@ -318,11 +322,19 @@ namespace jop
 
             // Diffuse map
             if (!mat.diffuse_texname.empty())
+            {
                 material.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(rootPath + mat.diffuse_texname));
+                attribs |= Material::Attribute::DiffuseMap;
+            }
 
             // Specular map
             if (!mat.specular_texname.empty())
+            {
                 material.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(rootPath + mat.specular_texname));
+                attribs |= Material::Attribute::SpecularMap;
+            }
+
+            material.setAttributeField(attribs);
         }
 
         m_options = options;
