@@ -90,7 +90,7 @@ namespace comp
 
                     jope::ObjectWindow::refresh();
 
-                    jope::CommandBuffer::pushCommand(new jope::ChangeObjectIDCommand(m_scene.getAsObject(), id));
+                    //jope::CommandBuffer::pushCommand(new jope::ChangeObjectIDCommand(m_scene.getAsObject(), id));
                 }
             });
             m_idBox.events().click([this](nana::arg_click arg)
@@ -480,7 +480,8 @@ namespace jope
           m_layout(*this),
           m_components(),
           m_lastObject(),
-          m_lastScene(nullptr)
+          m_lastScene(nullptr),
+          m_scrollBar(*this, true)
     {
         m_instance = this;
 
@@ -508,7 +509,8 @@ namespace jope
         m_components.reserve(obj.componentCount() + 2);
 
         // margin=[top,right,bottom,left]
-        m_layout.div("<vertical comps margin=[2,4,0,4] arrange=[80,300,variable,repeated]>");
+        m_layout.div("<vertical comps margin=[2,4,0,4] arrange=[80,300,variable,repeated]><scrollbar weight=5%>");
+        m_layout.field("scrollbar") << m_scrollBar;
 
         // Object properties
         m_components.emplace_back(std::make_unique<comp::Object>(*this, item, obj));
@@ -543,7 +545,7 @@ namespace jope
         m_layout.field("comps") << *m_components.back();
 
         // Components
-        pushComponents(scene.getAsObject());
+        //pushComponents(scene.getAsObject());
 
 
         m_lastObject = jop::WeakReference<jop::Object>();

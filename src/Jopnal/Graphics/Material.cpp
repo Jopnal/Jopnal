@@ -34,7 +34,7 @@ namespace jop
             JOP_DEBUG_ERROR("Couldn't load material, no name found");
             return false;
         }
-        Material::AttribType attr = Material::DefaultAttributes;
+        Material::AttribType attr = Material::Attribute::Default;
         if (val.HasMember("attributes") && val["attributes"].IsUint())
             attr = val["attributes"].GetUint();
         else
@@ -121,19 +121,10 @@ namespace
 
 namespace jop
 {
-    const Material::AttribType Material::DefaultAttributes = Material::Attribute::AmbientConstant
-                                                           | Material::Attribute::Material
-                                                           | Material::Attribute::DiffuseMap
-                                                           | Material::Attribute::SpecularMap
-                                                           | Material::Attribute::EmissionMap
-                                                           | Material::Attribute::Phong;
-
-    //////////////////////////////////////////////
-
     Material::Material(const std::string& name)
         : Resource      (name),
           m_reflection  (),
-          m_attributes  (DefaultAttributes),
+          m_attributes  (Attribute::Default),
           m_shininess   (1.f),
           m_maps        ()
     {
@@ -144,7 +135,7 @@ namespace jop
             Color::White,
             Color::Black
         )
-        .setMap(Map::Diffuse, Texture::getDefault());
+        .setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
     //////////////////////////////////////////////
@@ -163,7 +154,7 @@ namespace jop
             Color::White,
             Color::Black
         )
-        .setMap(Map::Diffuse, Texture::getDefault());
+        .setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
     //////////////////////////////////////////////
@@ -304,7 +295,7 @@ namespace jop
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Attribute::DiffuseMap).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Material::Attribute::Default).getReference());
             defMat->setManaged(true);
         }
 

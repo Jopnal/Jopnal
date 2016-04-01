@@ -139,39 +139,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Texture& Texture::getError()
+    void Texture::setPixelStore(const unsigned int depth)
     {
-        static WeakReference<Texture2D> errTex;
-
-        if (errTex.expired())
+        GLint param = 1;
+        switch (depth)
         {
-            errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
+            case 2:
+                param = 2;
+                break;
 
-            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
+            case 3:
+            case 4:
+                param = 4;
+                break;
 
-            errTex->setPersistence(0);
-            errTex->setManaged(true);
+            case 8:
+                param = 8;
         }
 
-        return *errTex;
-    }
-
-    //////////////////////////////////////////////
-
-    Texture& Texture::getDefault()
-    {
-        static WeakReference<Texture2D> defTex;
-
-        if (defTex.expired())
-        {
-            defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
-            
-            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
-
-            defTex->setPersistence(0);
-            defTex->setManaged(true);
-        }
-
-        return *defTex;
+        glCheck(gl::PixelStorei(gl::UNPACK_ALIGNMENT, param));
     }
 }

@@ -203,7 +203,7 @@ namespace jop
 
         // System filters
         fBegin = fBegin == std::string::npos ? endPos - 1 : fBegin - 1;
-        if (filter[fBegin] != '[')
+        if (filter[fBegin] != '[' && filter.find_last_of("-*=(<", 1) == std::string::npos)
         {
             static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Engine | Subsystem | SharedScene | Scene | Object | Component));
             m_filterBits &= systemBitsInv;

@@ -72,6 +72,19 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Cubemap& getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Cubemap& getDefault();
+
     private:
 
         glm::uvec2 m_size;              ///< Size

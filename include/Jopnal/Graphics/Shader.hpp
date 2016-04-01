@@ -252,6 +252,14 @@ namespace jop
         ///
         static Shader& getDefault();
 
+        /// \brief Get the error shader
+        ///
+        /// This shader will paint any drawn object bright red.
+        ///
+        /// \return Reference to the error shader
+        ///
+        static Shader& getError();
+
     private:
 
         /// \brief Get location of uniform by name

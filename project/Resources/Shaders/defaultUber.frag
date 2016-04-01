@@ -494,7 +494,12 @@ void main()
             JMAT_AMBIENT;
         #endif
     #else
-        vec3(0.0, 0.0, 0.0);
+        #ifndef JMAT_PHONG
+            vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #else
+            vec3(0.0, 0.0, 0.0)
+        #endif
+        ;
     #endif
 
     #ifdef JMAT_ENVIRONMENTMAP

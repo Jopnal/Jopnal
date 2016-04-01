@@ -64,16 +64,19 @@ namespace jop
 
                 // Lighting models
                 Phong           = 1 << 12,
-                // BlinnPhong TODO
-                // Gouraud TODO
+                BlinnPhong      = Phong, //
+                Gouraud         = Phong, // TODO: Implement these
+                Flat            = Phong, //
+
+                // Bundles
+                Default         = DiffuseMap,
+                DefaultLighting = AmbientConstant | BlinnPhong | Material,
 
                 // For internal functionality, do not use
                 RecordEnv       = 1u << 31,
-                Lighting        = Phong
+                Lighting        = Phong | BlinnPhong | Gouraud | Flat
             };
         };
-
-        static const AttribType DefaultAttributes;
 
         /// The reflection attribute
         ///

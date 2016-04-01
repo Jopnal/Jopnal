@@ -101,18 +101,7 @@ namespace jop
         ///
         static unsigned int getMaxTextureUnits();
 
-
-        /// \brief Get the error texture
-        ///
-        /// \return Reference to the texture
-        ///
-        static Texture& getError();
-
-        /// \brief Get the default texture
-        ///
-        /// \return Reference to the texture
-        ///
-        static Texture& getDefault();
+        static void setPixelStore(const unsigned int depth);
 
     private:
 

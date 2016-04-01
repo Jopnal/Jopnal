@@ -480,22 +480,38 @@ namespace jop
 
         if (defShader.expired())
         {
-            std::vector<unsigned char> vert;
-            std::vector<unsigned char> frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
+            defShader = static_ref_cast<Shader>(ShaderManager::getShader(Material::Attribute::Default).getReference());
 
-            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_default").getReference());
-
-            JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                            "",
-                                            std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                                            "Couldn't compile the default shader!");
-
-            defShader->setPersistence(0);
-            defShader->setManaged(true);
+            JOP_ASSERT(defShader.get() != &getError(), "Failed to compile default shader!");
         }
 
         return *defShader;
+    }
+
+    //////////////////////////////////////////////
+
+    Shader& Shader::getError()
+    {
+        static WeakReference<Shader> errShader;
+
+        if (errShader.expired())
+        {
+            std::vector<unsigned char> vert;
+            std::vector<unsigned char> frag;
+            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load error shader!");
+
+            errShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_error").getReference());
+
+            JOP_ASSERT_EVAL(errShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                "",
+                std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                "Couldn't compile the default shader!");
+
+            errShader->setPersistence(0);
+            errShader->setManaged(true);
+        }
+
+        return *errShader;
     }
 
     //////////////////////////////////////////////

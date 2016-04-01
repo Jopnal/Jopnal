@@ -125,6 +125,19 @@ namespace jop
         ///
         static bool checkDepthValid(const unsigned int depth);
 
+
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture2D& getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture2D& getDefault();
+
     private:
 
         /// For internal use

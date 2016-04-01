@@ -121,4 +121,64 @@ namespace jop
     {
         return m_size;
     }
+
+    //////////////////////////////////////////////
+
+    Cubemap& Cubemap::getError()
+    {
+        static WeakReference<Cubemap> errTex;
+
+        if (errTex.expired())
+        {
+            errTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
+
+            std::vector<unsigned char> buf;
+            FileLoader::readFromDll(IDB_PNG2, buf);
+
+            int x, y, bpp;
+            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+
+            errTex->load(glm::uvec2(x, y), bpp);
+
+            GLenum depthEnum = Texture2D::getFormatEnum(bpp);
+            for (std::size_t i = 0; i < 6; ++i)
+            {
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            }
+
+            stbi_image_free(pix);
+        }
+
+        return *errTex;
+    }
+
+    //////////////////////////////////////////////
+
+    Cubemap& Cubemap::getDefault()
+    {
+        static WeakReference<Cubemap> defTex;
+
+        if (defTex.expired())
+        {
+            defTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
+
+            std::vector<unsigned char> buf;
+            FileLoader::readFromDll(IDB_PNG1, buf);
+
+            int x, y, bpp;
+            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+
+            defTex->load(glm::uvec2(x, y), bpp);
+
+            GLenum depthEnum = Texture2D::getFormatEnum(bpp);
+            for (std::size_t i = 0; i < 6; ++i)
+            {
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            }
+
+            stbi_image_free(pix);
+        }
+
+        return *defTex;
+    }
 }
