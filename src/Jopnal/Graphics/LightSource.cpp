@@ -368,8 +368,8 @@ namespace jop
     LightSource& LightSource::setIntensity(const Color intensity)
     {
         return setIntensity(Intensity::Ambient, intensity)
-              .setIntensity(LightSource::Intensity::Diffuse, intensity)
-              .setIntensity(LightSource::Intensity::Specular, intensity);
+              .setIntensity(Intensity::Diffuse, intensity)
+              .setIntensity(Intensity::Specular, intensity);
     }
 
     ///////////////////////////////////////////
