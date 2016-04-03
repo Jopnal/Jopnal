@@ -366,7 +366,7 @@ namespace jop
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Material::Attribute::Default).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material").getReference());
             defMat->setManaged(true);
         }
 

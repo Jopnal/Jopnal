@@ -458,7 +458,7 @@ void main()
             JMAT_AMBIENT;
         #endif
     #else
-        #if defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
+        #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
             vec3(texture(u_DiffuseMap, outVert.TexCoords))
         #else
             vec3(0.0, 0.0, 0.0)
