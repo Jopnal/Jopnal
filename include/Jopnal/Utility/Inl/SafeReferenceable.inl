@@ -96,6 +96,14 @@ inline bool WeakReference<T>::expired() const
 //////////////////////////////////////////////
 
 template<typename T>
+inline void WeakReference<T>::reset()
+{
+    m_ref.reset();
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
 inline T* WeakReference<T>::get()
 {
     return *m_ref.lock();

@@ -43,24 +43,24 @@ namespace jop
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, const std::string& ID, Renderer& renderer)
-        : Component         (object, ID),
-          m_model           (Model::getDefault()),
-          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
-          m_rendererRef     (renderer),
-          m_renderGroup     (0),
-          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
+    Drawable::Drawable(Object& object, Renderer& renderer, const std::string& ID)
+        : Component     (object, ID),
+          m_model       (Model::getDefault()),
+          m_shader      (),
+          m_rendererRef (renderer),
+          m_renderGroup (0),
+          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
         renderer.bind(*this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component         (other, newObj),
-          m_model           (other.m_model),
-          m_shader          (other.m_shader),
-          m_rendererRef     (other.m_rendererRef),
-          m_renderGroup     (other.m_renderGroup),
-          m_flags           (other.m_flags)
+        : Component     (other, newObj),
+          m_model       (other.m_model),
+          m_shader      (other.m_shader),
+          m_rendererRef (other.m_rendererRef),
+          m_renderGroup (other.m_renderGroup),
+          m_flags       (other.m_flags)
     {
         m_rendererRef.bind(*this);
     }
@@ -74,7 +74,9 @@ namespace jop
 
     void Drawable::draw(const Camera& camera, const LightContainer& lights) const
     {
-        draw(&camera, lights, *getShader());
+        auto shdr = ((m_model.getMaterial().expired() || !m_model.getMaterial()->getShader()) && m_shader.expired()) ? m_shader.get() : m_model.getMaterial()->getShader();
+
+        draw(&camera, lights, shdr == nullptr ? *(m_shader = static_ref_cast<Shader>(Shader::getDefault().getReference())) : *shdr);
     }
 
     //////////////////////////////////////////////
@@ -107,13 +109,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setModel(const Model& model, const bool loadMaterialShader)
+    Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
-
-        if (loadMaterialShader && !m_model.getMaterial().expired())
-            setShader(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()));
-
         return *this;
     }
 
@@ -141,9 +139,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Shader> Drawable::getShader() const
+    Shader* Drawable::getShader()
     {
-        return m_shader;
+        return m_shader.get();
+    }
+
+    //////////////////////////////////////////////
+
+    const Shader* Drawable::getShader() const
+    {
+        return m_shader.get();
     }
 
     //////////////////////////////////////////////

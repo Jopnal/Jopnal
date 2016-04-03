@@ -43,7 +43,7 @@ namespace jop
 namespace jop
 {
     GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
-        : Drawable(object, "genericdrawable", renderer)
+        : Drawable(object, renderer, "genericdrawable")
     {}
 
     GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)
@@ -63,7 +63,8 @@ namespace jop
 
         auto& modelMat = getObject()->getMatrix();
 
-        // Set common uniforms
+        // Set common uniforms. If camera is null, it means that the perspective and view matrices
+        // have already been set somewhere else
         if (camera)
         {
             s.setUniform("u_PMatrix", camera->getProjectionMatrix());

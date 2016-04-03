@@ -141,6 +141,13 @@ namespace jop
         bool expired() const;
 
 
+        /// \brief Reset this reference
+        ///
+        /// After this call, this reference won't point to anything.
+        ///
+        void reset();
+
+
         /// \brief Get a pointer to the bound object
         ///
         /// \return Pointer to the object. Nullptr if expired

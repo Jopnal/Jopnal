@@ -61,6 +61,8 @@ namespace jop
                 EmissionMap     = 1 << 4,
                 EnvironmentMap  = 1 << 5,
                 ReflectionMap   = 1 << 6,
+                //NormalMap
+                //ParallaxMap
 
                 // Lighting models
                 Phong           = 1 << 12,
@@ -86,6 +88,8 @@ namespace jop
             Diffuse,
             Specular,
             Emission,
+            //Normal
+            //Parallax
 
             Solid = Emission
         };
@@ -98,7 +102,10 @@ namespace jop
             Specular,
             Emission,
             Environment,
-            Reflection
+            Reflection,
+
+            /// For internal use. Never use this
+            Last
         };
 
         /// Predefined material properties
@@ -154,6 +161,10 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         ///
         void sendToShader(Shader& shader) const;
+
+        Shader* getShader();
+
+        const Shader* getShader() const;
 
 
         /// \brief Set a reflection value
@@ -228,6 +239,8 @@ namespace jop
         ///
         Material& setMap(const Map map, const Texture& tex);
 
+        Material& removeMap(const Map map);
+
         /// \brief Get a map
         ///
         /// \param map The map attribute
@@ -241,7 +254,7 @@ namespace jop
         ///
         /// \param attribs The attributes to set
         ///
-        void setAttributeField(const AttribType attribs);
+        Material& setAttributeField(const AttribType attribs);
 
         /// \brief Get the attribute bit field
         ///
@@ -257,6 +270,14 @@ namespace jop
         ///
         bool hasAttribute(const AttribType attrib) const;
 
+        bool hasAttributes(const AttribType attribs) const;
+
+        bool compareAttributes(const AttribType attribs) const;
+
+        Material& addAttributes(const AttribType attribs);
+
+        Material& removeAttributes(const AttribType attribs);
+
 
         /// \brief Get the default material
         ///
@@ -266,11 +287,17 @@ namespace jop
 
     private:
 
-        std::array<Color, 4> m_reflection;                  ///< The reflection values
-        float m_reflectivity;                               ///< The reflectivity value
-        AttribType m_attributes;                            ///< The attribute bit field
-        float m_shininess;                                  ///< The shininess factor
-        std::array<WeakReference<const Texture>, 5> m_maps; ///< An array with the bound maps
+        std::array<Color, 4> m_reflection;  ///< The reflection values
+        float m_reflectivity;               ///< The reflectivity value
+        AttribType m_attributes;            ///< The attribute bit field
+        float m_shininess;                  ///< The shininess factor
+        std::array
+        <
+            WeakReference<const Texture>,
+            static_cast<int>(Map::Last) - 1
+        > m_maps;                           ///< An array with the bound maps
+        WeakReference<Shader> m_shader;     ///< Shader fitting the attributes
+        bool m_attributesChanged;           ///< Have the attributes been changed?
     };
 }
 

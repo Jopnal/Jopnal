@@ -62,10 +62,10 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Component identifier
         /// \param renderer Reference to the renderer
+        /// \param ID Component identifier
         ///
-        Drawable(Object& object, const std::string& ID, Renderer& renderer);
+        Drawable(Object& object, Renderer& renderer, const std::string& ID);
 
         /// \brief Virtual destructor
         ///
@@ -127,7 +127,7 @@ namespace jop
         ///
         /// \comm setModel
         ///
-        Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
+        Drawable& setModel(const Model& model);
 
         /// \brief Get the model
         ///
@@ -148,11 +148,13 @@ namespace jop
         ///
         Drawable& setShader(Shader& shader);
 
+        Shader* getShader();
+
         /// \brief Get the shader
         ///
         /// \return Weak pointer to the shader. Empty if none bound
         ///
-        WeakReference<Shader> getShader() const;
+        const Shader* getShader() const;
 
 
         /// \brief Set whether or not this drawable receives lights
@@ -249,8 +251,8 @@ namespace jop
 
     private:
 
-        Model m_model;                  ///< The bound model
-        WeakReference<Shader> m_shader; ///< The bound shader
+        mutable Model m_model;                  ///< The bound model
+        mutable WeakReference<Shader> m_shader; ///< The bound shader
         Renderer& m_rendererRef;        ///< Reference to the renderer
         uint8 m_renderGroup;            ///< The render group
         unsigned char m_flags;          ///< Property flags

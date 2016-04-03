@@ -117,6 +117,14 @@ namespace
     static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
     static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
+
+    static const jop::Color ns_defColors[] =
+    {
+        jop::Color::Black,
+        jop::Color::White,
+        jop::Color::White,
+        jop::Color::Black
+    };
 }
 
 namespace jop
@@ -124,21 +132,13 @@ namespace jop
     Material::Material(const std::string& name)
         : Resource      (name),
           m_reflection  (),
-          m_attributes  (Attribute::Default),
+          m_attributes  (0),
           m_shininess   (1.f),
           m_maps        ()
     {
-        setReflection
-        (
-            Color::Black,
-            Color::White,
-            Color::White,
-            Color::Black
-        )
-        .setMap(Map::Diffuse, Texture2D::getDefault());
+        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
+        setMap(Map::Diffuse, Texture2D::getDefault());
     }
-
-    //////////////////////////////////////////////
 
     Material::Material(const std::string& name, const AttribType attributes)
         : Resource      (name),
@@ -147,14 +147,7 @@ namespace jop
           m_shininess   (1.f),
           m_maps        ()
     {
-        setReflection
-        (
-            Color::Black,
-            Color::White,
-            Color::White,
-            Color::Black
-        )
-        .setMap(Map::Diffuse, Texture2D::getDefault());
+        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
     }
 
     //////////////////////////////////////////////
@@ -198,10 +191,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Shader* Material::getShader()
+    {
+        if (m_shader.expired() || m_attributesChanged)
+        {
+            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_attributes).getReference());
+            m_attributesChanged = false;
+        }
+
+        return m_shader.get();
+    }
+
+    //////////////////////////////////////////////
+
+    const Shader* Material::getShader() const
+    {
+        return m_shader.get();
+    }
+
+    //////////////////////////////////////////////
+
     Material& Material::setReflection(const Reflection reflection, const Color color)
     {
         m_reflection[static_cast<int>(reflection)] = color;
-        return *this;
+
+        return addAttributes(Attribute::DefaultLighting);
     }
 
     //////////////////////////////////////////////
@@ -226,7 +240,8 @@ namespace jop
     Material& Material::setShininess(const float value)
     {
         m_shininess = value;
-        return *this;
+
+        return addAttributes(Attribute::DefaultLighting);
     }
 
     //////////////////////////////////////////////
@@ -241,7 +256,8 @@ namespace jop
     Material& Material::setReflectivity(const float reflectivity)
     {
         m_reflectivity = reflectivity;
-        return *this;
+
+        return addAttributes(Attribute::EnvironmentMap);
     }
 
     //////////////////////////////////////////////
@@ -253,10 +269,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    namespace detail
+    {
+        static const int mapAttribs[] =
+        {
+            Material::Attribute::DiffuseMap,
+            Material::Attribute::SpecularMap,
+            Material::Attribute::EmissionMap,
+            Material::Attribute::EnvironmentMap,
+            Material::Attribute::ReflectionMap
+        };
+    }
+
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        m_maps[static_cast<int>(map) - 1] = static_ref_cast<const Texture>(tex.getReference());
-        return *this;
+        const int mapIndex = static_cast<int>(map) - 1;
+        m_maps[mapIndex] = static_ref_cast<const Texture>(tex.getReference());
+
+        return addAttributes(detail::mapAttribs[mapIndex]);
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::removeMap(const Map map)
+    {
+        const int mapIndex = static_cast<int>(map) - 1;
+        m_maps[mapIndex].reset();
+
+        return removeAttributes(detail::mapAttribs[mapIndex]);
     }
 
     //////////////////////////////////////////////
@@ -268,9 +308,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::setAttributeField(const AttribType attribs)
+    Material& Material::setAttributeField(const AttribType attribs)
     {
+        m_attributesChanged = m_attributesChanged || m_attributes != attribs;
+
         m_attributes = attribs;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -285,6 +328,34 @@ namespace jop
     bool Material::hasAttribute(const AttribType attrib) const
     {
         return (m_attributes & attrib) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Material::hasAttributes(const AttribType attribs) const
+    {
+        return (m_attributes & attribs) == attribs;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Material::compareAttributes(const AttribType attribs) const
+    {
+        return m_attributes == attribs;
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::addAttributes(const AttribType attribs)
+    {
+        return setAttributeField(getAttributeField() | attribs);
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::removeAttributes(const AttribType attribs)
+    {
+        return setAttributeField(getAttributeField() & ~attribs);
     }
 
     //////////////////////////////////////////////
