@@ -53,7 +53,6 @@ namespace jop
             {
                 // Misc
                 AmbientConstant = 1,
-                Material        = 1 << 1,
 
                 // Maps
                 DiffuseMap      = 1 << 2,
@@ -72,7 +71,7 @@ namespace jop
 
                 // Bundles
                 Default         = DiffuseMap,
-                DefaultLighting = AmbientConstant | BlinnPhong | Material,
+                DefaultLighting = AmbientConstant | BlinnPhong,
 
                 // For internal functionality, do not use
                 RecordEnv       = 1u << 31,

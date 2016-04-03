@@ -309,8 +309,7 @@ namespace jop
             const auto& mat = materials.front();
 
             Material::AttribType attribs = Material::Attribute::AmbientConstant
-                | Material::Attribute::Phong
-                | Material::Attribute::Material;
+                | Material::Attribute::Phong;
 
             material.setReflection(Color(mat.ambient[0], mat.ambient[1], mat.ambient[2], mat.dissolve),
                                    Color(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], mat.dissolve),

@@ -104,7 +104,7 @@ namespace jop
         }
 
         // Material
-        if ((attrib & m::Material) != 0)
+        if ((attrib & m::Lighting) != 0)
             str += "#define JMAT_MATERIAL\n";
         
         // Diffuse map

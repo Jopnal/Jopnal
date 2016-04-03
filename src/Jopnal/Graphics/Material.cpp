@@ -156,7 +156,7 @@ namespace jop
     {
         if (shader.bind())
         {
-            if (hasAttribute(Attribute::Material))
+            if (hasAttribute(Attribute::Lighting))
             {
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
