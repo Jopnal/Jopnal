@@ -139,6 +139,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Drawable& Drawable::removeShader(const bool loadMaterialShader)
+    {
+        if (loadMaterialShader && !m_model.getMaterial().expired())
+            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()).getReference());
+        else
+            m_shader.reset();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     Shader* Drawable::getShader()
     {
         return m_shader.get();

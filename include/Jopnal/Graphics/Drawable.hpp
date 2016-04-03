@@ -148,6 +148,8 @@ namespace jop
         ///
         Drawable& setShader(Shader& shader);
 
+        Drawable& removeShader(const bool loadMaterialShader = true);
+
         Shader* getShader();
 
         /// \brief Get the shader

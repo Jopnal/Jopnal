@@ -159,7 +159,7 @@ namespace jop
         ///
         /// \param shader Reference to the shader to send this material to
         ///
-        void sendToShader(Shader& shader) const;
+        void sendToShader(Shader& shader, const Camera* camera) const;
 
         Shader* getShader();
 

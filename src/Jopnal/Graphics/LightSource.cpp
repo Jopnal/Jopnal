@@ -527,11 +527,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Camera* camera, const Drawable& drawable) const
+    void LightContainer::sendToShader(Shader& shader, const Drawable& drawable) const
     {
         shader.setUniform("u_ReceiveLights", drawable.receiveLights());
 
-        if (!drawable.receiveLights())
+        if (!drawable.receiveLights() || empty())
             return;
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
@@ -544,10 +544,6 @@ namespace jop
 
         static const unsigned int spotShadowStartUnit = dirShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Directional);
         unsigned int currentSpotShadowUnit = spotShadowStartUnit;
-
-        // Send camera position to shader
-        if (camera)
-            shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
 
         // Point lights
         {

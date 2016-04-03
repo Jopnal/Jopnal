@@ -40,12 +40,14 @@
     // Does the object receive shadows?
     uniform bool u_ReceiveShadows;
 
-    // Camera position
-    uniform vec3 u_CameraPosition;
-
     // Fragment position from vertex/geometry shader
     in vec3 vgf_FragPosition;
 
+#endif
+
+// Camera position
+#if defined(JMAT_PHONG) || defined(JMAT_ENVIRONMENTMAP)
+    uniform vec3 u_CameraPosition;
 #endif
 
 // Vertex attribute data
@@ -491,6 +493,7 @@ void main()
 
     // Do lighting calculations
     #ifdef JMAT_PHONG
+
         if (u_ReceiveLights)
         {
             // Point lights
@@ -505,6 +508,7 @@ void main()
             for (uint i = 0u; i < u_NumSpotLights; ++i)
                 tempColor += calculateSpotLight(i);
         }
+
     #endif
 
     // Emission

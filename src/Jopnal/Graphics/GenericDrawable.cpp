@@ -79,17 +79,18 @@ namespace jop
 
         if (!mod.getMaterial().expired())
         {
-            if (!lights.empty() && mod.getMaterial()->hasAttribute(Material::Attribute::Lighting))
+            if (mod.getMaterial()->hasAttribute(Material::Attribute::Lighting | Material::Attribute::EnvironmentMap))
             {
                 s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
                 // Set lights
-                lights.sendToShader(s, camera, *this);
+                if (mod.getMaterial()->hasAttribute(Material::Attribute::Lighting))
+                    lights.sendToShader(s, *this);
             }
 
             // Set material
-            mod.getMaterial()->sendToShader(s);
+            mod.getMaterial()->sendToShader(s, camera);
         }
 
     #ifdef JOP_DEBUG_MODE

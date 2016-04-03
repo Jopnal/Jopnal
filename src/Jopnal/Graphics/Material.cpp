@@ -152,10 +152,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(Shader& shader) const
+    void Material::sendToShader(Shader& shader, const Camera* camera) const
     {
         if (shader.bind())
         {
+            // Send camera position to shader
+            if (camera && hasAttribute(Attribute::Lighting | Attribute::EnvironmentMap))
+                shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
+
             if (hasAttribute(Attribute::Lighting))
             {
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
