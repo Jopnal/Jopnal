@@ -37,44 +37,48 @@ namespace
 
         struct Logger : Assimp::Logger
         {
-            Logger()
-                : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL)
-            {}
-
+            Logger() : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL){}
             bool attachStream(Assimp::LogStream*, unsigned int)
-            {
-                return true;
-            }
+            {return true;}
             bool detatchStream(Assimp::LogStream*, unsigned int)
-            {
-                return true;
-            }
-
+            {return true;}
             void OnDebug(const char*) override
-            {
-
-            }
-
+            {}
             void OnInfo(const char* message) override
-            {
-                JOP_DEBUG_INFO(message);
-            }
-
+            {JOP_DEBUG_INFO(message);}
             void OnWarn(const char* message) override
-            {
-                JOP_DEBUG_WARNING(message);
-            }
-
+            {JOP_DEBUG_WARNING(message);}
             void OnError(const char* message) override
-            {
-                JOP_DEBUG_ERROR(message);
-            }
+            {JOP_DEBUG_ERROR(message);}
         };
-
         Assimp::DefaultLogger::set(new Logger);
 
         ns_importer = std::make_unique<Assimp::Importer>();
         
+        struct Streamer : Assimp::IOSystem
+        {
+            bool Exists(const char* pFile) const override
+            {
+                throw std::logic_error("The method or operation is not implemented.");
+            }
+
+            char getOsSeparator() const override
+            {
+                throw std::logic_error("The method or operation is not implemented.");
+            }
+
+            Assimp::IOStream* Open(const char* pFile, const char* pMode) override
+            {
+                throw std::logic_error("The method or operation is not implemented.");
+            }
+
+            void Close(Assimp::IOStream* pFile) override
+            {
+                throw std::logic_error("The method or operation is not implemented.");
+            }
+        };
+        
+        ns_importer->SetIOHandler(new Streamer);
     }
 }
 

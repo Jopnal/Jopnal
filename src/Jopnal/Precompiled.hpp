@@ -94,6 +94,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/Logger.hpp>
 #include <assimp/DefaultLogger.hpp>
+#include <assimp/IOSystem.hpp>
 
 // Standard headers
 #include <algorithm>
