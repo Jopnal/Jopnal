@@ -453,7 +453,7 @@ namespace jop
     
     //////////////////////////////////////////////
 
-    void Shader::validate() const
+    bool Shader::validate() const
     {
         glCheck(gl::ValidateProgram(m_shaderProgram));
 
@@ -468,8 +468,11 @@ namespace jop
             std::string log(size, '0');
             glCheck(gl::GetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
 
-            JOP_ASSERT(false, log);
+            JOP_DEBUG_ERROR("Shader validation failed: " << log);
+            return false;
         }
+
+        return true;
     }
 
     //////////////////////////////////////////////

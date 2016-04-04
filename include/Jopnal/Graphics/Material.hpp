@@ -145,7 +145,7 @@ namespace jop
         ///
         /// \param name Name of this material
         ///
-        Material(const std::string& name);
+        Material(const std::string& name, const bool autoAttributes = true);
 
         /// \brief Overloaded constructor for initializing with attributes
         ///
@@ -161,9 +161,11 @@ namespace jop
         ///
         void sendToShader(Shader& shader, const Camera* camera) const;
 
-        Shader* getShader();
-
-        const Shader* getShader() const;
+        /// \brief Get the shader
+        ///
+        /// \return Pointer to the shader
+        ///
+        Shader* getShader() const;
 
 
         /// \brief Set a reflection value
@@ -294,9 +296,10 @@ namespace jop
         <
             WeakReference<const Texture>,
             static_cast<int>(Map::Last) - 1
-        > m_maps;                           ///< An array with the bound maps
-        WeakReference<Shader> m_shader;     ///< Shader fitting the attributes
-        bool m_attributesChanged;           ///< Have the attributes been changed?
+        > m_maps;                               ///< An array with the bound maps
+        mutable WeakReference<Shader> m_shader; ///< Shader fitting the attributes
+        mutable bool m_attributesChanged;       ///< Have the attributes been changed?
+        bool m_autoAttribs;                     ///< Use automatic attributes?
     };
 }
 

@@ -149,13 +149,13 @@ namespace jop
         ///
         /// \comm removeComponents
         /// 
-        void removeComponents(const std::string& ID);
+        Object& removeComponents(const std::string& ID);
 
         /// \brief Remove all components
         ///
         /// \comm clearComponents
         /// 
-        void clearComponents();
+        Object& clearComponents();
 
         /// \brief Get amount of components
         ///
@@ -224,7 +224,7 @@ namespace jop
         ///
         /// \comm removeChildren
         /// 
-        void removeChildren(const std::string& ID);
+        Object& removeChildren(const std::string& ID);
 
         /// \brief Remove all children
         ///
@@ -232,7 +232,7 @@ namespace jop
         /// 
         /// the children will be removed immediately.
         ///
-        void clearChildren();
+        Object& clearChildren();
 
         /// \brief Mark this to be removed
         ///
@@ -273,7 +273,7 @@ namespace jop
         ///
         /// \comm setIgnoreParent
         ///
-        void setIgnoreParent(const bool ignore);
+        Object& setIgnoreParent(const bool ignore);
 
         /// \brief Check if this object ignores its parent
         ///
@@ -303,6 +303,9 @@ namespace jop
 
 
         /// \brief Get the scene this objects is bound to
+        ///
+        /// You should avoid calling this when you can use jop::Engine::getCurrentScene
+        /// or jop::Engine::getSharedScene.
         ///
         /// \return Reference to the scene
         ///
@@ -383,7 +386,7 @@ namespace jop
         ///
         /// \comm setActive
         /// 
-        void setActive(const bool active);
+        Object& setActive(const bool active);
 
         /// \brief Check if this object is active
         ///
@@ -404,7 +407,7 @@ namespace jop
         ///
         /// \comm setID
         /// 
-        void setID(const std::string& ID);
+        Object& setID(const std::string& ID);
 
 
         /// \brief Adds tag to m_tags set
@@ -413,7 +416,7 @@ namespace jop
         ///
         /// \param tag Name of the added tag
         ///
-        void addTag(const std::string& tag);
+        Object& addTag(const std::string& tag);
 
         /// \brief Removes tag from m_tags set
         ///
@@ -421,13 +424,13 @@ namespace jop
         ///
         /// \param tag Name of the removable tag 
         ///
-        void removeTag(const std::string& tag);
+        Object& removeTag(const std::string& tag);
 
         /// \brief Clears m_tags set
         ///
         /// \comm clearTag
         ///
-        void clearTags();
+        Object& clearTags();
 
         /// \brief Finds out if object has tag name tag
         ///

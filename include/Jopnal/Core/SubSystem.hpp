@@ -101,7 +101,7 @@ namespace jop
         ///
         /// \param active True to set active
         ///
-        void setActive(const bool active);
+        Subsystem& setActive(const bool active);
 
         /// \brief Check if this sub system is active
         ///
@@ -114,7 +114,7 @@ namespace jop
         ///
         /// \param ID The new id to be set
         ///
-        void setID(const std::string& ID);
+        Subsystem& setID(const std::string& ID);
 
         /// \brief Get the name
         ///

@@ -54,12 +54,13 @@ namespace jop
 
     void GenericDrawable::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
     {
-        if (getModel().getMesh().expired())
+        // Check that there's a mesh and a material
+        if (!getModel().isValid())
             return;
 
         auto& s = shader;
-        auto& mod = getModel();
-        auto& msh = *mod.getMesh();
+        auto& mat = *getModel().getMaterial();
+        auto& msh = *getModel().getMesh();
 
         auto& modelMat = getObject()->getMatrix();
 
@@ -77,43 +78,40 @@ namespace jop
         s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
         s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
 
-        if (!mod.getMaterial().expired())
+        if (mat.hasAttribute(Material::Attribute::Lighting | Material::Attribute::EnvironmentMap))
         {
-            if (mod.getMaterial()->hasAttribute(Material::Attribute::Lighting | Material::Attribute::EnvironmentMap))
-            {
-                s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-                s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+            s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
+            s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
 
-                // Set lights
-                if (mod.getMaterial()->hasAttribute(Material::Attribute::Lighting))
-                    lights.sendToShader(s, *this);
-            }
-
-            // Set material
-            mod.getMaterial()->sendToShader(s, camera);
+            // Set lights
+            if (mat.hasAttribute(Material::Attribute::Lighting))
+                lights.sendToShader(s, *this);
         }
+
+        // Set material
+        mat.sendToShader(s, camera);
 
     #ifdef JOP_DEBUG_MODE
 
         static const bool validate = SettingManager::getBool("bValidateShaders", false);
 
-        if (validate)
-            s.validate();
+        if (validate && !s.validate())
+            return;
 
     #endif
 
         // Use indices if they exist
-        if (mod.getElementAmount())
+        if (msh.getElementAmount())
         {
             // Bind index buffer
             msh.getIndexBuffer().bind();
 
             // Finally draw
-            glCheck(gl::DrawElements(gl::TRIANGLES, mod.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mod.getVertexAmount()));
+            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
         }
     }
 }

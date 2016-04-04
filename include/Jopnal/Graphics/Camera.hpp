@@ -108,7 +108,7 @@ namespace jop
         ///
         /// \param mask The new mask to set
         ///
-        void setRenderMask(const uint32 mask);
+        Camera& setRenderMask(const uint32 mask);
 
         /// \brief Get the render mask
         ///

@@ -53,6 +53,12 @@ namespace jop
         ///
         Model(const Mesh& mesh, const Material& material);
 
+        Model(const Model& other);
+
+        Model& operator =(const Model& other);
+
+        ~Model();
+
         /// \brief Loads a .obj model from file
         ///
         /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
@@ -61,14 +67,14 @@ namespace jop
         /// \param filePath The path to the file you want to load
         /// \param options Extra options for loading
         ///
-        bool load(const std::string& filePath, const Mesh::LoadOptions& options = Mesh::DefaultOptions);
+        bool load(const std::string& filePath);
 
 
         /// \brief Get the mesh
         ///
         /// \return Pointer to the mesh
         ///
-        WeakReference<const Mesh> getMesh() const;
+        const Mesh* getMesh() const;
 
         /// \brief Set the mesh
         ///
@@ -78,15 +84,9 @@ namespace jop
         ///
         Model& setMesh(const Mesh& mesh);
 
-        /// \brief Get the material
-        ///
-        /// \return Reference to the material
-        ///
-        WeakReference<Material> getMaterial();
-
         /// \copydoc getMaterial()
         ///
-        WeakReference<const Material> getMaterial() const;
+        const Material* getMaterial() const;
 
         /// \brief Set the material
         ///
@@ -107,6 +107,15 @@ namespace jop
         /// \copydoc Mesh::getElementAmount()
         ///
         unsigned int getElementAmount() const;
+
+
+        /// \brief Check if this model is valid
+        ///
+        /// The model is valid if both a valid mesh and material are present.
+        ///
+        /// \return True if valid
+        ///
+        bool isValid() const;
 
 
         /// \brief Get the default model

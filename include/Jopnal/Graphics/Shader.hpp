@@ -243,7 +243,9 @@ namespace jop
         /// This is useful for catching shader errors. You should never call this
         /// unless you have a need to debug your shaders.
         ///
-        void validate() const;
+        /// \return True if validation passed
+        ///
+        bool validate() const;
 
         
         /// \brief Get the default shader

@@ -42,29 +42,29 @@ namespace jop
 
         // Object
         // Component
-        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearComponents, "clearComponents");
 
         // Activity
-        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setActive, "setActive");
 
         // Children
         JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
 
         // Tags
-        JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
 
         // Other
         JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
-        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -200,20 +200,23 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::removeComponents(const std::string& ID)
+    Object& Object::removeComponents(const std::string& ID)
     {
         m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
         {
             return comp->getID() == ID;
 
         }), m_components.end());
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::clearComponents()
+    Object& Object::clearComponents()
     {
         m_components.clear();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -298,20 +301,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::removeChildren(const std::string& ID)
+    Object& Object::removeChildren(const std::string& ID)
     {
         for (auto& i : m_children)
         {
             if (i.getID() == ID)
                 i.removeSelf();
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::clearChildren()
+    Object& Object::clearChildren()
     {
         m_children.clear();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -352,9 +358,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::setIgnoreParent(const bool ignore)
+    Object& Object::setIgnoreParent(const bool ignore)
     {
         m_flags = (ignore ? m_flags | IgnoreParentFlag : m_flags & ~(IgnoreParentFlag));
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -566,7 +573,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::setActive(const bool active)
+    Object& Object::setActive(const bool active)
     {
         if (isActive() != active)
         {
@@ -578,6 +585,8 @@ namespace jop
             for (auto& i : m_children)
                 i.setActive(active);
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -612,30 +621,34 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::setID(const std::string& ID)
+    Object& Object::setID(const std::string& ID)
     {
         m_ID = ID;
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::addTag(const std::string& tag)
+    Object& Object::addTag(const std::string& tag)
     {
         m_tags.insert(tag);
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::removeTag(const std::string& tag)
+    Object& Object::removeTag(const std::string& tag)
     {
         m_tags.erase(tag);
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::clearTags()
+    Object& Object::clearTags()
     {
         m_tags.clear();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -681,5 +694,4 @@ namespace jop
             m_flags &= ~(ChildrenRemovedFlag);
         }
     }
-
 }

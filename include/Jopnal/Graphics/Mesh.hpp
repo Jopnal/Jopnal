@@ -39,33 +39,19 @@ namespace jop
     {
     public:
 
-        /// \brief Struct for passing extra options to the load function
+        /// Vertex components
         ///
-        struct JOP_API LoadOptions
+        enum VertexComponent : uint16
         {
-            /// \brief Default constructor
-            ///
-            LoadOptions() = default;
+            Position    = 1,
+            TexCoords   = 1 << 2,
+            Normal      = 1 << 3,
+            Tangent     = 1 << 4,
+            Color       = 1 << 5,
+            BoneWeight  = 1 << 6,
 
-            /// \brief Constructor for initialization
-            ///
-            /// \param centerOrigin_ Center the origin?
-            /// \param flipV_ Flip the V texture coordinate?
-            /// \param generateNormals_ Generate normals in case they don't exist?
-            ///
-            LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
-
-            Transform transform;    ///< Transform for pre-transforming the vertices
-            bool centerOrigin;      ///< Center the origin?
-            bool flipV;             ///< Flip the V texture coordinate?
-            bool generateNormals;   ///< Generate normals in case they don't exist
-
-            bool operator ==(const LoadOptions& right) const;
+            Index       = 1 << 7
         };
-
-        /// The default load options
-        ///
-        static const LoadOptions DefaultOptions;
 
     public:
 
@@ -76,30 +62,7 @@ namespace jop
         Mesh(const std::string& name);
 
 
-        /// \brief Loads a .obj model from file
-        ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
-        ///
-        /// \param filePath The path to the file you want to load
-        /// \param options Extra options for loading
-        ///
-        /// \return True if successfully loaded
-        ///
-        bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
-
-        /// \brief Loads a .obj model from file
-        ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
-        ///
-        /// \param filePath The path to the file you want to load
-        /// \param material Reference to a material object to load material info into
-        /// \param options Extra options for loading
-        ///
-        /// \return True if successfully loaded
-        ///
-        bool load(const std::string& filePath, Material& material, const LoadOptions& options = DefaultOptions);
+        bool load(const std::vector<unsigned char>& vertexData, const std::vector<unsigned char>& indices);
 
         /// \brief Loads model from memory
         ///
@@ -136,12 +99,6 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
-        /// \brief Get the load options used in loading this mesh
-        ///
-        /// \return Reference to the load options
-        ///
-        const LoadOptions& getOptions() const;
-
         /// \brief Get the default mesh
         ///
         /// \return Reference to the mesh
@@ -150,7 +107,6 @@ namespace jop
 
     private:
 
-        LoadOptions m_options;          ///< The options used in loading
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
     };

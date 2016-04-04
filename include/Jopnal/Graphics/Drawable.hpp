@@ -109,7 +109,7 @@ namespace jop
         ///
         /// \comm setRenderGroup
         ///
-        void setRenderGroup(const uint8 group);
+        Drawable& setRenderGroup(const uint8 group);
 
         /// \brief Get the render group
         ///
@@ -127,20 +127,20 @@ namespace jop
         ///
         /// \comm setModel
         ///
+        /// \return Reference to self
+        ///
         Drawable& setModel(const Model& model);
 
         /// \brief Get the model
         ///
         /// \return Reference to the model
         ///
-        Model& getModel();
-
-        /// \copydoc getModel()
-        ///
         const Model& getModel() const;
 
 
         /// \brief Set the shader
+        ///
+        /// This can be used to override the shader fetched from the bound material.
         ///
         /// \param shader Reference to the shader
         ///
@@ -148,15 +148,22 @@ namespace jop
         ///
         Drawable& setShader(Shader& shader);
 
+        /// \brief Remove the shader
+        ///
+        /// \param loadMaterialShader Set this to true to automatically fetch a new shader
+        ///                           from the bound material. If this is false, there won't
+        ///                           be a shader bound after this call, and thus, drawing
+        ///                           will fail.
+        ///
+        /// \return Reference to self 
+        ///
         Drawable& removeShader(const bool loadMaterialShader = true);
-
-        Shader* getShader();
 
         /// \brief Get the shader
         ///
-        /// \return Weak pointer to the shader. Empty if none bound
+        /// \return Pointer to the shader. Empty if none bound
         ///
-        const Shader* getShader() const;
+        Shader* getShader() const;
 
 
         /// \brief Set whether or not this drawable receives lights
@@ -165,7 +172,7 @@ namespace jop
         ///
         /// \comm setReceiveLights
         ///
-        void setReceiveLights(const bool receive);
+        Drawable& setReceiveLights(const bool receive);
 
         /// \brief Check if this drawable receives lights
         ///
@@ -189,7 +196,7 @@ namespace jop
         ///
         /// \comm setReceiveShadows
         ///
-        void setReceiveShadows(const bool receive);
+        Drawable& setReceiveShadows(const bool receive);
 
         /// \brief Check if this drawable receives shadows
         ///
@@ -203,7 +210,7 @@ namespace jop
         ///
         /// \comm setCastShadows
         ///
-        void setCastShadows(const bool cast);
+        Drawable& setCastShadows(const bool cast);
 
         /// \brief Check if this drawable casts shadows
         ///
@@ -218,7 +225,7 @@ namespace jop
         ///
         /// \comm setReflected
         ///
-        void setReflected(const bool reflected);
+        Drawable& setReflected(const bool reflected);
 
         /// \brief Check if this drawable is reflected in dynamic environment maps
         ///

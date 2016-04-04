@@ -193,9 +193,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setRenderMask(const uint32 mask)
+    Camera& Camera::setRenderMask(const uint32 mask)
     {
         m_renderMask = mask;
+        return *this;
     }
 
     //////////////////////////////////////////////

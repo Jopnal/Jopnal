@@ -29,8 +29,8 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Subsystem)
 
-        JOP_BIND_MEMBER_COMMAND(&Subsystem::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND(&Subsystem::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Subsystem::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Subsystem::setActive, "setActive");
 
     JOP_END_COMMAND_HANDLER(Subsystem)
 }
@@ -96,9 +96,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::setActive(const bool active)
+    Subsystem& Subsystem::setActive(const bool active)
     {
         m_active = active;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -110,9 +111,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Subsystem::setID(const std::string& ID)
+    Subsystem& Subsystem::setID(const std::string& ID)
     {
         m_ID = ID;
+        return *this;
     }
 
     //////////////////////////////////////////////

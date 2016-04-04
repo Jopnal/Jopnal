@@ -25,6 +25,59 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    unsigned int ns_referenceCount = 0;
+    std::unique_ptr<Assimp::Importer> ns_importer;
+
+    void createImporter()
+    {
+        if (ns_referenceCount++)
+            return;
+
+        struct Logger : Assimp::Logger
+        {
+            Logger()
+                : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL)
+            {}
+
+            bool attachStream(Assimp::LogStream*, unsigned int)
+            {
+                return true;
+            }
+            bool detatchStream(Assimp::LogStream*, unsigned int)
+            {
+                return true;
+            }
+
+            void OnDebug(const char*) override
+            {
+
+            }
+
+            void OnInfo(const char* message) override
+            {
+                JOP_DEBUG_INFO(message);
+            }
+
+            void OnWarn(const char* message) override
+            {
+                JOP_DEBUG_WARNING(message);
+            }
+
+            void OnError(const char* message) override
+            {
+                JOP_DEBUG_ERROR(message);
+            }
+        };
+
+        Assimp::DefaultLogger::set(new Logger);
+
+        ns_importer = std::make_unique<Assimp::Importer>();
+        
+    }
+}
+
 namespace jop
 {
     Model::Model()
@@ -33,9 +86,9 @@ namespace jop
     {
         setMaterial(Material::getDefault());
         setMesh(Mesh::getDefault());
-    }
 
-    //////////////////////////////////////////////
+        createImporter();
+    }
 
     Model::Model(const Mesh& mesh, const Material& material)
         : m_material    (),
@@ -43,9 +96,9 @@ namespace jop
     {
         setMaterial(material);
         setMesh(mesh);
-    }
 
-    //////////////////////////////////////////////
+        createImporter();
+    }
 
     Model::Model(const Mesh& mesh)
         : m_material    (),
@@ -53,23 +106,50 @@ namespace jop
     {
         setMaterial(Material::getDefault());
         setMesh(mesh);
+
+        createImporter();
+    }
+
+    Model::Model(const Model& other)
+        : m_material    (other.m_material),
+          m_mesh        (other.m_mesh)
+    {
+        createImporter();
+    }
+
+    Model& Model::operator=(const Model& other)
+    {
+        m_material = other.m_material;
+        m_mesh = other.m_mesh;
+
+        createImporter();
+
+        return *this;
+    }
+
+    Model::~Model()
+    {
+        if (!--ns_referenceCount)
+        {
+            ns_importer.reset();
+            Assimp::DefaultLogger::kill();
+        }
     }
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& filePath, const Mesh::LoadOptions& options)
+    bool Model::load(const std::string& filePath)
     {
-        m_material = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>(filePath + ".mat").getReference());
-        setMesh(ResourceManager::getResource<Mesh>(filePath, *m_material, options));
+        
 
         return m_mesh.get() != &Mesh::getDefault();
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<const Mesh> Model::getMesh() const
+    const Mesh* Model::getMesh() const
     {
-        return m_mesh;
+        return m_mesh.get();
     }
 
     //////////////////////////////////////////////
@@ -82,16 +162,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<const Material> Model::getMaterial() const
+    const Material* Model::getMaterial() const
     {
-        return static_ref_cast<const Material>(m_material);
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Material> Model::getMaterial()
-    {
-        return m_material;
+        return m_material.get();
     }
 
     //////////////////////////////////////////////
@@ -114,6 +187,13 @@ namespace jop
     unsigned int Model::getElementAmount() const
     {
         return m_mesh.expired() ? 0 : m_mesh->getElementAmount();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Model::isValid() const
+    {
+        return !m_mesh.expired() && !m_material.expired();
     }
 
     //////////////////////////////////////////////
