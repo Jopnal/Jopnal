@@ -34,6 +34,10 @@ namespace jop
 {
     class JOP_API SettingManager : public Subsystem
     {
+    private:
+
+        friend class Engine;
+
     public:
 
         /// \brief Default constructor
@@ -157,6 +161,10 @@ namespace jop
         /// \brief Save the settings to file
         ///
         static void save();
+
+    private:
+
+        static bool checkInit();
     };
 }
 

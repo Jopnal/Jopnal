@@ -249,7 +249,7 @@ namespace jop
             dirSpotShader->setPersistence(0);
 
             std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERT, vert) && FileLoader::readResource(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
 
             JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
         }
@@ -261,7 +261,7 @@ namespace jop
             pointShader->setPersistence(0);
 
             std::vector<unsigned char> vert, geom, frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readResource(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
 
             JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
         }

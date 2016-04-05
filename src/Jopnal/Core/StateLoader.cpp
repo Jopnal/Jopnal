@@ -134,7 +134,7 @@ namespace jop
             doc.Accept(writer);
         }
 
-        if (FileLoader::write(FileLoader::Directory::Resources, path + ".jop", buffer.GetString(), buffer.GetSize()))
+        if (FileLoader::writeTextfile(FileLoader::Directory::Resource, path + ".jop", buffer.GetString()))
         {
             JOP_DEBUG_INFO("State successfully saved");
             return true;
@@ -185,7 +185,7 @@ namespace jop
         const auto& ls = getInstance().m_loaderSavers;
 
         std::string buf;
-        if (!FileLoader::read(path + ".jop", buf))
+        if (!FileLoader::readTextfile(path + ".jop", buf))
             return false;
 
         json::Document doc;

@@ -67,8 +67,8 @@ namespace jop
         if (path.empty())
             return false;
 
-        std::vector<unsigned char> buf;
-        FileLoader::read(path, buf);
+        std::vector<uint8> buf;
+        FileLoader::readBinaryfile(path, buf);
 
         glm::ivec2 size;
         int bpp;
@@ -158,7 +158,7 @@ namespace jop
     bool Texture2D::load(const int id)
     {
         std::vector<unsigned char> buf;
-        if (!FileLoader::readFromDll(id, buf))
+        if (!FileLoader::readResource(id, buf))
             return false;
 
         int x, y, bpp;

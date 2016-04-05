@@ -57,24 +57,78 @@ namespace
         
         struct Streamer : Assimp::IOSystem
         {
+            struct Stream : Assimp::IOStream
+            {
+            private:
+
+                ::jop::FileLoader* m_loader;
+
+            public:
+
+                Stream(::jop::FileLoader& loader)
+                    : m_loader(&loader)
+                {}
+
+                size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
+                {
+                    return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
+                }
+
+                size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
+                {
+                    return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
+                }
+
+                aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
+                {
+                    return (m_loader->seek(pOrigin + pOffset) ? aiReturn_SUCCESS : aiReturn_FAILURE);
+                }
+
+                size_t Tell() const override
+                {
+                    return static_cast<size_t>(m_loader->tell());
+                }
+
+                size_t FileSize() const override
+                {
+                    return static_cast<size_t>(m_loader->getSize());
+                }
+
+                void Flush() override
+                {
+                    m_loader->flush();
+                }
+            };
+
+            std::unique_ptr<Stream> m_stream;
+            ::jop::FileLoader m_loader;
+
             bool Exists(const char* pFile) const override
             {
-                throw std::logic_error("The method or operation is not implemented.");
+                return ::jop::FileLoader::fileExists(pFile);
             }
 
             char getOsSeparator() const override
             {
-                throw std::logic_error("The method or operation is not implemented.");
+                return ::jop::FileLoader::getDirectorySeparator();
             }
 
             Assimp::IOStream* Open(const char* pFile, const char* pMode) override
             {
-                throw std::logic_error("The method or operation is not implemented.");
+                if (std::string(pMode).find('r') != std::string::npos)
+                    m_loader.open(pFile);
+                else if (std::string(pMode).find('w') != std::string::npos)
+                    m_loader.openWrite(::jop::FileLoader::Directory::Resource, pFile, false);
+
+                m_stream = std::make_unique<Stream>(m_loader);
+
+                return m_stream.get();
             }
 
-            void Close(Assimp::IOStream* pFile) override
+            void Close(Assimp::IOStream*) override
             {
-                throw std::logic_error("The method or operation is not implemented.");
+                m_stream.reset();
+                m_loader.close();
             }
         };
         
@@ -144,7 +198,7 @@ namespace jop
 
     bool Model::load(const std::string& filePath)
     {
-        
+        ns_importer->ReadFile(filePath, 0);
 
         return m_mesh.get() != &Mesh::getDefault();
     }

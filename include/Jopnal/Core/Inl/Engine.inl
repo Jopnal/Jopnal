@@ -44,7 +44,8 @@ T& Engine::createSubsystem(Args&&... args)
 #pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 
-    JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
+    if (SettingManager::checkInit())
+        JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
 
     return static_cast<T&>(*m_engineObject->m_subsystems.back());
 }

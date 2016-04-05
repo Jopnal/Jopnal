@@ -264,36 +264,21 @@ namespace jop
 
     void SettingManager::reload()
     {
-        // #TODO Move the file reading/writing to the dedicated file class
-
-        PHYSFS_File* file = PHYSFS_openRead("config.json");
-
-        if (!file)
+        std::string buf;
+        if (!FileLoader::readTextfile("config.json", buf))
         {
             // Not using DebugHandler here since it relies on the initialization of this class
             std::cout << "Couldn't read the config file. Default settings will be used\n" << std::endl;
             return;
         }
 
-        int size = static_cast<int>(PHYSFS_fileLength(file));
+        ns_document.Parse<0>(buf.c_str());
 
-        if (size != -1)
-        {
-            std::string buf(size, 0);
-            PHYSFS_read(file, &buf[0], 1, size);
-            ns_document.Parse<0>(buf.c_str());
-
-            if (ns_document.HasParseError())
-                std::cout << "Config file has a parse error at " << ns_document.GetErrorOffset() << std::endl;
-        }
-
-        if (PHYSFS_close(file))
-            JOP_DEBUG_INFO("Successfully reloaded settings");
+        if (!json::checkParseError(ns_document))
+            std::cout << "Couldn't parse the config file. Default settings will be used\n" << std::endl;
     }
 
     //////////////////////////////////////////////
-
-    std::string fullPath;
 
     void SettingManager::save()
     {
@@ -301,14 +286,10 @@ namespace jop
         rj::PrettyWriter<rj::StringBuffer> writer(buffer);
         ns_document.Accept(writer);
 
-        PHYSFS_setWriteDir(fullPath.c_str());
-        PHYSFS_File* file = PHYSFS_openWrite("config.json");
-
-        if (file)
-            PHYSFS_write(file, buffer.GetString(), 1, buffer.GetSize());
-
-        if (PHYSFS_close(file))
-            JOP_DEBUG_INFO("Successfully saved settings");
+        if (FileLoader::writeTextfile(FileLoader::Directory::User, "config.json", buffer.GetString()))
+            JOP_DEBUG_INFO("Successfully saved settings")
+        else
+            JOP_DEBUG_ERROR("Error while saving settings");
     }
 
     //////////////////////////////////////////////
@@ -318,24 +299,7 @@ namespace jop
     {
         JOP_ASSERT(!ns_init, "There must not be more than one jop::SettingManager!");
 
-        if (!PHYSFS_isInit())
-            PHYSFS_init(0);
-
-        static const std::string docDir("Documents");
-
-        fullPath = PHYSFS_getUserDir();
-        fullPath += docDir + PHYSFS_getDirSeparator() + getProjectName();
-
-        if (!PHYSFS_mount(fullPath.c_str(), NULL, 0))
-        {
-            // Create the directory
-            JOP_ASSERT_EVAL(PHYSFS_setWriteDir((PHYSFS_getUserDir() + docDir).c_str()) != 0, "Failed to set write directory!");
-            JOP_ASSERT_EVAL(PHYSFS_mkdir(getProjectName().c_str()) != 0, "Failed to create config directory!");
-
-            // Try to mount again
-            PHYSFS_mount(fullPath.c_str(), NULL, 0);
-        }
-        else if (PHYSFS_exists("config.json"))
+        if (FileLoader::fileExists("config.json"))
         {
             reload();
             goto Mark;
@@ -346,6 +310,8 @@ namespace jop
 
     Mark:
 
+        FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));
+
         ns_init = true;
     }
 
@@ -354,13 +320,12 @@ namespace jop
     SettingManager::~SettingManager()
     {
         save();
+    }
+    
+    //////////////////////////////////////////////
 
-        if (PHYSFS_isInit())
-        {
-            if (!PHYSFS_deinit())
-                JOP_DEBUG_ERROR("Could not deinitialize PhysicsFS. Some file handles might be left open.");
-        }
-
-        ns_init = false;
+    bool SettingManager::checkInit()
+    {
+        return ns_init;
     }
 }

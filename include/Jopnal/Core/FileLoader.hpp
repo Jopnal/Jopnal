@@ -19,87 +19,122 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_FILELOADER_HPP
-#define JOP_FILELOADER_HPP
+#ifndef GP_FILELOADER_HPP
+#define GP_FILELOADER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
 #include <string>
 #include <vector>
 
-/////////////////////////////////////////////
+//////////////////////////////////////////////
 
+
+struct PHYSFS_File;
 
 namespace jop
 {
-    class JOP_API FileLoader : public Subsystem
+    class JOP_API FileSystemInitializer final : public Subsystem
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
+
     public:
 
-        /// Base directory
-        ///
+        FileSystemInitializer(const char* arg);
+
+        ~FileSystemInitializer();
+    };
+
+    class JOP_API FileLoader
+    {
+    private:
+
+        JOP_DISALLOW_COPY(FileLoader);
+
+    public:
+
         enum class Directory
         {
-            Resources, ///< EXERoot/Resources
-            Home       ///< User/Documents/ProjectName
+            Executable,
+            Resource,
+            User
         };
 
     public:
 
-        /// \brief Constructor
-        ///
-        /// Initializes the PhysicsFs file system
-        ///
-        /// \param argv The first element of the char* array passed from main()
-        ///
-        FileLoader(const char* argv);
+        FileLoader();
 
-        /// \brief Destructor
-        ///
-        ~FileLoader() override;
+        explicit FileLoader(const std::string& path);
 
+        FileLoader(const Directory dir, const std::string& path, const bool append);
 
-        /// \brief Reads data from file into a buffer
-        ///
-        /// \param filePath Path to the file to load
-        /// \param buffer Reference to a data vector
-        /// 
-        /// \return True if successful
-        ///
-        static bool read(const std::string& filePath, std::vector<unsigned char>& buffer);
+        FileLoader(FileLoader&& other);
 
-        /// \brief Reads data from file into a string
-        ///
-        /// \param filePath Path to the file to load
-        /// \param buffer Reference to a string
-        ///
-        /// \return True if successful
-        ///
-        static bool read(const std::string& filePath, std::string& buffer);
+        FileLoader& operator =(FileLoader&& other);
 
-        /// \brief Load a resource from a dll
-        ///
-        /// This is for internal use only.
-        /// Windows: The resource needs be of type RCDATA.
-        ///
-        static bool readFromDll(const int id, std::vector<unsigned char>& buffer);
+        ~FileLoader();
 
 
-        /// \brief Write data into a file
-        ///
-        /// \param dir The base directory
-        /// \param file The file path
-        /// \param data The data to write
-        /// \param size The size of the data buffer in bytes
-        ///
-        /// \return True if successful
-        ///
-        static bool write(const Directory dir, const std::string& file, const void* data, const unsigned int size);
+        bool open(const std::string& path);
+
+        bool openWrite(const Directory dir, const std::string& path, const bool append);
+
+        void flush();
+
+        void close();
+
+        bool isValid() const;
+
+        int64 read(void* data, const uint64 size);
+
+        int64 write(const void* data, const uint64 size);
+
+        bool seek(const uint64 position);
+
+        int64 tell();
+
+        int64 getSize();
+
+        operator bool() const;
+
+
+        static bool fileExists(const std::string& path);
+
+        static void listFiles(const std::string& path, std::vector<std::string>& list);
+
+        static void listFilesRecursive(const std::string& path, std::vector<std::string>& list);
+
+        static bool deleteFile(const std::string& file);
+
+        static bool readTextfile(const std::string& path, std::string& file);
+
+        static bool readBinaryfile(const std::string& path, std::vector<uint8>& buffer);
+
+        static bool writeTextfile(const Directory dir, const std::string& path, const std::string& text, const bool append = false);
+
+        static bool writeBinaryfile(const Directory dir, const std::string& path, const void* data, const std::size_t bytes, const bool append = false);
+
+        static bool makeDirectory(const std::string& path);
+
+        static const std::string& getDirectory(const Directory dir);
+
+        static char getDirectorySeparator();
+
+        static bool readResource(const int id, std::vector<uint8>& buffer);
+
+        static void enableErrorChecks(const bool enable);
+
+        static bool errorChecksEnabled();
+
+    private:
+
+        PHYSFS_File* m_file;
 
     };
-}
-#endif
 
-/// \class FileLoader
-/// \ingroup core
+}
+
+#endif

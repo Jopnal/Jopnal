@@ -39,8 +39,8 @@ namespace jop
 
     bool SoundBuffer::load(const std::string& path)
     {
-        std::vector<unsigned char> buf;
-        FileLoader::read(path, buf);
+        std::vector<uint8> buf;
+        FileLoader::readBinaryfile(path, buf);
 
         return m_soundBuf->loadFromMemory(buf.data(), buf.size());
     }

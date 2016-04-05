@@ -69,8 +69,8 @@ namespace jop
         int bytes;
         for (std::size_t i = 0; i < 6; ++i)
         {
-            std::vector<unsigned char> buf;
-            if (!FileLoader::read(*paths[i], buf))
+            std::vector<uint8> buf;
+            if (!FileLoader::readBinaryfile(*paths[i], buf))
             {
                 JOP_DEBUG_ERROR("Couldn't read cube map texture, face " << i);
                 return false;
@@ -133,7 +133,7 @@ namespace jop
             errTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readFromDll(IDB_PNG2, buf);
+            FileLoader::readResource(IDB_PNG2, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
@@ -163,7 +163,7 @@ namespace jop
             defTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readFromDll(IDB_PNG1, buf);
+            FileLoader::readResource(IDB_PNG1, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);

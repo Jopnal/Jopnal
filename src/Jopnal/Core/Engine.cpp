@@ -72,7 +72,11 @@ namespace jop
     {
         m_currentScene.reset();
         m_sharedScene.reset();
-        m_subsystems.clear();
+
+        // Sub systems need to be cleared in the reverse creation order. This is not
+        // guaranteed to happen by the standard.
+        while (!m_subsystems.empty())
+            m_subsystems.erase(m_subsystems.end() - 1);
 
         ns_projectName = std::string();
         m_engineObject = nullptr;
@@ -82,17 +86,17 @@ namespace jop
 
     void Engine::loadDefaultConfiguration()
     {
+        // File system
+        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+
         // Setting manager
         createSubsystem<SettingManager>();
 
-        // File loader
-        createSubsystem<FileLoader>(ns_argv[0]);
+        // Main window
+        createSubsystem<Window>(Window::Settings(true));
 
         // Resource manager
         createSubsystem<ResourceManager>();
-
-        // Main window
-        createSubsystem<Window>(Window::Settings(true));
 
         // Shader manager
         createSubsystem<ShaderManager>();

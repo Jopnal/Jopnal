@@ -37,13 +37,13 @@ namespace jop
 
         std::vector<unsigned char> buf;
 
-        JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_UBERVERT, buf), "Failed to read default vertex uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_UBERVERT, buf), "Failed to read default vertex uber shader source!");
         m_uber[0].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
 
-        JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, buf), "Failed to read default geometry uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, buf), "Failed to read default geometry uber shader source!");
         m_uber[1].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
 
-        JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_UBERFRAG, buf), "Failed to read default fragment uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_UBERFRAG, buf), "Failed to read default fragment uber shader source!");
         m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
     }
 
