@@ -96,6 +96,8 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/IOSystem.hpp>
 #include <assimp/IOStream.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 // Standard headers
 #include <algorithm>

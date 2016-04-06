@@ -53,12 +53,6 @@ namespace jop
         ///
         Model(const Mesh& mesh, const Material& material);
 
-        Model(const Model& other);
-
-        Model& operator =(const Model& other);
-
-        ~Model();
-
         /// \brief Loads a .obj model from file
         ///
         /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)

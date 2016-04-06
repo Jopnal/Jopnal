@@ -32,6 +32,10 @@
 
 
 struct PHYSFS_File;
+namespace Assimp
+{
+    class Importer;
+}
 
 namespace jop
 {
@@ -40,6 +44,10 @@ namespace jop
     private:
 
         JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
+
+        friend class Model;
+
+        static std::unique_ptr<Assimp::Importer> g_Importer;
 
     public:
 

@@ -25,117 +25,6 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    unsigned int ns_referenceCount = 0;
-    std::unique_ptr<Assimp::Importer> ns_importer;
-
-    void createImporter()
-    {
-        if (ns_referenceCount++)
-            return;
-
-        struct Logger : Assimp::Logger
-        {
-            Logger() : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL){}
-            bool attachStream(Assimp::LogStream*, unsigned int)
-            {return true;}
-            bool detatchStream(Assimp::LogStream*, unsigned int)
-            {return true;}
-            void OnDebug(const char*) override
-            {}
-            void OnInfo(const char* message) override
-            {JOP_DEBUG_INFO(message);}
-            void OnWarn(const char* message) override
-            {JOP_DEBUG_WARNING(message);}
-            void OnError(const char* message) override
-            {JOP_DEBUG_ERROR(message);}
-        };
-        Assimp::DefaultLogger::set(new Logger);
-
-        ns_importer = std::make_unique<Assimp::Importer>();
-        
-        struct Streamer : Assimp::IOSystem
-        {
-            struct Stream : Assimp::IOStream
-            {
-            private:
-
-                ::jop::FileLoader* m_loader;
-
-            public:
-
-                Stream(::jop::FileLoader& loader)
-                    : m_loader(&loader)
-                {}
-
-                size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
-                {
-                    return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
-                }
-
-                size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
-                {
-                    return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
-                }
-
-                aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
-                {
-                    return (m_loader->seek(pOrigin + pOffset) ? aiReturn_SUCCESS : aiReturn_FAILURE);
-                }
-
-                size_t Tell() const override
-                {
-                    return static_cast<size_t>(m_loader->tell());
-                }
-
-                size_t FileSize() const override
-                {
-                    return static_cast<size_t>(m_loader->getSize());
-                }
-
-                void Flush() override
-                {
-                    m_loader->flush();
-                }
-            };
-
-            std::unique_ptr<Stream> m_stream;
-            ::jop::FileLoader m_loader;
-
-            bool Exists(const char* pFile) const override
-            {
-                return ::jop::FileLoader::fileExists(pFile);
-            }
-
-            char getOsSeparator() const override
-            {
-                return ::jop::FileLoader::getDirectorySeparator();
-            }
-
-            Assimp::IOStream* Open(const char* pFile, const char* pMode) override
-            {
-                if (std::string(pMode).find('r') != std::string::npos)
-                    m_loader.open(pFile);
-                else if (std::string(pMode).find('w') != std::string::npos)
-                    m_loader.openWrite(::jop::FileLoader::Directory::Resource, pFile, false);
-
-                m_stream = std::make_unique<Stream>(m_loader);
-
-                return m_stream.get();
-            }
-
-            void Close(Assimp::IOStream*) override
-            {
-                m_stream.reset();
-                m_loader.close();
-            }
-        };
-        
-        ns_importer->SetIOHandler(new Streamer);
-    }
-}
-
 namespace jop
 {
     Model::Model()
@@ -144,8 +33,6 @@ namespace jop
     {
         setMaterial(Material::getDefault());
         setMesh(Mesh::getDefault());
-
-        createImporter();
     }
 
     Model::Model(const Mesh& mesh, const Material& material)
@@ -154,8 +41,6 @@ namespace jop
     {
         setMaterial(material);
         setMesh(mesh);
-
-        createImporter();
     }
 
     Model::Model(const Mesh& mesh)
@@ -164,43 +49,42 @@ namespace jop
     {
         setMaterial(Material::getDefault());
         setMesh(mesh);
-
-        createImporter();
-    }
-
-    Model::Model(const Model& other)
-        : m_material    (other.m_material),
-          m_mesh        (other.m_mesh)
-    {
-        createImporter();
-    }
-
-    Model& Model::operator=(const Model& other)
-    {
-        m_material = other.m_material;
-        m_mesh = other.m_mesh;
-
-        createImporter();
-
-        return *this;
-    }
-
-    Model::~Model()
-    {
-        if (!--ns_referenceCount)
-        {
-            ns_importer.reset();
-            Assimp::DefaultLogger::kill();
-        }
     }
 
     //////////////////////////////////////////////
 
     bool Model::load(const std::string& filePath)
     {
-        ns_importer->ReadFile(filePath, 0);
+        auto& imp = *FileSystemInitializer::g_Importer;
 
-        return m_mesh.get() != &Mesh::getDefault();
+        struct SceneDealloc
+        {
+            Assimp::Importer* imp;
+            SceneDealloc(Assimp::Importer& i) : imp(&i){}
+            ~SceneDealloc(){imp->FreeScene();}
+
+        }SceneDealloc(imp);
+
+        const aiScene* scene = imp.ReadFile(filePath, aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals | aiProcess_PreTransformVertices);
+
+        if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0)
+        {
+            JOP_DEBUG_ERROR("Failed to load Model: " << imp.GetErrorString());
+            return false;
+        }
+
+        auto& mesh = *scene->mMeshes[0];
+        auto& mat = *scene->mMaterials[mesh.mMaterialIndex];
+        
+        auto tex = mat.GetTextureCount(aiTextureType_DIFFUSE);
+
+        for (std::size_t i = 0; i < mat.mNumProperties; ++i)
+        {
+            auto prop = mat.mProperties[i];
+            int j =  0;
+        }
+
+        return true;
     }
 
     //////////////////////////////////////////////

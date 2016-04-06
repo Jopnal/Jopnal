@@ -75,6 +75,10 @@ namespace
 
 namespace jop
 {
+    std::unique_ptr<Assimp::Importer> FileSystemInitializer::g_Importer;
+
+    //////////////////////////////////////////////
+
     FileSystemInitializer::FileSystemInitializer(const char* arg)
         : Subsystem("filesysteminitializer")
     {
@@ -84,10 +88,119 @@ namespace jop
         JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
 
         checkError("Init");
+
+        struct Logger : Assimp::Logger
+        {
+            Logger()
+                : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL)
+            {}
+
+            bool attachStream(Assimp::LogStream*, unsigned int)
+            {
+                return true;
+            }
+            bool detatchStream(Assimp::LogStream*, unsigned int)
+            {
+                return true;
+            }
+            void OnDebug(const char* message) override
+            {
+                JOP_DEBUG_INFO(message);
+            }
+            void OnInfo(const char* message) override
+            {
+                JOP_DEBUG_INFO(message);
+            }
+            void OnWarn(const char* message) override
+            {
+                JOP_DEBUG_WARNING(message);
+            }
+            void OnError(const char* message) override
+            {
+                JOP_DEBUG_ERROR(message);
+            }
+        };
+        Assimp::DefaultLogger::set(new Logger);
+
+        g_Importer = std::make_unique<Assimp::Importer>();
+
+        struct Streamer : Assimp::IOSystem
+        {
+            struct Stream : Assimp::IOStream
+            {
+            private:
+
+                FileLoader* m_loader;
+
+            public:
+
+                Stream(FileLoader& loader)
+                    : m_loader(&loader)
+                {}
+
+                size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
+                {
+                    return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
+                }
+                size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
+                {
+                    return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
+                }
+                aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
+                {
+                    return static_cast<aiReturn>(aiReturn_FAILURE - m_loader->seek(pOrigin + pOffset));
+                }
+                size_t Tell() const override
+                { 
+                    return static_cast<size_t>(m_loader->tell());
+                }
+                size_t FileSize() const override
+                { 
+                    return static_cast<size_t>(m_loader->getSize());
+                }
+                void Flush() override
+                { 
+                    m_loader->flush();
+                }
+            };
+
+            FileLoader m_loader;
+
+            bool Exists(const char* pFile) const override
+            {
+                return FileLoader::fileExists(pFile);
+            }
+            char getOsSeparator() const override
+            {
+                return FileLoader::getDirectorySeparator();
+            }
+
+            Assimp::IOStream* Open(const char* pFile, const char* pMode) override
+            {
+                if (std::string(pMode).find('r') != std::string::npos)
+                    m_loader.open(pFile);
+
+                else if (std::string(pMode).find('w') != std::string::npos)
+                    m_loader.openWrite(FileLoader::Directory::Resource, pFile, false);
+
+                return new Stream(m_loader);
+            }
+
+            void Close(Assimp::IOStream* stream) override
+            {
+                delete stream;
+                m_loader.close();
+            }
+        };
+
+        g_Importer->SetIOHandler(new Streamer);
     }
 
     FileSystemInitializer::~FileSystemInitializer()
     {
+        g_Importer.reset();
+        Assimp::DefaultLogger::kill();
+
         if (!PHYSFS_deinit())
             checkError("Filesystem deinit");
     }
