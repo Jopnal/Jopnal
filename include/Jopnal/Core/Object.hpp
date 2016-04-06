@@ -226,6 +226,8 @@ namespace jop
         /// 
         Object& removeChildren(const std::string& ID);
 
+        Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
+
         /// \brief Remove all children
         ///
         /// \comm clearChild
@@ -241,6 +243,12 @@ namespace jop
         /// \comm removeSelf
         ///
         void removeSelf();
+
+        WeakReference<Object> cloneSelf();
+
+        WeakReference<Object> cloneSelf(const std::string& newID);
+
+        WeakReference<Object> cloneSelf(const std::string& newID, const Transform& newTransform);
 
         /// \brief Check if this object has been marked to be removed
         ///

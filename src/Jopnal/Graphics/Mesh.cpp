@@ -27,49 +27,35 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, Mesh)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load Mesh, no name found");
-            return false;
-        }
-
-        //ResourceManager::getResource<Mesh>(val["name"].GetString())
-;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Mesh)
-
-    JOP_REGISTER_SAVEABLE(jop, Mesh)[](const void* mesh, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        const Mesh& ref = *static_cast<const Mesh*>(mesh);
-
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-//        val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Mesh)
-}
-
-namespace jop
-{
     Mesh::Mesh(const std::string& name)
-        : Resource          (name),
-          m_vertexbuffer    (Buffer::Type::ArrayBuffer),
-          m_indexbuffer     (Buffer::Type::ElementArrayBuffer)
+        : Resource              (name),
+          m_vertexbuffer        (Buffer::Type::ArrayBuffer),
+          m_indexbuffer         (Buffer::Type::ElementArrayBuffer),
+          m_vertexComponents    (0),
+          m_elementSize         (0)
     {}
 
     //////////////////////////////////////////////
 
-    bool Mesh::load(const std::vector<unsigned char>& vertexData, const std::vector<unsigned char>& indices)
+    bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned int indexSize, const unsigned int indexAmount)
     {
-        m_vertexbuffer.setData(vertexData.data(), vertexData.size());
+        m_vertexbuffer.destroy();
+        m_indexbuffer.destroy();
 
-        if (!indices.empty())
-            m_indexbuffer.setData(indices.data(), indices.size());
+        m_elementSize = static_cast<uint16>(std::min(4u, indexSize));
+        m_vertexComponents = vertexComponents;
+        m_vertexSize = sizeof(glm::vec3) //< Positions always present
+
+            + hasVertexComponent(VertexComponent::TexCoords)    *  sizeof(glm::vec2)
+            + hasVertexComponent(VertexComponent::Normal)       *  sizeof(glm::vec3)
+            + hasVertexComponent(VertexComponent::Tangent)      * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
+            + hasVertexComponent(VertexComponent::Color)        *  sizeof(Color)
+            ;
+
+        m_vertexbuffer.setData(vertexData, vertexBytes);
+
+        if (indexData && m_elementSize && indexAmount)
+            m_indexbuffer.setData(indexData, m_elementSize * indexAmount);
 
         return true;
     }
@@ -78,26 +64,58 @@ namespace jop
 
     bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
     {
-        m_vertexbuffer.setData(vertexArray.data(), sizeof(Vertex) * vertexArray.size());
-
-        if (!indexArray.empty())
-            m_indexbuffer.setData(indexArray.data(), sizeof(unsigned int) * indexArray.size());
-
-        return true;
+        return load(vertexArray.data(), vertexArray.size() * sizeof(Vertex), Position | TexCoords | Normal, indexArray.data(), sizeof(unsigned int), indexArray.size());
     }
 
     //////////////////////////////////////////////
 
     unsigned int Mesh::getVertexAmount() const
     {
-        return m_vertexbuffer.getAllocatedSize() / sizeof(Vertex);
+        return m_vertexbuffer.getAllocatedSize() / getVertexSize();
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Mesh::getVertexSize() const
+    {
+        return m_vertexSize;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Mesh::hasVertexComponent(const uint32 component) const
+    {
+        return (m_vertexComponents & component) != 0;
     }
 
     //////////////////////////////////////////////
 
     unsigned int Mesh::getElementAmount() const
     {
-        return m_indexbuffer.getAllocatedSize() / sizeof(unsigned int);
+        return m_indexbuffer.getAllocatedSize() / getElementSize();
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Mesh::getElementSize() const
+    {
+        return m_elementSize;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Mesh::getElementEnum() const
+    {
+        static const GLenum enums[] =
+        {
+            gl::UNSIGNED_INT,
+            gl::UNSIGNED_BYTE,
+            gl::UNSIGNED_SHORT,
+            gl::UNSIGNED_INT,
+            gl::UNSIGNED_INT
+        };
+
+        return enums[getElementSize()];
     }
 
     //////////////////////////////////////////////

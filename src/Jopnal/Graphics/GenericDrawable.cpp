@@ -107,7 +107,7 @@ namespace jop
             msh.getIndexBuffer().bind();
 
             // Finally draw
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {

@@ -41,16 +41,13 @@ namespace jop
 
         /// Vertex components
         ///
-        enum VertexComponent : uint16
+        enum VertexComponent : uint32
         {
             Position    = 1,
             TexCoords   = 1 << 2,
             Normal      = 1 << 3,
             Tangent     = 1 << 4,
-            Color       = 1 << 5,
-            BoneWeight  = 1 << 6,
-
-            Index       = 1 << 7
+            Color       = 1 << 5
         };
 
     public:
@@ -62,12 +59,14 @@ namespace jop
         Mesh(const std::string& name);
 
 
-        bool load(const std::vector<unsigned char>& vertexData, const std::vector<unsigned char>& indices);
+        bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned int indexSize = 0, const unsigned int indexAmount = 0);
 
         /// \brief Loads model from memory
         ///
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
+        ///
+        /// \deprecated Prefer the other overload
         ///
         /// \return True if successfully loaded
         ///
@@ -80,11 +79,21 @@ namespace jop
         ///
         unsigned int getVertexAmount() const;
 
+        unsigned int getVertexSize() const;
+
+        bool hasVertexComponent(const uint32 component) const;
+
         /// \brief Get the element (index) amount
         ///
         /// \return The element amount
         ///
         unsigned int getElementAmount() const;
+
+
+        unsigned int getElementSize() const;
+
+
+        unsigned int getElementEnum() const;
 
 
         /// \brief Returns index buffer
@@ -109,6 +118,9 @@ namespace jop
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
+        uint32 m_vertexComponents;
+        uint16 m_elementSize;
+        uint16 m_vertexSize;
     };
 }
 

@@ -45,7 +45,7 @@ namespace jop
 {
     Drawable::Drawable(Object& object, Renderer& renderer, const std::string& ID)
         : Component     (object, ID),
-          m_model       (Model::getDefault()),
+          m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (renderer),
           m_renderGroup (0),

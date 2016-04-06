@@ -45,7 +45,7 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
-        friend class Model;
+        friend class ModelLoader;
 
         static std::unique_ptr<Assimp::Importer> g_Importer;
 

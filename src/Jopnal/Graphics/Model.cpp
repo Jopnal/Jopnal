@@ -53,42 +53,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& filePath)
-    {
-        auto& imp = *FileSystemInitializer::g_Importer;
-
-        struct SceneDealloc
-        {
-            Assimp::Importer* imp;
-            SceneDealloc(Assimp::Importer& i) : imp(&i){}
-            ~SceneDealloc(){imp->FreeScene();}
-
-        }SceneDealloc(imp);
-
-        const aiScene* scene = imp.ReadFile(filePath, aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals | aiProcess_PreTransformVertices);
-
-        if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0)
-        {
-            JOP_DEBUG_ERROR("Failed to load Model: " << imp.GetErrorString());
-            return false;
-        }
-
-        auto& mesh = *scene->mMeshes[0];
-        auto& mat = *scene->mMaterials[mesh.mMaterialIndex];
-        
-        auto tex = mat.GetTextureCount(aiTextureType_DIFFUSE);
-
-        for (std::size_t i = 0; i < mat.mNumProperties; ++i)
-        {
-            auto prop = mat.mProperties[i];
-            int j =  0;
-        }
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
     const Mesh* Model::getMesh() const
     {
         return m_mesh.get();
@@ -119,39 +83,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Model::getVertexAmount() const
-    {
-        return m_mesh.expired() ? 0 : m_mesh->getVertexAmount();
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Model::getElementAmount() const
-    {
-        return m_mesh.expired() ? 0 : m_mesh->getElementAmount();
-    }
-
-    //////////////////////////////////////////////
-
     bool Model::isValid() const
     {
         return !m_mesh.expired() && !m_material.expired();
-    }
-
-    //////////////////////////////////////////////
-
-    const Model& Model::getDefault()
-    {
-        static WeakReference<const Mesh> defMesh;
-        static Model model;
-
-        if (defMesh.expired())
-        {
-            defMesh = static_ref_cast<const Mesh>(Mesh::getDefault().getReference());
-
-            model.setMesh(*defMesh);
-        }
-
-        return model;
     }
 }

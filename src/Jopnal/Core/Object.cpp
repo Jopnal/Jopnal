@@ -314,6 +314,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Object& Object::removeChildrenWithTag(const std::string& tag, const bool recursive)
+    {
+        auto children = findChildrenWithTag(tag, recursive);
+
+        for (auto& i : children)
+            i->removeSelf();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     Object& Object::clearChildren()
     {
         m_children.clear();
@@ -328,6 +340,34 @@ namespace jop
 
         if (!m_parent.expired())
             m_parent->m_flags |= ChildrenRemovedFlag;
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf()
+    {
+        return cloneSelf(getID(), *this);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf(const std::string& newID)
+    {
+        return cloneSelf(newID, *this);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf(const std::string& newID, const Transform& newTransform)
+    {
+        JOP_ASSERT(!getParent().expired(), "Cannot clone a scene!");
+
+        auto& vec = getParent()->m_children;
+        if (vec.size() == vec.capacity())
+            vec.reserve(vec.size() + 1);
+
+        vec.emplace_back(*this, newID, newTransform);
+        return vec.back().getReference();
     }
 
     //////////////////////////////////////////////
@@ -607,8 +647,11 @@ namespace jop
             for (auto& i : m_components)
                 i->update(deltaTime);
 
-            for (auto& i : m_children)
-                i.update(deltaTime);
+            // Have to use a good old fashion loop here
+            // since it's possible that objects are added
+            // or removed inside it.
+            for (std::size_t i = 0; i < m_children.size(); ++i)
+                m_children[i].update(deltaTime);
         }
     }
 

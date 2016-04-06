@@ -24,14 +24,15 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
-#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Mesh;
+    class Material;
+
     class JOP_API Model
     {
     public:
@@ -41,6 +42,8 @@ namespace jop
         Model();
 
         /// \brief Constructor for initializing with a mesh
+        ///
+        /// Note that a model is not valid until it has a material also.
         ///
         /// \param mesh Mesh to initialize with
         ///
@@ -52,16 +55,6 @@ namespace jop
         /// \param material Material to initialize with
         ///
         Model(const Mesh& mesh, const Material& material);
-
-        /// \brief Loads a .obj model from file
-        ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
-        ///
-        /// \param filePath The path to the file you want to load
-        /// \param options Extra options for loading
-        ///
-        bool load(const std::string& filePath);
 
 
         /// \brief Get the mesh
@@ -78,7 +71,10 @@ namespace jop
         ///
         Model& setMesh(const Mesh& mesh);
 
-        /// \copydoc getMaterial()
+
+        /// \brief Get the material
+        ///
+        /// \return Pointer to the material. Nullptr if none bound
         ///
         const Material* getMaterial() const;
 
@@ -93,15 +89,6 @@ namespace jop
         ///
         Model& setMaterial(const Material& material);
 
-        
-        /// \copydoc Mesh::getVertexAmount()
-        ///
-        unsigned int getVertexAmount() const;
-
-        /// \copydoc Mesh::getElementAmount()
-        ///
-        unsigned int getElementAmount() const;
-
 
         /// \brief Check if this model is valid
         ///
@@ -110,15 +97,6 @@ namespace jop
         /// \return True if valid
         ///
         bool isValid() const;
-
-
-        /// \brief Get the default model
-        ///
-        /// The default model is a cube with a size of 1.
-        ///
-        /// \return Reference to the model
-        ///
-        static const Model& getDefault();
 
     private:
 
