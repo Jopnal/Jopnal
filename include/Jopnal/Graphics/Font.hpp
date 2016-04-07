@@ -50,7 +50,7 @@ namespace jop
         ///
         /// \param path File path to font
         ///
-        Font(const std::string& path);
+        Font(const std::string& name);
 
         /// \brief Deconstructor
         ///
@@ -92,6 +92,17 @@ namespace jop
         ///
         float getPixelSize();
 
+        /// \brief Get the error font
+        ///
+        /// \return Reference to the font
+        ///
+        static Font& getError();
+
+        /// \brief Get the default font
+        ///
+        /// \return Reference to the font
+        ///
+        static Font& getDefault();
 
 	private:
         bool m_loaded = false;

@@ -21,15 +21,19 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+
 #define STB_RECT_PACK_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable: 4100)
 #include <Jopnal/Graphics/stb/stb_rect_pack.h>
+#pragma warning(pop)
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Font::Font(const std::string& path) : Resource(path),
+    Font::Font(const std::string& name) : Resource(name),
         m_texture("")
     {
         FT_Error err = FT_Init_FreeType(&m_library);
@@ -226,5 +230,43 @@ namespace jop
 
             FT_Done_Glyph(glyphDesc);
         }
+    }
+
+    //////////////////////////////////////////////
+
+    Font& Font::getError()
+    {
+        static WeakReference<Font> errFont;
+
+        if (errFont.expired())
+        {
+            errFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_error_font").getReference());
+
+            JOP_ASSERT_EVAL(errFont->load("comicbd.ttf", 32), "Failed to load error font!");
+
+            errFont->setPersistence(0);
+            errFont->setManaged(true);
+        }
+
+        return *errFont;
+    }
+
+    //////////////////////////////////////////////
+
+    Font& Font::getDefault()
+    {
+        static WeakReference<Font> defFont;
+
+        if (defFont.expired())
+        {
+            defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
+
+            JOP_ASSERT_EVAL(defFont->load("comic.ttf", 32), "Failed to load default font!");
+
+            defFont->setPersistence(0);
+            defFont->setManaged(true);
+        }
+
+        return *defFont;
     }
 }

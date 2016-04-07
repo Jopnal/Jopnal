@@ -62,8 +62,8 @@ namespace jop
             }
             else if (i == L'\n')
             {
-                x = 1.0 / 256.0;
-                y -= 1.0 / 24.0;
+                x = 1.0f / 256.0f;
+                y -= 1.0f / 24.0f;
                 continue;
             }
             //init variables
@@ -73,31 +73,29 @@ namespace jop
             int bitmapWidth = 0;
             int bitmapHeight = 0;
 
-            float kerning = 0.01;
+            float kerning = 0.01f;
 
             if (previous != -1)
             {
-                kerning = 1.0 / 256.0;
-                //kerning not working... fix later if there's time
+                kerning = 1.0f / 256.0f;
+                // Kerning not working... fix later if there's time
                 //m_font->getKerning(previous, i);
             }
             previous = i;
 
-            //get bitmap location and size inside the texture in pixels
+            // Get bitmap location and size inside the texture in pixels
             m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
-            //get font texture
+            // Get font texture
             Texture2D& tex = m_font->getTexture();
 
-            //get font origo
+            // Get font origo
             std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
 
             metrics.first.x /= (32.f * (64.f / m_font->getPixelSize()) * tex.getWidth());
             metrics.first.y /= (32.f * (64.f / m_font->getPixelSize()) * tex.getHeight());
-            //metrics.second.x /= (64 * tex.getWidth());
-            //metrics.second.y /= (64 * tex.getHeight());
 
-            //calculate coordinates
+            // Calculate coordinates
             glm::vec2 glyphPos;
             glyphPos.x = (float)bitmapX / (float)tex.getWidth();
             glyphPos.y = (float)bitmapY / (float)tex.getHeight();
@@ -108,8 +106,8 @@ namespace jop
 
             x += kerning;
 
-            //calculate vertex positions
-            //top left
+            // Calculate vertex positions
+            // Top left
             Vertex v;
             v.position.x = (x + metrics.first.x);
             v.position.y = (y + metrics.first.y);
@@ -118,34 +116,34 @@ namespace jop
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
 
-            //bottom left
+            // Bottom left
             v.position.y = (y + metrics.first.y - glyphSize.y);
             v.texCoords.y = glyphPos.y + glyphSize.y;
             vertices.push_back(v);
 
-            //bottom right
+            // Bottom right
             v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / tex.getWidth());
             v.texCoords.x = glyphPos.x + glyphSize.x;
             vertices.push_back(v);
             vertices.push_back(v);
 
-            //top right
+            // Top right
             v.position.y = (y + metrics.first.y);
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
 
-            //top left
+            // Top left
             v.position.x = (x + metrics.first.x);
             v.position.y = (y + metrics.first.y);
             v.texCoords.x = glyphPos.x;
             v.texCoords.y = glyphPos.y;
             vertices.push_back(v);
 
-            //advance
+            // Advance
             x += (float)bitmapWidth / (float)tex.getWidth();
         }
 
-        //load vertices to mesh and set material
+        // Load vertices to mesh and set material
         Mesh::load(vertices, std::vector<unsigned int>());
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setAttributeField(Material::Attribute::OpacityMap);
@@ -167,6 +165,15 @@ namespace jop
     {
         m_color = color;
         setString(m_string);
+    }
+
+    //////////////////////////////////////////////
+
+    void Text::draw(const Camera* camera, const LightContainer& lights, Shader& shader)const
+    {
+        GlState::setFaceCull(false);
+        GenericDrawable::draw(camera, lights, shader);
+        GlState::setFaceCull(true);
     }
 }
 

@@ -70,6 +70,8 @@ namespace jop
         ///
         void setColor(Color color);
 
+        virtual void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+
     private:
         WeakReference<Font> m_font;
         Material m_material;
