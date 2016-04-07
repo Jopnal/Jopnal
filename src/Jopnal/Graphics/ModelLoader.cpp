@@ -337,6 +337,10 @@ namespace jop
         if (path.empty())
             return false;
 
+    #if JOP_CONSOLE_VERBOSITY >= 2
+        Clock clock;
+    #endif
+
         auto& imp = *FileSystemInitializer::g_Importer;
 
         struct SceneDealloc
@@ -371,6 +375,7 @@ namespace jop
         if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene)))
         {
             m_path = path;
+            JOP_DEBUG_INFO("Successfully loaded model \"" << path << "\", took " << clock.getElapsedTime().asSeconds() << "s");
             return true;
         }
 
