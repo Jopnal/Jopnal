@@ -77,7 +77,7 @@ namespace jop
         bool success = false;
         if (colorData && checkDepthValid(bpp))
         {
-            flip(size.x, size.y, bpp, colorData);
+            //flip(size.x, size.y, bpp, colorData);
             success = load(size, bpp, colorData);
         }
 

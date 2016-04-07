@@ -162,9 +162,9 @@ namespace jop
             // TODO: Redesign the transformation system to eliminate this requirement.
             Object::updateTransformTree(nullptr, false);
             Object::update(dt);
-            Object::updateTransformTree(nullptr, false);
 
             postUpdate(dt);
+            Object::updateTransformTree(nullptr, false);
         }
     }
 

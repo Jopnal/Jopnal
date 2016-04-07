@@ -41,7 +41,256 @@ namespace jop
 
     namespace detail
     {
-        bool processNode(const aiScene& scene, const aiNode& node, WeakReference<Object> object)
+        std::string getHex()
+        {
+        #ifdef JOP_OS_WINDOWS
+            const __int64 timePoint = __rdtsc();
+        #endif
+
+            std::ostringstream ss;
+            ss << std::hex << timePoint;
+            return ss.str();
+        }
+
+        std::vector<const Material*> getMaterials(const aiScene& scene)
+        {
+            std::vector<const Material*> mats;
+            mats.reserve(scene.mNumMaterials);
+
+            for (std::size_t i = 0; i < scene.mNumMaterials; ++i)
+            {
+                auto& mat = *scene.mMaterials[i];
+
+                auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true).setAttributeField(Material::Attribute::AmbientConstant);
+
+                // Reflection
+                {
+                    aiColor3D col;
+
+                    // Ambient color
+                    mat.Get(AI_MATKEY_COLOR_AMBIENT, col);
+                    m.setReflection(Material::Reflection::Ambient, Color(col.r, col.g, col.b));
+
+                    // Diffuse color
+                    mat.Get(AI_MATKEY_COLOR_DIFFUSE, col);
+                    m.setReflection(Material::Reflection::Diffuse, Color(col.r, col.g, col.b));
+
+                    // Specular color
+                    mat.Get(AI_MATKEY_COLOR_SPECULAR, col);
+                    m.setReflection(Material::Reflection::Specular, Color(col.r, col.g, col.b));
+
+                    // Emission color
+                    mat.Get(AI_MATKEY_COLOR_EMISSIVE, col);
+                    m.setReflection(Material::Reflection::Emission, Color(col.r, col.g, col.b));
+                }
+
+                // Shininess
+                {
+                    float shin;
+                    mat.Get(AI_MATKEY_SHININESS, shin);
+                    m.setShininess(shin);
+                }
+
+                // Lighting model
+                {
+                    aiShadingMode mode;
+                    mat.Get(AI_MATKEY_SHADING_MODEL, mode);
+
+                    switch (mode)
+                    {
+                        case aiShadingMode_Flat:
+                            m.addAttributes(Material::Attribute::Flat);
+                            break;
+                        case aiShadingMode_Gouraud:
+                            m.addAttributes(Material::Attribute::Gouraud);
+                            break;
+                        case aiShadingMode_Phong:
+                            m.addAttributes(Material::Attribute::Phong);
+                            break;
+                        case aiShadingMode_Blinn:
+                            m.addAttributes(Material::Attribute::BlinnPhong);
+                            break;
+                        default:
+                            m.addAttributes(Material::Attribute::DefaultLighting);
+                    }
+                }
+
+                // Textures
+                {
+                    // Diffuse
+                    if (mat.GetTextureCount(aiTextureType_DIFFUSE))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+
+                    // Specular
+                    if (/*mat.GetTextureCount(aiTextureType_SPECULAR) || */mat.GetTextureCount(aiTextureType_SHININESS))
+                    {
+                        aiString path;
+                        //mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
+                        mat.GetTexture(aiTextureType_SHININESS, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+
+                    // Emission
+                    if (mat.GetTextureCount(aiTextureType_EMISSIVE))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_EMISSIVE, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+
+                    // Reflection
+                    if (mat.GetTextureCount(aiTextureType_REFLECTION))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_REFLECTION, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material::Map::Reflection, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+
+                    // Opacity
+                    if (mat.GetTextureCount(aiTextureType_OPACITY))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_OPACITY, 0, &path);
+
+                        //if (path.length)
+                        //    m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+                }
+
+                mats.push_back(&m);
+            }
+
+            return mats;
+        }
+
+        std::vector<std::pair<const Mesh*, unsigned int>> getMeshes(const aiScene& scene)
+        {
+            std::vector<std::pair<const Mesh*, unsigned int>> meshes;
+            meshes.reserve(scene.mNumMeshes);
+
+            for (std::size_t i = 0; i < scene.mNumMeshes; ++i)
+            {
+                const aiMesh& mesh = *scene.mMeshes[i];
+                if (!mesh.mNumVertices)
+                    continue;
+                
+                // Vertices
+                std::vector<uint8> vertBuf
+                    (
+                    (sizeof(glm::vec3) +
+                    sizeof(glm::vec2) * mesh.HasTextureCoords(0) +
+                    sizeof(glm::vec3) * mesh.HasNormals() +
+                    sizeof(glm::vec3) * 2 * mesh.HasTangentsAndBitangents() +
+                    sizeof(Color) * mesh.HasVertexColors(0)
+                    )
+                    * mesh.mNumVertices
+                    );
+
+                for (std::size_t j = 0, vertIndex = 0; j < mesh.mNumVertices; ++j)
+                {
+                    // Position
+                    {
+                        auto& pos = mesh.mVertices[j];
+                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(pos.x, pos.y, pos.z);
+                        vertIndex += sizeof(glm::vec3);
+                    }
+
+                    // Tex coordinates
+                    if (mesh.HasTextureCoords(0))
+                    {
+                        auto& tc = mesh.mTextureCoords[0][j];
+                        reinterpret_cast<glm::vec2&>(vertBuf[vertIndex]) = glm::vec2(tc.x, tc.y);
+                        vertIndex += sizeof(glm::vec2);
+                    }
+
+                    // Normal
+                    if (mesh.HasNormals())
+                    {
+                        auto& norm = mesh.mNormals[j];
+                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(norm.x, norm.y, norm.z);
+                        vertIndex += sizeof(glm::vec3);
+                    }
+
+                    // Tangents
+                    if (mesh.HasTangentsAndBitangents())
+                    {
+                        auto& tang = mesh.mTangents[j], bitang = mesh.mBitangents[j];
+                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(tang.x, tang.y, tang.z);
+                        vertIndex += sizeof(glm::vec3);
+
+                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(bitang.x, bitang.y, bitang.z);
+                        vertIndex += sizeof(glm::vec3);
+                    }
+
+                    // Color
+                    if (mesh.HasVertexColors(0))
+                    {
+                        auto& col = mesh.mColors[0][j];
+                        reinterpret_cast<Color&>(vertBuf[vertIndex]) = Color(col.r, col.g, col.b, col.a);
+                        vertIndex += sizeof(Color);
+                    }
+                }
+
+                // Indices
+                std::vector<uint8> indBuf;
+                const auto elemSize = Mesh::getElementSize(mesh.mNumVertices * 3);
+                if (mesh.HasFaces())
+                {
+                    indBuf.resize(elemSize * mesh.mNumFaces * 3);
+
+                    for (std::size_t j = 0, bufIndex = 0; j < mesh.mNumFaces; ++j, bufIndex += elemSize * 3)
+                    {
+                        auto& face = mesh.mFaces[j];
+
+                        switch (elemSize)
+                        {
+                            case sizeof(UCHAR) :
+                                indBuf[bufIndex] = static_cast<UCHAR>(face.mIndices[0]);
+                                indBuf[bufIndex + sizeof(UCHAR)] = static_cast<UCHAR>(face.mIndices[1]);
+                                indBuf[bufIndex + sizeof(UCHAR) * 2] = static_cast<UCHAR>(face.mIndices[2]);
+                                break;
+
+                            case sizeof(USHORT) :
+                                reinterpret_cast<USHORT&>(indBuf[bufIndex]) = static_cast<USHORT>(face.mIndices[0]);
+                                reinterpret_cast<USHORT&>(indBuf[bufIndex + sizeof(USHORT)]) = static_cast<USHORT>(face.mIndices[1]);
+                                reinterpret_cast<USHORT&>(indBuf[bufIndex + sizeof(USHORT) * 2]) = static_cast<USHORT>(face.mIndices[2]);
+                                break;
+
+                            case sizeof(UINT) :
+                                reinterpret_cast<UINT&>(indBuf[bufIndex]) = face.mIndices[0];
+                                reinterpret_cast<UINT&>(indBuf[bufIndex + sizeof(UINT)]) = face.mIndices[1];
+                                reinterpret_cast<UINT&>(indBuf[bufIndex + sizeof(UINT) * 2]) = face.mIndices[2];
+                        }
+                    }
+                }
+
+                const uint32 comps = Mesh::Position
+
+                    | (mesh.HasTextureCoords(0)         * Mesh::TexCoords)
+                    | (mesh.HasNormals()                * Mesh::Normal)
+                    | (mesh.HasTangentsAndBitangents()  * Mesh::Tangent)
+                    | (mesh.HasVertexColors(0)          * Mesh::Color)
+                    ;
+
+                meshes.push_back(std::make_pair(&ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), vertBuf.data(), vertBuf.size(), comps, indBuf.data(), elemSize, mesh.mNumFaces * 3), mesh.mMaterialIndex));
+            }
+
+            return meshes;
+        }
+
+        bool processNode(const aiNode& node, WeakReference<Object> object, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats)
         {
             // Transform
             {
@@ -56,24 +305,26 @@ namespace jop
             // Meshes (drawables)
             for (std::size_t i = 0; i < node.mNumMeshes; ++i)
             {
-                const aiMesh& mesh = *scene.mMeshes[node.mMeshes[i]];
-                
+                auto& drawable = object->createComponent<GenericDrawable>(rend);
+
+                auto& pair = meshes[node.mMeshes[i]];
+                drawable.setModel(Model(*pair.first, *mats[pair.second]));
             }
 
             return true;
         }
 
-        bool makeNodes(const aiScene& scene, const aiNode& parentNode, WeakReference<Object> parentObject)
+        bool makeNodes(const aiNode& parentNode, WeakReference<Object> parentObject, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats)
         {
-            if (!processNode(scene, parentNode, parentObject))
+            if (!processNode(parentNode, parentObject, rend, meshes, mats))
                 return false;
 
             for (std::size_t i = 0; i < parentNode.mNumChildren; ++i)
             {
                 const aiNode& thisNode = *parentNode.mChildren[i];
-                const WeakReference<Object> thisObj = parentObject->createChild(thisNode.mName.C_Str());
+                const WeakReference<Object> thisObj = parentObject->createChild(thisNode.mName.length > 0 ? thisNode.mName.C_Str() : "object");
 
-                if (!makeNodes(scene, thisNode, thisObj))
+                if (!makeNodes(thisNode, thisObj, rend, meshes, mats))
                     return false;
             }
 
@@ -98,15 +349,14 @@ namespace jop
 
         static const unsigned int preProcess = 0
 
-          | aiProcessPreset_TargetRealtime_Fast
-          | aiProcess_TransformUVCoords
-          | aiProcess_FixInfacingNormals
-          //| aiProcess_FlipUVs
-          | aiProcess_ImproveCacheLocality
-          | aiProcess_FindInvalidData
-          | aiProcess_OptimizeMeshes
-          | aiProcess_OptimizeGraph
-          ;
+            | aiProcessPreset_TargetRealtime_Fast
+            | aiProcess_TransformUVCoords
+            | aiProcess_FixInfacingNormals
+            | aiProcess_FlipUVs
+            | aiProcess_ImproveCacheLocality
+            | aiProcess_FindInvalidData
+            | aiProcess_OptimizeMeshes
+            ;
 
         const aiScene* scene = imp.ReadFile(path, preProcess);
 
@@ -116,7 +366,9 @@ namespace jop
             return false;
         }
 
-        if (detail::makeNodes(*scene, *scene->mRootNode, getObject()))
+        JOP_DEBUG_INFO("Model loaded successfully, building object tree...");
+
+        if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene)))
         {
             m_path = path;
             return true;

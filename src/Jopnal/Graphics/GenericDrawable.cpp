@@ -75,13 +75,14 @@ namespace jop
 
         // Set vertex attributes
         msh.getVertexBuffer().bind();
-        s.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
-        s.setAttribute(1, gl::FLOAT, 2, sizeof(Vertex), false, (void*)Vertex::TexCoords);
+        const auto stride = msh.getVertexSize();
+        s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
+        s.setAttribute(1, gl::FLOAT, 2, stride, false, (void*)Vertex::TexCoords);
 
         if (mat.hasAttribute(Material::Attribute::Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Normal);
+            s.setAttribute(2, gl::FLOAT, 3, stride, false, (void*)Vertex::Normal);
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::Lighting))

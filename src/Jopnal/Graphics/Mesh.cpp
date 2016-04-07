@@ -37,20 +37,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned int indexSize, const unsigned int indexAmount)
+    bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned short indexSize, const unsigned int indexAmount)
     {
         m_vertexbuffer.destroy();
         m_indexbuffer.destroy();
 
-        m_elementSize = static_cast<uint16>(std::min(4u, indexSize));
+        m_elementSize = std::min((unsigned short)4, indexSize);
         m_vertexComponents = vertexComponents;
-        m_vertexSize = sizeof(glm::vec3) //< Positions always present
-
-            + hasVertexComponent(VertexComponent::TexCoords)    *  sizeof(glm::vec2)
-            + hasVertexComponent(VertexComponent::Normal)       *  sizeof(glm::vec3)
-            + hasVertexComponent(VertexComponent::Tangent)      * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
-            + hasVertexComponent(VertexComponent::Color)        *  sizeof(Color)
-            ;
+        m_vertexSize = getVertexSize(m_vertexComponents);
 
         m_vertexbuffer.setData(vertexData, vertexBytes);
 
@@ -76,7 +70,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Mesh::getVertexSize() const
+    uint16 Mesh::getVertexSize() const
     {
         return m_vertexSize;
     }
@@ -97,7 +91,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Mesh::getElementSize() const
+    uint16 Mesh::getElementSize() const
     {
         return m_elementSize;
     }
@@ -130,6 +124,30 @@ namespace jop
     const VertexBuffer& Mesh::getVertexBuffer() const
     {
         return m_vertexbuffer;
+    }
+
+    //////////////////////////////////////////////
+
+    uint16 Mesh::getVertexSize(const uint32 components)
+    {
+        return sizeof(glm::vec3) //< Positions always present
+
+            + ((VertexComponent::TexCoords & components) != 0) *  sizeof(glm::vec2)
+            + ((VertexComponent::Normal & components)    != 0) *  sizeof(glm::vec3)
+            + ((VertexComponent::Tangent & components)   != 0) * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
+            + ((VertexComponent::Color & components)     != 0) *  sizeof(Color)
+            ;
+    }
+
+    //////////////////////////////////////////////
+
+    uint16 Mesh::getElementSize(const uint32 amount)
+    {
+        return 4
+
+          - (amount <= USHRT_MAX) * 2
+          - (amount <= UCHAR_MAX)
+            ;
     }
 
     //////////////////////////////////////////////

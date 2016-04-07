@@ -155,6 +155,8 @@ static T& ResourceManager::getEmptyResource(Args&&... args)
     T& ptr = *res;
     m_instance->m_resources[detail::getStringArg(args...)] = std::move(res);
 
+    JOP_DEBUG_INFO("Empty resource named \"" << detail::getStringArg(args...) << "\" (type: \"" << typeid(T).name() << "\") successfully created");
+
     return ptr;
 }
 

@@ -178,7 +178,7 @@ namespace jop
 
     private:
 
-        std::ostringstream m_command;                                               ///< Buffer containing the command and arguments in string form
+        mutable std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
         mutable std::string m_commandStr;                                           ///< String with the command & arguments
         std::string m_idPattern;                                                    ///< The id filter to compare any passed ids against
         std::unordered_set<std::string> m_tags;                                     ///< Tags to compare against

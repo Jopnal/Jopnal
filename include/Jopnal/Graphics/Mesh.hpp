@@ -59,7 +59,7 @@ namespace jop
         Mesh(const std::string& name);
 
 
-        bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned int indexSize = 0, const unsigned int indexAmount = 0);
+        bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned short indexSize = 0, const unsigned int indexAmount = 0);
 
         /// \brief Loads model from memory
         ///
@@ -79,7 +79,7 @@ namespace jop
         ///
         unsigned int getVertexAmount() const;
 
-        unsigned int getVertexSize() const;
+        uint16 getVertexSize() const;
 
         bool hasVertexComponent(const uint32 component) const;
 
@@ -90,7 +90,7 @@ namespace jop
         unsigned int getElementAmount() const;
 
 
-        unsigned int getElementSize() const;
+        uint16 getElementSize() const;
 
 
         unsigned int getElementEnum() const;
@@ -107,6 +107,11 @@ namespace jop
         /// \return Reference to the index buffer
         ///
         const VertexBuffer& getVertexBuffer() const;
+
+
+        static uint16 getVertexSize(const uint32 components);
+
+        static uint16 getElementSize(const uint32 amount);
 
         /// \brief Get the default mesh
         ///

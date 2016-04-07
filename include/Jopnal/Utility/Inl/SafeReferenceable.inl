@@ -106,7 +106,7 @@ inline void WeakReference<T>::reset()
 template<typename T>
 inline T* WeakReference<T>::get()
 {
-    return *m_ref.lock();
+    return m_ref.expired() ? nullptr : *m_ref.lock();
 }
 
 //////////////////////////////////////////////
@@ -114,7 +114,7 @@ inline T* WeakReference<T>::get()
 template<typename T>
 inline const T* WeakReference<T>::get() const
 {
-    return *m_ref.lock();
+    return m_ref.expired() ? nullptr : *m_ref.lock();
 }
 
 //////////////////////////////////////////////

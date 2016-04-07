@@ -73,7 +73,11 @@ namespace jop
     const std::string& Message::getString() const
     {
         if (m_commandStr.empty())
-            return (m_commandStr = m_command.str());
+        {
+            m_commandStr = m_command.str();
+            m_command.str("");
+            m_command.clear();
+        }
 
         return m_commandStr;
     }

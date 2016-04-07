@@ -49,7 +49,7 @@ namespace jop
         /// \param _b The blue value
         /// \param _a The alpha value
         ///
-        Color(const jop::uint8 _r, const jop::uint8 _g, const jop::uint8 _b, const jop::uint8 _a = 255);
+        Color(const uint8 _r, const uint8 _g, const uint8 _b, const uint8 _a = 255);
 
         /// \brief Overloaded constructor
         ///
@@ -62,7 +62,7 @@ namespace jop
         /// \param colors A 32-bit unsigned integer to represent the colors,
         ///               as in 0xFFFFFFFF
         ///
-        Color(const jop::uint32 colors);
+        Color(const uint32 colors);
 
         /// \brief Overloaded constructor
         ///
@@ -97,10 +97,10 @@ namespace jop
 
     public:
 
-        jop::uint8   r, ///< The red component
-                     g, ///< The green component
-                     b, ///< The blue component
-                     a; ///< The alpha component
+        uint8   r, ///< The red component
+                g, ///< The green component
+                b, ///< The blue component
+                a; ///< The alpha component
 
         static const Color Black;       ///< Black color
         static const Color White;       ///< White color

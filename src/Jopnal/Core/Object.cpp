@@ -719,6 +719,8 @@ namespace jop
         else if (m_transformNeedUpdate)
             parentUpdated = true;
 
+        m_invTransformNeedsUpdate = m_invTransformNeedsUpdate || parentUpdated;
+
         for (auto& i : m_children)
             i.updateTransformTree(this, parentUpdated);
     }

@@ -240,7 +240,7 @@ namespace jop
 
     Material& Material::setShininess(const float value)
     {
-        m_shininess = value;
+        m_shininess = std::max(1.f, value);
 
         return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
     }
