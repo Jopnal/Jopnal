@@ -156,6 +156,7 @@ namespace jop
         {
             const float dt = deltaTime * m_deltaScale;
 
+            Object::updateTransformTree(nullptr, false);
             preUpdate(dt);
 
             // Need to update transforms twice to ensure correct global state at all times.
@@ -163,6 +164,7 @@ namespace jop
             Object::updateTransformTree(nullptr, false);
             Object::update(dt);
 
+            Object::updateTransformTree(nullptr, false);
             postUpdate(dt);
             Object::updateTransformTree(nullptr, false);
         }

@@ -205,10 +205,10 @@ namespace jop
             case gl::RG:
                 return gl::RG8;
             case gl::RGB:
-                return gl::RGB8;
+                return gl::SRGB8;
             case gl::RGBA:
             default:
-                return gl::RGBA8;
+                return gl::SRGB8_ALPHA8;
         }
     }
 

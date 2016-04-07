@@ -286,7 +286,7 @@ namespace jop
             {
                 auto pos = getObject()->getGlobalPosition();
 
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getRange());
+                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.2f, getRange());
 
                 makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 

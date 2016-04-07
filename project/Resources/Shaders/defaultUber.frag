@@ -527,5 +527,5 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor, 1.0);
+    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), 1.0);
 }
