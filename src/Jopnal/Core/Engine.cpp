@@ -66,6 +66,8 @@ namespace jop
         
         ns_argc = argc;
         ns_argv = argv;
+
+        std::cout << "Jopnal Engine v. " << JOP_VERSION_STRING << "\n\n";
     }
 
     Engine::~Engine()

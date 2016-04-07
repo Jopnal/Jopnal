@@ -359,6 +359,7 @@ namespace jop
             | aiProcess_FlipUVs
             | aiProcess_ImproveCacheLocality
             | aiProcess_FindInvalidData
+            | aiProcess_ValidateDataStructure
             | aiProcess_OptimizeMeshes
             ;
 

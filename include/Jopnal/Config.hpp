@@ -55,4 +55,9 @@
 // Dynamic build (.dll)
 //#define JOP_DYNAMIC
 
+// Version
+#define JOP_VERSION_MAJOR 0
+#define JOP_VERSION_MINOR 2
+#define JOP_VERSION_STRING "indev 0.2"
+
 #endif
