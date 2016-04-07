@@ -97,9 +97,16 @@ namespace jop
         Message::Result sendMessage(const Message& message);
 
 
-        void setActive(const bool active);
+        /// \brief Set this sub system active
+        ///
+        /// \param active True to set active
+        ///
+        Subsystem& setActive(const bool active);
 
-
+        /// \brief Check if this sub system is active
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
 
 
@@ -107,7 +114,7 @@ namespace jop
         ///
         /// \param ID The new id to be set
         ///
-        void setID(const std::string& ID);
+        Subsystem& setID(const std::string& ID);
 
         /// \brief Get the name
         ///

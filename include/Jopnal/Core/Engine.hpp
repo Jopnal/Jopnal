@@ -45,12 +45,17 @@ namespace jop
 
     public:
 
+        /// Engine state
+        ///
+        /// No matter the state, sub systems will always be running normally, except
+        /// in ZeroDelta state, the delta time passed to sub systems is still zero.
+        ///
         enum class State
         {
-            Running,
-            ZeroDelta,
-            RenderOnly,
-            Frozen
+            Running,    ///< Run normally
+            ZeroDelta,  ///< Run normally, except delta time is always zero
+            RenderOnly, ///< Only render, don't update
+            Frozen      ///< No rendering or updating
         };
 
     public:
@@ -90,7 +95,12 @@ namespace jop
         ///
         static int runMainLoop();
 
-
+        /// \brief Advance a single frame
+        ///
+        /// When state is Running, this function has no effect.
+        ///
+        /// \comm advanceFrame
+        ///
         static void advanceFrame();
 
 
@@ -108,6 +118,10 @@ namespace jop
         template<typename T, typename ... Args>
         static T& createScene(Args&&... args);
 
+        /// \brief Check if there's a current scene
+        ///
+        /// \return True if there's a current scene
+        ///
         static bool hasCurrentScene();
 
         /// \brief Get the current scene
@@ -135,6 +149,13 @@ namespace jop
         template<typename T>
         static T* getSubsystem();
 
+        /// \brief Get a subsystem using subsystem ID
+        ///
+        /// \return Pointer to the subsystem. Nullptr if not found
+        ///
+        template<typename T>
+        static T* getSubsystem(const std::string& ID);
+
         /// \brief Get a subsystem
         ///
         /// \param ID Identifier of the subsystem
@@ -144,6 +165,8 @@ namespace jop
         static Subsystem* getSubsystem(const std::string& ID);
 
         /// \brief Remove a subsystem
+        ///
+        /// \comm removeSubsystem
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
@@ -162,10 +185,14 @@ namespace jop
         /// time of the call. The main loop returns only after the current
         /// frame has been processed.
         ///
+        /// \comm exit
+        ///
         static void exit();
 
 
         /// \brief Sets paused to private m_paused member
+        ///
+        /// \comm setState
         ///
         /// \param paused Boolean to set m_paused
         ///
@@ -176,8 +203,18 @@ namespace jop
         static State getState();
 
 
+        /// \brief Set the global delta time scalar
+        ///
+        /// \comm setDeltaScale
+        ///
+        /// \param The scalar to set
+        ///
         static void setDeltaScale(const float scale);
 
+        /// \brief Get the global delta time scalar
+        ///
+        /// \return The global delta time scalar
+        ///
         static float getDeltaScale();
 
 
@@ -215,6 +252,10 @@ namespace jop
         ///
         static Scene& getSharedScene();
 
+        /// \brief Check if a shared scene exists
+        ///
+        /// \return True if the shared scene exists
+        ///
         static bool hasSharedScene();
 
         /// \brief Set the shared scene
@@ -238,16 +279,16 @@ namespace jop
 
     private:
 
-        static Engine* m_engineObject;                        ///< The single Engine instance
+        static Engine* m_engineObject;                          ///< The single Engine instance
 
-        std::vector<std::unique_ptr<Subsystem>> m_subsystems; ///< A vector containing the subsystems
-        double m_totalTime;                                   ///< The total time
-        std::unique_ptr<Scene> m_currentScene;                ///< The current scene
-        std::unique_ptr<Scene> m_sharedScene;                 ///< The shared scene
-        std::atomic<bool> m_exit;                             ///< 
-        State m_state;                                        ///< 
-        float m_deltaScale;
-        bool m_advanceFrame;
+        std::vector<std::unique_ptr<Subsystem>> m_subsystems;   ///< A vector containing the subsystems
+        double m_totalTime;                                     ///< The total time
+        std::unique_ptr<Scene> m_currentScene;                  ///< The current scene
+        std::unique_ptr<Scene> m_sharedScene;                   ///< The shared scene
+        std::atomic<bool> m_exit;                               ///< Should the engine exit?
+        State m_state;                                          ///< Current state
+        float m_deltaScale;                                     ///< The global delta scale
+        bool m_advanceFrame;                                    ///< Advance a single frame when not paused?
     };
 
     /// \brief Get the project name

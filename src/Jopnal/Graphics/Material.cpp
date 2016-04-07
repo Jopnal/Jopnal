@@ -34,7 +34,7 @@ namespace jop
             JOP_DEBUG_ERROR("Couldn't load material, no name found");
             return false;
         }
-        Material::AttribType attr = Material::DefaultAttributes;
+        Material::AttribType attr = Material::Attribute::Default;
         if (val.HasMember("attributes") && val["attributes"].IsUint())
             attr = val["attributes"].GetUint();
         else
@@ -117,62 +117,54 @@ namespace
     static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
     static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
+
+    static const jop::Color ns_defColors[] =
+    {
+        jop::Color::Black,
+        jop::Color::White,
+        jop::Color::White,
+        jop::Color::Black
+    };
 }
 
 namespace jop
 {
-    const Material::AttribType Material::DefaultAttributes = Material::Attribute::AmbientConstant
-                                                           | Material::Attribute::Material
-                                                           | Material::Attribute::Diffusemap
-                                                           | Material::Attribute::Specularmap
-                                                           | Material::Attribute::Emissionmap
-                                                           | Material::Attribute::Phong;
-
-    //////////////////////////////////////////////
-
-    Material::Material(const std::string& name)
-        : Resource      (name),
-          m_reflection  (),
-          m_attributes  (DefaultAttributes),
-          m_shininess   (1.f),
-          m_maps        ()
+    Material::Material(const std::string& name, const bool autoAttributes)
+        : Resource              (name),
+          m_reflection          (),
+          m_attributes          (0),
+          m_shininess           (1.f),
+          m_maps                (),
+          m_attributesChanged   (false),
+          m_autoAttribs         (autoAttributes)
     {
-        setReflection
-        (
-            Color::Black,
-            Color::White,
-            Color::White,
-            Color::Black
-        )
-        .setMap(Map::Diffuse, Texture::getDefault());
+        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
+        setMap(Map::Diffuse, Texture2D::getDefault());
     }
-
-    //////////////////////////////////////////////
 
     Material::Material(const std::string& name, const AttribType attributes)
-        : Resource      (name),
-          m_reflection  (),
-          m_attributes  (attributes),
-          m_shininess   (1.f),
-          m_maps        ()
+        : Resource              (name),
+          m_reflection          (),
+          m_attributes          (attributes),
+          m_shininess           (1.f),
+          m_maps                (),
+          m_attributesChanged   (true),
+          m_autoAttribs         (false)
     {
-        setReflection
-        (
-            Color::Black,
-            Color::White,
-            Color::White,
-            Color::Black
-        )
-        .setMap(Map::Diffuse, Texture::getDefault());
+        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
     }
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(Shader& shader) const
+    void Material::sendToShader(Shader& shader, const Camera* camera) const
     {
         if (shader.bind())
         {
-            if (hasAttribute(Attribute::Material))
+            // Send camera position to shader
+            if (camera && hasAttribute(Attribute::Lighting | Attribute::EnvironmentMap))
+                shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
+
+            if (hasAttribute(Attribute::Lighting))
             {
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
@@ -186,13 +178,13 @@ namespace jop
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
-            if (hasAttribute(Attribute::Diffusemap) && !getMap(Map::Diffuse).expired())
+            if (hasAttribute(Attribute::DiffuseMap) && !getMap(Map::Diffuse).expired())
                 shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
-            if (hasAttribute(Attribute::Specularmap) && !getMap(Map::Specular).expired())
+            if (hasAttribute(Attribute::SpecularMap) && !getMap(Map::Specular).expired())
                 shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
 
-            if (hasAttribute(Attribute::Emissionmap) && !getMap(Map::Emission).expired())
+            if (hasAttribute(Attribute::EmissionMap) && !getMap(Map::Emission).expired())
                 shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
 
             if (hasAttribute(Attribute::EnvironmentMap) && !getMap(Material::Map::Environment).expired())
@@ -207,10 +199,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Shader* Material::getShader() const
+    {
+        if (m_shader.expired() || m_attributesChanged)
+        {
+            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_attributes).getReference());
+            m_attributesChanged = false;
+        }
+
+        return m_shader.get();
+    }
+
+    //////////////////////////////////////////////
+
     Material& Material::setReflection(const Reflection reflection, const Color color)
     {
         m_reflection[static_cast<int>(reflection)] = color;
-        return *this;
+
+        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
     }
 
     //////////////////////////////////////////////
@@ -235,7 +241,8 @@ namespace jop
     Material& Material::setShininess(const float value)
     {
         m_shininess = value;
-        return *this;
+
+        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
     }
 
     //////////////////////////////////////////////
@@ -250,7 +257,8 @@ namespace jop
     Material& Material::setReflectivity(const float reflectivity)
     {
         m_reflectivity = reflectivity;
-        return *this;
+
+        return addAttributes(Attribute::EnvironmentMap * m_autoAttribs);
     }
 
     //////////////////////////////////////////////
@@ -262,10 +270,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    namespace detail
+    {
+        static const int mapAttribs[] =
+        {
+            Material::Attribute::DiffuseMap,
+            Material::Attribute::SpecularMap,
+            Material::Attribute::EmissionMap,
+            Material::Attribute::EnvironmentMap,
+            Material::Attribute::ReflectionMap
+        };
+    }
+
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        m_maps[static_cast<int>(map) - 1] = static_ref_cast<const Texture>(tex.getReference());
-        return *this;
+        const int mapIndex = static_cast<int>(map) - 1;
+        m_maps[mapIndex] = static_ref_cast<const Texture>(tex.getReference());
+
+        return addAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::removeMap(const Map map)
+    {
+        const int mapIndex = static_cast<int>(map) - 1;
+        m_maps[mapIndex].reset();
+
+        return removeAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
     }
 
     //////////////////////////////////////////////
@@ -277,9 +309,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::setAttributeField(const AttribType attribs)
+    Material& Material::setAttributeField(const AttribType attribs)
     {
+        m_attributesChanged = m_attributesChanged || m_attributes != attribs;
+
         m_attributes = attribs;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -298,13 +333,41 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Material::hasAttributes(const AttribType attribs) const
+    {
+        return (m_attributes & attribs) == attribs;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Material::compareAttributes(const AttribType attribs) const
+    {
+        return m_attributes == attribs;
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::addAttributes(const AttribType attribs)
+    {
+        return setAttributeField(getAttributeField() | attribs);
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::removeAttributes(const AttribType attribs)
+    {
+        return setAttributeField(getAttributeField() & ~attribs);
+    }
+
+    //////////////////////////////////////////////
+
     Material& Material::getDefault()
     {
         static WeakReference<Material> defMat;
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material", Attribute::Diffusemap).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material").getReference());
             defMat->setManaged(true);
         }
 

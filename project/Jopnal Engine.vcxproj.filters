@@ -345,6 +345,30 @@
     <ClInclude Include="..\include\Jopnal\Audio\SoundStream.hpp">
       <Filter>Audio\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\RectangleShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CapsuleShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConeShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CylinderShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\ContactInfo.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\ModelLoader.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -538,6 +562,30 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
       <Filter>Audio\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\RectangleShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CapsuleShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConeShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CylinderShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CompoundShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\ContactInfo.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\ModelLoader.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

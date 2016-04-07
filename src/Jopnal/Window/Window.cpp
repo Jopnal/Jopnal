@@ -123,10 +123,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const float)
+    void Window::postUpdate(const float deltaTime)
     {
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
-            clear();
+            RenderTarget::postUpdate(deltaTime);
     }
 
     //////////////////////////////////////////////
@@ -141,7 +141,7 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getUint("uMaxControllers", 4) > 0;
+            static const bool controllers = SettingManager::getUint("uMaxControllers", 1) > 0;
 
             pollEvents();
 

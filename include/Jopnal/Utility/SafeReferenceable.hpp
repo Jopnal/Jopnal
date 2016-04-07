@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/Assert.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -103,7 +104,6 @@ namespace jop
     private:
 
         std::shared_ptr<T*> m_ref;  ///< The bound reference
-
     };
 
     //////////////////////////////////////////////
@@ -141,6 +141,13 @@ namespace jop
         bool expired() const;
 
 
+        /// \brief Reset this reference
+        ///
+        /// After this call, this reference won't point to anything.
+        ///
+        void reset();
+
+
         /// \brief Get a pointer to the bound object
         ///
         /// \return Pointer to the object. Nullptr if expired
@@ -164,6 +171,15 @@ namespace jop
         /// \copydoc operator*()
         ///
         const T& operator *() const;
+
+
+        /// \copydoc operator*()
+        ///
+        operator T&();
+
+        /// \copydoc operator*()
+        ///
+        operator const T&() const;
 
 
         /// \copydoc get()
@@ -194,7 +210,6 @@ namespace jop
     private:
 
         std::weak_ptr<T*> m_ref;    ///< The bound reference
-
     };
 
     // Include the template implementation file

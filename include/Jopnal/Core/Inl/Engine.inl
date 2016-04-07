@@ -44,7 +44,8 @@ T& Engine::createSubsystem(Args&&... args)
 #pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 
-    JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
+    if (SettingManager::checkInit())
+        JOP_DEBUG_INFO("Subsystem with id \"" << m_engineObject->m_subsystems.back()->getID() << "\" (type: \"" << typeid(T).name() << "\") added");
 
     return static_cast<T&>(*m_engineObject->m_subsystems.back());
 }
@@ -63,6 +64,27 @@ T* Engine::getSubsystem()
         for (auto& i : m_engineObject->m_subsystems)
         {
             if (typeid(*i) == ti)
+                return static_cast<T*>(i.get());
+        }
+    }
+
+    return nullptr;
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+T* Engine::getSubsystem(const std::string& ID)
+{
+    static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
+
+    if (m_engineObject)
+    {
+        const std::type_info& ti = typeid(T);
+
+        for (auto& i : m_engineObject->m_subsystems)
+        {
+            if (typeid(*i) == ti && i->getID() == ID)
                 return static_cast<T*>(i.get());
         }
     }

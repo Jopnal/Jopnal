@@ -39,19 +39,6 @@ namespace jop
         ///
         SphereMesh(const std::string& name);
 
-        /// \brief Creates a 3D sphere
-        ///
-        /// High values for sectors and rings will result in better looking results, but may
-        /// affect performance heavily.
-        ///
-        /// \param name Name of this model
-        /// \param radius The radius of the sphere
-        /// \param rings How many rings will the sphere have
-        /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the texture coordinates?
-        ///
-        SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
-
 
         /// \brief Load a sphere
         ///

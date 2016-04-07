@@ -232,9 +232,20 @@ namespace jop
         const std::string& getSource(const Type type) const;
 
 
+        /// \brief Get the OpenGL handle
+        ///
+        /// \return The OpenGL handle
+        ///
         unsigned int getHandle() const;
 
-        void validate() const;
+        /// \brief Validate this shader
+        ///
+        /// This is useful for catching shader errors. You should never call this
+        /// unless you have a need to debug your shaders.
+        ///
+        /// \return True if validation passed
+        ///
+        bool validate() const;
 
         
         /// \brief Get the default shader
@@ -242,6 +253,14 @@ namespace jop
         /// \return Reference to the default shader
         ///
         static Shader& getDefault();
+
+        /// \brief Get the error shader
+        ///
+        /// This shader will paint any drawn object bright red.
+        ///
+        /// \return Reference to the error shader
+        ///
+        static Shader& getError();
 
     private:
 

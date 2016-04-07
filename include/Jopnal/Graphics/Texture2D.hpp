@@ -91,7 +91,9 @@ namespace jop
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
 
 
-        /// \brief Returns image's width
+        /// \brief Get the texture size
+        ///
+        /// \return The size
         ///
         glm::uvec2 getSize() const override;
 
@@ -123,6 +125,19 @@ namespace jop
         ///
         static bool checkDepthValid(const unsigned int depth);
 
+
+        /// \brief Get the error texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture2D& getError();
+
+        /// \brief Get the default texture
+        ///
+        /// \return Reference to the texture
+        ///
+        static Texture2D& getDefault();
+
     private:
 
         /// For internal use
@@ -130,7 +145,7 @@ namespace jop
         bool load(const int id);
 
 
-        glm::uvec2 m_size;
+        glm::uvec2 m_size;              ///< Size
         unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
 
     };

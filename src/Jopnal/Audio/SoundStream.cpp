@@ -24,60 +24,66 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    SoundStream::SoundStream(Object& object, const std::string& ID)
-        :SoundSource(object, ID)
+    JOP_DERIVED_COMMAND_HANDLER(Component, SoundStream)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::pause, "pauseStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::stop, "stopStream");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setOffset, "setStreamOffset");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setLoop, "setStreamLoop");
+
+    JOP_END_COMMAND_HANDLER(SoundStream)
+}
+
+namespace jop
+{
+    SoundStream::SoundStream(Object& object)
+        : SoundSource   (object, "soundstream"),
+          m_path        ()
     {
-        m_sound = std::make_unique < sf::Music > ();
+        m_sound = std::make_unique<sf::Music>();
     }
 
     SoundStream::SoundStream(const SoundStream& other, Object& newObj)
-        : SoundSource(other, newObj)
+        : SoundSource   (other, newObj),
+          m_path        (other.m_path)
     {
-        m_sound = std::make_unique < sf::Music >();
+        m_sound = std::make_unique<sf::Music>();
        
         auto& s = static_cast<sf::Music&>(*m_sound);
         auto& o = static_cast<const sf::Music&>(*other.m_sound);
         
-        s.setPitch(o.getPitch());
-        s.setVolume(o.getVolume());
-        s.setRelativeToListener(o.isRelativeToListener());
-        s.setMinDistance(o.getMinDistance());
-        s.setAttenuation(o.getAttenuation());
-        s.setLoop(o.getLoop());       
-        s.openFromFile(other.m_path);
+        s.setPitch              (o.getPitch());
+        s.setVolume             (o.getVolume());
+        s.setRelativeToListener (o.isRelativeToListener());
+        s.setMinDistance        (o.getMinDistance());
+        s.setAttenuation        (o.getAttenuation());
+        s.setLoop               (o.getLoop());       
+        s.openFromFile          (other.m_path);
     }
-    //////////////////////////////////////////////
-
-    SoundStream::~SoundStream()
-    {}
 
     //////////////////////////////////////////////
 
-
-    SoundStream& SoundStream::setPath(const std::string path)
+    SoundStream& SoundStream::setPath(const std::string& path)
     {
-        static const std::string m_relativity = SettingManager::getString("sResourceDirectory", "Resources")+"/";
+        static const std::string m_relativity = SettingManager::getString("sResourceDirectory", "Resources") + "/";
        
         m_path = m_relativity + path;
-        if (!static_cast<sf::Music*>(m_sound.get())->openFromFile(path))
-            return *this;
-        else
-            JOP_DEBUG_ERROR("Error in SoundStream::setPath: "<<path)
-            return *this;
+        static_cast<sf::Music*>(m_sound.get())->openFromFile(path);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    SoundStream& SoundStream::play(bool reset)
+    SoundStream& SoundStream::play(const bool reset)
     {
-        if (static_cast<sf::Music*>(m_sound.get())->getStatus() == sf::Sound::Status::Playing)
-        {
-            if (reset)
-            return *this;
-        }
-        static_cast<sf::Music*>(m_sound.get())->play();
+        if (reset || getStatus() < Status::Playing)
+            play();
+
         return *this;
     }
 
@@ -86,7 +92,6 @@ namespace jop
     SoundStream& SoundStream::play()
     {
         static_cast<sf::Music*>(m_sound.get())->play();
-       
         return *this;
     }
 
@@ -95,7 +100,6 @@ namespace jop
     SoundStream& SoundStream::stop()
     {
         static_cast<sf::Music*>(m_sound.get())->stop();
-
         return *this;
     }
 
@@ -104,7 +108,6 @@ namespace jop
     SoundStream& SoundStream::pause()
     {
         static_cast<sf::Music*>(m_sound.get())->pause();
-
         return *this;
     }
 
@@ -120,24 +123,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float SoundStream::getOffset()
+    float SoundStream::getOffset() const
     {
         return static_cast<sf::Music*>(m_sound.get())->getPlayingOffset().asSeconds();
     }
 
     //////////////////////////////////////////////
 
-    enum status SoundStream::getStatus()
+    SoundSource::Status SoundStream::getStatus() const
     {
-        return status(static_cast<sf::Music*>(m_sound.get())->getStatus());
+        return static_cast<Status>(static_cast<sf::Music*>(m_sound.get())->getStatus());
     }
 
     //////////////////////////////////////////////
 
-    SoundStream& SoundStream::setLoop(bool loop)
+    SoundStream& SoundStream::setLoop(const bool loop)
     {
         static_cast<sf::Music*>(m_sound.get())->setLoop(loop);
-
         return *this;
     }
 }

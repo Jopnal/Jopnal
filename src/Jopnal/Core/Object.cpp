@@ -41,14 +41,30 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
-        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
+        // Component
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearComponents, "clearComponents");
+
+        // Activity
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setActive, "setActive");
+
+        // Children
+        JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
+        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
-        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
+
+        // Tags
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
+
+        // Other
+        JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -60,37 +76,10 @@ namespace jop
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
+          m_tags                    (),
           m_ID                      (ID),
-          m_ignoreParent            (false),
-          m_active                  (true)
-    {}
-
-    Object::Object(const Object& other, const std::string& newID)
-        : Transform                 (other),
-          SafeReferenceable<Object> (this),
-          m_children                (),
-          m_components              (),
-          m_ID                      (newID),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
-    {
-        m_components.reserve(other.m_components.size());
-        for (auto& i : other.m_components)
-            m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
-
-        m_children.reserve(other.m_children.size());
-        for (auto& i : other.m_children)
-            m_children.emplace_back(i, i.getID());
-    }
-
-    Object::Object(Object&& other)
-        : Transform                 (other),
-          SafeReferenceable<Object> (std::move(other)),
-          m_children                (std::move(other.m_children)),
-          m_components              (std::move(other.m_components)),
-          m_ID                      (std::move(other.m_ID)),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
+          m_parent                  (),
+          m_flags                   (ActiveFlag)
     {}
 
     Object::Object(const Object& other, const std::string& newID, const Transform& newTransform)
@@ -98,9 +87,10 @@ namespace jop
           SafeReferenceable<Object> (this),
           m_children                (),
           m_components              (),
+          m_tags                    (other.m_tags),
           m_ID                      (newID),
-          m_ignoreParent            (other.m_ignoreParent),
-          m_active                  (other.m_active)
+          m_parent                  (other.m_parent),
+          m_flags                   (other.m_flags)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -108,21 +98,43 @@ namespace jop
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
-            m_children.emplace_back(i, i.getID());
+        {
+            m_children.emplace_back(i, i.getID(), i);
+            m_children.back().m_parent = *this;
+        }
     }
+
+    Object::Object(Object&& other)
+        : Transform                 (other),
+          SafeReferenceable<Object> (std::move(other)),
+          m_children                (std::move(other.m_children)),
+          m_components              (std::move(other.m_components)),
+          m_tags                    (std::move(other.m_tags)),
+          m_ID                      (std::move(other.m_ID)),
+          m_parent                  (other.m_parent),
+          m_flags                   (other.m_flags)
+    {}
 
     Object& Object::operator=(Object&& other)
     {
         Transform::operator =(other);
-        SafeReferenceable<Object>::operator=(std::move(other));
+        SafeReferenceable<Object>::operator =(std::move(other));
 
         m_children      = std::move(other.m_children);
         m_components    = std::move(other.m_components);
+        m_tags          = std::move(other.m_tags);
         m_ID            = std::move(other.m_ID);
-        m_ignoreParent  = other.m_ignoreParent;
-        m_active        = other.m_active;
+        m_parent        = other.m_parent;
+        m_flags         = other.m_flags;
 
         return *this;
+    }
+
+    Object::~Object()
+    {
+        // These need to be cleared before anything else
+        m_children.clear();
+        m_components.clear();
     }
 
     //////////////////////////////////////////////
@@ -151,6 +163,36 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Component* Object::cloneComponent(Object& object, const std::string& ID) const
+    {
+        auto i = getComponent(ID);
+
+        if (i)
+        {
+            object.m_components.emplace_back(i->clone(object));
+            return object.m_components.back().get();
+        }
+
+        return nullptr;
+    }
+
+    /////////////////////////////////////////////
+
+    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
+    {
+        auto i = getComponent(ID);
+
+        if (i)
+        {
+            m_components.emplace_back(i->clone(*this));
+            m_components.back()->setID(newID);
+        }
+
+        return i;
+    }
+
+    //////////////////////////////////////////////
+
     const std::vector<std::unique_ptr<Component>>& Object::getComponents() const
     {
         return m_components;
@@ -158,20 +200,23 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::removeComponents(const std::string& ID)
+    Object& Object::removeComponents(const std::string& ID)
     {
         m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
         {
             return comp->getID() == ID;
 
         }), m_components.end());
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::clearComponents()
+    Object& Object::clearComponents()
     {
         m_components.clear();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -186,20 +231,29 @@ namespace jop
     WeakReference<Object> Object::createChild(const std::string& ID)
     {
         m_children.emplace_back(ID);
+        m_children.back().m_parent = *this;
+
         return m_children.back().getReference();
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::getChild(const std::string& ID)
+    WeakReference<Object> Object::adoptChild(Object& child)
     {
-        for (auto& i : m_children)
-        {
-            if (i.getID() == ID)
-                return i.getReference();
-        }
+        JOP_ASSERT(!child.getParent().expired(), "You must not reparent a scene!");
 
-        return WeakReference<Object>();
+        if (child.getParent().get() == this)
+            return child.getReference();
+
+        if (m_children.size() == m_children.capacity())
+            m_children.reserve(m_children.size() + 1);
+
+        m_children.emplace_back(std::move(child));
+        m_children.back().m_parent = *this;
+
+        child.removeSelf();
+
+        return m_children.back().getReference();
     }
 
     //////////////////////////////////////////////
@@ -213,14 +267,14 @@ namespace jop
 
     WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID)
     {
-        auto ptr = getChild(ID);
+        auto ptr = findChild(ID);
 
         if (!ptr.expired())
         {
             if (m_children.size() == m_children.capacity())
                 m_children.reserve(m_children.size() + 1);
 
-            m_children.emplace_back(*ptr, clonedID);
+            m_children.emplace_back(*ptr, clonedID, *ptr);
             return m_children.back().getReference();
         }
 
@@ -231,7 +285,7 @@ namespace jop
 
     WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform)
     {
-        auto ptr = getChild(ID);
+        auto ptr = findChild(ID);
 
         if (!ptr.expired())
         {
@@ -247,20 +301,80 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::removeChildren(const std::string& ID)
+    Object& Object::removeChildren(const std::string& ID)
     {
-        m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [&ID](const Object& obj)
+        for (auto& i : m_children)
         {
-            return obj.getID() == ID;
+            if (i.getID() == ID)
+                i.removeSelf();
+        }
 
-        }), m_children.end());
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Object::clearChildren()
+    Object& Object::removeChildrenWithTag(const std::string& tag, const bool recursive)
+    {
+        auto children = findChildrenWithTag(tag, recursive);
+
+        for (auto& i : children)
+            i->removeSelf();
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::clearChildren()
     {
         m_children.clear();
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::removeSelf()
+    {
+        m_flags |= RemoveFlag;
+
+        if (!m_parent.expired())
+            m_parent->m_flags |= ChildrenRemovedFlag;
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf()
+    {
+        return cloneSelf(getID(), *this);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf(const std::string& newID)
+    {
+        return cloneSelf(newID, *this);
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::cloneSelf(const std::string& newID, const Transform& newTransform)
+    {
+        JOP_ASSERT(!getParent().expired(), "Cannot clone a scene!");
+
+        auto& vec = getParent()->m_children;
+        if (vec.size() == vec.capacity())
+            vec.reserve(vec.size() + 1);
+
+        vec.emplace_back(*this, newID, newTransform);
+        return vec.back().getReference();
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::isRemoved() const
+    {
+        return (m_flags & RemoveFlag) != 0;
     }
 
     /////////////////////////////////////////////
@@ -284,16 +398,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::setIgnoreParent(const bool ignore)
+    Object& Object::setIgnoreParent(const bool ignore)
     {
-        m_ignoreParent = ignore;
+        m_flags = (ignore ? m_flags | IgnoreParentFlag : m_flags & ~(IgnoreParentFlag));
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     bool Object::ignoresParent() const
     {
-        return m_ignoreParent;
+        return (m_flags & IgnoreParentFlag) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::getParent() const
+    {
+        return m_parent;
+    }
+
+    //////////////////////////////////////////////
+
+    WeakReference<Object> Object::setParent(Object& newParent)
+    {
+        return newParent.adoptChild(*this);
+    }
+
+    //////////////////////////////////////////////
+
+    Scene& Object::getScene()
+    {
+        return getParent().expired() ? static_cast<Scene&>(*this) : getParent()->getScene();
+    }
+
+    //////////////////////////////////////////////
+
+    const Scene& Object::getScene() const
+    {
+        return getParent().expired() ? static_cast<const Scene&>(*this) : getParent()->getScene();
     }
 
     //////////////////////////////////////////////
@@ -316,7 +459,7 @@ namespace jop
 
     Message::Result Object::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Object, getID()) && message.passFilter(Message::Command))
+        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags) && message.passFilter(Message::Command))
         {
             Any instance(this);
             if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
@@ -346,11 +489,135 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::setActive(const bool active)
+    namespace detail
     {
-        if (active != m_active)
+        bool findChildStrict(const std::string& childID, const std::string& findID)
         {
-            m_active = active;
+            return childID == findID;
+        }
+
+        bool findChildLoose(const std::string& childID, const std::string& findID)
+        {
+            return childID.find(findID) != std::string::npos;
+        }
+    }
+
+    WeakReference<Object> Object::findChild(const std::string& ID, const bool recursive, const bool strict) const
+    {
+        auto method = strict ? &detail::findChildStrict : &detail::findChildLoose;
+
+        for (auto& i : m_children)
+        {
+            if (method(i.getID(), ID))
+                return i.getReference();
+
+            if (recursive)
+            {
+                auto ref = i.findChild(ID, true, strict);
+
+                if (!ref.expired())
+                    return ref;
+            }
+        }
+
+        return WeakReference<Object>();
+    }
+
+
+    /////////////////////////////////////////////
+
+    std::vector<WeakReference<Object>> Object::findChildren(const std::string& ID, const bool recursive, const bool strict) const
+    {
+        auto method = strict ? &detail::findChildStrict : &detail::findChildLoose;
+
+        std::vector<WeakReference<Object>> vec;
+
+        for (auto& i : m_children)
+        {
+            if (method(i.getID(), ID))
+                vec.push_back(i.getReference());
+
+            if (recursive)
+            {
+                auto ref = i.findChildren(ID, true, strict);
+                vec.insert(vec.end(), ref.begin(), ref.end());
+            }
+        }
+
+        return vec;
+    }
+
+    /////////////////////////////////////////////
+
+    std::vector<WeakReference<Object>> Object::findChildrenWithTag(const std::string& tag, const bool recursive) const
+    {
+        std::vector<WeakReference<Object>> vec;
+
+        for (auto& i : m_children)
+        {
+            if (i.hasTag(tag))
+                vec.push_back(i.getReference());
+
+            if (recursive)
+            {
+                auto ref = i.findChildrenWithTag(tag, true);
+                vec.insert(vec.end(), ref.begin(), ref.end());
+            }
+        }
+
+        return vec;
+    }
+
+    /////////////////////////////////////////////
+
+    WeakReference<Object> Object::findChildWithPath(const std::string& path) const
+    {
+        if (!path.empty())
+        {
+            auto pos = path.find_first_of('>');
+
+            if (pos != 0)
+            {
+                if (pos != std::string::npos)
+                {
+                    auto ref = findChild(path.substr(0, pos), false, true);
+
+                    if (!ref.expired() && pos < path.length())
+                        return ref->findChild(path.substr(pos + 1));
+                }
+                else
+                    return findChild(path, false, true);
+            }
+            else
+                JOP_DEBUG_ERROR("Invalid object path: " << path);
+        }
+
+        return WeakReference<Object>();
+    }
+        
+    /////////////////////////////////////////////
+
+    std::string Object::makeSearchPath() const
+    {
+        WeakReference<Object> obj(m_parent);
+        std::string path((obj.expired() ? "" : ">") + getID());
+
+        while (!obj.expired())
+        {
+            path.insert(0, (obj->m_parent.expired() ? "" : ">") + obj->getID());
+            obj = obj->m_parent;
+        }
+
+        return path;
+    }
+
+    /////////////////////////////////////////////
+
+    Object& Object::setActive(const bool active)
+    {
+        if (isActive() != active)
+        {
+            m_flags = (active ? m_flags | ActiveFlag : m_flags & ~(ActiveFlag));
 
             for (auto& i : m_components)
                 i->setActive(active);
@@ -358,13 +625,15 @@ namespace jop
             for (auto& i : m_children)
                 i.setActive(active);
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     bool Object::isActive() const
     {
-        return m_active;
+        return (m_flags & ActiveFlag) != 0 && !isRemoved();
     }
 
     /////////////////////////////////////////////
@@ -373,11 +642,16 @@ namespace jop
     {
         if (isActive())
         {
+            sweepRemoved();
+
             for (auto& i : m_components)
                 i->update(deltaTime);
 
-            for (auto& i : m_children)
-                i.update(deltaTime);
+            // Have to use a good old fashion loop here
+            // since it's possible that objects are added
+            // or removed inside it.
+            for (std::size_t i = 0; i < m_children.size(); ++i)
+                m_children[i].update(deltaTime);
         }
     }
 
@@ -390,9 +664,41 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    void Object::setID(const std::string& ID)
+    Object& Object::setID(const std::string& ID)
     {
         m_ID = ID;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::addTag(const std::string& tag)
+    {
+        m_tags.insert(tag);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::removeTag(const std::string& tag)
+    {
+        m_tags.erase(tag);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::clearTags()
+    {
+        m_tags.clear();
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::hasTag(const std::string& tag) const
+    {
+        return m_tags.find(tag) != m_tags.end();
     }
 
     //////////////////////////////////////////////
@@ -419,26 +725,16 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    Component* Object::cloneComponent(Object& other, const std::string& ID)
+    void Object::sweepRemoved()
     {
-        auto i = other.getComponent(ID);     
-        if (i)
-        m_components.emplace_back(i->clone(*this));
-
-        return i;
-    }
-
-    /////////////////////////////////////////////
-
-    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
-    {
-        auto i = getComponent(ID);
-        if (i)
+        if ((m_flags & ChildrenRemovedFlag) != 0)
         {
-            m_components.emplace_back(i->clone(*this));
-            m_components.back()->setID(newID);
-        }
+            m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](const Object& obj)
+            {
+                return obj.isRemoved();
+            }), m_children.end());
 
-        return i;
+            m_flags &= ~(ChildrenRemovedFlag);
+        }
     }
 }

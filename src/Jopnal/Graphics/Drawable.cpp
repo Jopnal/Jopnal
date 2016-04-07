@@ -35,35 +35,32 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveLights, "setReceiveLights");
         JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveShadows, "setReceiveShadows");
         JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReflected, "setReflected");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setRenderGroup, "setRenderGroup");
 
     JOP_END_COMMAND_HANDLER(Drawable)
 }
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, const std::string& ID, Renderer& renderer)
-        : Component         (object, ID),
-          m_model           (Model::getDefault()),
-          m_shader          (static_ref_cast<Shader>(Shader::getDefault().getReference())),
-          m_rendererRef     (renderer),
-          m_renderGroup     (0),
-          m_receiveLights   (true),
-          m_receiveShadows  (true),
-          m_castShadows     (true)
+    Drawable::Drawable(Object& object, Renderer& renderer, const std::string& ID)
+        : Component     (object, ID),
+          m_model       (Mesh::getDefault(), Material::getDefault()),
+          m_shader      (),
+          m_rendererRef (renderer),
+          m_renderGroup (0),
+          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
         renderer.bind(*this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component         (other, newObj),
-          m_model           (other.m_model),
-          m_shader          (other.m_shader),
-          m_rendererRef     (other.m_rendererRef),
-          m_renderGroup     (other.m_renderGroup),
-          m_receiveLights   (other.m_receiveLights),
-          m_receiveShadows  (other.m_receiveShadows),
-          m_castShadows     (other.m_castShadows)
+        : Component     (other, newObj),
+          m_model       (other.m_model),
+          m_shader      (other.m_shader),
+          m_rendererRef (other.m_rendererRef),
+          m_renderGroup (other.m_renderGroup),
+          m_flags       (other.m_flags)
     {
         m_rendererRef.bind(*this);
     }
@@ -77,7 +74,9 @@ namespace jop
 
     void Drawable::draw(const Camera& camera, const LightContainer& lights) const
     {
-        draw(&camera, lights, *getShader());
+        auto shdr = ((m_model.getMaterial() == nullptr || !m_model.getMaterial()->getShader()) && m_shader.expired()) ? m_shader.get() : m_model.getMaterial()->getShader();
+
+        draw(&camera, lights, shdr == nullptr ? Shader::getDefault() : *shdr);
     }
 
     //////////////////////////////////////////////
@@ -96,9 +95,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setRenderGroup(const uint8 group)
+    Drawable& Drawable::setRenderGroup(const uint8 group)
     {
         m_renderGroup = std::min(static_cast<uint8>(31), group);
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -110,26 +110,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setModel(const Model& model, const bool loadMaterialShader)
+    Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
-
-        if (loadMaterialShader && !m_model.getMaterial().expired())
-            setShader(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()));
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
     const Model& Drawable::getModel() const
-    {
-        return m_model;
-    }
-
-    //////////////////////////////////////////////
-
-    Model& Drawable::getModel()
     {
         return m_model;
     }
@@ -144,23 +133,36 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Shader> Drawable::getShader() const
+    Drawable& Drawable::removeShader(const bool loadMaterialShader)
     {
-        return m_shader;
+        if (loadMaterialShader && m_model.getMaterial())
+            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()).getReference());
+        else
+            m_shader.reset();
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Drawable::setReceiveLights(const bool receive)
+    Shader* Drawable::getShader() const
     {
-        m_receiveLights = receive;
+        return m_shader.get();
+    }
+
+    //////////////////////////////////////////////
+
+    Drawable& Drawable::setReceiveLights(const bool receive)
+    {
+        m_flags = (receive ? m_flags | ReceiveLights : m_flags & ~(ReceiveLights));
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::receiveLights() const
     {
-        return m_receiveLights;
+        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::Lighting));
     }
 
     //////////////////////////////////////////////
@@ -173,30 +175,47 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::setReceiveShadows(const bool receive)
+    Drawable& Drawable::setReceiveShadows(const bool receive)
     {
-        m_receiveShadows = receive;
+        m_flags = (receive ? m_flags | ReceiveShadows : m_flags & ~(ReceiveShadows));
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::receiveShadows() const
     {
-        return m_receiveShadows;
+        return (m_flags & ReceiveShadows) != 0;
     }
 
     //////////////////////////////////////////////
 
-    void Drawable::setCastShadows(const bool cast)
+    Drawable& Drawable::setCastShadows(const bool cast)
     {
-        m_castShadows = cast;
+        m_flags = (cast ? m_flags | CastShadows : m_flags & ~(CastShadows));
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::castShadows() const
     {
-        return m_castShadows;
+        return (m_flags & CastShadows) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    Drawable& Drawable::setReflected(const bool reflected)
+    {
+        m_flags = (reflected ? m_flags | Reflected : m_flags & ~(Reflected));
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::isReflected() const
+    {
+        return (m_flags & Reflected) != 0;
     }
 
     //////////////////////////////////////////////
@@ -246,10 +265,10 @@ namespace jop
         if (!drawable.m_shader.expired())
             val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);
 
-        if (!drawable.m_model.getMesh().expired())
+        if (drawable.m_model.getMesh())
             val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh()->getName().c_str()), alloc);
 
-        if (!drawable.getModel().getMaterial().expired())
+        if (drawable.getModel().getMaterial())
             val.AddMember(json::StringRef("material"), json::StringRef(drawable.getModel().getMaterial()->getName().c_str()), alloc);
 
         return true;

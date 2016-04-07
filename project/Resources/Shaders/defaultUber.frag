@@ -40,12 +40,14 @@
     // Does the object receive shadows?
     uniform bool u_ReceiveShadows;
 
-    // Camera position
-    uniform vec3 u_CameraPosition;
-
     // Fragment position from vertex/geometry shader
     in vec3 vgf_FragPosition;
 
+#endif
+
+// Camera position
+#if defined(JMAT_PHONG) || defined(JMAT_ENVIRONMENTMAP)
+    uniform vec3 u_CameraPosition;
 #endif
 
 // Vertex attribute data
@@ -175,6 +177,9 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
         #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #endif
         ;
 
         // Normal vector
@@ -205,7 +210,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -233,8 +238,8 @@ in FragVertexData
 
             // Test for shadows with PCF
             float shadow = 0.0;
-            float bias = 0.15;
-            int samples = 20;
+            const float bias = 0.15;
+            const int samples = 20;
 
             float viewDistance = length(u_CameraPosition - vgf_FragPosition);
             float diskRadius = (1.0 + (viewDistance / l.farPlane)) / 25.0;
@@ -258,6 +263,41 @@ in FragVertexData
         return ambient + diffuse + specular;
     }
 
+    // Shadow calculation for directional and spot lights
+    float calculateDirSpotShadow(const in vec3 projCoords, const in vec3 norm, const in vec3 lightDir, const in sampler2D samp)
+    {
+        // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+        float closestDepth = texture(samp, projCoords.xy).r; 
+
+        // Get depth of current fragment from light's perspective
+        float currentDepth = projCoords.z;
+
+        // Check whether current frag pos is in shadow
+        float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+
+        float shadow = 0.0;
+
+        if (projCoords.z > 1.0)
+            shadow = 0.0;
+
+        // Do percentage-closer filtering
+        else
+        {
+            vec2 texelSize = 1.0 / textureSize(samp, 0);
+            for(int x = -1; x <= 1; ++x)
+            {
+                for(int y = -1; y <= 1; ++y)
+                {
+                    float pcfDepth = texture(samp, projCoords.xy + vec2(x, y) * texelSize).r; 
+                    shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+                }    
+            }
+            shadow /= 9.0;
+        }
+
+        return shadow;
+    }
+
     // Directional light calculation
     vec3 calculateDirectionalLight(const in uint index)
     {
@@ -267,6 +307,9 @@ in FragVertexData
         vec3 ambient = l.ambient
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
+        #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
         #endif
         ;
 
@@ -300,7 +343,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -317,43 +360,7 @@ in FragVertexData
 
         // Shadow calculation
         if (l.castShadow && u_ReceiveShadows)
-        {
-            vec3 projCoords = vec3(l.lsMatrix * vec4(vgf_FragPosition, 1.0));
-
-            // Transform to [0,1] range
-            projCoords = projCoords * 0.5 + 0.5;
-
-            // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-            float closestDepth = texture(u_DirectionalLightShadowMaps[index], projCoords.xy).r; 
-
-            // Get depth of current fragment from light's perspective
-            float currentDepth = projCoords.z;
-
-            // Check whether current frag pos is in shadow
-            float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
-
-            float shadow = 0.0;
-
-            if (projCoords.z > 1.0)
-                shadow = 0.0;
-
-            // Do percentage-closer filtering
-            else
-            {
-                vec2 texelSize = 1.0 / textureSize(u_DirectionalLightShadowMaps[index], 0);
-                for(int x = -1; x <= 1; ++x)
-                {
-                    for(int y = -1; y <= 1; ++y)
-                    {
-                        float pcfDepth = texture(u_DirectionalLightShadowMaps[index], projCoords.xy + vec2(x, y) * texelSize).r; 
-                        shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
-                    }    
-                }
-                shadow /= 9.0;
-            }
-
-            return (ambient + (1.0 - shadow) * (diffuse + specular));
-        }
+            return (ambient + (1.0 - calculateDirSpotShadow(vec3(l.lsMatrix * vec4(vgf_FragPosition, 1.0)) * 0.5 + 0.5, norm, lightDir, u_DirectionalLightShadowMaps[index])) * (diffuse + specular));
         
         return ambient + diffuse + specular;
     }
@@ -367,6 +374,9 @@ in FragVertexData
         vec3 ambient = l.ambient
         #ifdef JMAT_MATERIAL
             * u_Material.ambient
+        #endif
+        #ifdef JMAT_DIFFUSEMAP
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
         #endif
         ;
 
@@ -398,7 +408,7 @@ in FragVertexData
         #ifdef JMAT_MATERIAL
             (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
         #else
-            max(dot(norm, reflectDir), 0.0)
+            0.0
         #endif
         ;
         vec3 specular = l.specular * spec
@@ -428,42 +438,7 @@ in FragVertexData
         {
             vec4 tempCoords = l.lsMatrix * vec4(vgf_FragPosition, 1.0);
 
-            // Perspective divide
-            vec3 projCoords = tempCoords.xyz / tempCoords.w;
-
-            // Transform to [0,1] range
-            projCoords = projCoords * 0.5 + 0.5;
-
-            // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-            float closestDepth = texture(u_SpotLightShadowMaps[index], projCoords.xy).r; 
-
-            // Get depth of current fragment from light's perspective
-            float currentDepth = projCoords.z;
-
-            // Check whether current frag pos is in shadow
-            float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
-
-            float shadow = 0.0;
-
-            if (projCoords.z > 1.0)
-                shadow = 0.0;
-
-            // Do percentage-closer filtering
-            else
-            {
-                vec2 texelSize = 1.0 / textureSize(u_SpotLightShadowMaps[index], 0);
-                for(int x = -1; x <= 1; ++x)
-                {
-                    for(int y = -1; y <= 1; ++y)
-                    {
-                        float pcfDepth = texture(u_SpotLightShadowMaps[index], projCoords.xy + vec2(x, y) * texelSize).r;
-                        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-                    }
-                }
-                shadow /= 9.0;
-            }
-
-            return (ambient + (1.0 - shadow) * (diffuse + specular));
+            return (ambient + (1.0 - calculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, norm, lightDir, u_SpotLightShadowMaps[index])) * (diffuse + specular));
         }
 
         return ambient + diffuse + specular;
@@ -485,7 +460,12 @@ void main()
             JMAT_AMBIENT;
         #endif
     #else
-        vec3(0.0, 0.0, 0.0);
+        #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
+            vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        #else
+            vec3(0.0, 0.0, 0.0)
+        #endif
+        ;
     #endif
 
     #ifdef JMAT_ENVIRONMENTMAP
@@ -513,6 +493,7 @@ void main()
 
     // Do lighting calculations
     #ifdef JMAT_PHONG
+
         if (u_ReceiveLights)
         {
             // Point lights
@@ -527,6 +508,7 @@ void main()
             for (uint i = 0u; i < u_NumSpotLights; ++i)
                 tempColor += calculateSpotLight(i);
         }
+
     #endif
 
     // Emission

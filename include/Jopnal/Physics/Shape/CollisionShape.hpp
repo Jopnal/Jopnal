@@ -39,6 +39,7 @@ namespace jop
     private:
 
         friend class RigidBody;
+        friend class CompoundShape;
 
     protected:
 

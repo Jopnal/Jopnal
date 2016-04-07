@@ -67,8 +67,8 @@ namespace jop
         if (path.empty())
             return false;
 
-        std::vector<unsigned char> buf;
-        FileLoader::read(path, buf);
+        std::vector<uint8> buf;
+        FileLoader::readBinaryfile(path, buf);
 
         glm::ivec2 size;
         int bpp;
@@ -158,7 +158,7 @@ namespace jop
     bool Texture2D::load(const int id)
     {
         std::vector<unsigned char> buf;
-        if (!FileLoader::readFromDll(id, buf))
+        if (!FileLoader::readResource(id, buf))
             return false;
 
         int x, y, bpp;
@@ -217,5 +217,43 @@ namespace jop
     bool Texture2D::checkDepthValid(const unsigned int depth)
     {
         return depth >= 1 && depth <= 4;
+    }
+
+    //////////////////////////////////////////////
+
+    Texture2D& Texture2D::getError()
+    {
+        static WeakReference<Texture2D> errTex;
+
+        if (errTex.expired())
+        {
+            errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
+
+            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
+
+            errTex->setPersistence(0);
+            errTex->setManaged(true);
+        }
+
+        return *errTex;
+    }
+
+    //////////////////////////////////////////////
+
+    Texture2D& Texture2D::getDefault()
+    {
+        static WeakReference<Texture2D> defTex;
+
+        if (defTex.expired())
+        {
+            defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
+
+            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
+
+            defTex->setPersistence(0);
+            defTex->setManaged(true);
+        }
+
+        return *defTex;
     }
 }

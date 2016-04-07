@@ -25,6 +25,7 @@
 // Headers
 #include <nana/gui/wvl.hpp>
 #include <nana/gui/timer.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
 
 //////////////////////////////////////////////
 
@@ -33,13 +34,17 @@ struct HGLRC__;
 
 namespace jope
 {
-    class OpenGLWindow final : public nana::nested_form
+    class OpenGLWindow final : public nana::nested_form, public jop::RenderTarget
     {
     public:
 
         OpenGLWindow(nana::window parent, std::unique_ptr<jop::Engine>& eng);
 
         ~OpenGLWindow() override;
+
+        bool bind() const override;
+
+        glm::uvec2 getSize() const override;
 
     private:
 

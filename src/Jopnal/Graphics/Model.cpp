@@ -35,8 +35,6 @@ namespace jop
         setMesh(Mesh::getDefault());
     }
 
-    //////////////////////////////////////////////
-
     Model::Model(const Mesh& mesh, const Material& material)
         : m_material    (),
           m_mesh        ()
@@ -44,8 +42,6 @@ namespace jop
         setMaterial(material);
         setMesh(mesh);
     }
-
-    //////////////////////////////////////////////
 
     Model::Model(const Mesh& mesh)
         : m_material    (),
@@ -57,18 +53,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Model::load(const std::string& filePath, const Mesh::LoadOptions& options)
+    const Mesh* Model::getMesh() const
     {
-        setMesh(ResourceManager::getResource<Mesh>(filePath, *m_material, options));
-
-        return m_mesh.get() != &Mesh::getDefault();
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<const Mesh> Model::getMesh() const
-    {
-        return m_mesh;
+        return m_mesh.get();
     }
 
     //////////////////////////////////////////////
@@ -81,16 +68,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<const Material> Model::getMaterial() const
+    const Material* Model::getMaterial() const
     {
-        return static_ref_cast<const Material>(m_material);
-    }
-
-    //////////////////////////////////////////////
-
-    WeakReference<Material> Model::getMaterial()
-    {
-        return m_material;
+        return m_material.get();
     }
 
     //////////////////////////////////////////////
@@ -103,32 +83,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Model::getVertexAmount() const
+    bool Model::isValid() const
     {
-        return m_mesh.expired() ? 0 : m_mesh->getVertexAmount();
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int Model::getElementAmount() const
-    {
-        return m_mesh.expired() ? 0 : m_mesh->getElementAmount();
-    }
-
-    //////////////////////////////////////////////
-
-    const Model& Model::getDefault()
-    {
-        static WeakReference<const Mesh> defMesh;
-        static Model model;
-
-        if (defMesh.expired())
-        {
-            defMesh = static_ref_cast<const Mesh>(Mesh::getDefault().getReference());
-
-            model.setMesh(*defMesh);
-        }
-
-        return model;
+        return !m_mesh.expired() && !m_material.expired();
     }
 }

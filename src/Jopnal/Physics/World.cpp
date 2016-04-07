@@ -25,6 +25,15 @@
 //////////////////////////////////////////////
 
 
+namespace jop
+{
+    JOP_DERIVED_COMMAND_HANDLER(Component, World)
+
+        JOP_BIND_MEMBER_COMMAND(&World::setDebugMode, "setWorldDebugMode");
+
+    JOP_END_COMMAND_HANDLER(World)
+}
+
 #ifdef JOP_DEBUG_MODE
 namespace detail
 {
@@ -35,8 +44,10 @@ namespace detail
         friend class jop::World;
 
         typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
+
         jop::VertexBuffer m_buffer;
         LineVec m_lines;
+        LineVec m_points;
         int m_mode;
         const jop::Camera* m_cam;
 
@@ -55,8 +66,11 @@ namespace detail
         virtual void draw3dText(const btVector3&, const char*) override
         {}
 
-        void drawContactPoint(const btVector3&, const btVector3&, btScalar, int, const btVector3&) override
-        {}
+        void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar, int, const btVector3& color) override
+        {
+            m_points.emplace_back(PointOnB, color);
+            drawLine(PointOnB, PointOnB + normalOnB, color);
+        }
 
         void reportErrorWarning(const char* warningString) override
         {
@@ -80,7 +94,7 @@ namespace detail
         {
             using namespace jop;
 
-            if (m_lines.empty() || !m_cam)
+            if ((m_lines.empty() && m_points.empty()) || !m_cam)
                 return;
 
             static WeakReference<Shader> shdr;
@@ -88,7 +102,7 @@ namespace detail
             if (shdr.expired())
             {
                 std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_PHYSICSDEBUGVERT, vert) && FileLoader::readFromDll(IDR_PHYSICSDEBUGFRAG, frag), "Failed to read physics debug shader source!");
+                JOP_ASSERT_EVAL(FileLoader::readResource(IDR_PHYSICSDEBUGVERT, vert) && FileLoader::readResource(IDR_PHYSICSDEBUGFRAG, frag), "Failed to read physics debug shader source!");
 
                 shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
 
@@ -98,20 +112,80 @@ namespace detail
                     "Failed to compile physics debug shader!");
             }
 
-            m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
+            // Draw lines
+            if (!m_lines.empty())
+            {
+                GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
 
-            shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
+                m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
-            shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-            shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-            glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+                shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
+                shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
 
-            m_lines.clear();
+                glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+
+                m_lines.clear();
+            }
+
+            // Draw points
+            if (m_points.empty())
+            {
+                glCheck(gl::PointSize(3));
+                GlState::setDepthTest(true, GlState::DepthFunc::Always);
+
+                m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
+
+                glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+
+                m_points.clear();
+            }
+
+            GlState::setDepthTest(true);
         }
     };
 
 #endif
+
+    struct GhostCallback : btGhostPairCallback
+    {
+        btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
+        {
+            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+            if (p0 && p1)
+            {
+            #ifdef JOP_DEBUG_MODE
+                JOP_DEBUG_INFO("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
+            #endif
+
+                p0->beginOverlap(*p1);
+                p1->beginOverlap(*p0);
+            }
+
+            return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+        }
+
+        void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
+        {
+            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+            if (p0 && p1)
+            {
+            #ifdef JOP_DEBUG_MODE
+                JOP_DEBUG_INFO("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
+            #endif
+
+                p0->endOverlap(*p1);
+                p1->endOverlap(*p0);
+            }
+
+            return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
+        }
+    };
 }
 
 #ifdef JOP_DEBUG_MODE
@@ -123,21 +197,48 @@ namespace detail
 namespace jop
 {
     World::World(Object& obj, Renderer& renderer)
-        : Component     (obj, "world"),
-          m_worldData   (std::make_unique<detail::WorldImpl>(CREATE_DRAWER))
+        : Component         (obj, "world"),
+          m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
+          m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
     {
     #ifdef JOP_DEBUG_MODE
         renderer.m_physicsWorld = this;
     #else
         renderer;
     #endif
-
+        
         static const float gravity = SettingManager::getFloat("fDefaultWorldGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
+        m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         m_worldData->world->setWorldUserInfo(this);
         
         setDebugMode(false);
+
+        /*static bool contactCallbacksSet = false;
+        if (!contactCallbacksSet)
+        {
+            auto processedCallback = [](btManifoldPoint& mp, void* body0, void* body1) -> bool
+            {
+                auto c0 = static_cast<Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
+                auto c1 = static_cast<Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
+
+                if (c0 && c1)
+                {
+                    auto& aPos = mp.getPositionWorldOnA();
+                    auto& bPos = mp.getPositionWorldOnB();
+
+                    c0->handleContact(*c1, ContactInfo(glm::vec3(aPos.x(), aPos.y(), aPos.z())));
+                    c1->handleContact(*c0, ContactInfo(glm::vec3(bPos.x(), bPos.y(), bPos.z())));
+                }
+
+                return true;
+            };
+
+            gContactProcessedCallback = processedCallback;
+
+            contactCallbacksSet = true;
+        }*/
     }
 
     World::~World()
@@ -172,9 +273,7 @@ namespace jop
 
         static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = &camera;
 
-        GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         m_worldData->world->debugDrawWorld();
-        GlState::setDepthTest(true);
     #else
         camera;
     #endif
@@ -185,7 +284,10 @@ namespace jop
     void World::setDebugMode(const bool enable)
     {
     #ifdef JOP_DEBUG_MODE
-        m_worldData->world->getDebugDrawer()->setDebugMode(enable ? btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE : btIDebugDraw::DBG_NoDebug);
+        static const int debugField = btIDebugDraw::DBG_DrawAabb
+                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
+
+        m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
     #else
         enable;
     #endif

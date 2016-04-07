@@ -28,27 +28,20 @@
 namespace jop
 {
     SoundBuffer::SoundBuffer(const std::string& name)
-        : Resource(name),
-        
-        m_soundBuf(std::make_unique<sf::SoundBuffer>())
+        : Resource      (name),
+          m_soundBuf    (std::make_unique<sf::SoundBuffer>())
     {}
-
-    //////////////////////////////////////////////
 
     SoundBuffer::~SoundBuffer()
     {}
 
     //////////////////////////////////////////////
-    //////////////////////////////////////////////
 
     bool SoundBuffer::load(const std::string& path)
     {
-        std::vector<unsigned char> buf;
-        FileLoader::read(path, buf);
-        if (m_soundBuf->loadFromMemory(buf.data(), buf.size()))
-        return true;
+        std::vector<uint8> buf;
+        FileLoader::readBinaryfile(path, buf);
 
-        JOP_DEBUG_ERROR("Error in SoundBuffer::load: "<<path)
-        return false;
+        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
     }
 }

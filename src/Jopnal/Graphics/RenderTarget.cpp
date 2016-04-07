@@ -40,6 +40,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void RenderTarget::postUpdate(const float)
+    {
+        clear(AllBit);
+    }
+
+    //////////////////////////////////////////////
+
     void RenderTarget::clear(const unsigned int bits)
     {
         if (bind())

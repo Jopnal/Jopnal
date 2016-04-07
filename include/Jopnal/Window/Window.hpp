@@ -122,6 +122,10 @@ namespace jop
         void draw() override;
 
 
+        /// \brief Bind this window for drawing
+        ///
+        /// \return True if successful
+        ///
         bool bind() const override;
 
 
@@ -231,7 +235,6 @@ namespace jop
 
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
-
     };
 
     // Include the template implementation file

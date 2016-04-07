@@ -20,36 +20,47 @@
 //////////////////////////////////////////////
 
 
+namespace detail
+{
+    template<typename T = ::jop::Component>
+    T* componentGetter(const std::vector<std::unique_ptr<::jop::Component>>& comps, const std::string* ID)
+    {
+        static_assert(std::is_base_of<::jop::Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+
+        for (auto& i : comps)
+        {
+            if ((ID == nullptr || i->getID() == *ID) && (typeid(T) == typeid(::jop::Component) || typeid(*i) == typeid(T)))
+                return static_cast<T*>(i.get());
+        }
+
+        return nullptr;
+    }
+}
+
 template<typename T>
 T* Object::getComponent()
 {
-    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
-
-    const std::type_info& ti = typeid(T);
-
-    for (auto& i : m_components)
-    {
-        if (typeid(*i) == ti)
-            return static_cast<T*>(i.get());
-    }
-
-    return nullptr;
+    return detail::componentGetter<T>(m_components, nullptr);
 }
 
 template<typename T>
 const T* Object::getComponent() const
 {
-    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
+    return detail::componentGetter<const T>(m_components, nullptr);
+}
 
-    const std::type_info& ti = typeid(T);
+//////////////////////////////////////////////
 
-    for (auto& i : m_components)
-    {
-        if (typeid(*i) == ti)
-            return static_cast<const T*>(i.get());
-    }
+template<typename T>
+T* Object::getComponent(const std::string& ID)
+{
+    return detail::componentGetter<T>(m_components, &ID);
+}
 
-    return nullptr;
+template<typename T>
+const T* Object::getComponent(const std::string& ID) const
+{
+    return detail::componentGetter<const T>(m_components, &ID);
 }
 
 //////////////////////////////////////////////

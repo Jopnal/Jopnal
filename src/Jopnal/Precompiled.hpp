@@ -90,6 +90,15 @@
 // PhysFS
 #include <PhysicsFS/physfs.h>
 
+// Assimp
+#include <assimp/Importer.hpp>
+#include <assimp/Logger.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/IOSystem.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 // Standard headers
 #include <algorithm>
 #include <iostream>

@@ -45,6 +45,14 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Drawable);
 
+        enum
+        {
+            ReceiveLights = 1,
+            ReceiveShadows = 1 << 1,
+            CastShadows = 1 << 2,
+            Reflected = 1 << 3
+        };
+
     protected:
 
         Drawable(const Drawable& other, Object& newObj);
@@ -54,10 +62,10 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Component identifier
         /// \param renderer Reference to the renderer
+        /// \param ID Component identifier
         ///
-        Drawable(Object& object, const std::string& ID, Renderer& renderer);
+        Drawable(Object& object, Renderer& renderer, const std::string& ID);
 
         /// \brief Virtual destructor
         ///
@@ -101,7 +109,7 @@ namespace jop
         ///
         /// \comm setRenderGroup
         ///
-        void setRenderGroup(const uint8 group);
+        Drawable& setRenderGroup(const uint8 group);
 
         /// \brief Get the render group
         ///
@@ -119,20 +127,20 @@ namespace jop
         ///
         /// \comm setModel
         ///
-        Drawable& setModel(const Model& model, const bool loadMaterialShader = true);
+        /// \return Reference to self
+        ///
+        Drawable& setModel(const Model& model);
 
         /// \brief Get the model
         ///
         /// \return Reference to the model
         ///
-        Model& getModel();
-
-        /// \copydoc getModel()
-        ///
         const Model& getModel() const;
 
 
         /// \brief Set the shader
+        ///
+        /// This can be used to override the shader fetched from the bound material.
         ///
         /// \param shader Reference to the shader
         ///
@@ -140,11 +148,22 @@ namespace jop
         ///
         Drawable& setShader(Shader& shader);
 
+        /// \brief Remove the shader
+        ///
+        /// \param loadMaterialShader Set this to true to automatically fetch a new shader
+        ///                           from the bound material. If this is false, there won't
+        ///                           be a shader bound after this call, and thus, drawing
+        ///                           will fail.
+        ///
+        /// \return Reference to self 
+        ///
+        Drawable& removeShader(const bool loadMaterialShader = true);
+
         /// \brief Get the shader
         ///
-        /// \return Weak pointer to the shader. Empty if none bound
+        /// \return Pointer to the shader. Empty if none bound
         ///
-        WeakReference<Shader> getShader() const;
+        Shader* getShader() const;
 
 
         /// \brief Set whether or not this drawable receives lights
@@ -153,7 +172,7 @@ namespace jop
         ///
         /// \comm setReceiveLights
         ///
-        void setReceiveLights(const bool receive);
+        Drawable& setReceiveLights(const bool receive);
 
         /// \brief Check if this drawable receives lights
         ///
@@ -177,7 +196,7 @@ namespace jop
         ///
         /// \comm setReceiveShadows
         ///
-        void setReceiveShadows(const bool receive);
+        Drawable& setReceiveShadows(const bool receive);
 
         /// \brief Check if this drawable receives shadows
         ///
@@ -189,13 +208,30 @@ namespace jop
         /// 
         /// \param cast True to set this to cast shadows
         ///
-        void setCastShadows(const bool cast);
+        /// \comm setCastShadows
+        ///
+        Drawable& setCastShadows(const bool cast);
 
         /// \brief Check if this drawable casts shadows
         ///
         /// \return True if this drawable casts shadows
         ///
         bool castShadows() const;
+
+
+        /// \brief Set whether or not this drawable should be reflected in dynamic environment maps
+        ///
+        /// \param reflected True to set this to be reflected
+        ///
+        /// \comm setReflected
+        ///
+        Drawable& setReflected(const bool reflected);
+
+        /// \brief Check if this drawable is reflected in dynamic environment maps
+        ///
+        /// \return True if this is reflected
+        ///
+        bool isReflected() const;
 
 
         /// \brief Load the state
@@ -224,14 +260,11 @@ namespace jop
 
     private:
 
-        Model m_model;                  ///< The bound model
-        WeakReference<Shader> m_shader; ///< The bound shader
+        mutable Model m_model;                  ///< The bound model
+        mutable WeakReference<Shader> m_shader; ///< The bound shader
         Renderer& m_rendererRef;        ///< Reference to the renderer
         uint8 m_renderGroup;            ///< The render group
-        bool m_receiveLights;           ///< Does this drawable receive lights?
-        bool m_receiveShadows;          ///< Does this drawable receive shadows?
-        bool m_castShadows;             ///< Does this drawable cast shadows?
-        
+        unsigned char m_flags;          ///< Property flags
     };
 }
 

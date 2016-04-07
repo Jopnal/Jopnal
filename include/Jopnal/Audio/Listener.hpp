@@ -24,14 +24,14 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Message.hpp>
+#include <Jopnal/Core/Component.hpp>
 #include <string>
+
 //////////////////////////////////////////////
+
 
 namespace jop
 {
-    class Object;
-    
     class JOP_API Listener : public Component
     {
     protected:
@@ -40,8 +40,6 @@ namespace jop
         ///
         Listener(const Listener& other, Object& newObj);
 
-        /// \brief Check for copy constructor's need
-        ///
         JOP_DISALLOW_COPY_MOVE(Listener);
         JOP_GENERIC_COMPONENT_CLONE(Listener);
 
@@ -52,25 +50,24 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
-        Listener(Object& object, const std::string& ID);
+        Listener(Object& object);
 
-        /// \brief Virtual destructor
-        ///
-        ~Listener();
 
         /// \brief Automatically updates position and direction
         ///
-        void update(const float deltaTime)override;
+        void update(const float deltaTime) override;
 
         /// \brief Change the global volume of all the sounds and musics
         ///
+        /// \comm setGlobalVolume
+        ///
         /// \param Global volume in range of 0-100.0f
         ///
-        void setGlobalVolume(float vol);
+        void setGlobalVolume(const float volume);
 
         /// \brief Get the current value of the global volume
         ///
-        float getGlobalVolume();
+        float getGlobalVolume() const;
     };
 }
 #endif

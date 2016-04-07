@@ -194,7 +194,9 @@ namespace jop
             {
                 static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 512);
                 
-                if (!m_shadowMap.create(m_type == Type::Point ? RenderTexture::ColorAttachment::DepthCube16 : RenderTexture::ColorAttachment::Depth2D16, glm::ivec2(mapSize)))
+                using ca = RenderTexture::ColorAttachment;
+
+                if (!m_shadowMap.create(glm::ivec2(mapSize), m_type == Type::Point ? ca::DepthCube16 : ca::Depth2D16))
                     return *this;
 
                 m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);
@@ -245,7 +247,7 @@ namespace jop
             dirSpotShader->setPersistence(0);
 
             std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERT, vert) && FileLoader::readResource(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
 
             JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
         }
@@ -257,7 +259,7 @@ namespace jop
             pointShader->setPersistence(0);
 
             std::vector<unsigned char> vert, geom, frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readFromDll(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readFromDll(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readResource(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
 
             JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
         }
@@ -267,7 +269,7 @@ namespace jop
         if (!m_shadowMap.bind() || !shdr.bind())
             return false;
 
-        m_shadowMap.clear();
+        m_shadowMap.clear(RenderTarget::DepthBit);
 
         // Use the object's scale to construct the frustum
         auto scl = getObject()->getScale();
@@ -364,8 +366,8 @@ namespace jop
     LightSource& LightSource::setIntensity(const Color intensity)
     {
         return setIntensity(Intensity::Ambient, intensity)
-              .setIntensity(LightSource::Intensity::Diffuse, intensity)
-              .setIntensity(LightSource::Intensity::Specular, intensity);
+              .setIntensity(Intensity::Diffuse, intensity)
+              .setIntensity(Intensity::Specular, intensity);
     }
 
     ///////////////////////////////////////////
@@ -523,11 +525,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Camera* camera, const Drawable& drawable) const
+    void LightContainer::sendToShader(Shader& shader, const Drawable& drawable) const
     {
         shader.setUniform("u_ReceiveLights", drawable.receiveLights());
 
-        if (!drawable.receiveLights())
+        if (!drawable.receiveLights() || empty())
             return;
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
@@ -540,10 +542,6 @@ namespace jop
 
         static const unsigned int spotShadowStartUnit = dirShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Directional);
         unsigned int currentSpotShadowUnit = spotShadowStartUnit;
-
-        // Send camera position to shader
-        if (camera)
-            shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
 
         // Point lights
         {

@@ -34,6 +34,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setViewport, "setViewport");
 
     JOP_END_COMMAND_HANDLER(Camera)
 
@@ -133,7 +134,7 @@ namespace jop
         else
         {
             setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
-            setFieldOfView(SettingManager::getFloat("fPerspCameraFovY", 55.f));
+            setFieldOfView(SettingManager::getFloat("fPerspCameraFovYRad", glm::radians(55.f)));
             setSize(x, y);
         }
 
@@ -174,7 +175,7 @@ namespace jop
             else
             {
                 const auto& p = m_projData.perspective;
-                m_projectionMatrix = glm::perspective(glm::radians(p.fov), p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
+                m_projectionMatrix = glm::perspective(p.fov, p.aspectRatio, m_clippingPlanes.first, m_clippingPlanes.second);
             }
 
             m_projectionNeedUpdate = false;
@@ -192,9 +193,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Camera::setRenderMask(const uint32 mask)
+    Camera& Camera::setRenderMask(const uint32 mask)
     {
         m_renderMask = mask;
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -327,7 +329,7 @@ namespace jop
             mainSize = m_renderTexture.getSize();
 
         const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
-        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize));
+        const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;
 
         glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
     }
@@ -335,15 +337,15 @@ namespace jop
     //////////////////////////////////////////////
 
     bool Camera::enableRenderTexture(const bool enable,
-                                     const RenderTexture::ColorAttachment color,
                                      const glm::uvec2& size,
+                                     const RenderTexture::ColorAttachment color,
                                      const RenderTexture::DepthAttachment depth,
                                      const RenderTexture::StencilAttachment stencil)
     {
         if (enable != m_renderTexture.isValid())
         {
             if (enable)
-                return m_renderTexture.create(color, size, depth, stencil);
+                return m_renderTexture.create(size, color, depth, stencil);
             else
                 m_renderTexture.destroy();
         }
@@ -356,5 +358,18 @@ namespace jop
     const RenderTexture& Camera::getRenderTexture() const
     {
         return m_renderTexture;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Camera::getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const
+    {
+        return glm::normalize(glm::unProject
+               (
+                   glm::vec3(glm::vec2(mouseCoords.x, target.getSize().y - mouseCoords.y), -1.f),
+                   getViewMatrix() * getObject()->getMatrix(),
+                   getProjectionMatrix(),
+                   glm::vec4(glm::vec2(0.f), glm::vec2(target.getSize()))
+               ));
     }
 }

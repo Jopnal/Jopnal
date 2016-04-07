@@ -103,6 +103,10 @@ namespace detail
     {
         static_assert(std::is_base_of<Resource, T>::value, "Tried to load a resource that doesn't inherit from jop::Resource");
 
+    #ifndef JOP_ENABLE_ASSERTS
+        instance;
+    #endif
+
         JOP_ASSERT(instance != nullptr, "Tried to load a resource without there being a valid ResourceManager instance!");
     }
 }
@@ -171,6 +175,13 @@ bool ResourceManager::resourceExists(const std::string& name)
     detail::basicErrorCheck<T>(m_instance);
 
     auto itr = m_instance->m_resources.find(name);
+
+#ifdef JOP_DEBUG_MODE
+
+    if (itr != m_instance->m_resources.end() && typeid(T) != typeid(*itr->second))
+        JOP_DEBUG_WARNING("Tried to get resource \"" << name << "\" (type: \"" << typeid(*itr->second).name() << "\"), asking for type \"" << typeid(T).name() << "\". This is not supported and might lead to errors, even if type is convertible");
+
+#endif
     
     return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
 }

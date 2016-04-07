@@ -27,6 +27,7 @@
 #include <nana/gui/place.hpp>
 #include <nana/gui/widgets/group.hpp>
 #include <nana/gui/widgets/treebox.hpp>
+#include <nana/gui/widgets/scroll.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -67,6 +68,7 @@ namespace jope
         jop::WeakReference<jop::Object> m_lastObject;
         jop::Scene* m_lastScene;
         nana::treebox::item_proxy m_lastItem;
+        nana::scroll<true> m_scrollBar;
     };
 }
 

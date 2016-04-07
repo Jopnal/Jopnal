@@ -203,8 +203,14 @@ namespace jop
             if (shaderStr.empty())
                 continue;
 
+            // File loader error checks need to be disabled here to avoid console spam
+            const bool previouslyEnabled = FileLoader::errorChecksEnabled();
+            FileLoader::enableErrorChecks(false);
+
             std::string fileReadBuffer;
-            const char* sources[] = {pp.c_str(), "\n", FileLoader::read(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str()};
+            const char* sources[] = {pp.c_str(), "\n", FileLoader::readTextfile(shaderStr, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : shaderStr.c_str()};
+
+            FileLoader::enableErrorChecks(previouslyEnabled);
 
             shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
 
@@ -453,7 +459,7 @@ namespace jop
     
     //////////////////////////////////////////////
 
-    void Shader::validate() const
+    bool Shader::validate() const
     {
         glCheck(gl::ValidateProgram(m_shaderProgram));
 
@@ -468,8 +474,11 @@ namespace jop
             std::string log(size, '0');
             glCheck(gl::GetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
 
-            JOP_ASSERT(false, log);
+            JOP_DEBUG_ERROR("Shader validation failed: " << log);
+            return false;
         }
+
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -480,22 +489,38 @@ namespace jop
 
         if (defShader.expired())
         {
-            std::vector<unsigned char> vert;
-            std::vector<unsigned char> frag;
-            JOP_ASSERT_EVAL(FileLoader::readFromDll(IDR_SHADER1, vert) && FileLoader::readFromDll(IDR_SHADER2, frag), "Failed to load default shader!");
+            defShader = static_ref_cast<Shader>(ShaderManager::getShader(Material::Attribute::Default).getReference());
 
-            defShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_default").getReference());
-
-            JOP_ASSERT_EVAL(defShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                                            "",
-                                            std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                                            "Couldn't compile the default shader!");
-
-            defShader->setPersistence(0);
-            defShader->setManaged(true);
+            JOP_ASSERT(defShader.get() != &getError(), "Failed to compile default shader!");
         }
 
         return *defShader;
+    }
+
+    //////////////////////////////////////////////
+
+    Shader& Shader::getError()
+    {
+        static WeakReference<Shader> errShader;
+
+        if (errShader.expired())
+        {
+            std::vector<unsigned char> vert;
+            std::vector<unsigned char> frag;
+            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_SHADER1, vert) && FileLoader::readResource(IDR_SHADER2, frag), "Failed to load error shader!");
+
+            errShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_error").getReference());
+
+            JOP_ASSERT_EVAL(errShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                "",
+                std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                "Couldn't compile the default shader!");
+
+            errShader->setPersistence(0);
+            errShader->setManaged(true);
+        }
+
+        return *errShader;
     }
 
     //////////////////////////////////////////////

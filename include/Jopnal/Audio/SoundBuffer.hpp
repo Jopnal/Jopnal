@@ -24,9 +24,13 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <memory>
 #include <string>
+
 //////////////////////////////////////////////
+
+
 namespace sf
 {
     class SoundBuffer;
@@ -36,15 +40,20 @@ namespace jop
 {
     class JOP_API SoundBuffer : public Resource
     {
-    friend class SoundEffect;
+    private:
+
+        friend class SoundEffect;
+
     public:
+
         /// \brief Constructor
         ///
         SoundBuffer(const std::string& name);
 
         /// \brief Virtual destructor
         ///
-       ~SoundBuffer() override;
+        ~SoundBuffer() override;
+
 
         /// \brief Uses fileLoader to load new buffer from file
         ///
@@ -53,7 +62,8 @@ namespace jop
         bool load(const std::string& path);
 
     private:
-        std::unique_ptr<sf::SoundBuffer>m_soundBuf;     ///< Unique audio buffer
+
+        std::unique_ptr<sf::SoundBuffer> m_soundBuf;    ///< Unique audio buffer
     };
 }
 #endif
