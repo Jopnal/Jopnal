@@ -29,13 +29,11 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
 
-       // JOP_BIND_MEMBER_COMMAND((Component& (LightSource::*)(const float, const float, const float))&LightSource::setID, "setID");
-
         JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setIntensity");
-
-        //JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCastShadows, "setCastShadows");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCastShadows, "setCastShadows");
 
         JOP_BIND_MEMBER_COMMAND(&LightSource::setRenderMask, "setRenderMask");
+        JOP_BIND_MEMBER_COMMAND(&LightSource::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(LightSource)
 }
