@@ -41,7 +41,42 @@ namespace jop
     {
         std::vector<uint8> buf;
         FileLoader::readBinaryfile(path, buf);
+        
+        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+    }
+
+    //////////////////////////////////////////////
+
+    bool SoundBuffer::load(const int id)
+    {
+        std::vector<uint8> buf;
+
+        if (!FileLoader::readResource(id, buf))
+            return false;
 
         return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+    }
+
+    //////////////////////////////////////////////
+
+    SoundBuffer& SoundBuffer::getError()
+    {
+        JOP_DEBUG_ERROR("Error in loading sound");
+        return getDefault();
+    }
+
+    SoundBuffer& SoundBuffer::getDefault()
+    {
+        static WeakReference<SoundBuffer> defBuf;
+        
+        if (defBuf.expired())
+        {
+            defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
+
+            JOP_ASSERT_EVAL(defBuf->load(IDB_WAV), "Failed to load default Sound!");
+
+        }
+
+        return *defBuf;
     }
 }

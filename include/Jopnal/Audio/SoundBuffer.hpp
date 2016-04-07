@@ -61,6 +61,20 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        /// \brief Uses fileLoader to load default sound
+        ///
+        /// \param id for default resource
+        ///
+        bool load(const int id);
+
+        /// \brief Default sound if there was error in load process
+        ///
+        static SoundBuffer& getError();
+
+        /// \brief Load default sound
+        ///
+        static SoundBuffer& getDefault();
+
     private:
 
         std::unique_ptr<sf::SoundBuffer> m_soundBuf;    ///< Unique audio buffer
