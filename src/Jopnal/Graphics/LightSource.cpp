@@ -322,13 +322,13 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
+            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, (void*)Vertex::Position);
             shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
 
             if (mesh.getElementAmount())
             {
                 mesh.getIndexBuffer().bind();
-                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), (void*)0));
             }
             else
             {
