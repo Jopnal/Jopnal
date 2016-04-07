@@ -27,6 +27,7 @@
 #pragma warning(disable: 4100)
 #include <Jopnal/Graphics/stb/stb_rect_pack.h>
 #pragma warning(pop)
+#pragma warning(disable: 4505)
 
 //////////////////////////////////////////////
 
@@ -66,10 +67,25 @@ namespace jop
 
     bool Font::load(const std::string& path, const int pixelSize)
     {
-        if (m_loaded)
-        {
-            return true;
-        }
+        // Load font data from file
+        FileLoader::read(path, m_buffer);
+        return load(pixelSize);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Font::load(const int id, const int pixelSize)
+    {
+        if (!FileLoader::readFromDll(id, m_buffer))
+            return false;
+
+        return load(pixelSize);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Font::load(const int pixelSize)
+    {
         m_pixelSize = pixelSize;
 
         // Create texture and context for glyph atlas
@@ -78,9 +94,6 @@ namespace jop
         m_numNodes = 1024;
         m_texture.load(m_pixelSize * 32, m_pixelSize * 32, 1);
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_nodes, m_numNodes);
-
-        // Load font data from file
-        FileLoader::read(path, m_buffer);
 
         if (!m_buffer.empty())
         {
@@ -92,11 +105,11 @@ namespace jop
 
             // Set glyph size in pixels
             FT_Set_Pixel_Sizes(m_face, m_pixelSize, m_pixelSize);
-            error = FT_Select_Charmap( m_face, FT_ENCODING_UNICODE);
+            error = FT_Select_Charmap(m_face, FT_ENCODING_UNICODE);
             JOP_ASSERT(!error, "Failure selecting charmap!");
 
             m_context = std::move(context_ptr);
-            
+
             // Create default glyph
             unsigned char data[4] = { 255, 255, 255, 255 };
 
@@ -109,8 +122,8 @@ namespace jop
             bounds.first.y = 0;
             bounds.second.x = 2;
             bounds.second.y = 2;
-
-            stbrp_rect rectangle = { 0, bounds.second.x+1, bounds.second.y+1 };
+            
+            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
             stbrp_pack_rects(m_context.get(), &rectangle, 1);
 
             if (rectangle.was_packed != 0)
@@ -124,10 +137,9 @@ namespace jop
             m_loaded = true;
             return true;
         }
+
         return false;
     }
-
-    //////////////////////////////////////////////
     
     std::pair<glm::vec2, glm::vec2> Font::getBounds(const int codepoint)
     {
@@ -150,7 +162,7 @@ namespace jop
         FT_Set_Pixel_Sizes(m_face, 0, m_pixelSize);
         FT_Vector vector;
         FT_Get_Kerning(m_face, FT_Get_Char_Index(m_face, codepoint1), FT_Get_Char_Index(m_face, codepoint2), FT_KERNING_DEFAULT, &vector);
-        return vector.x;
+        return static_cast<float>(vector.x);
     }
 
     //////////////////////////////////////////////
@@ -202,7 +214,7 @@ namespace jop
             unsigned char* pixelData = bitmap.buffer;
             
             // Find an empty spot in the texture
-            stbrp_rect rectangle = { 0, bounds.second.x + 1, bounds.second.y + 1};
+            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
             stbrp_pack_rects(m_context.get(), &rectangle, 1);
             rectangle.w -= 1;
             rectangle.h -= 1;
@@ -242,7 +254,7 @@ namespace jop
         {
             errFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_error_font").getReference());
 
-            JOP_ASSERT_EVAL(errFont->load("comicbd.ttf", 32), "Failed to load error font!");
+            JOP_ASSERT_EVAL(errFont->load(IDR_ERRORFONT, 32), "Failed to load error font!");
 
             errFont->setPersistence(0);
             errFont->setManaged(true);
@@ -261,7 +273,7 @@ namespace jop
         {
             defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
 
-            JOP_ASSERT_EVAL(defFont->load("comic.ttf", 32), "Failed to load default font!");
+            JOP_ASSERT_EVAL(defFont->load(IDR_DEFAULTFONT, 32), "Failed to load default font!");
 
             defFont->setPersistence(0);
             defFont->setManaged(true);

@@ -60,6 +60,7 @@ namespace jop
         /// \brief Loads a font from targeted path
         ///
         /// \param path Path to desired .ttf font file
+        /// \param pixelSize Glyph size in texture
         ///
         bool load(const std::string& path, const int pixelSize);
 
@@ -105,6 +106,20 @@ namespace jop
         static Font& getDefault();
 
 	private:
+
+        /// \brief Loads a font from DLL file
+        ///
+        /// \param id ID
+        /// \param pixelSize Glyph size in texture
+        ///
+        bool load(const int id, const int pixelSize);
+
+        /// \brief Loads a font from internal buffer
+        ///
+        /// \param pixelSize Glyph size in texture
+        ///
+        bool load(const int pixelSize);
+
         bool m_loaded = false;
         int m_pixelSize = 64;
         FT_LibraryRec_* m_library; ///< Freetype library

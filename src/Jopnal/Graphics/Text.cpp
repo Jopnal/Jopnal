@@ -164,7 +164,11 @@ namespace jop
     void Text::setColor(Color color)
     {
         m_color = color;
-        setString(m_string);
+        //setString(m_string);
+        m_material.setMap(Material::Map::Opacity, m_font->getTexture());
+        m_material.setAttributeField(Material::Attribute::OpacityMap);
+        m_material.setReflection(Material::Reflection::Solid, m_color);
+        GenericDrawable::setModel(Model(*this, m_material));
     }
 
     //////////////////////////////////////////////

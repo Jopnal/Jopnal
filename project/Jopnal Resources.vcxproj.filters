@@ -8,6 +8,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fonts">
+      <UniqueIdentifier>{c8124faa-f6cc-4e42-9793-8919dd7e925a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\checker.png">
@@ -57,5 +60,15 @@
     <None Include="Resources\Shaders\physicsDebug.vert">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\Fonts\kongtext.ttf">
+      <Filter>Fonts</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\Fonts\license.txt">
+      <Filter>Fonts</Filter>
+    </Text>
   </ItemGroup>
 </Project>
