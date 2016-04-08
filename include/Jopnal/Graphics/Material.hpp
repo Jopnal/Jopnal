@@ -152,7 +152,7 @@ namespace jop
         /// \param name Name of this material
         /// \param attributes The initial attributes
         ///
-        Material(const std::string& name, const AttribType attributes);
+        Material(const std::string& name, const AttribType attributes, const bool autoAttributes = true);
         
 
         /// \brief Send this material to a shader

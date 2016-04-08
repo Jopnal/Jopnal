@@ -32,12 +32,10 @@
 
 //////////////////////////////////////////////
 
-
-struct FT_LibraryRec_;
-struct FT_FaceRec_;
-
-struct stbrp_context;
-struct stbrp_node;
+namespace detail
+{
+    struct FontImpl;
+}
 
 namespace jop
 {
@@ -68,14 +66,14 @@ namespace jop
         ///
         /// \param codepoint Numerical value pointing to a single character
         ///
-        std::pair<glm::vec2, glm::vec2> getBounds(const int codepoint);
+        std::pair<glm::vec2, glm::vec2> getBounds(const int codepoint)const;
 
         /// \brief Returns the necessary kerning between characters
         ///
         /// \param codepoint1 Numerical value pointing to the desired character
         /// \param codepoint2 Ditto
         ///
-        float getKerning(const int codepoint1, const int codepoint2);
+        float getKerning(const int codepoint1, const int codepoint2)const;
 
         /// \brief Checks if glyph is in bitmap
         ///
@@ -87,11 +85,11 @@ namespace jop
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
-        Texture2D& getTexture();
+        const Texture2D& getTexture()const;
 
         /// \brief Returns pixel size 
         ///
-        float getPixelSize();
+        float getPixelSize()const;
 
         /// \brief Get the error font
         ///
@@ -120,16 +118,8 @@ namespace jop
         ///
         bool load(const int pixelSize);
 
-        bool m_loaded = false;
         int m_pixelSize = 64;
-        FT_LibraryRec_* m_library; ///< Freetype library
-        FT_FaceRec_* m_face; ///< Font info
-        Texture2D m_texture; ///< Texture
-        std::vector<unsigned char> m_buffer; ///< File buffer
-        std::unique_ptr<stbrp_context> m_context; ///< Rectangle packing context
-        stbrp_node* m_nodes;
-        int m_numNodes = 0;
-        std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Texture coordinates
+        std::shared_ptr<::detail::FontImpl> m_data;
 	};
 }
 

@@ -143,14 +143,14 @@ namespace jop
         setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
-    Material::Material(const std::string& name, const AttribType attributes)
+    Material::Material(const std::string& name, const AttribType attributes, const bool autoAttributes)
         : Resource              (name),
           m_reflection          (),
           m_attributes          (attributes),
           m_shininess           (1.f),
           m_maps                (),
           m_attributesChanged   (true),
-          m_autoAttribs         (false)
+          m_autoAttribs         (autoAttributes)
     {
         std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
     }

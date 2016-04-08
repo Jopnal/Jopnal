@@ -323,7 +323,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -388,7 +388,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s.lib;sfml-audio-s.lib;winmm.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s.lib;sfml-audio-s.lib;winmm.lib;assimp.lib;freetype.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s.lib;sfml-audio-s.lib</AdditionalDependencies>
