@@ -235,7 +235,6 @@ namespace jop
             JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
 
             errTex->setPersistence(0);
-            errTex->setManaged(true);
         }
 
         return *errTex;
@@ -254,7 +253,6 @@ namespace jop
             JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
 
             defTex->setPersistence(0);
-            defTex->setManaged(true);
         }
 
         return *defTex;

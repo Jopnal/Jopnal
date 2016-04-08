@@ -119,7 +119,7 @@ namespace
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
     static const int ns_opacMapIndex = static_cast<int>(jop::Material::Map::Opacity);
     
-    static const jop::Color ns_defColors[] =
+    static const jop::Color ns_defCol[] =
     {
         jop::Color::Black,
         jop::Color::White,
@@ -132,28 +132,25 @@ namespace jop
 {
     Material::Material(const std::string& name, const bool autoAttributes)
         : Resource              (name),
-          m_reflection          (),
-          m_attributes          (0),
+          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
+          m_attributes          (),
           m_shininess           (1.f),
           m_maps                (),
           m_attributesChanged   (false),
           m_autoAttribs         (autoAttributes)
     {
-        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
         setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
     Material::Material(const std::string& name, const AttribType attributes)
         : Resource              (name),
-          m_reflection          (),
+          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
           m_attributes          (attributes),
           m_shininess           (1.f),
           m_maps                (),
           m_attributesChanged   (true),
           m_autoAttribs         (false)
-    {
-        std::memcpy(m_reflection.data(), ns_defColors, sizeof(ns_defColors));
-    }
+    {}
 
     //////////////////////////////////////////////
 
@@ -410,10 +407,7 @@ namespace jop
         static WeakReference<Material> defMat;
 
         if (defMat.expired())
-        {
             defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material").getReference());
-            defMat->setManaged(true);
-        }
 
         return *defMat;
     }

@@ -55,6 +55,8 @@ namespace jop
 
         /// \brief Automatically updates position and direction
         ///
+        /// \param deltaTime The delta time
+        ///
         void update(const float deltaTime) override;
 
         /// \brief Change the global volume of all the sounds and musics

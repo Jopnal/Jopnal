@@ -68,7 +68,7 @@ namespace jop
         ///
         /// \param color Color
         ///
-        void setColor(Color color);
+        //void setColor(Color color);
 
         virtual void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
@@ -76,7 +76,7 @@ namespace jop
         WeakReference<Font> m_font;
         Material m_material;
         std::wstring m_string;
-        Color m_color = Color::White;
+        //Color m_color = Color::White;
     };
 }
 

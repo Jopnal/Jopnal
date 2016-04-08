@@ -205,6 +205,9 @@ namespace jop
 
         /// \brief Set the global delta time scalar
         ///
+        /// This makes it possible to create fast-forward or slow-down
+        /// effects.
+        ///
         /// \comm setDeltaScale
         ///
         /// \param The scalar to set

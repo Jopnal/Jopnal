@@ -37,11 +37,13 @@ namespace jop
     {
     private:
 
+        JOP_DISALLOW_COPY_MOVE(Resource);
+
         friend class ResourceManager;
 
     protected:
 
-        Resource(const Resource& other);
+        Resource(const Resource& other, const std::string& newName);
 
     public:
 
@@ -75,27 +77,10 @@ namespace jop
         ///
         unsigned short getPersistence() const;
 
-
-        /// \brief Set the managed flag
-        ///
-        /// The managed flag should be set for all resources that should
-        /// be ignored by the StateLoader
-        ///
-        /// \param managed True to mark as a managed resource
-        ///
-        void setManaged(const bool managed);
-
-        /// \brief Check if this is a managed resource
-        ///
-        /// \return True if managed resource
-        ///
-        bool isManaged() const;
-
     private:
 
-        std::string m_name; ///< Name of this resource
-        unsigned short m_persistence;
-        bool m_managed;     ///< Is this a managed resource?
+        const std::string m_name;       ///< Name of this resource
+        unsigned short m_persistence;   ///< Persistence level
     };
 }
 

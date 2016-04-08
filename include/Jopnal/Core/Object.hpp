@@ -226,6 +226,15 @@ namespace jop
         /// 
         Object& removeChildren(const std::string& ID);
 
+        /// \brief Remove all children with the given tag
+        ///
+        /// \copydetails removeChildren
+        ///
+        /// \param tag The tag to search with
+        /// \param recursive Search recursively?
+        ///
+        /// \return Reference to this
+        ///
         Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
 
         /// \brief Remove all children
@@ -244,10 +253,31 @@ namespace jop
         ///
         void removeSelf();
 
+        /// \brief Clone/instantiate this object
+        ///
+        /// The same ID and transform will be used.
+        ///
+        /// \return Reference to the cloned object
+        ///
         WeakReference<Object> cloneSelf();
 
+        /// \copybrief cloneSelf()
+        ///
+        /// The same transform will be used.
+        ///
+        /// \param newID The ID of the cloned object
+        ///
+        /// \return Reference to the cloned object
+        /// 
         WeakReference<Object> cloneSelf(const std::string& newID);
 
+        /// \copybrief cloneSelf()
+        ///
+        /// \param newID The ID of the cloned object
+        /// \param newTransform The transform of the cloned object
+        ///
+        /// \return Reference to the cloned object
+        ///
         WeakReference<Object> cloneSelf(const std::string& newID, const Transform& newTransform);
 
         /// \brief Check if this object has been marked to be removed

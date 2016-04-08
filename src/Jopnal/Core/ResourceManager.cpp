@@ -153,9 +153,6 @@ namespace jop
 
             for (auto& i : m_instance->m_resources)
             {
-                if (i.second->isManaged())
-                    continue;
-
                 auto nameItr = nameMap.find(std::type_index(typeid(*i.second)));
                 auto itr = resCont.end();
 

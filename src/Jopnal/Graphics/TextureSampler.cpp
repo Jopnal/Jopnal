@@ -258,7 +258,6 @@ namespace jop
             ), "Couldn't create default sampler!");
 
             defSampler->setPersistence(0);
-            defSampler->setManaged(true);
         }
 
         return *defSampler;

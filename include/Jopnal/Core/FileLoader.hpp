@@ -64,11 +64,13 @@ namespace jop
 
     public:
 
+        /// Base directory for writing files
+        ///
         enum class Directory
         {
-            Executable,
-            Resource,
-            User
+            Executable, ///< Executable directory
+            Resource,   ///< Resource folder
+            User        ///< User folder
         };
 
     public:
@@ -139,10 +141,8 @@ namespace jop
 
     private:
 
-        PHYSFS_File* m_file;
-
+        PHYSFS_File* m_file;    ///< File handle
     };
-
 }
 
 #endif

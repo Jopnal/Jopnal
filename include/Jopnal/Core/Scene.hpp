@@ -201,8 +201,8 @@ namespace jop
 
         /// \brief Get this scene as object
         ///
-        /// This can be used to work around the privately inherited Object.
-        /// Do not ever call this unless you know what you're doing.
+        /// This can be used to work around the privately inherited jop::Object.
+        /// <b>Do not</b> ever call this unless you know what you're doing.
         ///
         /// \return Reference to this as Object
         ///

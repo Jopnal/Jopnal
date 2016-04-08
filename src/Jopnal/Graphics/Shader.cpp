@@ -517,7 +517,6 @@ namespace jop
                 "Couldn't compile the default shader!");
 
             errShader->setPersistence(0);
-            errShader->setManaged(true);
         }
 
         return *errShader;
