@@ -109,8 +109,6 @@ namespace jop
 
         /// Predefined material properties
         ///
-        /// TODO: Implement method to set this
-        ///
         enum class Preset
         {
             Emerald,
@@ -188,14 +186,11 @@ namespace jop
         ///
         Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
 
-        /// \brief Set the material reflection values
+        /// \brief Set the reflection values using a preset
         ///
-        /// \set materials ambient reflection values
-        /// \set materials diffuse reflection values
-        /// \set materials specular reflection values
-        /// \set materials shininess values *128
+        /// \param preset The preset to use
         ///
-        /// \return materials ambient, diffuse, specular and shininess values
+        /// \return Reference to this
         ///
         Material& setReflection(const Preset preset);
    
