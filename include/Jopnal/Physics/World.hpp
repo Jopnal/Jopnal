@@ -81,6 +81,25 @@ namespace jop
         ///
         void draw(const Camera& camera);
 
+
+        /// \brief Check if a ray hits a collider and return the closest one
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        ///
+        /// \return Pointer to a collider
+        ///
+        Collider* checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const;
+
+        /// \brief Check if a ray hits a collider and return all hits
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        ///
+        /// \return Vector of colliders
+        ///
+        std::vector<Collider*> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const;
+
     public:
 
         /// \brief Enable/disable debug drawing

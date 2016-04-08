@@ -123,6 +123,11 @@ namespace jop
         return m_model;
     }
 
+    Model& Drawable::getModel()
+    {
+        return m_model;
+    }
+
     //////////////////////////////////////////////
 
     Drawable& Drawable::setShader(Shader& shader)

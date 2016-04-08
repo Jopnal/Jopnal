@@ -138,6 +138,9 @@ namespace jop
         const Model& getModel() const;
 
 
+        Model& getModel();
+
+
         /// \brief Set the shader
         ///
         /// This can be used to override the shader fetched from the bound material.

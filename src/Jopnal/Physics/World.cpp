@@ -303,4 +303,47 @@ namespace jop
         return false;
     #endif
     }
+
+    //////////////////////////////////////////////
+
+    Collider* World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const
+    {
+        const glm::vec3 fromTo(start + ray);
+
+        btVector3 rayFromWorld(start.x, start.y, start.z);
+        btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+
+        btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
+
+
+        m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+        if (cb.hasHit() && cb.m_collisionObject != nullptr)
+            return static_cast <Collider*>(cb.m_collisionObject->getUserPointer());
+        
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<Collider*> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const
+    {
+        const glm::vec3 fromTo(start + ray);
+
+        btVector3 rayFromWorld(start.x, start.y, start.z);
+        btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+
+        btCollisionWorld::AllHitsRayResultCallback cb(rayFromWorld, rayToWorld);
+
+        std::vector<Collider*> objContainer;
+
+        m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+
+        for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
+        {
+            objContainer.push_back(static_cast <Collider*>(cb.m_collisionObjects[i]->getUserPointer()));
+        }
+
+        return objContainer;
+    }
+
 }
