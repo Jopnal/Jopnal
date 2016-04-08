@@ -66,7 +66,7 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~World();
+        ~World() override;
 
 
         /// \brief Update the world
@@ -80,6 +80,25 @@ namespace jop
         /// \param camera Camera to use
         ///
         void draw(const Camera& camera);
+
+
+        /// \brief Check if a ray hits a collider and return the closest one
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        ///
+        /// \return Pointer to a collider, nullptr if no hits
+        ///
+        Collider* checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const;
+
+        /// \brief Check if a ray hits a collider and return all hits
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        ///
+        /// \return Vector of colliders, empty if none were hit
+        ///
+        std::vector<Collider*> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const;
 
     public:
 

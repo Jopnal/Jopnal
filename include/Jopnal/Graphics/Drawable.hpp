@@ -135,6 +135,10 @@ namespace jop
         ///
         /// \return Reference to the model
         ///
+        Model& getModel();
+
+        /// \copydoc getModel()
+        ///
         const Model& getModel() const;
 
 
