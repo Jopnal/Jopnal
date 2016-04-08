@@ -112,6 +112,9 @@ namespace jop
         bind();
 
         m_size = size;
+        
+        gl::PixelStorei(gl::UNPACK_ALIGNMENT, bytesPerPixel == 4 ? 4 : 1);
+
         m_bytesPerPixel = bytesPerPixel;
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);

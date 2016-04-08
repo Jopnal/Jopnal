@@ -62,6 +62,7 @@ namespace jop
                 ReflectionMap   = 1 << 6,
                 //NormalMap
                 //ParallaxMap
+                OpacityMap      = 1 << 8,
 
                 // Lighting models
                 Phong           = 1 << 12,
@@ -102,7 +103,8 @@ namespace jop
             Emission,
             Environment,
             Reflection,
-
+            Opacity
+            
             /// For internal use. Never use this
             Last
         };

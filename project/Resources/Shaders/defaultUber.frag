@@ -32,6 +32,12 @@
     uniform sampler2D u_ReflectionMap;
 #endif
 
+// Opacity map
+#ifdef JMAT_OPACITYMAP
+	uniform sampler2D u_OpacityMap;
+	float specularComponent = 0.0;
+#endif
+
 #ifdef JMAT_PHONG
 
     // Does the object receive lights?
@@ -213,6 +219,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+		#ifdef JMAT_OPACITYMAP
+			specularComponent += spec;
+		#endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -346,6 +357,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+		#ifdef JMAT_OPACITYMAP
+			specularComponent += spec;
+		#endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -411,6 +427,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+		#ifdef JMAT_OPACITYMAP
+			specularComponent += spec;
+		#endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -527,5 +548,13 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor, 1.0);
+	
+	float alpha = 1.0;
+
+	#ifdef JMAT_OPACITYMAP
+		alpha = texture(u_OpacityMap, outVert.TexCoords).r;
+		alpha += specularComponent;
+	#endif
+
+    out_FinalColor = vec4(tempColor, min(alpha, 1.0));
 }

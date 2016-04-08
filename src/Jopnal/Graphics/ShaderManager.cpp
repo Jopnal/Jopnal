@@ -127,6 +127,10 @@ namespace jop
         if ((attrib & m::ReflectionMap) != 0)
             str += "#define JMAT_REFLECTIONMAP\n";
 
+        // Reflection map
+        if ((attrib & m::OpacityMap) != 0)
+            str += "#define JMAT_OPACITYMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =

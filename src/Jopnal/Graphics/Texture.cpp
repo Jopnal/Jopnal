@@ -106,6 +106,10 @@ namespace jop
     bool Texture::isValid() const
     {
         return m_texture != 0;
+
+        //std::vector<unsigned char> buf(m_bytesPerPixel * width * height);
+        //std::memcpy(&buf[0], pixels, buf.size());
+        //flip(width, height, m_bytesPerPixel, &buf[0]);
     }
 
     //////////////////////////////////////////////
