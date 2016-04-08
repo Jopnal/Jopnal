@@ -112,10 +112,9 @@ namespace jop
         bind();
 
         m_size = size;
-        
-        gl::PixelStorei(gl::UNPACK_ALIGNMENT, bytesPerPixel == 4 ? 4 : 1);
-
         m_bytesPerPixel = bytesPerPixel;
+
+        setPixelStore(bytesPerPixel);
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
         glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
@@ -139,6 +138,7 @@ namespace jop
         }
 
         bind();
+        setPixelStore(m_bytesPerPixel);
         glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 

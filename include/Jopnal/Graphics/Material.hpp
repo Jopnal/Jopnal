@@ -103,7 +103,7 @@ namespace jop
             Emission,
             Environment,
             Reflection,
-            Opacity
+            Opacity,
             
             /// For internal use. Never use this
             Last

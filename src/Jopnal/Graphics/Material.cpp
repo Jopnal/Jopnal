@@ -251,7 +251,7 @@ namespace jop
             /*                               Ambient                                 Diffuse                                       Specular                   Shininess     */
             std::make_tuple(Color(0.0215f,   0.1745f,   0.0215f),   Color(0.07568f,  0.61424f,    0.07568f),    Color(0.633f,      0.727811f,   0.633f),      128 * 0.6f),
             std::make_tuple(Color(0.135f,    0.2225f,   0.1575f),   Color(0.54f,     0.89f,       0.63f),       Color(0.316228f,   0.316228f,   0.316228f),   128 * 0.1f),
-            std::make_tuple(Color(0.05375f,  0.05f,     0.06625f),  Color(0.18275f,  0.17f,       0.22525f),    Color(0.332741f,   0.328634f,   0.345435f),   128 * 0.3f),
+            std::make_tuple(Color(0.05375f,  0.05f,     0.06625f),  Color(0.18275f,  0.17f,       0.22525f),    Color(0.332741f,   0.328634f,   0.346435f),   128 * 0.3f),
             std::make_tuple(Color(0.25f,     0.20725f,  0.20725f),  Color(1.0f,      0.829f,      0.829f),      Color(0.296648f,   0.296648f,   0.296648f),   128 * 0.088f),
             std::make_tuple(Color(0.1745f,   0.01175f,  0.01175f),  Color(0.61424f,  0.04136f,    0.04136f),    Color(0.727811f,   0.626959f,   0.626959f),   128 * 0.6f),
             std::make_tuple(Color(0.1f,      0.18725f,  0.1745f),   Color(0.396f,    0.74151f,    0.69102f),    Color(0.297254f,   0.30829f,    0.306678f),   128 * 0.1f),

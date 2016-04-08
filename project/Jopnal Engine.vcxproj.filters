@@ -369,6 +369,12 @@
     <ClInclude Include="..\include\Jopnal\Graphics\ModelLoader.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Text.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -585,6 +591,12 @@
       <Filter>Physics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\ModelLoader.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Text.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
