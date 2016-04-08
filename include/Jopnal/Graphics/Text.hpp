@@ -24,18 +24,19 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Font.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
+#include <Jopnal/Graphics/GenericDrawable.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Color.hpp>
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    class JOP_API Text
-        :public GenericDrawable, private Mesh
+    class Font;
+
+    class JOP_API Text : public GenericDrawable
     {
     public:
 
@@ -45,6 +46,7 @@ namespace jop
         /// \param renderer Renderer
         ///
         Text(Object& object, Renderer& renderer);
+
         
         /// \brief Set string that is displayed
         ///
@@ -62,21 +64,23 @@ namespace jop
         ///
         /// \param font Font
         ///
-        void setFont(Font& font);
+        void setFont(const Font& font);
 
         /// \brief Set color
         ///
         /// \param color Color
         ///
-        //void setColor(Color color);
+        void setColor(const Color color);
 
-        virtual void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
     private:
-        WeakReference<Font> m_font;
+
+        WeakReference<const Font> m_font;
+        Mesh m_mesh;
         Material m_material;
         std::wstring m_string;
-        //Color m_color = Color::White;
+        Color m_color;
     };
 }
 

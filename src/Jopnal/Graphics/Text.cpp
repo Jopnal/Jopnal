@@ -24,15 +24,17 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     Text::Text(Object& object, Renderer& renderer)
-        :GenericDrawable(object, renderer),
-        Mesh(""),
-        m_material("", Material::Attribute::Diffusemap)
-    {
-
-    }
+        : GenericDrawable   (object, renderer),
+          m_font            (static_ref_cast<const Font>(Font::getDefault().getReference())),
+          m_mesh            (""),
+          m_material        ("", Material::Attribute::DiffuseMap),
+          m_string          (),
+          m_color           (Color::White)
+    {}
 
     //////////////////////////////////////////////
 
@@ -66,7 +68,8 @@ namespace jop
                 y -= 1.0f / 24.0f;
                 continue;
             }
-            //init variables
+
+            // Init variables
             int bitmapX = 0;
             int bitmapY = 0;
 
@@ -78,7 +81,8 @@ namespace jop
             if (previous != -1)
             {
                 kerning = 1.0f / 256.0f;
-                // Kerning not working... fix later if there's time
+
+                // TODO: Kerning not working... fix later if there's time
                 //m_font->getKerning(previous, i);
             }
             previous = i;
@@ -87,22 +91,25 @@ namespace jop
             m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
             // Get font texture
-            Texture2D& tex = m_font->getTexture();
+            const Texture2D& tex = m_font->getTexture();
 
-            // Get font origo
+            // Get font origin
             std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
 
-            metrics.first.x /= (32.f * (64.f / m_font->getPixelSize()) * tex.getWidth());
-            metrics.first.y /= (32.f * (64.f / m_font->getPixelSize()) * tex.getHeight());
+            float texWidth = static_cast<float>(tex.getSize().x);
+            float texHeight = static_cast<float>(tex.getSize().y);
+
+            metrics.first.x /= (32.f * (64.f / m_font->getPixelSize()) * texWidth);
+            metrics.first.y /= (32.f * (64.f / m_font->getPixelSize()) * texHeight);
 
             // Calculate coordinates
             glm::vec2 glyphPos;
-            glyphPos.x = (float)bitmapX / (float)tex.getWidth();
-            glyphPos.y = (float)bitmapY / (float)tex.getHeight();
+            glyphPos.x = static_cast<float>(bitmapX) / texWidth;
+            glyphPos.y = static_cast<float>(bitmapY) / texHeight;
 
             glm::vec2 glyphSize;
-            glyphSize.x = (float)bitmapWidth / (float)tex.getWidth();
-            glyphSize.y = (float)bitmapHeight / (float)tex.getHeight();
+            glyphSize.x = static_cast<float>(bitmapWidth) / texWidth;
+            glyphSize.y = static_cast<float>(bitmapHeight) / texHeight;
 
             x += kerning;
 
@@ -122,7 +129,7 @@ namespace jop
             vertices.push_back(v);
 
             // Bottom right
-            v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / tex.getWidth());
+            v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / texWidth);
             v.texCoords.x = glyphPos.x + glyphSize.x;
             vertices.push_back(v);
             vertices.push_back(v);
@@ -140,35 +147,36 @@ namespace jop
             vertices.push_back(v);
 
             // Advance
-            x += (float)bitmapWidth / (float)tex.getWidth();
+            x += static_cast<float>(bitmapWidth) / texWidth;
         }
 
         // Load vertices to mesh and set material
-        Mesh::load(vertices, std::vector<unsigned int>());
+        m_mesh.load(vertices, std::vector<unsigned int>());
+
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setAttributeField(Material::Attribute::OpacityMap);
         m_material.setReflection(Material::Reflection::Solid, m_color);
-        GenericDrawable::setModel(Model(*this, m_material));
+
+        GenericDrawable::setModel(Model(m_mesh, m_material));
     }
 
     //////////////////////////////////////////////
 
-    void Text::setFont(Font& font)
+    void Text::setFont(const Font& font)
     {
-        m_font = static_ref_cast<Font>(font.getReference());
+        m_font = static_ref_cast<const Font>(font.getReference());
         setString(m_string);
     }
 
     //////////////////////////////////////////////
 
-    void Text::setColor(Color color)
+    void Text::setColor(const jop::Color color)
     {
         m_color = color;
-        //setString(m_string);
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setAttributeField(Material::Attribute::OpacityMap);
         m_material.setReflection(Material::Reflection::Solid, m_color);
-        GenericDrawable::setModel(Model(*this, m_material));
+        GenericDrawable::setModel(Model(m_mesh, m_material));
     }
 
     //////////////////////////////////////////////
@@ -180,4 +188,3 @@ namespace jop
         GlState::setFaceCull(true);
     }
 }
-

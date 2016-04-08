@@ -145,7 +145,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp" />
@@ -160,7 +160,7 @@
     <ClCompile Include="..\src\Jopnal\Graphics\SphereMesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Text.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
