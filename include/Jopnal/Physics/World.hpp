@@ -100,6 +100,15 @@ namespace jop
         ///
         std::vector<Collider*> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Get all the colliders that overlap with the bounding box
+        ///
+        /// \param aabbStart Starting point of the bounding box
+        /// \param aabbEnd Ending point of the bounding box
+        ///
+        /// \return Vector of colliders, empty if none were overlapping
+        ///
+        std::vector<Collider*> checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd) const;
+
     public:
 
         /// \brief Enable/disable debug drawing

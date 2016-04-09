@@ -34,8 +34,8 @@
 
 // Opacity map
 #ifdef JMAT_OPACITYMAP
-	uniform sampler2D u_OpacityMap;
-	float specularComponent = 0.0;
+    uniform sampler2D u_OpacityMap;
+    float specularComponent = 0.0;
 #endif
 
 #ifdef JMAT_PHONG
@@ -220,9 +220,9 @@ in FragVertexData
         #endif
         ;
 
-		#ifdef JMAT_OPACITYMAP
-			specularComponent += spec;
-		#endif
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
@@ -358,9 +358,9 @@ in FragVertexData
         #endif
         ;
 
-		#ifdef JMAT_OPACITYMAP
-			specularComponent += spec;
-		#endif
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
@@ -428,9 +428,9 @@ in FragVertexData
         #endif
         ;
 
-		#ifdef JMAT_OPACITYMAP
-			specularComponent += spec;
-		#endif
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
@@ -546,15 +546,13 @@ void main()
             tempColor += u_Emission;
         #endif
     #endif
+    
+    float alpha = 1.0;
+
+    #if defined(JMAT_OPACITYMAP)
+        alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
+    #endif
 
     // Finally assign to the fragment output
-	
-	float alpha = 1.0;
-
-	#ifdef JMAT_OPACITYMAP
-		alpha = texture(u_OpacityMap, outVert.TexCoords).r;
-		alpha += specularComponent;
-	#endif
-
-    out_FinalColor = vec4(tempColor, min(alpha, 1.0));
+    out_FinalColor = vec4(tempColor, alpha);
 }

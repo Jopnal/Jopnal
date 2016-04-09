@@ -310,15 +310,15 @@ namespace jop
     {
         const glm::vec3 fromTo(start + ray);
 
-        btVector3 rayFromWorld(start.x, start.y, start.z);
-        btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+        const btVector3 rayFromWorld(start.x, start.y, start.z);
+        const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
 
         btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
 
-
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+
         if (cb.hasHit() && cb.m_collisionObject != nullptr)
-            return static_cast <Collider*>(cb.m_collisionObject->getUserPointer());
+            return static_cast<Collider*>(cb.m_collisionObject->getUserPointer());
         
         return nullptr;
     }
@@ -329,21 +329,40 @@ namespace jop
     {
         const glm::vec3 fromTo(start + ray);
 
-        btVector3 rayFromWorld(start.x, start.y, start.z);
-        btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+        const btVector3 rayFromWorld(start.x, start.y, start.z);
+        const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
 
         btCollisionWorld::AllHitsRayResultCallback cb(rayFromWorld, rayToWorld);
-
+        
         std::vector<Collider*> objContainer;
-
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
         for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
-        {
-            objContainer.push_back(static_cast <Collider*>(cb.m_collisionObjects[i]->getUserPointer()));
-        }
+            objContainer.push_back(static_cast<Collider*>(cb.m_collisionObjects[i]->getUserPointer()));
 
         return objContainer;
     }
 
+    //////////////////////////////////////////////
+
+    std::vector<Collider*> World::checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd) const
+    {
+        struct Callback : btBroadphaseAabbCallback
+        {
+            std::vector<Collider*> vec;
+
+            bool process(const btBroadphaseProxy* proxy) override
+            {
+                if (proxy->m_clientObject)
+                    vec.push_back(static_cast<Collider*>(static_cast<btCollisionObject*>(proxy->m_clientObject)->getUserPointer()));
+
+                return false;
+            }
+
+        } cb;
+
+        m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
+
+        return cb.vec;
+    }
 }

@@ -175,8 +175,7 @@ namespace jop
 
     bool Drawable::lightTouches(const LightSource& light) const
     {
-        // TODO: Take AABB into account
-        return light.getType() == LightSource::Type::Directional || (this->getObject()->getPosition() - light.getObject()->getPosition()).length() < light.getRange();
+        return light.checkRange(*this);
     }
 
     //////////////////////////////////////////////

@@ -101,6 +101,16 @@ namespace jop
         ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Get the world this collider belongs to
+        ///
+        /// \return Reference to the world
+        ///
+        World& getWorld();
+
+        /// \copydoc getWorld()
+        ///
+        const World& getWorld() const;
+
     private:
 
         virtual void beginOverlap(const Collider& other);

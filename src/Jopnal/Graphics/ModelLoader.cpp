@@ -128,10 +128,19 @@ namespace jop
                     }
 
                     // Specular
-                    if (/*mat.GetTextureCount(aiTextureType_SPECULAR) || */mat.GetTextureCount(aiTextureType_SHININESS))
+                    if (mat.GetTextureCount(aiTextureType_SPECULAR))
                     {
                         aiString path;
-                        //mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
+                        mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                    }
+
+                    // Shininess
+                    if (!m.hasAttribute(Material::Attribute::SpecularMap) && mat.GetTextureCount(aiTextureType_SHININESS))
+                    {
+                        aiString path;
                         mat.GetTexture(aiTextureType_SHININESS, 0, &path);
 
                         if (path.length)
@@ -157,15 +166,15 @@ namespace jop
                         if (path.length)
                             m.setMap(Material::Map::Reflection, ResourceManager::getResource<Texture2D>(path.C_Str()));
                     }
-
+                    
                     // Opacity
                     if (mat.GetTextureCount(aiTextureType_OPACITY))
                     {
                         aiString path;
                         mat.GetTexture(aiTextureType_OPACITY, 0, &path);
 
-                        //if (path.length)
-                        //    m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                        if (path.length)
+                            m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str()));
                     }
                 }
 
@@ -188,7 +197,7 @@ namespace jop
                 
                 // Vertices
                 std::vector<uint8> vertBuf
-                    (
+                (
                     (sizeof(glm::vec3) +
                     sizeof(glm::vec2) * mesh.HasTextureCoords(0) +
                     sizeof(glm::vec3) * mesh.HasNormals() +
@@ -196,7 +205,7 @@ namespace jop
                     sizeof(Color) * mesh.HasVertexColors(0)
                     )
                     * mesh.mNumVertices
-                    );
+                );
 
                 for (std::size_t j = 0, vertIndex = 0; j < mesh.mNumVertices; ++j)
                 {
@@ -349,7 +358,7 @@ namespace jop
             SceneDealloc(Assimp::Importer& i) : imp(&i){}
             ~SceneDealloc(){ imp->FreeScene(); }
 
-        }SceneDealloc(imp);
+        } SceneDealloc(imp);
 
         static const unsigned int preProcess = 0
 
@@ -364,7 +373,7 @@ namespace jop
             ;
 
         const aiScene* scene = imp.ReadFile(path, preProcess);
-
+        
         if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0)
         {
             JOP_DEBUG_ERROR("Failed to load Model: " << imp.GetErrorString());

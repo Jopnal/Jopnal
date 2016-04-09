@@ -91,13 +91,6 @@ namespace jop
             Quadratic
         };
 
-        /// Some good predefined attenuation values
-        ///
-        enum class AttenuationPreset
-        {
-            _7, _13, _20, _32, _50, _65, _100, _160, _200, _320, _600, _3250
-        };
-
     public:
 
         /// \brief Constructor
@@ -239,15 +232,17 @@ namespace jop
         /// 
         LightSource& setAttenuation(const float constant, const float linear, const float quadratic);
 
-        /// \brief Set the attenuation values using a preset
+        /// \brief Set the attenuation values using a range
         ///
-        /// This will also update the range value.
+        /// This roughly estimates the attenuation values for the given range.
+        /// This aims for realism, which in some cases might mean that the light
+        /// will become too dark.
         ///
-        /// \param preset The preset
+        /// \param range The range
         ///
         /// \return Reference to self
         ///
-        LightSource& setAttenuation(const AttenuationPreset preset);
+        LightSource& setAttenuation(const float range);
 
         /// \brief Get an attenuation value
         ///
@@ -268,19 +263,11 @@ namespace jop
         glm::vec3 getAttenuationVec() const;
 
 
-        /// \brief Set the range of the light
-        ///
-        /// \param range The new range to set
-        ///
-        /// \return Reference to self
-        ///
-        LightSource& setRange(const float range);
-
         /// \brief Get the range of the light
         ///
         /// \return Range of the light
         ///
-        float getRange() const;
+        bool checkRange(const Drawable& drawable) const;
 
 
         /// \brief Set the cutoff
@@ -330,7 +317,7 @@ namespace jop
         mutable std::vector<glm::mat4> m_lightSpaceMatrices;    ///< Light space matrices. Used when rendering the shadow map
         const Type m_type;                                      ///< The light type
         std::array<Color, 3> m_intensities;                     ///< The intensities
-        glm::vec4 m_attenuation;                                ///< The attenuation values    
+        glm::vec3 m_attenuation;                                ///< The attenuation values    
         glm::vec2 m_cutoff;                                     ///< Spot light cutoff
         Renderer& m_rendererRef;                                ///< Reference to the renderer
         uint32 m_renderMask;                                    ///< The render mask

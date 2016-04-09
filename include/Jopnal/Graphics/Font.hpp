@@ -40,9 +40,9 @@ namespace detail
 
 namespace jop
 {
-	class JOP_API Font : public Resource
-	{
-	public:
+    class JOP_API Font : public Resource
+    {
+    public:
 
         /// \brief Constructor
         ///
@@ -100,7 +100,7 @@ namespace jop
         ///
         static Font& getDefault();
 
-	private:
+    private:
 
         /// \brief Loads a font from DLL file
         ///
@@ -118,7 +118,7 @@ namespace jop
 
         std::shared_ptr<::detail::FontImpl> m_data;
         int m_pixelSize;
-	};
+    };
 }
 
 #endif

@@ -129,7 +129,7 @@ namespace jop
           m_lightSpaceMatrices  (),
           m_type                (type),
           m_intensities         (),
-          m_attenuation         (1.f, 1.f, 2.f, 5.f),
+          m_attenuation         (1.f, 1.f, 2.f),
           m_cutoff              (0.17f, 0.17f), // ~10 degrees
           m_rendererRef         (renderer),
           m_renderMask          (1),
@@ -270,6 +270,8 @@ namespace jop
 
         m_shadowMap.clear(RenderTarget::DepthBit);
 
+        static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
+
         // Use the object's scale to construct the frustum
         auto scl = getObject()->getScale();
 
@@ -283,12 +285,12 @@ namespace jop
             {
                 auto pos = getObject()->getGlobalPosition();
 
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, getRange());
+                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
 
                 makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 
                 shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-                shdr.setUniform("u_FarClippingPlane", getRange());
+                shdr.setUniform("u_FarClippingPlane", range);
                 shdr.setUniform("u_LightPosition", pos);
                 break;
             }
@@ -301,9 +303,8 @@ namespace jop
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
-                break;
             }
         }
 
@@ -388,33 +389,15 @@ namespace jop
 
     LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic)
     {
-        m_attenuation = glm::vec4(constant, linear, quadratic, m_attenuation[3]);
+        m_attenuation = glm::vec3(constant, linear, quadratic);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setAttenuation(const AttenuationPreset preset)
+    LightSource& LightSource::setAttenuation(const float range)
     {
-        static const glm::vec4 att[] =
-        {
-                    /* Range    Constant    Linear      Quadratic   */
-            glm::vec4( 7.f,     1.f,        0.7f,       1.8f        ),
-            glm::vec4( 13.f,    1.f,        0.35f,      0.44f       ),
-            glm::vec4( 20.f,    1.f,        0.22f,      0.20f       ),
-            glm::vec4( 32.f,    1.f,        0.14f,      0.07f       ),
-            glm::vec4( 50.f,    1.f,        0.09f,      0.032f      ),
-            glm::vec4( 65.f,    1.f,        0.07f,      0.017f      ),
-            glm::vec4( 100.f,   1.f,        0.045f,     0.0075f     ),
-            glm::vec4( 160.f,   1.f,        0.27f,      0.0028f     ),
-            glm::vec4( 200.f,   1.f,        0.22f,      0.0019f     ),
-            glm::vec4( 325.f,   1.f,        0.14f,      0.0007f     ),
-            glm::vec4( 600.f,   1.f,        0.007f,     0.0002f     ),
-            glm::vec4( 3250.f,  1.f,        0.0014f,    0.000007f   )
-        };
-
-        auto& v = att[static_cast<int>(preset)];
-        return setAttenuation(v[1], v[2], v[3]).setRange(v[0]);
+        return setAttenuation(1.0f, 4.5f / range, 75.0f / (range * range));
     }
 
     //////////////////////////////////////////////
@@ -433,17 +416,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setRange(const float range)
+    bool LightSource::checkRange(const Drawable& drawable) const
     {
-        m_attenuation[3] = range;
-        return *this;
-    }
+        const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
+        const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-    //////////////////////////////////////////////
-
-    float LightSource::getRange() const
-    {
-        return m_attenuation[3];
+        return att > 0.05f;
     }
 
     //////////////////////////////////////////////
@@ -486,7 +464,6 @@ namespace jop
         viewMats[4] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
         viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
     }
-
 
     //////////////////////////////////////////////
 
@@ -568,10 +545,12 @@ namespace jop
                 {
                     shader.setUniform(indexed + "castShadow", li.castShadows());
 
+                    static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
+                    
                     if (li.castShadows())
                     {
                         shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentPointShadowUnit++);
-                        shader.setUniform(indexed + "farPlane", li.getRange());
+                        shader.setUniform(indexed + "farPlane", range);
                     }
                 }
             }

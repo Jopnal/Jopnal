@@ -51,14 +51,14 @@ namespace jop
         ///
         Component(const Component& other, Object& newObj);
 
-    public:
-
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
         /// \param ID Unique component identifier
         ///
         Component(Object& object, const std::string& ID);
+
+    public:
 
         /// \brief Virtual destructor
         ///
@@ -131,6 +131,7 @@ namespace jop
         /// \brief Virtual sendMessage
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
+
 
         std::string m_ID;                   ///< Identifier
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
