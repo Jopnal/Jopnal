@@ -31,23 +31,30 @@ namespace jop
         : GenericDrawable   (object, renderer),
           m_font            (static_ref_cast<const Font>(Font::getDefault().getReference())),
           m_mesh            (""),
-          m_material        ("", Material::Attribute::DiffuseMap),
-          m_string          (),
-          m_color           (Color::White)
-    {}
+          m_material        ("", Material::Attribute::OpacityMap),
+          m_string          ()
+    {
+        GenericDrawable::setModel(Model(m_mesh, m_material));
+    }
 
     //////////////////////////////////////////////
 
-    void Text::setString(const std::string &string)
+    void Text::setString(const std::string& string)
     {
         setString(std::wstring(string.begin(), string.end()));
     }
 
     //////////////////////////////////////////////
 
-    void Text::setString(const std::wstring &string)
+    void Text::setString(const std::wstring& string)
     {
         m_string = string;
+
+        if (m_font.expired())
+        {
+            setFont(Font::getDefault());
+            return;
+        }
 
         std::vector<Vertex> vertices;
 
@@ -152,12 +159,6 @@ namespace jop
 
         // Load vertices to mesh and set material
         m_mesh.load(vertices, std::vector<unsigned int>());
-
-        m_material.setMap(Material::Map::Opacity, m_font->getTexture());
-        m_material.setAttributeField(Material::Attribute::OpacityMap);
-        m_material.setReflection(Material::Reflection::Solid, m_color);
-
-        GenericDrawable::setModel(Model(m_mesh, m_material));
     }
 
     //////////////////////////////////////////////
@@ -165,18 +166,17 @@ namespace jop
     void Text::setFont(const Font& font)
     {
         m_font = static_ref_cast<const Font>(font.getReference());
+        m_material.setMap(Material::Map::Opacity, m_font->getTexture());
+
         setString(m_string);
     }
 
     //////////////////////////////////////////////
 
-    void Text::setColor(const jop::Color color)
+    void Text::setColor(const Color color)
     {
-        m_color = color;
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
-        m_material.setAttributeField(Material::Attribute::OpacityMap);
-        m_material.setReflection(Material::Reflection::Solid, m_color);
-        GenericDrawable::setModel(Model(m_mesh, m_material));
+        m_material.setReflection(Material::Reflection::Solid, color);
     }
 
     //////////////////////////////////////////////

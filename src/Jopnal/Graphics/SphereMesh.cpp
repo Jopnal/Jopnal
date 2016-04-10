@@ -87,7 +87,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+    bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords, const bool invert)
     {
         m_radius = radius;
         m_rings = rings;
@@ -103,6 +103,8 @@ namespace jop
         std::vector<Vertex> vertexArray(rings * sectors);
         auto itr = vertexArray.begin();
 
+        const float rad = radius * (1.f - (2.f * invert));
+
         for (std::size_t s = 0; s < sectors; ++s)
         {
             for (std::size_t r = 0; r < rings; ++r)
@@ -114,9 +116,9 @@ namespace jop
                 const float x = cos(2 * pi1 * s * S) * sin(pi1 * r * R);
                 const float z = sin(2 * pi1 * s * S) * sin(pi1 * r * R);
 
-                itr->position.x = x * radius;
-                itr->position.y = y * radius;
-                itr->position.z = z * radius;
+                itr->position.x = x * rad;
+                itr->position.y = y * rad;
+                itr->position.z = z * rad;
 
                 itr->texCoords.x = texCoordMultS * s * -S;
                 itr->texCoords.y = texCoordMultR * r * R;

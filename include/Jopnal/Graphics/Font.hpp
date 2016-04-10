@@ -42,6 +42,10 @@ namespace jop
 {
     class JOP_API Font : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Font);
+
     public:
 
         /// \brief Constructor
@@ -49,6 +53,10 @@ namespace jop
         /// \param path File path to font
         ///
         Font(const std::string& name);
+
+        /// \brief Destructor
+        ///
+        ~Font() override;
 
 
         /// \brief Loads a font from targeted path
@@ -116,7 +124,7 @@ namespace jop
         bool load(const int pixelSize);
 
 
-        std::shared_ptr<::detail::FontImpl> m_data;
+        std::unique_ptr<::detail::FontImpl> m_data;
         int m_pixelSize;
     };
 }

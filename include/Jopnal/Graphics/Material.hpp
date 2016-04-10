@@ -39,6 +39,12 @@ namespace jop
 
     class JOP_API Material final : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Material);
+
+        Material(const Material& other, const std::string& newName);
+
     public:
 
         /// Attribute data type
@@ -60,14 +66,16 @@ namespace jop
                 EmissionMap     = 1 << 4,
                 EnvironmentMap  = 1 << 5,
                 ReflectionMap   = 1 << 6,
-                //NormalMap
-                //ParallaxMap
-                OpacityMap      = 1 << 8,
+                //NormalMap       = 1 << 7, // TODO: Implement
+                //ParallaxMap     = 1 << 8, // TODO: Implement
+                OpacityMap      = 1 << 9,
+                //AmbientMap    = 1 << 10, // TODO: Implement
+                //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
                 Phong           = 1 << 12,
-                BlinnPhong      = Phong, //
-                Gouraud         = Phong, // TODO: Implement these
+                BlinnPhong      = Phong | 1 << 13, //
+                Gouraud         = Phong, // TODO: Implement these, requires shader work
                 Flat            = Phong, //
 
                 // Bundles
@@ -88,8 +96,6 @@ namespace jop
             Diffuse,
             Specular,
             Emission,
-            //Normal
-            //Parallax
 
             Solid = Emission
         };
@@ -103,6 +109,8 @@ namespace jop
             Emission,
             Environment,
             Reflection,
+            //Normal
+            //Parallax
             Opacity,
             
             /// For internal use. Never use this

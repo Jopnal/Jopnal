@@ -41,6 +41,8 @@ namespace jop
 
         typedef std::unordered_map<std::string, int> LocationMap;
 
+        JOP_DISALLOW_COPY_MOVE(Shader);
+
     public:
 
         /// The shader type

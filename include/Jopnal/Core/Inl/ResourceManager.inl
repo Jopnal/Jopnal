@@ -126,6 +126,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 {
     if (resourceExists<T>(name))
         return getExistingResource<T>(name);
+
     else
     {
         auto res = std::make_unique<T>(name);
@@ -133,7 +134,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
         if (res->load(std::forward<Args>(args)...))
         {
             T& ptr = *res;
-            m_instance->m_resources[name] = std::move(res);
+            m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
             JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
 
@@ -149,22 +150,26 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 template<typename T, typename ... Args>
 static T& ResourceManager::getEmptyResource(Args&&... args)
 {
-    detail::basicErrorCheck<T>(m_instance);
+    const std::string name = detail::getStringArg(args...);
 
-    auto res = std::make_unique<T>(args...);
-    T& ptr = *res;
-    m_instance->m_resources[detail::getStringArg(args...)] = std::move(res);
+    if (resourceExists<T>(name))
+        return getExistingResource<T>(name);
 
-    JOP_DEBUG_INFO("Empty resource named \"" << detail::getStringArg(args...) << "\" (type: \"" << typeid(T).name() << "\") successfully created");
+    else
+    {
+        auto res = std::make_unique<T>(args...);
+        T& ptr = *res;
+        m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-    return ptr;
+        return ptr;
+    }
 }
 
 template<typename T>
 T& ResourceManager::getExistingResource(const std::string& name)
 {
     if (resourceExists<T>(name))
-        return static_cast<T&>(*m_instance->m_resources.find(name)->second);
+        return static_cast<T&>(*m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T))))->second);
 
     return detail::LoadFallback<T>::load(name);
 }
@@ -176,16 +181,7 @@ bool ResourceManager::resourceExists(const std::string& name)
 {
     detail::basicErrorCheck<T>(m_instance);
 
-    auto itr = m_instance->m_resources.find(name);
-
-#ifdef JOP_DEBUG_MODE
-
-    if (itr != m_instance->m_resources.end() && typeid(T) != typeid(*itr->second))
-        JOP_DEBUG_WARNING("Tried to get resource \"" << name << "\" (type: \"" << typeid(*itr->second).name() << "\"), asking for type \"" << typeid(T).name() << "\". This is not supported and might lead to errors, even if type is convertible");
-
-#endif
-    
-    return (itr != m_instance->m_resources.end() && (typeid(T) == typeid(Resource) || dynamic_cast<T*>(itr->second.get()) != nullptr));
+    return m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T)))) != m_instance->m_resources.end();
 }
 
 //////////////////////////////////////////////
@@ -197,8 +193,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
     {
         auto& oldRes = getExistingResource<T>(name);
 
-        auto res = std::make_unique<T>(oldRes);
-        res->m_name = newName;
+        auto res = std::make_unique<T>(oldRes, newName);
         T& ptr = *res;
 
         m_instance->m_resources[newName] = std::move(res);
@@ -207,6 +202,8 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
         return ptr;
     }
+
+    JOP_DEBUG_WARNING("Couldn't copy resource named \"" << name << "\", not found or unmatched type");
 
     return detail::LoadFallback<T>::load(name);
 }

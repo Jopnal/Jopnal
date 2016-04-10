@@ -103,6 +103,8 @@
     <None Include="Resources\Shaders\depthRecordPoint.vert" />
     <None Include="Resources\Shaders\physicsDebug.frag" />
     <None Include="Resources\Shaders\physicsDebug.vert" />
+    <None Include="Resources\Shaders\skyBox.frag" />
+    <None Include="Resources\Shaders\skyBox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\kongtext.ttf" />

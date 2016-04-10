@@ -102,7 +102,7 @@ namespace detail
             if (shdr.expired())
             {
                 std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(IDR_PHYSICSDEBUGVERT, vert) && FileLoader::readResource(IDR_PHYSICSDEBUGFRAG, frag), "Failed to read physics debug shader source!");
+                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
 
                 shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
 

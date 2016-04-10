@@ -50,6 +50,7 @@
 #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
+#include <Jopnal/Graphics/SkySphere.hpp>
 
 //////////////////////////////////////////////
 

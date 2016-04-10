@@ -29,9 +29,19 @@
 #include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <memory>
+#include <typeindex>
 
 //////////////////////////////////////////////
 
+
+namespace std
+{
+    template<>
+    struct JOP_API hash<std::pair<std::string, std::type_index>>
+    {
+        std::size_t operator()(const std::pair<std::string, std::type_index>& pair) const;
+    };
+}
 
 namespace jop
 {
@@ -98,14 +108,11 @@ namespace jop
 
         /// \brief Check is a resource exists
         ///
-        /// You can pass the resource type as a template argument to compare against it.
-        /// If only the name should be checked, T should be Resource.
-        ///
         /// \param name Name of the resource
         ///
         /// \return True if the resource exists
         /// 
-        template<typename T = Resource>
+        template<typename T>
         static bool resourceExists(const std::string& name);
 
 
@@ -128,9 +135,9 @@ namespace jop
         ///
         /// The resource, if found, will be deleted regardless of the persistence flag.
         ///
-        /// \param path Name or path for wanted resource
+        /// \param name Name or path for wanted resource
         ///
-        static void unloadResource(const std::string& path);
+        static void unloadResource(const std::string& name);
 
         /// \brief Deletes all resources from memory
         ///
@@ -153,10 +160,13 @@ namespace jop
 
     private:
 
-        static ResourceManager* m_instance;                                     ///< Pointer to the single instance
+        static ResourceManager* m_instance;         ///< Pointer to the single instance
 
-        std::unordered_map<std::string, std::unique_ptr<Resource>> m_resources; ///< Container holding resources
-
+        std::unordered_map
+        <
+            std::pair<std::string, std::type_index>,
+            std::unique_ptr<Resource>
+        > m_resources;                              ///< Container holding resources
     };
 
     // Include the template implementation file

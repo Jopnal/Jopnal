@@ -44,6 +44,10 @@ namespace jop
 
         friend class SoundEffect;
 
+        JOP_DISALLOW_COPY_MOVE(SoundBuffer);
+
+        SoundBuffer(const SoundBuffer& other, const std::string& newName);
+
     public:
 
         /// \brief Constructor

@@ -176,6 +176,16 @@ namespace jop
                         if (path.length)
                             m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str()));
                     }
+
+                    // Normal
+                    /*if (mat.GetTextureCount(aiTextureType_AMBIENT))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_AMBIENT, 0, &path);
+
+                        if (path.length)
+                            m.setMap(Material
+                    }*/
                 }
 
                 mats.push_back(&m);

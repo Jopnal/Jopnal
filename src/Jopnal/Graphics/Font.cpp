@@ -67,8 +67,11 @@ namespace jop
 {
     Font::Font(const std::string& name)
         : Resource      (name),
-          m_data        (std::make_shared<::detail::FontImpl>()),
+          m_data        (std::make_unique<::detail::FontImpl>()),
           m_pixelSize   (64)
+    {}
+
+    Font::~Font()
     {}
 
     //////////////////////////////////////////////
@@ -272,7 +275,7 @@ namespace jop
         {
             errFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_error_font").getReference());
 
-            JOP_ASSERT_EVAL(errFont->load(IDR_ERRORFONT, 32), "Failed to load error font!");
+            JOP_ASSERT_EVAL(errFont->load(JOP_RES_ERROR_FONT, 32), "Failed to load error font!");
 
             errFont->setPersistence(0);
         }
@@ -290,7 +293,7 @@ namespace jop
         {
             defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
 
-            JOP_ASSERT_EVAL(defFont->load(IDR_DEFAULTFONT, 32), "Failed to load default font!");
+            JOP_ASSERT_EVAL(defFont->load(JOP_RES_DEFAULT_FONT, 32), "Failed to load default font!");
 
             defFont->setPersistence(0);
         }

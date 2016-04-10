@@ -232,7 +232,7 @@ namespace jop
         {
             errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
+            JOP_ASSERT_EVAL(errTex->load(JOP_RES_ERROR_TEXTURE), "Failed to load error texture!");
 
             errTex->setPersistence(0);
         }
@@ -250,7 +250,7 @@ namespace jop
         {
             defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
 
-            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
+            JOP_ASSERT_EVAL(defTex->load(JOP_RES_DEFAULT_TEXTURE), "Failed to load default texture!");
 
             defTex->setPersistence(0);
         }

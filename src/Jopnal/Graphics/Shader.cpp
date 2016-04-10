@@ -507,7 +507,7 @@ namespace jop
         {
             std::vector<unsigned char> vert;
             std::vector<unsigned char> frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_SHADER1, vert) && FileLoader::readResource(IDR_SHADER2, frag), "Failed to load error shader!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_ERROR_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_ERROR_SHADER_FRAG, frag), "Failed to load error shader!");
 
             errShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_error").getReference());
 

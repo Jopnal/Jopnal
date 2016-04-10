@@ -22,7 +22,7 @@
 #ifndef JOP_SPHEREMESH_HPP
 #define JOP_SPHEREMESH_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 
@@ -49,7 +49,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true, const bool invert = false);
 
 
         /// \brief Get the radius

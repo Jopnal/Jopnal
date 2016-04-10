@@ -133,7 +133,7 @@ namespace jop
             errTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readResource(IDB_PNG2, buf);
+            FileLoader::readResource(JOP_RES_ERROR_TEXTURE, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
@@ -163,7 +163,7 @@ namespace jop
             defTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readResource(IDB_PNG1, buf);
+            FileLoader::readResource(JOP_RES_DEFAULT_TEXTURE, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);

@@ -32,6 +32,11 @@ namespace jop
           m_soundBuf    (std::make_unique<sf::SoundBuffer>())
     {}
 
+    SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
+        : Resource      (newName),
+          m_soundBuf    (std::make_unique<sf::SoundBuffer>(*other.m_soundBuf))
+    {}
+
     SoundBuffer::~SoundBuffer()
     {}
 
@@ -67,7 +72,7 @@ namespace jop
         {
             defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
 
-            JOP_ASSERT_EVAL(defBuf->load(IDB_WAV), "Failed to load default Sound!");
+            JOP_ASSERT_EVAL(defBuf->load(JOP_RES_DEFAULT_SOUND), "Failed to load default Sound!");
 
             defBuf->setPersistence(0);
         }

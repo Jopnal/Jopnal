@@ -80,7 +80,6 @@ namespace jop
         Mesh m_mesh;
         Material m_material;
         std::wstring m_string;
-        Color m_color;
     };
 }
 

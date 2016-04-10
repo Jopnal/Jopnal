@@ -246,7 +246,7 @@ namespace jop
             dirSpotShader->setPersistence(0);
 
             std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERT, vert) && FileLoader::readResource(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_FRAG, frag), "Couldn't read depth record shader source!");
 
             JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
         }
@@ -258,7 +258,7 @@ namespace jop
             pointShader->setPersistence(0);
 
             std::vector<unsigned char> vert, geom, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readResource(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, geom) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_FRAG, frag), "Couldn't read point depth record shader source!");
 
             JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
         }
@@ -421,7 +421,9 @@ namespace jop
         const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
         const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-        return att > 0.05f;
+        static const float bias = SettingManager::getFloat("fLightCullBias", 0.15f);
+
+        return att > bias;
     }
 
     //////////////////////////////////////////////
@@ -510,7 +512,7 @@ namespace jop
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
 
-        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 10);
+        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", static_cast<unsigned int>(Material::Map::Last));
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
         static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Point);

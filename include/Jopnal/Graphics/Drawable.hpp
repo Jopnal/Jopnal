@@ -38,6 +38,7 @@ namespace jop
     class LightSource;
     class LightContainer;
     class Renderer;
+    class Camera;
 
     class JOP_API Drawable : public Component
     {
