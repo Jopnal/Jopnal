@@ -185,15 +185,14 @@ namespace jop
     {
         switch (bytesPerPixel)
         {
-            case 1:
-                return gl::RED;
             case 2:
                 return gl::RG;
             case 3:
                 return gl::RGB;
             case 4:
-            default:
                 return gl::RGBA;
+            default:
+                return gl::RED;
         }
     }
 
@@ -203,15 +202,14 @@ namespace jop
     {
         switch (formatEnum)
         {
-            case gl::RED:
-                return gl::R8;
             case gl::RG:
                 return gl::RG8;
             case gl::RGB:
                 return gl::RGB8;
             case gl::RGBA:
-            default:
                 return gl::RGBA8;
+            default:
+                return gl::R8;
         }
     }
 

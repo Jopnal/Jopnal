@@ -27,12 +27,12 @@
 
 namespace jop
 {
-    SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable(obj, renderer, "skysphere"),
-          m_mesh(""),
-          m_material("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
+    SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
+        : Drawable      (obj, renderer, "skybox"),
+          m_mesh        (""),
+          m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
     {
-        m_mesh.load(radius, 20, 20, true);
+        m_mesh.load(size, true);
 
         setModel(Model(m_mesh, m_material));
 
@@ -41,7 +41,7 @@ namespace jop
         setReceiveShadows(false);
     }
 
-    SkySphere::SkySphere(const SkySphere& other, Object& newObj)
+    SkyBox::SkyBox(const SkyBox& other, Object& newObj)
         : Drawable      (other, newObj),
           m_mesh        (other.m_mesh, ""),
           m_material    (other.m_material, "")
@@ -49,7 +49,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::draw(const Camera* camera, const LightContainer&, Shader& shader) const
+    void SkyBox::draw(const Camera* camera, const LightContainer&, Shader& shader) const
     {
         if (!getModel().isValid())
             return;
@@ -67,12 +67,10 @@ namespace jop
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
         s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, (void*)Vertex::TexCoords);
 
         mat.sendToShader(s, camera);
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-        GlState::setFaceCull(true, GlState::FaceCull::Front);
 
         if (msh.getElementAmount())
         {
@@ -85,20 +83,19 @@ namespace jop
         }
 
         GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
     }
 
     //////////////////////////////////////////////
 
-    void SkySphere::setMap(const Texture2D& map)
+    void SkyBox::setMap(const Cubemap& map)
     {
-        m_material.setMap(Material::Map::Diffuse, map);
+        m_material.setMap(Material::Map::Environment, map);
     }
 
     //////////////////////////////////////////////
 
-    const Texture* SkySphere::getMap() const
+    const Texture* SkyBox::getMap() const
     {
-        return m_material.getMap(Material::Map::Diffuse);
+        return m_material.getMap(Material::Map::Environment);
     }
 }

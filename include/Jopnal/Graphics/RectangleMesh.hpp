@@ -43,6 +43,10 @@ namespace jop
         ///
         RectangleMesh(const std::string& name);
 
+        /// \brief Copy constructor
+        ///
+        RectangleMesh(const RectangleMesh& other, const std::string& newName);
+
 
         /// \brief Load this rectangle
         ///
@@ -64,7 +68,6 @@ namespace jop
     private:
 
         float m_size;   ///< This rectangle's size
-
     };
 }
 #endif

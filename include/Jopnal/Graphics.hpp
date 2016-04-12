@@ -51,6 +51,7 @@
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
+#include <Jopnal/Graphics/SkyBox.hpp>
 
 //////////////////////////////////////////////
 

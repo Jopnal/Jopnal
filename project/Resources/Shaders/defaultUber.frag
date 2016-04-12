@@ -472,6 +472,12 @@ out vec4 out_FinalColor;
 
 void main() 
 {
+#ifdef JMAT_SKYBOX
+
+    out_FinalColor = texture(u_EnvironmentMap, outVert.Position);
+
+#else
+
     // Assign the initial color
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
@@ -555,4 +561,6 @@ void main()
 
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor, alpha);
+
+#endif // Sky box
 }

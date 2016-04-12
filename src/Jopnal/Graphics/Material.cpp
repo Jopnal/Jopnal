@@ -172,32 +172,38 @@ namespace jop
     {
         if (shader.bind())
         {
-            // Send camera position to shader
-            if (camera && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
-                shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
-
-            if (hasAttribute(Attribute::__Lighting))
+            if (!hasAttribute(Attribute::__SkyBox))
             {
-                shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
-                shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
-                shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
-                shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
-                shader.setUniform("u_Material.shininess", m_shininess);
+                // Send camera position to shader
+                if (camera && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
+                    shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
 
-                if (hasAttribute(Attribute::EnvironmentMap))
-                    shader.setUniform("u_Material.reflectivity", m_reflectivity);
+                if (hasAttribute(Attribute::__Lighting))
+                {
+                    shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
+                    shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
+                    shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
+                    shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
+                    shader.setUniform("u_Material.shininess", m_shininess);
+
+                    if (hasAttribute(Attribute::EnvironmentMap))
+                        shader.setUniform("u_Material.reflectivity", m_reflectivity);
+                }
+                else
+                    shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
+
+                if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
+                    shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
+
+                if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
+                    shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
+
+                if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
+                    shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
+
+                if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
+                    shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
             }
-            else
-                shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
-
-            if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
-
-            if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
-
-            if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
@@ -206,9 +212,6 @@ namespace jop
                 if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
                     shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
             }
-
-            if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
         }
     }
 

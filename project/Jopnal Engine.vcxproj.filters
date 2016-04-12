@@ -384,6 +384,9 @@
     <ClInclude Include="..\include\Jopnal\Physics\RayInfo.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\SkyBox.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -617,6 +620,7 @@
     <ClCompile Include="..\src\Jopnal\Physics\RayInfo.cpp">
       <Filter>Physics\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\SkyBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

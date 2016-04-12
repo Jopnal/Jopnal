@@ -39,6 +39,10 @@ namespace jop
         ///
         SphereMesh(const std::string& name);
 
+        /// \brief Copy constructor
+        ///
+        SphereMesh(const SphereMesh& other, const std::string& newName);
+
 
         /// \brief Load a sphere
         ///

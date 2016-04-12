@@ -85,7 +85,7 @@ namespace jop
                 return false;
             }
 
-            GLenum depthEnum = Texture2D::getFormatEnum(m_bytesPerPixel);
+            GLenum depthEnum = Texture2D::getFormatEnum(bytes);
             glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
 
             stbi_image_free(pix);

@@ -43,6 +43,10 @@ namespace jop
         ///
         BoxMesh(const std::string& name);
 
+        /// \brief Copy constructor
+        ///
+        BoxMesh(const BoxMesh& other, const std::string& newName);
+
 
         /// \brief Load this box
         ///
@@ -72,6 +76,7 @@ namespace jop
     private:
 
         float m_size;   ///< This box's size
+        bool m_inverted;
     };
 }
 

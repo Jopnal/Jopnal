@@ -82,8 +82,22 @@ namespace jop
 namespace jop
 {    
     SphereMesh::SphereMesh(const std::string& name)
-        : Mesh(name)
+        : Mesh              (name),
+          m_radius          (0.f),
+          m_rings           (0),
+          m_sectors         (0),
+          m_normTexCoords   (true)
     {}
+
+    SphereMesh::SphereMesh(const SphereMesh& other, const std::string& newName)
+        : Mesh              (newName),
+          m_radius          (0.f),
+          m_rings           (0),
+          m_sectors         (0),
+          m_normTexCoords   (true)
+    {
+        load(other.m_radius, other.m_rings, other.m_sectors, other.m_normTexCoords);
+    }
 
     //////////////////////////////////////////////
 
