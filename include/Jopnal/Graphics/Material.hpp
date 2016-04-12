@@ -39,7 +39,7 @@ namespace jop
 
     class JOP_API Material final : public Resource
     {
-    private:
+    public:
 
         JOP_DISALLOW_COPY_MOVE(Material);
 

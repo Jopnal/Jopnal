@@ -37,6 +37,16 @@ namespace jop
         GenericDrawable::setModel(Model(m_mesh, m_material));
     }
 
+    Text::Text(const Text& other, Object& newObj)
+        : GenericDrawable   (other, newObj),
+          m_font            (other.m_font),
+          m_mesh            (""),
+          m_material        (other.m_material, ""),
+          m_string          ()
+    {
+        setString(other.m_string);
+    }
+
     //////////////////////////////////////////////
 
     void Text::setString(const std::string& string)

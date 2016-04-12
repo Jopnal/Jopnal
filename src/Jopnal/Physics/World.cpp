@@ -214,31 +214,6 @@ namespace jop
         m_worldData->world->setWorldUserInfo(this);
         
         setDebugMode(false);
-
-        /*static bool contactCallbacksSet = false;
-        if (!contactCallbacksSet)
-        {
-            auto processedCallback = [](btManifoldPoint& mp, void* body0, void* body1) -> bool
-            {
-                auto c0 = static_cast<Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
-                auto c1 = static_cast<Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
-
-                if (c0 && c1)
-                {
-                    auto& aPos = mp.getPositionWorldOnA();
-                    auto& bPos = mp.getPositionWorldOnB();
-
-                    c0->handleContact(*c1, ContactInfo(glm::vec3(aPos.x(), aPos.y(), aPos.z())));
-                    c1->handleContact(*c0, ContactInfo(glm::vec3(bPos.x(), bPos.y(), bPos.z())));
-                }
-
-                return true;
-            };
-
-            gContactProcessedCallback = processedCallback;
-
-            contactCallbacksSet = true;
-        }*/
     }
 
     World::~World()
@@ -306,7 +281,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Collider* World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const
+    RayInfo World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const
     {
         const glm::vec3 fromTo(start + ray);
 
@@ -318,14 +293,16 @@ namespace jop
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
         if (cb.hasHit() && cb.m_collisionObject != nullptr)
-            return static_cast<Collider*>(cb.m_collisionObject->getUserPointer());
+            return RayInfo(static_cast<Collider*>(cb.m_collisionObject->getUserPointer()),
+                           glm::vec3(cb.m_hitPointWorld.x(), cb.m_hitPointWorld.y(), cb.m_hitPointWorld.z()),
+                           glm::vec3(cb.m_hitNormalWorld.x(), cb.m_hitNormalWorld.y(), cb.m_hitNormalWorld.z()));
         
-        return nullptr;
+        return RayInfo();
     }
 
     //////////////////////////////////////////////
 
-    std::vector<Collider*> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const
+    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const
     {
         const glm::vec3 fromTo(start + ray);
 
@@ -334,12 +311,19 @@ namespace jop
 
         btCollisionWorld::AllHitsRayResultCallback cb(rayFromWorld, rayToWorld);
         
-        std::vector<Collider*> objContainer;
+        std::vector<RayInfo> objContainer;
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
         for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
-            objContainer.push_back(static_cast<Collider*>(cb.m_collisionObjects[i]->getUserPointer()));
+        {
+            const auto& point = cb.m_hitPointWorld[i];
+            const auto& normal = cb.m_hitNormalWorld[i];
 
+            objContainer.push_back(RayInfo(static_cast<Collider*>(cb.m_collisionObjects[i]->getUserPointer()),
+                                           glm::vec3(point.x(), point.y(), point.z()),
+                                           glm::vec3(normal.x(), normal.y(), normal.z())));
+        }
+        
         return objContainer;
     }
 
@@ -360,7 +344,7 @@ namespace jop
             }
 
         } cb;
-
+        
         m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 
         return cb.vec;

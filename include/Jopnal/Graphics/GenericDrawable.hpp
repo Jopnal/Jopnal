@@ -33,7 +33,7 @@ namespace jop
 {
     class JOP_API GenericDrawable : public Drawable
     {
-    private:
+    protected:
 
         GenericDrawable(const GenericDrawable& other, Object& newObj);
 

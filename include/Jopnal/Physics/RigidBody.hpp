@@ -114,6 +114,8 @@ namespace jop
 
         /// \brief Sets unique gravity to the rigid body object
         ///
+        /// \comm setBodyGravity
+        ///
         /// \param acceleration Amount of the gravity to be applied as vector
         ///
         RigidBody& setGravity(const glm::vec3& acceleration);
@@ -123,6 +125,8 @@ namespace jop
         glm::vec3 getGravity() const;
 
         /// \brief Sets the linear factor for rigid body
+        ///
+        /// \comm setLinearFactor
         ///
         /// \param linearFactor Unique vector for linear factor
         ///
@@ -134,6 +138,8 @@ namespace jop
 
         /// \brief Sets the angular factor for rigid body
         ///
+        /// \comm setAngularFactor
+        ///
         /// \param angularFactor Unique vector for angular factor
         ///
         RigidBody& setAngularFactor(const glm::vec3& angularFactor);
@@ -144,12 +150,16 @@ namespace jop
 
         /// \brief Applies constant force to rigid bodies relative position
         ///
+        /// \comm applyForce
+        ///
         /// \param force Amount and direction of the force 
         /// \param rel_pos Vector for the relative position on rigid body that the force applies on
         ///
         RigidBody& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
 
         /// \brief Applies an impulse to rigid bodies relative position
+        ///
+        /// \comm applyImpulse
         ///
         /// \param impulse Amount and direction of the impulse
         /// \param rel_pos Vector for the relative position on rigid body that the impulse applies on
@@ -158,11 +168,15 @@ namespace jop
 
         /// \brief Applies torque to the rigid body
         ///
+        /// \comm applyTorque
+        ///
         /// \param torque Amount and direction as vector of the applied torque
         ///
         RigidBody& applyTorque(const glm::vec3& torque);
 
         /// \brief Applies torque impulse to the rigid body
+        ///
+        /// \comm applyTorqueImpulse
         ///
         /// \param torque Amount and direction as vector of the applied torque
         ///
@@ -170,11 +184,15 @@ namespace jop
 
         /// \brief Sets linear velocity to the rigid body
         ///
+        /// \comm setLinearVelocity
+        ///
         /// \param linearVelocity Amount and direction of the linear velocity 
         ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
         /// \brief Sets angular velocity to the rigid body
+        ///
+        /// \comm setAngularVelocity
         ///
         /// \param angularVelocity Amount and direction of the angular velocity
         ///
@@ -182,17 +200,23 @@ namespace jop
 
         /// \brief Applies force to the rigid body's center 
         ///
+        /// \comm applyCentralForce
+        ///
         /// \param force Amount and direction of the applied force
         ///
         RigidBody& applyCentralForce(const glm::vec3& force);
 
         /// \brief Applies impulse to the rigid body's center
         ///
+        /// \comm applyCentralImpulse
+        ///
         /// \param impulse Amount and direction of the applies impulse
         ///
         RigidBody& applyCentralImpulse(const glm::vec3& impulse);
 
         /// \brief Clear all the forces affecting this body
+        ///
+        /// \comm clearForces
         ///
         void clearForces();
 

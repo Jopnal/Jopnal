@@ -20,23 +20,22 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/StaticMeshShape.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    RayInfo::RayInfo()
+        : collider  (nullptr),
+          point     (),
+          normal    ()
+    {}
+
+    RayInfo::RayInfo(Collider* coll, const glm::vec3& pnt, const glm::vec3& norm)
+        : collider  (coll),
+          point     (pnt),
+          normal    (norm)
+    {}
+}

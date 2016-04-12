@@ -104,7 +104,7 @@ namespace jop
         btVector3 min, max;
         bp.getAabb(other.m_body->getBroadphaseHandle(), min, max);
         bp.aabbTest(min, max, cb);
-
+        
         return cb.hit;
     }
 
@@ -129,7 +129,7 @@ namespace jop
         } cb;
 
         m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
-
+        
         return cb.hit;
     }
 

@@ -122,20 +122,20 @@ namespace jop
         if (!m_data.get()->m_buffer.empty())
         {
             // Save loaded data
-            FT_Error error = FT_New_Memory_Face(m_data.get()->m_library, m_data.get()->m_buffer.data(), m_data.get()->m_buffer.size() * sizeof(unsigned char), 0, &m_data.get()->m_face);
-            JOP_ASSERT(!error, "Failure loading font!");
+            if (FT_New_Memory_Face(m_data.get()->m_library, m_data.get()->m_buffer.data(), m_data.get()->m_buffer.size() * sizeof(unsigned char), 0, &m_data.get()->m_face))
+                return false;
             
             FT_Select_Charmap(m_data.get()->m_face, ft_encoding_unicode);
 
             // Set glyph size in pixels
             FT_Set_Pixel_Sizes(m_data.get()->m_face, m_pixelSize, m_pixelSize);
-            error = FT_Select_Charmap(m_data.get()->m_face, FT_ENCODING_UNICODE);
-            JOP_ASSERT(!error, "Failure selecting charmap!");
+            if (FT_Select_Charmap(m_data.get()->m_face, FT_ENCODING_UNICODE))
+                return false;
 
             m_data.get()->m_context = std::move(context_ptr);
 
             // Create default glyph
-            const unsigned char data[4] = { 255, 255, 255, 255 };
+            const unsigned char data[4] = {255, 255, 255, 255};
 
             gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
             m_data->m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
@@ -147,7 +147,7 @@ namespace jop
             bounds.second.x = 2;
             bounds.second.y = 2;
             
-            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
+            stbrp_rect rectangle = {0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1)};
             stbrp_pack_rects(m_data.get()->m_context.get(), &rectangle, 1);
 
             if (rectangle.was_packed != 0)
@@ -171,9 +171,9 @@ namespace jop
         // X and Y are offset from glyph origin
         int x, y, w, h;
         x = m_data.get()->m_face->glyph->metrics.horiBearingX;  // bitmap_left;
-        y = m_data.get()->m_face->glyph->metrics.horiBearingY;  //bitmap_top;
-        w = m_data.get()->m_face->glyph->metrics.width;         //bitmap.width;
-        h = m_data.get()->m_face->glyph->metrics.height;        //bitmap.rows;
+        y = m_data.get()->m_face->glyph->metrics.horiBearingY;  // bitmap_top;
+        w = m_data.get()->m_face->glyph->metrics.width;         // bitmap.width;
+        h = m_data.get()->m_face->glyph->metrics.height;        // bitmap.rows;
 
         return std::make_pair(glm::vec2(x, y), glm::vec2(w, h));
     }

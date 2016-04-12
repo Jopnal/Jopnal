@@ -177,12 +177,14 @@ namespace jop
 
         /// \brief Sets m_intensities array to color
         ///
+        /// \comm setIntensity
+        ///
         /// \param intensity Intensity type from enum
         /// \param color Color type as RGB vector
         ///
         /// \return Reference to self
         ///
-        LightSource& setIntensity(const Intensity intensity, const Color color);
+        LightSource& setIntensity(const Intensity intensity, const Color& color);
         
         /// \brief Overload function for setIntensity
         ///
@@ -192,7 +194,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        LightSource& setIntensity(const Color ambient, const Color diffuse, const Color specular);
+        LightSource& setIntensity(const Color& ambient, const Color& diffuse, const Color& specular);
 
         /// \brief Set an uniform intensity
         ///
@@ -202,7 +204,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        LightSource& setIntensity(const Color intensity);
+        LightSource& setIntensity(const Color& intensity);
 
         /// \brief Get an intensity value
         ///
@@ -223,6 +225,8 @@ namespace jop
         LightSource& setAttenuation(const Attenuation attenuation, const float value);
 
         /// \brief Set the attenuation values
+        ///
+        /// \comm setAttenuation
         ///
         /// \param constant The constant attenuation
         /// \param linear The linear attenuation
@@ -275,6 +279,8 @@ namespace jop
         /// This only affects spot lights.
         /// The inner and outer cutoff control the dimming near
         /// the edges of the spot light.
+        ///
+        /// \comm setCutoff
         ///
         /// \param inner The inner cutoff in radians. The light will be at its
         ///              maximum intensity inside this angle

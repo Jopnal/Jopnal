@@ -37,6 +37,10 @@ namespace jop
 
     class JOP_API Mesh : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Mesh);
+
     public:
 
         /// Vertex components

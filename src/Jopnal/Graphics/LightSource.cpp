@@ -29,10 +29,9 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setIntensity");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCastShadows, "setCastShadows");
-
-        JOP_BIND_MEMBER_COMMAND(&LightSource::setRenderMask, "setRenderMask");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color&))&LightSource::setIntensity, "setIntensity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const float, const float, const float))&LightSource::setAttenuation, "setAttenuation");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCutoff, "setCutoff");
 
     JOP_END_COMMAND_HANDLER(LightSource)
 }
@@ -346,7 +345,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Intensity intensity, const Color color)
+    LightSource& LightSource::setIntensity(const Intensity intensity, const Color& color)
     {
         m_intensities[static_cast<int>(intensity)] = color;
         return *this;
@@ -354,7 +353,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Color ambient, const Color diffuse, const Color specular)
+    LightSource& LightSource::setIntensity(const Color& ambient, const Color& diffuse, const Color& specular)
     {
         return setIntensity(Intensity::Ambient, ambient)
               .setIntensity(Intensity::Diffuse, diffuse)
@@ -363,7 +362,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Color intensity)
+    LightSource& LightSource::setIntensity(const Color& intensity)
     {
         return setIntensity(Intensity::Ambient, intensity)
               .setIntensity(Intensity::Diffuse, intensity)

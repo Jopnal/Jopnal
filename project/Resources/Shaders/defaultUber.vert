@@ -62,7 +62,14 @@ void main()
     gl_Position = (
 
     #ifndef JMAT_ENVIRONMENT_RECORD
-        u_PMatrix * u_VMatrix *
+        u_PMatrix * 
+        
+        #if defined(JMAT_SKYBOX) || defined(JMAT_SKYSPHERE)
+            mat4(mat3(u_VMatrix))
+        #else
+            u_VMatrix
+        #endif
+            *
     #endif
         
     pos)

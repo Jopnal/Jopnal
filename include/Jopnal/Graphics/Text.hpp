@@ -38,6 +38,13 @@ namespace jop
 
     class JOP_API Text : public GenericDrawable
     {
+    private:
+
+        Text(const Text& other, Object& newObj);
+
+        JOP_DISALLOW_COPY_MOVE(Text);
+        JOP_GENERIC_COMPONENT_CLONE(Text);
+
     public:
 
         /// \brief Constructor

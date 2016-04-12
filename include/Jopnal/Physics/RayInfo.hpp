@@ -19,24 +19,31 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_RAYINFO_HPP
+#define JOP_RAYINFO_HPP
+
 // Headers
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/StaticMeshShape.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
+#include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class Collider;
+
+    struct JOP_API RayInfo
+    {
+        RayInfo();
+
+        RayInfo(Collider* coll, const glm::vec3& pnt, const glm::vec3& norm);
+
+
+        Collider* collider; ///< Collider component, can be nullptr
+        glm::vec3 point;    ///< Ray hit point in world coordinates
+        glm::vec3 normal;   ///< Local ray hit normal
+    };
+}
+
+#endif

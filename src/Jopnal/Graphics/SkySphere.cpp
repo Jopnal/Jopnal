@@ -63,7 +63,7 @@ namespace jop
         if (camera)
         {
             s.setUniform("u_PMatrix", camera->getProjectionMatrix());
-            s.setUniform("u_VMatrix", glm::mat4(glm::mat3(camera->getViewMatrix())));
+            s.setUniform("u_VMatrix", camera->getViewMatrix());
         }
 
         msh.getVertexBuffer().bind();
