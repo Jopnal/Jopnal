@@ -251,8 +251,8 @@ namespace jop
             
             JOP_ASSERT_EVAL(defSampler->load
             (
-                static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 1)),
-                static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 2)),
+                static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 0)),
+                static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 0)),
                 SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f)
 
             ), "Couldn't create default sampler!");

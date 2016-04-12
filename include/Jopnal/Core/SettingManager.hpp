@@ -162,8 +162,10 @@ namespace jop
         ///
         static void save();
 
-    private:
-
+        /// \brief For internal use
+        ///
+        /// \return True if initialized
+        ///
         static bool checkInit();
     };
 }

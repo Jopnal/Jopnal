@@ -42,7 +42,7 @@ namespace
         {
             const char* error = PHYSFS_getLastError();
 
-            if (error)
+            if (error && jop::SettingManager::checkInit())
                 JOP_DEBUG_ERROR("Filesystem error: " << error << " (" << info << ")");
         }
     }
