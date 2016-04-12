@@ -83,8 +83,10 @@ namespace jop
                 DefaultLighting = AmbientConstant | BlinnPhong,
 
                 // For internal functionality, do not use
-                RecordEnv       = 1u << 31,
-                Lighting        = Phong | BlinnPhong | Gouraud | Flat
+                __SkySphere     = 1  << 29,
+                __SkyBox        = 1  << 30,
+                __RecordEnv     = 1u << 31,
+                __Lighting      = Phong | BlinnPhong | Gouraud | Flat
             };
         };
 
@@ -264,7 +266,7 @@ namespace jop
         ///
         /// \return Weak pointer to the texture. Empty if none bound
         ///
-        WeakReference<const Texture> getMap(const Map map) const;
+        const Texture* getMap(const Map map) const;
 
 
         /// \brief Set the attribute bit field

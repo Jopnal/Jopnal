@@ -29,22 +29,78 @@ namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
         : Drawable(obj, renderer, "skysphere"),
-          m_mesh("")
+          m_mesh(""),
+          m_material("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
     {
-        m_mesh.load(radius, 40, 40, true, true);
+        m_mesh.load(radius, 20, 20, true);
+
+        setModel(Model(m_mesh, m_material));
+
+        setCastShadows(false);
+        setReceiveLights(false);
+        setReceiveShadows(false);
     }
 
     SkySphere::SkySphere(const SkySphere& other, Object& newObj)
         : Drawable(other, newObj),
-          m_mesh("")
+          m_mesh(""),
+          m_material("", false)
     {
         
     }
 
     //////////////////////////////////////////////
 
-    void SkySphere::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
+    void SkySphere::draw(const Camera* camera, const LightContainer&, Shader& shader) const
     {
+        if (!getModel().isValid())
+            return;
 
+        auto& s = shader;
+        auto& mat = *getModel().getMaterial();
+        auto& msh = *getModel().getMesh();
+
+        if (camera)
+        {
+            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
+            s.setUniform("u_VMatrix", glm::mat4(glm::mat3(camera->getViewMatrix())));
+        }
+
+        msh.getVertexBuffer().bind();
+        const auto stride = msh.getVertexSize();
+        s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
+        s.setAttribute(1, gl::FLOAT, 2, stride, false, (void*)Vertex::TexCoords);
+
+        mat.sendToShader(s, camera);
+
+        GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
+        GlState::setFaceCull(true, GlState::FaceCull::Front);
+
+        if (msh.getElementAmount())
+        {
+            msh.getIndexBuffer().bind();
+            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+        }
+        else
+        {
+            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+        }
+
+        GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
+    }
+
+    //////////////////////////////////////////////
+
+    void SkySphere::setMap(const Texture2D& map)
+    {
+        m_material.setMap(Material::Map::Diffuse, map);
+    }
+
+    //////////////////////////////////////////////
+
+    const Texture* SkySphere::getMap() const
+    {
+        return m_material.getMap(Material::Map::Diffuse);
     }
 }

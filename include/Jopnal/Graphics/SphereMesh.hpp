@@ -49,7 +49,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true, const bool invert = false);
+        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
 
 
         /// \brief Get the radius

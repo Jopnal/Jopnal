@@ -168,7 +168,7 @@ namespace jop
 
     bool Drawable::receiveLights() const
     {
-        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::Lighting));
+        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::__Lighting));
     }
 
     //////////////////////////////////////////////

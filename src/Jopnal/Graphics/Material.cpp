@@ -89,15 +89,15 @@ namespace jop
         val.AddMember(json::StringRef("shininess"), ref.getShininess(), alloc);
 
         auto diff = ref.getMap(Material::Map::Diffuse);
-        if (!diff.expired())
+        if (diff)
             val.AddMember(json::StringRef("diffmap"), json::StringRef(diff->getName().c_str()), alloc);
 
         auto spec = ref.getMap(Material::Map::Specular);
-        if (!diff.expired())
+        if (spec)
             val.AddMember(json::StringRef("specmap"), json::StringRef(spec->getName().c_str()), alloc);
 
         auto emiss = ref.getMap(Material::Map::Emission);
-        if (!diff.expired())
+        if (emiss)
             val.AddMember(json::StringRef("emissmap"), json::StringRef(emiss->getName().c_str()), alloc);
 
         return true;
@@ -173,10 +173,10 @@ namespace jop
         if (shader.bind())
         {
             // Send camera position to shader
-            if (camera && hasAttribute(Attribute::Lighting | Attribute::EnvironmentMap))
+            if (camera && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
                 shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
 
-            if (hasAttribute(Attribute::Lighting))
+            if (hasAttribute(Attribute::__Lighting))
             {
                 shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
                 shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
@@ -190,24 +190,24 @@ namespace jop
             else
                 shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
 
-            if (hasAttribute(Attribute::DiffuseMap) && !getMap(Map::Diffuse).expired())
+            if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
                 shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
-            if (hasAttribute(Attribute::SpecularMap) && !getMap(Map::Specular).expired())
+            if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
                 shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
 
-            if (hasAttribute(Attribute::EmissionMap) && !getMap(Map::Emission).expired())
+            if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
                 shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
 
-            if (hasAttribute(Attribute::EnvironmentMap) && !getMap(Material::Map::Environment).expired())
+            if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
                 shader.setUniform("u_EnvironmentMap", *getMap(Material::Map::Environment), ns_envMapIndex);
 
-                if (hasAttribute(Attribute::ReflectionMap) && !getMap(Map::Reflection).expired())
+                if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
                     shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
             }
 
-            if (hasAttribute(Attribute::OpacityMap) && !getMap(Map::Opacity).expired())
+            if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
                 shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
         }
     }
@@ -356,9 +356,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<const Texture> Material::getMap(const Map map) const
+    const Texture* Material::getMap(const Map map) const
     {
-        return m_maps[static_cast<int>(map) - 1];
+        return m_maps[static_cast<int>(map) - 1].get();
     }
 
     //////////////////////////////////////////////

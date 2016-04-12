@@ -60,12 +60,6 @@
     <None Include="Resources\Shaders\physicsDebug.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Resources\Shaders\skyBox.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Resources\Shaders\skyBox.vert">
-      <Filter>Shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\kongtext.ttf">

@@ -79,13 +79,13 @@ namespace jop
         s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
         s.setAttribute(1, gl::FLOAT, 2, stride, false, (void*)Vertex::TexCoords);
 
-        if (mat.hasAttribute(Material::Attribute::Lighting | Material::Attribute::EnvironmentMap))
+        if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
             s.setAttribute(2, gl::FLOAT, 3, stride, false, (void*)Vertex::Normal);
 
             // Set lights
-            if (mat.hasAttribute(Material::Attribute::Lighting))
+            if (mat.hasAttribute(Material::Attribute::__Lighting))
                 lights.sendToShader(s, *this);
         }
 

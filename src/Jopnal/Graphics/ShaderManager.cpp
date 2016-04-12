@@ -67,13 +67,13 @@ namespace jop
         std::string pp;
         getPreprocessDef(attributes, pp);
 
-        auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::RecordEnv) ? uber[1] : "", uber[2], pp);
+        auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::__RecordEnv) ? uber[1] : "", uber[2], pp);
         //s.setManaged(true);
 
         cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
         // Needed so that different samplers don't all point to zero
-        if ((attributes & Material::Attribute::Lighting) != 0)
+        if ((attributes & Material::Attribute::__Lighting) != 0)
         {
             static const int maxUnits = Texture::getMaxTextureUnits();
 
@@ -104,7 +104,7 @@ namespace jop
         }
 
         // Material
-        if ((attrib & m::Lighting) != 0)
+        if ((attrib & m::__Lighting) != 0)
             str += "#define JMAT_MATERIAL\n";
         
         // Diffuse map
@@ -144,8 +144,14 @@ namespace jop
         }
 
         // Environment map record
-        if ((attrib & m::RecordEnv) != 0)
+        if ((attrib & m::__RecordEnv) != 0)
             str += "#define JMAT_ENVIRONMENT_RECORD\n";
+
+        // Skybox/sphere
+        if ((attrib & m::__SkyBox) != 0)
+            str += "#define JMAT_SKYBOX";
+        else if ((attrib & m::__SkySphere) != 0)
+            str += "#define JMAT_SKYSPHERE";
     }
 
     ShaderManager::~ShaderManager()

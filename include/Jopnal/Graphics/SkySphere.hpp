@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/SphereMesh.hpp>
+#include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
 
@@ -38,16 +39,24 @@ namespace jop
 
         SkySphere(const SkySphere& other, Object& newObj);
 
+        JOP_DISALLOW_COPY_MOVE(SkySphere);
+        JOP_GENERIC_COMPONENT_CLONE(SkySphere);
+
     public:
 
-        SkySphere(Object& obj, Renderer& renderer, const float radius = 3.f);
+        SkySphere(Object& obj, Renderer& renderer, const float radius = 2.f);
 
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
+        void setMap(const Texture2D& map);
+
+        const Texture* getMap() const;
+
     private:
 
         SphereMesh m_mesh;
+        Material m_material;
     };
 }
 

@@ -41,22 +41,34 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
 void main()
 {
+    vec4 pos = 
+        
+    #if !defined(JMAT_SKYBOX) && !defined(JMAT_SKYSPHERE)
+        u_MMatrix * 
+    #endif
+        vec4(a_Position, 1.0);
+
     // Assign attributes
-    OUTVERT_NAME.Position = vec3(u_MMatrix * vec4(a_Position, 1.0));
+    OUTVERT_NAME.Position = pos.xyz;
     OUTVERT_NAME.TexCoords = a_TexCoords;
     OUTVERT_NAME.Normal = u_NMatrix * a_Normal;
 
     // Calculate and assign fragment position, not used when recording environment map
     #ifndef JMAT_ENVIRONMENT_RECORD
-        vgf_FragPosition = vec3(u_MMatrix * vec4(a_Position, 1.0));
+        vgf_FragPosition = pos.xyz;
     #endif
 
     // Calculate and assign position
-    gl_Position =
+    gl_Position = (
 
     #ifndef JMAT_ENVIRONMENT_RECORD
         u_PMatrix * u_VMatrix *
     #endif
         
-    u_MMatrix * vec4(a_Position, 1.0);
+    pos)
+    
+    #if defined(JMAT_SKYBOX) || defined(JMAT_SKYSPHERE)
+        .xyww
+    #endif
+    ;
 }
