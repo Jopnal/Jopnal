@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include <memory>
 #include <typeindex>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -134,9 +135,15 @@ namespace jop
         /// \brief Deletes resource from memory
         ///
         /// The resource, if found, will be deleted regardless of the persistence flag.
+        /// Resources with the persistence level of 0 will not be removed, however.
         ///
         /// \param name Name or path for wanted resource
         ///
+        static void unloadResource(const std::string& name);
+
+        /// \copydoc unloadResource(const std::string&)
+        ///
+        template<typename T>
         static void unloadResource(const std::string& name);
 
         /// \brief Deletes all resources from memory
@@ -167,6 +174,7 @@ namespace jop
             std::pair<std::string, std::type_index>,
             std::unique_ptr<Resource>
         > m_resources;                              ///< Container holding resources
+        std::recursive_mutex m_mutex;               ///< Mutex
     };
 
     // Include the template implementation file

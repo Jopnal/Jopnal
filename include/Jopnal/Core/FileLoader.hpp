@@ -47,7 +47,7 @@ namespace jop
 
         friend class ModelLoader;
 
-        static std::unique_ptr<Assimp::Importer> g_Importer;
+        static Assimp::Importer& getImporter();
 
     public:
 

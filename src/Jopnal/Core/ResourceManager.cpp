@@ -74,6 +74,8 @@ namespace jop
     {
         if (m_instance)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
             auto& inst = *m_instance;
 
             auto itr = inst.m_resources.begin();
@@ -98,6 +100,8 @@ namespace jop
     {
         if (m_instance)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
             auto& res = m_instance->m_resources;
 
             for (auto itr = res.begin(); itr != res.end();)
@@ -119,8 +123,6 @@ namespace jop
             JOP_DEBUG_ERROR("Couldn't load resource manager state, no instance exists");
             return false;
         }
-
-        m_instance->setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "Resource Manager");
 
         if (val.HasMember("resources") && val["resources"].IsArray())
         {

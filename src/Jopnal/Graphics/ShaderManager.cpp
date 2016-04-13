@@ -28,9 +28,10 @@
 namespace jop
 {
     ShaderManager::ShaderManager()
-        : Subsystem("Shader Manager"),
-          m_shaders(),
-          m_uber()
+        : Subsystem ("Shader Manager"),
+          m_shaders (),
+          m_uber    (),
+          m_mutex   ()
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderManager instance!");
         m_instance = this;
@@ -47,13 +48,21 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
     }
 
+    ShaderManager::~ShaderManager()
+    {
+        m_instance = nullptr;
+    }
+
     //////////////////////////////////////////////
 
     Shader& ShaderManager::getShader(const Material::AttribType attributes)
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderManager instance!");
 
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         auto& cont = m_instance->m_shaders;
+
         auto itr = cont.find(attributes);
         if (itr != cont.end() && !itr->second.expired())
             return *itr->second;
@@ -68,7 +77,6 @@ namespace jop
         getPreprocessDef(attributes, pp);
 
         auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::__RecordEnv) ? uber[1] : "", uber[2], pp);
-        //s.setManaged(true);
 
         cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
@@ -89,6 +97,8 @@ namespace jop
     void ShaderManager::getPreprocessDef(const Material::AttribType attrib, std::string& str)
     {
         using m = Material::Attribute;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
         str += "#version 330 core\n";
 
@@ -152,11 +162,6 @@ namespace jop
             str += "#define JMAT_SKYBOX";
         else if ((attrib & m::__SkySphere) != 0)
             str += "#define JMAT_SKYSPHERE";
-    }
-
-    ShaderManager::~ShaderManager()
-    {
-        m_instance = nullptr;
     }
 
     //////////////////////////////////////////////

@@ -225,7 +225,7 @@ namespace jop
             {
                 if ((*itr)->getID() == ID)
                 {
-                    JOP_DEBUG_INFO("Sub system with id \"" << (*itr)->getID() << "\" removed");
+                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (type: \"" << typeid(*(*itr)).name() << "\") removed");
                     m_engineObject->m_subsystems.erase(itr);
                     return true;
                 }

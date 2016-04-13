@@ -28,6 +28,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
 #include <memory>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -110,15 +111,9 @@ namespace jop
         bool isActive() const;
 
 
-        /// \brief Set the name
+        /// \brief Get the ID
         ///
-        /// \param ID The new id to be set
-        ///
-        Subsystem& setID(const std::string& ID);
-
-        /// \brief Get the name
-        ///
-        /// \return Reference to the name string
+        /// \return Reference to the ID string
         ///
         const std::string& getID() const;
 
@@ -130,8 +125,8 @@ namespace jop
 
     private:
 
-        std::string m_ID; ///< This subsystem's name
-        bool m_active;    ///< Sets activity 
+        const std::string m_ID;     ///< This subsystem's name
+        std::atomic<bool> m_active; ///< Sets activity 
     };
 }
 

@@ -360,7 +360,7 @@ namespace jop
         Clock clock;
     #endif
 
-        auto& imp = *FileSystemInitializer::g_Importer;
+        auto& imp = FileSystemInitializer::getImporter();
 
         struct SceneDealloc
         {

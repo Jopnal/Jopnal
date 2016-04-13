@@ -72,7 +72,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource, resorting to error resource: " << name);
+            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to error resource");
             name; // Remove warning in release mode
             return T::getError();
         }
@@ -82,7 +82,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource, resorting to default: " << name);
+            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to default resource");
             name; // Remove warning in release mode
             return T::getDefault();
         }
@@ -124,6 +124,8 @@ T& ResourceManager::getResource(Args&&... args)
 template<typename T, typename ... Args> 
 T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
     if (resourceExists<T>(name))
         return getExistingResource<T>(name);
 
@@ -136,7 +138,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
+            JOP_DEBUG_INFO("\"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
 
             return ptr;
         }
@@ -150,6 +152,8 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 template<typename T, typename ... Args>
 static T& ResourceManager::getEmptyResource(Args&&... args)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
     const std::string name = detail::getStringArg(args...);
 
     if (resourceExists<T>(name))
@@ -168,6 +172,8 @@ static T& ResourceManager::getEmptyResource(Args&&... args)
 template<typename T>
 T& ResourceManager::getExistingResource(const std::string& name)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
     if (resourceExists<T>(name))
         return static_cast<T&>(*m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T))))->second);
 
@@ -179,6 +185,8 @@ T& ResourceManager::getExistingResource(const std::string& name)
 template<typename T>
 bool ResourceManager::resourceExists(const std::string& name)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
     detail::basicErrorCheck<T>(m_instance);
 
     return m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T)))) != m_instance->m_resources.end();
@@ -189,6 +197,8 @@ bool ResourceManager::resourceExists(const std::string& name)
 template<typename T>
 T& ResourceManager::copyResource(const std::string& name, const std::string& newName)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
     if (resourceExists<T>(name))
     {
         auto& oldRes = getExistingResource<T>(name);
@@ -198,7 +208,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
         m_instance->m_resources[newName] = std::move(res);
 
-        JOP_DEBUG_INFO("Resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
+        JOP_DEBUG_INFO("\"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
 
         return ptr;
     }
@@ -206,4 +216,21 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
     JOP_DEBUG_WARNING("Couldn't copy resource named \"" << name << "\", not found or unmatched type");
 
     return detail::LoadFallback<T>::load(name);
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+void ResourceManager::unloadResource(const std::string& name)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+    detail::basicErrorCheck<T>(m_instance);
+
+    auto& res = m_instance->m_resources;
+
+    auto itr = res.find(std::make_pair(name, std::type_index(typeid(T))));
+
+    if (itr != res.end() && itr->second->getPersistence())
+        res.erase(itr);
 }

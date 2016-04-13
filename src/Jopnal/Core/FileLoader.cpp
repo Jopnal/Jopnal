@@ -35,9 +35,12 @@ namespace
 
     const char* const ns_resourceDir = "Resources";
     bool ns_errorChecksEnabled = true;
+    std::mutex ns_mutex;
 
     void checkError(const std::string& info)
     {
+        std::lock_guard<std::mutex> lock(ns_mutex);
+
         if (ns_errorChecksEnabled)
         {
             const char* error = PHYSFS_getLastError();
@@ -75,7 +78,7 @@ namespace
 
 namespace jop
 {
-    std::unique_ptr<Assimp::Importer> FileSystemInitializer::g_Importer;
+    std::unique_ptr<Assimp::Importer> ns_importer;
 
     //////////////////////////////////////////////
 
@@ -88,7 +91,7 @@ namespace jop
         JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
 
         checkError("Init");
-
+        
         struct Logger : Assimp::Logger
         {
             Logger()
@@ -121,90 +124,97 @@ namespace jop
             }
         };
         Assimp::DefaultLogger::set(new Logger);
-
-        g_Importer = std::make_unique<Assimp::Importer>();
-
-        struct Streamer : Assimp::IOSystem
-        {
-            struct Stream : Assimp::IOStream
-            {
-            private:
-
-                FileLoader* m_loader;
-
-            public:
-
-                Stream(FileLoader& loader)
-                    : m_loader(&loader)
-                {}
-
-                size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
-                {
-                    return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
-                }
-                size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
-                {
-                    return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
-                }
-                aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
-                {
-                    return static_cast<aiReturn>(aiReturn_FAILURE - m_loader->seek(pOrigin + pOffset));
-                }
-                size_t Tell() const override
-                { 
-                    return static_cast<size_t>(m_loader->tell());
-                }
-                size_t FileSize() const override
-                { 
-                    return static_cast<size_t>(m_loader->getSize());
-                }
-                void Flush() override
-                { 
-                    m_loader->flush();
-                }
-            };
-
-            FileLoader m_loader;
-
-            bool Exists(const char* pFile) const override
-            {
-                return FileLoader::fileExists(pFile);
-            }
-            char getOsSeparator() const override
-            {
-                return FileLoader::getDirectorySeparator();
-            }
-
-            Assimp::IOStream* Open(const char* pFile, const char* pMode) override
-            {
-                if (std::string(pMode).find('r') != std::string::npos)
-                    m_loader.open(pFile);
-
-                else if (std::string(pMode).find('w') != std::string::npos)
-                    m_loader.openWrite(FileLoader::Directory::Resource, pFile, false);
-
-                return new Stream(m_loader);
-            }
-
-            void Close(Assimp::IOStream* stream) override
-            {
-                delete stream;
-                m_loader.close();
-            }
-        };
-
-        g_Importer->SetIOHandler(new Streamer);
     }
 
     FileSystemInitializer::~FileSystemInitializer()
     {
-        g_Importer.reset();
+        ns_importer.reset();
         Assimp::DefaultLogger::kill();
 
         if (!PHYSFS_deinit())
             checkError("Filesystem deinit");
     }
 
+    Assimp::Importer& FileSystemInitializer::getImporter()
+    {
+        if (!ns_importer)
+        {
+            ns_importer = std::make_unique<Assimp::Importer>();
+
+            struct Streamer : Assimp::IOSystem
+            {
+                struct Stream : Assimp::IOStream
+                {
+                private:
+
+                    FileLoader* m_loader;
+
+                public:
+
+                    Stream(FileLoader& loader)
+                        : m_loader(&loader)
+                    {}
+
+                    size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
+                    {
+                        return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
+                    }
+                    size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
+                    {
+                        return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
+                    }
+                    aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
+                    {
+                        return static_cast<aiReturn>(aiReturn_FAILURE - m_loader->seek(pOrigin + pOffset));
+                    }
+                    size_t Tell() const override
+                    {
+                        return static_cast<size_t>(m_loader->tell());
+                    }
+                    size_t FileSize() const override
+                    {
+                        return static_cast<size_t>(m_loader->getSize());
+                    }
+                    void Flush() override
+                    {
+                        m_loader->flush();
+                    }
+                };
+
+                FileLoader m_loader;
+
+                bool Exists(const char* pFile) const override
+                {
+                    return FileLoader::fileExists(pFile);
+                }
+                char getOsSeparator() const override
+                {
+                    return FileLoader::getDirectorySeparator();
+                }
+
+                Assimp::IOStream* Open(const char* pFile, const char* pMode) override
+                {
+                    if (std::string(pMode).find('r') != std::string::npos)
+                        m_loader.open(pFile);
+
+                    else if (std::string(pMode).find('w') != std::string::npos)
+                        m_loader.openWrite(FileLoader::Directory::Resource, pFile, false);
+
+                    return new Stream(m_loader);
+                }
+
+                void Close(Assimp::IOStream* stream) override
+                {
+                    delete stream;
+                    m_loader.close();
+                }
+            };
+
+            ns_importer->SetIOHandler(new Streamer);
+        }
+
+        return *ns_importer;
+    }
 
     //////////////////////////////////////////////
 
@@ -545,6 +555,9 @@ namespace jop
 
     bool FileLoader::readResource(const int id, std::vector<uint8>& buffer)
     {
+        static std::mutex mutex;
+        std::lock_guard<std::mutex> lock(mutex);
+
         if (!ns_resourceDll)
         {
             ns_resourceDll = LoadLibrary("Jopnal Resources.dll");
@@ -586,6 +599,8 @@ namespace jop
 
     void FileLoader::enableErrorChecks(const bool enable)
     {
+        std::lock_guard<std::mutex> lock(ns_mutex);
+
         ns_errorChecksEnabled = enable;
     }
 
@@ -593,6 +608,8 @@ namespace jop
 
     bool FileLoader::errorChecksEnabled()
     {
+        std::lock_guard<std::mutex> lock(ns_mutex);
+
         return ns_errorChecksEnabled;
     }
 }
