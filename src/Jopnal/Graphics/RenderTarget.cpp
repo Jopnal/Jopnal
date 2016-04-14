@@ -29,6 +29,7 @@ namespace jop
 {
     RenderTarget::RenderTarget(const std::string& ID)
         : Subsystem             (ID),
+          m_mutex               (),
           m_clearColor          (Color::Black),
           m_clearDepth          (1.f),
           m_clearStencil        (0),
@@ -49,6 +50,8 @@ namespace jop
 
     void RenderTarget::clear(const unsigned int bits)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (bind())
         {
             if (m_clearAttribsChanged)
@@ -56,8 +59,10 @@ namespace jop
                 auto vec = m_clearColor.asRGBAFloatVector();
 
                 glCheck(gl::ClearColor(vec.r, vec.g, vec.b, vec.a));
-                glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth)));
-                glCheck(gl::ClearStencil(m_clearStencil));
+                glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
+                glCheck(gl::ClearStencil(m_clearStencil.load()));
+
+                m_clearAttribsChanged = false;
             }
 
             glCheck(gl::Clear
@@ -73,6 +78,8 @@ namespace jop
 
     RenderTarget& RenderTarget::setClearColor(const Color color)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         m_clearColor = color;
         m_clearAttribsChanged = true;
 
@@ -83,6 +90,8 @@ namespace jop
 
     Color RenderTarget::getClearColor() const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         return m_clearColor;
     }
 
@@ -90,8 +99,8 @@ namespace jop
 
     RenderTarget& RenderTarget::setClearDepth(const float depth)
     {
-        m_clearDepth = depth;
-        m_clearAttribsChanged = true;
+        m_clearDepth.store(depth);
+        m_clearAttribsChanged.store(true);
 
         return *this;
     }
@@ -100,15 +109,15 @@ namespace jop
 
     float RenderTarget::getClearDepth() const
     {
-        return m_clearDepth;
+        return m_clearDepth.load();
     }
 
     //////////////////////////////////////////////
 
     RenderTarget& RenderTarget::setClearStencil(const int stencil)
     {
-        m_clearStencil = stencil;
-        m_clearAttribsChanged = true;
+        m_clearStencil.store(stencil);
+        m_clearAttribsChanged.store(true);
 
         return *this;
     }
@@ -117,6 +126,6 @@ namespace jop
 
     int RenderTarget::getClearStencil() const
     {
-        return m_clearStencil;
+        return m_clearStencil.load();
     }
 }

@@ -417,6 +417,9 @@ namespace jop
 
     bool LightSource::checkRange(const Drawable& drawable) const
     {
+        if (m_type == Type::Directional)
+            return true;
+
         const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
         const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 

@@ -19,18 +19,32 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_THREADDETAIL_HPP
+#define JOP_THREADDETAIL_HPP
+
 // Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+
+namespace std
+{
+    class thread;
+}
+
+namespace jop { namespace detail
+{
+    class ThreadDetail
+    {
+    private:
+    
+        friend class Thread;
+    
+        static bool setPriority(std::thread& thread, const unsigned int priority);
+
+        static void terminate(std::thread& thread);
+    };
+}}
+
+#endif

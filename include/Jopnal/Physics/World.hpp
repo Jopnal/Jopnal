@@ -90,7 +90,7 @@ namespace jop
         ///
         /// \return Ray hit info
         ///
-        RayInfo checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const;
+        RayInfo checkRayClosest(const glm::vec3& start, const glm::vec3& ray, const short group = 1, const short mask = 32767) const;
 
         /// \brief Check if a ray hits a collider and return all hits
         ///
@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \return Vector of ray infos, empty if none were hit
         ///
-        std::vector<RayInfo> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const;
+        std::vector<RayInfo> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group = 1, const short mask = 32767) const;
 
         /// \brief Get all the colliders that overlap with the bounding box
         ///
@@ -108,7 +108,7 @@ namespace jop
         ///
         /// \return Vector of colliders, empty if none were overlapping
         ///
-        std::vector<Collider*> checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd) const;
+        std::vector<Collider*> checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd, const short group = 1, const short mask = 32767) const;
 
     public:
 

@@ -19,18 +19,71 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_THREAD_HPP
+#define JOP_THREAD_HPP
+
 // Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Header.hpp>
+#include <thread>
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API Thread
+    {
+    private:
+
+        JOP_DISALLOW_COPY(Thread);
+
+    public:
+
+        struct Priority
+        {
+            enum
+            {
+                Lowest,
+                Lower,
+                Normal,
+                Higher,
+                Highest
+            };
+        };
+
+    public:
+
+        Thread();
+
+        template<typename F, typename ... Args>
+        explicit Thread(F&& func, Args&&... args);
+
+        Thread(Thread&& other);
+
+        Thread& operator =(Thread&& other);
+
+        ~Thread();
+
+
+        void join();
+
+        bool isJoinable() const;
+
+        void detach();
+
+        bool setPriority(const unsigned int priority);
+
+        void terminate();
+
+        std::thread::id getId() const;
+
+    private:
+
+        std::thread m_thread;
+    };
+
+    // Include the implementation file
+    #include <Jopnal/Utility/Inl/Thread.inl>
+}
+
+#endif

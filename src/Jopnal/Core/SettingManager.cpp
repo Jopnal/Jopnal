@@ -319,6 +319,7 @@ namespace jop
 
     Mark:
 
+
         FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));
 
         ns_init = true;

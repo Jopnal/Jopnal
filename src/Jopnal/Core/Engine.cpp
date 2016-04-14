@@ -137,13 +137,21 @@ namespace jop
 
         while (!eng.m_exit)
         {
-            float frameTime = static_cast<float>(frameClock.reset().asSeconds());
-            eng.m_totalTime += frameTime;
+            if (eng.m_newScene.load() && eng.m_newSceneSignal.load())
+            {
+                eng.m_currentScene.reset(eng.m_newScene.load());
 
-            frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
+                eng.m_newSceneSignal.store(false);
+                eng.m_newScene.store(nullptr);
+            }
+
+            float frameTime = static_cast<float>(frameClock.reset().asSeconds());
+            eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
+
+            frameTime *= (getDeltaScale() * (getState() != State::ZeroDelta || eng.m_advanceFrame.load()));
             frameTime = std::min(0.1f, frameTime);
 
-            eng.m_advanceFrame = false;
+            eng.m_advanceFrame.store(false);
 
             // Update
             {
@@ -195,6 +203,8 @@ namespace jop
 
     Scene& Engine::getCurrentScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
     }
@@ -205,6 +215,8 @@ namespace jop
     {
         if (m_engineObject)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
@@ -221,6 +233,8 @@ namespace jop
     {
         if (m_engineObject)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
             for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
             {
                 if ((*itr)->getID() == ID)
@@ -271,7 +285,7 @@ namespace jop
 
             JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
 
-            m_engineObject->m_state = state;
+            m_engineObject->m_state.store(state);
         }
     }
 
@@ -279,7 +293,7 @@ namespace jop
 
     Engine::State Engine::getState()
     {
-        return exiting() ? State::Frozen : m_engineObject->m_state;
+        return exiting() ? State::Frozen : m_engineObject->m_state.load();
     }
 
     //////////////////////////////////////////////
@@ -341,6 +355,8 @@ namespace jop
 
     Scene& Engine::getSharedScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
         return *m_engineObject->m_sharedScene;
     }
@@ -349,6 +365,8 @@ namespace jop
 
     bool Engine::hasSharedScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getSharedScene()!");
         return m_engineObject->m_sharedScene.operator bool();
     }
@@ -358,7 +376,7 @@ namespace jop
     double Engine::getTotalTime()
     {
         if (m_engineObject)
-            return m_engineObject->m_totalTime;
+            return m_engineObject->m_totalTime.load();
 
         return 0.0;
     }
@@ -367,6 +385,8 @@ namespace jop
 
     bool Engine::hasCurrentScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getCurrentScene()!");
         return m_engineObject->m_currentScene.operator bool();
     }
@@ -376,7 +396,7 @@ namespace jop
     void Engine::advanceFrame()
     {
         if (!exiting())
-            m_engineObject->m_advanceFrame = true;
+            m_engineObject->m_advanceFrame.store(true);
     }
 
     //////////////////////////////////////////////
@@ -384,14 +404,22 @@ namespace jop
     void Engine::setDeltaScale(const float scale)
     {
         if (m_engineObject)
-            m_engineObject->m_deltaScale = scale;
+            m_engineObject->m_deltaScale.store(scale);
     }
 
     //////////////////////////////////////////////
 
     float Engine::getDeltaScale()
     {
-        return m_engineObject != nullptr ? m_engineObject->m_deltaScale : 1.f;
+        return m_engineObject != nullptr ? m_engineObject->m_deltaScale.load() : 1.f;
+    }
+
+    //////////////////////////////////////////////
+
+    void Engine::signalNewScene()
+    {
+        if (m_engineObject)
+            m_engineObject->m_newSceneSignal.store(true);
     }
 
     //////////////////////////////////////////////

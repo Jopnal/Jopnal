@@ -56,6 +56,7 @@ namespace jop
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
           samples       (0),
+          maxFrameRate  (0),
           visible       (false),
           vSync         (true),
           debug         (false)
@@ -66,6 +67,7 @@ namespace jop
             title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
             samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
+            maxFrameRate = SettingManager::getUint("uDefaultWindowFrameLimit", 0);
             visible = SettingManager::getBool("uDefaultWindowVisible", true);
             vSync = SettingManager::getBool("bDefaultWindowVSync", true);
             debug = SettingManager::getBool("bDefaultWindowDebugContext", false);
@@ -118,6 +120,8 @@ namespace jop
 
     void Window::preUpdate(const float)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         ns_eventsPolled = false;
     }
 
@@ -125,6 +129,8 @@ namespace jop
 
     void Window::postUpdate(const float deltaTime)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
             RenderTarget::postUpdate(deltaTime);
     }
@@ -133,6 +139,8 @@ namespace jop
 
     void Window::draw()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
             m_impl->swapBuffers();
 
@@ -156,6 +164,8 @@ namespace jop
 
     bool Window::bind() const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             RenderTexture::unbind();
 
@@ -166,6 +176,8 @@ namespace jop
 
     void Window::open(const Settings& settings)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         auto s = getSize();
         gl::Viewport(0, 0, s.x, s.y);
@@ -178,6 +190,8 @@ namespace jop
 
     void Window::close()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         m_impl.reset();
     }
 
@@ -185,6 +199,8 @@ namespace jop
 
     bool Window::isOpen() const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         return m_impl.operator bool();
     }
 
@@ -192,6 +208,8 @@ namespace jop
 
     WindowEventHandler* Window::getEventHandler()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         return m_eventHandler.get();
     }
 
@@ -199,6 +217,8 @@ namespace jop
 
     void Window::removeEventHandler()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         m_eventHandler.reset();
     }
 
@@ -207,6 +227,8 @@ namespace jop
     GLFWwindow* Window::getLibraryHandle()
     {
     #ifdef JOP_OS_DESKTOP
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             return m_impl->getLibraryHandle();
     #endif
@@ -218,6 +240,8 @@ namespace jop
 
     WindowHandle Window::getNativeHandle()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             return m_impl->getNativeHandle();
 
@@ -235,6 +259,8 @@ namespace jop
 
     void Window::setMouseMode(const Mouse::Mode mode)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             m_impl->setMouseMode(mode);
     }
@@ -243,6 +269,8 @@ namespace jop
 
     void Window::setPosition(const int x, const int y)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             m_impl->setPosition(x, y);
     }
@@ -251,6 +279,8 @@ namespace jop
 
     glm::ivec2 Window::getPosition() const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             return m_impl->getPosition();
 
@@ -261,6 +291,8 @@ namespace jop
 
     void Window::setSize(const int width, const int height)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             m_impl->setSize(width, height);
     }
@@ -269,6 +301,8 @@ namespace jop
 
     glm::uvec2 Window::getSize() const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isOpen())
             return m_impl->getSize();
 

@@ -123,7 +123,7 @@ namespace
     {
         jop::Color::Black,
         jop::Color::White,
-        jop::Color::White,
+        jop::Color::Black,
         jop::Color::Black
     };
 }
@@ -144,6 +144,16 @@ namespace jop
         setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
+    Material::Material(const std::string& name, const AttribType attributes, const bool autoAttributes)
+        : Resource              (name),
+          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
+          m_attributes          (attributes),
+          m_shininess           (1.f),
+          m_maps                (),
+          m_attributesChanged   (true),
+          m_autoAttribs         (autoAttributes)
+    {}
+
     Material::Material(const Material& other, const std::string& newName)
         : Resource              (newName),
           m_reflection          (other.m_reflection),
@@ -154,16 +164,6 @@ namespace jop
           m_shader              (other.m_shader),
           m_attributesChanged   (other.m_attributesChanged),
           m_autoAttribs         (other.m_autoAttribs)
-    {}
-
-    Material::Material(const std::string& name, const AttribType attributes, const bool autoAttributes)
-        : Resource              (name),
-          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
-          m_attributes          (attributes),
-          m_shininess           (1.f),
-          m_maps                (),
-          m_attributesChanged   (true),
-          m_autoAttribs         (autoAttributes)
     {}
 
     //////////////////////////////////////////////

@@ -20,17 +20,40 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Precompiled.hpp>
+
+#ifdef JOP_OS_WINDOWS
+
+#include <Jopnal/Utility/Win32/ThreadImpl.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+
+namespace
+{
+    const int ns_enums[] =
+    {
+        THREAD_PRIORITY_LOWEST,
+        THREAD_PRIORITY_BELOW_NORMAL,
+        THREAD_PRIORITY_NORMAL,
+        THREAD_PRIORITY_ABOVE_NORMAL,
+        THREAD_PRIORITY_HIGHEST
+    };
+}
+
+namespace jop { namespace detail
+{
+    bool ThreadDetail::setPriority(std::thread& thread, const unsigned int priority)
+    {
+        return SetThreadPriority(thread.native_handle(), ns_enums[priority]) != 0;
+    }
+    
+    //////////////////////////////////////////////
+
+    void ThreadDetail::terminate(std::thread& thread)
+    {
+        TerminateThread(thread.native_handle(), 0);
+    }
+}}
+
+#endif

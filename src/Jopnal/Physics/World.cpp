@@ -281,7 +281,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RayInfo World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray) const
+    RayInfo World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 
@@ -291,6 +291,8 @@ namespace jop
         btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
 
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+        cb.m_collisionFilterGroup = group;
+        cb.m_collisionFilterMask = mask;
 
         if (cb.hasHit() && cb.m_collisionObject != nullptr)
             return RayInfo(static_cast<Collider*>(cb.m_collisionObject->getUserPointer()),
@@ -302,7 +304,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray) const
+    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 
@@ -310,6 +312,8 @@ namespace jop
         const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
 
         btCollisionWorld::AllHitsRayResultCallback cb(rayFromWorld, rayToWorld);
+        cb.m_collisionFilterGroup = group;
+        cb.m_collisionFilterMask = mask;
         
         std::vector<RayInfo> objContainer;
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
@@ -329,21 +333,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<Collider*> World::checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd) const
+    std::vector<Collider*> World::checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd, const short group, const short mask) const
     {
         struct Callback : btBroadphaseAabbCallback
         {
             std::vector<Collider*> vec;
+            short group;
+            short mask;
 
             bool process(const btBroadphaseProxy* proxy) override
             {
-                if (proxy->m_clientObject)
+                if (proxy->m_clientObject && (proxy->m_collisionFilterMask & group) != 0 && (mask & proxy->m_collisionFilterGroup) != 0)
                     vec.push_back(static_cast<Collider*>(static_cast<btCollisionObject*>(proxy->m_clientObject)->getUserPointer()));
 
                 return false;
             }
 
         } cb;
+        cb.group = group;
+        cb.mask = mask;
         
         m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 

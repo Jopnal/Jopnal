@@ -19,18 +19,8 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Utility/Thread.hpp>
 
-//////////////////////////////////////////////
-
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+template<typename F, typename ... Args>
+inline Thread::Thread(F&& func, Args&&... args)
+    : m_thread(func, std::forward<Args>(args)...)
+{}

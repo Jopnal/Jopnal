@@ -27,6 +27,8 @@
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/MathInclude.hpp>
+#include <mutex>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -136,12 +138,16 @@ namespace jop
         ///
         int getClearStencil() const;
 
+    protected:
+
+        mutable std::recursive_mutex m_mutex;   ///< Mutex
+
     private:
 
         Color m_clearColor;         ///< The clear color
-        float m_clearDepth;         ///< The clear depth
-        int m_clearStencil;         ///< The clear stencil
-        bool m_clearAttribsChanged; ///< Have any of the clear values been changed?
+        std::atomic<float> m_clearDepth;         ///< The clear depth
+        std::atomic<int> m_clearStencil;         ///< The clear stencil
+        std::atomic<bool> m_clearAttribsChanged; ///< Have any of the clear values been changed?
     };
 }
 

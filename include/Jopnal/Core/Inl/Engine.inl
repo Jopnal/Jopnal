@@ -20,16 +20,37 @@
 //////////////////////////////////////////////
 
 
-template<typename T, typename ... Args>
-T& Engine::createScene(Args&&... args)
+namespace detail
+{
+    template<typename T, bool Threaded, bool WaitSignal>
+    struct SceneCreator
+    {
+        template<typename ... Args>
+        static T& create(Args&&... args)
+        {
+            ::jop::Engine::m_engineObject->m_currentScene = std::make_unique<T>(std::forward<Args>(args)...);
+            return static_cast<T&>(*Engine::m_engineObject->m_currentScene);
+        }
+    };
+    template<typename T, bool WaitSignal>
+    struct SceneCreator<T, true, WaitSignal>
+    {
+        template<typename ... Args>
+        static ::jop::Scene& create(Args&&... args)
+        {
+
+        }
+    };
+}
+
+template<typename T, bool Threaded, bool WaitSignal, typename ... Args>
+typename detail::SceneTypeSelector<T, Threaded>::type& Engine::createScene(Args&&... args)
 {
     static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create a scene which is not derived from jop::Scene");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
 
-#pragma warning(suppress: 6011)
-    m_engineObject->m_currentScene = std::make_unique<T>(std::forward<Args>(args)...);
-    return static_cast<T&>(*m_engineObject->m_currentScene);
+    return detail::SceneCreator<T, Threaded, WaitSignal>::create(std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////
@@ -40,6 +61,8 @@ T& Engine::createSubsystem(Args&&... args)
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::createSubsystem(): Attempted to create a subsystem which is not derived from jop::Subsystem");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
+
+    std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
 #pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
@@ -59,6 +82,8 @@ T* Engine::getSubsystem()
 
     if (m_engineObject)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         const std::type_info& ti = typeid(T);
 
         for (auto& i : m_engineObject->m_subsystems)
@@ -80,6 +105,8 @@ T* Engine::getSubsystem(const std::string& ID)
 
     if (m_engineObject)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         const std::type_info& ti = typeid(T);
 
         for (auto& i : m_engineObject->m_subsystems)
@@ -97,7 +124,9 @@ T* Engine::getSubsystem(const std::string& ID)
 template<typename T, typename ... Args>
 T& Engine::setSharedScene(Args&&... args)
 {
-    JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_currentScene, "Tried to set the shared scene when it or the engine wasn't loaded!");
+    JOP_ASSERT(m_engineObject != nullptr, "Tried to set the shared scene when it or the engine wasn't loaded!");
+
+    std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
     m_engineObject->m_sharedScene = std::make_unique<T>(std::forward<Args>(args)...);
     return static_cast<T&>(*m_engineObject->m_sharedScene);

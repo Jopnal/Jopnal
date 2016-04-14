@@ -138,7 +138,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            JOP_DEBUG_INFO("\"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully loaded");
+            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") successfully loaded");
 
             return ptr;
         }
