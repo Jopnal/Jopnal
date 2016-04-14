@@ -123,6 +123,11 @@ namespace jop
                         aiString path;
                         mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
+                        aiTextureFlags flag;
+                        mat.Get(AI_MATKEY_TEXFLAGS(aiTextureType_DIFFUSE, 0), flag);
+                        if (flag == aiTextureFlags_UseAlpha)
+                            m.addAttributes(Material::Attribute::DiffuseAlpha);
+
                         if (path.length)
                             m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str()));
                     }

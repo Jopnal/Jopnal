@@ -155,6 +155,8 @@ namespace jop
 
         static void signalNewScene();
 
+        static bool newSceneReady();
+
 
         /// \brief Create a subsystem
         ///

@@ -156,8 +156,6 @@ namespace jop
             frameTime *= (getDeltaScale() * (getState() != State::ZeroDelta || eng.m_advanceFrame.load()));
             frameTime = std::min(0.1f, frameTime);
 
-            eng.m_advanceFrame.store(false);
-
             // Update
             {
                 for (auto& i : eng.m_subsystems)
@@ -166,7 +164,7 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (getState() <= State::ZeroDelta || eng.m_advanceFrame)
+                if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
                 {
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
@@ -199,6 +197,8 @@ namespace jop
                         i->draw();
                 }
             }
+
+            eng.m_advanceFrame.store(false);
         }
 
         return EXIT_SUCCESS;
@@ -425,6 +425,16 @@ namespace jop
     {
         if (m_engineObject)
             m_engineObject->m_newSceneSignal.store(true);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::newSceneReady()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_newScene.load() != nullptr;
+
+        return false;
     }
 
     //////////////////////////////////////////////

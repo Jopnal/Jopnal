@@ -119,7 +119,12 @@ namespace jop
         
         // Diffuse map
         if ((attrib & m::DiffuseMap) != 0)
+        {
             str += "#define JMAT_DIFFUSEMAP\n";
+
+            if ((attrib & m::DiffuseAlpha) != 0)
+                str += "#define JMAT_DIFFUSEALPHA\n";
+        }
 
         // Specular map
         if ((attrib & m::SpecularMap) != 0)
