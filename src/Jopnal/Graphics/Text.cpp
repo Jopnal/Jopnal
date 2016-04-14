@@ -31,7 +31,7 @@ namespace jop
         : GenericDrawable   (object, renderer),
           m_font            (static_ref_cast<const Font>(Font::getDefault().getReference())),
           m_mesh            (""),
-          m_material        ("", Material::Attribute::OpacityMap),
+          m_material        ("", Material::Attribute::OpacityMap, false),
           m_string          ()
     {
         GenericDrawable::setModel(Model(m_mesh, m_material));
@@ -44,6 +44,7 @@ namespace jop
           m_material        (other.m_material, ""),
           m_string          ()
     {
+        GenericDrawable::setModel(Model(m_mesh, m_material));
         setString(other.m_string);
     }
 

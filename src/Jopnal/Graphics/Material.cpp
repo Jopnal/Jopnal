@@ -234,7 +234,7 @@ namespace jop
     {
         m_reflection[static_cast<int>(reflection)] = color;
 
-        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
+        return addAttributes(Attribute::DefaultLighting * m_autoAttribs * (reflection != Reflection::Emission));
     }
 
     //////////////////////////////////////////////

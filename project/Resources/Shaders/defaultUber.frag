@@ -559,6 +559,13 @@ void main()
         alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
     #endif
 
+	#if defined(JMAT_DIFFUSEMAP)
+		alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
+	#endif
+
+	if (alpha < 0.1)
+		discard;
+
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor, alpha);
 
