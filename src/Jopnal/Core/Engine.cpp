@@ -100,6 +100,11 @@ namespace jop
 
     void Engine::loadDefaultConfiguration()
     {
+        // Set process priority
+    #ifdef JOP_OS_WINDOWS
+        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    #endif
+
         // File system
         createSubsystem<FileSystemInitializer>(ns_argv[0]);
 

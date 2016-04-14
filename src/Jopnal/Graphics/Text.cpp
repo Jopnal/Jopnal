@@ -50,21 +50,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Text::setString(const std::string& string)
+    Text& Text::setString(const std::string& string)
     {
-        setString(std::wstring(string.begin(), string.end()));
+        return setString(std::wstring(string.begin(), string.end()));
     }
 
     //////////////////////////////////////////////
 
-    void Text::setString(const std::wstring& string)
+    Text& Text::setString(const std::wstring& string)
     {
         m_string = string;
 
         if (m_font.expired())
         {
             setFont(Font::getDefault());
-            return;
+            return *this;
         }
 
         std::vector<Vertex> vertices;
@@ -170,24 +170,28 @@ namespace jop
 
         // Load vertices to mesh and set material
         m_mesh.load(vertices, std::vector<unsigned int>());
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void Text::setFont(const Font& font)
+    Text& Text::setFont(const Font& font)
     {
         m_font = static_ref_cast<const Font>(font.getReference());
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
 
-        setString(m_string);
+        return setString(m_string);
     }
 
     //////////////////////////////////////////////
 
-    void Text::setColor(const Color color)
+    Text& Text::setColor(const Color color)
     {
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setReflection(Material::Reflection::Solid, color);
+
+        return *this;
     }
 
     //////////////////////////////////////////////

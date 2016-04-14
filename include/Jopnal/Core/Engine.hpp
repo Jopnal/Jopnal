@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Window/Window.hpp>
 #include <memory>
 #include <vector>
 #include <atomic>
@@ -47,12 +48,12 @@ namespace jop
         template<typename T, bool Threaded>
         struct SceneTypeSelector
         {
-            typedef T type;
+            typedef T& type;
         };
         template<typename T>
         struct SceneTypeSelector<T, true>
         {
-            typedef ::jop::Scene type;
+            typedef ::jop::Scene& type;
         };
     }
 
@@ -136,7 +137,7 @@ namespace jop
         /// \return A reference to the newly created scene
         ///
         template<typename T, bool Threaded = false, bool WaitSignal = false, typename ... Args>
-        static typename detail::SceneTypeSelector<T, Threaded>::type& createScene(Args&&... args);
+        static typename detail::SceneTypeSelector<T, Threaded>::type createScene(Args&&... args);
 
         /// \brief Check if there's a current scene
         ///

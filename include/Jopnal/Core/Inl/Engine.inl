@@ -32,25 +32,71 @@ namespace detail
             return static_cast<T&>(*Engine::m_engineObject->m_currentScene);
         }
     };
+
     template<typename T, bool WaitSignal>
     struct SceneCreator<T, true, WaitSignal>
     {
+        static ::jop::Window::Settings getWindowSettings()
+        {
+            ::jop::Window::Settings s(false);
+            s.size.x = 1; s.size.y = 1;
+            s.visible = false;
+            s.displayMode = Window::DisplayMode::Borderless;
+            s.vSync = false;
+
+            return s;
+        }
+
+        template<bool Wait>
+        struct Waiter
+        {
+            template<typename ... Args>
+            static void wait(Args&&... args)
+            {
+                ::jop::Window win(getWindowSettings());
+                
+                ::jop::Engine::m_engineObject->m_newScene.store(new T(std::forward<Args>(args)...));
+                ::jop::Engine::signalNewScene();
+            }
+        };
+        template<>
+        struct Waiter<true>
+        {
+            template<typename ... Args>
+            static void wait(Args&&... args)
+            {
+                ::jop::Window win(getWindowSettings());
+
+                T* scene = new T(std::forward<Args>(args)...);
+
+                while (!::jop::Engine::m_engineObject->m_newSceneSignal.load())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+                ::jop::Engine::m_engineObject->m_newScene.store(scene);
+            }
+        };
+
         template<typename ... Args>
         static ::jop::Scene& create(Args&&... args)
         {
+            ::jop::Thread t(&Waiter<WaitSignal>::wait<Args...>, std::forward<Args>(args)...);
 
+            t.setPriority(::jop::Thread::Priority::Lowest);
+            t.detach();
+
+            return ::jop::Engine::getSharedScene();
         }
     };
 }
 
 template<typename T, bool Threaded, bool WaitSignal, typename ... Args>
-typename detail::SceneTypeSelector<T, Threaded>::type& Engine::createScene(Args&&... args)
+typename detail::SceneTypeSelector<T, Threaded>::type Engine::createScene(Args&&... args)
 {
     static_assert(std::is_base_of<Scene, T>::value, "jop::Engine::createScene(): Attempted to create a scene which is not derived from jop::Scene");
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
-
-    return detail::SceneCreator<T, Threaded, WaitSignal>::create(std::forward<Args>(args)...);
+    
+    return typename detail::SceneCreator<T, Threaded, WaitSignal>::create(std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////

@@ -22,5 +22,5 @@
 
 template<typename F, typename ... Args>
 inline Thread::Thread(F&& func, Args&&... args)
-    : m_thread(func, std::forward<Args>(args)...)
+    : m_thread(std::forward<F>(func), std::forward<Args>(args)...)
 {}

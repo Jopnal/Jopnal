@@ -59,25 +59,25 @@ namespace jop
         ///
         /// \param string text
         ///
-        void setString(const std::wstring& string);
+        Text& setString(const std::wstring& string);
 
         /// \brief Set string that is displayed and calculate vertex positions
         ///
         /// \param string text
         ///
-        void setString(const std::string& string);
+        Text& setString(const std::string& string);
 
         /// \brief Set font
         ///
         /// \param font Font
         ///
-        void setFont(const Font& font);
+        Text& setFont(const Font& font);
 
         /// \brief Set color
         ///
         /// \param color Color
         ///
-        void setColor(const Color color);
+        Text& setColor(const Color color);
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
