@@ -75,16 +75,48 @@ namespace jop
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Doesn't initialize any file handles.
+        ///
         FileLoader();
 
+        /// \brief Overloaded constructor
+        ///
+        /// This will open the file for writing if found
+        ///
+        /// \param path Path to file to open
+        ///
+        /// \see isValid
+        ///
         explicit FileLoader(const std::string& path);
 
+        /// \brief Overloaded constructor
+        ///
+        /// This will open the file for writing if found.
+        ///
+        /// \param dir Base write directory
+        /// \param path Path to file to open
+        /// \param append Append to the file. False to clear the file before writing
+        ///
+        /// \see isValid
+        /// 
         FileLoader(const Directory dir, const std::string& path, const bool append);
 
+        /// \brief Move constructor
+        ///
         FileLoader(FileLoader&& other);
 
+        /// \brief Move assignment operator
+        ///
+        /// \return Reference to self
+        ///
         FileLoader& operator =(FileLoader&& other);
 
+        /// \brief Destructor
+        ///
+        /// Will close the file handle if open.
+        ///
         ~FileLoader();
 
 
