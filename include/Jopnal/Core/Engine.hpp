@@ -160,9 +160,11 @@ namespace jop
         ///
         /// If a scene wasn't previously loaded with a thread, this function has no effect.
         ///
+        /// \return True if a new scene was ready to activate, false otherwise
+        ///
         /// \see newSceneReady
         /// 
-        static void signalNewScene();
+        static bool signalNewScene();
 
         /// \brief Check if a scene is loaded and ready to be set current
         ///

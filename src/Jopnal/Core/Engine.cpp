@@ -372,8 +372,7 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
-        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getSharedScene()!");
-        return m_engineObject->m_sharedScene.operator bool();
+        return m_engineObject != nullptr && m_engineObject->m_sharedScene.operator bool();
     }
 
     //////////////////////////////////////////////
@@ -392,8 +391,7 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
-        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getCurrentScene()!");
-        return m_engineObject->m_currentScene.operator bool();
+        return m_engineObject != nullptr && m_engineObject->m_currentScene.operator bool();
     }
 
     //////////////////////////////////////////////
@@ -421,10 +419,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Engine::signalNewScene()
+    bool Engine::signalNewScene()
     {
-        if (m_engineObject && newSceneReady())
+        if (newSceneReady())
+        {
             m_engineObject->m_newSceneSignal.store(true);
+            return true;
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////
