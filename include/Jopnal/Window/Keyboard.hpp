@@ -125,7 +125,6 @@ namespace jop
         /// \return String with the name
         ///
         static std::string getKeyName(const int scanCode);
-
     };
 }
 

@@ -33,24 +33,35 @@ namespace jop
 {
     class JOP_API GenericDrawable : public Drawable
     {
+    protected:
+
+        /// \brief Copy constructor
+        ///
+        /// \param other The other drawable to copy
+        /// \param newObj The new object
+        ///
+        GenericDrawable(const GenericDrawable& other, Object& newObj);
+
+        JOP_DISALLOW_COPY_MOVE(GenericDrawable);
+        JOP_GENERIC_COMPONENT_CLONE(GenericDrawable);
+
     public:
 
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
-        /// \param ID Unique component identifier
+        /// \param renderer Reference to the renderer
         ///
-        GenericDrawable(Object& object, const std::string& ID);
+        GenericDrawable(Object& object, Renderer& renderer);
 
-
-        /// \copydoc jop::Component::clone()
-        ///
-        virtual GenericDrawable* clone() const override;
 
         /// \brief Draw function
         ///
-        virtual void draw(const Camera& camera, const LightContainer& lights) override;
-
+        /// \param camera The camera, this can be null in some cases
+        /// \param lights Container with the lights. The lights have already been culled according to their visibility
+        /// \param shader The shader to use
+        ///
+        virtual void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
     };
 }
 

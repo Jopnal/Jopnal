@@ -1,5 +1,5 @@
 <map id="jop::Object" name="jop::Object">
+<area shape="rect" id="node4" href="$classjop_1_1_scene.html" title="jop::Scene" alt="" coords="91,169,175,196"/>
 <area shape="rect" id="node2" href="$classjop_1_1_transform.html" title="jop::Transform" alt="" coords="5,13,109,39"/>
-<area shape="rect" id="node3" href="$classjop_1_1_activateable.html" title="jop::Activateable" alt="" coords="133,13,251,39"/>
-<area shape="rect" id="node4" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Object \&gt;" alt="" coords="275,5,429,47"/>
+<area shape="rect" id="node3" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Object \&gt;" alt="" coords="133,5,288,47"/>
 </map>

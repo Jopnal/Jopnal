@@ -36,5 +36,9 @@
                                           JOP_DISALLOW_MOVE(className)
 
 
+/// \brief Convenience macro for defining a component's clone function.
+///
+#define JOP_GENERIC_COMPONENT_CLONE(className) virtual className* clone(jop::Object& obj) const override{return new className(*this, obj);}
+
 
 #endif

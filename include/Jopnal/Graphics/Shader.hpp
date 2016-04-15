@@ -41,6 +41,8 @@ namespace jop
 
         typedef std::unordered_map<std::string, int> LocationMap;
 
+        JOP_DISALLOW_COPY_MOVE(Shader);
+
     public:
 
         /// The shader type
@@ -101,6 +103,18 @@ namespace jop
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const glm::mat4& matrix);
+
+        /// \brief Set an array of matrices
+        ///
+        /// This is for 4x4 matrices (glm::mat4).
+        ///
+        /// \param name The uniform name
+        /// \param matrices Pointer to the first element of the first matrix
+        /// \param amount Amount of the matrices
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
 
         /// \brief method setting 3x3 matrix with unique name
         ///
@@ -166,6 +180,15 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const int value);
 
+        /// \brief Set a boolean uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The boolean to set
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const bool value);
+
         /// \brief Set an unsigned integer uniform
         ///
         /// \param name Name of the uniform
@@ -174,19 +197,6 @@ namespace jop
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const unsigned int value);
-
-        /// \brief method setting attributes
-        ///
-        /// \param name Attribute name
-        /// \param type Data type, Use the appropriate OpenGL enum
-        /// \param amount Amount of variables per element
-        /// \param stride The stride. Refer to OpenGL documentation on what this is
-        /// \param normalize Normalize the attributes?
-        /// \param pointer Pointer to the data or the offset in the buffer
-        ///
-        /// \return True if set successfully
-        ///
-        bool setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
 
         /// \brief Set an attribute using the location
         ///
@@ -210,6 +220,22 @@ namespace jop
         ///
         const std::string& getSource(const Type type) const;
 
+
+        /// \brief Get the OpenGL handle
+        ///
+        /// \return The OpenGL handle
+        ///
+        unsigned int getHandle() const;
+
+        /// \brief Validate this shader
+        ///
+        /// This is useful for catching shader errors. You should never call this
+        /// unless you have a need to debug your shaders.
+        ///
+        /// \return True if validation passed
+        ///
+        bool validate() const;
+
         
         /// \brief Get the default shader
         ///
@@ -217,28 +243,24 @@ namespace jop
         ///
         static Shader& getDefault();
 
+        /// \brief Get the error shader
+        ///
+        /// This shader will paint any drawn object bright red.
+        ///
+        /// \return Reference to the error shader
+        ///
+        static Shader& getError();
+
     private:
 
         /// \brief Get location of uniform by name
         ///
         int getUniformLocation(const std::string& name);
 
-        /// \brief Get location of attribute by name
-        ///
-        int getAttributeLocation(const std::string& name);
-
-        int getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&));
-
-        static int getLocUnif(unsigned int prog, const std::string& name);
-
-        static int getLocAttr(unsigned int prog, const std::string& name);
-
         
         std::array<std::string, 4> m_strings;   ///< The shader sources
         LocationMap m_unifMap;                  ///< Map with the uniform locations
-        LocationMap m_attribMap;                ///< Map with the attribute locations
         unsigned int m_shaderProgram;           ///< The OpenGL shader handle
-                
     };
 }
 

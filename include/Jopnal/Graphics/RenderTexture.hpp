@@ -1,23 +1,21 @@
 // Jopnal Engine C++ Library
-// Copyright(c) 2016 Team Jopnal
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Copyright (c) 2016 Team Jopnal
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -26,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
 #include <glm/vec2.hpp>
 #include <string>
@@ -35,11 +34,68 @@
 
 namespace jop
 {
-    class JOP_API RenderTexture final
+    class JOP_API RenderTexture final : public RenderTarget
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(RenderTexture);
+
+    public:
+
+        /// Color attachment type
+        ///
+        enum class ColorAttachment
+        {
+            RGB2D,          ///< 24 bit 2D texture
+            RGBA2D,         ///< 32 bit 2D texture
+
+            RGBCube,        ///< 24 bit cube map texture
+            RGBACube,       ///< 32 bit cube map texture
+            
+            RGB2DFloat16,   ///< 48 bit 2D texture
+            RGBA2DFloat16,  ///< 64 but 2D texture
+            RGB2DFloat32,   ///< 96 bit 2D texture
+            RGBA2DFloat32,  ///< 128 bit 2D texture
+
+            // Keep depth enums last
+
+            Depth2D16,      ///< 16 bit 2D depth texture
+            Depth2D24,      ///< 24 bit 2D depth texture
+            Depth2D32,      ///< 32 bit 2D depth texture
+
+            DepthCube16,    ///< 16 bit cube map depth texture
+            DepthCube24,    ///< 24 bit cube map depth texture
+            DepthCube32     ///< 32 bit cube map depth texture
+        };
+
+        /// Depth attachment type
+        ///
+        /// Render buffer attachments cannot be used with cube map color attachments.
+        ///
+        enum class DepthAttachment
+        {
+            None,           ///< No depth attachment
+
+            Renderbuffer16, ///< 16 bit render buffer
+            Renderbuffer24, ///< 24 bit render buffer
+            Renderbuffer32, ///< 32 bit render buffer
+
+            Texture16,      ///< 16 bit depth texture
+            Texture24,      ///< 24 bit depth texture
+            Texture32       ///< 32 bit depth texture
+        };
+        
+        /// Stencil attachment type
+        ///
+        /// Stencil attachments cannot be used with cube map color attachments.
+        ///
+        enum class StencilAttachment
+        {
+            None,   ///< No stencil attachment
+
+            Int8,   ///< 8 bit stencil render buffer
+            Int16   ///< 16 bit stencil render buffer
+        };
 
     public:
 
@@ -49,40 +105,35 @@ namespace jop
         ///
         RenderTexture();
 
-        /// \brief Constructor for initialization
-        ///
-        /// \param size Size of the frame buffer texture
-        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
-        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
-        ///
-        RenderTexture(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
-
         /// \brief Destructor
         ///
-        ~RenderTexture();
+        ~RenderTexture() override;
 
-
-        /// \brief Clear the frame buffer
-        ///
-        /// This will clear the color, depth and stencil buffers.
-        ///
-        void clear();
 
         /// \brief Initialize the frame buffer
         ///
-        /// \param size Size of the frame buffer texture
-        /// \param depthBits Depth buffer precision in bits. Zero for no depth buffer
-        /// \param stencilBits Stencil buffer precision in bits. Zero for no stencil buffer
+        /// This will create the textures and the render buffers, but the frame
+        /// buffer will only actually be completed once bind() is first called.
+        /// This is due to the possibility that this is called within a different
+        /// thread and fbo's cannot be shared between contexts.
+        ///
+        /// \param color The color attachment type
+        /// \param size Size of the color attachment texture
+        /// \param depth The depth attachment
+        /// \param stencil The stencil attachment
         ///
         /// \return True if successful
         ///
-        bool create(const glm::ivec2& size, const unsigned int depthBits, const unsigned int stencilBits);
+        bool create(const glm::uvec2& size,
+                    const ColorAttachment color = ColorAttachment::RGBA2D,
+                    const DepthAttachment depth = DepthAttachment::None,
+                    const StencilAttachment stencil = StencilAttachment::None);
 
         /// \brief Destroy this frame buffer
         ///
         void destroy();
 
-        /// \brief Bind this frame buffer for drawing on
+        /// \brief Bind this frame buffer for drawing
         ///
         /// \return True if successful
         ///
@@ -98,7 +149,7 @@ namespace jop
         ///
         /// \return glm::vec2 with the size
         ///
-        glm::vec2 getSize() const;
+        glm::uvec2 getSize() const override;
 
         /// \brief Check if this frame buffer is valid
         ///
@@ -106,66 +157,34 @@ namespace jop
         ///
         bool isValid() const;
 
-        /// \brief Set the color buffer clear color
-        ///
-        /// \param color The new color
-        ///
-        void setClearColor(const Color& color);
-
-        /// \brief Get the color buffer clear color
-        ///
-        /// \return Reference to the color
-        ///
-        const Color& getClearColor() const;
-
         /// \brief Get the texture
         ///
-        /// \return Const reference to the internal texture
+        /// \return Const pointer to the internal texture, nullptr if no texture exists
         ///
-        const Texture& getTexture() const;
+        const Texture* getTexture() const;
 
-        /// \brief Get the depth bits
+        /// \brief Get the depth texture
         ///
-        /// \return The depth bits
+        /// \return Const pointer to the internal depth texture, nullptr if no depth texture exists
         ///
-        unsigned int getDepthBits() const;
+        const Texture* getDepthTexture() const;
 
-        /// \brief Get the stencil bits
+        /// \brief Get the OpenGL frame buffer handle
         ///
-        /// \return The stencil bits
+        /// \return The OpenGL frame buffer handle
         ///
-        unsigned int getStencilBits() const;
-
-        /// \brief Sets absolute Viewport for the frame buffer
-        ///
-        /// \param x The upper left x coordinate
-        /// \param y The upper left y coordinate
-        /// \param width Width of the view port in pixels
-        /// \param height Height of the view port in pixels
-        ///
-        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
-
-        /// \brief Sets relative Viewport for the frame buffer
-        ///
-        /// \param x The relative upper left x coordinate
-        /// \param y The relative upper left y coordinate
-        /// \param width Relative width of the view port in pixels
-        /// \param height Relative height of the view port in pixels
-        ///
-        void setViewportRelative(const float x, const float y, const float width, const float height);
-
+        unsigned int getFramebufferHandle() const;
 
     private:
 
-        Texture m_texture;              ///< The attached texture
-        Color m_clearColor;             ///< The color to use when clearing the buffer
-        unsigned int m_frameBuffer;     ///< Handle for the frame buffer
-        unsigned int m_depthBuffer;     ///< Handle for the depth buffer
-        unsigned int m_stencilBuffer;   ///< Handle for the stencil buffer
-        unsigned int m_depthBits;       ///< The depth bits
-        unsigned int m_stencilBits;     ///< The stencil bits
-        bool m_colorChanged;            ///< Has the clear color been changed?
+        void destroy() const;
 
+        mutable std::unique_ptr<Texture> m_texture;         ///< The attached texture
+        mutable std::unique_ptr<Texture> m_depthTexture;    ///< The possibly attached depth texture
+        mutable unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
+        mutable unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
+        mutable unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
+        mutable ColorAttachment m_colorAttachment;          ///< Color attachment enum
     };
 }
 

@@ -1,127 +1,75 @@
-//Jopnal Engine C++ Library
-//Copyright(c) 2016 Team Jopnal
+// Jopnal Engine C++ Library
+// Copyright (c) 2016 Team Jopnal
 //
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files(the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
 //
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
 //
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
-
-template<typename T>
-WeakReference<T> Object::getComponent()
-{
-    static_assert(std::is_base_of<Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
-
-    const std::type_info& ti = typeid(T);
-
-    for (auto& i : m_components)
-    {
-        if (typeid(*i) == ti)
-            return static_ref_cast<T>(i->getReference());
-    }
-
-    return WeakReference<T>();
-}
-
-//////////////////////////////////////////////
 
 namespace detail
 {
-    template<typename T, typename First = void, typename ... Args>
-    struct FirstIsSame{enum{value=std::is_same<T,First>::value};};
-
-    #ifdef JOP_DEBUG_MODE
-        template<typename T, bool IsDrawable = std::is_base_of<::jop::Drawable, T>::value>
-        struct LayerWarning
-        {static void print(){}};
-
-        template<typename T>
-        struct LayerWarning<T, true>
-        {
-            static void print()
-            {
-                if (!StateLoader::currentlyLoading())
-                    JOP_DEBUG_WARNING("No Layer passed to createComponent() when type was \"" << typeid(T).name() << "\", won't be automatically used in drawing");
-            }
-        };
-    #endif
-
-    template
-    <
-        typename T,
-        bool FirstIsLayer,
-        bool IsDrawable = std::is_base_of<::jop::Drawable, T>::value
-    >
-    struct ComponentMaker
+    template<typename T = ::jop::Component>
+    T* componentGetter(const std::vector<std::unique_ptr<::jop::Component>>& comps, const std::string* ID)
     {
-        template<typename ... Args>
-        static std::unique_ptr<T> make(Object& obj, Args&... args)
-        {
-        #ifdef JOP_DEBUG_MODE
-            LayerWarning<T>::print();
-        #endif
-            return std::make_unique<T>(obj, args...);
-        }
-    };
-    template<typename T>
-    struct ComponentMaker<T, true, true>
-    {
-        template<typename ... Args>
-        static std::unique_ptr<T> make(Object& obj, Layer& layer, Args&... args)
-        {
-            auto ptr = std::make_unique<T>(obj, args...);
-            layer.addDrawable(*ptr);
-            return ptr;
-        }
-    };
-    template<>
-    struct ComponentMaker<::jop::LightSource, true, true>
-    {
-        typedef ::jop::LightSource L;
+        static_assert(std::is_base_of<::jop::Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
 
-        template<typename ... Args>
-        static std::unique_ptr<L> make(Object& obj, Layer& layer, Args&... args)
+        for (auto& i : comps)
         {
-            auto ptr = std::make_unique<L>(obj, args...);
-            layer.addLight(*ptr);
-            return ptr;
+            if ((ID == nullptr || i->getID() == *ID) && (typeid(T) == typeid(::jop::Component) || typeid(*i) == typeid(T)))
+                return static_cast<T*>(i.get());
         }
-    };
-    template<>
-    struct ComponentMaker<::jop::Camera, true, true>
-    {
-        typedef ::jop::Camera C;
 
-        template<typename ... Args>
-        static std::unique_ptr<C> make(Object& obj, Layer& layer, Args&... args)
-        {
-            auto ptr = std::make_unique<C>(obj, args...);
-            layer.setCamera(*ptr);
-            return ptr;
-        }
-    };
+        return nullptr;
+    }
 }
 
+template<typename T>
+T* Object::getComponent()
+{
+    return detail::componentGetter<T>(m_components, nullptr);
+}
+
+template<typename T>
+const T* Object::getComponent() const
+{
+    return detail::componentGetter<const T>(m_components, nullptr);
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+T* Object::getComponent(const std::string& ID)
+{
+    return detail::componentGetter<T>(m_components, &ID);
+}
+
+template<typename T>
+const T* Object::getComponent(const std::string& ID) const
+{
+    return detail::componentGetter<const T>(m_components, &ID);
+}
+
+//////////////////////////////////////////////
+
 template<typename T, typename ... Args>
-WeakReference<T> Object::createComponent(Args& ... args)
+T& Object::createComponent(Args&&... args)
 {
     static_assert(std::is_base_of<Component, T>::value, "Object::createComponent(): Tried to create a component that doesn't inherit from jop::Component");
     
-    m_components.emplace_back(detail::ComponentMaker<T, detail::FirstIsSame<::jop::Layer, Args...>::value>::make(*this, args...));
-    return static_ref_cast<T>(m_components.back()->getReference());
+    m_components.emplace_back(std::make_unique<T>(*this, std::forward<Args>(args)...));
+    return static_cast<T&>(*m_components.back());
 }

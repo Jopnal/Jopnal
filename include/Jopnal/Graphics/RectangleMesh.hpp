@@ -43,17 +43,17 @@ namespace jop
         ///
         RectangleMesh(const std::string& name);
 
-        /// \brief Creates a rectangle model
+        /// \brief Copy constructor
         ///
-        /// \param name Name of the rectangle
-        /// \param size Size of the rectangle
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
         ///
-        RectangleMesh(const std::string& name, const float size);
+        RectangleMesh(const RectangleMesh& other, const std::string& newName);
 
 
         /// \brief Load this rectangle
         ///
-        /// This will set up the vertices and create the buffers
+        /// This will set up the vertices and create the buffers.
         ///
         /// \param size Size of the rectangle
         ///
@@ -71,7 +71,6 @@ namespace jop
     private:
 
         float m_size;   ///< This rectangle's size
-
     };
 }
 #endif

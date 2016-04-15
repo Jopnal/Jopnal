@@ -1,0 +1,13 @@
+<map id="jop::CollisionShape" name="jop::CollisionShape">
+<area shape="rect" id="node4" href="$classjop_1_1_box_shape.html" title="jop::BoxShape" alt="" coords="564,5,671,32"/>
+<area shape="rect" id="node5" href="$classjop_1_1_capsule_shape.html" title="jop::CapsuleShape" alt="" coords="552,56,683,83"/>
+<area shape="rect" id="node6" href="$classjop_1_1_compound_shape.html" title="jop::CompoundShape" alt="" coords="544,107,691,133"/>
+<area shape="rect" id="node7" href="$classjop_1_1_cone_shape.html" title="jop::ConeShape" alt="" coords="560,157,675,184"/>
+<area shape="rect" id="node8" href="$classjop_1_1_convex_hull_shape.html" title="jop::ConvexHullShape" alt="" coords="543,208,691,235"/>
+<area shape="rect" id="node9" href="$classjop_1_1_cylinder_shape.html" title="jop::CylinderShape" alt="" coords="552,259,683,285"/>
+<area shape="rect" id="node10" href="$classjop_1_1_infinite_plane_shape.html" title="jop::InfinitePlaneShape" alt="" coords="540,309,695,336"/>
+<area shape="rect" id="node11" href="$classjop_1_1_rectangle_shape.html" title="jop::RectangleShape" alt="" coords="546,360,689,387"/>
+<area shape="rect" id="node12" href="$classjop_1_1_sphere_shape.html" title="jop::SphereShape" alt="" coords="555,411,680,437"/>
+<area shape="rect" id="node2" href="$classjop_1_1_resource.html" title="jop::Resource" alt="" coords="208,208,311,235"/>
+<area shape="rect" id="node3" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Resource \&gt;" alt="" coords="5,201,160,242"/>
+</map>

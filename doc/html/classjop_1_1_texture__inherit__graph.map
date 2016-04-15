@@ -1,4 +1,8 @@
 <map id="jop::Texture" name="jop::Texture">
-<area shape="rect" id="node2" href="$classjop_1_1_resource.html" title="jop::Resource" alt="" coords="31,95,134,121"/>
-<area shape="rect" id="node3" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Resource \&gt;" alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node4" href="$classjop_1_1_cubemap.html" title="jop::Cubemap" alt="" coords="5,244,108,271"/>
+<area shape="rect" id="node5" href="$classjop_1_1_cubemap_depth.html" title="jop::CubemapDepth" alt="" coords="133,244,269,271"/>
+<area shape="rect" id="node6" href="$classjop_1_1_texture2_d.html" title="jop::Texture2D" alt="" coords="293,244,399,271"/>
+<area shape="rect" id="node7" href="$classjop_1_1_texture2_d_depth.html" title="jop::Texture2DDepth" alt="" coords="424,244,564,271"/>
+<area shape="rect" id="node2" href="$classjop_1_1_resource.html" title="jop::Resource" alt="" coords="221,95,324,121"/>
+<area shape="rect" id="node3" href="$classjop_1_1_safe_referenceable.html" title="jop::SafeReferenceable\l\&lt; Resource \&gt;" alt="" coords="195,5,350,47"/>
 </map>

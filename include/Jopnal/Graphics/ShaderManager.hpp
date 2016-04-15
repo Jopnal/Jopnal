@@ -27,6 +27,7 @@
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <unordered_map>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -58,15 +59,23 @@ namespace jop
         ///
         static Shader& getShader(const Material::AttribType attributes);
 
-    private:
-
+        /// \brief Get a pre-processor shader string
+        ///
+        /// \param attrib Material attributes
+        /// \param str The string to put the definitions into
+        ///
         static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+
+    private:
 
         static ShaderManager* m_instance;   ///< The single instance
 
-        std::unordered_map<Material::AttribType, WeakReference<Shader>> m_shaders;  ///< Map with the shaders
-        std::array<std::string, 3> m_uber;                                          ///< The uber shader sources
-
+        std::unordered_map
+        <
+            Material::AttribType,
+            WeakReference<Shader>> m_shaders;   ///< Map with the shaders
+        std::array<std::string, 3> m_uber;      ///< The uber shader sources
+        std::recursive_mutex m_mutex;           ///< Mutex                                        
     };
 }
 

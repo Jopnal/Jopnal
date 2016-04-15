@@ -22,7 +22,7 @@
 #ifndef JOP_SPHEREMESH_HPP
 #define JOP_SPHEREMESH_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 
@@ -39,18 +39,12 @@ namespace jop
         ///
         SphereMesh(const std::string& name);
 
-        /// \brief Creates a 3D sphere
+        /// \brief Copy constructor
         ///
-        /// High values for sectors and rings will result in better looking results, but may
-        /// affect performance heavily.
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
         ///
-        /// \param name Name of this model
-        /// \param radius The radius of the sphere
-        /// \param rings How many rings will the sphere have
-        /// \param sectors How many sectors the circle will get divided to
-        /// \param normalizedTexCoords Normalize the texture coordinates?
-        ///
-        SphereMesh(const std::string& name, const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        SphereMesh(const SphereMesh& other, const std::string& newName);
 
 
         /// \brief Load a sphere
@@ -95,7 +89,6 @@ namespace jop
         unsigned int m_rings;   ///< Rings
         unsigned int m_sectors; ///< Sectors
         bool m_normTexCoords;   ///< Normalized texture coordinates
-
     };
 }
 

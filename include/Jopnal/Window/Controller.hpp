@@ -34,10 +34,12 @@ namespace jop
     {
     public:
 
-        /// X-Box controller buttons
+        /// X-Box controller enumerations
         ///
         struct XBox
         {
+            /// Buttons
+            ///
             enum Button
             {
                 A,
@@ -56,6 +58,40 @@ namespace jop
                 PadLeft,
             };
 
+            /// Axes
+            enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                Triggers,
+                RightStickY,
+                RightStickX
+            };
+        };
+
+        /// Playstation controller enumerations
+        ///
+        struct Playstation
+        {
+            enum Button
+            {
+                X,
+                O,
+                Square,
+                Triangle,
+                LShoulder,
+                RShoulder,
+                Select,
+                Start,
+                LStick,
+                RStick,
+                PadUp,
+                PadRight,
+                PadDown,
+                PadLeft,
+            };
+
+            /// Axes
             enum Axis
             {
                 LeftStickX,

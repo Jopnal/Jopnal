@@ -24,7 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,17 +33,27 @@
 
 namespace jop
 {
-    class JOP_API Camera final : public Drawable
+    class Renderer;
+    class RenderTarget;
+
+    class JOP_API Camera final : public Component
     {
     private:
 
-        JOP_DISALLOW_MOVE(Camera);
+        /// \brief Copy constructor
+        ///
+        /// \param other The other camera to copy
+        /// \param newObj The new object
+        ///
+        Camera(const Camera& other, Object& newObj);
 
-        void operator =(const Camera&) = delete;
+        JOP_DISALLOW_COPY_MOVE(Camera);
+        JOP_GENERIC_COMPONENT_CLONE(Camera);
 
     public:
 
         typedef std::pair<float, float> ClippingPlanes;
+        typedef std::pair<glm::vec2, glm::vec2> ViewPort;
 
         /// Union with the projection data
         ///
@@ -56,7 +67,7 @@ namespace jop
 
             struct
             {
-                float fov;          ///< The vertical field of view
+                float fov;          ///< The vertical field of view in radians
                 float aspectRatio;  ///< The aspect ratio
             } perspective;
         };
@@ -65,8 +76,8 @@ namespace jop
         ///
         enum class Projection
         {
-            Orthographic,
-            Perspective
+            Orthographic,   ///< Usually used in 2D rendering
+            Perspective     ///< Usually used in 3D rendering
         };
 
     public:
@@ -74,22 +85,14 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object The object this camera will be bound to
+        /// \param renderer Reference to the renderer
         /// \param mode The initial projection mode
         ///
-        Camera(Object& object, const Projection mode);
+        Camera(Object& object, Renderer& renderer, const Projection mode);
 
-        /// \brief Copy constructor
+        /// \brief Destructor
         ///
-        Camera(const Camera& other);
-
-        JOP_GENERIC_CLONE(Camera);
-
-
-        /// \brief Overridden draw function
-        ///
-        /// Doesn't do anything.
-        ///
-        void draw(const Camera&, const LightContainer&) override;
+        ~Camera() override;
 
 
         /// \brief Get the projection matrix
@@ -106,6 +109,18 @@ namespace jop
         ///
         const glm::mat4& getViewMatrix() const;
 
+        /// \brief Set the render mask
+        ///
+        /// \param mask The new mask to set
+        ///
+        Camera& setRenderMask(const uint32 mask);
+
+        /// \brief Get the render mask
+        ///
+        /// \return The render mask
+        ///
+        uint32 getRenderMask() const;
+
 
         /// \brief Set the projection mode
         ///
@@ -114,9 +129,11 @@ namespace jop
         /// Failing to set the properties will cause the projection to
         /// malfunction.
         ///
+        /// \comm setProjectionMode
+        ///
         /// \param mode The mode to be set
         ///
-        void setProjectionMode(const Projection mode);
+        Camera& setProjectionMode(const Projection mode);
 
         /// \brief Get the projection mode
         ///
@@ -130,10 +147,12 @@ namespace jop
         /// In perspective projection the clipping planes need to be positive.
         /// Otherwise, the projection result is undefined.
         ///
+        /// \comm setClippingPlanes
+        ///
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
         ///
-        void setClippingPlanes(const float clipNear, const float clipFar);
+        Camera& setClippingPlanes(const float clipNear, const float clipFar);
 
         /// \brief Get the values of the clipping planes
         ///
@@ -151,14 +170,16 @@ namespace jop
         ///
         /// \param size The new size of the projection
         ///
-        void setSize(const glm::vec2& size);
+        Camera& setSize(const glm::vec2& size);
 
         /// \brief Brief set the size of the projection
+        ///
+        /// \comm setSize
         ///
         /// \param x The width
         /// \param y The height
         ///
-        void setSize(const float x, const float y);
+        Camera& setSize(const float x, const float y);
 
         /// \brief Get the size of the projection
         ///
@@ -172,9 +193,11 @@ namespace jop
         ///
         /// This call is only valid in perspective mode.
         ///
+        /// \comm setAspectRatio
+        ///
         /// \param ratio The new aspect ratio to be set
         ///
-        void setAspectRatio(const float ratio);
+        Camera& setAspectRatio(const float ratio);
 
         /// \brief Get the aspect ratio
         ///
@@ -187,12 +210,14 @@ namespace jop
 
         /// \brief Set the vertical field of view
         ///
-        /// The minimum value is 1 and maximum 179.
+        /// The minimum value is glm::radians(1) and maximum glm::radians(179).
         /// The value will be clamped inside this range.
+        ///
+        /// \comm setFieldOfView
         ///
         /// \param fovY The new field of view value
         ///
-        void setFieldOfView(const float fovY);
+        Camera& setFieldOfView(const float fovY);
 
         /// \brief Get the field of view value
         ///
@@ -200,22 +225,90 @@ namespace jop
         ///
         float getFieldOfView() const;
 
-        /// \brief Get the default camera
+
+        /// \brief Set the view port
         ///
-        /// This camera is a const object and it's not meant to be used actively.
+        /// The values are in relative coordinates. For example, [0.5,0.5] and [1.0,1.0]
+        /// will select the right half of the screen
         ///
-        /// \return Const reference to the camera
+        /// \comm setViewport
         ///
-        static Camera& getDefault();
+        /// \param start The start coordinates
+        /// \param end The end coordinates
+        ///
+        /// \return Reference to self
+        ///
+        Camera& setViewport(const glm::vec2& start, const glm::vec2& end);
+
+        /// \brief Get the view port
+        ///
+        /// first = start
+        /// second = size
+        ///
+        /// \see setViewport
+        ///
+        /// \return Reference to the view port
+        ///
+        const ViewPort& getViewport() const;
+
+        /// \brief Apply this camera's view port
+        ///
+        /// \param mainTarget The main render target. This will be used to calculate the absolute coordinates
+        ///
+        void applyViewport(const RenderTarget& mainTarget) const;
+
+
+        /// \brief Set this camera to use a render texture
+        ///
+        /// This will effectively cause whatever is drawn using this camera to render into the frame buffer.
+        ///
+        /// \param enable Enable the render texture? If this is false and a render texture already exists,
+        ///               it will be destroyed and the rest of the arguments are ignored
+        /// \param color The desired color attachment type
+        /// \param size Size of the render texture
+        /// \param depth The desired depth attachment type
+        /// \param stencil The desired stencil attachment
+        ///
+        /// \return True if set/unset successfully
+        ///
+        bool enableRenderTexture(const bool enable,
+                                 const glm::uvec2& size = glm::uvec2(0),
+                                 const RenderTexture::ColorAttachment color = RenderTexture::ColorAttachment::RGBA2D,
+                                 const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
+                                 const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
+
+        /// \brief Get the internal render texture
+        ///
+        /// The returned RenderTexture will not be valid if it wasn't set before
+        /// by using enableRenderTexture().
+        ///
+        /// \return Reference to the render texture
+        ///
+        const RenderTexture& getRenderTexture() const;
+
+
+        /// \brief Get a ray for mouse picking purposes
+        ///
+        /// The resulting ray is normalized
+        ///
+        /// \param mouseCoords Mouse coordinates. Origin is assumed to be in the upper left corner
+        /// \param target The render target (main usually). This is used to get the correct view port dimensions
+        ///
+        /// \return Normalized ray pointing from camera to the pointed position
+        ///
+        glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
 
     private:
 
         mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
+        RenderTexture m_renderTexture;          ///< RenderTexture used for off-screen rendering
+        ViewPort m_viewPort;                    ///< Viewport in relative coordinates
         ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;        ///< The clipping planes
+        Renderer& m_rendererRef;                ///< Reference to the renderer
+        uint32 m_renderMask;                    ///< The render mask
         Projection m_mode;                      ///< Projection mode
         mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
-        
     };
 }
 

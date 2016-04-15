@@ -29,6 +29,7 @@
 #include <string>
 #include <typeinfo>
 #include <sstream>
+#include <unordered_set>
 
 //////////////////////////////////////////////
 
@@ -51,8 +52,7 @@ namespace jop
             Subsystem = Engine << 1,
             SharedScene = Subsystem << 1,
             Scene = SharedScene << 1,
-            Layer = Scene << 1,
-            Object = Layer << 1,
+            Object = Scene << 1,
             Component = Object << 1,
             Command = Component << 1,
             Custom = Command << 1,
@@ -98,7 +98,7 @@ namespace jop
         ///
         Message& push(const std::string& str);
 
-        /// \copydoc jop::Message::push(const std::string&)
+        /// \copydoc push(const std::string&)
         ///
         Message& push(const char* str);
 
@@ -132,15 +132,6 @@ namespace jop
         const std::string& getString() const;
 
 
-        /// \brief Check if the given arguments should pass the filter
-        ///
-        /// \param filter The bits to check
-        /// \param id The id to pass to the filter
-        ///
-        /// \return True if both arguments got past the filter
-        ///
-        bool passFilter(const unsigned short filter, const std::string& id) const;
-
         /// \brief Check if the given bit field should pass the filter
         ///
         /// \param filter The bits to check. Only one match is required for a pass
@@ -156,6 +147,14 @@ namespace jop
         /// \return True if the filter was passed
         ///
         bool passFilter(const std::string& id) const;
+
+        /// \brief Check if the given tags should pass the filter
+        ///
+        /// \param tags The tags to check
+        ///
+        /// \return True if the filter was passed
+        ///
+        bool passFilter(const std::unordered_set<std::string>& tags) const;
 
         /// \brief Set the filter
         ///
@@ -179,13 +178,14 @@ namespace jop
 
     private:
 
-        std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
-        mutable std::string m_commandStr;                                   ///< String with the command & arguments
-        std::string m_idPattern;                                            ///< The id filter to compare any passed ids against
-        mutable Any& m_ptr;                                                 ///< Any object to store a possible return value
-        unsigned short m_filterBits;                                        ///< Bit field with the system filter bits
-        bool (*m_idMatchMethod)(const std::string&, const std::string&);    ///< Function to use in comparing the filter id and the passed id
-
+        mutable std::ostringstream m_command;                                       ///< Buffer containing the command and arguments in string form
+        mutable std::string m_commandStr;                                           ///< String with the command & arguments
+        std::string m_idPattern;                                                    ///< The id filter to compare any passed ids against
+        std::unordered_set<std::string> m_tags;                                     ///< Tags to compare against
+        mutable Any& m_ptr;                                                         ///< Any object to store a possible return value
+        unsigned short m_filterBits;                                                ///< Bit field with the system filter bits
+        bool (*m_idMatchMethod)(const std::string&, const std::string&);            ///< Function to use in comparing the filter id and the passed id
+        bool (*m_tagMatchMethod)(const decltype(m_tags)&, const decltype(m_tags)&); ///< Function to use in comparing the filter tags and the passed tags
     };
 
     // Include the template implementation file

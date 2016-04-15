@@ -26,43 +26,33 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/Vertex.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Material;
+
     class JOP_API Mesh : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Mesh);
+
     public:
 
-        /// \brief Struct for passing extra options to the load function
+        /// Vertex components
         ///
-        struct LoadOptions
+        enum VertexComponent : uint32
         {
-            /// \brief Default constructor
-            ///
-            LoadOptions() = default;
-
-            /// \brief Constructor for initialization
-            ///
-            /// \param centerOrigin_ Center the origin?
-            /// \param flipV_ Flip the V texture coordinate?
-            /// \param generateNormals_ Generate normals in case they don't exist?
-            ///
-            LoadOptions(const bool centerOrigin_, const bool flipV_, const bool generateNormals_);
-
-            Transform transform;    ///< Transform for pre-transforming the vertices
-            bool centerOrigin;      ///< Center the origin?
-            bool flipV;             ///< Flip the V texture coordinate?
-            bool generateNormals;   ///< Generate normals in case they don't exist
-
-            bool operator ==(const LoadOptions& right) const;
+            Position    = 1,
+            TexCoords   = 1 << 2,
+            Normal      = 1 << 3,
+            Tangent     = 1 << 4,
+            Color       = 1 << 5
         };
-
-        /// The default load options
-        ///
-        static const LoadOptions DefaultOptions;
 
     public:
 
@@ -73,32 +63,23 @@ namespace jop
         Mesh(const std::string& name);
 
 
-        /// \brief Loads a .obj model from file
+        /// \brief Load mesh from memory
         ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
+        /// This function takes the vertex data in binary format. The order of vertex components:
+        /// Position, texture coordinated, normal, tangent, bi-tangent, color
         ///
-        /// \param filePath The path to the file you want to load
-        /// \param options Extra options for loading
+        /// \param vertexData Pointer to the vertex data
+        /// \param vertexBytes Size of the vertex data buffer in bytes
+        /// \param vertexComponents The vertex components
+        /// \param indexData Pointer to the index data
+        /// \param indexSize Size of a <b>single</b> index in bytes
+        /// \param indexAmount Amount of indices
         ///
-        /// \return True if successfully loaded
-        ///
-        bool load(const std::string& filePath, const LoadOptions& options = DefaultOptions);
+        /// \return True if loaded successfully
+        /// 
+        bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned short indexSize = 0, const unsigned int indexAmount = 0);
 
-        /// \brief Loads a .obj model from file
-        ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
-        ///
-        /// \param filePath The path to the file you want to load
-        /// \param material Reference to a material object to load material info into
-        /// \param options Extra options for loading
-        ///
-        /// \return True if successfully loaded
-        ///
-        bool load(const std::string& filePath, Material& material, const LoadOptions& options = DefaultOptions);
-
-        /// \brief Loads model from memory
+        /// \brief Load mesh from memory using default vertex format
         ///
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
@@ -114,11 +95,40 @@ namespace jop
         ///
         unsigned int getVertexAmount() const;
 
+        /// \brief Get the vertex size
+        ///
+        /// \return Vertex size in bytes
+        ///
+        uint16 getVertexSize() const;
+
+        /// \brief Check if this mesh has a vertex component
+        ///
+        /// \param component The component to check
+        ///
+        /// \return True if the component exists
+        ///
+        bool hasVertexComponent(const uint32 component) const;
+
+
         /// \brief Get the element (index) amount
         ///
         /// \return The element amount
         ///
         unsigned int getElementAmount() const;
+
+        /// \brief Get the element size
+        ///
+        /// \return Element size in bytes
+        ///
+        uint16 getElementSize() const;
+
+        /// \brief Get the element type OpenGL enum
+        ///
+        /// The returned enum can be used with gl::DrawElements.
+        ///
+        /// \return The element type OpenGL enum
+        ///
+        unsigned int getElementEnum() const;
 
 
         /// \brief Returns index buffer
@@ -133,11 +143,25 @@ namespace jop
         ///
         const VertexBuffer& getVertexBuffer() const;
 
-        /// \brief Get the load options used in loading this mesh
+
+        /// \brief Get the size of a vertex with the given format
         ///
-        /// \return Reference to the load options
+        /// \param components Vertex components
         ///
-        const LoadOptions& getOptions() const;
+        /// \return Size of the vertex
+        ///
+        static uint16 getVertexSize(const uint32 components);
+
+        /// \brief Get the size of an element
+        ///
+        /// The returned value will be the size/precision requirement for an element
+        /// with the given amount of <b>vertices</b>
+        ///
+        /// \param amount Maximum amount of vertices
+        ///
+        /// \return Size of the element in bytes
+        ///
+        static uint16 getElementSize(const uint32 amount);
 
         /// \brief Get the default mesh
         ///
@@ -147,9 +171,11 @@ namespace jop
 
     private:
 
-        LoadOptions m_options;          ///< The options used in loading
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
+        uint32 m_vertexComponents;      ///< Vertex components this mesh has
+        uint16 m_elementSize;           ///< Element size
+        uint16 m_vertexSize;            ///< Vertex size
     };
 }
 

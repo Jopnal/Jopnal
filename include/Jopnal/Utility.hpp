@@ -27,6 +27,7 @@
 #include <Jopnal/Utility/Randomizer.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
+#include <Jopnal/Utility/Thread.hpp>
 
 //////////////////////////////////////////////
 

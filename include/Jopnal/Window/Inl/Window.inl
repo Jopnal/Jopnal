@@ -21,11 +21,13 @@
 
 
 template<typename T, typename ... Args>
-T& Window::setEventHandler(Args&... args)
+T& Window::setEventHandler(Args&&... args)
 {
     static_assert(std::is_base_of<WindowEventHandler, T>::value, "jop::Window::setEventHandler(): Attempted to create an object which is not derived from jop::WindowEventHandler");
 
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     m_eventHandler.reset();
-    m_eventHandler = std::make_unique<T>(*this, args...);
+    m_eventHandler = std::make_unique<T>(*this, std::forward<Args>(args)...);
     return static_cast<T&>(*m_eventHandler);
 }

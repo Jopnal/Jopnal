@@ -43,12 +43,12 @@ namespace jop
         ///
         BoxMesh(const std::string& name);
 
-        /// \brief Creates a cube model
+        /// \brief Copy constructor
         ///
-        /// \param name Name of the box
-        /// \param size Size of the box
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
         ///
-        BoxMesh(const std::string& name, const float size);
+        BoxMesh(const BoxMesh& other, const std::string& newName);
 
 
         /// \brief Load this box
@@ -61,6 +61,15 @@ namespace jop
         ///
         bool load(const float size);
 
+        /// \brief Load this box
+        ///
+        /// \param size Size of the box
+        /// \param invert The cube is inside-out?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float size, const bool invert);
+
         /// \brief Get the size
         ///
         /// \return The size
@@ -70,6 +79,7 @@ namespace jop
     private:
 
         float m_size;   ///< This box's size
+        bool m_inverted;
     };
 }
 

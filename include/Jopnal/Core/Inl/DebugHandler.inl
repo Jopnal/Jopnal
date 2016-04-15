@@ -23,6 +23,8 @@
 template<typename T>
 DebugHandler& DebugHandler::operator <<(const T& data)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     m_stream << data;
     return *this;
 }

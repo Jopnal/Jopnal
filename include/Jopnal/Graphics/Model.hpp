@@ -24,18 +24,15 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Material.hpp>
-#include <Jopnal/Graphics/Vertex.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
-#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Mesh;
+    class Material;
+
     class JOP_API Model
     {
     public:
@@ -45,6 +42,8 @@ namespace jop
         Model();
 
         /// \brief Constructor for initializing with a mesh
+        ///
+        /// Note that a model is not valid until it has a material also.
         ///
         /// \param mesh Mesh to initialize with
         ///
@@ -57,22 +56,12 @@ namespace jop
         ///
         Model(const Mesh& mesh, const Material& material);
 
-        /// \brief Loads a .obj model from file
-        ///
-        /// Loads .obj and copies data to their containers (positions, normals, texcoords, indices)
-        /// Assigns data to index and vertex buffers
-        ///
-        /// \param filePath The path to the file you want to load
-        /// \param options Extra options for loading
-        ///
-        bool load(const std::string& filePath, const Mesh::LoadOptions& options = Mesh::DefaultOptions);
-
 
         /// \brief Get the mesh
         ///
         /// \return Pointer to the mesh
         ///
-        WeakReference<const Mesh> getMesh() const;
+        const Mesh* getMesh() const;
 
         /// \brief Set the mesh
         ///
@@ -82,15 +71,12 @@ namespace jop
         ///
         Model& setMesh(const Mesh& mesh);
 
+
         /// \brief Get the material
         ///
-        /// \return Reference to the material
+        /// \return Pointer to the material. Nullptr if none bound
         ///
-        WeakReference<Material> getMaterial();
-
-        /// \copydoc getMaterial()
-        ///
-        WeakReference<const Material> getMaterial() const;
+        const Material* getMaterial() const;
 
         /// \brief Set the material
         ///
@@ -103,29 +89,19 @@ namespace jop
         ///
         Model& setMaterial(const Material& material);
 
-        
-        /// \copydoc Mesh::getVertexAmount()
-        ///
-        unsigned int getVertexAmount() const;
 
-        /// \copydoc Mesh::getElementAmount()
+        /// \brief Check if this model is valid
         ///
-        unsigned int getElementAmount() const;
-
-
-        /// \brief Get the default model
+        /// The model is valid if both a valid mesh and material are present.
         ///
-        /// The default model is a cube with a size of 1.
+        /// \return True if valid
         ///
-        /// \return Reference to the model
-        ///
-        static const Model& getDefault();
+        bool isValid() const;
 
     private:
 
         WeakReference<Material> m_material; ///< The material
         WeakReference<const Mesh> m_mesh;   ///< The mesh
-
     };
 }
 

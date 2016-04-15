@@ -24,11 +24,13 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Window/Mouse.hpp>
+#include <Jopnal/Window/WindowHandle.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -44,7 +46,7 @@ namespace jop
         class WindowImpl;
     }
 
-    class JOP_API Window final : public Subsystem
+    class JOP_API Window : public RenderTarget
     {
     private:
 
@@ -63,16 +65,22 @@ namespace jop
 
         /// Window settings
         ///
-        struct Settings
+        struct JOP_API Settings
         {
+            /// \brief Constructor
+            ///
+            /// \param loadSettings Load the settings using SettingManager?
+            ///
             Settings(const bool loadSettings);
 
-            glm::uvec2 size;
-            std::string title;
-            DisplayMode displayMode;
-            unsigned int samples;
-            bool visible;
-            bool vSync;
+            glm::uvec2 size;            ///< Window size (client area)
+            std::string title;          ///< Window title
+            DisplayMode displayMode;    ///< Display mode
+            unsigned int samples;       ///< Sample count for multi sampling
+            unsigned int maxFrameRate;  ///< Maximum frames per second
+            bool visible;               ///< Is the window initially visible?
+            bool vSync;                 ///< Enable vertical sync?
+            bool debug;                 ///< Ask for a debug context?
         };
 
     public:
@@ -115,6 +123,14 @@ namespace jop
         ///
         void draw() override;
 
+
+        /// \brief Bind this window for drawing
+        ///
+        /// \return True if successful
+        ///
+        bool bind() const override;
+
+
         /// \brief Open this window
         ///
         /// This will create a new window. If one already exists, it will be replaced.
@@ -133,11 +149,6 @@ namespace jop
         ///
         bool isOpen() const;
 
-        /// \brief Set the clear color
-        ///
-        /// \param color The new color
-        ///
-        void setClearColor(const Color& color);
 
         /// \brief Set the event handler
         ///
@@ -146,12 +157,21 @@ namespace jop
         ///
         /// \param args The arguments to use with construction
         ///
+        /// \return Reference to the newly created event handler
+        ///
         template<typename T, typename ... Args>
-        T& setEventHandler(Args&... args);
+        T& setEventHandler(Args&&... args);
+
+        /// \brief Set the default handler
+        ///
+        /// The default event handler has no functionality other than
+        /// closing the window when the close button is clicked.
+        ///
+        void setDefaultEventHandler();
 
         /// \brief Get the event handler
         ///
-        /// \return Pointer to the event handler. NUllptr if none exists
+        /// \return Pointer to the event handler
         ///
         WindowEventHandler* getEventHandler();
 
@@ -159,11 +179,21 @@ namespace jop
         ///
         void removeEventHandler();
 
-        /// \brief Get the GLFW library window handle
+
+        /// \brief Get the window library handle handle
+        ///
+        /// On desktop operating systems this is GLFWwindow*.
         ///
         /// \return A pointer to the handle. Nullptr if window hasn't been created
         ///
-        GLFWwindow* getLibraryHandle();
+        WindowLibHandle getLibraryHandle();
+
+        /// \brief Get the native window handle
+        ///
+        /// \return The native window handle
+        ///
+        WindowHandle getNativeHandle();
+
 
         /// \brief Poll the events of all open windows
         ///
@@ -171,23 +201,6 @@ namespace jop
         ///
         static void pollEvents();
 
-        /// \brief Set absolute Viewport for window
-        ///
-        /// \param x The upper left x coordinate
-        /// \param y The upper left y coordinate
-        /// \param width Width of the view port in pixels
-        /// \param height Height of the view port in pixels
-        ///
-        void setViewport(const int x, const int y, const unsigned int width, const unsigned int height);
-
-        /// \brief Sets relative Viewport for window
-        ///
-        /// \param x The upper left relative x coordinate
-        /// \param y The upper left relative y coordinate
-        /// \param width Relative width of the view port in pixels
-        /// \param height Relative height of the view port in pixels
-        ///
-        void setViewportRelative(const float x, const float y, const float width, const float height);
 
         /// \brief Sets mouse mode
         ///
@@ -197,13 +210,40 @@ namespace jop
         ///
         void setMouseMode(const Mouse::Mode mode);
 
+        
+        /// \brief Set the window position
+        ///
+        /// \param x The X coordinate
+        /// \param y The Y coordinate
+        ///
+        void setPosition(const int x, const int y);
+
+        /// \brief Get the window position
+        ///
+        /// \return The window position
+        ///
+        glm::ivec2 getPosition() const;
+
+
+        /// \brief Set the window size
+        ///
+        /// This will set the size of the client area.
+        ///
+        /// \param width New width
+        /// \param height New height
+        ///
+        void setSize(const int width, const int height);
+
+        /// \brief Get the size of the window
+        ///
+        /// \return Size of the window
+        ///
+        glm::uvec2 getSize() const override;
+
     private:
 
-        Color m_clearColor;                                 ///< The color to use when clearing the buffer
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
-        bool m_colorChanged;                                ///< Has the clear color changed?
-
     };
 
     // Include the template implementation file

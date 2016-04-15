@@ -22,10 +22,12 @@
 // Headers
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/Layer.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/CubemapDepth.hpp>
+#include <Jopnal/Graphics/Texture2D.hpp>
+#include <Jopnal/Graphics/Texture2DDepth.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
 #include <Jopnal/Graphics/Shader.hpp>
@@ -42,6 +44,14 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
 #include <Jopnal/Graphics/ShaderManager.hpp>
+#include <Jopnal/Graphics/Text.hpp>
+#include <Jopnal/Graphics/Renderer.hpp>
+#include <Jopnal/Graphics/Cubemap.hpp>
+#include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+#include <Jopnal/Graphics/RenderTarget.hpp>
+#include <Jopnal/Graphics/ModelLoader.hpp>
+#include <Jopnal/Graphics/SkySphere.hpp>
+#include <Jopnal/Graphics/SkyBox.hpp>
 
 //////////////////////////////////////////////
 

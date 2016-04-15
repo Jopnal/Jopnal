@@ -34,9 +34,10 @@
 #define JOP_OPENGL_ERROR_CHECKS
 
 // Debug
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(JOP_DEBUG_MODE)
     #define JOP_DEBUG_MODE
 #endif
+#define JOP_DEBUG_MODE
 
 // Console
 #ifdef JOP_DEBUG_MODE
@@ -53,5 +54,10 @@
 
 // Dynamic build (.dll)
 //#define JOP_DYNAMIC
+
+// Version
+#define JOP_VERSION_MAJOR 0
+#define JOP_VERSION_MINOR 2
+#define JOP_VERSION_STRING "indev 0.2"
 
 #endif

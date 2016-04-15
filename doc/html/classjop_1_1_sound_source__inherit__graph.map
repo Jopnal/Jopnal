@@ -1,0 +1,5 @@
+<map id="jop::SoundSource" name="jop::SoundSource">
+<area shape="rect" id="node3" href="$classjop_1_1_sound_effect.html" title="jop::SoundEffect" alt="" coords="5,155,123,181"/>
+<area shape="rect" id="node4" href="$classjop_1_1_sound_stream.html" title="jop::SoundStream" alt="" coords="147,155,274,181"/>
+<area shape="rect" id="node2" href="$classjop_1_1_component.html" title="jop::Component" alt="" coords="81,5,194,32"/>
+</map>

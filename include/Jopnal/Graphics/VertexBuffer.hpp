@@ -37,9 +37,10 @@ namespace jop
 
         /// \brief Constructor 
         ///
-        /// \param type Buffer type 
+        /// \param type Buffer type
+        /// \param usage Usage type
         ///
-        VertexBuffer(BufferType type);
+        VertexBuffer(const Type type, const Usage usage = Buffer::StaticDraw);
 
         /// \brief Constructor to another vertex buffer
         ///
@@ -71,7 +72,7 @@ namespace jop
         /// \param data Void pointer to data
         /// \param bytes Size of the buffer data
         ///
-        void setData(const void* data, std::size_t bytes);
+        void setData(const void* data, const std::size_t bytes);
         
         /// \brief Sets sub data by size and set offset 
         ///
@@ -79,8 +80,7 @@ namespace jop
         /// \param offset Size of the offset that is wanted 
         /// \param size Size of the buffer subdata
         ///
-        void setSubData(const void* data, std::size_t offset, std::size_t size);
-
+        void setSubData(const void* data, const std::size_t offset, const std::size_t size);
     };
 }
 #endif
