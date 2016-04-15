@@ -198,7 +198,7 @@ namespace jop
                         m_loader.open(pFile);
 
                     else if (std::string(pMode).find('w') != std::string::npos)
-                        m_loader.openWrite(FileLoader::Directory::Resource, pFile, false);
+                        m_loader.open(FileLoader::Directory::Resource, pFile, false);
 
                     return new Stream(m_loader);
                 }
@@ -232,7 +232,7 @@ namespace jop
     FileLoader::FileLoader(const Directory dir, const std::string& path, const bool append)
         : m_file(nullptr)
     {
-        openWrite(dir, path, append);
+        open(dir, path, append);
     }
 
     FileLoader::FileLoader(FileLoader&& other)
@@ -276,7 +276,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool FileLoader::openWrite(const Directory dir, const std::string& path, const bool append)
+    bool FileLoader::open(const Directory dir, const std::string& path, const bool append)
     {
         close();
 

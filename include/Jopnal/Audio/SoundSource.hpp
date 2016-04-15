@@ -44,17 +44,22 @@ namespace jop
 
         /// \brief Copy constructor
         ///
+        /// \param other The other sound source to be copied
+        /// \param newObj The new object for this sound source
+        ///
         SoundSource(const SoundSource& other, Object& newObj);
 
         JOP_DISALLOW_COPY_MOVE(SoundSource);
 
     public:
 
+        /// Sound status
+        ///
         enum class Status
         {
-            Stopped,
-            Paused,
-            Playing
+            Stopped,    ///< Sound is stopped
+            Paused,     ///< Sound is paused
+            Playing     ///< Sound is playing
         };
 
     public:
@@ -62,7 +67,7 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Unique component identifier
+        /// \param ID Component identifier
         ///
         SoundSource(Object& object, const std::string& ID);
 
@@ -71,15 +76,23 @@ namespace jop
         virtual ~SoundSource() override = 0;
 
 
-        /// \brief Automatically updates position
+        /// \brief Update
+        ///
+        /// Automatically updates position.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime) override;
 
         /// \brief Set sound's volume
         ///
+        /// The value will be clamped inside the appropriate range.
+        ///
         /// \comm setVolume
         ///
         /// \param Float 0-100.0f default is 100.0f
+        ///
+        /// \return Reference to self
         ///
         SoundSource& setVolume(const float vol);
 
@@ -89,13 +102,20 @@ namespace jop
 
         /// \brief Set pitch
         ///
+        /// Be careful with this function. Setting the pitch too high or low can lead to
+        /// sound artifacts or even crashes. The safe range seems to be between 0.1 and 8.
+        ///
         /// \comm setPitch
         ///
-        /// \param Float pitch value default is 1 min is 0.0 crashes after 8.9
+        /// \param value The pitch value. Default is 1
+        ///
+        /// \return Reference to self
         ///
         SoundSource& setPitch(const float value);
 
-        /// \brief Returns pitch
+        /// \brief Get the pitch
+        ///
+        /// \return The pitch value
         ///
         float getPitch() const;
 
@@ -103,19 +123,27 @@ namespace jop
         ///
         /// \comm setListener
         ///
-        /// \param Boolean true plays sound at listener's position and false enables spatialization in 3d space
+        /// \param toggle True plays sound at listener's position and false enables spatialization in 3d space
+        ///
+        /// \return Reference to self
         ///
         SoundSource& setListener(const bool toggle);
 
         /// \brief Returns relativity to listener
         ///
+        /// \return True if relative to listener
+        ///
         bool getListener() const;
 
-        /// \brief Change stream's fadein distance
+        /// \brief Change sound's fade-out distance
+        ///
+        /// Higher values mean that the sound will fade out more quickly.
         ///
         /// \comm setAttenuation
         ///
-        /// \param Attenuation 0-100.0f and minDistance 1<x
+        /// \param Attenuation 0-100.0f
+        ///
+        /// \return Reference to self
         ///
         SoundSource& setAttenuation(const float at);
         
@@ -123,21 +151,27 @@ namespace jop
         ///
         /// \comm setMinDistance
         ///
-        /// \param Attenuation 0-100.0f and minDistance 1<x
+        /// \param min MinDistance 1<x
+        ///
+        /// \return Reference to self
         ///
         SoundSource& setMinDistance(const float min);
        
-        /// \brief Returns fadein value
+        /// \brief Returns attenuation value
+        ///
+        /// \return Attenuation value
         ///
         float getAttenuation() const;
 
         /// \brief Returns distance of max volume
         ///
+        /// \return Minimum distance
+        ///
         float getMinDistance() const;
 
     protected:
 
-        std::unique_ptr<sf::SoundSource> m_sound;   ///< Unique audio sample
+        std::unique_ptr<sf::SoundSource> m_sound;   ///< Sound source
     };
 }
 

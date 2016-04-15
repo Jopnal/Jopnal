@@ -43,6 +43,11 @@ namespace jop
 
     protected:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other resource to copy
+        /// \param newName New name for this resource
+        ///
         Resource(const Resource& other, const std::string& newName);
 
     public:
@@ -65,15 +70,15 @@ namespace jop
         const std::string& getName() const;
 
 
-        /// \brief Set the persistence flag
+        /// \brief Set the persistence level
         ///
-        /// \param persistent Set this resource persistent?
+        /// \param persistent The persistence level
         ///
         void setPersistence(const unsigned short level);
 
-        /// \brief Check if this resource is persistent
+        /// \brief Get the persistence level
         ///
-        /// \return True if persistent
+        /// \return The persistence level
         ///
         unsigned short getPersistence() const;
 

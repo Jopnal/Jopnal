@@ -46,40 +46,52 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(SoundBuffer);
 
-        SoundBuffer(const SoundBuffer& other, const std::string& newName);
-
     public:
 
         /// \brief Constructor
         ///
+        /// Initializes the internal buffer to be empty.
+        ///
+        /// \param name Name of this resource
+        ///
         SoundBuffer(const std::string& name);
 
-        /// \brief Virtual destructor
+        /// \brief Copy constructor
+        ///
+        /// \param other The other buffer to be copied
+        /// \param newName New name of this resource
+        ///
+        SoundBuffer(const SoundBuffer& other, const std::string& newName);
+
+        /// \brief Destructor
+        ///
+        /// \warning Destroying a sound buffer while it's being used by a SoundEffect
+        ///          instance, will most likely lead to a crash.
         ///
         ~SoundBuffer() override;
 
 
-        /// \brief Uses fileLoader to load new buffer from file
+        /// \brief Load a new buffer from file
         ///
-        /// \param path Name or path for wanted resource
+        /// \param path Path for wanted resource
+        ///
+        /// \return True if successful
         ///
         bool load(const std::string& path);
 
 
-        /// \brief Load default sound
+        /// \brief Get default sound buffer
+        ///
+        /// \return Reference to the buffer
         ///
         static SoundBuffer& getDefault();
 
     private:
 
-        /// \brief Uses fileLoader to load default sound
-        ///
-        /// \param id for default resource
-        ///
         bool load(const int id);
 
 
-        std::unique_ptr<sf::SoundBuffer> m_soundBuf;    ///< Audio buffer
+        std::unique_ptr<sf::SoundBuffer> m_soundBuf;    ///< Sound buffer
     };
 }
 #endif

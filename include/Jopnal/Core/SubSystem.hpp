@@ -49,7 +49,7 @@ namespace jop
         ///
         Subsystem(const std::string& ID);
 
-        /// Virtual destructor
+        /// \brief Virtual destructor
         ///
         virtual ~Subsystem() = 0;
 
@@ -82,6 +82,8 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
@@ -89,11 +91,15 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
+        ///
+        /// \return The message result
         ///
         Message::Result sendMessage(const Message& message);
 
@@ -120,6 +126,10 @@ namespace jop
     protected:
 
         /// \brief Virtual sendMessage
+        ///
+        /// \param message The message
+        ///
+        /// \return The message result
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
 

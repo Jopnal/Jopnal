@@ -82,15 +82,19 @@ namespace jop
 
     public:
 
-        /// \brief Constructor for scene class
+        /// \brief Constructor
         ///
-        /// \param ID String holding name for scene
+        /// \param ID Scene identifier
         ///
         Scene(const std::string& ID);
 
+        /// \copydoc Scene(const std::string&)
+        ///
+        /// \param mainTarget The main render target
+        ///
         Scene(const std::string& ID, const RenderTarget& mainTarget);
 
-        /// \brief Destructor for scene class
+        /// \brief Virtual destructor
         ///
         virtual ~Scene();
 
@@ -140,6 +144,8 @@ namespace jop
         ///
         /// \param message String holding message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message);
 
         /// \brief Base sendMessage function
@@ -150,18 +156,22 @@ namespace jop
         /// \param message String holding message
         /// \param returnWrap Pointer to hold extra data
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const Message& message);
 
 
         /// \brief Update method for scene
         ///
-        /// \param deltaTime Double holding time step
+        /// \param deltaTime The delta time
         ///
         void updateBase(const float deltaTime);
 
@@ -174,7 +184,7 @@ namespace jop
         ///
         /// This will be called before objects are updated.
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param deltaTime The delta time
         ///
         virtual void preUpdate(const float deltaTime);
 
@@ -182,7 +192,7 @@ namespace jop
         ///
         /// This will be called after objects are updated.
         ///
-        /// \param deltaTime double holding delta time
+        /// \param deltaTime The delta time
         ///
         virtual void postUpdate(const float deltaTime);
         

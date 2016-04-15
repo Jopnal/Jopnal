@@ -423,7 +423,7 @@ namespace jop
 
     void Engine::signalNewScene()
     {
-        if (m_engineObject)
+        if (m_engineObject && newSceneReady())
             m_engineObject->m_newSceneSignal.store(true);
     }
 

@@ -109,6 +109,8 @@ namespace jop
 
         /// \brief Check is a resource exists
         ///
+        /// The name and type must both match.
+        ///
         /// \param name Name of the resource
         ///
         /// \return True if the resource exists
@@ -137,18 +139,22 @@ namespace jop
         /// The resource, if found, will be deleted regardless of the persistence flag.
         /// Resources with the persistence level of 0 will not be removed, however.
         ///
-        /// \param name Name or path for wanted resource
+        /// \param name Name of the resource to unload
         ///
         static void unloadResource(const std::string& name);
 
         /// \copydoc unloadResource(const std::string&)
+        ///
+        /// When possible, you should prefer this overload.
+        /// It's possibly magnitudes faster.
         ///
         template<typename T>
         static void unloadResource(const std::string& name);
 
         /// \brief Deletes all resources from memory
         ///
-        /// This will only delete the resources not flagged as persistent.
+        /// \param persistence The persistence of the resources to unload
+        /// \param descending Set true to unload all resources with the given and below persistence levels
         ///
         static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
