@@ -60,7 +60,7 @@ namespace jop
         /// \brief Copy constructor
         /// 
         /// \param other The other object to copy
-        /// \param newName The ID of the new object
+        /// \param newID The ID of the new object
         /// \param newTransform The transform of the new object
         ///
         Object(const Object& other, const std::string& newID, const Transform& newTransform);
@@ -92,7 +92,7 @@ namespace jop
         ///
         Component* getComponent(const std::string& ID);
 
-        /// \copycod getComponent()
+        /// \copydoc getComponent()
         ///
         const Component* getComponent(const std::string& ID) const;
 
@@ -134,15 +134,23 @@ namespace jop
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
 
-        /// \brief Template function to clones component from another object
+        /// \brief Template function to clone a component
         ///
-        /// \param Object to clone from and id of component to clone
+        /// \param object New object for the cloned component
+        /// \param ID Identifier of the component to clone
+        ///
+        /// \return Pointer to the cloned component. Nullptr if not found
         ///
         Component* cloneComponent(Object& object, const std::string& ID) const;
 
         /// \brief Template function to duplicates component
         ///
-        /// \param Components id and created clone's id
+        /// The same object will be used.
+        ///
+        /// \param ID Identifier of the component
+        /// \param newID Identifier of the cloned component
+        ///
+        /// \return Pointer to the cloned component. Nullptr if not found
         ///
         Component* cloneComponent(const std::string& ID, const std::string& newID);
 
@@ -243,8 +251,6 @@ namespace jop
         /// \param recursive Search recursively?
         ///
         /// \return Reference to self
-        ///
-        /// \return Reference to this
         ///
         Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
 

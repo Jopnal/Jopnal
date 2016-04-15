@@ -50,7 +50,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param path File path to font
+        /// \param name Name of the resource
         ///
         Font(const std::string& name);
 
@@ -84,6 +84,8 @@ namespace jop
         /// \param codepoint Pointer to a single character
         /// \param width Width of a single character
         /// \param height Height of a single character
+        /// \param x The X coordinate
+        /// \param y The Y coordinate
         ///
         void getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y) const;
 

@@ -56,8 +56,7 @@ namespace jop
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param width The desired width
-        /// \param height The desired height
+        /// \param size The size
         /// \param bytesPerPixel The byte depth
         ///
         /// \return True if loading was successful
@@ -68,8 +67,7 @@ namespace jop
         ///
         /// The accepted pixel depth values are 1, 3 and 4.
         ///
-        /// \param width Width of the texture
-        /// \param height Height of the texture
+        /// \param size The size
         /// \param bytesPerPixel The byte depth of the image
         /// \param pixels Pointer to the beginning of the pixel array
         ///
@@ -82,10 +80,8 @@ namespace jop
         ///
         /// The byte depth must be the same as this texture's!
         ///
-        /// \param x The X starting point
-        /// \param y The Y starting point
-        /// \param width Width
-        /// \param height Height
+        /// \param start The starting point
+        /// \param size The size of the area
         /// \param pixels Pointer to the pixels
         ///
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);

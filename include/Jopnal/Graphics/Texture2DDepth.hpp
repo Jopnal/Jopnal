@@ -44,8 +44,7 @@ namespace jop
 
         /// \brief Load this texture
         ///
-        /// \param width Width
-        /// \param height Height
+        /// \param size The size
         /// \param bytes Bytes per pixel
         ///
         /// \return True if loading was successful

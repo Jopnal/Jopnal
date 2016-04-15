@@ -235,8 +235,6 @@ namespace jop
         void setSize(const int width, const int height);
 
         /// \brief Get the size of the window
-        /// 
-        /// \param includeFrame Should the frame/decoration width & height be included?
         ///
         /// \return Size of the window
         ///

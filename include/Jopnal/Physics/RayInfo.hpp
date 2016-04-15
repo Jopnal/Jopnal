@@ -43,7 +43,7 @@ namespace jop
         ///
         /// \param coll Pointer to the collider
         /// \param pnt Hit point
-        /// \param nor Hit normal
+        /// \param norm Hit normal
         ///
         RayInfo(Collider* coll, const glm::vec3& pnt, const glm::vec3& norm);
 

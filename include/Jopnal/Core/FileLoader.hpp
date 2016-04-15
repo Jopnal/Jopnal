@@ -243,7 +243,7 @@ namespace jop
         /// \brief Read a binary file
         ///
         /// \param path Path to the file to read
-        /// \param file Reference to a buffer to fill with the data
+        /// \param buffer Reference to a buffer to fill with the data
         ///
         /// \return True if successful
         ///

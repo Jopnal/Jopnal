@@ -72,7 +72,7 @@ namespace jop
 
         /// \brief Set the persistence level
         ///
-        /// \param persistent The persistence level
+        /// \param level The persistence level
         ///
         void setPersistence(const unsigned short level);
 

@@ -252,7 +252,7 @@ namespace jop
         ///
         /// \comm setDeltaScale
         ///
-        /// \param The scalar to set
+        /// \param scale The scalar to set
         ///
         static void setDeltaScale(const float scale);
 

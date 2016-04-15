@@ -112,7 +112,7 @@ namespace jop
 
         /// \brief Set the clear depth
         ///
-        /// \param color The new clear depth value
+        /// \param depth The new clear depth value
         ///
         /// \return Reference to self
         ///
@@ -126,7 +126,7 @@ namespace jop
 
         /// \brief Set the clear stencil
         ///
-        /// \param color The new clear stencil value
+        /// \param stencil The new clear stencil value
         ///
         /// \return Reference to self
         ///

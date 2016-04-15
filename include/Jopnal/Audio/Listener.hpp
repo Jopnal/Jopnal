@@ -69,11 +69,11 @@ namespace jop
 
         /// \brief Change the global volume of all the sounds and musics
         ///
-        /// The individual volume of all sounds will be multilied by this value.
+        /// The individual volume of all sounds will be multiplied by this value.
         ///
         /// \comm setGlobalVolume
         ///
-        /// \param Global volume in range of 0-100.0f
+        /// \param volume Global volume in range of 0-100.0f
         ///
         /// \see getGlobalVolume
         ///

@@ -102,7 +102,7 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer()
+        /// \copydoc getRenderer
         ///
         const Renderer& getRenderer() const;
 
@@ -129,7 +129,6 @@ namespace jop
         /// The model will be copied.
         ///
         /// \param model Reference to the model
-        /// \param loadMaterialShader Automatically load the shader from ShaderManager?
         ///
         /// \comm setModel
         ///

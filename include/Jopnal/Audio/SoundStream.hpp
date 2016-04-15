@@ -63,7 +63,7 @@ namespace jop
         ///
         /// This will not start playing the stream. You must call play() in addition.
         ///
-        /// \param Path to audio file
+        /// \param path Path to audio file
         ///
         /// \return True if loaded successfully
         ///

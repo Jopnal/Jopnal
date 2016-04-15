@@ -49,7 +49,7 @@ namespace jop
 
     public:
 
-        /// \param Constructor
+        /// \brief Constructor
         ///
         /// You should only ever need to change the default radius if you're using
         /// a non-default near clipping plane with your cameras.
@@ -61,7 +61,7 @@ namespace jop
         SkySphere(Object& obj, Renderer& renderer, const float radius = 2.f);
 
 
-        /// \copydoc Drawable::draw(const Camera*, const LightContainer&, Shader&)
+        /// \copydoc Drawable::draw(const Camera*,const LightContainer&,Shader&)
         ///
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 

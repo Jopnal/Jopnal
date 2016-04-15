@@ -90,13 +90,15 @@ namespace jop
         ///
         /// \comm setVolume
         ///
-        /// \param Float 0-100.0f default is 100.0f
+        /// \param vol Float 0-100.0f default is 100.0f
         ///
         /// \return Reference to self
         ///
         SoundSource& setVolume(const float vol);
 
-        /// \brief Returns float volume
+        /// \brief Get the volume
+        ///
+        /// \return The volume
         ///
         float getVolume() const;
 
@@ -141,7 +143,7 @@ namespace jop
         ///
         /// \comm setAttenuation
         ///
-        /// \param Attenuation 0-100.0f
+        /// \param at Attenuation 0-100.0f
         ///
         /// \return Reference to self
         ///

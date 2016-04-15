@@ -174,7 +174,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        RigidBody& applyImpulse(const glm::vec3& Impulse, const glm::vec3& rel_pos);
+        RigidBody& applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos);
 
         /// \brief Applies torque to the rigid body
         ///
