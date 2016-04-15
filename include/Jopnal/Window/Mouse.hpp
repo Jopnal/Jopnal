@@ -53,9 +53,9 @@ namespace jop
         ///
         enum class Mode
         {
-            Visible,///< Visible makes cursor visible and behave normally.
-            Hidden, ///< Hidden makes cursor invisible when its not over the client area of the window, but does not restrict it from leaving.
-            Frozen  ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
+            Visible,    ///< Visible makes cursor visible and behave normally.
+            Hidden,     ///< Hidden makes cursor invisible when its not over the client area of the window, but does not restrict it from leaving.
+            Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
         };
     };
 }

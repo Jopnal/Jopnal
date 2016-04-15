@@ -157,12 +157,21 @@ namespace jop
         ///
         /// \param args The arguments to use with construction
         ///
+        /// \return Reference to the newly created event handler
+        ///
         template<typename T, typename ... Args>
         T& setEventHandler(Args&&... args);
 
+        /// \brief Set the default handler
+        ///
+        /// The default event handler has no functionality other than
+        /// closing the window when the close button is clicked.
+        ///
+        void setDefaultEventHandler();
+
         /// \brief Get the event handler
         ///
-        /// \return Pointer to the event handler. NUllptr if none exists
+        /// \return Pointer to the event handler
         ///
         WindowEventHandler* getEventHandler();
 

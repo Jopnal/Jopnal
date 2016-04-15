@@ -231,7 +231,6 @@ namespace jop
 
         float m_lastMouseX; ///< For internal use. Do not touch
         float m_lastMouseY; ///< For internal use. Do not touch
-        
     };
 }
 

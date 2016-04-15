@@ -88,7 +88,7 @@ namespace jop
           m_eventHandler    ()
     {
         open(settings);
-        setEventHandler<jop_DefaultEventHandler>();
+        setDefaultEventHandler();
 
     #ifdef JOP_DEBUG_MODE
         if (gl::exts::var_KHR_debug)
@@ -202,6 +202,13 @@ namespace jop
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         return m_impl.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
+    void Window::setDefaultEventHandler()
+    {
+        setEventHandler<jop_DefaultEventHandler>();
     }
 
     //////////////////////////////////////////////
