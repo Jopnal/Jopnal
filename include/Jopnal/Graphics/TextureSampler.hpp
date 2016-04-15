@@ -170,7 +170,6 @@ namespace jop
         float m_anisotropic;    ///< The anisotropic level
         Color m_borderColor;    ///< The border color
         unsigned int m_sampler; ///< The OpenGL sampler handle
-
     };
 }
 

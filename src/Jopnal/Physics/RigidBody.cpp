@@ -40,7 +40,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setAngularFactor, "setAngularVelocity");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralForce, "applyCentralForce");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
-        JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::clearForces, "clearForces");
 
     JOP_END_COMMAND_HANDLER(RigidBody)
 }

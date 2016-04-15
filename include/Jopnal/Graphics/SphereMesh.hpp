@@ -41,6 +41,9 @@ namespace jop
 
         /// \brief Copy constructor
         ///
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
+        ///
         SphereMesh(const SphereMesh& other, const std::string& newName);
 
 
@@ -86,7 +89,6 @@ namespace jop
         unsigned int m_rings;   ///< Rings
         unsigned int m_sectors; ///< Sectors
         bool m_normTexCoords;   ///< Normalized texture coordinates
-
     };
 }
 

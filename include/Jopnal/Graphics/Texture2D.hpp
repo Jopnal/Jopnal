@@ -147,7 +147,6 @@ namespace jop
 
         glm::uvec2 m_size;              ///< Size
         unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
-
     };
 }
 

@@ -72,7 +72,6 @@ namespace jop
 
         glm::uvec2 m_size;      ///< Size
         unsigned int m_bytes;   ///< Bytes per pixel
-
     };
 }
 

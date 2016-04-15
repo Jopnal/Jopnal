@@ -92,7 +92,6 @@ namespace jop
         : Resource          (name),
           m_strings         (),
           m_unifMap         (),
-          m_attribMap       (),
           m_shaderProgram   (0)
     {}
 
@@ -262,8 +261,6 @@ namespace jop
         }
 
         m_unifMap.clear();
-        m_attribMap.clear();
-        
         m_shaderProgram = 0;
     }
 
@@ -422,21 +419,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Shader::setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
-    {
-        const int loc = getAttributeLocation(name);
-
-        if (loc != -1)
-        {
-            glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
-            GlState::setVertexAttribute(true, loc);
-        }
-
-        return loc != -1;
-    }
-
-    //////////////////////////////////////////////
-
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         GlState::setVertexAttribute(true, loc);
@@ -526,30 +508,16 @@ namespace jop
 
     int Shader::getUniformLocation(const std::string& name)
     {
-        return getLocation(name, m_unifMap, &getLocUnif);
-    }
-
-    //////////////////////////////////////////////
-
-    int Shader::getAttributeLocation(const std::string& name)
-    {
-        return getLocation(name, m_attribMap, &getLocAttr);
-    }
-
-    //////////////////////////////////////////////
-
-    int Shader::getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&))
-    {
         static const bool printErr = SettingManager::getBool("bPrintShaderLocationErrors", true);
 
         if (bind())
         {
-            auto itr = map.find(name);
+            auto itr = m_unifMap.find(name);
 
-            if (itr != map.end())
+            if (itr != m_unifMap.end())
                 return itr->second;
 
-            const int location = func(m_shaderProgram, name);
+            const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
 
             if (location == -1)
             {
@@ -557,27 +525,11 @@ namespace jop
                     JOP_DEBUG_WARNING("Uniform/attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
             }
             else
-                map[name] = location;
+                m_unifMap[name] = location;
 
             return location;
         }
 
         return -1;
-    }
-
-    //////////////////////////////////////////////
-
-    int Shader::getLocUnif(unsigned int prog, const std::string& name)
-    {
-        const int loc = glCheck(gl::GetUniformLocation(prog, name.c_str()));
-        return loc;
-    }
-
-    //////////////////////////////////////////////
-
-    int Shader::getLocAttr(unsigned int prog, const std::string& name)
-    {
-        const int loc = glCheck(gl::GetAttribLocation(prog, name.c_str()));
-        return loc;
     }
 }

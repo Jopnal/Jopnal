@@ -81,7 +81,6 @@ namespace jop
         /// \param size Size of the buffer subdata
         ///
         void setSubData(const void* data, const std::size_t offset, const std::size_t size);
-
     };
 }
 #endif

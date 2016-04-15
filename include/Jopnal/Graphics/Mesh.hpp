@@ -79,12 +79,10 @@ namespace jop
         /// 
         bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned short indexSize = 0, const unsigned int indexAmount = 0);
 
-        /// \brief Load mesh from memory
+        /// \brief Load mesh from memory using default vertex format
         ///
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
-        ///
-        /// \deprecated Prefer the other overload
         ///
         /// \return True if successfully loaded
         ///

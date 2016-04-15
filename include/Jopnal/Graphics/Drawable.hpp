@@ -56,6 +56,11 @@ namespace jop
 
     protected:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other drawable to copy
+        /// \param newObj The new object
+        ///
         Drawable(const Drawable& other, Object& newObj);
 
     public:
@@ -267,9 +272,9 @@ namespace jop
 
         mutable Model m_model;                  ///< The bound model
         mutable WeakReference<Shader> m_shader; ///< The bound shader
-        Renderer& m_rendererRef;        ///< Reference to the renderer
-        uint8 m_renderGroup;            ///< The render group
-        unsigned char m_flags;          ///< Property flags
+        Renderer& m_rendererRef;                ///< Reference to the renderer
+        uint8 m_renderGroup;                    ///< The render group
+        unsigned char m_flags;                  ///< Property flags
     };
 }
 

@@ -112,6 +112,11 @@ namespace jop
 
         /// \brief Initialize the frame buffer
         ///
+        /// This will create the textures and the render buffers, but the frame
+        /// buffer will only actually be completed once bind() is first called.
+        /// This is due to the possibility that this is called within a different
+        /// thread and fbo's cannot be shared between contexts.
+        ///
         /// \param color The color attachment type
         /// \param size Size of the color attachment texture
         /// \param depth The depth attachment

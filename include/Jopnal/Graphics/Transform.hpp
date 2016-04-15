@@ -359,7 +359,6 @@ namespace jop
         glm::vec3 m_position;                   ///< Position vector
         mutable bool m_transformNeedUpdate;     ///< Does the transform need updating?
         mutable bool m_invTransformNeedsUpdate; ///< Does the inverted transform need updating?
-        
     };
 }
 

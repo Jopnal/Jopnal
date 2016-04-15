@@ -101,6 +101,12 @@ namespace jop
         ///
         static unsigned int getMaxTextureUnits();
 
+        /// \brief Set the pixel store alignment
+        ///
+        /// This set the opengl UNPACK_ALIGNMENT parameter appropriately.
+        ///
+        /// \param depth The pixel byte depth
+        ///
         static void setPixelStore(const unsigned int depth);
 
     private:
@@ -108,7 +114,6 @@ namespace jop
         mutable WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
         mutable unsigned int m_texture;                         ///< The OpenGL handle
         const unsigned int m_target;                            ///< The OpenGL texture target
-
     };
 }
 

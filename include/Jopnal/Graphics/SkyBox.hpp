@@ -37,6 +37,11 @@ namespace jop
     {
     private:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other sky box to copy
+        /// \param newObj The new object
+        ///
         SkyBox(const SkyBox& other, Object& newObj);
 
         JOP_DISALLOW_COPY_MOVE(SkyBox);
@@ -44,19 +49,37 @@ namespace jop
 
     public:
 
+        /// \param Constructor
+        ///
+        /// You should only ever need to change the default size if you're using
+        /// a non-default near clipping plane with your cameras.
+        ///
+        /// \param obj The object component is bound to
+        /// \param renderer The renderer
+        /// \param size The box size
+        ///
         SkyBox(Object& obj, Renderer& renderer, const float size = 2.f);
 
-
+        /// \copydoc Drawable::draw(const Camera*, const LightContainer&, Shader&)
+        ///
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
+        /// \brief Set the map
+        ///
+        /// \param map Reference to the map
+        ///
         void setMap(const Cubemap& map);
 
+        /// \brief Get the bound map
+        ///
+        /// \return Pointer to the map. Nullptr if none is bound
+        ///
         const Texture* getMap() const;
 
     private:
 
-        BoxMesh m_mesh;
-        Material m_material;
+        BoxMesh m_mesh;         ///< The mesh
+        Material m_material;    ///< The material
     };
 }
 

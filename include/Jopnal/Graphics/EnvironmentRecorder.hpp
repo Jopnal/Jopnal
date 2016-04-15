@@ -41,6 +41,11 @@ namespace jop
     {
     private:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other recorder to copy
+        /// \param newObj The new object
+        ///
         EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj);
 
         JOP_DISALLOW_COPY_MOVE(EnvironmentRecorder);

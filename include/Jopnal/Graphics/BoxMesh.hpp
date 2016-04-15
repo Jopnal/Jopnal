@@ -45,6 +45,9 @@ namespace jop
 
         /// \brief Copy constructor
         ///
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
+        ///
         BoxMesh(const BoxMesh& other, const std::string& newName);
 
 

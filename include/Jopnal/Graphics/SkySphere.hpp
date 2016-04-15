@@ -37,6 +37,11 @@ namespace jop
     {
     private:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other sky sphere to copy
+        /// \param newObj The new object
+        ///
         SkySphere(const SkySphere& other, Object& newObj);
 
         JOP_DISALLOW_COPY_MOVE(SkySphere);
@@ -44,19 +49,40 @@ namespace jop
 
     public:
 
+        /// \param Constructor
+        ///
+        /// You should only ever need to change the default radius if you're using
+        /// a non-default near clipping plane with your cameras.
+        ///
+        /// \param obj The object component is bound to
+        /// \param renderer The renderer
+        /// \param radius The sphere radius
+        ///
         SkySphere(Object& obj, Renderer& renderer, const float radius = 2.f);
 
 
+        /// \copydoc Drawable::draw(const Camera*, const LightContainer&, Shader&)
+        ///
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
+        /// \brief Set the map
+        ///
+        /// The map should use spherical texture coordinates.
+        ///
+        /// \param map Reference to the map
+        ///
         void setMap(const Texture2D& map);
 
+        /// \brief Get the bound map
+        ///
+        /// \return Pointer to the map. Nullptr if none is bound
+        ///
         const Texture* getMap() const;
 
     private:
 
-        SphereMesh m_mesh;
-        Material m_material;
+        SphereMesh m_mesh;      ///< The mesh
+        Material m_material;    ///< The material
     };
 }
 

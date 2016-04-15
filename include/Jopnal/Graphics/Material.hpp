@@ -155,6 +155,7 @@ namespace jop
         /// \brief Default constructor
         ///
         /// \param name Name of this material
+        /// \param autoAttributes Set attributes automatically?
         ///
         Material(const std::string& name, const bool autoAttributes = true);
 
@@ -162,6 +163,7 @@ namespace jop
         ///
         /// \param name Name of this material
         /// \param attributes The initial attributes
+        /// \param autoAttributes Set attributes automatically
         ///
         Material(const std::string& name, const AttribType attributes, const bool autoAttributes = true);
         
@@ -169,6 +171,7 @@ namespace jop
         /// \brief Send this material to a shader
         ///
         /// \param shader Reference to the shader to send this material to
+        /// \param camera The camera to use
         ///
         void sendToShader(Shader& shader, const Camera* camera) const;
 
@@ -203,7 +206,7 @@ namespace jop
         ///
         /// \param preset The preset to use
         ///
-        /// \return Reference to this
+        /// \return Reference to self
         ///
         Material& setReflection(const Preset preset);
    
@@ -259,13 +262,19 @@ namespace jop
         ///
         Material& setMap(const Map map, const Texture& tex);
 
+        /// \brief Remove a map
+        ///
+        /// \param map The map to remove
+        ///
+        /// \return Reference to self
+        ///
         Material& removeMap(const Map map);
 
         /// \brief Get a map
         ///
         /// \param map The map attribute
         ///
-        /// \return Weak pointer to the texture. Empty if none bound
+        /// \return Pointer to the texture. Nullptr if none bound
         ///
         const Texture* getMap(const Map map) const;
 
@@ -273,6 +282,8 @@ namespace jop
         /// \brief Set the attribute bit field
         ///
         /// \param attribs The attributes to set
+        ///
+        /// \return Reference to self
         ///
         Material& setAttributeField(const AttribType attribs);
 
