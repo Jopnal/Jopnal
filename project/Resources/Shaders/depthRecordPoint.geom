@@ -22,6 +22,10 @@ out vec3 vgf_FragPosition;
         vec3 Position;
         vec2 TexCoords;
         vec3 Normal;
+        //vec3 Tangent;
+        //vec3 BiTangent;
+        vec4 Color;
+
     } inVert[];
     
     out FragVertexData
@@ -29,6 +33,10 @@ out vec3 vgf_FragPosition;
         vec3 Position;
         vec2 TexCoords;
         vec3 Normal;
+        //vec3 Tangent;
+        //vec3 BiTangent;
+        vec4 Color;
+
     } outVert;
 #endif
 
@@ -49,6 +57,9 @@ void main()
                 outVert.Position = inVert[i].Position;
                 outVert.TexCoords = inVert[i].TexCoords;
                 outVert.Normal = inVert[i].Normal;
+                //outVert.Tangent = inVert[i].Tangent;
+                //outVert.BiTangent = inVert[i].BiTangent;
+                outVert.Color = inVert[i].Color;
             #endif
 
             EmitVertex();

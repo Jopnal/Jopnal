@@ -8,6 +8,9 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoords;
 layout(location = 2) in vec3 a_Normal;
+//layout(location = 3) in vec3 a_Tangent;
+//layout(location = 4) in vec3 a_BiTangent;
+layout(location = 5) in vec4 a_Color;
 
 // Matrices
 #ifndef JMAT_ENVIRONMENT_RECORD
@@ -29,6 +32,9 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
     vec3 Position;
     vec2 TexCoords;
     vec3 Normal;
+    //vec3 Tangent;
+    //vec3 BiTangent;
+    vec4 Color;
 
 } OUTVERT_NAME;
 
@@ -52,6 +58,7 @@ void main()
     OUTVERT_NAME.Position = pos.xyz;
     OUTVERT_NAME.TexCoords = a_TexCoords;
     OUTVERT_NAME.Normal = u_NMatrix * a_Normal;
+    OUTVERT_NAME.Color = a_Color;
 
     // Calculate and assign fragment position, not used when recording environment map
     #ifndef JMAT_ENVIRONMENT_RECORD

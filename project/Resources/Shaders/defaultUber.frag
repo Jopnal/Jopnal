@@ -62,6 +62,9 @@ in FragVertexData
     vec3 Position;
     vec2 TexCoords;
     vec3 Normal;
+    //vec3 Tangent;
+    //vec3 BiTangent;
+    vec4 Color;
 
 } outVert;
 
