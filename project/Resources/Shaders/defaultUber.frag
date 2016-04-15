@@ -562,8 +562,8 @@ void main()
     #endif
 
     #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
-	    if (alpha < 0.1)
-		    discard;
+        if (alpha < 0.1)
+            discard;
     #endif
 
     // Finally assign to the fragment output
