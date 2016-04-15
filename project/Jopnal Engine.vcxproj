@@ -95,7 +95,7 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\InfinitePlaneShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\RectangleShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp" />
-    <ClInclude Include="..\include\Jopnal\Physics\Shape\StaticMeshShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\World.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
@@ -191,7 +191,7 @@
     <ClCompile Include="..\src\Jopnal\Physics\Shape\InfinitePlaneShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\RectangleShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp" />
-    <ClCompile Include="..\src\Jopnal\Physics\Shape\StaticMeshShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\World.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">

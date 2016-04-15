@@ -44,7 +44,7 @@ namespace jop
 
         /// \brief Load this shape
         ///
-        /// \param radius size of the spheres radius
+        /// \param radius The sphere radius
         ///
         /// \return True if successful
         ///

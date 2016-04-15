@@ -258,9 +258,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RigidBody::clearForces()
+    RigidBody& RigidBody::clearForces()
     {
         m_rigidBody->clearForces();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -269,5 +270,4 @@ namespace jop
     {
         m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
-
 }

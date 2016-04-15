@@ -98,7 +98,7 @@ namespace jop
         ///
         Message& push(const std::string& str);
 
-        /// \copydoc jop::Message::push(const std::string&)
+        /// \copydoc push(const std::string&)
         ///
         Message& push(const char* str);
 

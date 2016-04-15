@@ -56,7 +56,7 @@ namespace jop
         template<typename T>
         T range(const T start, const T end);
 
-        /// \copydoc range()
+        /// \copydoc range
         ///
         template<typename T>
         T operator()(const T start, const T end);
@@ -79,7 +79,6 @@ namespace jop
     private:
 
         std::default_random_engine m_randomGenerator;   ///< The random engine
-
     };
 
     // Include the template implementation file

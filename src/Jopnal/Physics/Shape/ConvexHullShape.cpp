@@ -27,20 +27,20 @@
 
 namespace jop
 {
-    StaticMeshShape::StaticMeshShape(const std::string& name)
+    ConvexHullShape::ConvexHullShape(const std::string& name)
         : CollisionShape(name)
     {}
 
     //////////////////////////////////////////////
 
-    bool StaticMeshShape::load(const std::vector<glm::vec3>& points)
+    bool ConvexHullShape::load(const std::vector<glm::vec3>& points)
     {
         return load(points, std::vector<unsigned int>());
     }
 
     //////////////////////////////////////////////
 
-    bool StaticMeshShape::load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices)
+    bool ConvexHullShape::load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices)
     {
         if (points.empty())
             return false;
@@ -66,13 +66,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    StaticMeshShape& StaticMeshShape::getDefault()
+    ConvexHullShape& ConvexHullShape::getDefault()
     {
-        static WeakReference<StaticMeshShape> defShape;
+        static WeakReference<ConvexHullShape> defShape;
 
         if (defShape.expired())
         {
-            defShape = static_ref_cast<StaticMeshShape>(ResourceManager::getEmptyResource<StaticMeshShape>("jop_default_staticmeshshape").getReference());
+            defShape = static_ref_cast<ConvexHullShape>(ResourceManager::getEmptyResource<ConvexHullShape>("jop_default_staticmeshshape").getReference());
             defShape->m_shape = std::make_unique<btCapsuleShape>(0.5f, 2.f);
 
             defShape->setPersistence(0);

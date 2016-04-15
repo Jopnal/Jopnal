@@ -61,6 +61,7 @@ namespace jop
 
         /// \brief Constructor
         ///
+        /// \param obj The object to bind this world into
         /// \param renderer Reference to the renderer, needed for debug drawing
         ///
         World(Object& obj, Renderer& renderer);
@@ -87,6 +88,8 @@ namespace jop
         ///
         /// \param start The start position of the ray
         /// \param ray Ray to be shot from start
+        /// \param group The collision group
+        /// \param mask The collision mask
         ///
         /// \return Ray hit info
         ///
@@ -96,6 +99,8 @@ namespace jop
         ///
         /// \param start The start position of the ray
         /// \param ray Ray to be shot from start
+        /// \param group The collision group
+        /// \param mask The collision mask
         ///
         /// \return Vector of ray infos, empty if none were hit
         ///
@@ -105,6 +110,8 @@ namespace jop
         ///
         /// \param aabbStart Starting point of the bounding box
         /// \param aabbEnd Ending point of the bounding box
+        /// \param group The collision group
+        /// \param mask The collision mask
         ///
         /// \return Vector of colliders, empty if none were overlapping
         ///

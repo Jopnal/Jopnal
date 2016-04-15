@@ -75,9 +75,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Thread::setPriority(const unsigned int priority)
+    bool Thread::setPriority(const Priority priority)
     {
-        return detail::ThreadDetail::setPriority(m_thread, priority);
+        return detail::ThreadDetail::setPriority(m_thread, static_cast<unsigned int>(priority));
     }
 
     //////////////////////////////////////////////

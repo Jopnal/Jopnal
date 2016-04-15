@@ -116,9 +116,17 @@ namespace jop
         template<typename T>
         const T& cast() const;
 
+        /// \brief Cast this object dynamically
+        ///
+        /// This will check the type before cast.
+        ///
+        /// \return The cast data
+        ///
         template<typename T>
         T dynamicCast();
 
+        /// \copydoc dynamicCast
+        ///
         template<typename T>
         const T dynamicCast() const;
 
@@ -132,7 +140,7 @@ namespace jop
         ///
         bool isValid() const;
 
-        /// \copydoc Any::isValid()
+        /// \copydoc isValid
         ///
         operator bool() const;
 
@@ -179,7 +187,6 @@ namespace jop
     private:
 
         std::unique_ptr<Concept> m_data;    ///< Pointer holding the data
-
     };
 
     // Include the template implementation file

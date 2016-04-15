@@ -33,7 +33,7 @@
 
 namespace jop
 {
-    class JOP_API StaticMeshShape final : public CollisionShape
+    class JOP_API ConvexHullShape final : public CollisionShape
     {
     public:
 
@@ -41,7 +41,7 @@ namespace jop
         ///
         /// \param name Name of the resource
         ///
-        StaticMeshShape(const std::string& name);
+        ConvexHullShape(const std::string& name);
 
 
         /// \brief Load this shape
@@ -69,7 +69,7 @@ namespace jop
         ///
         /// \return Reference to the shape
         ///
-        static StaticMeshShape& getDefault();
+        static ConvexHullShape& getDefault();
     };
 }
 

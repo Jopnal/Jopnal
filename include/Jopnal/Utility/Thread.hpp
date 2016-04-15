@@ -39,47 +39,99 @@ namespace jop
 
     public:
 
-        struct Priority
+        /// Thread priority
+        ///
+        enum class Priority
         {
-            enum
-            {
-                Lowest,
-                Lower,
-                Normal,
-                Higher,
-                Highest
-            };
+            Lowest,
+            Lower,
+            Normal,
+            Higher,
+            Highest
         };
 
     public:
 
+        /// \brief Default constructor
+        ///
+        /// Will not start a thread.
+        ///
         Thread();
 
+        /// \brief Constructor
+        ///
+        /// This will start the thread immediately.
+        ///
+        /// \param func The function to use
+        /// \param args Arguments to pass to the function
+        ///
         template<typename F, typename ... Args>
         explicit Thread(F&& func, Args&&... args);
 
+        /// \brief Move constructor
+        ///
+        /// \param other The other thread to be moved
+        ///
         Thread(Thread&& other);
 
+        /// \brief Move assignment operator
+        ///
+        /// \param other The other thread to be moved
+        ///
         Thread& operator =(Thread&& other);
 
+        /// \brief Destructor
+        ///
+        /// If the thread is running and hasn't been detached, this will
+        /// wait until it returns.
+        ///
         ~Thread();
 
 
+        /// \brief Wait for the thread to return
+        ///
+        /// This will return immediately the thread is not joinable.
+        ///
         void join();
 
+        /// \brief Check if this thread is joinable
+        ///
+        /// \return True if joinable
+        ///
         bool isJoinable() const;
 
+        /// \brief Detach the thread
+        ///
+        /// After this call the thread is completely independent. join() will
+        /// have no effect.
+        ///
         void detach();
 
-        bool setPriority(const unsigned int priority);
+        /// \brief Set thread priority
+        ///
+        /// \param priority The priority to set
+        ///
+        /// \return True if priority was set successfully
+        ///
+        bool setPriority(const Priority priority);
 
+        /// \brief Terminate this thread
+        ///
+        /// This method is unsafe. You should always attempt to make
+        /// your threads return by themselves before resorting to
+        /// calling this.
+        ///
         void terminate();
 
+        /// \brief Get the thread identifier
+        ///
+        /// \return The thread identifier
+        ///
         std::thread::id getId() const;
 
     private:
 
-        std::thread m_thread;
+        std::thread m_thread;   ///< The internal thread
     };
 
     // Include the implementation file
