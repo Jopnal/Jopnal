@@ -102,7 +102,7 @@ namespace detail
             if (shdr.expired())
             {
                 std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(IDR_PHYSICSDEBUGVERT, vert) && FileLoader::readResource(IDR_PHYSICSDEBUGFRAG, frag), "Failed to read physics debug shader source!");
+                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
 
                 shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
 
@@ -214,31 +214,6 @@ namespace jop
         m_worldData->world->setWorldUserInfo(this);
         
         setDebugMode(false);
-
-        /*static bool contactCallbacksSet = false;
-        if (!contactCallbacksSet)
-        {
-            auto processedCallback = [](btManifoldPoint& mp, void* body0, void* body1) -> bool
-            {
-                auto c0 = static_cast<Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
-                auto c1 = static_cast<Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
-
-                if (c0 && c1)
-                {
-                    auto& aPos = mp.getPositionWorldOnA();
-                    auto& bPos = mp.getPositionWorldOnB();
-
-                    c0->handleContact(*c1, ContactInfo(glm::vec3(aPos.x(), aPos.y(), aPos.z())));
-                    c1->handleContact(*c0, ContactInfo(glm::vec3(bPos.x(), bPos.y(), bPos.z())));
-                }
-
-                return true;
-            };
-
-            gContactProcessedCallback = processedCallback;
-
-            contactCallbacksSet = true;
-        }*/
     }
 
     World::~World()
@@ -302,5 +277,84 @@ namespace jop
     #else
         return false;
     #endif
+    }
+
+    //////////////////////////////////////////////
+
+    RayInfo World::checkRayClosest(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    {
+        const glm::vec3 fromTo(start + ray);
+
+        const btVector3 rayFromWorld(start.x, start.y, start.z);
+        const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+
+        btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
+
+        m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+        cb.m_collisionFilterGroup = group;
+        cb.m_collisionFilterMask = mask;
+
+        if (cb.hasHit() && cb.m_collisionObject != nullptr)
+            return RayInfo(static_cast<Collider*>(cb.m_collisionObject->getUserPointer()),
+                           glm::vec3(cb.m_hitPointWorld.x(), cb.m_hitPointWorld.y(), cb.m_hitPointWorld.z()),
+                           glm::vec3(cb.m_hitNormalWorld.x(), cb.m_hitNormalWorld.y(), cb.m_hitNormalWorld.z()));
+        
+        return RayInfo();
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    {
+        const glm::vec3 fromTo(start + ray);
+
+        const btVector3 rayFromWorld(start.x, start.y, start.z);
+        const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
+
+        btCollisionWorld::AllHitsRayResultCallback cb(rayFromWorld, rayToWorld);
+        cb.m_collisionFilterGroup = group;
+        cb.m_collisionFilterMask = mask;
+        
+        std::vector<RayInfo> objContainer;
+        m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
+
+        for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
+        {
+            const auto& point = cb.m_hitPointWorld[i];
+            const auto& normal = cb.m_hitNormalWorld[i];
+
+            objContainer.push_back(RayInfo(static_cast<Collider*>(cb.m_collisionObjects[i]->getUserPointer()),
+                                           glm::vec3(point.x(), point.y(), point.z()),
+                                           glm::vec3(normal.x(), normal.y(), normal.z())));
+        }
+        
+        return objContainer;
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<Collider*> World::checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd, const short group, const short mask) const
+    {
+        struct Callback : btBroadphaseAabbCallback
+        {
+            std::vector<Collider*> vec;
+            short group;
+            short mask;
+
+            bool process(const btBroadphaseProxy* proxy) override
+            {
+                if (proxy->m_clientObject && (proxy->m_collisionFilterMask & group) != 0 && (mask & proxy->m_collisionFilterGroup) != 0)
+                    vec.push_back(static_cast<Collider*>(static_cast<btCollisionObject*>(proxy->m_clientObject)->getUserPointer()));
+
+                return false;
+            }
+
+        } cb;
+        cb.group = group;
+        cb.mask = mask;
+        
+        m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
+
+        return cb.vec;
     }
 }

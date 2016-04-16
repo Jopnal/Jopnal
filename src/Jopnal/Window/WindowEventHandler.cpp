@@ -512,12 +512,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::pair<float, float> WindowEventHandler::getCursorPosition() const
+    glm::vec2 WindowEventHandler::getCursorPosition() const
     {
         double x = 0.0, y = 0.0;
         glfwGetCursorPos(m_windowRef.getLibraryHandle(), &x, &y);
 
-        return std::make_pair(static_cast<float>(x), static_cast<float>(y));
+        return glm::vec2(x, y);
     }
 
     //////////////////////////////////////////////

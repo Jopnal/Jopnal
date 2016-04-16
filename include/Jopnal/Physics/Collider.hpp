@@ -101,12 +101,34 @@ namespace jop
         ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Get the world this collider belongs to
+        ///
+        /// \return Reference to the world
+        ///
+        World& getWorld();
+
+        /// \copydoc getWorld()
+        ///
+        const World& getWorld() const;
+
     private:
 
+        /// \brief Overlap begin callback
+        ///
+        /// \param other The other collider that was overlapped
+        ///
         virtual void beginOverlap(const Collider& other);
 
+        /// \brief Overlap end callback
+        ///
+        /// \param other The other collider that was overlapping
+        ///
         virtual void endOverlap(const Collider& other);
 
+        /// \brief Activity setter
+        ///
+        /// For internal use
+        ///
         virtual void setActive(const bool) override = 0;
 
     protected:

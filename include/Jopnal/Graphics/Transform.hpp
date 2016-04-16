@@ -230,9 +230,6 @@ namespace jop
 
         /// \brief Set this transform to look at a certain point
         ///
-        /// This function will override the position, scale and rotation until
-        /// changed again.
-        ///
         /// \param point The point to look at
         ///
         /// \return Reference to self
@@ -248,9 +245,6 @@ namespace jop
         Transform& lookAt(const glm::vec3& point, const glm::vec3& up);
 
         /// \brief Set this transform to look at a certain point
-        ///
-        /// This function will override the position, scale and rotation until
-        /// changed again.
         ///
         /// \param x The X point
         /// \param y The Y point
@@ -359,7 +353,6 @@ namespace jop
         glm::vec3 m_position;                   ///< Position vector
         mutable bool m_transformNeedUpdate;     ///< Does the transform need updating?
         mutable bool m_invTransformNeedsUpdate; ///< Does the inverted transform need updating?
-        
     };
 }
 

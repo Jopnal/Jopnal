@@ -27,6 +27,26 @@
 
 namespace jop
 {
+    JOP_DERIVED_COMMAND_HANDLER(Component, RigidBody)
+
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setGravity, "setBodyGravity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setLinearFactor, "setLinearFactor");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setAngularFactor, "setAngularFactor");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyForce, "applyForce");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyImpulse, "applyImpulse");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyTorque, "applyTorque");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setLinearVelocity, "setLinearVelocity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setAngularFactor, "setAngularVelocity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralForce, "applyCentralForce");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::clearForces, "clearForces");
+
+    JOP_END_COMMAND_HANDLER(RigidBody)
+}
+
+namespace jop
+{
     RigidBody::ConstructInfo::ConstructInfo(const CollisionShape& shape, const Type type, const float mass)
         : group                 (1),
           mask                  (1),
@@ -238,9 +258,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RigidBody::clearForces()
+    RigidBody& RigidBody::clearForces()
     {
         m_rigidBody->clearForces();
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -249,5 +270,4 @@ namespace jop
     {
         m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
-
 }

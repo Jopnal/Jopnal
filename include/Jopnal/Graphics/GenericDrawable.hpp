@@ -33,8 +33,13 @@ namespace jop
 {
     class JOP_API GenericDrawable : public Drawable
     {
-    private:
+    protected:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other drawable to copy
+        /// \param newObj The new object
+        ///
         GenericDrawable(const GenericDrawable& other, Object& newObj);
 
         JOP_DISALLOW_COPY_MOVE(GenericDrawable);

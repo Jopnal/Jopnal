@@ -41,6 +41,8 @@ namespace jop
 
         typedef std::unordered_map<std::string, int> LocationMap;
 
+        JOP_DISALLOW_COPY_MOVE(Shader);
+
     public:
 
         /// The shader type
@@ -196,19 +198,6 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const unsigned int value);
 
-        /// \brief method setting attributes
-        ///
-        /// \param name Attribute name
-        /// \param type Data type, Use the appropriate OpenGL enum
-        /// \param amount Amount of variables per element
-        /// \param stride The stride. Refer to OpenGL documentation on what this is
-        /// \param normalize Normalize the attributes?
-        /// \param pointer Pointer to the data or the offset in the buffer
-        ///
-        /// \return True if set successfully
-        ///
-        bool setAttribute(const std::string& name, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
-
         /// \brief Set an attribute using the location
         ///
         /// \param loc Attribute location
@@ -268,22 +257,10 @@ namespace jop
         ///
         int getUniformLocation(const std::string& name);
 
-        /// \brief Get location of attribute by name
-        ///
-        int getAttributeLocation(const std::string& name);
-
-        int getLocation(const std::string& name, LocationMap& map, int (*func)(unsigned int, const std::string&));
-
-        static int getLocUnif(unsigned int prog, const std::string& name);
-
-        static int getLocAttr(unsigned int prog, const std::string& name);
-
         
         std::array<std::string, 4> m_strings;   ///< The shader sources
         LocationMap m_unifMap;                  ///< Map with the uniform locations
-        LocationMap m_attribMap;                ///< Map with the attribute locations
         unsigned int m_shaderProgram;           ///< The OpenGL shader handle
-                
     };
 }
 

@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Physics/RayInfo.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -60,13 +61,14 @@ namespace jop
 
         /// \brief Constructor
         ///
+        /// \param obj The object to bind this world into
         /// \param renderer Reference to the renderer, needed for debug drawing
         ///
         World(Object& obj, Renderer& renderer);
 
         /// \brief Destructor
         ///
-        ~World();
+        ~World() override;
 
 
         /// \brief Update the world
@@ -80,6 +82,40 @@ namespace jop
         /// \param camera Camera to use
         ///
         void draw(const Camera& camera);
+
+
+        /// \brief Check if a ray hits a collider and return the closest one
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        /// \param group The collision group
+        /// \param mask The collision mask
+        ///
+        /// \return Ray hit info
+        ///
+        RayInfo checkRayClosest(const glm::vec3& start, const glm::vec3& ray, const short group = 1, const short mask = 32767) const;
+
+        /// \brief Check if a ray hits a collider and return all hits
+        ///
+        /// \param start The start position of the ray
+        /// \param ray Ray to be shot from start
+        /// \param group The collision group
+        /// \param mask The collision mask
+        ///
+        /// \return Vector of ray infos, empty if none were hit
+        ///
+        std::vector<RayInfo> checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group = 1, const short mask = 32767) const;
+
+        /// \brief Get all the colliders that overlap with the bounding box
+        ///
+        /// \param aabbStart Starting point of the bounding box
+        /// \param aabbEnd Ending point of the bounding box
+        /// \param group The collision group
+        /// \param mask The collision mask
+        ///
+        /// \return Vector of colliders, empty if none were overlapping
+        ///
+        std::vector<Collider*> checkOverlapAll(const glm::vec3& aabbStart, const glm::vec3& aabbEnd, const short group = 1, const short mask = 32767) const;
 
     public:
 

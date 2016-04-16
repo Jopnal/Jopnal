@@ -25,6 +25,19 @@
 //////////////////////////////////////////////
 
 
+namespace std
+{
+    size_t hash<std::pair<std::string, std::type_index>>::operator ()(const std::pair<std::string, std::type_index>& pair) const
+    {
+        const size_t first = hash<string>()(pair.first);
+        const size_t second = hash<type_index>()(pair.second);
+
+        return first ^ second + 0x9e3779b9 + (first << 6) + (first >> 2);
+    }
+}
+
+//////////////////////////////////////////////
+
 namespace jop
 {
     JOP_REGISTER_LOADABLE(jop, ResourceManager)[](const json::Value& val) -> bool
@@ -57,16 +70,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResource(const std::string& path)
+    void ResourceManager::unloadResource(const std::string& name)
     {
         if (m_instance)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
             auto& inst = *m_instance;
 
-            auto itr = inst.m_resources.find(path);
+            auto itr = inst.m_resources.begin();
+            while (itr != inst.m_resources.end())
+            {
+                if (itr->first.first == name)
+                {
+                    if (itr->second->getPersistence() != 0)
+                        inst.m_resources.erase(itr);
+                    
+                    break;
+                }
 
-            if (itr != inst.m_resources.end() && itr->second->getPersistence() != 0)
-                inst.m_resources.erase(itr);
+                ++itr;
+            }
         }
     }
 
@@ -76,12 +100,13 @@ namespace jop
     {
         if (m_instance)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
             auto& res = m_instance->m_resources;
 
             for (auto itr = res.begin(); itr != res.end();)
             {
-                if (itr->second->getPersistence() == 0 ||
-                   (descending ? itr->second->getPersistence() < persistence : itr->second->getPersistence() != persistence))
+                if (itr->second->getPersistence() == 0 || (descending ? itr->second->getPersistence() < persistence : itr->second->getPersistence() != persistence))
                     ++itr;
                 else
                     itr = res.erase(itr);
@@ -98,8 +123,6 @@ namespace jop
             JOP_DEBUG_ERROR("Couldn't load resource manager state, no instance exists");
             return false;
         }
-
-        m_instance->setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "Resource Manager");
 
         if (val.HasMember("resources") && val["resources"].IsArray())
         {
@@ -153,9 +176,6 @@ namespace jop
 
             for (auto& i : m_instance->m_resources)
             {
-                if (i.second->isManaged())
-                    continue;
-
                 auto nameItr = nameMap.find(std::type_index(typeid(*i.second)));
                 auto itr = resCont.end();
 

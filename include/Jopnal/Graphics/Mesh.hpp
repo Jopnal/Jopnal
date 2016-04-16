@@ -37,6 +37,10 @@ namespace jop
 
     class JOP_API Mesh : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(Mesh);
+
     public:
 
         /// Vertex components
@@ -59,14 +63,26 @@ namespace jop
         Mesh(const std::string& name);
 
 
+        /// \brief Load mesh from memory
+        ///
+        /// This function takes the vertex data in binary format. The order of vertex components:
+        /// Position, texture coordinated, normal, tangent, bi-tangent, color
+        ///
+        /// \param vertexData Pointer to the vertex data
+        /// \param vertexBytes Size of the vertex data buffer in bytes
+        /// \param vertexComponents The vertex components
+        /// \param indexData Pointer to the index data
+        /// \param indexSize Size of a <b>single</b> index in bytes
+        /// \param indexAmount Amount of indices
+        ///
+        /// \return True if loaded successfully
+        /// 
         bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned short indexSize = 0, const unsigned int indexAmount = 0);
 
-        /// \brief Loads model from memory
+        /// \brief Load mesh from memory using default vertex format
         ///
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
-        ///
-        /// \deprecated Prefer the other overload
         ///
         /// \return True if successfully loaded
         ///
@@ -79,9 +95,20 @@ namespace jop
         ///
         unsigned int getVertexAmount() const;
 
+        /// \brief Get the vertex size
+        ///
+        /// \return Vertex size in bytes
+        ///
         uint16 getVertexSize() const;
 
+        /// \brief Check if this mesh has a vertex component
+        ///
+        /// \param component The component to check
+        ///
+        /// \return True if the component exists
+        ///
         bool hasVertexComponent(const uint32 component) const;
+
 
         /// \brief Get the element (index) amount
         ///
@@ -89,10 +116,18 @@ namespace jop
         ///
         unsigned int getElementAmount() const;
 
-
+        /// \brief Get the element size
+        ///
+        /// \return Element size in bytes
+        ///
         uint16 getElementSize() const;
 
-
+        /// \brief Get the element type OpenGL enum
+        ///
+        /// The returned enum can be used with gl::DrawElements.
+        ///
+        /// \return The element type OpenGL enum
+        ///
         unsigned int getElementEnum() const;
 
 
@@ -109,8 +144,23 @@ namespace jop
         const VertexBuffer& getVertexBuffer() const;
 
 
+        /// \brief Get the size of a vertex with the given format
+        ///
+        /// \param components Vertex components
+        ///
+        /// \return Size of the vertex
+        ///
         static uint16 getVertexSize(const uint32 components);
 
+        /// \brief Get the size of an element
+        ///
+        /// The returned value will be the size/precision requirement for an element
+        /// with the given amount of <b>vertices</b>
+        ///
+        /// \param amount Maximum amount of vertices
+        ///
+        /// \return Size of the element in bytes
+        ///
         static uint16 getElementSize(const uint32 amount);
 
         /// \brief Get the default mesh
@@ -123,9 +173,9 @@ namespace jop
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
-        uint32 m_vertexComponents;
-        uint16 m_elementSize;
-        uint16 m_vertexSize;
+        uint32 m_vertexComponents;      ///< Vertex components this mesh has
+        uint16 m_elementSize;           ///< Element size
+        uint16 m_vertexSize;            ///< Vertex size
     };
 }
 

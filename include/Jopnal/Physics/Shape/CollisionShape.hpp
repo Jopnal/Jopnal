@@ -38,6 +38,8 @@ namespace jop
     {
     private:
 
+        JOP_DISALLOW_COPY_MOVE(CollisionShape);
+
         friend class RigidBody;
         friend class CompoundShape;
 

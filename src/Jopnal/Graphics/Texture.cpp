@@ -58,9 +58,7 @@ namespace jop
           m_sampler         (),
           m_texture         (0),
           m_target          (glTarget)
-    {
-        setSampler(TextureSampler::getDefault());
-    }
+    {}
 
     Texture::~Texture()
     {
@@ -88,17 +86,21 @@ namespace jop
         glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
         glCheck(gl::BindTexture(m_target, m_texture));
 
-        if (m_sampler.expired())
-            m_sampler = static_ref_cast<const TextureSampler>(TextureSampler::getDefault().getReference());
-
-        m_sampler->bind(texUnit);
+        m_sampler.bind(texUnit);
     }
 
     //////////////////////////////////////////////
 
-    void Texture::setSampler(const TextureSampler& sampler)
+    TextureSampler& Texture::getSampler()
     {
-        m_sampler = static_ref_cast<const TextureSampler>(sampler.getReference());
+        return m_sampler;
+    }
+
+    //////////////////////////////////////////////
+
+    const TextureSampler& Texture::getSampler() const
+    {
+        return m_sampler;
     }
 
     //////////////////////////////////////////////

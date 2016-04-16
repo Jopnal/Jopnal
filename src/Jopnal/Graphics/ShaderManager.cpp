@@ -28,23 +28,29 @@
 namespace jop
 {
     ShaderManager::ShaderManager()
-        : Subsystem("Shader Manager"),
-          m_shaders(),
-          m_uber()
+        : Subsystem ("Shader Manager"),
+          m_shaders (),
+          m_uber    (),
+          m_mutex   ()
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderManager instance!");
         m_instance = this;
 
         std::vector<unsigned char> buf;
 
-        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_UBERVERT, buf), "Failed to read default vertex uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_VERT, buf), "Failed to read default vertex uber shader source!");
         m_uber[0].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
 
-        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, buf), "Failed to read default geometry uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, buf), "Failed to read default geometry uber shader source!");
         m_uber[1].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
 
-        JOP_ASSERT_EVAL(FileLoader::readResource(IDR_UBERFRAG, buf), "Failed to read default fragment uber shader source!");
+        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_FRAG, buf), "Failed to read default fragment uber shader source!");
         m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
+    }
+
+    ShaderManager::~ShaderManager()
+    {
+        m_instance = nullptr;
     }
 
     //////////////////////////////////////////////
@@ -53,7 +59,10 @@ namespace jop
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderManager instance!");
 
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         auto& cont = m_instance->m_shaders;
+
         auto itr = cont.find(attributes);
         if (itr != cont.end() && !itr->second.expired())
             return *itr->second;
@@ -61,19 +70,18 @@ namespace jop
         const auto& uber = m_instance->m_uber;
         const std::string shaderName = "jop_shader_" + std::to_string(attributes);
 
-        if (ResourceManager::resourceExists(shaderName))
+        if (ResourceManager::resourceExists<Shader>(shaderName))
             return ResourceManager::getExistingResource<Shader>(shaderName);
 
         std::string pp;
         getPreprocessDef(attributes, pp);
 
-        auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::RecordEnv) ? uber[1] : "", uber[2], pp);
-        //s.setManaged(true);
+        auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::__RecordEnv) ? uber[1] : "", uber[2], pp);
 
         cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
         // Needed so that different samplers don't all point to zero
-        if ((attributes & Material::Attribute::Lighting) != 0)
+        if ((attributes & Material::Attribute::__Lighting) != 0)
         {
             static const int maxUnits = Texture::getMaxTextureUnits();
 
@@ -90,6 +98,8 @@ namespace jop
     {
         using m = Material::Attribute;
 
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         str += "#version 330 core\n";
 
         // Ambient constant
@@ -104,12 +114,17 @@ namespace jop
         }
 
         // Material
-        if ((attrib & m::Lighting) != 0)
+        if ((attrib & m::__Lighting) != 0)
             str += "#define JMAT_MATERIAL\n";
         
         // Diffuse map
         if ((attrib & m::DiffuseMap) != 0)
+        {
             str += "#define JMAT_DIFFUSEMAP\n";
+
+            if ((attrib & m::DiffuseAlpha) != 0)
+                str += "#define JMAT_DIFFUSEALPHA\n";
+        }
 
         // Specular map
         if ((attrib & m::SpecularMap) != 0)
@@ -127,6 +142,10 @@ namespace jop
         if ((attrib & m::ReflectionMap) != 0)
             str += "#define JMAT_REFLECTIONMAP\n";
 
+        // Reflection map
+        if ((attrib & m::OpacityMap) != 0)
+            str += "#define JMAT_OPACITYMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =
@@ -140,13 +159,14 @@ namespace jop
         }
 
         // Environment map record
-        if ((attrib & m::RecordEnv) != 0)
+        if ((attrib & m::__RecordEnv) != 0)
             str += "#define JMAT_ENVIRONMENT_RECORD\n";
-    }
 
-    ShaderManager::~ShaderManager()
-    {
-        m_instance = nullptr;
+        // Skybox/sphere
+        if ((attrib & m::__SkyBox) != 0)
+            str += "#define JMAT_SKYBOX";
+        else if ((attrib & m::__SkySphere) != 0)
+            str += "#define JMAT_SKYSPHERE";
     }
 
     //////////////////////////////////////////////

@@ -163,7 +163,6 @@ namespace jop
             JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
 
             defMesh->setPersistence(0);
-            defMesh->setManaged(true);
         }
 
         return *defMesh;

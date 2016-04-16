@@ -126,7 +126,6 @@ namespace jop
         /// \brief Inequality operator
         ///
         bool operator !=(const Color& other) const;
-
     };
 }
 

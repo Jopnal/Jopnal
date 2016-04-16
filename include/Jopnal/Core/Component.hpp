@@ -43,22 +43,31 @@ namespace jop
 
         friend class Object;
 
+        /// \brief Clone function
+        ///
+        /// \param newObj The object for the cloned component
+        ///
+        /// \return Pointer to the cloned component
+        /// 
         virtual Component* clone(Object& newObj) const = 0;
 
     protected:
 
         /// \brief Copy constructor
         ///
+        /// \param other The other component to be copied
+        /// \param newObj The new object
+        ///
         Component(const Component& other, Object& newObj);
-
-    public:
 
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Unique component identifier
+        /// \param ID Component identifier
         ///
         Component(Object& object, const std::string& ID);
+
+    public:
 
         /// \brief Virtual destructor
         ///
@@ -69,6 +78,8 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
+        /// \return Message result
+        ///
         Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
@@ -76,25 +87,33 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
+        /// \return Message result
+        ///
         Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
+        /// \return Message result
+        ///
         Message::Result sendMessage(const Message& message);
 
         /// \brief Update function for component
         ///
-        /// \param deltaTime Double holding delta time
+        /// \param deltaTime The delta time
         ///
         virtual void update(const float deltaTime);
 
-        /// \brief Function to get components unique identifier m_ID
+        /// \brief Get the identifier
+        ///
+        /// \return Reference to the identifier
         ///
         const std::string& getID() const;
 
-        /// \brief Function to set components unique identifier m_ID
+        /// \brief Set the identifier
+        ///
+        /// \param ID The new identifier
         ///
         /// \comm setID
         ///
@@ -131,6 +150,7 @@ namespace jop
         /// \brief Virtual sendMessage
         ///
         virtual Message::Result sendMessageImpl(const Message& message);
+
 
         std::string m_ID;                   ///< Identifier
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to

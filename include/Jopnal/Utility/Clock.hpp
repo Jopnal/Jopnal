@@ -75,7 +75,6 @@ namespace jop
         private:
 
             uint64 m_nanoseconds; ///< The internal time value in nanoseconds
-
         };
 
     public:
@@ -103,7 +102,6 @@ namespace jop
 
         std::chrono::high_resolution_clock m_clock;             ///< The standard clock object
         std::chrono::time_point<decltype(m_clock)> m_lastTime;  ///< The time point of the last reset
-
     };
 }
 

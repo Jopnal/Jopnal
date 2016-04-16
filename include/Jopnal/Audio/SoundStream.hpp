@@ -38,11 +38,7 @@ namespace jop
 {
     class JOP_API SoundStream : public SoundSource
     {
-    protected:
-
-        /// \brief Copy constructor
-        ///
-        SoundStream(const SoundStream& other, Object& newObj);
+    private:
 
         JOP_DISALLOW_COPY_MOVE(SoundStream);
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
@@ -52,66 +48,56 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Unique component identifier
         ///
         SoundStream(Object& object);
+
+        /// \brief Copy constructor
+        ///
+        /// \param other The other sound stream to be copied
+        /// \param newObj New object for this stream component
+        ///
+        SoundStream(const SoundStream& other, Object& newObj);
 
 
         /// \brief Stream audio from file
         ///
-        /// Needs relative path to resource folder
+        /// This will not start playing the stream. You must call play() in addition.
         ///
-        /// \param Path to audio file
+        /// \param path Path to audio file
         ///
-        SoundStream& setPath(const std::string& path);
+        /// \return True if loaded successfully
+        ///
+        bool setPath(const std::string& path);
 
-        /// \brief Play sound
-        ///
-        /// \comm playStream
-        ///
-        /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
-        ///
-        /// If true audio doesn't start over from beginning
+        /// \copydoc SoundEffect::play(const bool)
         ///
         SoundStream& play(const bool reset);
 
-        /// \brief Play sound from start
+        /// \copydoc SoundEffect::play
         ///
         SoundStream& play();
 
-        /// \brief Stop playing sound
-        ///
-        /// \comm stopStream
+        /// \copydoc SoundEffect::stop
         ///
         SoundStream& stop();
 
-        /// \brief Pause sound
-        ///
-        /// \comm pauseStream
+        /// \copydoc SoundEffect::pause
         ///
         SoundStream& pause();
 
-        /// \brief Set from which point as seconds the sound starts playing
-        ///
-        /// \comm setStreamOffset
-        ///
-        /// \param Float time
+        /// \copydoc SoundEffect::setOffset
         ///
         SoundStream& setOffset(const float time);
 
-        /// \brief Returns point where sound is playing as seconds
+        /// \copydoc SoundEffect::getOffset
         ///
         float getOffset() const;
 
-        /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
+        /// \copydoc SoundEffect::getStatus
         ///
         Status getStatus() const;
 
-        /// \brief Toggle sound on/off
-        ///
-        /// \comm setStreamLoop
-        ///
-        /// \param Boolean true equals on and false equals off
+        /// \copydoc SoundEffect::setLoop
         ///
         SoundStream& setLoop(const bool loop);
 

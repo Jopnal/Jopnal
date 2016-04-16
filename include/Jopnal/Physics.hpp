@@ -32,6 +32,8 @@
 #include <Jopnal/Physics/Shape/CylinderShape.hpp>
 #include <Jopnal/Physics/Shape/ConeShape.hpp>
 #include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
+#include <Jopnal/Physics/RayInfo.hpp>
 
 //////////////////////////////////////////////
 

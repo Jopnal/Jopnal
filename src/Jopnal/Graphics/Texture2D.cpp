@@ -32,28 +32,6 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    void flip(const unsigned int width, const unsigned int height, const unsigned int bpp, unsigned char* pixels)
-    {
-        unsigned int rowSize = width * bpp;
-
-        for (std::size_t y = 0; y < height; ++y)
-        {
-            unsigned char* left = pixels + y * rowSize;
-            unsigned char* right = pixels + (y + 1) * rowSize - bpp;
-
-            for (std::size_t x = 0; x < width / 2; ++x)
-            {
-                std::swap_ranges(left, left + bpp, right);
-
-                left += bpp;
-                right -= bpp;
-            }
-        }
-    }
-}
-
 namespace jop
 {
     Texture2D::Texture2D(const std::string& name)
@@ -62,7 +40,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const std::string& path)
+    bool Texture2D::load(const std::string& path, const bool srgb)
     {
         if (path.empty())
             return false;
@@ -76,10 +54,7 @@ namespace jop
 
         bool success = false;
         if (colorData && checkDepthValid(bpp))
-        {
-            //flip(size.x, size.y, bpp, colorData);
-            success = load(size, bpp, colorData);
-        }
+            success = load(size, bpp, colorData, srgb);
 
         stbi_image_free(colorData);
 
@@ -88,14 +63,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel)
+    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb)
     {
-        return load(size, bytesPerPixel, nullptr);
+        return load(size, bytesPerPixel, nullptr, srgb);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels)
+    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb)
     {
         if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
@@ -114,8 +89,10 @@ namespace jop
         m_size = size;
         m_bytesPerPixel = bytesPerPixel;
 
+        setPixelStore(bytesPerPixel);
+
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
@@ -136,6 +113,7 @@ namespace jop
         }
 
         bind();
+        setPixelStore(m_bytesPerPixel);
         glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
     }
 
@@ -155,7 +133,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const int id)
+    bool Texture2D::load(const int id, const bool srgb)
     {
         std::vector<unsigned char> buf;
         if (!FileLoader::readResource(id, buf))
@@ -166,10 +144,7 @@ namespace jop
 
         bool success = false;
         if (pix && checkDepthValid(bpp))
-        {
-            flip(x, y, bpp, pix);
-            success = load(glm::uvec2(x, y), bpp, pix);
-        }
+            success = load(glm::uvec2(x, y), bpp, pix, srgb);
 
         stbi_image_free(pix);
 
@@ -182,33 +157,31 @@ namespace jop
     {
         switch (bytesPerPixel)
         {
-            case 1:
-                return gl::RED;
             case 2:
                 return gl::RG;
             case 3:
                 return gl::RGB;
             case 4:
-            default:
                 return gl::RGBA;
+            default:
+                return gl::RED;
         }
     }
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getInternalFormatEnum(const unsigned int formatEnum)
+    unsigned int Texture2D::getInternalFormatEnum(const unsigned int formatEnum, const bool srgb)
     {
         switch (formatEnum)
         {
-            case gl::RED:
-                return gl::R8;
             case gl::RG:
                 return gl::RG8;
             case gl::RGB:
-                return gl::SRGB8;
+                return srgb ? gl::SRGB8 : gl::RGB8;
             case gl::RGBA:
+                return srgb ? gl::SRGB8_ALPHA8 : gl::RGBA8;
             default:
-                return gl::SRGB8_ALPHA8;
+                return gl::R8;
         }
     }
 
@@ -229,10 +202,9 @@ namespace jop
         {
             errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex->load(IDB_PNG2), "Failed to load error texture!");
+            JOP_ASSERT_EVAL(errTex->load(JOP_RES_ERROR_TEXTURE, true), "Failed to load error texture!");
 
             errTex->setPersistence(0);
-            errTex->setManaged(true);
         }
 
         return *errTex;
@@ -248,10 +220,9 @@ namespace jop
         {
             defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
 
-            JOP_ASSERT_EVAL(defTex->load(IDB_PNG1), "Failed to load default texture!");
+            JOP_ASSERT_EVAL(defTex->load(JOP_RES_DEFAULT_TEXTURE, true), "Failed to load default texture!");
 
             defTex->setPersistence(0);
-            defTex->setManaged(true);
         }
 
         return *defTex;

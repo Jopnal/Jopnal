@@ -28,6 +28,7 @@
 #include <Jopnal/Utility/Message.hpp>
 #include <string>
 #include <memory>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -48,7 +49,7 @@ namespace jop
         ///
         Subsystem(const std::string& ID);
 
-        /// Virtual destructor
+        /// \brief Virtual destructor
         ///
         virtual ~Subsystem() = 0;
 
@@ -81,6 +82,8 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message);
 
         /// \brief Function to handle messages
@@ -88,11 +91,15 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
+        ///
+        /// \return The message result
         ///
         Message::Result sendMessage(const Message& message);
 
@@ -110,15 +117,9 @@ namespace jop
         bool isActive() const;
 
 
-        /// \brief Set the name
+        /// \brief Get the ID
         ///
-        /// \param ID The new id to be set
-        ///
-        Subsystem& setID(const std::string& ID);
-
-        /// \brief Get the name
-        ///
-        /// \return Reference to the name string
+        /// \return Reference to the ID string
         ///
         const std::string& getID() const;
 
@@ -126,12 +127,16 @@ namespace jop
 
         /// \brief Virtual sendMessage
         ///
+        /// \param message The message
+        ///
+        /// \return The message result
+        ///
         virtual Message::Result sendMessageImpl(const Message& message);
 
     private:
 
-        std::string m_ID; ///< This subsystem's name
-        bool m_active;    ///< Sets activity 
+        const std::string m_ID;     ///< This subsystem's name
+        std::atomic<bool> m_active; ///< Sets activity 
     };
 }
 

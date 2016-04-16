@@ -43,7 +43,7 @@ namespace jop
         CylinderShape(const std::string& name);
 
 
-        /// \brief Load this shape using different extents
+        /// \brief Load this shape
         ///
         /// \param extents Extents of the cylinder
         ///

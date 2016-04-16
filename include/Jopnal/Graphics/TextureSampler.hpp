@@ -24,7 +24,6 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <memory>
 
@@ -33,41 +32,53 @@
 
 namespace jop
 {
-    class JOP_API TextureSampler : public Resource
+    class JOP_API TextureSampler
     {
-    private:
-
-        JOP_DISALLOW_COPY(TextureSampler);
-
     public:
 
         /// The filtering mode
         ///
-        enum Filter
+        enum class Filter
         {
-            None,
-            Bilinear,
-            Trilinear,
-            Anisotropic
+            None,       ///< No filtering
+            Bilinear,   ///< Bilinear (linear) filtering
+            Trilinear,  ///< Trilinear filtering, requires mipmaps
+            Anisotropic ///< Anisotropic filtering, requires mipmaps
         };
 
         /// The repeat mode
         ///
-        enum Repeat
+        enum class Repeat
         {
-            Basic,
-            Mirrored,
-            ClampEdge,
-            ClampBorder
+            Basic,      ///< Repeat
+            Mirrored,   ///< Mirrored repeat
+            ClampEdge,  ///< Clamp to edge
+            ClampBorder ///< Clamp to border
         };
 
     public:
 
         /// \brief Constructor
         /// 
-        /// This will create a sampler object but not modify its values
+        /// This will create a sampler object with default settings.
         ///
-        TextureSampler(const std::string& name);
+        TextureSampler();
+
+        /// \brief Constructor
+        ///
+        /// \param filter Initial filtering mode
+        /// \param repeat Initial repeating mode
+        /// \param param Anisotropic filtering level
+        ///
+        TextureSampler(const Filter filter, const Repeat repeat, const float param = 1.f);
+
+        /// \brief Copy constructor
+        ///
+        TextureSampler(const TextureSampler& other);
+
+        /// \brief Copy assignment operator
+        ///
+        TextureSampler& operator =(const TextureSampler& other);
 
         /// \brief Move constructor
         ///
@@ -81,16 +92,6 @@ namespace jop
         ///
         ~TextureSampler();
 
-        
-        /// \brief (Re)load this sampler
-        ///
-        /// \param filterMode The filtering mode
-        /// \param repeatMode The repeating mode
-        /// \param param Anisotropic filtering level
-        ///
-        /// \return True if successful
-        ///
-        bool load(const Filter filterMode, const Repeat repeatMode, const float param = 1.f);
 
         /// \brief Bind this sampler
         ///
@@ -100,26 +101,34 @@ namespace jop
 
         /// \brief Delete and recreate this sampler, clearing all the settings
         ///
-        void reset();
+        /// \return Reference to self
+        ///
+        TextureSampler& reset();
 
         /// \brief Set the filtering mode
         ///
         /// \param mode The filtering mode
         /// \param param Possible anisotropic filtering level
         ///
-        void setFilterMode(const Filter mode, const float param = 1.f);
+        /// \return Reference to self
+        ///
+        TextureSampler& setFilterMode(const Filter mode, const float param = 1.f);
 
         /// \brief Set the repeating mode
         ///
         /// \param repeat The repeating mode
         ///
-        void setRepeatMode(const Repeat repeat);
+        /// \return Reference to self
+        ///
+        TextureSampler& setRepeatMode(const Repeat repeat);
 
         /// \brief Set the border color
         ///
         /// \param color The border color
         ///
-        void setBorderColor(const Color& color);
+        /// \return Reference to self
+        ///
+        TextureSampler& setBorderColor(const Color& color);
 
         /// \brief Get the OpenGL handle
         ///
@@ -170,7 +179,6 @@ namespace jop
         float m_anisotropic;    ///< The anisotropic level
         Color m_borderColor;    ///< The border color
         unsigned int m_sampler; ///< The OpenGL sampler handle
-
     };
 }
 

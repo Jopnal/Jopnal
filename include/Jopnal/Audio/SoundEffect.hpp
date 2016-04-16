@@ -38,11 +38,7 @@ namespace jop
 {
     class JOP_API SoundEffect : public SoundSource
     {
-    protected:
-
-        /// \brief Copy constructor
-        ///
-        SoundEffect(const SoundEffect& other, Object& newObj);
+    private:
 
         JOP_DISALLOW_COPY_MOVE(SoundEffect);
         JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
@@ -55,15 +51,30 @@ namespace jop
         ///
         SoundEffect(Object& object);
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other sound to be copied
+        /// \param newObj The new object
+        ///
+        SoundEffect(const SoundEffect& other, Object& newObj);
 
-        /// \brief Automatically updates position
+
+        /// \brief Update
+        ///
+        /// Automatically updates position.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime) override;
 
         
         /// \brief Set the sound buffer
         ///
+        /// \warning The bound buffer has to stay alive as long as it's being used
+        ///
         /// \param buffer Reference to the buffer
+        ///
+        /// \return Reference to self
         ///
         SoundEffect& setBuffer(const SoundBuffer& buffer);
 
@@ -71,68 +82,113 @@ namespace jop
         ///
         /// \comm playEffect
         ///
-        /// \param Boolean Does sound start from beginning (false) or continue if already playing (true)
+        /// \param reset Does sound start from beginning (true) or continue if already playing (false)
         ///
-        /// If true audio doesn't start over from beginning
+        /// \return Reference to self
         ///
         SoundEffect& play(const bool reset);
 
         /// \brief Play sound from start
         ///
+        /// This is the same as calling play(true).
+        ///
+        /// \return Reference to self
+        ///
+        /// \see stop
+        /// \see pause
+        ///
         SoundEffect& play();
 
         /// \brief Stop playing sound
         ///
+        /// After this call, the playing offset will be at the beginning.
+        ///
         /// \comm stopEffect
+        ///
+        /// \return Reference to self
+        ///
+        /// \see play
+        /// \see pause
         ///
         SoundEffect& stop();
 
         /// \brief Pause sound
         ///
+        /// The playing offset will be left at the current position.
+        ///
         /// \comm pauseEffect
+        ///
+        /// \return Reference to self
+        ///
+        /// \see play
+        /// \see stop
         ///
         SoundEffect& pause();
 
-        /// \brief Set from which point as seconds the sound starts playing
+        /// \brief Set from which point the sound starts playing
+        ///
+        /// The value will be clamped to fit the buffer's length.
         ///
         /// \comm setEffectOffset
         ///
-        /// \param Float time
+        /// \param time The time point as seconds
+        ///
+        /// \return Reference to self
         ///
         SoundEffect& setOffset(const float time);
 
-        /// \brief Returns point where sound is playing as seconds
+        /// \brief Returns point where sound is playing
+        ///
+        /// \return The playing offset in seconds
         ///
         float getOffset() const;
 
-        /// \brief Returns status Stopped (0), Paused (1) or Playing (2) as enum
+        /// \brief Get the status
+        ///
+        /// \return The playing status
         ///
         Status getStatus() const;
 
-        /// \brief Toggle sound on/off
+        /// \brief Enable/disable looping
+        ///
+        /// If looping is enabled, the sound will loop indefinitely until stopped.
         ///
         /// \comm setEffectLoop
         ///
-        /// \param Boolean true equals on and false equals off
+        /// \param loop True to set this sound to loop
+        ///
+        /// \return Reference to self
         ///
         SoundEffect& setLoop(const bool loop);
 
 
-        /// \brief Use speed of sound (default = 343.0f * global(1.f) * personal(1.f))
+        /// \brief Use speed of sound
+        ///
+        /// When speed of sound is enabled, the sound simulates the time it takes the sound wave to travel.
+        /// This means that when a sound is far away, it will only be played when it actually reaches the listener.
+        ///
+        /// (default = 343.0f * global * personal)
         ///
         /// \comm speedOfSound
         ///
-        /// \param On/off
+        /// \param use True to enable
+        ///
+        /// \return Reference to self
+        ///
+        /// \see setGlobalSpeedOfSound
+        /// \see setPersonalSpeed
         ///
         SoundEffect& speedOfSound(const bool use);
 
         /// \brief Change global speed multiplier for sounds
         ///
-        /// \param float meters per second
+        /// \param speed Speed multiplier
         ///
         static void setGlobalSpeedOfSound(const float speed);
 
         /// \brief Returns global speed multiplier for sounds
+        ///
+        /// \return The global speed multiplier
         ///
         static float getGlobalSpeedOfSound();
 
@@ -141,11 +197,15 @@ namespace jop
         ///
         /// \comm setPersonalSpeed
         ///
-        /// \param float meters per second
+        /// \param speed Speed multiplier
         ///
-        SoundEffect& setPersonalSpeed(float speed);
+        /// \return Reference to self
+        ///
+        SoundEffect& setPersonalSpeed(const float speed);
 
         /// \brief Returns sound's personal speed multiplier
+        ///
+        /// \return The personal speed multiplier
         ///
         float getPersonalSpeed() const;
 
@@ -157,7 +217,7 @@ namespace jop
 
         /// \brief Automatic check if sound is allowed to play
         ///
-        /// \param Deltatime for calculation
+        /// \param deltaTime The delta time
         ///
         void allowSound(const float deltaTime);
 

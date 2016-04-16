@@ -30,6 +30,7 @@
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -75,7 +76,8 @@ namespace jop
             glm::uvec2 size;            ///< Window size (client area)
             std::string title;          ///< Window title
             DisplayMode displayMode;    ///< Display mode
-            unsigned int samples;       ///< Sample count for multisampling
+            unsigned int samples;       ///< Sample count for multi sampling
+            unsigned int maxFrameRate;  ///< Maximum frames per second
             bool visible;               ///< Is the window initially visible?
             bool vSync;                 ///< Enable vertical sync?
             bool debug;                 ///< Ask for a debug context?
@@ -155,12 +157,21 @@ namespace jop
         ///
         /// \param args The arguments to use with construction
         ///
+        /// \return Reference to the newly created event handler
+        ///
         template<typename T, typename ... Args>
         T& setEventHandler(Args&&... args);
 
+        /// \brief Set the default handler
+        ///
+        /// The default event handler has no functionality other than
+        /// closing the window when the close button is clicked.
+        ///
+        void setDefaultEventHandler();
+
         /// \brief Get the event handler
         ///
-        /// \return Pointer to the event handler. NUllptr if none exists
+        /// \return Pointer to the event handler
         ///
         WindowEventHandler* getEventHandler();
 
@@ -224,8 +235,6 @@ namespace jop
         void setSize(const int width, const int height);
 
         /// \brief Get the size of the window
-        /// 
-        /// \param includeFrame Should the frame/decoration width & height be included?
         ///
         /// \return Size of the window
         ///

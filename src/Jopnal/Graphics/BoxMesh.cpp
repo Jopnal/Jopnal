@@ -62,9 +62,18 @@ namespace jop
 namespace jop
 {
     BoxMesh::BoxMesh(const std::string& name)
-        : Mesh      (name),
-          m_size    (0.f)
+        : Mesh          (name),
+          m_size        (0.f),
+          m_inverted    (false)
     {}
+
+    BoxMesh::BoxMesh(const BoxMesh& other, const std::string& newName)
+        : Mesh          (newName),
+          m_size        (0.f),
+          m_inverted    (false)
+    {
+        load(other.getSize(), other.m_inverted);
+    }
 
     //////////////////////////////////////////////
 
@@ -78,8 +87,10 @@ namespace jop
     bool BoxMesh::load(const float size, const bool invert)
     {
         m_size = size;
+        m_inverted = invert;
+
         const float half = (invert ? -0.5f : 0.5f) * size;
-        const float norm = /*invert ? -1.f : */1.f;
+        const float norm = 1.f;
 
         const std::vector<Vertex> vertices
         ({

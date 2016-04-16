@@ -34,11 +34,7 @@ namespace jop
 {
     class JOP_API Listener : public Component
     {
-    protected:
-
-        /// \brief Copy constructor
-        ///
-        Listener(const Listener& other, Object& newObj);
+    private:
 
         JOP_DISALLOW_COPY_MOVE(Listener);
         JOP_GENERIC_COMPONENT_CLONE(Listener);
@@ -52,20 +48,40 @@ namespace jop
         ///
         Listener(Object& object);
 
+        /// \brief Copy constructor
+        ///
+        /// \warning Listener is not meant to be copied. To ensure that your sounds work correctly,
+        ///          there should be only one listener in existence at a time.
+        ///
+        /// \param other The other listener to be copied
+        /// \param newObj Object for the new listener
+        ///
+        Listener(const Listener& other, Object& newObj);
 
-        /// \brief Automatically updates position and direction
+
+        /// \brief Update
+        ///
+        /// Automatically updates position and direction.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime) override;
 
         /// \brief Change the global volume of all the sounds and musics
         ///
+        /// The individual volume of all sounds will be multiplied by this value.
+        ///
         /// \comm setGlobalVolume
         ///
-        /// \param Global volume in range of 0-100.0f
+        /// \param volume Global volume in range of 0-100.0f
+        ///
+        /// \see getGlobalVolume
         ///
         void setGlobalVolume(const float volume);
 
         /// \brief Get the current value of the global volume
+        ///
+        /// \return The global volume
         ///
         float getGlobalVolume() const;
     };
@@ -76,4 +92,4 @@ namespace jop
 /// \ingroup Audio
 ///
 /// Handles audio's position distance and volume retrieving according to source/retriever aspect
-/// Only one instance of this class can be created at time. SFML listener can't handle multible retrievers.
+/// Only one instance of this class can be created at time. SFML listener can't handle multiple retrievers.

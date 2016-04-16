@@ -29,13 +29,9 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
 
-       // JOP_BIND_MEMBER_COMMAND((Component& (LightSource::*)(const float, const float, const float))&LightSource::setID, "setID");
-
-        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color))&LightSource::setIntensity, "setIntensity");
-
-        //JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCastShadows, "setCastShadows");
-
-        JOP_BIND_MEMBER_COMMAND(&LightSource::setRenderMask, "setRenderMask");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color&))&LightSource::setIntensity, "setIntensity");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const float, const float, const float))&LightSource::setAttenuation, "setAttenuation");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCutoff, "setCutoff");
 
     JOP_END_COMMAND_HANDLER(LightSource)
 }
@@ -132,7 +128,7 @@ namespace jop
           m_lightSpaceMatrices  (),
           m_type                (type),
           m_intensities         (),
-          m_attenuation         (1.f, 1.f, 2.f, 5.f),
+          m_attenuation         (1.f, 1.f, 2.f),
           m_cutoff              (0.17f, 0.17f), // ~10 degrees
           m_rendererRef         (renderer),
           m_renderMask          (1),
@@ -249,7 +245,7 @@ namespace jop
             dirSpotShader->setPersistence(0);
 
             std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERT, vert) && FileLoader::readResource(IDR_DEPTHRECORDFRAG, frag), "Couldn't read depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_FRAG, frag), "Couldn't read depth record shader source!");
 
             JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
         }
@@ -261,7 +257,7 @@ namespace jop
             pointShader->setPersistence(0);
 
             std::vector<unsigned char> vert, geom, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(IDR_DEPTHRECORDVERTPOINT, vert) && FileLoader::readResource(IDR_DEPTHRECORDGEOMPOINT, geom) && FileLoader::readResource(IDR_DEPTHRECORDFRAGPOINT, frag), "Couldn't read point depth record shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, geom) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_FRAG, frag), "Couldn't read point depth record shader source!");
 
             JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
         }
@@ -272,6 +268,8 @@ namespace jop
             return false;
 
         m_shadowMap.clear(RenderTarget::DepthBit);
+
+        static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
 
         // Use the object's scale to construct the frustum
         auto scl = getObject()->getScale();
@@ -286,12 +284,12 @@ namespace jop
             {
                 auto pos = getObject()->getGlobalPosition();
 
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.2f, getRange());
+                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
 
                 makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 
                 shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-                shdr.setUniform("u_FarClippingPlane", getRange());
+                shdr.setUniform("u_FarClippingPlane", range);
                 shdr.setUniform("u_LightPosition", pos);
                 break;
             }
@@ -304,9 +302,8 @@ namespace jop
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans.getInverseMatrix();
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
-                break;
             }
         }
 
@@ -322,13 +319,13 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, gl::FLOAT, 3, sizeof(Vertex), false, (void*)Vertex::Position);
+            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, (void*)Vertex::Position);
             shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
 
             if (mesh.getElementAmount())
             {
                 mesh.getIndexBuffer().bind();
-                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), gl::UNSIGNED_INT, (void*)0));
+                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), (void*)0));
             }
             else
             {
@@ -348,7 +345,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Intensity intensity, const Color color)
+    LightSource& LightSource::setIntensity(const Intensity intensity, const Color& color)
     {
         m_intensities[static_cast<int>(intensity)] = color;
         return *this;
@@ -356,7 +353,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Color ambient, const Color diffuse, const Color specular)
+    LightSource& LightSource::setIntensity(const Color& ambient, const Color& diffuse, const Color& specular)
     {
         return setIntensity(Intensity::Ambient, ambient)
               .setIntensity(Intensity::Diffuse, diffuse)
@@ -365,7 +362,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setIntensity(const Color intensity)
+    LightSource& LightSource::setIntensity(const Color& intensity)
     {
         return setIntensity(Intensity::Ambient, intensity)
               .setIntensity(Intensity::Diffuse, intensity)
@@ -391,33 +388,15 @@ namespace jop
 
     LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic)
     {
-        m_attenuation = glm::vec4(constant, linear, quadratic, m_attenuation[3]);
+        m_attenuation = glm::vec3(constant, linear, quadratic);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setAttenuation(const AttenuationPreset preset)
+    LightSource& LightSource::setAttenuation(const float range)
     {
-        static const glm::vec4 att[] =
-        {
-                    /* Range    Constant    Linear      Quadratic   */
-            glm::vec4( 7.f,     1.f,        0.7f,       1.8f        ),
-            glm::vec4( 13.f,    1.f,        0.35f,      0.44f       ),
-            glm::vec4( 20.f,    1.f,        0.22f,      0.20f       ),
-            glm::vec4( 32.f,    1.f,        0.14f,      0.07f       ),
-            glm::vec4( 50.f,    1.f,        0.09f,      0.032f      ),
-            glm::vec4( 65.f,    1.f,        0.07f,      0.017f      ),
-            glm::vec4( 100.f,   1.f,        0.045f,     0.0075f     ),
-            glm::vec4( 160.f,   1.f,        0.27f,      0.0028f     ),
-            glm::vec4( 200.f,   1.f,        0.22f,      0.0019f     ),
-            glm::vec4( 325.f,   1.f,        0.14f,      0.0007f     ),
-            glm::vec4( 600.f,   1.f,        0.007f,     0.0002f     ),
-            glm::vec4( 3250.f,  1.f,        0.0014f,    0.000007f   )
-        };
-
-        auto& v = att[static_cast<int>(preset)];
-        return setAttenuation(v[1], v[2], v[3]).setRange(v[0]);
+        return setAttenuation(1.0f, 4.5f / range, 75.0f / (range * range));
     }
 
     //////////////////////////////////////////////
@@ -436,17 +415,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setRange(const float range)
+    bool LightSource::checkRange(const Drawable& drawable) const
     {
-        m_attenuation[3] = range;
-        return *this;
-    }
+        if (m_type == Type::Directional)
+            return true;
 
-    //////////////////////////////////////////////
+        const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
+        const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-    float LightSource::getRange() const
-    {
-        return m_attenuation[3];
+        static const float bias = SettingManager::getFloat("fLightCullBias", 0.02f);
+
+        return att > bias;
     }
 
     //////////////////////////////////////////////
@@ -489,7 +468,6 @@ namespace jop
         viewMats[4] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
         viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
     }
-
 
     //////////////////////////////////////////////
 
@@ -536,7 +514,7 @@ namespace jop
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
 
-        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", 10);
+        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", static_cast<unsigned int>(Material::Map::Last));
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
         static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Point);
@@ -571,10 +549,12 @@ namespace jop
                 {
                     shader.setUniform(indexed + "castShadow", li.castShadows());
 
+                    static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
+                    
                     if (li.castShadows())
                     {
                         shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentPointShadowUnit++);
-                        shader.setUniform(indexed + "farPlane", li.getRange());
+                        shader.setUniform(indexed + "farPlane", range);
                     }
                 }
             }

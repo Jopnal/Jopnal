@@ -102,7 +102,6 @@ namespace jop
 
         WeakReference<Material> m_material; ///< The material
         WeakReference<const Mesh> m_mesh;   ///< The mesh
-
     };
 }
 

@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -130,7 +131,7 @@ namespace jop
         ///
         /// \return A std::pair with the position. First = x, second = y
         ///
-        std::pair<float, float> getCursorPosition() const;
+        glm::vec2 getCursorPosition() const;
 
         /// \brief Mouse button pressed callback
         ///
@@ -230,7 +231,6 @@ namespace jop
 
         float m_lastMouseX; ///< For internal use. Do not touch
         float m_lastMouseY; ///< For internal use. Do not touch
-        
     };
 }
 

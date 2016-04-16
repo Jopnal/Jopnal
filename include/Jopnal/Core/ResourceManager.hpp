@@ -29,9 +29,20 @@
 #include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <memory>
+#include <typeindex>
+#include <mutex>
 
 //////////////////////////////////////////////
 
+
+namespace std
+{
+    template<>
+    struct JOP_API hash<std::pair<std::string, std::type_index>>
+    {
+        std::size_t operator()(const std::pair<std::string, std::type_index>& pair) const;
+    };
+}
 
 namespace jop
 {
@@ -98,14 +109,13 @@ namespace jop
 
         /// \brief Check is a resource exists
         ///
-        /// You can pass the resource type as a template argument to compare against it.
-        /// If only the name should be checked, T should be Resource.
+        /// The name and type must both match.
         ///
         /// \param name Name of the resource
         ///
         /// \return True if the resource exists
         /// 
-        template<typename T = Resource>
+        template<typename T>
         static bool resourceExists(const std::string& name);
 
 
@@ -127,14 +137,24 @@ namespace jop
         /// \brief Deletes resource from memory
         ///
         /// The resource, if found, will be deleted regardless of the persistence flag.
+        /// Resources with the persistence level of 0 will not be removed, however.
         ///
-        /// \param path Name or path for wanted resource
+        /// \param name Name of the resource to unload
         ///
-        static void unloadResource(const std::string& path);
+        static void unloadResource(const std::string& name);
+
+        /// \copydoc unloadResource(const std::string&)
+        ///
+        /// When possible, you should prefer this overload.
+        /// It's possibly magnitudes faster.
+        ///
+        template<typename T>
+        static void unloadResource(const std::string& name);
 
         /// \brief Deletes all resources from memory
         ///
-        /// This will only delete the resources not flagged as persistent.
+        /// \param persistence The persistence of the resources to unload
+        /// \param descending Set true to unload all resources with the given and below persistence levels
         ///
         static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
@@ -153,10 +173,14 @@ namespace jop
 
     private:
 
-        static ResourceManager* m_instance;                                     ///< Pointer to the single instance
+        static ResourceManager* m_instance;         ///< Pointer to the single instance
 
-        std::unordered_map<std::string, std::unique_ptr<Resource>> m_resources; ///< Container holding resources
-
+        std::unordered_map
+        <
+            std::pair<std::string, std::type_index>,
+            std::unique_ptr<Resource>
+        > m_resources;                              ///< Container holding resources
+        std::recursive_mutex m_mutex;               ///< Mutex
     };
 
     // Include the template implementation file

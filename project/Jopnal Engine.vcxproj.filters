@@ -97,6 +97,9 @@
     <Filter Include="Physics\Source\Detail">
       <UniqueIdentifier>{b1b812a3-cb9c-40f1-a7c4-7d0039e252b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\Source\Win32">
+      <UniqueIdentifier>{ecc86e12-f3f3-428f-99b4-e361d75ac36b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -363,11 +366,35 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp">
       <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\ModelLoader.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Text.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\SkySphere.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Physics\ContactInfo.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Graphics\ModelLoader.hpp">
+    <ClInclude Include="..\include\Jopnal\Physics\RayInfo.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\SkyBox.hpp">
       <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\Thread.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Utility\Win32\ThreadImpl.hpp">
+      <Filter>Utility\Source\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -587,6 +614,30 @@
     <ClCompile Include="..\src\Jopnal\Graphics\ModelLoader.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\Text.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\SkySphere.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\RayInfo.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\SkyBox.cpp">
+      <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Thread.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\Win32\ThreadImpl.cpp">
+      <Filter>Utility\Source\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -626,6 +677,9 @@
       <Filter>Utility\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl">
+      <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Utility\Inl\Thread.inl">
       <Filter>Utility\Inl</Filter>
     </None>
   </ItemGroup>

@@ -53,14 +53,15 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// \param ID Object id
+        /// \param ID Object identifier
         ///
         Object(const std::string& ID);
 
         /// \brief Copy constructor
         /// 
         /// \param other The other object to copy
-        /// \param newName The ID of the new object
+        /// \param newID The ID of the new object
+        /// \param newTransform The transform of the new object
         ///
         Object(const Object& other, const std::string& newID, const Transform& newTransform);
 
@@ -73,6 +74,8 @@ namespace jop
         /// \brief Move assignment operator
         ///
         /// \param other The other object to move
+        ///
+        /// \return Reference to self
         ///
         Object& operator =(Object&& other);
 
@@ -89,7 +92,7 @@ namespace jop
         ///
         Component* getComponent(const std::string& ID);
 
-        /// \copycod getComponent()
+        /// \copydoc getComponent()
         ///
         const Component* getComponent(const std::string& ID) const;
 
@@ -131,29 +134,43 @@ namespace jop
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
 
-        /// \brief Template function to clones component from another object
+        /// \brief Template function to clone a component
         ///
-        /// \param Object to clone from and id of component to clone
+        /// \param object New object for the cloned component
+        /// \param ID Identifier of the component to clone
+        ///
+        /// \return Pointer to the cloned component. Nullptr if not found
         ///
         Component* cloneComponent(Object& object, const std::string& ID) const;
 
         /// \brief Template function to duplicates component
         ///
-        /// \param Components id and created clone's id
+        /// The same object will be used.
+        ///
+        /// \param ID Identifier of the component
+        /// \param newID Identifier of the cloned component
+        ///
+        /// \return Pointer to the cloned component. Nullptr if not found
         ///
         Component* cloneComponent(const std::string& ID, const std::string& newID);
 
-        /// \brief Method to remove components with 'ID'
+        /// \brief Remove components
+        ///
+        /// All components matching the identifier will be removed
         /// 
-        /// \param ID Unique object identifier m_ID
+        /// \param ID The ID to search with
         ///
         /// \comm removeComponents
+        ///
+        /// \return Reference to self
         /// 
         Object& removeComponents(const std::string& ID);
 
         /// \brief Remove all components
         ///
         /// \comm clearComponents
+        ///
+        /// \return Reference to self
         /// 
         Object& clearComponents();
 
@@ -209,9 +226,7 @@ namespace jop
 
         /// \copydoc cloneChild(const std::string&, const std::string&)
         ///
-        /// \param newTransform 
-        ///
-        /// \comm cloneChild_OverLoaded
+        /// \param newTransform New transform for the cloned child
         /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
 
@@ -222,10 +237,21 @@ namespace jop
         ///
         /// \param ID The id to search with
         ///
+        /// \return Reference to self
+        ///
         /// \comm removeChildren
         /// 
         Object& removeChildren(const std::string& ID);
 
+        /// \brief Remove all children with the given tag
+        ///
+        /// \copydetails removeChildren
+        ///
+        /// \param tag The tag to search with
+        /// \param recursive Search recursively?
+        ///
+        /// \return Reference to self
+        ///
         Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
 
         /// \brief Remove all children
@@ -233,6 +259,8 @@ namespace jop
         /// \comm clearChild
         /// 
         /// the children will be removed immediately.
+        ///
+        /// \return Reference to self
         ///
         Object& clearChildren();
 
@@ -244,10 +272,31 @@ namespace jop
         ///
         void removeSelf();
 
+        /// \brief Clone/instantiate this object
+        ///
+        /// The same ID and transform will be used.
+        ///
+        /// \return Reference to the cloned object
+        ///
         WeakReference<Object> cloneSelf();
 
+        /// \copybrief cloneSelf()
+        ///
+        /// The same transform will be used.
+        ///
+        /// \param newID The ID of the cloned object
+        ///
+        /// \return Reference to the cloned object
+        /// 
         WeakReference<Object> cloneSelf(const std::string& newID);
 
+        /// \copybrief cloneSelf()
+        ///
+        /// \param newID The ID of the cloned object
+        /// \param newTransform The transform of the cloned object
+        ///
+        /// \return Reference to the cloned object
+        ///
         WeakReference<Object> cloneSelf(const std::string& newID, const Transform& newTransform);
 
         /// \brief Check if this object has been marked to be removed
@@ -278,6 +327,8 @@ namespace jop
         /// into account the parent's transformation.
         ///
         /// \param ignore The flag to set
+        ///
+        /// \return Reference to self
         ///
         /// \comm setIgnoreParent
         ///
@@ -330,6 +381,8 @@ namespace jop
         ///
         /// \param message String holding the message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message);
 
         /// \brief Method to send messages
@@ -339,58 +392,68 @@ namespace jop
         /// \param message String holding the message
         /// \param returnWrap Pointer to hold extra data
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
         /// \param message The message
         ///
+        /// \return The message result
+        ///
         Message::Result sendMessage(const Message& message);
 
         /// \brief Function to find child returns weak reference of the child object
         ///
         /// \param ID Unique object identifier
-        /// \param recursive Tells if object if recursive
-        /// \param strict Tells if object is strict
+        /// \param recursive Tells if search if recursive
+        /// \param strict Tells if search is strict, meaning the ID has to match exactly
         ///
-        /// \return Objects child reference, nullptr otherwise
+        /// \return Objects child reference, empty if not found
         ///
         WeakReference<Object> findChild(const std::string& ID, const bool recursive = false, const bool strict = true) const;
 
         /// \brief Function to find all child objects 
         /// 
         /// \param ID Unique object identifier
-        /// \param recursive Tells if object is recursive
-        /// \param strict Tells if object is strict
+        /// \param recursive Tells if search is recursive
+        /// \param strict Tells if search is strict, meaning the ID has to match exactly
         ///
-        /// \return Vector consisting all objects children, nullptr otherwise
+        /// \return Vector consisting all objects children, empty if none were found
         ///
         std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict) const;
 
         /// \brief Finds children by given tag
         ///
         /// \param tag Object identifier
-        /// \param recursive Tells if object is recursive
+        /// \param recursive Tells if search is recursive
         ///
-        /// \return vector consisting objects children, nullptr otherwise
+        /// \return vector consisting objects children, empty if none were found
         ///
         std::vector<WeakReference<Object>> findChildrenWithTag(const std::string& tag, const bool recursive) const;
 
-        /// \brief finds children from path
+        /// \brief Find child via path
         /// 
         /// \param path String that includes multiple ID:s 
         ///
-        /// \return Weak reference to child
+        /// \return Weak reference to child, empty if not found
         //
         WeakReference<Object> findChildWithPath(const std::string& path) const;
 
         /// \brief Makes path to children including all parents
+        ///
+        /// \return String with the path
+        ///
+        /// \see findChildWithPath
         ///
         std::string makeSearchPath() const;
 
         /// \brief Set this object active/inactive
         ///
         /// \param active Activity flag to set
+        ///
+        /// \return Reference to self
         ///
         /// \comm setActive
         /// 
@@ -413,34 +476,46 @@ namespace jop
         ///
         /// \param ID unique object identifier
         ///
+        /// \return Reference to self
+        ///
         /// \comm setID
         /// 
         Object& setID(const std::string& ID);
 
 
-        /// \brief Adds tag to m_tags set
+        /// \brief Add a tag
         ///
         /// \comm addTag
         ///
         /// \param tag Name of the added tag
         ///
+        /// \return Reference to self
+        ///
         Object& addTag(const std::string& tag);
 
-        /// \brief Removes tag from m_tags set
+        /// \brief Remove a tag
         ///
         /// \comm removeTag
         ///
-        /// \param tag Name of the removable tag 
+        /// \param tag Name of the tag to be removed
+        ///
+        /// \return Reference to self
         ///
         Object& removeTag(const std::string& tag);
 
-        /// \brief Clears m_tags set
+        /// \brief Clear tags
         ///
         /// \comm clearTag
+        ///
+        /// \return Reference to self
         ///
         Object& clearTags();
 
         /// \brief Finds out if object has tag name tag
+        ///
+        /// \param tag The tag to check
+        ///
+        /// \return True if found
         ///
         bool hasTag(const std::string& tag) const;
 
@@ -454,6 +529,9 @@ namespace jop
         /// \brief Update the transformation tree
         ///
         /// This is automatically called by Scene
+        ///
+        /// \param parent The parent object. May be null
+        /// \param parentUpdated Had the parent been updated?
         ///
         void updateTransformTree(const Object* parent, bool parentUpdated);
 

@@ -32,6 +32,12 @@
     uniform sampler2D u_ReflectionMap;
 #endif
 
+// Opacity map
+#ifdef JMAT_OPACITYMAP
+    uniform sampler2D u_OpacityMap;
+    float specularComponent = 0.0;
+#endif
+
 #ifdef JMAT_PHONG
 
     // Does the object receive lights?
@@ -56,6 +62,9 @@ in FragVertexData
     vec3 Position;
     vec2 TexCoords;
     vec3 Normal;
+    //vec3 Tangent;
+    //vec3 BiTangent;
+    vec4 Color;
 
 } outVert;
 
@@ -213,6 +222,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -346,6 +360,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -411,6 +430,11 @@ in FragVertexData
             0.0
         #endif
         ;
+
+        #ifdef JMAT_OPACITYMAP
+            specularComponent += spec;
+        #endif
+
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
             * u_Material.specular
@@ -451,6 +475,12 @@ out vec4 out_FinalColor;
 
 void main() 
 {
+#ifdef JMAT_SKYBOX
+
+    out_FinalColor = texture(u_EnvironmentMap, outVert.Position);
+
+#else
+
     // Assign the initial color
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
@@ -525,7 +555,22 @@ void main()
             tempColor += u_Emission;
         #endif
     #endif
+    
+    float alpha = 1.0;
+
+    #ifdef JMAT_OPACITYMAP
+        alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
+    #elif JMAT_DIFFUSEALPHA
+        alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
+    #endif
+
+    #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
+        if (alpha < 0.1)
+            discard;
+    #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), 1.0);
+    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), alpha);
+
+#endif // Sky box
 }

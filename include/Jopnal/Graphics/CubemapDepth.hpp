@@ -44,8 +44,7 @@ namespace jop
 
         /// \brief Load this cube map
         ///
-        /// \param width Width of a single face
-        /// \param height Height of a single face
+        /// \param size The size
         /// \param bytes Bytes per pixel
         ///
         /// \return True if loaded successfully

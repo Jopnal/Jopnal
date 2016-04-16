@@ -41,6 +41,7 @@ namespace
 
     rj::Document ns_document;
     bool ns_init = false;
+    std::recursive_mutex ns_mutex;
 
     rj::Value& getRJValue(const std::string& name)
     {
@@ -154,6 +155,8 @@ namespace
         if (name.empty())
             return defaultValue;
 
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+
         rj::Value& val = getRJValue(name);
 
         if (val.IsNull())
@@ -170,6 +173,8 @@ namespace
     {
         if (name.empty())
             return;
+
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         rj::Value& val = getRJValue(name);
         setRJValue(val, newValue);
@@ -264,6 +269,8 @@ namespace jop
 
     void SettingManager::reload()
     {
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+
         std::string buf;
         if (!FileLoader::readTextfile("config.json", buf))
         {
@@ -282,6 +289,8 @@ namespace jop
 
     void SettingManager::save()
     {
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+
         rj::StringBuffer buffer;
         rj::PrettyWriter<rj::StringBuffer> writer(buffer);
         ns_document.Accept(writer);
@@ -310,6 +319,7 @@ namespace jop
 
     Mark:
 
+
         FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));
 
         ns_init = true;
@@ -326,6 +336,8 @@ namespace jop
 
     bool SettingManager::checkInit()
     {
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+
         return ns_init;
     }
 }

@@ -38,6 +38,7 @@ namespace jop
     class LightSource;
     class LightContainer;
     class Renderer;
+    class Camera;
 
     class JOP_API Drawable : public Component
     {
@@ -55,6 +56,11 @@ namespace jop
 
     protected:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other drawable to copy
+        /// \param newObj The new object
+        ///
         Drawable(const Drawable& other, Object& newObj);
 
     public:
@@ -96,7 +102,7 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer()
+        /// \copydoc getRenderer
         ///
         const Renderer& getRenderer() const;
 
@@ -123,7 +129,6 @@ namespace jop
         /// The model will be copied.
         ///
         /// \param model Reference to the model
-        /// \param loadMaterialShader Automatically load the shader from ShaderManager?
         ///
         /// \comm setModel
         ///
@@ -134,6 +139,10 @@ namespace jop
         /// \brief Get the model
         ///
         /// \return Reference to the model
+        ///
+        Model& getModel();
+
+        /// \copydoc getModel()
         ///
         const Model& getModel() const;
 
@@ -262,9 +271,9 @@ namespace jop
 
         mutable Model m_model;                  ///< The bound model
         mutable WeakReference<Shader> m_shader; ///< The bound shader
-        Renderer& m_rendererRef;        ///< Reference to the renderer
-        uint8 m_renderGroup;            ///< The render group
-        unsigned char m_flags;          ///< Property flags
+        Renderer& m_rendererRef;                ///< Reference to the renderer
+        uint8 m_renderGroup;                    ///< The render group
+        unsigned char m_flags;                  ///< Property flags
     };
 }
 

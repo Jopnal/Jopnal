@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <sstream>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -124,6 +125,7 @@ namespace jop
         Severity m_lastSeverity;        ///< The last set severity
         std::string m_last;             ///< Last string entered. Used for culling repeating messages
         bool m_consoleEnabled;          ///< Is the console enabled?
+        std::recursive_mutex m_mutex;   ///< Mutex
     };
 
     // Include the template implementation file

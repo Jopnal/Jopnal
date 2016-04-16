@@ -31,12 +31,13 @@ namespace jop
 
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
-       
+
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveLights, "setReceiveLights");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveShadows, "setReceiveShadows");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setCastShadows, "setCastShadows");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReflected, "setReflected");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setRenderGroup, "setRenderGroup");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Drawable)
 }
@@ -123,6 +124,11 @@ namespace jop
         return m_model;
     }
 
+    Model& Drawable::getModel()
+    {
+        return m_model;
+    }
+
     //////////////////////////////////////////////
 
     Drawable& Drawable::setShader(Shader& shader)
@@ -162,15 +168,14 @@ namespace jop
 
     bool Drawable::receiveLights() const
     {
-        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::Lighting));
+        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::__Lighting));
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::lightTouches(const LightSource& light) const
     {
-        // TODO: Take AABB into account
-        return light.getType() == LightSource::Type::Directional || (this->getObject()->getPosition() - light.getObject()->getPosition()).length() < light.getRange();
+        return light.checkRange(*this);
     }
 
     //////////////////////////////////////////////

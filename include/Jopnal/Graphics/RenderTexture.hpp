@@ -112,6 +112,11 @@ namespace jop
 
         /// \brief Initialize the frame buffer
         ///
+        /// This will create the textures and the render buffers, but the frame
+        /// buffer will only actually be completed once bind() is first called.
+        /// This is due to the possibility that this is called within a different
+        /// thread and fbo's cannot be shared between contexts.
+        ///
         /// \param color The color attachment type
         /// \param size Size of the color attachment texture
         /// \param depth The depth attachment
@@ -172,11 +177,14 @@ namespace jop
 
     private:
 
-        std::unique_ptr<Texture> m_texture;         ///< The attached texture
-        std::unique_ptr<Texture> m_depthTexture;    ///< The possibly attached depth texture
-        unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
-        unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
-        unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
+        void destroy() const;
+
+        mutable std::unique_ptr<Texture> m_texture;         ///< The attached texture
+        mutable std::unique_ptr<Texture> m_depthTexture;    ///< The possibly attached depth texture
+        mutable unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
+        mutable unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
+        mutable unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
+        mutable ColorAttachment m_colorAttachment;          ///< Color attachment enum
     };
 }
 

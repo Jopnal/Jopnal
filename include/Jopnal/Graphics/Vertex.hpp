@@ -78,7 +78,6 @@ namespace jop
         glm::vec3 position;       ///< 3D position of the vertex
         glm::vec2 texCoords;      ///< Coordinates of the texture's pixel to map to vertex
         glm::vec3 normalVector;   ///< Normal vector of the vertex 
-
     };
 }
 #endif

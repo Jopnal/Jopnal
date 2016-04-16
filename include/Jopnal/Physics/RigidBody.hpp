@@ -112,19 +112,27 @@ namespace jop
         virtual ~RigidBody() override;
 
 
-        /// \brief Sets unique gravity to the rigid body object
+        /// \brief Set gravity to the rigid body object
+        ///
+        /// \comm setBodyGravity
         ///
         /// \param acceleration Amount of the gravity to be applied as vector
         ///
+        /// \return Reference to self
+        ///
         RigidBody& setGravity(const glm::vec3& acceleration);
 
-        /// \brief Gets m_gravity as glm::vec3
+        /// \brief Get the gravity
         ///
         glm::vec3 getGravity() const;
 
         /// \brief Sets the linear factor for rigid body
         ///
+        /// \comm setLinearFactor
+        ///
         /// \param linearFactor Unique vector for linear factor
+        ///
+        /// \return Reference to self
         ///
         RigidBody& setLinearFactor(const glm::vec3& linearFactor);
 
@@ -134,7 +142,11 @@ namespace jop
 
         /// \brief Sets the angular factor for rigid body
         ///
+        /// \comm setAngularFactor
+        ///
         /// \param angularFactor Unique vector for angular factor
+        ///
+        /// \return Reference to self
         ///
         RigidBody& setAngularFactor(const glm::vec3& angularFactor);
 
@@ -144,57 +156,93 @@ namespace jop
 
         /// \brief Applies constant force to rigid bodies relative position
         ///
+        /// \comm applyForce
+        ///
         /// \param force Amount and direction of the force 
         /// \param rel_pos Vector for the relative position on rigid body that the force applies on
+        ///
+        /// \return Reference to self
         ///
         RigidBody& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
 
         /// \brief Applies an impulse to rigid bodies relative position
         ///
+        /// \comm applyImpulse
+        ///
         /// \param impulse Amount and direction of the impulse
         /// \param rel_pos Vector for the relative position on rigid body that the impulse applies on
         ///
-        RigidBody& applyImpulse(const glm::vec3& Impulse, const glm::vec3& rel_pos);
+        /// \return Reference to self
+        ///
+        RigidBody& applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos);
 
         /// \brief Applies torque to the rigid body
         ///
+        /// \comm applyTorque
+        ///
         /// \param torque Amount and direction as vector of the applied torque
+        ///
+        /// \return Reference to self
         ///
         RigidBody& applyTorque(const glm::vec3& torque);
 
         /// \brief Applies torque impulse to the rigid body
         ///
+        /// \comm applyTorqueImpulse
+        ///
         /// \param torque Amount and direction as vector of the applied torque
+        ///
+        /// \return Reference to self
         ///
         RigidBody& applyTorqueImpulse(const glm::vec3& torque);
 
         /// \brief Sets linear velocity to the rigid body
         ///
+        /// \comm setLinearVelocity
+        ///
         /// \param linearVelocity Amount and direction of the linear velocity 
+        ///
+        /// \return Reference to self
         ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
         /// \brief Sets angular velocity to the rigid body
         ///
+        /// \comm setAngularVelocity
+        ///
         /// \param angularVelocity Amount and direction of the angular velocity
+        ///
+        /// \return Reference to self
         ///
         RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
 
         /// \brief Applies force to the rigid body's center 
         ///
+        /// \comm applyCentralForce
+        ///
         /// \param force Amount and direction of the applied force
+        ///
+        /// \return Reference to self
         ///
         RigidBody& applyCentralForce(const glm::vec3& force);
 
         /// \brief Applies impulse to the rigid body's center
         ///
+        /// \comm applyCentralImpulse
+        ///
         /// \param impulse Amount and direction of the applies impulse
+        ///
+        /// \return Reference to self
         ///
         RigidBody& applyCentralImpulse(const glm::vec3& impulse);
 
         /// \brief Clear all the forces affecting this body
         ///
-        void clearForces();
+        /// \comm clearForces
+        ///
+        /// \return Reference to self
+        ///
+        RigidBody& clearForces();
 
     private:
 

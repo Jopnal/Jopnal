@@ -33,28 +33,12 @@ namespace jop
           m_size            (),
           m_bytesPerPixel   (0)
     {
-        static WeakReference<TextureSampler> sampler;
-
-        if (sampler.expired())
-        {
-            if (ResourceManager::resourceExists<TextureSampler>("jop_cube_sampler"))
-                sampler = static_ref_cast<TextureSampler>(ResourceManager::getExistingResource<TextureSampler>("jop_cube_sampler").getReference());
-            else
-            {
-                sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_cube_sampler").getReference());
-                sampler->setPersistence(0);
-
-                sampler->setFilterMode(TextureSampler::Filter::Bilinear);
-                sampler->setRepeatMode(TextureSampler::Repeat::ClampEdge);
-            }
-        }
-
-        setSampler(*sampler);
+        getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
     }
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& back, const std::string& front)
+    bool Cubemap::load(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& back, const std::string& front, const bool srgb)
     {
         const std::string* const paths[] =
         {
@@ -85,8 +69,8 @@ namespace jop
                 return false;
             }
 
-            GLenum depthEnum = Texture2D::getFormatEnum(m_bytesPerPixel);
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            GLenum depthEnum = Texture2D::getFormatEnum(bytes);
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
 
             stbi_image_free(pix);
         }
@@ -99,14 +83,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const glm::uvec2& size, const unsigned int bpp)
+    bool Cubemap::load(const glm::uvec2& size, const unsigned int bpp, const bool srgb)
     {
         bind();
 
         GLenum depthEnum = Texture2D::getFormatEnum(bpp);
         for (std::size_t i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
         }
 
         m_size = size;
@@ -133,17 +117,17 @@ namespace jop
             errTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readResource(IDB_PNG2, buf);
+            FileLoader::readResource(JOP_RES_ERROR_TEXTURE, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
-            errTex->load(glm::uvec2(x, y), bpp);
+            errTex->load(glm::uvec2(x, y), bpp, true);
 
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);
@@ -163,17 +147,17 @@ namespace jop
             defTex = static_ref_cast<Cubemap>(ResourceManager::getEmptyResource<Cubemap>("jop_error_cubemap").getReference());
 
             std::vector<unsigned char> buf;
-            FileLoader::readResource(IDB_PNG1, buf);
+            FileLoader::readResource(JOP_RES_DEFAULT_TEXTURE, buf);
 
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
-            defTex->load(glm::uvec2(x, y), bpp);
+            defTex->load(glm::uvec2(x, y), bpp, true);
 
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);

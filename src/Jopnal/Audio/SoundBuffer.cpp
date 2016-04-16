@@ -32,6 +32,11 @@ namespace jop
           m_soundBuf    (std::make_unique<sf::SoundBuffer>())
     {}
 
+    SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
+        : Resource      (newName),
+          m_soundBuf    (std::make_unique<sf::SoundBuffer>(*other.m_soundBuf))
+    {}
+
     SoundBuffer::~SoundBuffer()
     {}
 
@@ -41,7 +46,37 @@ namespace jop
     {
         std::vector<uint8> buf;
         FileLoader::readBinaryfile(path, buf);
+        
+        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+    }
+
+    //////////////////////////////////////////////
+
+    bool SoundBuffer::load(const int id)
+    {
+        std::vector<uint8> buf;
+
+        if (!FileLoader::readResource(id, buf))
+            return false;
 
         return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+    }
+
+    //////////////////////////////////////////////
+
+    SoundBuffer& SoundBuffer::getDefault()
+    {
+        static WeakReference<SoundBuffer> defBuf;
+        
+        if (defBuf.expired())
+        {
+            defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
+
+            JOP_ASSERT_EVAL(defBuf->load(JOP_RES_DEFAULT_SOUND), "Failed to load default Sound!");
+
+            defBuf->setPersistence(0);
+        }
+
+        return *defBuf;
     }
 }

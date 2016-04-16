@@ -191,6 +191,8 @@ namespace jop
 
     bool DebugHandler::isConsoleEnabled()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         return m_consoleEnabled && checkConsoleWindow();
     }
 
@@ -198,6 +200,8 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         m_lastSeverity = severity;
         return *this;
     }
@@ -206,6 +210,8 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&))
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         std::string newStr(m_stream.str());
 
         static const bool debugConsole = IsDebuggerPresent() == TRUE && SettingManager::getBool("bDebuggerOutput", true);
@@ -249,6 +255,8 @@ namespace jop
 
     DebugHandler& DebugHandler::operator <<(const jop::Color& color)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (isConsoleEnabled())
             setConsoleColor(color);
 

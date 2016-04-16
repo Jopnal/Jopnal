@@ -35,6 +35,11 @@ namespace jop
     {
     private:
 
+        /// \brief Copy constructor
+        ///
+        /// \param other The other loader to copy
+        /// \param newObj The new object
+        ///
         ModelLoader(const ModelLoader& other, Object& obj);
 
         JOP_DISALLOW_COPY_MOVE(ModelLoader);
@@ -42,14 +47,30 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param obj The object this loader is bound to
+        ///
         ModelLoader(Object& obj);
 
 
+        /// \brief Load a model from file
+        ///
+        /// This will create the object tree and load the correct meshes and materials.
+        ///
+        /// \warning If the model file has a name for the root node, the root object's
+        ///          identifier will be changed accordingly. Be aware of this when
+        ///          using this function.
+        ///
+        /// \param path Path to the model file
+        ///
+        /// \return True if successful
+        ///
         bool load(const std::string& path);
 
     private:
 
-        std::string m_path;
+        std::string m_path; ///< Path to model file
     };
 }
 

@@ -104,7 +104,7 @@ namespace jop
         btVector3 min, max;
         bp.getAabb(other.m_body->getBroadphaseHandle(), min, max);
         bp.aabbTest(min, max, cb);
-
+        
         return cb.hit;
     }
 
@@ -129,7 +129,7 @@ namespace jop
         } cb;
 
         m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
-
+        
         return cb.hit;
     }
 
@@ -141,12 +141,12 @@ namespace jop
         {
             const void* m_against;
             bool hit;
-
+            
             Callback(const void* against)
                 : m_against (against),
                   hit       (false)
             {}
-
+            
             btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool) override
             {
                 hit = rayResult.m_collisionObject->getUserPointer() == m_against;
@@ -162,7 +162,7 @@ namespace jop
         to.setOrigin(btVector3(fromTo.x, fromTo.y, fromTo.z));
 
         m_worldRef.m_worldData->world->rayTestSingle(from, to, m_body.get(), m_body->getCollisionShape(), m_body->getWorldTransform(), cb);
-
+        
         return cb.hit;
     }
 

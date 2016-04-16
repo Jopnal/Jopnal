@@ -42,7 +42,7 @@ namespace jop
         ConeShape(const std::string& name);
 
 
-        /// \brief Load this shape using different extents
+        /// \brief Load this shape
         ///
         /// \param radius Radius of the cone
         /// \param height Height of the cone

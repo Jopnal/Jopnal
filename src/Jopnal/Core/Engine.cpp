@@ -67,7 +67,9 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
+    #if JOP_CONSOLE_VERBOSITY >= 2
         std::cout << "Jopnal Engine v. " << JOP_VERSION_STRING << "\n\n";
+    #endif
     }
 
     Engine::~Engine()
@@ -78,16 +80,31 @@ namespace jop
         // Sub systems need to be cleared in the reverse creation order. This is not
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
+        {
+        #if JOP_CONSOLE_VERBOSITY >= 2
+            std::cout << "Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << "\n\n";
+        #endif
+
             m_subsystems.erase(m_subsystems.end() - 1);
+        }
 
         ns_projectName = std::string();
         m_engineObject = nullptr;
+
+    #if JOP_CONSOLE_VERBOSITY >= 2
+        std::cout << "Destroying jop::Engine..." << "\n\n";
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void Engine::loadDefaultConfiguration()
     {
+        // Set process priority
+    #ifdef JOP_OS_WINDOWS
+        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    #endif
+
         // File system
         createSubsystem<FileSystemInitializer>(ns_argv[0]);
 
@@ -125,13 +142,19 @@ namespace jop
 
         while (!eng.m_exit)
         {
+            if (eng.m_newScene.load() && eng.m_newSceneSignal.load())
+            {
+                eng.m_currentScene.reset(eng.m_newScene.load());
+
+                eng.m_newSceneSignal.store(false);
+                eng.m_newScene.store(nullptr);
+            }
+
             float frameTime = static_cast<float>(frameClock.reset().asSeconds());
-            eng.m_totalTime += frameTime;
+            eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
 
-            frameTime *= (eng.m_deltaScale * (getState() != State::ZeroDelta || eng.m_advanceFrame));
+            frameTime *= (getDeltaScale() * (getState() != State::ZeroDelta || eng.m_advanceFrame.load()));
             frameTime = std::min(0.1f, frameTime);
-
-            eng.m_advanceFrame = false;
 
             // Update
             {
@@ -141,7 +164,7 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (getState() <= State::ZeroDelta || eng.m_advanceFrame)
+                if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
                 {
                     if (eng.m_currentScene)
                         eng.m_currentScene->updateBase(frameTime);
@@ -174,9 +197,9 @@ namespace jop
                         i->draw();
                 }
             }
-        }
 
-        // #TODO Threaded event loop
+            eng.m_advanceFrame.store(false);
+        }
 
         return EXIT_SUCCESS;
     }
@@ -185,6 +208,8 @@ namespace jop
 
     Scene& Engine::getCurrentScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
     }
@@ -195,6 +220,8 @@ namespace jop
     {
         if (m_engineObject)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
             for (auto& i : m_engineObject->m_subsystems)
             {
                 if (i->getID() == ID)
@@ -211,11 +238,13 @@ namespace jop
     {
         if (m_engineObject)
         {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
             for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
             {
                 if ((*itr)->getID() == ID)
                 {
-                    JOP_DEBUG_INFO("Sub system with id \"" << (*itr)->getID() << "\" removed");
+                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (type: \"" << typeid(*(*itr)).name() << "\") removed");
                     m_engineObject->m_subsystems.erase(itr);
                     return true;
                 }
@@ -261,7 +290,7 @@ namespace jop
 
             JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
 
-            m_engineObject->m_state = state;
+            m_engineObject->m_state.store(state);
         }
     }
 
@@ -269,7 +298,7 @@ namespace jop
 
     Engine::State Engine::getState()
     {
-        return exiting() ? State::Frozen : m_engineObject->m_state;
+        return exiting() ? State::Frozen : m_engineObject->m_state.load();
     }
 
     //////////////////////////////////////////////
@@ -331,6 +360,8 @@ namespace jop
 
     Scene& Engine::getSharedScene()
     {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
         JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
         return *m_engineObject->m_sharedScene;
     }
@@ -339,8 +370,9 @@ namespace jop
 
     bool Engine::hasSharedScene()
     {
-        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getSharedScene()!");
-        return m_engineObject->m_sharedScene.operator bool();
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
+        return m_engineObject != nullptr && m_engineObject->m_sharedScene.operator bool();
     }
 
     //////////////////////////////////////////////
@@ -348,7 +380,7 @@ namespace jop
     double Engine::getTotalTime()
     {
         if (m_engineObject)
-            return m_engineObject->m_totalTime;
+            return m_engineObject->m_totalTime.load();
 
         return 0.0;
     }
@@ -357,8 +389,9 @@ namespace jop
 
     bool Engine::hasCurrentScene()
     {
-        JOP_ASSERT(!exiting(), "There must be a valid jop::Engine object in order to call jop::Engine::has/getCurrentScene()!");
-        return m_engineObject->m_currentScene.operator bool();
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
+        return m_engineObject != nullptr && m_engineObject->m_currentScene.operator bool();
     }
 
     //////////////////////////////////////////////
@@ -366,7 +399,7 @@ namespace jop
     void Engine::advanceFrame()
     {
         if (!exiting())
-            m_engineObject->m_advanceFrame = true;
+            m_engineObject->m_advanceFrame.store(true);
     }
 
     //////////////////////////////////////////////
@@ -374,14 +407,37 @@ namespace jop
     void Engine::setDeltaScale(const float scale)
     {
         if (m_engineObject)
-            m_engineObject->m_deltaScale = scale;
+            m_engineObject->m_deltaScale.store(scale);
     }
 
     //////////////////////////////////////////////
 
     float Engine::getDeltaScale()
     {
-        return m_engineObject != nullptr ? m_engineObject->m_deltaScale : 1.f;
+        return m_engineObject != nullptr ? m_engineObject->m_deltaScale.load() : 1.f;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::signalNewScene()
+    {
+        if (newSceneReady())
+        {
+            m_engineObject->m_newSceneSignal.store(true);
+            return true;
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::newSceneReady()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_newScene.load() != nullptr;
+
+        return false;
     }
 
     //////////////////////////////////////////////

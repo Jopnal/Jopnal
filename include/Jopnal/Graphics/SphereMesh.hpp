@@ -22,7 +22,7 @@
 #ifndef JOP_SPHEREMESH_HPP
 #define JOP_SPHEREMESH_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 
@@ -38,6 +38,13 @@ namespace jop
         /// \copydoc jop::BoxMesh::BoxMesh()
         ///
         SphereMesh(const std::string& name);
+
+        /// \brief Copy constructor
+        ///
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
+        ///
+        SphereMesh(const SphereMesh& other, const std::string& newName);
 
 
         /// \brief Load a sphere
@@ -82,7 +89,6 @@ namespace jop
         unsigned int m_rings;   ///< Rings
         unsigned int m_sectors; ///< Sectors
         bool m_normTexCoords;   ///< Normalized texture coordinates
-
     };
 }
 

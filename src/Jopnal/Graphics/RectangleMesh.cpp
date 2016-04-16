@@ -66,6 +66,13 @@ namespace jop
           m_size    (0.f)
     {}
 
+    RectangleMesh::RectangleMesh(const RectangleMesh& other, const std::string& newName)
+        : Mesh      (newName),
+          m_size    (0.f)
+    {
+        load(other.m_size);
+    }
+
     //////////////////////////////////////////////
 
     bool RectangleMesh::load(const float size)

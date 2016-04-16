@@ -41,6 +41,12 @@ namespace jop
     {
     public:
 
+        JOP_DISALLOW_COPY_MOVE(Material);
+
+        Material(const Material& other, const std::string& newName);
+
+    public:
+
         /// Attribute data type
         ///
         typedef uint32 AttribType;
@@ -53,29 +59,36 @@ namespace jop
             {
                 // Misc
                 AmbientConstant = 1,
+                DiffuseAlpha    = AmbientConstant   << 1,
+                VertexColor     = DiffuseAlpha      << 1, 
 
                 // Maps
-                DiffuseMap      = 1 << 2,
-                SpecularMap     = 1 << 3,
-                EmissionMap     = 1 << 4,
-                EnvironmentMap  = 1 << 5,
-                ReflectionMap   = 1 << 6,
-                //NormalMap
-                //ParallaxMap
+                DiffuseMap      = 1                 << 4,
+                SpecularMap     = DiffuseMap        << 1,
+                EmissionMap     = SpecularMap       << 1,
+                EnvironmentMap  = EmissionMap       << 1,
+                ReflectionMap   = EnvironmentMap    << 1,
+                OpacityMap      = ReflectionMap     << 1,
+                //NormalMap       = 1 << 7, // TODO: Implement
+                //ParallaxMap     = 1 << 8, // TODO: Implement
+                //AmbientMap    = 1 << 10, // TODO: Implement
+                //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
-                Phong           = 1 << 12,
-                BlinnPhong      = Phong, //
-                Gouraud         = Phong, // TODO: Implement these
-                Flat            = Phong, //
+                Phong           = 1 << 18,
+                BlinnPhong      = Phong | Phong << 1,   //
+                Gouraud         = Phong,                // TODO: Implement these, requires shader work
+                Flat            = Phong,                //
 
                 // Bundles
                 Default         = DiffuseMap,
                 DefaultLighting = AmbientConstant | BlinnPhong,
 
                 // For internal functionality, do not use
-                RecordEnv       = 1u << 31,
-                Lighting        = Phong | BlinnPhong | Gouraud | Flat
+                __SkySphere     = 1  << 29,
+                __SkyBox        = 1  << 30,
+                __RecordEnv     = 1u << 31,
+                __Lighting      = Phong | BlinnPhong | Gouraud | Flat
             };
         };
 
@@ -87,8 +100,6 @@ namespace jop
             Diffuse,
             Specular,
             Emission,
-            //Normal
-            //Parallax
 
             Solid = Emission
         };
@@ -102,16 +113,17 @@ namespace jop
             Emission,
             Environment,
             Reflection,
-
+            //Normal
+            //Parallax
+            Opacity,
+            
             /// For internal use. Never use this
             Last
         };
 
         /// Predefined material properties
         ///
-        /// TODO: Implement method to set this
-        ///
-        enum class Property
+        enum class Preset
         {
             Emerald,
             Jade,
@@ -144,6 +156,7 @@ namespace jop
         /// \brief Default constructor
         ///
         /// \param name Name of this material
+        /// \param autoAttributes Set attributes automatically?
         ///
         Material(const std::string& name, const bool autoAttributes = true);
 
@@ -151,13 +164,15 @@ namespace jop
         ///
         /// \param name Name of this material
         /// \param attributes The initial attributes
+        /// \param autoAttributes Set attributes automatically
         ///
-        Material(const std::string& name, const AttribType attributes);
+        Material(const std::string& name, const AttribType attributes, const bool autoAttributes = true);
         
 
         /// \brief Send this material to a shader
         ///
         /// \param shader Reference to the shader to send this material to
+        /// \param camera The camera to use
         ///
         void sendToShader(Shader& shader, const Camera* camera) const;
 
@@ -188,6 +203,14 @@ namespace jop
         ///
         Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
 
+        /// \brief Set the reflection values using a preset
+        ///
+        /// \param preset The preset to use
+        ///
+        /// \return Reference to self
+        ///
+        Material& setReflection(const Preset preset);
+   
         /// \brief Get a reflection value
         ///
         /// \param reflection The reflection attribute
@@ -240,20 +263,28 @@ namespace jop
         ///
         Material& setMap(const Map map, const Texture& tex);
 
+        /// \brief Remove a map
+        ///
+        /// \param map The map to remove
+        ///
+        /// \return Reference to self
+        ///
         Material& removeMap(const Map map);
 
         /// \brief Get a map
         ///
         /// \param map The map attribute
         ///
-        /// \return Weak pointer to the texture. Empty if none bound
+        /// \return Pointer to the texture. Nullptr if none bound
         ///
-        WeakReference<const Texture> getMap(const Map map) const;
+        const Texture* getMap(const Map map) const;
 
 
         /// \brief Set the attribute bit field
         ///
         /// \param attribs The attributes to set
+        ///
+        /// \return Reference to self
         ///
         Material& setAttributeField(const AttribType attribs);
 
