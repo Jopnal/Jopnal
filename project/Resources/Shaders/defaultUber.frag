@@ -484,18 +484,30 @@ void main()
     // Assign the initial color
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
+
+        JMAT_AMBIENT
+
         #ifdef JMAT_DIFFUSEMAP
-            JMAT_AMBIENT * vec3(texture(u_DiffuseMap, outVert.TexCoords));
-        #else
-            JMAT_AMBIENT;
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
         #endif
+        #ifdef JMAT_VERTEXCOLOR
+            * vec3(outVert.Color)
+        #endif
+        ;
+
     #else
+
         #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
             vec3(texture(u_DiffuseMap, outVert.TexCoords))
+
+            #ifdef JMAT_VERTEXCOLOR
+                * vec3(outVert.Color)
+            #endif
         #else
             vec3(0.0, 0.0, 0.0)
         #endif
         ;
+
     #endif
 
     #ifdef JMAT_ENVIRONMENTMAP
@@ -564,13 +576,29 @@ void main()
         alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
     #endif
 
+    #ifdef JMAT_VERTEXCOLOR
+        alpha *= outVert.Color.a;
+    #endif
+
     #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
         if (alpha < 0.1)
             discard;
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), alpha);
+    out_FinalColor = vec4(pow(tempColor, vec3(1.0 /
+        
+    #ifdef JMAT_ENVIRONMENT_RECORD
+        // Temporary "fix" for gamma correction getting
+        // applied twice. This is a somewhat working
+        // approximation, though the colors are
+        // still a bit wrong
+        1.9
+    #else
+        2.2
+    #endif
+        
+    )), alpha);
 
 #endif // Sky box
 }

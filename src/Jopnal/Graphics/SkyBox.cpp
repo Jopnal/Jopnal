@@ -66,7 +66,7 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
+        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
 
         mat.sendToShader(s, camera);
 

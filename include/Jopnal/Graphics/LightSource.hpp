@@ -272,6 +272,16 @@ namespace jop
         glm::vec3 getAttenuationVec() const;
 
 
+        /// \brief Get the approximate maximum range
+        ///
+        /// The returned value may deviate from what was possibly previously passed
+        /// to setAttenuation(). The calculation is a mere approximation but is
+        /// to usually enough to determine the range in which the light is at all visible.
+        ///
+        /// \return The maximum range
+        ///
+        float getRange() const;
+
         /// \brief Get the range of the light
         ///
         /// \return Range of the light
