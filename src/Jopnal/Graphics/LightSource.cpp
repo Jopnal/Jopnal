@@ -423,7 +423,7 @@ namespace jop
         const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
         const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-        static const float bias = SettingManager::getFloat("fLightCullBias", 0.05f);
+        static const float bias = SettingManager::getFloat("fLightCullBias", 0.02f);
 
         return att > bias;
     }

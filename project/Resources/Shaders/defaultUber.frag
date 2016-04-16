@@ -570,7 +570,7 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor, alpha);
+    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), alpha);
 
 #endif // Sky box
 }

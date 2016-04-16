@@ -49,19 +49,21 @@ namespace jop
         /// \brief Method for using file loader to load new resource from file
         ///
         /// \param path The file path
+        /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path);
+        bool load(const std::string& path, const bool srgb);
 
         /// \brief Creates flat/empty texture
         ///
         /// \param size The size
         /// \param bytesPerPixel The byte depth
+        /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -70,10 +72,11 @@ namespace jop
         /// \param size The size
         /// \param bytesPerPixel The byte depth of the image
         /// \param pixels Pointer to the beginning of the pixel array
+        /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb);
 
 
         /// \brief Set a subset of pixels
@@ -108,10 +111,11 @@ namespace jop
         /// \brief Get the OpenGL internal format enum
         ///
         /// \param formatEnum The external format enum fetched with getFormatEnum()
+        /// \param srgb Use SRGB color space?
         ///
         /// \return The OpenGL internal format enum
         ///
-        static unsigned int getInternalFormatEnum(const unsigned int formatEnum);
+        static unsigned int getInternalFormatEnum(const unsigned int formatEnum, const bool srgb);
 
         /// \brief Check if the pixel depth value is supported
         ///
@@ -138,7 +142,7 @@ namespace jop
 
         /// For internal use
         ///
-        bool load(const int id);
+        bool load(const int id, const bool srgb);
 
 
         glm::uvec2 m_size;              ///< Size

@@ -55,17 +55,17 @@ namespace jop
 
         RefDone:
 
-        if (val.HasMember("shininess") && val["shininess"].IsDouble())
-            m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
-
-        if (val.HasMember("diffmap") && val["diffmap"].IsString())
-            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
-
-        if (val.HasMember("specmap") && val["specmap"].IsString())
-            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
-
-        if (val.HasMember("emissmap") && val["emissmap"].IsString())
-            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
+        //if (val.HasMember("shininess") && val["shininess"].IsDouble())
+        //    m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
+        //
+        //if (val.HasMember("diffmap") && val["diffmap"].IsString())
+        //    m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
+        //
+        //if (val.HasMember("specmap") && val["specmap"].IsString())
+        //    m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
+        //
+        //if (val.HasMember("emissmap") && val["emissmap"].IsString())
+        //    m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
 
         return true;
     }

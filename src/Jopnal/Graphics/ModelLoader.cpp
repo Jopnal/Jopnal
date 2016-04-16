@@ -205,7 +205,7 @@ namespace jop
                             m.addAttributes(Material::Attribute::DiffuseAlpha);
 
                         if (path.length)
-                            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str(), true));
                     }
 
                     // Specular
@@ -215,7 +215,7 @@ namespace jop
                         mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
                     }
 
                     // Shininess
@@ -228,7 +228,7 @@ namespace jop
                         mat.GetTexture(aiTextureType_SHININESS, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
                     }
 
                     // Emission
@@ -238,7 +238,7 @@ namespace jop
                         mat.GetTexture(aiTextureType_EMISSIVE, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(path.C_Str(), true));
                     }
 
                     // Reflection
@@ -248,7 +248,7 @@ namespace jop
                         mat.GetTexture(aiTextureType_REFLECTION, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Reflection, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Reflection, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
                     }
                     
                     // Opacity
@@ -258,7 +258,7 @@ namespace jop
                         mat.GetTexture(aiTextureType_OPACITY, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
                     }
 
                     // Normal
@@ -314,7 +314,7 @@ namespace jop
                             else
                                 continue;
 
-                            m.setMap(map, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                            m.setMap(map, ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission));
                         }
                     }
                 }

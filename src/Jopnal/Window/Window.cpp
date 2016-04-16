@@ -182,7 +182,7 @@ namespace jop
         auto s = getSize();
         gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::getString("sDefaultWindowClearColor", "222222FF"));
+        static const Color defColor(SettingManager::getString("sDefaultWindowClearColor", "121212FF"));
         setClearColor(defColor);
     }
 

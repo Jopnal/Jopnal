@@ -38,7 +38,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& back, const std::string& front)
+    bool Cubemap::load(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& back, const std::string& front, const bool srgb)
     {
         const std::string* const paths[] =
         {
@@ -70,7 +70,7 @@ namespace jop
             }
 
             GLenum depthEnum = Texture2D::getFormatEnum(bytes);
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
 
             stbi_image_free(pix);
         }
@@ -83,14 +83,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const glm::uvec2& size, const unsigned int bpp)
+    bool Cubemap::load(const glm::uvec2& size, const unsigned int bpp, const bool srgb)
     {
         bind();
 
         GLenum depthEnum = Texture2D::getFormatEnum(bpp);
         for (std::size_t i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
         }
 
         m_size = size;
@@ -122,12 +122,12 @@ namespace jop
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
-            errTex->load(glm::uvec2(x, y), bpp);
+            errTex->load(glm::uvec2(x, y), bpp, true);
 
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);
@@ -152,12 +152,12 @@ namespace jop
             int x, y, bpp;
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
 
-            defTex->load(glm::uvec2(x, y), bpp);
+            defTex->load(glm::uvec2(x, y), bpp, true);
 
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);

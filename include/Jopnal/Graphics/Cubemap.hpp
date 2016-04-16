@@ -50,21 +50,24 @@ namespace jop
         /// \param bottom Bottom side
         /// \param back Back side
         /// \param front Front side
+        /// \param srgb Use SRGB color space?
         ///
         /// \return True if successful
         ///
         bool load(const std::string& right, const std::string& left,
                   const std::string& top, const std::string& bottom,
-                  const std::string& back, const std::string& front);
+                  const std::string& back, const std::string& front,
+                  const bool srgb);
 
-        /// \brief Load an empty cobe map
+        /// \brief Load an empty cube map
         ///
         /// \param size The size of a single face
         /// \param bpp The pixel depth in bytes
+        /// \param srgb Use SRGB color space?
         ///
         /// \return True if successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bpp);
+        bool load(const glm::uvec2& size, const unsigned int bpp, const bool srgb);
 
         /// \brief Get the texture size
         ///

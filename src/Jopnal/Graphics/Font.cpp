@@ -116,7 +116,7 @@ namespace jop
         // Create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
 
-        m_data->m_texture.load(glm::uvec2(m_pixelSize * 32, m_pixelSize * 32), 1);
+        m_data->m_texture.load(glm::uvec2(m_pixelSize * 32, m_pixelSize * 32), 1, false);
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_data->m_nodes.data(), m_data->m_numNodes);
 
         if (!m_data.get()->m_buffer.empty())

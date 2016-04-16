@@ -128,7 +128,7 @@ namespace jop
             case ColorAttachment::RGBA2D:
             {
                 auto tex = std::make_unique<Texture2D>("");
-                tex->load(size, color == ColorAttachment::RGB2D ? 3 : 4);
+                tex->load(size, color == ColorAttachment::RGB2D ? 3 : 4, true);
 
                 m_texture = std::move(tex);
 
@@ -139,7 +139,7 @@ namespace jop
             case ColorAttachment::RGBACube:
             {
                 auto tex = std::make_unique<Cubemap>("");
-                tex->load(size, color == ColorAttachment::RGBCube ? 3 : 4);
+                tex->load(size, color == ColorAttachment::RGBCube ? 3 : 4, true);
 
                 m_texture = std::move(tex);
 
