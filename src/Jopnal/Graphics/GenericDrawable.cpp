@@ -79,8 +79,8 @@ namespace jop
         s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
         s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
-        //if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-        //    s.setAttribute(5, gl::UNSIGNED_BYTE, 4, stride, true, 0);
+        if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
+            s.setAttribute(5, gl::UNSIGNED_BYTE, 4, stride, true, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {

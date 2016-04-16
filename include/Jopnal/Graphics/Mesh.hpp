@@ -103,6 +103,9 @@ namespace jop
 
         /// \brief Get the byte offset for the given component
         ///
+        /// \warning If the mesh doesn't have the queried component, the resulting
+        ///          behavior is undefined
+        ///
         /// \param component The vertex component
         ///
         /// \return The byte offset. This can be passed to glVertexAttribPointer() etc.
