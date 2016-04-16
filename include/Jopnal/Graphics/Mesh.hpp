@@ -48,10 +48,10 @@ namespace jop
         enum VertexComponent : uint32
         {
             Position    = 1,
-            TexCoords   = 1 << 2,
-            Normal      = 1 << 3,
-            Tangent     = 1 << 4,
-            Color       = 1 << 5
+            TexCoords   = 1 << 1,
+            Normal      = 1 << 2,
+            Tangents    = 1 << 3,
+            Color       = 1 << 4
         };
 
     public:
@@ -100,6 +100,14 @@ namespace jop
         /// \return Vertex size in bytes
         ///
         uint16 getVertexSize() const;
+
+        /// \brief Get the byte offset for the given component
+        ///
+        /// \param component The vertex component
+        ///
+        /// \return The byte offset. This can be passed to glVertexAttribPointer() etc.
+        ///
+        void* getVertexOffset(const VertexComponent component) const;
 
         /// \brief Check if this mesh has a vertex component
         ///

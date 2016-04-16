@@ -430,7 +430,7 @@ namespace jop
 
                     | (mesh.HasTextureCoords(0)         * Mesh::TexCoords)
                     | (mesh.HasNormals()                * Mesh::Normal)
-                    | (mesh.HasTangentsAndBitangents()  * Mesh::Tangent)
+                    | (mesh.HasTangentsAndBitangents()  * Mesh::Tangents)
                     | (mesh.HasVertexColors(0)          * Mesh::Color)
                     ;
 

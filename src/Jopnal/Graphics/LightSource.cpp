@@ -319,7 +319,7 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, (void*)Vertex::Position);
+            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
             shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
 
             if (mesh.getElementAmount())
@@ -486,6 +486,7 @@ namespace jop
         viewMats[4] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0,  1.0), glm::vec3(0.0, -1.0,  0.0)); // Back
         viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
     }
+
 
     //////////////////////////////////////////////
 
