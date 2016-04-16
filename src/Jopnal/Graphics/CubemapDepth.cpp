@@ -32,23 +32,7 @@ namespace jop
           m_size    (),
           m_bytes   (0)
     {
-        static WeakReference<TextureSampler> sampler;
-
-        if (sampler.expired())
-        {
-            if (ResourceManager::resourceExists<TextureSampler>("jop_depth_sampler_point"))
-                sampler = static_ref_cast<TextureSampler>(ResourceManager::getExistingResource<TextureSampler>("jop_depth_sampler_point").getReference());
-            else
-            {
-                sampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_depth_sampler_point").getReference());
-                sampler->setPersistence(0);
-
-                sampler->setFilterMode(TextureSampler::Filter::Bilinear);
-                sampler->setRepeatMode(TextureSampler::Repeat::ClampEdge);
-            }
-        }
-
-        setSampler(*sampler);
+        getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
     }
 
     //////////////////////////////////////////////

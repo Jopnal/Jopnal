@@ -27,70 +27,75 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, TextureSampler)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load TextureSampler, no name found");
-            return false;
-        }
-
-        TextureSampler::Filter filt = val.HasMember("filter") && val["filter"].IsUint() ? static_cast<TextureSampler::Filter>(std::min(3u, val["filter"].GetUint())) : TextureSampler::Filter::None;
-        TextureSampler::Repeat rep = val.HasMember("repeat") && val["repeat"].IsUint() ? static_cast<TextureSampler::Repeat>(std::min(3u, val["repeat"].GetUint())) : TextureSampler::Repeat::Basic;
-        float anis = val.HasMember("anis") && val["anis"].IsDouble() ? static_cast<float>(val["anis"].GetDouble()) : 1.f;
-        Color bcol(val.HasMember("bcolor") && val["bcolor"].IsUint() ? val["bcolor"].GetUint() : Color::White);
-
-        auto& samp = ResourceManager::getNamedResource<TextureSampler>(val["name"].GetString(), filt, rep, anis);
-        //samp.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
-        samp.setBorderColor(bcol);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(TextureSampler)
-
-    JOP_REGISTER_SAVEABLE(jop, TextureSampler)[](const void* sampler, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        const TextureSampler& ref = *static_cast<const TextureSampler*>(sampler);
-
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
-        val.AddMember(json::StringRef("filter"), static_cast<unsigned int>(ref.getFilteringMode()), alloc);
-        val.AddMember(json::StringRef("repeat"), static_cast<unsigned int>(ref.getRepeatMode()), alloc);
-        val.AddMember(json::StringRef("anis"), ref.getAnisotropyLevel(), alloc);
-        val.AddMember(json::StringRef("bcolor"), ref.getBorderColor().asInteger(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(TextureSampler)
-}
-
-namespace jop
-{
-    TextureSampler::TextureSampler(const std::string& name)
-        : Resource      (name),
-          m_sampler     (0),
+    TextureSampler::TextureSampler()
+        : m_sampler     (0),
           m_filter      (Filter::None),
           m_repeat      (Repeat::Basic),
           m_anisotropic (1.f),
           m_borderColor ()
     {
-        reset();
+        static const Filter defFilter = static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 0));
+        static const Repeat defRepeat = static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 0));
+        static const float defAniso = SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f);
+        static const Color defColor = Color(SettingManager::getString("fDefaultTextureBorderColor", "FFFFFFFF"));
+
+        reset().setFilterMode(defFilter, defAniso).setRepeatMode(defRepeat).setBorderColor(defColor);
+    }
+
+    TextureSampler::TextureSampler(const Filter filter, const Repeat repeat, const float param)
+        : m_sampler     (0),
+          m_filter      (Filter::None),
+          m_repeat      (Repeat::Basic),
+          m_anisotropic (1.f),
+          m_borderColor ()
+    {
+        reset().setFilterMode(filter, param).setRepeatMode(repeat);
+    }
+
+    TextureSampler::TextureSampler(const TextureSampler& other)
+        : m_sampler     (0),
+          m_filter      (Filter::None),
+          m_repeat      (Repeat::Basic),
+          m_anisotropic (1.f),
+          m_borderColor ()
+    {
+        *this = other;
+    }
+
+    TextureSampler& TextureSampler::operator =(const TextureSampler& other)
+    {
+        return reset()
+              .setFilterMode(other.getFilteringMode(), other.getAnisotropyLevel())
+              .setRepeatMode(other.getRepeatMode()).setBorderColor(other.getBorderColor());
+    }
+
+    TextureSampler::TextureSampler(TextureSampler&& other)
+        : m_sampler     (other.m_sampler),
+          m_filter      (other.m_filter),
+          m_repeat      (other.m_repeat),
+          m_anisotropic (other.m_anisotropic),
+          m_borderColor (other.m_borderColor)
+    {
+        other.m_sampler = 0;
+    }
+
+    TextureSampler& TextureSampler::operator=(TextureSampler&& other)
+    {
+        m_sampler = other.m_sampler;
+        other.m_sampler = 0;
+
+        m_filter = other.m_filter;
+        m_repeat = other.m_repeat;
+        m_anisotropic = other.m_anisotropic;
+        m_borderColor = other.m_borderColor;
+
+        return *this;
     }
 
     TextureSampler::~TextureSampler()
     {
         if (m_sampler)
             glCheck(gl::DeleteSamplers(1, &m_sampler));
-    }
-
-    //////////////////////////////////////////////
-
-    bool TextureSampler::load(const Filter filterMode, const Repeat repeatMode, const float param)
-    {
-        setFilterMode(filterMode, param);
-        setRepeatMode(repeatMode);
-
-        return true;
     }
 
     //////////////////////////////////////////////
@@ -103,17 +108,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void TextureSampler::reset()
+    TextureSampler& TextureSampler::reset()
     {
         if (m_sampler)
             glCheck(gl::DeleteSamplers(1, &m_sampler));
 
         glCheck(gl::GenSamplers(1, &m_sampler));
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void TextureSampler::setFilterMode(const Filter mode, const float param)
+    TextureSampler& TextureSampler::setFilterMode(const Filter mode, const float param)
     {
         if (m_sampler)
         {
@@ -134,7 +141,7 @@ namespace jop
                 case Filter::Anisotropic:
                     if (getMaxAnisotropy() > 0.f)
                     {
-                        glCheck(gl::SamplerParameterf(m_sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, std::min(param, getMaxAnisotropy())));
+                        glCheck(gl::SamplerParameterf(m_sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, getMaxAnisotropy())));
                     }
                     else
                         // Should never happen but just to be sure.
@@ -144,11 +151,13 @@ namespace jop
             m_filter = mode;
             m_anisotropic = param;
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void TextureSampler::setRepeatMode(const Repeat repeat)
+    TextureSampler& TextureSampler::setRepeatMode(const Repeat repeat)
     {
         if (m_sampler)
         {
@@ -177,19 +186,23 @@ namespace jop
 
             m_repeat = repeat;
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    void TextureSampler::setBorderColor(const Color& color)
+    TextureSampler& TextureSampler::setBorderColor(const Color& color)
     {
-        if (m_sampler)
+        if (m_sampler && m_borderColor != color)
         {
             const glm::vec4 col = color.asRGBAFloatVector();
             glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &col[0]));
 
             m_borderColor = color;
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -237,29 +250,5 @@ namespace jop
             glCheck(gl::GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &level));
 
         return level;
-    }
-
-    //////////////////////////////////////////////
-
-    TextureSampler& TextureSampler::getDefault()
-    {
-        static WeakReference<TextureSampler> defSampler;
-
-        if (defSampler.expired())
-        {
-            defSampler = static_ref_cast<TextureSampler>(ResourceManager::getEmptyResource<TextureSampler>("jop_default_sampler").getReference());
-            
-            JOP_ASSERT_EVAL(defSampler->load
-            (
-                static_cast<Filter>(SettingManager::getUint("uDefaultTextureFilterMode", 0)),
-                static_cast<Repeat>(SettingManager::getUint("uDefaultTextureRepeatMode", 0)),
-                SettingManager::getFloat("fDefaultTextureAnisotropyLevel", 1.f)
-
-            ), "Couldn't create default sampler!");
-
-            defSampler->setPersistence(0);
-        }
-
-        return *defSampler;
     }
 }

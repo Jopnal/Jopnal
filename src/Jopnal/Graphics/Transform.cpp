@@ -260,12 +260,7 @@ namespace jop
 
     Transform& Transform::lookAt(const glm::vec3& point, const glm::vec3& up)
     {
-        m_invTransform = glm::lookAt(getGlobalPosition(), point, up);
-        m_transform = glm::inverse(m_invTransform);
-        m_transformNeedUpdate = false;
-        m_invTransformNeedsUpdate = false;
-
-        return *this;
+        return setRotation(glm::quat(glm::inverse(glm::lookAt(getGlobalPosition(), point, up))));
     }
 
     //////////////////////////////////////////////

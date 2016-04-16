@@ -41,7 +41,7 @@ namespace
 
     rj::Document ns_document;
     bool ns_init = false;
-    std::mutex ns_mutex;
+    std::recursive_mutex ns_mutex;
 
     rj::Value& getRJValue(const std::string& name)
     {
@@ -155,7 +155,7 @@ namespace
         if (name.empty())
             return defaultValue;
 
-        std::lock_guard<std::mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         rj::Value& val = getRJValue(name);
 
@@ -174,7 +174,7 @@ namespace
         if (name.empty())
             return;
 
-        std::lock_guard<std::mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         rj::Value& val = getRJValue(name);
         setRJValue(val, newValue);
@@ -269,7 +269,7 @@ namespace jop
 
     void SettingManager::reload()
     {
-        std::lock_guard<std::mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         std::string buf;
         if (!FileLoader::readTextfile("config.json", buf))
@@ -289,7 +289,7 @@ namespace jop
 
     void SettingManager::save()
     {
-        std::lock_guard<std::mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         rj::StringBuffer buffer;
         rj::PrettyWriter<rj::StringBuffer> writer(buffer);
@@ -336,7 +336,7 @@ namespace jop
 
     bool SettingManager::checkInit()
     {
-        std::lock_guard<std::mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
 
         return ns_init;
     }
