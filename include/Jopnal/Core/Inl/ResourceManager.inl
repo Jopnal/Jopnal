@@ -72,7 +72,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to error resource");
+            JOP_DEBUG_WARNING("Couldn't load resource \"" << name << "\" (" << typeid(T).name() << "), resorting to error resource");
             name; // Remove warning in release mode
             return T::getError();
         }
@@ -82,7 +82,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to default resource");
+            JOP_DEBUG_WARNING("Couldn't load resource \"" << name << "\" (" << typeid(T).name() << "), resorting to default resource");
             name; // Remove warning in release mode
             return T::getDefault();
         }
@@ -138,7 +138,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") successfully loaded");
+            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") loaded");
 
             return ptr;
         }
@@ -208,12 +208,12 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
         m_instance->m_resources[newName] = std::move(res);
 
-        JOP_DEBUG_INFO("\"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
+        JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") copied");
 
         return ptr;
     }
 
-    JOP_DEBUG_WARNING("Couldn't copy resource named \"" << name << "\", not found or unmatched type");
+    JOP_DEBUG_WARNING("Couldn't copy resource \"" << name << "\", not found or unmatched type");
 
     return detail::LoadFallback<T>::load(name);
 }
