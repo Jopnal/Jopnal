@@ -415,6 +415,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    float LightSource::getRange() const
+    {
+        const float max = static_cast<float>(std::max(
+        {
+            m_intensities[0].r, m_intensities[0].g, m_intensities[0].b,
+            m_intensities[1].r, m_intensities[1].g, m_intensities[1].b,
+            m_intensities[2].r, m_intensities[2].g, m_intensities[2].b
+        })) / 255.f;
+
+       // (-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * maxBrightness))) / (2 * quadratic)
+
+        const auto& att = m_attenuation;
+
+        return (att.y + std::sqrtf(att.y * att.y - 4 * att.z * (att.x - (255.f / 5.f) * max))) / (2 * att.z);
+    }
+
+    //////////////////////////////////////////////
+
     bool LightSource::checkRange(const Drawable& drawable) const
     {
         if (m_type == Type::Directional)
