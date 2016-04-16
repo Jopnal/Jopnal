@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/TextureSampler.hpp>
 #include <Jopnal/MathInclude.hpp>
 #include <string>
 
@@ -65,11 +66,15 @@ namespace jop
         void bind(const unsigned int texUnit = 1) const;
 
 
-        /// \brief Bind a texture sampler
+        /// \brief Get the sampler
         ///
-        /// \param sampler The sampler
+        /// \return Reference to the internal sampler
         ///
-        void setSampler(const TextureSampler& sampler);
+        TextureSampler& getSampler();
+
+        /// \copydoc getSampler()
+        ///
+        const TextureSampler& getSampler() const;
 
 
         /// \brief Check if this texture is valid
@@ -103,7 +108,7 @@ namespace jop
 
         /// \brief Set the pixel store alignment
         ///
-        /// This set the opengl UNPACK_ALIGNMENT parameter appropriately.
+        /// This set the OpenGL UNPACK_ALIGNMENT parameter appropriately.
         ///
         /// \param depth The pixel byte depth
         ///
@@ -111,9 +116,9 @@ namespace jop
 
     private:
 
-        mutable WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
-        mutable unsigned int m_texture;                         ///< The OpenGL handle
-        const unsigned int m_target;                            ///< The OpenGL texture target
+        TextureSampler m_sampler;       ///< Texture sampler
+        mutable unsigned int m_texture; ///< The OpenGL handle
+        const unsigned int m_target;    ///< The OpenGL texture target
     };
 }
 
