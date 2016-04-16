@@ -219,6 +219,9 @@ namespace jop
                     }
 
                     // Shininess
+                    //
+                    // Gloss map seems to replace specular map in some cases.
+                    //
                     if (!m.hasAttribute(Material::Attribute::SpecularMap) && mat.GetTextureCount(aiTextureType_SHININESS))
                     {
                         aiString path;
@@ -267,6 +270,10 @@ namespace jop
                         if (path.length)
                             m.setMap(Material
                     }*/
+
+                    // Ambient
+
+                    // Light
 
                     // Unknown
                     //
@@ -333,10 +340,10 @@ namespace jop
                 std::vector<uint8> vertBuf
                 (
                     (sizeof(glm::vec3) +
-                    sizeof(glm::vec2) * mesh.HasTextureCoords(0) +
-                    sizeof(glm::vec3) * mesh.HasNormals() +
-                    sizeof(glm::vec3) * 2 * mesh.HasTangentsAndBitangents() +
-                    sizeof(Color) * mesh.HasVertexColors(0)
+                     sizeof(glm::vec2) * mesh.HasTextureCoords(0) +
+                     sizeof(glm::vec3) * mesh.HasNormals() +
+                     sizeof(glm::vec3) * mesh.HasTangentsAndBitangents() * 2 +
+                     sizeof(Color)     * mesh.HasVertexColors(0)
                     )
                     * mesh.mNumVertices
                 );
