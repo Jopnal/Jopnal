@@ -58,7 +58,11 @@ namespace jop
         ///
         /// This will create the object tree and load the correct meshes and materials.
         ///
-        /// \param path Path to the mdoel file
+        /// \warning If the model file has a name for the root node, the root object's
+        ///          identifier will be changed accordingly. Be aware of this when
+        ///          using this function.
+        ///
+        /// \param path Path to the model file
         ///
         /// \return True if successful
         ///

@@ -52,6 +52,82 @@ namespace jop
             return ss.str();
         }
 
+        void loadCameras(const aiScene& scene, WeakReference<Object> root)
+        {
+            if (!scene.HasCameras())
+                return;
+
+            auto& renderer = root->getScene().getRenderer();
+
+            for (std::size_t i = 0; i < scene.mNumCameras; ++i)
+            {
+                auto& cam = *scene.mCameras[i];
+
+                WeakReference<Object> node;
+
+                if (root->getID() == cam.mName.C_Str())
+                    node = root;
+                else if ((node = root->findChild(cam.mName.C_Str(), true)).expired())
+                {
+                    JOP_DEBUG_WARNING("Couldn't find node \"" << cam.mName.C_Str() << "\" while loading camera");
+                    continue;
+                }
+
+                if (cam.mAspect <= 0.f)
+                {
+                    JOP_DEBUG_WARNING("Couldn't load camera, aspect ratio must be more than zero");
+                    continue;
+                }
+
+                auto& comp = node->createComponent<Camera>(renderer, Camera::Projection::Perspective);
+
+                comp.setAspectRatio(cam.mAspect);
+                comp.setClippingPlanes(cam.mClipPlaneNear, cam.mClipPlaneFar);
+                comp.setFieldOfView(cam.mHorizontalFOV / cam.mAspect);
+            }
+        }
+
+        void loadLights(const aiScene& scene, WeakReference<Object> root)
+        {
+            if (!scene.HasLights())
+                return;
+
+            auto& renderer = root->getScene().getRenderer();
+
+            for (std::size_t i = 0; i < scene.mNumLights; ++i)
+            {
+                auto& light = *scene.mLights[i];
+
+                WeakReference<Object> node;
+
+                if (root->getID() == light.mName.C_Str())
+                    node = root;
+                else if ((node = root->findChild(light.mName.C_Str(), true)).expired())
+                {
+                    JOP_DEBUG_WARNING("Couldn't find node \"" << light.mName.C_Str() << "\" while loading light source");
+                    continue;
+                }
+
+                static const LightSource::Type types[] =
+                {
+                    LightSource::Type::Directional,
+                    LightSource::Type::Point,
+                    LightSource::Type::Spot
+                };
+
+                auto& comp = node->createComponent<LightSource>(renderer, types[light.mType]);
+
+                comp.setAttenuation(light.mAttenuationConstant, light.mAttenuationLinear, light.mAttenuationQuadratic);
+                comp.setCutoff(light.mAngleInnerCone, light.mAngleOuterCone);
+                
+                auto& amb = light.mColorAmbient;
+                auto& dif = light.mColorDiffuse;
+                auto& spe = light.mColorSpecular;
+
+                comp.setIntensity(Color(amb.r, amb.g, amb.b), Color(dif.r, dif.g, dif.b), Color(spe.r, spe.g, spe.b));
+            }
+        }
+
         std::vector<const Material*> getMaterials(const aiScene& scene)
         {
             std::vector<const Material*> mats;
@@ -60,7 +136,7 @@ namespace jop
             for (std::size_t i = 0; i < scene.mNumMaterials; ++i)
             {
                 auto& mat = *scene.mMaterials[i];
-
+                
                 auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true).setAttributeField(Material::Attribute::AmbientConstant);
 
                 // Reflection
@@ -191,6 +267,49 @@ namespace jop
                         if (path.length)
                             m.setMap(Material
                     }*/
+
+                    // Unknown
+                    //
+                    // No other way to load these but try to guess what they are.
+                    //
+                    if (mat.GetTextureCount(aiTextureType_UNKNOWN))
+                    {
+                        for (std::size_t i = 0; i < mat.GetTextureCount(aiTextureType_UNKNOWN); ++i)
+                        {
+                            aiString path;
+                            mat.GetTexture(aiTextureType_UNKNOWN, i, &path);
+
+                            using A = Material::Attribute;
+                            using M = Material::Map;
+                            M map;
+
+                            // Diffuse
+                            if (!m.hasAttribute(A::DiffuseMap) && strstr(path.C_Str(), "dif"))
+                                map = M::Diffuse;
+
+                            // Specular
+                            else if (!m.hasAttribute(A::SpecularMap) && strstr(path.C_Str(), "spec"))
+                                map = M::Specular;
+
+                            // Emission
+                            else if (!m.hasAttribute(A::EmissionMap) && strstr(path.C_Str(), "emis"))
+                                map = M::Emission;
+
+                            // Reflection
+                            else if (!m.hasAttribute(A::ReflectionMap) && strstr(path.C_Str(), "refl"))
+                                map = M::Reflection;
+
+                            // Opacity
+                            else if (!m.hasAttribute(A::OpacityMap) && strstr(path.C_Str(), "opa"))
+                                map = M::Opacity;
+
+                            // Not identified
+                            else
+                                continue;
+
+                            m.setMap(map, ResourceManager::getResource<Texture2D>(path.C_Str()));
+                        }
+                    }
                 }
 
                 mats.push_back(&m);
@@ -316,6 +435,10 @@ namespace jop
 
         bool processNode(const aiNode& node, WeakReference<Object> object, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats)
         {
+            // Name
+            if (node.mName.length)
+                object->setID(node.mName.C_Str());
+
             // Transform
             {
                 aiVector3D scale, pos; aiQuaternion rot;
@@ -346,7 +469,7 @@ namespace jop
             for (std::size_t i = 0; i < parentNode.mNumChildren; ++i)
             {
                 const aiNode& thisNode = *parentNode.mChildren[i];
-                const WeakReference<Object> thisObj = parentObject->createChild(thisNode.mName.length > 0 ? thisNode.mName.C_Str() : "object");
+                const WeakReference<Object> thisObj = parentObject->createChild("");
 
                 if (!makeNodes(thisNode, thisObj, rend, meshes, mats))
                     return false;
@@ -385,6 +508,8 @@ namespace jop
             | aiProcess_FindInvalidData
             | aiProcess_ValidateDataStructure
             | aiProcess_OptimizeMeshes
+            | aiProcess_RemoveRedundantMaterials
+            //| aiProcess_OptimizeGraph << This seems to cause problems with scale
             ;
 
         const aiScene* scene = imp.ReadFile(path, preProcess);
@@ -399,6 +524,9 @@ namespace jop
 
         if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene)))
         {
+            detail::loadLights(*scene, getObject());
+            detail::loadCameras(*scene, getObject());
+
             m_path = path;
             JOP_DEBUG_INFO("Successfully loaded model \"" << path << "\", took " << clock.getElapsedTime().asSeconds() << "s");
             return true;

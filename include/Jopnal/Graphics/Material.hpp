@@ -59,10 +59,11 @@ namespace jop
             {
                 // Misc
                 AmbientConstant = 1,
-                DiffuseAlpha    = 1 << 2,
+                DiffuseAlpha    = AmbientConstant   << 1,
+                VertexColor     = DiffuseAlpha      << 1, 
 
                 // Maps
-                DiffuseMap      = 1 << 3,
+                DiffuseMap      = 1                 << 4,
                 SpecularMap     = DiffuseMap        << 1,
                 EmissionMap     = SpecularMap       << 1,
                 EnvironmentMap  = EmissionMap       << 1,
@@ -74,10 +75,10 @@ namespace jop
                 //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
-                Phong           = 1 << 12,
-                BlinnPhong      = Phong | 1 << 13,  //
-                Gouraud         = Phong,            // TODO: Implement these, requires shader work
-                Flat            = Phong,            //
+                Phong           = 1 << 18,
+                BlinnPhong      = Phong | Phong << 1,   //
+                Gouraud         = Phong,                // TODO: Implement these, requires shader work
+                Flat            = Phong,                //
 
                 // Bundles
                 Default         = DiffuseMap,
