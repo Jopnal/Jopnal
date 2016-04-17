@@ -35,7 +35,7 @@ namespace detail
 
     public:
 
-        MotionState(jop::Object& obj)
+        explicit MotionState(jop::Object& obj)
             : m_obj(obj)
         {}
 
@@ -87,7 +87,7 @@ namespace jop
             const void* m_against;
             bool hit;
 
-            Callback(const void* against)
+            explicit Callback(const void* against)
                 : m_against (against),
                   hit       (false)
             {}
@@ -142,7 +142,7 @@ namespace jop
             const void* m_against;
             bool hit;
             
-            Callback(const void* against)
+            explicit Callback(const void* against)
                 : m_against (against),
                   hit       (false)
             {}

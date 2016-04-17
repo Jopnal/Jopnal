@@ -41,7 +41,7 @@ namespace jop { namespace detail
     
     public:
 
-        WindowImpl(const Window::Settings& settings);
+        explicit WindowImpl(const Window::Settings& settings);
 
         ~WindowImpl();
 

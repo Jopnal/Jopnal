@@ -230,15 +230,17 @@ namespace jop
 
             #ifdef JOP_OS_WINDOWS
 
-                static const char* severityStr[] =
-                {
-                    "ERROR: ",
-                    "WARNING: ",
-                    "INFO: "
-                };
-
                 if (debugConsole)
+                {
+                    static const char* const severityStr[] =
+                    {
+                        "ERROR: ",
+                        "WARNING: ",
+                        "INFO: "
+                    };
+
                     OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(m_lastSeverity)]) + newStr + '\n').c_str());
+                }
             #endif
             }
         }

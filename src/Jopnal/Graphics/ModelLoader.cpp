@@ -500,10 +500,10 @@ namespace jop
         struct SceneDealloc
         {
             Assimp::Importer* imp;
-            SceneDealloc(Assimp::Importer& i) : imp(&i){}
+            explicit SceneDealloc(Assimp::Importer& i) : imp(&i){}
             ~SceneDealloc(){ imp->FreeScene(); }
 
-        } SceneDealloc(imp);
+        } sceneDeallocator(imp);
 
         static const unsigned int preProcess = 0
 

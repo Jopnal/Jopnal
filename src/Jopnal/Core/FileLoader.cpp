@@ -151,7 +151,7 @@ namespace jop
 
                 public:
 
-                    Stream(FileLoader& loader)
+                    explicit Stream(FileLoader& loader)
                         : m_loader(&loader)
                     {}
 
