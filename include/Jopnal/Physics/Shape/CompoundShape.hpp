@@ -49,7 +49,7 @@ namespace jop
         /// \param childShape Reference to a valid shape
         /// \param childTransform Local transform for the child
         ///
-        void addChild(CollisionShape& childShape, const Transform& childTransform);
+        void addChild(CollisionShape& childShape, const Transform::Variables& childTransform);
     };
 }
 

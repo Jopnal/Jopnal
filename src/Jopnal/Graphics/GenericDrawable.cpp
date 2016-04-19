@@ -62,7 +62,7 @@ namespace jop
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        auto& modelMat = getObject()->getMatrix();
+        auto& modelMat = getObject()->getTransform().getMatrix();
 
         // Set common uniforms. If camera is null, it means that the perspective and view matrices
         // have already been set somewhere else

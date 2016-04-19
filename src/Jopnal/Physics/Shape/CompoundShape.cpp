@@ -36,7 +36,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void CompoundShape::addChild(CollisionShape& childShape, const Transform& childTransform)
+    void CompoundShape::addChild(CollisionShape& childShape, const Transform::Variables& childTransform)
     {
         if (!childShape.m_shape)
         {
@@ -46,8 +46,8 @@ namespace jop
 
         auto shape = static_cast<btCompoundShape*>(m_shape.get());
 
-        auto& r = childTransform.getRotation();
-        auto& p = childTransform.getPosition();
+        auto& r = childTransform.rotation;
+        auto& p = childTransform.position;
         const btTransform transform(btQuaternion(r.x, r.y, r.z, r.w), btVector3(p.x, p.y, p.z));
 
         shape->addChildShape(transform, childShape.m_shape.get());

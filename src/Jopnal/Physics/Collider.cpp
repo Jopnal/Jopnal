@@ -41,8 +41,8 @@ namespace detail
 
         void getWorldTransform(btTransform& worldTrans) const override
         {
-            auto& p = m_obj->getPosition();
-            auto& r = m_obj->getRotation();
+            auto& p = m_obj->getGlobalPosition();
+            auto& r = m_obj->getGlobalRotation();
 
             worldTrans.setOrigin(btVector3(p.x, p.y, p.z));
             worldTrans.setRotation(btQuaternion(r.x, r.y, r.z, r.w));

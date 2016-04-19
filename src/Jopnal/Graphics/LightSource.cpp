@@ -272,11 +272,12 @@ namespace jop
         static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
 
         // Use the object's scale to construct the frustum
-        auto scl = getObject()->getScale();
+        auto scl = getObject()->getLocalScale();
 
         // We need scale at 1 to avoid messing up the view transform
-        Transform trans = *getObject();
-        trans.setScale(1.f);
+        glm::mat4 trans(getObject()->getTransform().getMatrix());
+        Transform scaleInv; scaleInv.scale(getObject()->getGlobalScale());
+        trans *= glm::inverse(scaleInv.getMatrix());
 
         switch (m_type)
         {
@@ -295,14 +296,14 @@ namespace jop
             }
             case Type::Directional:
             {
-                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans;
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
                 break;
             }
             case Type::Spot:
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans;
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
         }
@@ -320,7 +321,7 @@ namespace jop
             mesh.getVertexBuffer().bind();
 
             shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
-            shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
+            shdr.setUniform("u_MMatrix", d->getObject()->getTransform().getMatrix());
 
             if (mesh.getElementAmount())
             {

@@ -71,8 +71,6 @@ namespace jop
         using Object::getID;
         using Object::setID;
 
-        using Object::updateTransformTree;
-
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);

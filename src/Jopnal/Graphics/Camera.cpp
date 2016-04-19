@@ -188,7 +188,7 @@ namespace jop
 
     const glm::mat4& Camera::getViewMatrix() const
     {
-        return getObject()->getInverseMatrix();
+        return getObject()->getInverseTransform().getMatrix();
     }
 
     //////////////////////////////////////////////

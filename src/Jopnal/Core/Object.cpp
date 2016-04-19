@@ -30,15 +30,15 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Object)
 
         // Transform
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::move, "move");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::scale, "scale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Transform& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
+        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
 
@@ -73,25 +73,35 @@ namespace jop
 namespace jop
 {
     Object::Object(const std::string& ID)
-        : Transform                 (),
-          SafeReferenceable<Object> (this),
+        : SafeReferenceable<Object> (this),
+          m_transform               (),
+          m_inverseTransform        (),
+          m_locals                  (),
+          m_globals                 (),
           m_children                (),
           m_components              (),
           m_tags                    (),
           m_ID                      (ID),
           m_parent                  (),
-          m_flags                   (ActiveFlag)
-    {}
+          m_flags                   (ActiveFlag | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
+    {
+        m_locals.position = glm::vec3(0.f);
+        m_locals.scale = glm::vec3(1.f);
+        m_locals.rotation = glm::quat(1.f, 0.f, 0.f, 0.f);
+    }
 
-    Object::Object(const Object& other, const std::string& newID, const Transform& newTransform)
-        : Transform                 (newTransform),
-          SafeReferenceable<Object> (this),
+    Object::Object(const Object& other, const std::string& newID, const Transform::Variables& newTransform)
+        : SafeReferenceable<Object> (this),
+          m_transform               (),
+          m_inverseTransform        (),
+          m_locals                  (newTransform),
+          m_globals                 (),
           m_children                (),
           m_components              (),
           m_tags                    (other.m_tags),
           m_ID                      (newID),
           m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags)
+          m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
@@ -100,33 +110,36 @@ namespace jop
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
         {
-            m_children.emplace_back(i, i.getID(), i);
+            m_children.emplace_back(i, i.getID(), i.m_locals);
             m_children.back().m_parent = *this;
         }
     }
 
     Object::Object(Object&& other)
-        : Transform                 (other),
-          SafeReferenceable<Object> (std::move(other)),
+        : SafeReferenceable<Object> (std::move(other)),
+          m_transform               (),
+          m_inverseTransform        (),
+          m_locals                  (other.m_locals),
+          m_globals                 (),
           m_children                (std::move(other.m_children)),
           m_components              (std::move(other.m_components)),
           m_tags                    (std::move(other.m_tags)),
           m_ID                      (std::move(other.m_ID)),
           m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags)
+          m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {}
 
     Object& Object::operator=(Object&& other)
     {
-        Transform::operator =(other);
         SafeReferenceable<Object>::operator =(std::move(other));
-
+        
+        m_locals        = other.m_locals;
         m_children      = std::move(other.m_children);
         m_components    = std::move(other.m_components);
         m_tags          = std::move(other.m_tags);
         m_ID            = std::move(other.m_ID);
         m_parent        = other.m_parent;
-        m_flags         = other.m_flags;
+        m_flags         = other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty;
 
         return *this;
     }
@@ -275,7 +288,7 @@ namespace jop
             if (m_children.size() == m_children.capacity())
                 m_children.reserve(m_children.size() + 1);
 
-            m_children.emplace_back(*ptr, clonedID, *ptr);
+            m_children.emplace_back(*ptr, clonedID, ptr->m_locals);
             return m_children.back().getReference();
         }
 
@@ -284,7 +297,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform)
+    WeakReference<Object> Object::cloneChild(const std::string& ID, const std::string& clonedID, const Transform::Variables& newTransform)
     {
         auto ptr = findChild(ID);
 
@@ -337,7 +350,7 @@ namespace jop
 
     void Object::removeSelf()
     {
-        m_flags |= RemoveFlag;
+        setFlags(RemoveFlag);
 
         if (!m_parent.expired())
             m_parent->m_flags |= ChildrenRemovedFlag;
@@ -347,19 +360,19 @@ namespace jop
 
     WeakReference<Object> Object::cloneSelf()
     {
-        return cloneSelf(getID(), *this);
+        return cloneSelf(getID(), m_locals);
     }
 
     //////////////////////////////////////////////
 
     WeakReference<Object> Object::cloneSelf(const std::string& newID)
     {
-        return cloneSelf(newID, *this);
+        return cloneSelf(newID, m_locals);
     }
 
     //////////////////////////////////////////////
 
-    WeakReference<Object> Object::cloneSelf(const std::string& newID, const Transform& newTransform)
+    WeakReference<Object> Object::cloneSelf(const std::string& newID, const Transform::Variables& newTransform)
     {
         JOP_ASSERT(!getParent().expired(), "Cannot clone a scene!");
 
@@ -375,7 +388,7 @@ namespace jop
 
     bool Object::isRemoved() const
     {
-        return (m_flags & RemoveFlag) != 0;
+        return flagSet(RemoveFlag);
     }
 
     /////////////////////////////////////////////
@@ -401,7 +414,7 @@ namespace jop
 
     Object& Object::setIgnoreParent(const bool ignore)
     {
-        m_flags = (ignore ? m_flags | IgnoreParentFlag : m_flags & ~(IgnoreParentFlag));
+        ignore ? setFlags(IgnoreParent) : clearFlags(IgnoreParent);
         return *this;
     }
 
@@ -409,7 +422,7 @@ namespace jop
 
     bool Object::ignoresParent() const
     {
-        return (m_flags & IgnoreParentFlag) != 0;
+        return flagSet(IgnoreParent);
     }
 
     //////////////////////////////////////////////
@@ -618,7 +631,7 @@ namespace jop
     {
         if (isActive() != active)
         {
-            m_flags = (active ? m_flags | ActiveFlag : m_flags & ~(ActiveFlag));
+            active ? setFlags(ActiveFlag) : clearFlags(ActiveFlag);
 
             for (auto& i : m_components)
                 i->setActive(active);
@@ -702,42 +715,344 @@ namespace jop
         return m_tags.find(tag) != m_tags.end();
     }
 
-    //////////////////////////////////////////////
-
-    void Object::updateTransformTree(const Object* parent, bool parentUpdated)
-    {
-        if (!isActive())
-            return;
-
-        if (parent && !ignoresParent())
-        {
-            if (m_transformNeedUpdate || ((m_transformNeedUpdate = parentUpdated) == true))
-            {
-                parentUpdated = true;
-                m_transform = parent->getMatrix() * this->getMatrix();
-            }
-        }
-        else if (m_transformNeedUpdate)
-            parentUpdated = true;
-
-        m_invTransformNeedsUpdate = m_invTransformNeedsUpdate || parentUpdated;
-
-        for (auto& i : m_children)
-            i.updateTransformTree(this, parentUpdated);
-    }
-
     /////////////////////////////////////////////
 
     void Object::sweepRemoved()
     {
-        if ((m_flags & ChildrenRemovedFlag) != 0)
+        if (flagSet(ChildrenRemovedFlag))
         {
             m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](const Object& obj)
             {
                 return obj.isRemoved();
             }), m_children.end());
 
-            m_flags &= ~(ChildrenRemovedFlag);
+            clearFlags(ChildrenRemovedFlag);
         }
+    }
+
+    /////////////////////////////////////////////
+
+    const Transform& Object::getTransform() const
+    {
+        if (flagSet(MatrixDirty))
+        {
+            m_transform.getMatrix() = Transform::IdentityMatrix;
+            m_transform.translate(getLocalPosition());
+            m_transform.rotate(getLocalRotation());
+            m_transform.scale(getLocalScale());
+
+            if (!m_parent.expired() && !ignoresParent())
+                m_transform = m_parent->getTransform() * m_transform;
+
+            clearFlags(MatrixDirty);
+        }
+
+        return m_transform;
+    }
+
+    const Transform& Object::getInverseTransform() const
+    {
+        if (flagSet(InverseMatrixDirty))
+        {
+            m_inverseTransform.getMatrix() = glm::inverse(getTransform().getMatrix());
+            clearFlags(InverseMatrixDirty);
+        }
+
+        return m_inverseTransform;
+    }
+
+    /////////////////////////////////////////////S
+    
+    Object& Object::setRotation(const float x, const float y, const float z)
+    {
+        return setRotation(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setRotation(const glm::vec3& rotation)
+    {
+        return setRotation(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setRotation(const glm::quat& rotation)
+    {
+        m_locals.rotation = rotation;
+        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalRotationDirty);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setRotation(const float angle, const glm::vec3& axis)
+    {
+        return setRotation(glm::quat(angle, axis));
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::quat& Object::getLocalRotation() const
+    {
+        return m_locals.rotation;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::quat& Object::getGlobalRotation() const
+    {
+        if (flagSet(GlobalRotationDirty))
+        {
+            if (m_parent.expired() || ignoresParent())
+                m_globals.rotation = getLocalRotation();
+            else
+                m_globals.rotation = m_parent->getGlobalRotation() * getLocalRotation();
+
+            clearFlags(GlobalRotationDirty);
+        }
+
+        return m_globals.rotation;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getGlobalFront() const
+    {
+        return getGlobalRotation() * Transform::Front;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getGlobalRight() const
+    {
+        return getGlobalRotation() * Transform::Right;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getGlobalUp() const
+    {
+        return getGlobalRotation() * Transform::Up;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getLocalFront() const
+    {
+        return getLocalRotation() * Transform::Front;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getLocalRight() const
+    {
+        return getLocalRotation() * Transform::Right;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 Object::getLocalUp() const
+    {
+        return getLocalRotation() * Transform::Up;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setScale(const float x, const float y, const float z)
+    {
+        return setScale(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setScale(const glm::vec3& scale)
+    {
+        m_locals.scale = scale;
+        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalScaleDirty);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setScale(const float delta)
+    {
+        return setScale(delta, delta, delta);
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec3& Object::getLocalScale() const
+    {
+        return m_locals.scale;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec3& Object::getGlobalScale() const
+    {
+        if (flagSet(GlobalScaleDirty))
+        {
+            if (m_parent.expired() || ignoresParent())
+                m_globals.scale = getLocalScale();
+            else
+                m_globals.scale = m_parent->getGlobalScale() * getLocalScale();
+
+            clearFlags(GlobalScaleDirty);
+        }
+
+        return m_globals.scale;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setPosition(const float x, const float y, const float z)
+    {
+        return setPosition(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setPosition(const glm::vec3& position)
+    {
+        m_locals.position = position;
+        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalPositionDirty);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec3& Object::getLocalPosition() const
+    {
+        return m_locals.position;
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec3& Object::getGlobalPosition() const
+    {
+        if (flagSet(GlobalPositionDirty))
+        {
+            if (m_parent.expired() || ignoresParent())
+                m_globals.position = getLocalPosition();
+            else
+                m_globals.position = m_parent->getGlobalPosition() + getLocalPosition();
+
+            clearFlags(GlobalPositionDirty);
+        }
+
+        return m_globals.position;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::lookAt(const glm::vec3& point)
+    {
+        return lookAt(point, Transform::Up);
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::lookAt(const float x, const float y, const float z)
+    {
+        return lookAt(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::lookAt(const glm::vec3& point, const glm::vec3& up)
+    {
+        return setRotation(glm::quat(glm::inverse(glm::lookAt(getGlobalPosition(), point, up))));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::move(const float x, const float y, const float z)
+    {
+        return move(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::move(const glm::vec3& offset)
+    {
+        return setPosition(m_locals.position + offset);
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::rotate(const float x, const float y, const float z)
+    {
+        return rotate(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::rotate(const glm::quat& rotation)
+    {
+        return setRotation(m_locals.rotation * rotation);
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::rotate(const glm::vec3& rotation)
+    {
+        return rotate(glm::quat(rotation));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::rotate(const float angle, const glm::vec3& axis)
+    {
+        return rotate(glm::angleAxis(angle, axis));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::scale(const float x, const float y, const float z)
+    {
+        return scale(glm::vec3(x, y, z));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::scale(const glm::vec3& scale)
+    {
+        return setScale(m_locals.scale * scale);
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::scale(const float delta)
+    {
+        return scale(glm::vec3(delta));
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::flagSet(const uint16 flag) const
+    {
+        return (m_flags & flag) != 0;
+    }
+
+    void Object::setFlags(const uint16 flags) const
+    {
+        m_flags |= flags;
+    }
+
+    void Object::clearFlags(const uint16 flags) const
+    {
+        m_flags &= ~flags;
+    }
+
+    void Object::propagateFlags(const uint16 flags)
+    {
+        setFlags(flags);
+
+        for (auto& i : m_children)
+            i.propagateFlags(flags);
     }
 }

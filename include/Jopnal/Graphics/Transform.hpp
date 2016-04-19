@@ -34,6 +34,15 @@ namespace jop
     class JOP_API Transform
     {
     public:
+
+        struct Variables
+        {
+            glm::vec3 position;
+            glm::vec3 scale;
+            glm::quat rotation;
+        };
+
+    public:
     
         /// \brief Default constructor
         ///
@@ -41,6 +50,14 @@ namespace jop
         ///
         Transform();
 
+        /// \brief Constructor
+        ///
+        /// \param matrix The initial matrix
+        ///
+        explicit Transform(const glm::mat4& matrix);
+
+
+        glm::mat4& getMatrix();
 
         /// \brief Get the transformation matrix
         ///
@@ -48,295 +65,17 @@ namespace jop
         ///
         const glm::mat4& getMatrix() const;
 
-        /// \brief Get the inverse transformation matrix
-        ///
-        /// \return Reference to the internal inverse matrix
-        ///
-        const glm::mat4& getInverseMatrix() const;
 
-
-        /// \brief Set the rotation
-        ///
-        /// This version uses euler angles
-        ///
-        /// \param x The X angle
-        /// \param y The Y angle
-        /// \param z The Z angle
-        ///
-        /// \return Reference to this
-        ///
-        Transform& setRotation(const float x, const float y, const float z);
-
-        /// \brief Set the rotation
-        ///
-        /// \param rotation Rotation vector in euler angles
-        ///
-        /// \return Reference to this
-        ///
-        Transform& setRotation(const glm::vec3& rotation);
-
-        /// \brief Set the rotation using angle-axis
-        ///
-        /// \param angle The angle
-        /// \param axis The axis
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setRotation(const float angle, const glm::vec3& axis);
-
-        /// \brief Set the rotation
-        ///
-        /// \param rotation Quaternion with the rotation to set
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setRotation(const glm::quat& rotation);
-
-        /// \brief Get the rotation
-        ///
-        /// \return Quaternion with the rotation
-        ///
-        const glm::quat& getRotation() const;
-
-        /// \brief Get the global rotation
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global rotation
-        ///
-        glm::quat getGlobalRotation() const;
-
-
-        /// \brief Get the global front vector
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global front vector
-        ///
-        glm::vec3 getGlobalFront() const;
-
-        /// \brief Get the global right vector
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global front vector
-        ///
-        glm::vec3 getGlobalRight() const;
-
-        /// \brief Get the global right vector
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global front vector
-        ///
-        glm::vec3 getGlobalUp() const;
-
-        /// \brief Get the local front vector
-        ///
-        /// \return The local front vector
-        ///
-        glm::vec3 getLocalFront() const;
-
-        /// \brief Get the local right vector
-        ///
-        /// \return The local right vector
-        ///
-        glm::vec3 getLocalRight() const;
-
-        /// \brief Get the local up vector
-        ///
-        /// \return The local up vector
-        ///
-        glm::vec3 getLocalUp() const;
-
-
-        /// \brief Set the scale
-        ///
-        /// 1.f means the original scale
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setScale(const float x, const float y, const float z);
-
-        /// \brief Set the scale
-        ///
-        /// \param scale Vector with the scale to set
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setScale(const glm::vec3& scale);
-
-        /// \brief Set the scale
-        ///
-        /// This call is equal to setScale(delta, delta, delta)
-        ///
-        /// \param delta The new scale
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setScale(const float delta);
-
-        /// \brief Get the scale
-        ///
-        /// \return Vector with the scale
-        ///
-        const glm::vec3& getScale() const;
-
-        /// \brief Get the global scale
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global scale
-        ///
-        glm::vec3 getGlobalScale() const;
-
-
-        /// \brief Set the position
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setPosition(const float x, const float y, const float z);
-
-        /// \brief Set the position
-        ///
-        /// \param position Vector with the position to set
-        ///
-        /// \return Reference to self
-        ///
-        Transform& setPosition(const glm::vec3& position);
-
-        /// \brief Get the position
-        ///
-        /// \return Vector with the position
-        ///
-        const glm::vec3& getPosition() const;
-
-        /// \brief Get the global position
-        ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global position
-        ///
-        glm::vec3 getGlobalPosition() const;
-
-
-        /// \brief Set this transform to look at a certain point
-        ///
-        /// \param point The point to look at
-        ///
-        /// \return Reference to self
-        ///
-        Transform& lookAt(const glm::vec3& point);
-
-        /// \copydoc lookAt
-        ///
-        /// \param up A custom up vector
-        ///
-        /// \return Reference to self
-        ///
-        Transform& lookAt(const glm::vec3& point, const glm::vec3& up);
-
-        /// \brief Set this transform to look at a certain point
-        ///
-        /// \param x The X point
-        /// \param y The Y point
-        /// \param z The Z point
-        ///
-        /// \return Reference to self
-        ///
-        Transform& lookAt(const float x, const float y, const float z);
-
-        /// \brief Move this transform
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \returns Reference to self
-        ///
-        Transform& move(const float x, const float y, const float z);
-
-        /// \brief Move this transform
-        ///
-        /// This function will change the position, according given values
-        ///
-        /// \return Reference to self
-        ///
-        Transform& move(const glm::vec3& offset);
-
-
-        /// \brief Rotate this transform
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \returns Reference to self
-        ///
-        Transform& rotate(const float x, const float y, const float z);
-
-        /// \brief Rotate this transform
-        ///
-        /// This function will rotate the graphic, according given values
-        ///
-        /// \return Reference to self
-        ///
-        Transform& rotate(const glm::quat& rotation);
-
-        /// \brief Rotate this transform
-        ///
-        /// This function returns given rotation
-        ///
-        /// \return Reference to self
-        ///
-        Transform& rotate(const glm::vec3& rotation);
-
-        /// \brief Rotate this transform using an axis-angle
-        ///
-        /// \param angle The angle
-        /// \param axis The axis
-        /// 
-        /// \return Reference to self
-        ///
-        Transform& rotate(const float angle, const glm::vec3& axis);
+        void rotate(const glm::quat& rotation);
         
+        void scale(const glm::vec3& scale);
 
-        /// \brief Scale this transform
-        ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
-        ///
-        /// \returns Reference to self
-        ///
-        Transform& scale(const float x, const float y, const float z);
+        void translate(const glm::vec3& translation);
 
-        /// \brief Scale this transform
-        ///
-        /// This function will change scale of the given graphics, according
-        /// given values.
-        ///
-        /// \return Reference to self
-        ///
-        Transform& scale(const glm::vec3& scale);
 
-        /// \brief Scale this transform
-        ///
-        /// This call is equal to scale(delta, delta, delta)
-        ///
-        /// \param delta The scale modifier
-        ///
-        /// \return Reference to self
-        ///
-        Transform& scale(const float delta);
+        Transform& operator *=(const Transform& right);
+
+        Transform operator *(const Transform& right) const;
 
 
         static const glm::mat4 IdentityMatrix;  ///< The identity matrix
@@ -346,13 +85,7 @@ namespace jop
 
     protected:
 
-        mutable glm::mat4 m_transform;          ///< The cached transformation matrix
-        mutable glm::mat4 m_invTransform;       ///< The cached inverted transformation matrix
-        mutable glm::quat m_rotation;           ///< Rotation quaternion
-        glm::vec3 m_scale;                      ///< Scale vector
-        glm::vec3 m_position;                   ///< Position vector
-        mutable bool m_transformNeedUpdate;     ///< Does the transform need updating?
-        mutable bool m_invTransformNeedsUpdate; ///< Does the inverted transform need updating?
+        mutable glm::mat4 m_matrix;             ///< The cached transformation matrix
     };
 }
 
