@@ -271,36 +271,35 @@ namespace jop
 
         static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
 
-        // Use the object's scale to construct the frustum
-        auto scl = getObject()->getLocalScale();
-
-        // We need scale at 1 to avoid messing up the view transform
-        glm::mat4 trans(getObject()->getTransform().getMatrix());
-        Transform scaleInv; scaleInv.scale(getObject()->getGlobalScale());
-        trans *= glm::inverse(scaleInv.getMatrix());
-
-        switch (m_type)
+        if (getType() == Type::Point)
         {
-            case Type::Point:
-            {
-                auto pos = getObject()->getGlobalPosition();
+            auto pos = getObject()->getGlobalPosition();
 
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
+            const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
 
-                makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
+            makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 
-                shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-                shdr.setUniform("u_FarClippingPlane", range);
-                shdr.setUniform("u_LightPosition", pos);
-                break;
-            }
-            case Type::Directional:
+            shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+            shdr.setUniform("u_FarClippingPlane", range);
+            shdr.setUniform("u_LightPosition", pos);
+        }
+        else
+        {
+            // Use the object's scale to construct the frustum
+            auto scl = getObject()->getLocalScale();
+
+            // We need scale at 1 to avoid messing up the view transform
+            glm::mat4 trans(getObject()->getInverseTransform().getMatrix());
+            trans[0] = glm::normalize(trans[0]);
+            trans[1] = glm::normalize(trans[1]);
+            trans[2] = glm::normalize(trans[2]);
+
+            if (getType() == Type::Directional)
             {
                 m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans;
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
-                break;
             }
-            case Type::Spot:
+            else
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
                 m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans;

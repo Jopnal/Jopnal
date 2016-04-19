@@ -780,7 +780,7 @@ namespace jop
     Object& Object::setRotation(const glm::quat& rotation)
     {
         m_locals.rotation = rotation;
-        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalRotationDirty);
+        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalRotationDirty | GlobalPositionDirty);
 
         return *this;
     }
@@ -870,7 +870,7 @@ namespace jop
     Object& Object::setScale(const glm::vec3& scale)
     {
         m_locals.scale = scale;
-        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalScaleDirty);
+        propagateFlags(MatrixDirty | InverseMatrixDirty | GlobalScaleDirty | GlobalPositionDirty);
 
         return *this;
     }
@@ -936,10 +936,8 @@ namespace jop
     {
         if (flagSet(GlobalPositionDirty))
         {
-            if (m_parent.expired() || ignoresParent())
-                m_globals.position = getLocalPosition();
-            else
-                m_globals.position = m_parent->getGlobalPosition() + getLocalPosition();
+            auto& mat = getTransform().getMatrix();
+            m_globals.position = glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
 
             clearFlags(GlobalPositionDirty);
         }
