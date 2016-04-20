@@ -25,9 +25,9 @@
 //////////////////////////////////////////////
 
 
+#ifdef JOP_OS_WINDOWS
 namespace
 {
-#ifdef JOP_OS_WINDOWS
 
     BOOL WINAPI handleConsoleEvent(DWORD event)
     {
@@ -148,11 +148,8 @@ namespace
 
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attrib);
     }
-
-#endif
-
-
 }
+#endif
 
 namespace jop
 {

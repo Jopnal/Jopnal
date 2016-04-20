@@ -38,87 +38,87 @@ namespace jop
 
 namespace jop
 {
-    /*JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-    auto light = obj.createComponent<LightSource>("");
+        auto light = obj.createComponent<LightSource>();
 
-    const char* const typeField = "type";
-    if (val.HasMember(typeField) && val[typeField].IsUint())
-    light->setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
+        const char* const typeField = "type";
+        if (val.HasMember(typeField) && val[typeField].IsUint())
+            light->setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
 
-    const char* const intensityField = "intensities";
-    if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
-    {
-    auto& intArr = val[intensityField];
+        const char* const intensityField = "intensities";
+        if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
+        {
+            auto& intArr = val[intensityField];
 
-    if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
-    {
-    light->setIntensity(Color(intArr[0u].GetUint()),
-    Color(intArr[1u].GetUint()),
-    Color(intArr[2u].GetUint()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource intensity for object with id \"" << obj.getID() << "\"");
-    }
+            if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
+            {
+                light->setIntensity(Color(intArr[0u].GetUint()),
+                                    Color(intArr[1u].GetUint()),
+                                    Color(intArr[2u].GetUint()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource intensity for object with id \"" << obj.getID() << "\"");
+        }
 
-    const char* const attField = "attenuation";
-    if (val.HasMember(attField) && val[attField].IsArray() && val[attField].Size() >= 4)
-    {
-    auto& attArr = val[attField];
+        const char* const attField = "attenuation";
+        if (val.HasMember(attField) && val[attField].IsArray() && val[attField].Size() >= 4)
+        {
+            auto& attArr = val[attField];
 
-    if (attArr[0u].IsDouble() && attArr[1u].IsDouble() && attArr[2u].IsDouble() && attArr[3u].IsDouble())
-    {
-    light->setAttenuation(static_cast<float>(attArr[0u].GetDouble()),
-    static_cast<float>(attArr[1u].GetDouble()),
-    static_cast<float>(attArr[2u].GetDouble()),
-    static_cast<float>(attArr[3u].GetDouble()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource attenuation for object with id \"" << obj.getID() << "\"");
-    }
+            if (attArr[0u].IsDouble() && attArr[1u].IsDouble() && attArr[2u].IsDouble() && attArr[3u].IsDouble())
+            {
+                light->setAttenuation(static_cast<float>(attArr[0u].GetDouble()),
+                                      static_cast<float>(attArr[1u].GetDouble()),
+                                      static_cast<float>(attArr[2u].GetDouble()),
+                                      static_cast<float>(attArr[3u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource attenuation for object with id \"" << obj.getID() << "\"");
+        }
 
-    const char* const coField = "cutoff";
-    if (val.HasMember(coField) && val[coField].IsArray() && val[coField].Size() >= 2)
-    {
-    auto& coArr = val[coField];
+        const char* const coField = "cutoff";
+        if (val.HasMember(coField) && val[coField].IsArray() && val[coField].Size() >= 2)
+        {
+            auto& coArr = val[coField];
 
-    if (coArr[0u].IsDouble() && coArr[1u].IsDouble())
-    {
-    light->setCutoff(static_cast<float>(coArr[0u].GetDouble()),
-    static_cast<float>(coArr[1u].GetDouble()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource cutoff for object with id \"" << obj.getID() << "\"");
-    }
+            if (coArr[0u].IsDouble() && coArr[1u].IsDouble())
+            {
+                light->setCutoff(static_cast<float>(coArr[0u].GetDouble()),
+                                 static_cast<float>(coArr[1u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource cutoff for object with id \"" << obj.getID() << "\"");
+        }
 
-    return Drawable::loadStateBase(*light, scene, val);
+        return Drawable::loadStateBase(*light, scene, val);
     }
     JOP_END_LOADABLE_REGISTRATION(LightSource)
 
     JOP_REGISTER_SAVEABLE(jop, LightSource)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
     {
-    auto& light = static_cast<const LightSource&>(comp);
+        auto& light = static_cast<const LightSource&>(comp);
 
-    val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
+        val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
 
-    val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"]
-    .PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
-    .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
-    .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+        val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"]
+            .PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
+            .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
+            .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
 
-    val.AddMember(json::StringRef("attenuation"), json::kArrayType, alloc)["attenuation"]
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Constant), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Linear), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Quadratic), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Range), alloc);
+        val.AddMember(json::StringRef("attenuation"), json::kArrayType, alloc)["attenuation"]
+            .PushBack(light.getAttenuation(LightSource::Attenuation::Constant), alloc)
+            .PushBack(light.getAttenuation(LightSource::Attenuation::Linear), alloc)
+            .PushBack(light.getAttenuation(LightSource::Attenuation::Quadratic), alloc)
+            .PushBack(light.getAttenuation(LightSource::Attenuation::Range), alloc);
 
-    val.AddMember(json::StringRef("cutoff"), json::kArrayType, alloc)["cutoff"]
-    .PushBack(light.getCutoff().x, alloc)
-    .PushBack(light.getCutoff().y, alloc);
+        val.AddMember(json::StringRef("cutoff"), json::kArrayType, alloc)["cutoff"]
+            .PushBack(light.getCutoff().x, alloc)
+            .PushBack(light.getCutoff().y, alloc);
 
-    return Drawable::saveStateBase(light, val, alloc);
+        return Drawable::saveStateBase(light, val, alloc);
     }
-    JOP_END_SAVEABLE_REGISTRATION(LightSource)*/
+        JOP_END_SAVEABLE_REGISTRATION(LightSource)
 }
 
 namespace jop
@@ -303,6 +303,7 @@ namespace jop
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
                 m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans;
+
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
         }
@@ -424,8 +425,6 @@ namespace jop
             m_intensities[2].r, m_intensities[2].g, m_intensities[2].b
         })) / 255.f;
 
-       // (-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * maxBrightness))) / (2 * quadratic)
-
         const auto& att = m_attenuation;
 
         return (att.y + std::sqrtf(att.y * att.y - 4 * att.z * (att.x - (255.f / 5.f) * max))) / (2 * att.z);
@@ -533,7 +532,7 @@ namespace jop
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
 
-        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", static_cast<unsigned int>(Material::Map::Last));
+        static const unsigned int pointShadowStartUnit = static_cast<unsigned int>(Material::Map::Last);
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
         static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Point);

@@ -27,19 +27,21 @@
 
 namespace jop
 {
-    #pragma warning(push)
-    #pragma warning(disable: 4189)
     JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
+
+        JOP_BIND_MEMBER_COMMAND(&Scene::setDeltaScale, "setDeltaScale");
+
     JOP_END_COMMAND_HANDLER(Scene)
-    #pragma warning(pop)
 
     JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
     {
         const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : ""; 
         const bool active = val.HasMember("active") && val["active"].IsBool() ? val["active"].GetBool() : true;
+        const float delta = val.HasMember("deltascale") && val["deltascale"].IsDouble() ? static_cast<float>(val["deltascale"].GetDouble()) : 1.f;
 
         scene = std::make_unique<Scene>(id);
         scene->setActive(active);
+        scene->setDeltaScale(delta);
 
         return true;
     }
@@ -48,7 +50,8 @@ namespace jop
     JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
     {
         obj.AddMember(json::StringRef("id"), json::StringRef(scene.getID().c_str()), alloc)
-           .AddMember(json::StringRef("active"), scene.isActive(), alloc);
+           .AddMember(json::StringRef("active"), scene.isActive(), alloc)
+           .AddMember(json::StringRef("deltascale"), scene.getDeltaScale(), alloc);
 
         return true;
     }

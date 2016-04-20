@@ -40,7 +40,6 @@ namespace jop
         JOP_DISALLOW_COPY(Object);
 
         friend class StateLoader;
-        friend class LightSource;
 
         enum : uint16
         {
@@ -524,8 +523,16 @@ namespace jop
 
     public:
 
+        /// \brief Get the transform
+        ///
+        /// \return Reference to the internal transform
+        ///
         const Transform& getTransform() const;
 
+        /// \brief Get the inverse transform
+        ///
+        /// \return Reference to the internal inverse transform
+        ///
         const Transform& getInverseTransform() const;
 
         /// \brief Set the rotation
@@ -536,7 +543,7 @@ namespace jop
         /// \param y The Y angle
         /// \param z The Z angle
         ///
-        /// \return Reference to this
+        /// \return Reference to self
         ///
         Object& setRotation(const float x, const float y, const float z);
 
@@ -544,7 +551,7 @@ namespace jop
         ///
         /// \param rotation Rotation vector in euler angles
         ///
-        /// \return Reference to this
+        /// \return Reference to self
         ///
         Object& setRotation(const glm::vec3& rotation);
 
@@ -565,15 +572,13 @@ namespace jop
         ///
         Object& setRotation(const glm::quat& rotation);
 
-        /// \brief Get the rotation
+        /// \brief Get the local rotation
         ///
         /// \return Quaternion with the rotation
         ///
         const glm::quat& getLocalRotation() const;
 
         /// \brief Get the global rotation
-        ///
-        /// This will only return the correct values during post update and draw phases
         ///
         /// \return The global rotation
         ///
@@ -582,25 +587,19 @@ namespace jop
 
         /// \brief Get the global front vector
         ///
-        /// This will only return the correct values during post update and draw phases
-        ///
         /// \return The global front vector
         ///
         glm::vec3 getGlobalFront() const;
 
         /// \brief Get the global right vector
         ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global front vector
+        /// \return The global right vector
         ///
         glm::vec3 getGlobalRight() const;
 
         /// \brief Get the global right vector
         ///
-        /// This will only return the correct values during post update and draw phases
-        ///
-        /// \return The global front vector
+        /// \return The global up vector
         ///
         glm::vec3 getGlobalUp() const;
 
@@ -653,15 +652,13 @@ namespace jop
         ///
         Object& setScale(const float delta);
 
-        /// \brief Get the scale
+        /// \brief Get the local scale
         ///
         /// \return Vector with the scale
         ///
         const glm::vec3& getLocalScale() const;
 
         /// \brief Get the global scale
-        ///
-        /// This will only return the correct values during post update and draw phases
         ///
         /// \return The global scale
         ///
@@ -686,7 +683,7 @@ namespace jop
         ///
         Object& setPosition(const glm::vec3& position);
 
-        /// \brief Get the position
+        /// \brief Get the local position
         ///
         /// \return Vector with the position
         ///
@@ -694,14 +691,14 @@ namespace jop
 
         /// \brief Get the global position
         ///
-        /// This will only return the correct values during post update and draw phases
-        ///
         /// \return The global position
         ///
         const glm::vec3& getGlobalPosition() const;
 
 
         /// \brief Set this transform to look at a certain point
+        ///
+        /// The rotation is applied locally.
         ///
         /// \param point The point to look at
         ///
@@ -712,8 +709,6 @@ namespace jop
         /// \copydoc lookAt
         ///
         /// \param up A custom up vector
-        ///
-        /// \return Reference to self
         ///
         Object& lookAt(const glm::vec3& point, const glm::vec3& up);
 
@@ -727,7 +722,8 @@ namespace jop
         ///
         Object& lookAt(const float x, const float y, const float z);
 
-        /// \brief Move this transform
+
+        /// \brief Move this object
         ///
         /// \param x The X component
         /// \param y The Y component
@@ -737,16 +733,16 @@ namespace jop
         ///
         Object& move(const float x, const float y, const float z);
 
-        /// \brief Move this transform
+        /// \brief Move this object
         ///
-        /// This function will change the position, according given values
+        /// \param offset The movement offset
         ///
         /// \return Reference to self
         ///
         Object& move(const glm::vec3& offset);
 
 
-        /// \brief Rotate this transform
+        /// \brief Rotate this object
         ///
         /// \param x The X component
         /// \param y The Y component
@@ -756,23 +752,19 @@ namespace jop
         ///
         Object& rotate(const float x, const float y, const float z);
 
-        /// \brief Rotate this transform
+        /// \brief Rotate this object
         ///
-        /// This function will rotate the graphic, according given values
+        /// \param rotation The rotation offset
         ///
         /// \return Reference to self
         ///
         Object& rotate(const glm::quat& rotation);
 
-        /// \brief Rotate this transform
-        ///
-        /// This function returns given rotation
-        ///
-        /// \return Reference to self
+        /// \copydoc rotate(const glm::quat&)
         ///
         Object& rotate(const glm::vec3& rotation);
 
-        /// \brief Rotate this transform using an axis-angle
+        /// \brief Rotate this object using an axis-angle
         ///
         /// \param angle The angle
         /// \param axis The axis
@@ -782,7 +774,7 @@ namespace jop
         Object& rotate(const float angle, const glm::vec3& axis);
 
 
-        /// \brief Scale this transform
+        /// \brief Scale this object
         ///
         /// \param x The X component
         /// \param y The Y component
@@ -792,16 +784,15 @@ namespace jop
         ///
         Object& scale(const float x, const float y, const float z);
 
-        /// \brief Scale this transform
+        /// \brief Scale this object
         ///
-        /// This function will change scale of the given graphics, according
-        /// given values.
+        /// \param scale The scale multiplier
         ///
         /// \return Reference to self
         ///
         Object& scale(const glm::vec3& scale);
 
-        /// \brief Scale this transform
+        /// \brief Scale this object
         ///
         /// This call is equal to scale(delta, delta, delta)
         ///

@@ -55,26 +55,51 @@ namespace jop
         /// \param matrix The initial matrix
         ///
         explicit Transform(const glm::mat4& matrix);
-
-
-        glm::mat4& getMatrix();
-
+        
         /// \brief Get the transformation matrix
         ///
         /// \return Reference to the internal matrix
         ///
+        glm::mat4& getMatrix();
+
+        /// \copydoc getMatrix()
+        ///
         const glm::mat4& getMatrix() const;
 
 
+        /// \brief Rotate this transform
+        ///
+        /// \param The rotation offset
+        ///
         void rotate(const glm::quat& rotation);
         
+        /// \param Scale this transform
+        ///
+        /// \param scale Scale multiplier
+        ///
         void scale(const glm::vec3& scale);
 
+        /// \brief Translate this transform
+        ///
+        /// \param translation Translation offset
+        ///
         void translate(const glm::vec3& translation);
 
 
+        /// \brief Multiply this transform by another
+        ///
+        /// \param right The right transform
+        ///
+        /// \return Reference to self
+        ///
         Transform& operator *=(const Transform& right);
 
+        /// \brief Multiply this transform by another
+        ///
+        /// \param right The right Transform
+        ///
+        /// \return The combined transform
+        ///
         Transform operator *(const Transform& right) const;
 
 
@@ -85,7 +110,7 @@ namespace jop
 
     protected:
 
-        mutable glm::mat4 m_matrix;             ///< The cached transformation matrix
+        glm::mat4 m_matrix;                     ///< The transformation matrix
     };
 }
 
