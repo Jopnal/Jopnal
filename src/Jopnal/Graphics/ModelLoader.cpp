@@ -27,6 +27,12 @@
 
 namespace jop
 {
+    ModelLoader::Options::Options()
+        : forceDiffuseAlpha(false)
+    {}
+
+    //////////////////////////////////////////////
+
     ModelLoader::ModelLoader(Object& obj)
         : Component (obj, "modelloader"),
           m_path    ()
@@ -128,7 +134,7 @@ namespace jop
             }
         }
 
-        std::vector<const Material*> getMaterials(const aiScene& scene)
+        std::vector<const Material*> getMaterials(const aiScene& scene, const ModelLoader::Options& options)
         {
             std::vector<const Material*> mats;
             mats.reserve(scene.mNumMaterials);
@@ -204,13 +210,15 @@ namespace jop
                         aiString path;
                         mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
-                        aiTextureFlags flag;
-                        mat.Get(AI_MATKEY_TEXFLAGS(aiTextureType_DIFFUSE, 0), flag);
-                        if (flag == aiTextureFlags_UseAlpha)
-                            m.addAttributes(Material::Attribute::DiffuseAlpha);
-
                         if (path.length)
+                        {
                             m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str(), true));
+
+                            aiTextureFlags flag;
+                            mat.Get(AI_MATKEY_TEXFLAGS(aiTextureType_DIFFUSE, 0), flag);
+                            if (flag == aiTextureFlags_UseAlpha || options.forceDiffuseAlpha)
+                                m.addAttributes(Material::Attribute::DiffuseAlpha);
+                        }
                     }
 
                     // Specular
@@ -496,7 +504,7 @@ namespace jop
         }
     }
 
-    bool ModelLoader::load(const std::string& path)
+    bool ModelLoader::load(const std::string& path, const Options& options)
     {
         if (path.empty())
             return false;
@@ -539,7 +547,7 @@ namespace jop
 
         JOP_DEBUG_INFO("Model loaded successfully, building object tree...");
 
-        if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene)))
+        if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene, options)))
         {
             detail::loadLights(*scene, getObject());
             detail::loadCameras(*scene, getObject());

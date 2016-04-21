@@ -47,6 +47,15 @@ namespace jop
 
     public:
 
+        struct JOP_API Options
+        {
+            Options();
+
+            bool forceDiffuseAlpha;
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// \param obj The object this loader is bound to
@@ -63,10 +72,11 @@ namespace jop
         ///          using this function.
         ///
         /// \param path Path to the model file
+        /// \param options Optional options structure
         ///
         /// \return True if successful
         ///
-        bool load(const std::string& path);
+        bool load(const std::string& path, const Options& options = Options());
 
     private:
 

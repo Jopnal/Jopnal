@@ -593,9 +593,9 @@ void main()
     
     float alpha = 1.0;
 
-    #ifdef JMAT_OPACITYMAP
+    #if defined(JMAT_OPACITYMAP)
         alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
-    #elif JMAT_DIFFUSEALPHA
+    #elif defined(JMAT_DIFFUSEALPHA)
         alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
     #endif
 
