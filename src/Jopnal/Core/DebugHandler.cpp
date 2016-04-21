@@ -148,7 +148,10 @@ namespace
     void closeConsoleWindow()
     {
         if (checkConsoleWindow())
+        {
+            ShowWindow(GetConsoleWindow(), SW_HIDE);
             FreeConsole();
+        }
     }
 
     void setConsoleColor(const jop::Color& color)
