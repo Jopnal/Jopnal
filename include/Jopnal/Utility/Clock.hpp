@@ -37,7 +37,7 @@ namespace jop
 
         /// \brief Class to store a time value
         ///
-        class Time
+        class JOP_API Time
         {
         public:
 

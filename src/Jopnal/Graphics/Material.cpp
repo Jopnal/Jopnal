@@ -118,12 +118,13 @@ namespace
     static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
     static const int ns_opacMapIndex = static_cast<int>(jop::Material::Map::Opacity);
+    static const int ns_glossMapIndex = static_cast<int>(jop::Material::Map::Gloss);
     
     static const jop::Color ns_defCol[] =
     {
         jop::Color::Black,
         jop::Color::White,
-        jop::Color::Black,
+        jop::Color::White,
         jop::Color::Black
     };
 }
@@ -203,6 +204,9 @@ namespace jop
 
                 if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
                     shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
+
+                if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
+                    shader.setUniform("u_GlossMap", *getMap(Map::Gloss), ns_glossMapIndex);
             }
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
@@ -335,7 +339,9 @@ namespace jop
             Material::Attribute::SpecularMap,
             Material::Attribute::EmissionMap,
             Material::Attribute::EnvironmentMap,
-            Material::Attribute::ReflectionMap
+            Material::Attribute::ReflectionMap,
+            Material::Attribute::OpacityMap,
+            Material::Attribute::GlossMap
         };
     }
 

@@ -326,12 +326,12 @@ namespace jop
             0;
         #endif
 
-        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", false));
+        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", true));
         DebugHandler::getInstance().setVerbosity(static_cast<DebugHandler::Severity>(std::min(static_cast<unsigned int>(DebugHandler::Severity::Diagnostic), getUint("uConsoleVerbosity", defaultVerbosity))));
         DebugHandler::getInstance().setReduceSpam(getBool("bReduceConsoleSpam", true));
 
     #ifdef JOP_OS_WINDOWS
-        DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() == TRUE && getBool("bDebuggerOutput", true));
+        DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && getBool("bDebuggerOutput", true));
     #endif
 
         FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));

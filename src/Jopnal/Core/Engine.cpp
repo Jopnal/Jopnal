@@ -79,7 +79,7 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << "(" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
+            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << " (" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 

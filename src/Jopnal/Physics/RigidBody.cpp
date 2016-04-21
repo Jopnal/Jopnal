@@ -75,7 +75,7 @@ namespace jop
         constInfo.m_friction = info.friction;
         constInfo.m_rollingFriction = info.rollingFriction;
         constInfo.m_restitution = info.restitution;
-
+        
         auto rb = std::make_unique<btRigidBody>(constInfo);
         
         if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)

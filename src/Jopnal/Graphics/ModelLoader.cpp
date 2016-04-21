@@ -160,11 +160,16 @@ namespace jop
                     m.setReflection(Material::Reflection::Emission, Color(col.r, col.g, col.b));
                 }
 
+                bool hadShininess = false;
+
                 // Shininess
                 {
                     float shin;
-                    mat.Get(AI_MATKEY_SHININESS, shin);
-                    m.setShininess(shin);
+                    if (mat.Get(AI_MATKEY_SHININESS, shin) == aiReturn_SUCCESS)
+                    {
+                        hadShininess = true;
+                        m.setShininess(shin);
+                    }
                 }
 
                 // Lighting model
@@ -218,17 +223,22 @@ namespace jop
                             m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
                     }
 
-                    // Shininess
-                    //
-                    // Gloss map seems to replace specular map in some cases.
-                    //
-                    if (!m.hasAttribute(Material::Attribute::SpecularMap) && mat.GetTextureCount(aiTextureType_SHININESS))
+                    // Gloss
+                    if (mat.GetTextureCount(aiTextureType_SHININESS))
                     {
                         aiString path;
                         mat.GetTexture(aiTextureType_SHININESS, 0, &path);
 
                         if (path.length)
+                        {
                             m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
+
+                            if (!hadShininess)
+                            {
+                                static const float mult = SettingManager::getFloat("fDefaultGlossMapMultiplier", 255.f);
+                                m.setShininess(mult);
+                            }
+                        }
                     }
 
                     // Emission

@@ -185,6 +185,10 @@ namespace jop
         if ((attrib & m::OpacityMap) != 0)
             str += "#define JMAT_OPACITYMAP\n";
 
+        // Gloss map
+        if ((attrib & m::GlossMap) != 0)
+            str += "#define JMAT_GLOSSMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =

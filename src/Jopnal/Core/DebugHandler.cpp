@@ -96,8 +96,8 @@ namespace
 
         std::memcpy(info.ColorTable, table, sizeof(table));
 
-        font.dwFontSize.X = 6;
-        font.dwFontSize.Y = 9;
+        font.dwFontSize.X = 5;
+        font.dwFontSize.Y = 8;
 
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
         SetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
@@ -128,7 +128,7 @@ namespace
         {
             {
                 auto consoleSize = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
-                consoleSize.X -= 6;
+                consoleSize.X -= 7;
                 consoleSize.Y = 1000;
 
                 SetConsoleScreenBufferSize(consoleHandle, consoleSize);
@@ -143,11 +143,6 @@ namespace
                 MoveWindow(GetConsoleWindow(), pos.x + 5, pos.y + 5, consoleSize.right - consoleSize.left, consoleSize.bottom - consoleSize.top - 25, TRUE);
             }
         }
-
-        DWORD lpMode;
-
-        GetConsoleMode(GetConsoleWindow(), &lpMode);
-        SetConsoleMode(GetConsoleWindow(), lpMode & ENABLE_MOUSE_INPUT);
     }
 
     void closeConsoleWindow()
@@ -280,10 +275,10 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        std::string newStr(m_stream.str());
-
         if ((isConsoleEnabled() || m_debuggerOutput) && m_lastSeverity <= m_displaySeverity)
         {
+            std::string newStr(m_stream.str());
+
             if (!m_noSpam || m_last != newStr)
             {
                 static const char* const severityStr[] =
@@ -307,9 +302,9 @@ namespace jop
                     OutputDebugString((baseStr + newStr + '\n').c_str());
             #endif
             }
-        }
 
-        m_last = newStr;
+            m_last = newStr;
+        }
         
         m_stream.str("");
         m_stream.clear();

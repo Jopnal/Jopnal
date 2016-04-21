@@ -82,6 +82,17 @@ namespace jop
                 JOP_DEBUG_WARNING("Incorrect projection data values specified for camera component, while loading object \"" << obj.getID() << "\"");
         }
 
+        const char* const vpField = "viewport";
+        if (val.HasMember(vpField) && val[vpField].IsArray() && val[vpField].Size() >= 4)
+        {
+            auto& vp = val[vpField];
+
+            if (vp[0u].IsDouble() && vp[1u].IsDouble() && vp[2u].IsDouble() && vp[3u].IsDouble())
+                cam.setViewport(glm::vec2(vp[0u].GetDouble(), vp[1u].GetDouble()), glm::vec2(vp[2u].GetDouble(), vp[3u].GetDouble()));
+            else
+                JOP_DEBUG_WARNING("Incorrect viewport values specified for camera component, while loading object \"" << obj.getID() << "\"");
+        }
+
         return true;
     }
     JOP_END_LOADABLE_REGISTRATION(Camera)
@@ -112,6 +123,11 @@ namespace jop
             pd.PushBack(cam.getFieldOfView(), alloc)
               .PushBack(cam.getAspectRatio(), alloc);
         }
+
+        auto& vp = cam.getViewport();
+        val.AddMember(json::StringRef("viewport"), json::kArrayType, alloc)["viewport"]
+           .PushBack(vp.first.x, alloc).PushBack(vp.first.y, alloc)
+           .PushBack(vp.second.x, alloc).PushBack(vp.second.y, alloc);
 
         return true;
     }

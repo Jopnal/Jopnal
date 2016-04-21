@@ -38,6 +38,11 @@
     float specularComponent = 0.0;
 #endif
 
+// Gloss map
+#ifdef JMAT_GLOSSMAP
+    uniform sampler2D u_GlossMap;
+#endif
+
 #ifdef JMAT_PHONG
 
     // Does the object receive lights?
@@ -214,10 +219,16 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = u_Material.shininess;
+
+        #ifdef JMAT_GLOSSMAP
+            shininess *=  texture(u_GlossMap, outVert.TexCoords).r;
+        #endif
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
@@ -352,10 +363,16 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = u_Material.shininess;
+
+        #ifdef JMAT_GLOSSMAP
+            shininess *= texture(u_GlossMap, outVert.TexCoords).r;
+        #endif
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
@@ -422,10 +439,16 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = u_Material.shininess;
+
+        #ifdef JMAT_GLOSSMAP
+            shininess *= texture(u_GlossMap, outVert.TexCoords).r;
+        #endif
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
