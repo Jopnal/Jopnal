@@ -108,18 +108,22 @@ namespace jop
             }
             void OnDebug(const char* message) override
             {
+                message;
                 JOP_DEBUG_DIAG(message);
             }
             void OnInfo(const char* message) override
             {
+                message;
                 JOP_DEBUG_INFO(message);
             }
             void OnWarn(const char* message) override
             {
+                message;
                 JOP_DEBUG_WARNING(message);
             }
             void OnError(const char* message) override
             {
+                message;
                 JOP_DEBUG_ERROR(message);
             }
         };
