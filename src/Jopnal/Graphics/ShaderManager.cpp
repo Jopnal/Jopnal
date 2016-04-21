@@ -27,6 +27,38 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, ShaderManager)[](const json::Value& val)
+    {
+        const char* const shdrField = "shaders";
+        if (val.HasMember(shdrField) && val[shdrField].IsArray())
+        {
+            const json::Value& arr = val[shdrField];
+
+            for (auto& i : arr)
+                ShaderManager::getShader(i.GetUint());
+        }
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(ShaderManager)
+
+    JOP_REGISTER_SAVEABLE(jop, ShaderManager)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        auto& map = ShaderManager::getShaderMap();
+
+        json::Value& arr = val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"];
+        arr.Reserve(map.size(), alloc);
+
+        for (auto& i : map)
+            arr.PushBack(i.first, alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(ShaderManager)
+}
+
+namespace jop
+{
     ShaderManager::ShaderManager()
         : Subsystem ("Shader Manager"),
           m_shaders (),
@@ -78,16 +110,23 @@ namespace jop
 
         auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::__RecordEnv) ? uber[1] : "", uber[2], pp);
 
-        cont[attributes] = static_ref_cast<Shader>(s.getReference());
-
-        // Needed so that different samplers don't all point to zero
-        if ((attributes & Material::Attribute::__Lighting) != 0)
+        if (&s != &Shader::getError())
         {
-            static const int maxUnits = Texture::getMaxTextureUnits();
+            s.setManaged(true);
 
-            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
-                s.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
+            cont[attributes] = static_ref_cast<Shader>(s.getReference());
+
+            // Needed so that different samplers don't all point to zero
+            if ((attributes & Material::Attribute::__Lighting) != 0)
+            {
+                static const int maxUnits = Texture::getMaxTextureUnits();
+
+                for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
+                    s.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
+            }
         }
+        else
+            JOP_DEBUG_ERROR("Failed to load shader with attributes: " << attributes);
 
         return s;
     }
@@ -167,6 +206,13 @@ namespace jop
             str += "#define JMAT_SKYBOX";
         else if ((attrib & m::__SkySphere) != 0)
             str += "#define JMAT_SKYSPHERE";
+    }
+
+    //////////////////////////////////////////////
+
+    const ShaderManager::ShaderMap& ShaderManager::getShaderMap()
+    {
+        return m_instance->m_shaders;
     }
 
     //////////////////////////////////////////////

@@ -147,7 +147,7 @@ namespace jop
         ///
         /// \comm setCastShadows
         ///
-        bool castShadows() const;
+        bool castsShadows() const;
 
 
         /// \brief Get a light space matrix

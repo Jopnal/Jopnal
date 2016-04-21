@@ -27,6 +27,29 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, SkyBox)[](Object& obj, const Scene& scene, const json::Value& val)
+    {
+        const float size = val.HasMember("size") && val["size"].IsDouble() ? static_cast<float>(val["size"].GetDouble()) : 2.f;
+
+        auto& box = obj.createComponent<SkyBox>(scene.getRenderer(), size);
+
+        
+
+        return Drawable::loadStateBase(box, scene, val);
+    }
+    JOP_END_LOADABLE_REGISTRATION(SkyBox)
+
+    JOP_REGISTER_SAVEABLE(jop, SkyBox)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        auto& box = static_cast<const SkyBox&>(comp);
+
+        return Drawable::saveStateBase(box, val , alloc);
+    }
+    JOP_END_SAVEABLE_REGISTRATION(SkyBox)
+}
+
+namespace jop
+{
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
         : Drawable      (obj, renderer, "skybox"),
           m_mesh        (""),

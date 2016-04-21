@@ -54,6 +54,13 @@ namespace jop
         #define JOP_DEBUG_INFO(stream)    {}
     #endif
 
+    // Diagnostic verbosity
+    #if JOP_CONSOLE_VERBOSITY >= 3
+        #define JOP_DEBUG_DIAG(stream)    {jop::DebugHandler::getInstance() << jop::Color::Gray << jop::DebugHandler::Severity::Diagnostic << stream << std::endl;}
+    #else
+        #define JOP_DEBUG_DIAG(stream)    {}
+    #endif
+
     class JOP_API DebugHandler
     {
     private:
@@ -70,7 +77,8 @@ namespace jop
         {
             Error,
             Warning,
-            Info
+            Info,
+            Diagnostic
         };
 
     public:
@@ -86,6 +94,16 @@ namespace jop
         /// \return True if console is enabled
         ///
         bool isConsoleEnabled();
+
+        void setEnabled(const bool enabled);
+
+        void setVerbosity(const Severity severity);
+
+        Severity getSeverity() const;
+
+        void setReduceSpam(const bool set);
+
+        void setDebuggerOutput(const bool set);
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -120,11 +138,13 @@ namespace jop
 
     private:
 
-        std::ostringstream m_stream;    ///< The stream object
+        std::stringstream m_stream;     ///< The stream object
         Severity m_displaySeverity;     ///< The current severity
         Severity m_lastSeverity;        ///< The last set severity
         std::string m_last;             ///< Last string entered. Used for culling repeating messages
         bool m_consoleEnabled;          ///< Is the console enabled?
+        bool m_noSpam;
+        bool m_debuggerOutput;
         std::recursive_mutex m_mutex;   ///< Mutex
     };
 

@@ -182,9 +182,7 @@ namespace detail
 
             if (p0 && p1)
             {
-            #ifdef JOP_DEBUG_MODE
-                JOP_DEBUG_INFO("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
-            #endif
+                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
 
                 p0->endOverlap(*p1);
                 p1->endOverlap(*p0);

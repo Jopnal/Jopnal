@@ -161,12 +161,6 @@ namespace jop
         /// \brief Save the settings to file
         ///
         static void save();
-
-        /// \brief For internal use
-        ///
-        /// \return True if initialized
-        ///
-        static bool checkInit();
     };
 }
 

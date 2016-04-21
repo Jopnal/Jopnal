@@ -67,6 +67,12 @@ namespace jop
         ///
         Text& setString(const std::string& string);
 
+        /// \brief Get the string
+        ///
+        /// \return Reference to the internal string
+        ///
+        const std::wstring& getString() const;
+
         /// \brief Set font
         ///
         /// \param font Font
@@ -78,6 +84,12 @@ namespace jop
         /// \param color Color
         ///
         Text& setColor(const Color color);
+
+        /// \brief Get the color
+        ///
+        /// \return The color
+        ///
+        Color getColor() const;
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 

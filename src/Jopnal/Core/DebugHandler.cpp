@@ -28,7 +28,6 @@
 #ifdef JOP_OS_WINDOWS
 namespace
 {
-
     BOOL WINAPI handleConsoleEvent(DWORD event)
     {
         return event == CTRL_C_EVENT;
@@ -41,8 +40,6 @@ namespace
 
     void openConsoleWindow()
     {
-        HWND foregroundWindow = GetForegroundWindow();
-
         if (!checkConsoleWindow())
         {
             if (!AllocConsole())
@@ -51,14 +48,12 @@ namespace
                 return;
             }
 
-            SetForegroundWindow(foregroundWindow);
-
-            _open_osfhandle(INT_PTR(GetStdHandle(STD_INPUT_HANDLE)), _O_TEXT);
             _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
 
             FILE* pCout = nullptr;
             freopen_s(&pCout, "CONOUT$", "w", stdout);
-            freopen_s(&pCout, "CONIN$", "r", stdin);
+
+            std::cout.clear();
         }
 
         SetConsoleCtrlHandler(handleConsoleEvent, TRUE);
@@ -77,7 +72,7 @@ namespace
             RGB(0xFF, 0x00, 0xFF), // 8. Magenta
             RGB(0x80, 0x00, 0xFF), // 9. Purple
             RGB(0xFF, 0x80, 0x00), // 10. Orange
-            RGB(0x80, 0x80, 0x80), // 11. Gray
+            RGB(0x99, 0x99, 0x99), // 11. Gray
             RGB(0x80, 0x64, 0x00), // 12. Brown
 
             0x00FFFFFF, // 13. White
@@ -92,23 +87,67 @@ namespace
         std::memset(&info, 0, sizeof(info));
         info.cbSize = sizeof(info);
 
-        if (!GetConsoleScreenBufferInfoEx(consoleHandle, &info))
+        CONSOLE_FONT_INFOEX font;
+        std::memset(&font, 0, sizeof(font));
+        font.cbSize = sizeof(font);
+
+        if (!GetConsoleScreenBufferInfoEx(consoleHandle, &info) || !GetCurrentConsoleFontEx(consoleHandle, FALSE, &font))
             return;
 
         std::memcpy(info.ColorTable, table, sizeof(table));
 
+        font.dwFontSize.X = 6;
+        font.dwFontSize.Y = 9;
+
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
+        SetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
 
+        // Move console to second monitor if available
+        glm::ivec2 pos(0);
+
+        {
+            glfwInit();
+
+            int count;
+            auto monitors = glfwGetMonitors(&count);
+
+            for (int i = 0; i < count && count > 1; ++i)
+            {
+                if (monitors[i] != glfwGetPrimaryMonitor())
+                {
+                    glfwGetMonitorPos(monitors[i], &pos.x, &pos.y);
+
+                    MoveWindow(GetConsoleWindow(), pos.x, pos.y, 1, 1, FALSE);
+
+                    break;
+                }
+            }
+        }
+        
         // Set the console size
-        COORD c;
-        c.X = static_cast<SHORT>(jop::SettingManager::getUint("uConsoleWindowSizeX", 120));
-        c.Y = static_cast<SHORT>(jop::SettingManager::getUint("uConsoleWindowSizeY", 80));
+        {
+            {
+                auto consoleSize = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
+                consoleSize.X -= 6;
+                consoleSize.Y = 1000;
 
-        SetConsoleScreenBufferSize(consoleHandle, c);
-        ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+                SetConsoleScreenBufferSize(consoleHandle, consoleSize);
 
-        // Restore the main window to the top
-        SetForegroundWindow(foregroundWindow);
+                ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+            }
+
+            {
+                RECT consoleSize;
+                GetWindowRect(GetConsoleWindow(), &consoleSize);
+
+                MoveWindow(GetConsoleWindow(), pos.x + 5, pos.y + 5, consoleSize.right - consoleSize.left, consoleSize.bottom - consoleSize.top - 25, TRUE);
+            }
+        }
+
+        DWORD lpMode;
+
+        GetConsoleMode(GetConsoleWindow(), &lpMode);
+        SetConsoleMode(GetConsoleWindow(), lpMode & ENABLE_MOUSE_INPUT);
     }
 
     void closeConsoleWindow()
@@ -155,25 +194,17 @@ namespace jop
 {
     DebugHandler::DebugHandler()
         : m_stream          (),
-          m_displaySeverity (Severity::Info),
-          m_lastSeverity    (Severity::Info),
+          m_displaySeverity (Severity::Diagnostic),
+          m_lastSeverity    (Severity::Diagnostic),
           m_last            (),
-          m_consoleEnabled  (SettingManager::getBool("bConsoleEnabled", false))
+          m_consoleEnabled  (true),
+          m_noSpam          (true),
+          m_debuggerOutput  (false),
+          m_mutex           ()
     {
-        if (m_consoleEnabled)
-            openConsoleWindow();
-        else
-            closeConsoleWindow();
-
-        const unsigned int defaultVerbosity =
-
-        #ifdef JOP_DEBUG_MODE
-            2;      
-        #else
-            0;
-        #endif
-
-        m_displaySeverity = static_cast<Severity>(std::min(static_cast<unsigned int>(Severity::Info), SettingManager::getUint("uConsoleVerbosity", defaultVerbosity)));
+    #ifdef JOP_DEBUG_MODE
+        setEnabled(true);
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -195,6 +226,46 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void DebugHandler::setEnabled(const bool enabled)
+    {
+        if (m_consoleEnabled != enabled || checkConsoleWindow() != enabled)
+        {
+            enabled ? openConsoleWindow() : closeConsoleWindow();
+
+            m_consoleEnabled = enabled;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void DebugHandler::setVerbosity(const Severity severity)
+    {
+        m_displaySeverity = severity;
+    }
+
+    //////////////////////////////////////////////
+
+    DebugHandler::Severity DebugHandler::getSeverity() const
+    {
+        return m_displaySeverity;
+    }
+
+    //////////////////////////////////////////////
+
+    void DebugHandler::setReduceSpam(const bool set)
+    {
+        m_noSpam = set;
+    }
+
+    //////////////////////////////////////////////
+
+    void DebugHandler::setDebuggerOutput(const bool set)
+    {
+        m_debuggerOutput = set;
+    }
+
+    //////////////////////////////////////////////
+
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -211,33 +282,29 @@ namespace jop
 
         std::string newStr(m_stream.str());
 
-        static const bool debugConsole = IsDebuggerPresent() == TRUE && SettingManager::getBool("bDebuggerOutput", true);
-
-        if ((isConsoleEnabled() || debugConsole) && m_lastSeverity <= m_displaySeverity)
+        if ((isConsoleEnabled() || m_debuggerOutput) && m_lastSeverity <= m_displaySeverity)
         {
-            static const bool noSpam = SettingManager::getBool("bReduceConsoleSpam", true);
-
-            if (!noSpam || m_last != newStr)
+            if (!m_noSpam || m_last != newStr)
             {
+                static const char* const severityStr[] =
+                {
+                    "ERROR:\t\t",
+                    "WARNING:\t",
+                    "INFO:\t\t",
+                    "DIAG:\t\t"
+                };
+
+                const std::string baseStr = std::string("[JOPNAL] ") + severityStr[static_cast<int>(m_lastSeverity)];
+
                 if (isConsoleEnabled())
                 {
-                    std::cout << newStr << '\n' << std::endl;
+                    std::cout << baseStr << newStr << '\n' << std::endl;
                     setConsoleColor(Color::White);
                 }
 
             #ifdef JOP_OS_WINDOWS
-
-                if (debugConsole)
-                {
-                    static const char* const severityStr[] =
-                    {
-                        "ERROR: ",
-                        "WARNING: ",
-                        "INFO: "
-                    };
-
-                    OutputDebugString((std::string("[JOPNAL] ") + (severityStr[static_cast<int>(m_lastSeverity)]) + newStr + '\n').c_str());
-                }
+                if (m_debuggerOutput)
+                    OutputDebugString((baseStr + newStr + '\n').c_str());
             #endif
             }
         }

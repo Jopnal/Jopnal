@@ -115,6 +115,8 @@
 #include <vector>
 #include <cctype>
 #include <climits>
+#include <locale>
+#include <codecvt>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

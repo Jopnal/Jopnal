@@ -45,7 +45,7 @@ namespace
         {
             const char* error = PHYSFS_getLastError();
 
-            if (error && jop::SettingManager::checkInit())
+            if (error)
                 JOP_DEBUG_ERROR("Filesystem error: " << error << " (" << info << ")");
         }
     }
@@ -108,7 +108,7 @@ namespace jop
             }
             void OnDebug(const char* message) override
             {
-                JOP_DEBUG_INFO(message);
+                JOP_DEBUG_DIAG(message);
             }
             void OnInfo(const char* message) override
             {

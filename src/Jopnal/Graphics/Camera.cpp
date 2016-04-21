@@ -38,20 +38,28 @@ namespace jop
 
     JOP_END_COMMAND_HANDLER(Camera)
 
-    /*JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-        Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
-                                  static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
-                                  Camera::Projection::Perspective;
+        const Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
+                                        static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
+                                        Camera::Projection::Perspective;
 
-        auto cam = obj.createComponent<Camera>("", proj);
+        auto& cam = obj.createComponent<Camera>(scene.getRenderer(), proj);
+
+        const char* const idField = "id";
+        if (val.HasMember(idField) && val[idField].IsString())
+            cam.setID(val[idField].GetString());
+
+        const char* const maskField = "mask";
+        if (val.HasMember(maskField) && val[maskField].IsUint())
+            cam.setRenderMask(val[maskField].GetUint());
 
         if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
         {
             auto& clip = val["clipping"];
 
             if (clip[0u].IsDouble() && clip[1u].IsDouble())
-                cam->setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
+                cam.setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
             else
                 JOP_DEBUG_WARNING("Incorrect clipping values specified for camera component, while loading object \"" << obj.getID() << "\"");
         }
@@ -60,22 +68,21 @@ namespace jop
         {
             auto& pd = val["projdata"];
 
-            if (!pd[0u].IsDouble() || !pd[1u].IsDouble())
+            if (pd[0u].IsDouble() && pd[1u].IsDouble())
             {
-                JOP_DEBUG_WARNING("Incorrect projection data values specified for camera component, while loading object \"" << obj.getID() << "\"");
-                return true;
-            }
-
-            if (proj == Camera::Projection::Perspective)
-            {
-                cam->setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
-                cam->setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
+                if (proj == Camera::Projection::Perspective)
+                {
+                    cam.setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
+                    cam.setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
+                }
+                else
+                    cam.setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
             }
             else
-                cam->setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
+                JOP_DEBUG_WARNING("Incorrect projection data values specified for camera component, while loading object \"" << obj.getID() << "\"");
         }
 
-        return Drawable::loadStateBase(*cam, scene, val);
+        return true;
     }
     JOP_END_LOADABLE_REGISTRATION(Camera)
 
@@ -84,6 +91,9 @@ namespace jop
         auto& cam = static_cast<const Camera&>(comp);
 
         val.AddMember(json::StringRef("projection"), static_cast<unsigned int>(cam.getProjectionMode()), alloc);
+
+        val.AddMember(json::StringRef("id"), json::StringRef(cam.getID().c_str()), alloc);
+        val.AddMember(json::StringRef("mask"), cam.getRenderMask(), alloc);
 
         auto& clip = val.AddMember(json::StringRef("clipping"), json::kArrayType, alloc)["clipping"];
         clip.PushBack(cam.getClippingPlanes().first, alloc)
@@ -103,9 +113,9 @@ namespace jop
               .PushBack(cam.getAspectRatio(), alloc);
         }
 
-        return Drawable::saveStateBase(cam, val, alloc);
+        return true;
     }
-    JOP_END_SAVEABLE_REGISTRATION(Camera)*/
+    JOP_END_SAVEABLE_REGISTRATION(Camera)
 }
 
 namespace jop

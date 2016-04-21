@@ -275,14 +275,14 @@ namespace jop
         if (!FileLoader::readTextfile("config.json", buf))
         {
             // Not using DebugHandler here since it relies on the initialization of this class
-            std::cout << "Couldn't read the config file. Default settings will be used\n" << std::endl;
+            JOP_DEBUG_ERROR("Couldn't read the config file. Default settings will be used");
             return;
         }
 
         ns_document.Parse<0>(buf.c_str());
 
         if (!json::checkParseError(ns_document))
-            std::cout << "Couldn't parse the config file. Default settings will be used\n" << std::endl;
+            JOP_DEBUG_ERROR("Couldn't parse the config file. Default settings will be used");
     }
 
     //////////////////////////////////////////////
@@ -317,8 +317,22 @@ namespace jop
         ns_document.SetObject();
         save();
 
-    Mark:
+        Mark:
 
+        const unsigned int defaultVerbosity =
+        #ifdef JOP_DEBUG_MODE
+            2;
+        #else
+            0;
+        #endif
+
+        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", false));
+        DebugHandler::getInstance().setVerbosity(static_cast<DebugHandler::Severity>(std::min(static_cast<unsigned int>(DebugHandler::Severity::Diagnostic), getUint("uConsoleVerbosity", defaultVerbosity))));
+        DebugHandler::getInstance().setReduceSpam(getBool("bReduceConsoleSpam", true));
+
+    #ifdef JOP_OS_WINDOWS
+        DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() == TRUE && getBool("bDebuggerOutput", true));
+    #endif
 
         FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));
 
@@ -330,14 +344,5 @@ namespace jop
     SettingManager::~SettingManager()
     {
         save();
-    }
-    
-    //////////////////////////////////////////////
-
-    bool SettingManager::checkInit()
-    {
-        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
-
-        return ns_init;
     }
 }

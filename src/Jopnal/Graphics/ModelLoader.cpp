@@ -516,7 +516,7 @@ namespace jop
             | aiProcess_ValidateDataStructure
             | aiProcess_OptimizeMeshes
             | aiProcess_RemoveRedundantMaterials
-            //| aiProcess_OptimizeGraph << This seems to cause problems with scale
+            | aiProcess_OptimizeGraph
             ;
 
         const aiScene* scene = imp.ReadFile(path, preProcess);

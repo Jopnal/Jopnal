@@ -82,10 +82,15 @@ namespace jop
         ///
         unsigned short getPersistence() const;
 
+        void setManaged(const bool managed);
+
+        bool isManaged() const;
+
     private:
 
         const std::string m_name;       ///< Name of this resource
         unsigned short m_persistence;   ///< Persistence level
+        bool m_managed;
     };
 }
 

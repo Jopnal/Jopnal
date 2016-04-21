@@ -67,9 +67,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-    #if JOP_CONSOLE_VERBOSITY >= 2
-        std::cout << "Jopnal Engine v. " << JOP_VERSION_STRING << "\n\n";
-    #endif
+        JOP_DEBUG_INFO(Color::Blue << "Jopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()
@@ -81,19 +79,14 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-        #if JOP_CONSOLE_VERBOSITY >= 2
-            std::cout << "Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << "\n\n";
-        #endif
-
+            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << "(" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-    #if JOP_CONSOLE_VERBOSITY >= 2
-        std::cout << "Destroying jop::Engine..." << "\n\n";
-    #endif
+        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////

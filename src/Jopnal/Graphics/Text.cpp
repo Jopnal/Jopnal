@@ -27,6 +27,36 @@
 
 namespace jop
 {
+    JOP_REGISTER_LOADABLE(jop, Text)[](Object& obj, const Scene& scene, const json::Value& val)
+    {
+        auto& text = obj.createComponent<Text>(scene.getRenderer());
+
+        const char* const strField = "string";
+        if (val.HasMember(strField) && val[strField].IsString())
+            text.setString(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(val[strField].GetString()));
+
+        const char* const colField = "color";
+        if (val.HasMember(colField) && val[colField].IsUint())
+            text.setColor(Color(val[colField].GetUint()));
+
+        return Drawable::loadStateBase(text, scene, val);
+    }
+    JOP_END_LOADABLE_REGISTRATION(Text)
+
+    JOP_REGISTER_SAVEABLE(jop, Text)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        auto& text = static_cast<const Text&>(comp);
+
+        val.AddMember(json::StringRef("string"), json::Value(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(text.getString()).c_str(), alloc), alloc);
+        val.AddMember(json::StringRef("color"), text.getColor().asInteger(), alloc);
+
+        return Drawable::saveStateBase(text, val, alloc);
+    }
+    JOP_END_SAVEABLE_REGISTRATION(Text)
+}
+
+namespace jop
+{
     Text::Text(Object& object, Renderer& renderer)
         : GenericDrawable   (object, renderer),
           m_font            (static_ref_cast<const Font>(Font::getDefault().getReference())),
@@ -176,6 +206,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const std::wstring& Text::getString() const
+    {
+        return m_string;
+    }
+
+    //////////////////////////////////////////////
+
     Text& Text::setFont(const Font& font)
     {
         m_font = static_ref_cast<const Font>(font.getReference());
@@ -192,6 +229,13 @@ namespace jop
         m_material.setReflection(Material::Reflection::Solid, color);
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Color Text::getColor() const
+    {
+        return m_material.getReflection(Material::Reflection::Solid);
     }
 
     //////////////////////////////////////////////
