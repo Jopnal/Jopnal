@@ -47,14 +47,14 @@ namespace
                 JOP_ASSERT(false, "Failed to allocate console window!");
                 return;
             }
-
-            _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
-
-            FILE* pCout = nullptr;
-            freopen_s(&pCout, "CONOUT$", "w", stdout);
-
-            std::cout.clear();
         }
+
+        _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
+
+        FILE* pCout = nullptr;
+        freopen_s(&pCout, "CONOUT$", "w", stdout);
+
+        std::cout.clear();
 
         SetConsoleCtrlHandler(handleConsoleEvent, TRUE);
         EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE), SC_CLOSE, MF_GRAYED);
@@ -123,7 +123,7 @@ namespace
                 }
             }
         }
-        
+
         // Set the console size
         {
             {
@@ -195,7 +195,7 @@ namespace jop
           m_displaySeverity (Severity::Diagnostic),
           m_lastSeverity    (Severity::Diagnostic),
           m_last            (),
-          m_consoleEnabled  (true),
+          m_consoleEnabled  (false),
           m_noSpam          (true),
           m_debuggerOutput  (false),
           m_mutex           ()
@@ -226,7 +226,7 @@ namespace jop
 
     void DebugHandler::setEnabled(const bool enabled)
     {
-        if (m_consoleEnabled != enabled || checkConsoleWindow() != enabled)
+        if (m_consoleEnabled != enabled)
         {
             enabled ? openConsoleWindow() : closeConsoleWindow();
 
