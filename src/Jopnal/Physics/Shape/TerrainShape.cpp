@@ -31,28 +31,29 @@ namespace jop
         : CollisionShape(name)
     {}
 
+    TerrainShape::~TerrainShape()
+    {}
+
     //////////////////////////////////////////////
 
-    bool TerrainShape::load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices)
+    bool TerrainShape::load(const std::vector<glm::vec3>& points)
     {
         if (points.empty())
             return false;
 
-        btTriangleMesh mesh(true, false);
-        mesh.preallocateVertices(points.size());
-
-        for (auto& i : points)
-            mesh.findOrAddVertex(btVector3(i.x, i.y, i.z), indices.empty());
+        m_mesh = std::make_unique<btTriangleMesh>(true, false);
+        m_mesh->preallocateVertices(points.size());
         
-        if (!indices.empty())
+        for (auto itr = points.begin(); itr != points.end(); itr += 3)
         {
-            mesh.preallocateIndices(indices.size());
-
-            for (auto i : indices)
-                mesh.addIndex(i);
+            auto st = itr;
+            auto nd = itr + 1;
+            auto rd = itr + 2;
+            
+            m_mesh->addTriangle(btVector3(st->x, st->y, st->z), btVector3(nd->x, nd->y, nd->z), btVector3(rd->x, rd->y, rd->z));
         }
 
-        m_shape = std::make_unique<btBvhTriangleMeshShape>(&mesh, true);
+        m_shape = std::make_unique<btBvhTriangleMeshShape>(m_mesh.get(), true);
         m_shape->setUserPointer(this);
 
         return true;

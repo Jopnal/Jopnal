@@ -29,6 +29,8 @@
 //////////////////////////////////////////////
 
 
+class btTriangleMesh;
+
 namespace jop
 {
     class JOP_API TerrainShape : public CollisionShape
@@ -45,11 +47,17 @@ namespace jop
 
         TerrainShape(const std::string& name);
 
+        ~TerrainShape() override;
 
-        bool load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices);
+
+        bool load(const std::vector<glm::vec3>& points);
 
         RayInfo checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+
+    private:
+
+        std::unique_ptr<btTriangleMesh> m_mesh;
     };
 }
 
