@@ -19,25 +19,38 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_TERRAINSHAPE_HPP
+#define JOP_TERRAINSHAPE_HPP
+
 // Headers
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API TerrainShape : public CollisionShape
+    {
+    public:
+
+        struct RayInfo
+        {
+            unsigned int triangleIndex;
+            glm::vec3 triangle;
+        };
+
+    public:
+
+        TerrainShape(const std::string& name);
+
+
+        bool load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices);
+
+        RayInfo checkRay(const glm::vec3& start, const glm::vec3& ray) const;
+
+    };
+}
+
+#endif
