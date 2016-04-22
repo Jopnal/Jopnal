@@ -36,7 +36,7 @@ namespace jop
 {
     class Shader;
 
-    class JOP_API ShaderManager final : public Subsystem
+    class JOP_API ShaderAssembler final : public Subsystem
     {
     private:
 
@@ -48,11 +48,11 @@ namespace jop
         ///
         /// Reads the uber shader from the resource dll
         ///
-        ShaderManager();
+        ShaderAssembler();
 
         /// \brief Destructor
         ///
-        ~ShaderManager() override;
+        ~ShaderAssembler() override;
 
 
         /// \brief Get a shader with the given attribute combination
@@ -78,7 +78,7 @@ namespace jop
 
     private:
 
-        static ShaderManager* m_instance;   ///< The single instance
+        static ShaderAssembler* m_instance;   ///< The single instance
 
         ShaderMap m_shaders;                ///< Map with the shaders
         std::array<std::string, 3> m_uber;  ///< The uber shader sources

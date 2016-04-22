@@ -471,7 +471,7 @@ namespace jop
 
         if (defShader.expired())
         {
-            defShader = static_ref_cast<Shader>(ShaderManager::getShader(Material::Attribute::Default).getReference());
+            defShader = static_ref_cast<Shader>(ShaderAssembler::getShader(Material::Attribute::Default).getReference());
 
             JOP_ASSERT(defShader.get() != &getError(), "Failed to compile default shader!");
         }

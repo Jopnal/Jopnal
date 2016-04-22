@@ -56,7 +56,8 @@ namespace jop
           m_exit            (false),
           m_state           (State::Running),
           m_deltaScale      (1.f),
-          m_advanceFrame    (false)
+          m_advanceFrame    (false),
+          m_mainTarget      (nullptr)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -105,13 +106,16 @@ namespace jop
         createSubsystem<SettingManager>();
 
         // Main window
-        createSubsystem<Window>(Window::Settings(true));
+        auto& win = createSubsystem<Window>(Window::Settings(true));
 
         // Resource manager
         createSubsystem<ResourceManager>();
 
         // Shader manager
-        createSubsystem<ShaderManager>();
+        createSubsystem<ShaderAssembler>();
+
+        // Main render target
+        m_mainTarget = &win;
 
         // Shared scene
         m_sharedScene = std::make_unique<Scene>("sharedscene");
@@ -431,6 +435,15 @@ namespace jop
             return m_engineObject->m_newScene.load() != nullptr;
 
         return false;
+    }
+
+    //////////////////////////////////////////////
+
+    const RenderTarget& Engine::getMainRenderTarget()
+    {
+        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
+
+        return *m_engineObject->m_mainTarget;
     }
 
     //////////////////////////////////////////////

@@ -47,11 +47,39 @@ namespace jop
 
     public:
 
+        /// Optional options structure
+        ///
         struct JOP_API Options
         {
+            /// \brief Constructor
+            ///
+            /// Initializes the default values.
+            ///
             Options();
 
+            /// Force the use of a diffuse alpha channel if one is available.
+            ///
+            /// False by default.
+            ///
             bool forceDiffuseAlpha;
+
+            /// Collapse the object tree.
+            ///
+            /// This will reduce the number of draw calls, but destroys the
+            /// original object tree hierarchy and naming.
+            ///
+            /// True by default.
+            ///
+            bool collapseTree;
+
+            /// Attempt to fix in-facing normals.
+            ///
+            /// The results are correct most of the time. If you're having problems
+            /// with lighting, try disabling this.
+            ///
+            /// True by default.
+            ///
+            bool fixInfacingNormals;
         };
 
     public:

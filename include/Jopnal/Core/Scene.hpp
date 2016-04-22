@@ -86,12 +86,6 @@ namespace jop
         ///
         Scene(const std::string& ID);
 
-        /// \copydoc Scene(const std::string&)
-        ///
-        /// \param mainTarget The main render target
-        ///
-        Scene(const std::string& ID, const RenderTarget& mainTarget);
-
         /// \brief Virtual destructor
         ///
         virtual ~Scene();

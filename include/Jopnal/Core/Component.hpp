@@ -136,6 +136,12 @@ namespace jop
         /// \return True if active
         ///
         bool isActive() const;
+
+        /// \brief Remove this component from its object
+        ///
+        /// The component will be removed immediately.
+        ///
+        void removeSelf();
         
     private:
 

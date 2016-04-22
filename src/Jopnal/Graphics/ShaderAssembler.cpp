@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, ShaderManager)[](const json::Value& val)
+    JOP_REGISTER_LOADABLE(jop, ShaderAssembler)[](const json::Value& val)
     {
         const char* const shdrField = "shaders";
         if (val.HasMember(shdrField) && val[shdrField].IsArray())
@@ -35,16 +35,16 @@ namespace jop
             const json::Value& arr = val[shdrField];
 
             for (auto& i : arr)
-                ShaderManager::getShader(i.GetUint());
+                ShaderAssembler::getShader(i.GetUint());
         }
 
         return true;
     }
-    JOP_END_LOADABLE_REGISTRATION(ShaderManager)
+    JOP_END_LOADABLE_REGISTRATION(ShaderAssembler)
 
-    JOP_REGISTER_SAVEABLE(jop, ShaderManager)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
+    JOP_REGISTER_SAVEABLE(jop, ShaderAssembler)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
     {
-        auto& map = ShaderManager::getShaderMap();
+        auto& map = ShaderAssembler::getShaderMap();
 
         json::Value& arr = val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"];
         arr.Reserve(map.size(), alloc);
@@ -54,18 +54,18 @@ namespace jop
 
         return true;
     }
-    JOP_END_SAVEABLE_REGISTRATION(ShaderManager)
+    JOP_END_SAVEABLE_REGISTRATION(ShaderAssembler)
 }
 
 namespace jop
 {
-    ShaderManager::ShaderManager()
+    ShaderAssembler::ShaderAssembler()
         : Subsystem ("Shader Manager"),
           m_shaders (),
           m_uber    (),
           m_mutex   ()
     {
-        JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderManager instance!");
+        JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderAssembler instance!");
         m_instance = this;
 
         std::vector<unsigned char> buf;
@@ -80,16 +80,16 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
     }
 
-    ShaderManager::~ShaderManager()
+    ShaderAssembler::~ShaderAssembler()
     {
         m_instance = nullptr;
     }
 
     //////////////////////////////////////////////
 
-    Shader& ShaderManager::getShader(const Material::AttribType attributes)
+    Shader& ShaderAssembler::getShader(const Material::AttribType attributes)
     {
-        JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderManager instance!");
+        JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderAssembler instance!");
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -133,7 +133,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ShaderManager::getPreprocessDef(const Material::AttribType attrib, std::string& str)
+    void ShaderAssembler::getPreprocessDef(const Material::AttribType attrib, std::string& str)
     {
         using m = Material::Attribute;
 
@@ -144,7 +144,7 @@ namespace jop
         // Ambient constant
         if ((attrib & m::AmbientConstant) != 0)
         {
-            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "111111FF")).asRGBFloatVector();
+            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "010101FF")).asRGBFloatVector();
             static const std::string ambConst = "#define JMAT_AMBIENT vec3("
                                               + std::to_string(colors.r) + ","
                                               + std::to_string(colors.g) + ","
@@ -207,19 +207,19 @@ namespace jop
 
         // Skybox/sphere
         if ((attrib & m::__SkyBox) != 0)
-            str += "#define JMAT_SKYBOX";
+            str += "#define JMAT_SKYBOX\n";
         else if ((attrib & m::__SkySphere) != 0)
-            str += "#define JMAT_SKYSPHERE";
+            str += "#define JMAT_SKYSPHERE\n";
     }
 
     //////////////////////////////////////////////
 
-    const ShaderManager::ShaderMap& ShaderManager::getShaderMap()
+    const ShaderAssembler::ShaderMap& ShaderAssembler::getShaderMap()
     {
         return m_instance->m_shaders;
     }
 
     //////////////////////////////////////////////
 
-    ShaderManager* ShaderManager::m_instance = nullptr;
+    ShaderAssembler* ShaderAssembler::m_instance = nullptr;
 }

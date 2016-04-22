@@ -761,6 +761,24 @@ namespace jop
         return m_inverseTransform;
     }
 
+    //////////////////////////////////////////////
+
+    const Transform::Variables& Object::getLocalTransformVars() const
+    {
+        return m_locals;
+    }
+
+    //////////////////////////////////////////////
+
+    const Transform::Variables& Object::getGlobalTransformVars() const
+    {
+        getGlobalPosition();
+        getGlobalScale();
+        getGlobalRotation();
+
+        return m_globals;
+    }
+
     /////////////////////////////////////////////S
     
     Object& Object::setRotation(const float x, const float y, const float z)

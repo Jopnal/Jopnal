@@ -225,7 +225,7 @@ namespace jop
     {
         if (m_shader.expired() || m_attributesChanged)
         {
-            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_attributes).getReference());
+            m_shader = static_ref_cast<Shader>(ShaderAssembler::getShader(m_attributes).getReference());
             m_attributesChanged = false;
         }
 

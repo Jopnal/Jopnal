@@ -125,6 +125,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Component::removeSelf()
+    {
+        auto& comps = getObject()->m_components;
+        for (auto itr = comps.begin(); itr != comps.end(); ++itr)
+        {
+            if (itr->get() == this)
+            {
+                comps.erase(itr);
+                break;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
     void Component::setActive(const bool)
     {}
 

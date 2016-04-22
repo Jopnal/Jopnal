@@ -40,6 +40,7 @@ namespace jop
         JOP_DISALLOW_COPY(Object);
 
         friend class StateLoader;
+        friend class Component;
 
         enum : uint16
         {
@@ -534,6 +535,20 @@ namespace jop
         /// \return Reference to the internal inverse transform
         ///
         const Transform& getInverseTransform() const;
+
+
+        /// \brief Get the local transformation variables
+        ///
+        /// \return Reference to the internal variables
+        ///
+        const Transform::Variables& getLocalTransformVars() const;
+
+        /// \brief Get the global transformation variables
+        ///
+        /// \return Reference to the internal variables
+        ///
+        const Transform::Variables& getGlobalTransformVars() const;
+
 
         /// \brief Set the rotation
         ///

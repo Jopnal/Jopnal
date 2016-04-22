@@ -219,11 +219,12 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
-        float shininess = u_Material.shininess;
+        float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            shininess *=  texture(u_GlossMap, outVert.TexCoords).r;
+            * texture(u_GlossMap, outVert.TexCoords).r
         #endif
+        );
 
         // Specular impact
         float spec =
@@ -363,11 +364,12 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
-        float shininess = u_Material.shininess;
+        float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            shininess *= texture(u_GlossMap, outVert.TexCoords).r;
+            * texture(u_GlossMap, outVert.TexCoords).r
         #endif
+        );
 
         // Specular impact
         float spec =
@@ -439,11 +441,12 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
-        float shininess = u_Material.shininess;
+        float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            shininess *= texture(u_GlossMap, outVert.TexCoords).r;
+            * texture(u_GlossMap, outVert.TexCoords).r
         #endif
+        );
 
         // Specular impact
         float spec =

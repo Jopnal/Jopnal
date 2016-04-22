@@ -176,10 +176,8 @@ namespace jop
     uint16 Mesh::getElementSize(const uint32 amount)
     {
         return 4
-
           - (amount <= USHRT_MAX) * 2
-          - (amount <= UCHAR_MAX)
-            ;
+          - (amount <= UCHAR_MAX);
     }
 
     //////////////////////////////////////////////

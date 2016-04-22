@@ -89,21 +89,43 @@ namespace jop
         ///
         static DebugHandler& getInstance();
 
+
         /// \brief Check if the console is enabled
         ///
         /// \return True if console is enabled
         ///
         bool isConsoleEnabled();
 
+        /// \brief Enable/disable the console
+        ///
+        /// \param enabled True to enable
+        ///
         void setEnabled(const bool enabled);
 
+        /// \brief Set the verbosity level
+        ///
+        /// \param severity The verbosity to set
+        ///
         void setVerbosity(const Severity severity);
 
+        /// \brief Get the verbosity level
+        ///
+        /// \return The verbosity level
+        ///
         Severity getSeverity() const;
 
+        /// \brief Set the reduce spam flag
+        ///
+        /// \param set True to enable
+        ///
         void setReduceSpam(const bool set);
 
+        /// \brief Set debugger logger attachment
+        ///
+        /// \param set True to enable debugger output
+        ///
         void setDebuggerOutput(const bool set);
+
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -143,8 +165,8 @@ namespace jop
         Severity m_lastSeverity;        ///< The last set severity
         std::string m_last;             ///< Last string entered. Used for culling repeating messages
         bool m_consoleEnabled;          ///< Is the console enabled?
-        bool m_noSpam;
-        bool m_debuggerOutput;
+        bool m_noSpam;                  ///< Is the no spam mode set?
+        bool m_debuggerOutput;          ///< Use debugger output?
         std::recursive_mutex m_mutex;   ///< Mutex
     };
 

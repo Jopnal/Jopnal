@@ -28,7 +28,9 @@
 namespace jop
 {
     ModelLoader::Options::Options()
-        : forceDiffuseAlpha(false)
+        : forceDiffuseAlpha     (false),
+          collapseTree          (true),
+          fixInfacingNormals    (true)
     {}
 
     //////////////////////////////////////////////
@@ -202,6 +204,49 @@ namespace jop
                     }
                 }
 
+                auto processTexFlags = [](const aiMaterial& aiMat, Material& jopMat, const ModelLoader::Options& options, const aiTextureType type, const int index, Texture& tex)
+                {
+                    // Flags
+                    {
+                        aiTextureFlags flags;
+                        aiMat.Get(AI_MATKEY_TEXFLAGS(type, index), flags);
+                        switch (flags)
+                        {
+                            //case aiTextureFlags_Invert:
+
+                            case aiTextureFlags_UseAlpha:
+                                jopMat.addAttributes(Material::Attribute::DiffuseAlpha);
+                                break;
+                            case aiTextureFlags_IgnoreAlpha:
+                                jopMat.removeAttributes(Material::Attribute::DiffuseAlpha);
+                                break;
+                        }
+                    }
+
+                    if (options.forceDiffuseAlpha && type == aiTextureType_DIFFUSE)
+                        jopMat.addAttributes(Material::Attribute::DiffuseAlpha);
+
+                    // Wrapping
+                    {
+                        aiTextureMapMode mapMode;
+                        aiMat.Get(AI_MATKEY_MAPPING(type, index), mapMode);
+                        switch (mapMode)
+                        {
+                            case aiTextureMapMode_Wrap:
+                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::Basic);
+                                break;
+                            case aiTextureMapMode_Clamp:
+                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::ClampEdge);
+                                break;
+                            case aiTextureMapMode_Decal:
+                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::ClampBorder);
+                                break;
+                            case aiTextureMapMode_Mirror:
+                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::Mirrored);
+                        }
+                    }
+                };
+
                 // Textures
                 {
                     // Diffuse
@@ -209,15 +254,13 @@ namespace jop
                     {
                         aiString path;
                         mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
-
+                        
                         if (path.length)
                         {
-                            m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(path.C_Str(), true));
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
+                            m.setMap(Material::Map::Diffuse, tex);
 
-                            aiTextureFlags flag;
-                            mat.Get(AI_MATKEY_TEXFLAGS(aiTextureType_DIFFUSE, 0), flag);
-                            if (flag == aiTextureFlags_UseAlpha || options.forceDiffuseAlpha)
-                                m.addAttributes(Material::Attribute::DiffuseAlpha);
+                            processTexFlags(mat, m, options, aiTextureType_DIFFUSE, 0, tex);
                         }
                     }
 
@@ -228,7 +271,12 @@ namespace jop
                         mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            m.setMap(Material::Map::Specular, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_SPECULAR, 0, tex);
+                        }
                     }
 
                     // Gloss
@@ -239,7 +287,10 @@ namespace jop
 
                         if (path.length)
                         {
-                            m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            m.setMap(Material::Map::Gloss, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_SHININESS, 0, tex);
 
                             if (!hadShininess)
                             {
@@ -256,7 +307,13 @@ namespace jop
                         mat.GetTexture(aiTextureType_EMISSIVE, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(path.C_Str(), true));
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
+                            m.setMap(Material::Map::Emission, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_EMISSIVE, 0, tex);
+
+                        }
                     }
 
                     // Reflection
@@ -266,7 +323,12 @@ namespace jop
                         mat.GetTexture(aiTextureType_REFLECTION, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Reflection, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            m.setMap(Material::Map::Reflection, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_REFLECTION, 0, tex);
+                        }
                     }
                     
                     // Opacity
@@ -276,7 +338,12 @@ namespace jop
                         mat.GetTexture(aiTextureType_OPACITY, 0, &path);
 
                         if (path.length)
-                            m.setMap(Material::Map::Opacity, ResourceManager::getResource<Texture2D>(path.C_Str(), false));
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            m.setMap(Material::Map::Opacity, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_OPACITY, 0, tex);
+                        }
                     }
 
                     // Normal
@@ -325,14 +392,21 @@ namespace jop
                                 map = M::Reflection;
 
                             // Opacity
-                            else if (!m.hasAttribute(A::OpacityMap) && strstr(path.C_Str(), "opa"))
+                            else if (!m.hasAttribute(A::OpacityMap) && (strstr(path.C_Str(), "opa") || strstr(path.C_Str(), "alp")))
                                 map = M::Opacity;
+
+                            // Gloss
+                            else if (!m.hasAttribute(A::GlossMap) && strstr(path.C_Str(), "glo"))
+                                map = M::Gloss;
 
                             // Not identified
                             else
                                 continue;
 
-                            m.setMap(map, ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission));
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission);
+                            m.setMap(map, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_UNKNOWN, i, tex);
                         }
                     }
                 }
@@ -527,14 +601,14 @@ namespace jop
 
             | aiProcessPreset_TargetRealtime_Fast
             | aiProcess_TransformUVCoords
-            | aiProcess_FixInfacingNormals
+            | (aiProcess_FixInfacingNormals * options.fixInfacingNormals)
             | aiProcess_FlipUVs
             | aiProcess_ImproveCacheLocality
             | aiProcess_FindInvalidData
             | aiProcess_ValidateDataStructure
             | aiProcess_OptimizeMeshes
             | aiProcess_RemoveRedundantMaterials
-            | aiProcess_OptimizeGraph
+            | (aiProcess_OptimizeGraph * options.collapseTree)
             ;
 
         const aiScene* scene = imp.ReadFile(path, preProcess);
