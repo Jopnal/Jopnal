@@ -308,6 +308,8 @@ namespace jop
     {
         JOP_ASSERT(!ns_init, "There must not be more than one jop::SettingManager!");
 
+        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+
         if (FileLoader::fileExists("config.json"))
         {
             reload();
@@ -322,11 +324,13 @@ namespace jop
         const unsigned int defaultVerbosity =
         #ifdef JOP_DEBUG_MODE
             2;
+            const bool console = true;
         #else
             0;
+            const bool console = false;
         #endif
 
-        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", true));
+        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", console));
         DebugHandler::getInstance().setVerbosity(static_cast<DebugHandler::Severity>(std::min(static_cast<unsigned int>(DebugHandler::Severity::Diagnostic), getUint("uConsoleVerbosity", defaultVerbosity))));
         DebugHandler::getInstance().setReduceSpam(getBool("bReduceConsoleSpam", true));
 
