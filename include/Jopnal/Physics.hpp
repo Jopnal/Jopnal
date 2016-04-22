@@ -20,20 +20,20 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/World.hpp>
 #include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/Physics/RayInfo.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
 #include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
+#include <Jopnal/Physics/Shape/CollisionShape.hpp>
 #include <Jopnal/Physics/Shape/CompoundShape.hpp>
+#include <Jopnal/Physics/Shape/ConeShape.hpp>
 #include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
+#include <Jopnal/Physics/Shape/CylinderShape.hpp>
+#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
+#include <Jopnal/Physics/Shape/RectangleShape.hpp>
+#include <Jopnal/Physics/Shape/SphereShape.hpp>
+#include <Jopnal/Physics/World.hpp>
 
 //////////////////////////////////////////////
 

@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Utility/Json.hpp>
+#include <Jopnal/Utility/Clock.hpp>
 #include <unordered_map>
 #include <memory>
 #include <typeindex>

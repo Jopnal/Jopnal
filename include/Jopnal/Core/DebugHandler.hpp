@@ -54,6 +54,13 @@ namespace jop
         #define JOP_DEBUG_INFO(stream)    {}
     #endif
 
+    // Diagnostic verbosity
+    #if JOP_CONSOLE_VERBOSITY >= 3
+        #define JOP_DEBUG_DIAG(stream)    {jop::DebugHandler::getInstance() << jop::Color::Gray << jop::DebugHandler::Severity::Diagnostic << stream << std::endl;}
+    #else
+        #define JOP_DEBUG_DIAG(stream)    {}
+    #endif
+
     class JOP_API DebugHandler
     {
     private:
@@ -70,7 +77,8 @@ namespace jop
         {
             Error,
             Warning,
-            Info
+            Info,
+            Diagnostic
         };
 
     public:
@@ -81,11 +89,43 @@ namespace jop
         ///
         static DebugHandler& getInstance();
 
+
         /// \brief Check if the console is enabled
         ///
         /// \return True if console is enabled
         ///
         bool isConsoleEnabled();
+
+        /// \brief Enable/disable the console
+        ///
+        /// \param enabled True to enable
+        ///
+        void setEnabled(const bool enabled);
+
+        /// \brief Set the verbosity level
+        ///
+        /// \param severity The verbosity to set
+        ///
+        void setVerbosity(const Severity severity);
+
+        /// \brief Get the verbosity level
+        ///
+        /// \return The verbosity level
+        ///
+        Severity getSeverity() const;
+
+        /// \brief Set the reduce spam flag
+        ///
+        /// \param set True to enable
+        ///
+        void setReduceSpam(const bool set);
+
+        /// \brief Set debugger logger attachment
+        ///
+        /// \param set True to enable debugger output
+        ///
+        void setDebuggerOutput(const bool set);
+
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -120,11 +160,13 @@ namespace jop
 
     private:
 
-        std::ostringstream m_stream;    ///< The stream object
+        std::stringstream m_stream;     ///< The stream object
         Severity m_displaySeverity;     ///< The current severity
         Severity m_lastSeverity;        ///< The last set severity
         std::string m_last;             ///< Last string entered. Used for culling repeating messages
         bool m_consoleEnabled;          ///< Is the console enabled?
+        bool m_noSpam;                  ///< Is the no spam mode set?
+        bool m_debuggerOutput;          ///< Use debugger output?
         std::recursive_mutex m_mutex;   ///< Mutex
     };
 

@@ -34,7 +34,7 @@ namespace jop { namespace detail
 {
     struct WorldImpl final
     {
-        WorldImpl(btIDebugDraw* debugDraw);
+        explicit WorldImpl(btIDebugDraw* debugDraw);
 
         ~WorldImpl();
 

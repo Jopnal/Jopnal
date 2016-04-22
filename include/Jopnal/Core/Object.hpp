@@ -33,20 +33,29 @@
 
 namespace jop
 {
-    class JOP_API Object : public Transform, public SafeReferenceable<Object>
+    class JOP_API Object : public SafeReferenceable<Object>
     {
     private:
 
         JOP_DISALLOW_COPY(Object);
 
         friend class StateLoader;
+        friend class Component;
 
-        enum
+        enum : uint16
         {
             ActiveFlag          = 1,
-            IgnoreParentFlag    = 1 << 1,
-            RemoveFlag          = 1 << 2,
-            ChildrenRemovedFlag = 1 << 3
+            RemoveFlag          = 1 << 1,
+            ChildrenRemovedFlag = 1 << 2,
+
+            // Transformations
+            IgnoreParent        = 1 << 3,
+            MatrixDirty         = 1 << 4,
+            InverseMatrixDirty  = 1 << 5,
+
+            GlobalRotationDirty = 1 << 6,
+            GlobalScaleDirty    = 1 << 7,
+            GlobalPositionDirty = 1 << 8
         };
 
     public:
@@ -63,7 +72,7 @@ namespace jop
         /// \param newID The ID of the new object
         /// \param newTransform The transform of the new object
         ///
-        Object(const Object& other, const std::string& newID, const Transform& newTransform);
+        Object(const Object& other, const std::string& newID, const Transform::Variables& newTransform);
 
         /// \brief Move constructor
         ///
@@ -228,7 +237,7 @@ namespace jop
         ///
         /// \param newTransform New transform for the cloned child
         /// 
-        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform& newTransform);
+        WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform::Variables& newTransform);
 
 
         /// \brief Remove children with the given id
@@ -297,7 +306,7 @@ namespace jop
         ///
         /// \return Reference to the cloned object
         ///
-        WeakReference<Object> cloneSelf(const std::string& newID, const Transform& newTransform);
+        WeakReference<Object> cloneSelf(const std::string& newID, const Transform::Variables& newTransform);
 
         /// \brief Check if this object has been marked to be removed
         ///
@@ -320,25 +329,6 @@ namespace jop
         ///
         unsigned int childCountRecursive() const;
 
-
-        /// \brief Set this object to ignore its parent
-        ///
-        /// This only affects transformations. Objects that ignore their parent will not take
-        /// into account the parent's transformation.
-        ///
-        /// \param ignore The flag to set
-        ///
-        /// \return Reference to self
-        ///
-        /// \comm setIgnoreParent
-        ///
-        Object& setIgnoreParent(const bool ignore);
-
-        /// \brief Check if this object ignores its parent
-        ///
-        /// \return True if ignores parent
-        ///
-        bool ignoresParent() const;
 
         /// \brief Get this object's parent
         ///
@@ -526,25 +516,351 @@ namespace jop
         ///
         void update(const float deltaTime);
 
-        /// \brief Update the transformation tree
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Transformations
+        ////////////////////////////////////////////////////////////////////////////////
+
+    public:
+
+        /// \brief Get the transform
         ///
-        /// This is automatically called by Scene
+        /// \return Reference to the internal transform
         ///
-        /// \param parent The parent object. May be null
-        /// \param parentUpdated Had the parent been updated?
+        const Transform& getTransform() const;
+
+        /// \brief Get the inverse transform
         ///
-        void updateTransformTree(const Object* parent, bool parentUpdated);
+        /// \return Reference to the internal inverse transform
+        ///
+        const Transform& getInverseTransform() const;
+
+
+        /// \brief Get the local transformation variables
+        ///
+        /// \return Reference to the internal variables
+        ///
+        const Transform::Variables& getLocalTransformVars() const;
+
+        /// \brief Get the global transformation variables
+        ///
+        /// \return Reference to the internal variables
+        ///
+        const Transform::Variables& getGlobalTransformVars() const;
+
+
+        /// \brief Set the rotation
+        ///
+        /// This version uses euler angles
+        ///
+        /// \param x The X angle
+        /// \param y The Y angle
+        /// \param z The Z angle
+        ///
+        /// \return Reference to self
+        ///
+        Object& setRotation(const float x, const float y, const float z);
+
+        /// \brief Set the rotation
+        ///
+        /// \param rotation Rotation vector in euler angles
+        ///
+        /// \return Reference to self
+        ///
+        Object& setRotation(const glm::vec3& rotation);
+
+        /// \brief Set the rotation using angle-axis
+        ///
+        /// \param angle The angle
+        /// \param axis The axis
+        ///
+        /// \return Reference to self
+        ///
+        Object& setRotation(const float angle, const glm::vec3& axis);
+
+        /// \brief Set the rotation
+        ///
+        /// \param rotation Quaternion with the rotation to set
+        ///
+        /// \return Reference to self
+        ///
+        Object& setRotation(const glm::quat& rotation);
+
+        /// \brief Get the local rotation
+        ///
+        /// \return Quaternion with the rotation
+        ///
+        const glm::quat& getLocalRotation() const;
+
+        /// \brief Get the global rotation
+        ///
+        /// \return The global rotation
+        ///
+        const glm::quat& getGlobalRotation() const;
+
+
+        /// \brief Get the global front vector
+        ///
+        /// \return The global front vector
+        ///
+        glm::vec3 getGlobalFront() const;
+
+        /// \brief Get the global right vector
+        ///
+        /// \return The global right vector
+        ///
+        glm::vec3 getGlobalRight() const;
+
+        /// \brief Get the global right vector
+        ///
+        /// \return The global up vector
+        ///
+        glm::vec3 getGlobalUp() const;
+
+        /// \brief Get the local front vector
+        ///
+        /// \return The local front vector
+        ///
+        glm::vec3 getLocalFront() const;
+
+        /// \brief Get the local right vector
+        ///
+        /// \return The local right vector
+        ///
+        glm::vec3 getLocalRight() const;
+
+        /// \brief Get the local up vector
+        ///
+        /// \return The local up vector
+        ///
+        glm::vec3 getLocalUp() const;
+
+
+        /// \brief Set the scale
+        ///
+        /// 1.f means the original scale
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \return Reference to self
+        ///
+        Object& setScale(const float x, const float y, const float z);
+
+        /// \brief Set the scale
+        ///
+        /// \param scale Vector with the scale to set
+        ///
+        /// \return Reference to self
+        ///
+        Object& setScale(const glm::vec3& scale);
+
+        /// \brief Set the scale
+        ///
+        /// This call is equal to setScale(delta, delta, delta)
+        ///
+        /// \param delta The new scale
+        ///
+        /// \return Reference to self
+        ///
+        Object& setScale(const float delta);
+
+        /// \brief Get the local scale
+        ///
+        /// \return Vector with the scale
+        ///
+        const glm::vec3& getLocalScale() const;
+
+        /// \brief Get the global scale
+        ///
+        /// \return The global scale
+        ///
+        const glm::vec3& getGlobalScale() const;
+
+
+        /// \brief Set the position
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \return Reference to self
+        ///
+        Object& setPosition(const float x, const float y, const float z);
+
+        /// \brief Set the position
+        ///
+        /// \param position Vector with the position to set
+        ///
+        /// \return Reference to self
+        ///
+        Object& setPosition(const glm::vec3& position);
+
+        /// \brief Get the local position
+        ///
+        /// \return Vector with the position
+        ///
+        const glm::vec3& getLocalPosition() const;
+
+        /// \brief Get the global position
+        ///
+        /// \return The global position
+        ///
+        const glm::vec3& getGlobalPosition() const;
+
+
+        /// \brief Set this transform to look at a certain point
+        ///
+        /// The rotation is applied locally.
+        ///
+        /// \param point The point to look at
+        ///
+        /// \return Reference to self
+        ///
+        Object& lookAt(const glm::vec3& point);
+
+        /// \copydoc lookAt
+        ///
+        /// \param up A custom up vector
+        ///
+        Object& lookAt(const glm::vec3& point, const glm::vec3& up);
+
+        /// \brief Set this transform to look at a certain point
+        ///
+        /// \param x The X point
+        /// \param y The Y point
+        /// \param z The Z point
+        ///
+        /// \return Reference to self
+        ///
+        Object& lookAt(const float x, const float y, const float z);
+
+
+        /// \brief Move this object
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Object& move(const float x, const float y, const float z);
+
+        /// \brief Move this object
+        ///
+        /// \param offset The movement offset
+        ///
+        /// \return Reference to self
+        ///
+        Object& move(const glm::vec3& offset);
+
+
+        /// \brief Rotate this object
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Object& rotate(const float x, const float y, const float z);
+
+        /// \brief Rotate this object
+        ///
+        /// \param rotation The rotation offset
+        ///
+        /// \return Reference to self
+        ///
+        Object& rotate(const glm::quat& rotation);
+
+        /// \copydoc rotate(const glm::quat&)
+        ///
+        Object& rotate(const glm::vec3& rotation);
+
+        /// \brief Rotate this object using an axis-angle
+        ///
+        /// \param angle The angle
+        /// \param axis The axis
+        /// 
+        /// \return Reference to self
+        ///
+        Object& rotate(const float angle, const glm::vec3& axis);
+
+
+        /// \brief Scale this object
+        ///
+        /// \param x The X component
+        /// \param y The Y component
+        /// \param z The Z component
+        ///
+        /// \returns Reference to self
+        ///
+        Object& scale(const float x, const float y, const float z);
+
+        /// \brief Scale this object
+        ///
+        /// \param scale The scale multiplier
+        ///
+        /// \return Reference to self
+        ///
+        Object& scale(const glm::vec3& scale);
+
+        /// \brief Scale this object
+        ///
+        /// This call is equal to scale(delta, delta, delta)
+        ///
+        /// \param delta The scale modifier
+        ///
+        /// \return Reference to self
+        ///
+        Object& scale(const float delta);
+
+
+        /// \brief Set this node to ignore its parent
+        ///
+        /// Nodes that ignore their parent will not take
+        /// into account the parent's transformation.
+        ///
+        /// \param ignore The flag to set
+        ///
+        /// \return Reference to self
+        ///
+        Object& setIgnoreParent(const bool ignore);
+
+        /// \brief Check if this node ignores its parent
+        ///
+        /// \return True if ignores parent
+        ///
+        bool ignoresParent() const;
 
     private:
 
         void sweepRemoved();
 
+        bool flagSet(const uint16 flag) const;
+
+        void setFlags(const uint16 flags) const;
+
+        void clearFlags(const uint16 flags) const;
+
+        void propagateFlags(const uint16 flags);
+
+
+        // Transformation
+        mutable Transform m_transform;
+        mutable Transform m_inverseTransform;
+        mutable Transform::Variables m_locals;
+        mutable Transform::Variables m_globals;
+
+        // Object
         std::vector<Object> m_children;                         ///< Container holding this object's children
         std::vector<std::unique_ptr<Component>> m_components;   ///< Container holding components
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
-        unsigned char m_flags;                                  ///< Flags
+        mutable uint16 m_flags;                                 ///< Flags
     };
 
     // Include the template implementation file

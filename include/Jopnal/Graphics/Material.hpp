@@ -69,6 +69,7 @@ namespace jop
                 EnvironmentMap  = EmissionMap       << 1,
                 ReflectionMap   = EnvironmentMap    << 1,
                 OpacityMap      = ReflectionMap     << 1,
+                GlossMap        = OpacityMap        << 1,
                 //NormalMap       = 1 << 7, // TODO: Implement
                 //ParallaxMap     = 1 << 8, // TODO: Implement
                 //AmbientMap    = 1 << 10, // TODO: Implement
@@ -116,6 +117,7 @@ namespace jop
             //Normal
             //Parallax
             Opacity,
+            Gloss,
             
             /// For internal use. Never use this
             Last

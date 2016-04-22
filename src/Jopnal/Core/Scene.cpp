@@ -27,19 +27,18 @@
 
 namespace jop
 {
-    #pragma warning(push)
-    #pragma warning(disable: 4189)
     JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
+
+        JOP_BIND_MEMBER_COMMAND(&Scene::setDeltaScale, "setDeltaScale");
+
     JOP_END_COMMAND_HANDLER(Scene)
-    #pragma warning(pop)
 
     JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
     {
-        const char* id = val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : ""; 
-        const bool active = val.HasMember("active") && val["active"].IsBool() ? val["active"].GetBool() : true;
+        const float delta = val.HasMember("deltascale") && val["deltascale"].IsDouble() ? static_cast<float>(val["deltascale"].GetDouble()) : 1.f;
 
-        scene = std::make_unique<Scene>(id);
-        scene->setActive(active);
+        scene = std::make_unique<Scene>("");
+        scene->setDeltaScale(delta);
 
         return true;
     }
@@ -47,8 +46,7 @@ namespace jop
 
     JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
     {
-        obj.AddMember(json::StringRef("id"), json::StringRef(scene.getID().c_str()), alloc)
-           .AddMember(json::StringRef("active"), scene.isActive(), alloc);
+        obj.AddMember(json::StringRef("deltascale"), scene.getDeltaScale(), alloc);
 
         return true;
     }
@@ -59,14 +57,7 @@ namespace jop
 {
     Scene::Scene(const std::string& ID)
         : Object        (ID),
-          m_renderer    (std::make_unique<Renderer>(*Engine::getSubsystem<Window>())),
-          m_world       (createComponent<World>(*m_renderer)),
-          m_deltaScale  (1.f)
-    {}
-
-    Scene::Scene(const std::string& ID, const RenderTarget& mainTarget)
-        : Object        (ID),
-          m_renderer    (std::make_unique<Renderer>(mainTarget)),
+          m_renderer    (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
           m_world       (createComponent<World>(*m_renderer)),
           m_deltaScale  (1.f)
     {}
@@ -156,17 +147,9 @@ namespace jop
         {
             const float dt = deltaTime * m_deltaScale;
 
-            Object::updateTransformTree(nullptr, false);
             preUpdate(dt);
-
-            // Need to update transforms twice to ensure correct global state at all times.
-            // TODO: Redesign the transformation system to eliminate this requirement.
-            Object::updateTransformTree(nullptr, false);
             Object::update(dt);
-
-            Object::updateTransformTree(nullptr, false);
             postUpdate(dt);
-            Object::updateTransformTree(nullptr, false);
         }
     }
 

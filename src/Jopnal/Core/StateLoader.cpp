@@ -515,7 +515,7 @@ namespace jop
         const char* const activeField = "active";
         const char* const componentsField = "components";
         const char* const childrenField = "children";
-        const char* const transformField = "transform";
+        //const char* const transformField = "transform";
 
         const auto& compCont = std::get<CompID>(m_loaderSavers);
         const auto& nameMap = getSavenameContainer();
@@ -524,7 +524,7 @@ namespace jop
         data.AddMember(json::StringRef(activeField), obj.isActive(), alloc);
 
         // Transform
-        data.AddMember(json::StringRef(transformField), json::kArrayType, alloc)[transformField]
+        /*data.AddMember(json::StringRef(transformField), json::kArrayType, alloc)[transformField]
             .PushBack(obj.getPosition().x, alloc)
             .PushBack(obj.getPosition().y, alloc)
             .PushBack(obj.getPosition().z, alloc)
@@ -534,7 +534,7 @@ namespace jop
             .PushBack(obj.getRotation().w, alloc)
             .PushBack(obj.getRotation().x, alloc)
             .PushBack(obj.getRotation().y, alloc)
-            .PushBack(obj.getRotation().z, alloc);
+            .PushBack(obj.getRotation().z, alloc);*/
            
         // Components
         if (!obj.m_components.empty())

@@ -27,13 +27,45 @@
 
 namespace jop
 {
-    ShaderManager::ShaderManager()
+    JOP_REGISTER_LOADABLE(jop, ShaderAssembler)[](const json::Value& val)
+    {
+        const char* const shdrField = "shaders";
+        if (val.HasMember(shdrField) && val[shdrField].IsArray())
+        {
+            const json::Value& arr = val[shdrField];
+
+            for (auto& i : arr)
+                ShaderAssembler::getShader(i.GetUint());
+        }
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(ShaderAssembler)
+
+    JOP_REGISTER_SAVEABLE(jop, ShaderAssembler)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
+    {
+        auto& map = ShaderAssembler::getShaderMap();
+
+        json::Value& arr = val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"];
+        arr.Reserve(map.size(), alloc);
+
+        for (auto& i : map)
+            arr.PushBack(i.first, alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(ShaderAssembler)
+}
+
+namespace jop
+{
+    ShaderAssembler::ShaderAssembler()
         : Subsystem ("Shader Manager"),
           m_shaders (),
           m_uber    (),
           m_mutex   ()
     {
-        JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderManager instance!");
+        JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderAssembler instance!");
         m_instance = this;
 
         std::vector<unsigned char> buf;
@@ -48,16 +80,16 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
     }
 
-    ShaderManager::~ShaderManager()
+    ShaderAssembler::~ShaderAssembler()
     {
         m_instance = nullptr;
     }
 
     //////////////////////////////////////////////
 
-    Shader& ShaderManager::getShader(const Material::AttribType attributes)
+    Shader& ShaderAssembler::getShader(const Material::AttribType attributes)
     {
-        JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderManager instance!");
+        JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderAssembler instance!");
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -78,23 +110,30 @@ namespace jop
 
         auto& s = ResourceManager::getNamedResource<Shader>(shaderName, uber[0], (attributes & Material::Attribute::__RecordEnv) ? uber[1] : "", uber[2], pp);
 
-        cont[attributes] = static_ref_cast<Shader>(s.getReference());
-
-        // Needed so that different samplers don't all point to zero
-        if ((attributes & Material::Attribute::__Lighting) != 0)
+        if (&s != &Shader::getError())
         {
-            static const int maxUnits = Texture::getMaxTextureUnits();
+            s.setManaged(true);
 
-            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
-                s.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
+            cont[attributes] = static_ref_cast<Shader>(s.getReference());
+
+            // Needed so that different samplers don't all point to zero
+            if ((attributes & Material::Attribute::__Lighting) != 0)
+            {
+                static const int maxUnits = Texture::getMaxTextureUnits();
+
+                for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
+                    s.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
+            }
         }
+        else
+            JOP_DEBUG_ERROR("Failed to load shader with attributes: " << attributes);
 
         return s;
     }
 
     //////////////////////////////////////////////
 
-    void ShaderManager::getPreprocessDef(const Material::AttribType attrib, std::string& str)
+    void ShaderAssembler::getPreprocessDef(const Material::AttribType attrib, std::string& str)
     {
         using m = Material::Attribute;
 
@@ -105,7 +144,7 @@ namespace jop
         // Ambient constant
         if ((attrib & m::AmbientConstant) != 0)
         {
-            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "111111FF")).asRGBFloatVector();
+            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "010101FF")).asRGBFloatVector();
             static const std::string ambConst = "#define JMAT_AMBIENT vec3("
                                               + std::to_string(colors.r) + ","
                                               + std::to_string(colors.g) + ","
@@ -146,12 +185,16 @@ namespace jop
         if ((attrib & m::OpacityMap) != 0)
             str += "#define JMAT_OPACITYMAP\n";
 
+        // Gloss map
+        if ((attrib & m::GlossMap) != 0)
+            str += "#define JMAT_GLOSSMAP\n";
+
         // Lighting
         {
             static const std::string maxLights =
-                "#define JMAT_MAX_POINT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
-                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
-                "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
+                "#define JMAT_MAX_POINT_LIGHTS "            + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
+                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS "    + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
+                "\n#define JMAT_MAX_SPOT_LIGHTS "           + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
 
             // Phong model
             if ((attrib & m::Phong) != 0)
@@ -164,12 +207,19 @@ namespace jop
 
         // Skybox/sphere
         if ((attrib & m::__SkyBox) != 0)
-            str += "#define JMAT_SKYBOX";
+            str += "#define JMAT_SKYBOX\n";
         else if ((attrib & m::__SkySphere) != 0)
-            str += "#define JMAT_SKYSPHERE";
+            str += "#define JMAT_SKYSPHERE\n";
     }
 
     //////////////////////////////////////////////
 
-    ShaderManager* ShaderManager::m_instance = nullptr;
+    const ShaderAssembler::ShaderMap& ShaderAssembler::getShaderMap()
+    {
+        return m_instance->m_shaders;
+    }
+
+    //////////////////////////////////////////////
+
+    ShaderAssembler* ShaderAssembler::m_instance = nullptr;
 }

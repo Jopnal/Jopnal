@@ -36,19 +36,23 @@ namespace jop
 {
     class Shader;
 
-    class JOP_API ShaderManager final : public Subsystem
+    class JOP_API ShaderAssembler final : public Subsystem
     {
+    private:
+
+        typedef std::unordered_map<Material::AttribType, WeakReference<Shader>> ShaderMap;
+
     public:
 
         /// \brief Default constructor
         ///
         /// Reads the uber shader from the resource dll
         ///
-        ShaderManager();
+        ShaderAssembler();
 
         /// \brief Destructor
         ///
-        ~ShaderManager() override;
+        ~ShaderAssembler() override;
 
 
         /// \brief Get a shader with the given attribute combination
@@ -66,16 +70,19 @@ namespace jop
         ///
         static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
 
+        /// \brief Get the shader map
+        ///
+        /// \return Reference to the internal shader map
+        ///
+        static const ShaderMap& getShaderMap();
+
     private:
 
-        static ShaderManager* m_instance;   ///< The single instance
+        static ShaderAssembler* m_instance;   ///< The single instance
 
-        std::unordered_map
-        <
-            Material::AttribType,
-            WeakReference<Shader>> m_shaders;   ///< Map with the shaders
-        std::array<std::string, 3> m_uber;      ///< The uber shader sources
-        std::recursive_mutex m_mutex;           ///< Mutex                                        
+        ShaderMap m_shaders;                ///< Map with the shaders
+        std::array<std::string, 3> m_uber;  ///< The uber shader sources
+        std::recursive_mutex m_mutex;       ///< Mutex                                        
     };
 }
 

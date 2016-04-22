@@ -38,6 +38,11 @@
     float specularComponent = 0.0;
 #endif
 
+// Gloss map
+#ifdef JMAT_GLOSSMAP
+    uniform sampler2D u_GlossMap;
+#endif
+
 #ifdef JMAT_PHONG
 
     // Does the object receive lights?
@@ -214,10 +219,17 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = max(1.0, u_Material.shininess
+
+        #ifdef JMAT_GLOSSMAP
+            * texture(u_GlossMap, outVert.TexCoords).r
+        #endif
+        );
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
@@ -352,10 +364,17 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = max(1.0, u_Material.shininess
+
+        #ifdef JMAT_GLOSSMAP
+            * texture(u_GlossMap, outVert.TexCoords).r
+        #endif
+        );
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
@@ -422,10 +441,17 @@ in FragVertexData
         // Calculate reflection direction (use a half-way vector)
         vec3 reflectDir = normalize(lightDir + viewDir);
 
+        float shininess = max(1.0, u_Material.shininess
+
+        #ifdef JMAT_GLOSSMAP
+            * texture(u_GlossMap, outVert.TexCoords).r
+        #endif
+        );
+
         // Specular impact
         float spec =
         #ifdef JMAT_MATERIAL
-            (8.0 + u_Material.shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), u_Material.shininess)
+            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
         #else
             0.0
         #endif
@@ -484,18 +510,30 @@ void main()
     // Assign the initial color
     vec3 tempColor =
     #ifdef JMAT_AMBIENT
+
+        JMAT_AMBIENT
+
         #ifdef JMAT_DIFFUSEMAP
-            JMAT_AMBIENT * vec3(texture(u_DiffuseMap, outVert.TexCoords));
-        #else
-            JMAT_AMBIENT;
+            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
         #endif
+        #ifdef JMAT_VERTEXCOLOR
+            * vec3(outVert.Color)
+        #endif
+        ;
+
     #else
+
         #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
             vec3(texture(u_DiffuseMap, outVert.TexCoords))
+
+            #ifdef JMAT_VERTEXCOLOR
+                * vec3(outVert.Color)
+            #endif
         #else
             vec3(0.0, 0.0, 0.0)
         #endif
         ;
+
     #endif
 
     #ifdef JMAT_ENVIRONMENTMAP
@@ -558,10 +596,14 @@ void main()
     
     float alpha = 1.0;
 
-    #ifdef JMAT_OPACITYMAP
+    #if defined(JMAT_OPACITYMAP)
         alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
-    #elif JMAT_DIFFUSEALPHA
+    #elif defined(JMAT_DIFFUSEALPHA)
         alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
+    #endif
+
+    #ifdef JMAT_VERTEXCOLOR
+        alpha *= outVert.Color.a;
     #endif
 
     #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
@@ -570,7 +612,19 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(pow(tempColor, vec3(1.0/2.2)), alpha);
+    out_FinalColor = vec4(pow(tempColor, vec3(1.0 /
+        
+    #ifdef JMAT_ENVIRONMENT_RECORD
+        // Temporary "fix" for gamma correction getting
+        // applied twice. This is a somewhat working
+        // approximation, though the colors are
+        // still a bit wrong
+        1.9
+    #else
+        2.2
+    #endif
+        
+    )), alpha);
 
 #endif // Sky box
 }

@@ -71,8 +71,6 @@ namespace jop
         using Object::getID;
         using Object::setID;
 
-        using Object::updateTransformTree;
-
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);
@@ -87,12 +85,6 @@ namespace jop
         /// \param ID Scene identifier
         ///
         Scene(const std::string& ID);
-
-        /// \copydoc Scene(const std::string&)
-        ///
-        /// \param mainTarget The main render target
-        ///
-        Scene(const std::string& ID, const RenderTarget& mainTarget);
 
         /// \brief Virtual destructor
         ///

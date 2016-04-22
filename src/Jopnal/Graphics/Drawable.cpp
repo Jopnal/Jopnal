@@ -142,7 +142,7 @@ namespace jop
     Drawable& Drawable::removeShader(const bool loadMaterialShader)
     {
         if (loadMaterialShader && m_model.getMaterial())
-            m_shader = static_ref_cast<Shader>(ShaderManager::getShader(m_model.getMaterial()->getAttributeField()).getReference());
+            m_shader = static_ref_cast<Shader>(ShaderAssembler::getShader(m_model.getMaterial()->getAttributeField()).getReference());
         else
             m_shader.reset();
 

@@ -44,7 +44,7 @@ namespace
 
     struct jop_DefaultEventHandler : jop::WindowEventHandler
     {
-        jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
+        explicit jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
         void closed() override {jop::Engine::exit();}
     };
 }

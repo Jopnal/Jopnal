@@ -34,26 +34,17 @@
 #define JOP_OPENGL_ERROR_CHECKS
 
 // Debug
-#if defined(_DEBUG) && !defined(JOP_DEBUG_MODE)
-    #define JOP_DEBUG_MODE
-#endif
 #define JOP_DEBUG_MODE
 
 // Console
 #ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 2
+    #define JOP_CONSOLE_VERBOSITY 3
 #else
     #define JOP_CONSOLE_VERBOSITY 0
 #endif
 
 // Asserts
 #define JOP_ENABLE_ASSERTS
-
-// Exceptions
-//#define JOP_ENABLE_EXCEPTIONS
-
-// Dynamic build (.dll)
-//#define JOP_DYNAMIC
 
 // Version
 #define JOP_VERSION_MAJOR 0

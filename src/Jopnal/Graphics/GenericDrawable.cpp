@@ -62,7 +62,7 @@ namespace jop
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        auto& modelMat = getObject()->getMatrix();
+        auto& modelMat = getObject()->getTransform().getMatrix();
 
         // Set common uniforms. If camera is null, it means that the perspective and view matrices
         // have already been set somewhere else
@@ -76,16 +76,16 @@ namespace jop
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, (void*)Vertex::Position);
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, (void*)Vertex::TexCoords);
+        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
-        //if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-        //    s.setAttribute(5, gl::UNSIGNED_BYTE, 4, stride, true, 0);
+        if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
+            s.setAttribute(5, gl::UNSIGNED_BYTE, 4, stride, true, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, gl::FLOAT, 3, stride, false, (void*)Vertex::Normal);
+            s.setAttribute(2, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::__Lighting))

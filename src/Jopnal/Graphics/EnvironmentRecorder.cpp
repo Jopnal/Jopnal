@@ -24,6 +24,7 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
@@ -31,6 +32,33 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
 
     JOP_END_COMMAND_HANDLER(EnvironmentRecorder)
+
+    JOP_REGISTER_LOADABLE(jop, EnvironmentRecorder)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    {
+        auto& rec = obj.createComponent<EnvironmentRecorder>(scene.getRenderer());
+
+        const char* const idField = "id";
+        if (val.HasMember(idField) && val[idField].IsString())
+            rec.setID(val[idField].GetString());
+
+        const char* const maskField = "mask";
+        if (val.HasMember(maskField) && val[maskField].IsUint())
+            rec.setRenderMask(val[maskField].GetUint());
+
+        return true;
+    }
+    JOP_END_LOADABLE_REGISTRATION(EnvironmentRecorder)
+
+    JOP_REGISTER_SAVEABLE(jop, EnvironmentRecorder)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
+    {
+        auto& rec = static_cast<const EnvironmentRecorder&>(comp);
+
+        val.AddMember(json::StringRef("id"), json::StringRef(rec.getID().c_str()), alloc);
+        val.AddMember(json::StringRef("mask"), rec.getRenderMask(), alloc);
+
+        return true;
+    }
+    JOP_END_SAVEABLE_REGISTRATION(EnvironmentRecorder)
 }
 
 namespace jop
@@ -88,7 +116,7 @@ namespace jop
             if (!drawable->isActive() || !drawable->getModel().isValid() || !drawable->isReflected() || (m_mask & drawableBit) == 0)
                 continue;
 
-            auto shdr = &ShaderManager::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::__RecordEnv);
+            auto shdr = &ShaderAssembler::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::__RecordEnv);
 
             if (shdr == &Shader::getDefault())
             {

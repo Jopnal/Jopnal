@@ -56,7 +56,8 @@ namespace jop
           m_exit            (false),
           m_state           (State::Running),
           m_deltaScale      (1.f),
-          m_advanceFrame    (false)
+          m_advanceFrame    (false),
+          m_mainTarget      (nullptr)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -67,9 +68,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-    #if JOP_CONSOLE_VERBOSITY >= 2
-        std::cout << "Jopnal Engine v. " << JOP_VERSION_STRING << "\n\n";
-    #endif
+        JOP_DEBUG_INFO(Color::Blue << "Jopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()
@@ -81,19 +80,14 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-        #if JOP_CONSOLE_VERBOSITY >= 2
-            std::cout << "Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << "\n\n";
-        #endif
-
+            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << " (" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-    #if JOP_CONSOLE_VERBOSITY >= 2
-        std::cout << "Destroying jop::Engine..." << "\n\n";
-    #endif
+        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////
@@ -112,13 +106,16 @@ namespace jop
         createSubsystem<SettingManager>();
 
         // Main window
-        createSubsystem<Window>(Window::Settings(true));
+        auto& win = createSubsystem<Window>(Window::Settings(true));
 
         // Resource manager
         createSubsystem<ResourceManager>();
 
         // Shader manager
-        createSubsystem<ShaderManager>();
+        createSubsystem<ShaderAssembler>();
+
+        // Main render target
+        m_mainTarget = &win;
 
         // Shared scene
         m_sharedScene = std::make_unique<Scene>("sharedscene");
@@ -438,6 +435,15 @@ namespace jop
             return m_engineObject->m_newScene.load() != nullptr;
 
         return false;
+    }
+
+    //////////////////////////////////////////////
+
+    const RenderTarget& Engine::getMainRenderTarget()
+    {
+        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
+
+        return *m_engineObject->m_mainTarget;
     }
 
     //////////////////////////////////////////////

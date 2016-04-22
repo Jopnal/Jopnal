@@ -45,7 +45,7 @@ namespace
         {
             const char* error = PHYSFS_getLastError();
 
-            if (error && jop::SettingManager::checkInit())
+            if (error)
                 JOP_DEBUG_ERROR("Filesystem error: " << error << " (" << info << ")");
         }
     }
@@ -108,18 +108,22 @@ namespace jop
             }
             void OnDebug(const char* message) override
             {
-                JOP_DEBUG_INFO(message);
+                message;
+                JOP_DEBUG_DIAG(message);
             }
             void OnInfo(const char* message) override
             {
+                message;
                 JOP_DEBUG_INFO(message);
             }
             void OnWarn(const char* message) override
             {
+                message;
                 JOP_DEBUG_WARNING(message);
             }
             void OnError(const char* message) override
             {
+                message;
                 JOP_DEBUG_ERROR(message);
             }
         };
@@ -151,7 +155,7 @@ namespace jop
 
                 public:
 
-                    Stream(FileLoader& loader)
+                    explicit Stream(FileLoader& loader)
                         : m_loader(&loader)
                     {}
 

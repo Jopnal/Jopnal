@@ -35,14 +35,14 @@ namespace detail
 
     public:
 
-        MotionState(jop::Object& obj)
+        explicit MotionState(jop::Object& obj)
             : m_obj(obj)
         {}
 
         void getWorldTransform(btTransform& worldTrans) const override
         {
-            auto& p = m_obj->getPosition();
-            auto& r = m_obj->getRotation();
+            auto& p = m_obj->getGlobalPosition();
+            auto& r = m_obj->getGlobalRotation();
 
             worldTrans.setOrigin(btVector3(p.x, p.y, p.z));
             worldTrans.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
@@ -87,7 +87,7 @@ namespace jop
             const void* m_against;
             bool hit;
 
-            Callback(const void* against)
+            explicit Callback(const void* against)
                 : m_against (against),
                   hit       (false)
             {}
@@ -142,7 +142,7 @@ namespace jop
             const void* m_against;
             bool hit;
             
-            Callback(const void* against)
+            explicit Callback(const void* against)
                 : m_against (against),
                   hit       (false)
             {}

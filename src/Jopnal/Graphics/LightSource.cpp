@@ -38,87 +38,103 @@ namespace jop
 
 namespace jop
 {
-    /*JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    JOP_REGISTER_LOADABLE(jop, LightSource)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
     {
-    auto light = obj.createComponent<LightSource>("");
+        const char* const typeField = "type";
 
-    const char* const typeField = "type";
-    if (val.HasMember(typeField) && val[typeField].IsUint())
-    light->setType(static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())));
+        auto& light = obj.createComponent<LightSource>(
+            scene.getRenderer(),
+            val.HasMember(typeField) && val[typeField].IsUint() ? static_cast<LightSource::Type>(std::min(2u, val[typeField].GetUint())) : LightSource::Type::Point);
 
-    const char* const intensityField = "intensities";
-    if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
-    {
-    auto& intArr = val[intensityField];
+        const char* const idField = "id";
+        if (val.HasMember(idField) && val[idField].IsString())
+            light.setID(val[idField].GetString());
 
-    if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
-    {
-    light->setIntensity(Color(intArr[0u].GetUint()),
-    Color(intArr[1u].GetUint()),
-    Color(intArr[2u].GetUint()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource intensity for object with id \"" << obj.getID() << "\"");
-    }
+        const char* const intensityField = "intensities";
+        if (val.HasMember(intensityField) && val[intensityField].IsArray() && val[intensityField].Size() >= 3)
+        {
+            auto& intArr = val[intensityField];
 
-    const char* const attField = "attenuation";
-    if (val.HasMember(attField) && val[attField].IsArray() && val[attField].Size() >= 4)
-    {
-    auto& attArr = val[attField];
+            if (intArr[0u].IsUint() && intArr[1u].IsUint() && intArr[2u].IsUint())
+            {
+                light.setIntensity(Color(intArr[0u].GetUint()),
+                                   Color(intArr[1u].GetUint()),
+                                   Color(intArr[2u].GetUint()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource intensity for object \"" << obj.getID() << "\"");
+        }
 
-    if (attArr[0u].IsDouble() && attArr[1u].IsDouble() && attArr[2u].IsDouble() && attArr[3u].IsDouble())
-    {
-    light->setAttenuation(static_cast<float>(attArr[0u].GetDouble()),
-    static_cast<float>(attArr[1u].GetDouble()),
-    static_cast<float>(attArr[2u].GetDouble()),
-    static_cast<float>(attArr[3u].GetDouble()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource attenuation for object with id \"" << obj.getID() << "\"");
-    }
+        const char* const attField = "attenuation";
+        if (val.HasMember(attField) && val[attField].IsArray() && val[attField].Size() >= 3)
+        {
+            auto& attArr = val[attField];
 
-    const char* const coField = "cutoff";
-    if (val.HasMember(coField) && val[coField].IsArray() && val[coField].Size() >= 2)
-    {
-    auto& coArr = val[coField];
+            if (attArr[0u].IsDouble() && attArr[1u].IsDouble() && attArr[2u].IsDouble())
+            {
+                light.setAttenuation(static_cast<float>(attArr[0u].GetDouble()),
+                                     static_cast<float>(attArr[1u].GetDouble()),
+                                     static_cast<float>(attArr[2u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource attenuation for object \"" << obj.getID() << "\"");
+        }
 
-    if (coArr[0u].IsDouble() && coArr[1u].IsDouble())
-    {
-    light->setCutoff(static_cast<float>(coArr[0u].GetDouble()),
-    static_cast<float>(coArr[1u].GetDouble()));
-    }
-    else
-    JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource cutoff for object with id \"" << obj.getID() << "\"");
-    }
+        const char* const coField = "cutoff";
+        if (val.HasMember(coField) && val[coField].IsArray() && val[coField].Size() >= 2)
+        {
+            auto& coArr = val[coField];
 
-    return Drawable::loadStateBase(*light, scene, val);
+            if (coArr[0u].IsDouble() && coArr[1u].IsDouble())
+            {
+                light.setCutoff(static_cast<float>(coArr[0u].GetDouble()),
+                                static_cast<float>(coArr[1u].GetDouble()));
+            }
+            else
+                JOP_DEBUG_WARNING("Encountered unexpected values while loading LightSource cutoff for object \"" << obj.getID() << "\"");
+        }
+
+        const char* const maskField = "mask";
+        if (val.HasMember(maskField) && val[maskField].IsUint())
+            light.setRenderMask(val[maskField].GetUint());
+
+        const char* const shadowField = "castshadows";
+        if (val.HasMember(shadowField) && val[shadowField].IsBool())
+            light.setCastShadows(val[shadowField].GetBool());
+
+        return true;
     }
     JOP_END_LOADABLE_REGISTRATION(LightSource)
 
     JOP_REGISTER_SAVEABLE(jop, LightSource)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
     {
-    auto& light = static_cast<const LightSource&>(comp);
+        auto& light = static_cast<const LightSource&>(comp);
 
-    val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
+        val.AddMember(json::StringRef("type"), static_cast<unsigned int>(light.getType()), alloc);
 
-    val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"]
-    .PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
-    .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
-    .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+        val.AddMember(json::StringRef("id"), json::StringRef(light.getID().c_str()), alloc);
 
-    val.AddMember(json::StringRef("attenuation"), json::kArrayType, alloc)["attenuation"]
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Constant), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Linear), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Quadratic), alloc)
-    .PushBack(light.getAttenuation(LightSource::Attenuation::Range), alloc);
+        val.AddMember(json::StringRef("intensities"), json::kArrayType, alloc)["intensities"]
+           .PushBack(light.getIntensity(LightSource::Intensity::Ambient).asInteger(), alloc)
+           .PushBack(light.getIntensity(LightSource::Intensity::Diffuse).asInteger(), alloc)
+           .PushBack(light.getIntensity(LightSource::Intensity::Specular).asInteger(), alloc);
+        
+        val.AddMember(json::StringRef("attenuation"), json::kArrayType, alloc)["attenuation"]
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Constant), alloc)
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Linear), alloc)
+           .PushBack(light.getAttenuation(LightSource::Attenuation::Quadratic), alloc);
 
-    val.AddMember(json::StringRef("cutoff"), json::kArrayType, alloc)["cutoff"]
-    .PushBack(light.getCutoff().x, alloc)
-    .PushBack(light.getCutoff().y, alloc);
+        val.AddMember(json::StringRef("cutoff"), json::kArrayType, alloc)["cutoff"]
+           .PushBack(light.getCutoff().x, alloc)
+           .PushBack(light.getCutoff().y, alloc);
 
-    return Drawable::saveStateBase(light, val, alloc);
+        val.AddMember(json::StringRef("mask"), light.getRenderMask(), alloc);
+
+        val.AddMember(json::StringRef("castshadows"), light.castsShadows(), alloc);
+
+        return true;
     }
-    JOP_END_SAVEABLE_REGISTRATION(LightSource)*/
+    JOP_END_SAVEABLE_REGISTRATION(LightSource)
 }
 
 namespace jop
@@ -152,7 +168,7 @@ namespace jop
           m_renderMask          (other.m_renderMask),
           m_shadowMap           ()
     {
-        setCastShadows(other.castShadows());
+        setCastShadows(other.castsShadows());
         m_rendererRef.bind(*this);
     }
 
@@ -186,7 +202,7 @@ namespace jop
 
     LightSource& LightSource::setCastShadows(const bool castShadows)
     {
-        if (this->castShadows() != castShadows)
+        if (castsShadows() != castShadows)
         {
             if (castShadows)
             {
@@ -211,7 +227,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool LightSource::castShadows() const
+    bool LightSource::castsShadows() const
     {
         return m_shadowMap.isValid();
     }
@@ -220,7 +236,7 @@ namespace jop
 
     const glm::mat4& LightSource::getLightspaceMatrix(const DepthFace face) const
     {
-        if (!castShadows())
+        if (!castsShadows())
         {
             static const glm::mat4 dummy;
             return dummy;
@@ -233,7 +249,7 @@ namespace jop
 
     bool LightSource::drawShadowMap(const std::set<const Drawable*>& drawables) const
     {
-        if (!castShadows())
+        if (!castsShadows())
             return false;
 
         static WeakReference<Shader> dirSpotShader, pointShader;
@@ -271,38 +287,39 @@ namespace jop
 
         static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
 
-        // Use the object's scale to construct the frustum
-        auto scl = getObject()->getScale();
-
-        // We need scale at 1 to avoid messing up the view transform
-        Transform trans = *getObject();
-        trans.setScale(1.f);
-
-        switch (m_type)
+        if (getType() == Type::Point)
         {
-            case Type::Point:
+            auto pos = getObject()->getGlobalPosition();
+
+            const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
+
+            makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
+
+            shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+            shdr.setUniform("u_FarClippingPlane", range);
+            shdr.setUniform("u_LightPosition", pos);
+        }
+        else
+        {
+            // Use the object's scale to construct the frustum
+            auto scl = getObject()->getLocalScale();
+
+            // We need scale at 1 to avoid messing up the view transform
+            glm::mat4 trans(getObject()->getInverseTransform().getMatrix());
+            trans[0] = glm::normalize(trans[0]);
+            trans[1] = glm::normalize(trans[1]);
+            trans[2] = glm::normalize(trans[2]);
+
+            if (getType() == Type::Directional)
             {
-                auto pos = getObject()->getGlobalPosition();
-
-                const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
-
-                makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
-
-                shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-                shdr.setUniform("u_FarClippingPlane", range);
-                shdr.setUniform("u_LightPosition", pos);
-                break;
-            }
-            case Type::Directional:
-            {
-                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans;
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
-                break;
             }
-            case Type::Spot:
+            else
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans.getInverseMatrix();
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans;
+
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
         }
@@ -319,8 +336,8 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, (void*)Vertex::Position);
-            shdr.setUniform("u_MMatrix", d->getObject()->getMatrix());
+            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
+            shdr.setUniform("u_MMatrix", d->getObject()->getTransform().getMatrix());
 
             if (mesh.getElementAmount())
             {
@@ -415,6 +432,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    float LightSource::getRange() const
+    {
+        const float max = static_cast<float>(std::max(
+        {
+            m_intensities[0].r, m_intensities[0].g, m_intensities[0].b,
+            m_intensities[1].r, m_intensities[1].g, m_intensities[1].b,
+            m_intensities[2].r, m_intensities[2].g, m_intensities[2].b
+        })) / 255.f;
+
+        const auto& att = m_attenuation;
+
+        return (att.y + std::sqrtf(att.y * att.y - 4 * att.z * (att.x - (255.f / 5.f) * max))) / (2 * att.z);
+    }
+
+    //////////////////////////////////////////////
+
     bool LightSource::checkRange(const Drawable& drawable) const
     {
         if (m_type == Type::Directional)
@@ -469,6 +502,7 @@ namespace jop
         viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
     }
 
+
     //////////////////////////////////////////////
 
 
@@ -514,7 +548,7 @@ namespace jop
 
         shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
 
-        static const unsigned int pointShadowStartUnit = SettingManager::getUint("uFirstShadowmapUnit", static_cast<unsigned int>(Material::Map::Last));
+        static const unsigned int pointShadowStartUnit = static_cast<unsigned int>(Material::Map::Last);
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
         static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LightSource::getMaximumLights(LightSource::Type::Point);
@@ -547,11 +581,11 @@ namespace jop
                 // Shadow map
                 if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "castShadow", li.castShadows());
+                    shader.setUniform(indexed + "castShadow", li.castsShadows());
 
                     static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
                     
-                    if (li.castShadows())
+                    if (li.castsShadows())
                     {
                         shader.setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentPointShadowUnit++);
                         shader.setUniform(indexed + "farPlane", range);
@@ -581,9 +615,9 @@ namespace jop
                 // Shadow map
                 if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "castShadow", li.castShadows());
+                    shader.setUniform(indexed + "castShadow", li.castsShadows());
 
-                    if (li.castShadows())
+                    if (li.castsShadows())
                     {
                         shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
                         shader.setUniform("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentDirShadowUnit++);
@@ -622,9 +656,9 @@ namespace jop
                 // Shadow map
                 if (drawable.receiveShadows())
                 {
-                    shader.setUniform(indexed + "castShadow", li.castShadows());
+                    shader.setUniform(indexed + "castShadow", li.castsShadows());
 
-                    if (li.castShadows())
+                    if (li.castsShadows())
                     {
                         shader.setUniform(indexed + "lsMatrix", li.getLightspaceMatrix());
                         shader.setUniform("u_SpotLightShadowMaps[" + std::to_string(i) + "]", *li.getShadowMap(), currentSpotShadowUnit++);

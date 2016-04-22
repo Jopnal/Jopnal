@@ -72,7 +72,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to error resource");
+            JOP_DEBUG_WARNING("Couldn't load resource \"" << name << "\" (" << typeid(T).name() << "), resorting to error resource");
             name; // Remove warning in release mode
             return T::getError();
         }
@@ -82,7 +82,7 @@ namespace detail
     {
         static T& load(const std::string& name)
         {
-            JOP_DEBUG_WARNING("Couldn't load resource named \"" << name << "\" (type: \"" << typeid(T).name() << "\"), resorting to default resource");
+            JOP_DEBUG_WARNING("Couldn't load resource \"" << name << "\" (" << typeid(T).name() << "), resorting to default resource");
             name; // Remove warning in release mode
             return T::getDefault();
         }
@@ -131,6 +131,10 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 
     else
     {
+    #if JOP_CONSOLE_VERBOSITY >= 2
+        Clock clk;
+    #endif
+
         auto res = std::make_unique<T>(name);
 
         if (res->load(std::forward<Args>(args)...))
@@ -138,7 +142,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") successfully loaded");
+            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
 
             return ptr;
         }
@@ -201,6 +205,10 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
     if (resourceExists<T>(name))
     {
+    #if JOP_CONSOLE_VERBOSITY >= 2
+        Clock clk;
+    #endif
+
         auto& oldRes = getExistingResource<T>(name);
 
         auto res = std::make_unique<T>(oldRes, newName);
@@ -208,12 +216,12 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
         m_instance->m_resources[newName] = std::move(res);
 
-        JOP_DEBUG_INFO("\"" << name << "\" (type: \"" << typeid(T).name() << "\") successfully copied");
+        JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
 
         return ptr;
     }
 
-    JOP_DEBUG_WARNING("Couldn't copy resource named \"" << name << "\", not found or unmatched type");
+    JOP_DEBUG_WARNING("Couldn't copy resource \"" << name << "\", not found or unmatched type");
 
     return detail::LoadFallback<T>::load(name);
 }

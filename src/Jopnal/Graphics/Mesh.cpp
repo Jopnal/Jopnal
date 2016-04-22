@@ -77,6 +77,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void* Mesh::getVertexOffset(const VertexComponent component) const
+    {
+        using VC = VertexComponent;
+
+        static const unsigned int sizes[] =
+        {
+            sizeof(glm::vec3),
+            sizeof(glm::vec2),
+            sizeof(glm::vec3),
+            sizeof(glm::vec3) * 2,
+            sizeof(Color)
+        };
+
+    #ifdef _MSC_VER
+        DWORD index;
+        _BitScanForward(&index, component);
+    #endif
+
+        return reinterpret_cast<void*>
+        ((
+            ((m_vertexComponents & VC::Position)   != 0 && Position  <= component) * sizeof(glm::vec3)     +    // Position
+            ((m_vertexComponents & VC::TexCoords)  != 0 && TexCoords <= component) * sizeof(glm::vec2)     +    // Texture coordinates
+            ((m_vertexComponents & VC::Normal)     != 0 && Normal    <= component) * sizeof(glm::vec3)     +    // Normal
+            ((m_vertexComponents & VC::Tangents)   != 0 && Tangents  <= component) * sizeof(glm::vec3) * 2 +    // Tangents
+            ((m_vertexComponents & VC::Color)      != 0)                           * sizeof(Color)              // Color
+
+          // Subtract the last component offset
+        ) - sizes[index]);
+    }
+
+    //////////////////////////////////////////////
+
     bool Mesh::hasVertexComponent(const uint32 component) const
     {
         return (m_vertexComponents & component) != 0;
@@ -134,7 +166,7 @@ namespace jop
 
             + ((VertexComponent::TexCoords & components) != 0) *  sizeof(glm::vec2)
             + ((VertexComponent::Normal & components)    != 0) *  sizeof(glm::vec3)
-            + ((VertexComponent::Tangent & components)   != 0) * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
+            + ((VertexComponent::Tangents & components)  != 0) * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
             + ((VertexComponent::Color & components)     != 0) *  sizeof(Color)
             ;
     }
@@ -144,10 +176,8 @@ namespace jop
     uint16 Mesh::getElementSize(const uint32 amount)
     {
         return 4
-
           - (amount <= USHRT_MAX) * 2
-          - (amount <= UCHAR_MAX)
-            ;
+          - (amount <= UCHAR_MAX);
     }
 
     //////////////////////////////////////////////

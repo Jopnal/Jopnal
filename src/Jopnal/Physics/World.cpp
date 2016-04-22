@@ -54,7 +54,11 @@ namespace detail
     public:
 
         DebugDrawer()
-            : m_buffer(jop::Buffer::Type::ArrayBuffer, jop::Buffer::DynamicDraw)
+            : m_buffer  (jop::Buffer::Type::ArrayBuffer, jop::Buffer::DynamicDraw),
+              m_lines   (),
+              m_points  (),
+              m_mode    (0),
+              m_cam     (nullptr)
         {}
 
         void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
@@ -74,9 +78,9 @@ namespace detail
 
         void reportErrorWarning(const char* warningString) override
         {
-        #ifndef JOP_DEBUG_MODE
+#ifndef JOP_DEBUG_MODE
             warningString;
-        #endif
+#endif
             JOP_DEBUG_WARNING(warningString);
         }
 
@@ -145,9 +149,12 @@ namespace detail
             GlState::setDepthTest(true);
         }
     };
+}
 
 #endif
 
+namespace detail
+{
     struct GhostCallback : btGhostPairCallback
     {
         btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
@@ -157,9 +164,7 @@ namespace detail
 
             if (p0 && p1)
             {
-            #ifdef JOP_DEBUG_MODE
-                JOP_DEBUG_INFO("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
-            #endif
+                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
 
                 p0->beginOverlap(*p1);
                 p1->beginOverlap(*p0);
@@ -175,9 +180,7 @@ namespace detail
 
             if (p0 && p1)
             {
-            #ifdef JOP_DEBUG_MODE
-                JOP_DEBUG_INFO("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
-            #endif
+                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
 
                 p0->endOverlap(*p1);
                 p1->endOverlap(*p0);
