@@ -29,7 +29,8 @@
 //////////////////////////////////////////////
 
 
-class btTriangleMesh;
+struct btIndexedMesh;
+class btStridingMeshInterface;
 
 namespace jop
 {
@@ -37,27 +38,65 @@ namespace jop
     {
     public:
 
+        /// Terrain ray cast info
+        ///
         struct RayInfo
         {
-            unsigned int triangleIndex;
-            glm::vec3 triangle;
+            /// Constructor
+            ///
+            RayInfo();
+
+            unsigned int triangleIndex; ///< Triangle index
+            glm::vec3 triangle;         ///< Triangle points
+            bool hit;                   ///< Was any triangle hit?
         };
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
         TerrainShape(const std::string& name);
 
+        /// \brief Destructor
+        ///
         ~TerrainShape() override;
 
 
+        /// \brief Load this shape
+        ///
+        /// \param points Terrain points, must be triangles
+        ///
+        /// \return True if successful
+        ///
         bool load(const std::vector<glm::vec3>& points);
 
-        RayInfo checkRay(const glm::vec3& start, const glm::vec3& ray) const;
+        /// \brief Load this shape
+        ///
+        /// \param points Terrain points
+        /// \param indices 
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices);
 
+        /// \brief Perform a ray cast on this terrain shape
+        ///
+        /// \param start Start ray position
+        /// \param ray Ray to cast from start
+        ///
+        /// \return Ray cast info
+        ///
+        RayInfo checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
     private:
 
-        std::unique_ptr<btTriangleMesh> m_mesh;
+        std::unique_ptr<btStridingMeshInterface> m_mesh;    ///< Mesh interface
+
+        std::unique_ptr<btIndexedMesh> m_indMesh;           ///< Indexed mesh descriptor
+        std::vector<glm::vec3> m_indMeshPoints;             ///< Indexed mesh vertices
+        std::vector<unsigned int> m_indMeshIndices;         ///< Indexed mesh indices
     };
 }
 

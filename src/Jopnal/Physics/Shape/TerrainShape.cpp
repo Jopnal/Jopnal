@@ -27,6 +27,14 @@
 
 namespace jop
 {
+    TerrainShape::RayInfo::RayInfo()
+        : triangleIndex (0),
+          triangle      (0.f),
+          hit           (false)
+    {}
+
+    //////////////////////////////////////////////
+
     TerrainShape::TerrainShape(const std::string& name)
         : CollisionShape(name)
     {}
@@ -41,8 +49,8 @@ namespace jop
         if (points.empty())
             return false;
 
-        m_mesh = std::make_unique<btTriangleMesh>(true, false);
-        m_mesh->preallocateVertices(points.size());
+        auto& mesh = static_cast<btTriangleMesh&>(*(m_mesh = std::make_unique<btTriangleMesh>(true, false)));
+        mesh.preallocateVertices(points.size());
         
         for (auto itr = points.begin(); itr != points.end(); itr += 3)
         {
@@ -50,7 +58,7 @@ namespace jop
             auto nd = itr + 1;
             auto rd = itr + 2;
             
-            m_mesh->addTriangle(btVector3(st->x, st->y, st->z), btVector3(nd->x, nd->y, nd->z), btVector3(rd->x, rd->y, rd->z));
+            mesh.addTriangle(btVector3(st->x, st->y, st->z), btVector3(nd->x, nd->y, nd->z), btVector3(rd->x, rd->y, rd->z));
         }
 
         m_shape = std::make_unique<btBvhTriangleMeshShape>(m_mesh.get(), true);
@@ -61,13 +69,39 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool TerrainShape::load(const std::vector<glm::vec3>& points, const std::vector<unsigned int>& indices)
+    {
+        if (points.empty() || indices.empty())
+            return false;
+
+        m_indMeshPoints = points;
+        m_indMeshIndices = indices;
+
+        auto& mesh = static_cast<btTriangleIndexVertexArray&>(*(m_mesh = std::make_unique<btTriangleIndexVertexArray>()));
+        mesh.preallocateIndices(indices.size());
+
+        m_indMesh = std::make_unique<btIndexedMesh>();
+        m_indMesh->m_numVertices = points.size();
+        m_indMesh->m_numTriangles = indices.size() / 3;
+        m_indMesh->m_triangleIndexBase = reinterpret_cast<const unsigned char*>(m_indMeshIndices.data());
+        m_indMesh->m_triangleIndexStride = sizeof(unsigned int) * 3;
+        m_indMesh->m_vertexBase = reinterpret_cast<const unsigned char*>(m_indMeshPoints.data());
+        m_indMesh->m_vertexStride = sizeof(glm::vec3);
+
+        mesh.addIndexedMesh(*m_indMesh);
+        
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
     TerrainShape::RayInfo TerrainShape::checkRay(const glm::vec3& start, const glm::vec3& ray) const
     {
         struct Callback : btTriangleCallback
         {
             TerrainShape::RayInfo info;
 
-            void processTriangle(btVector3* triangle, int /*partId*/, int triangleIndex) override
+            void processTriangle(btVector3* triangle, int, int triangleIndex) override
             {
                 info.triangle.x = triangle->x();
                 info.triangle.y = triangle->y();
