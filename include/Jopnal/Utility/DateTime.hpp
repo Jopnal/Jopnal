@@ -19,20 +19,57 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_DATETIME_HPP
+#define JOP_DATETIME_HPP
+
 // Headers
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/DateTime.hpp>
-#include <Jopnal/Utility/DirectoryWatcher.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
-#include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API DateTime
+    {
+    public:
+
+        struct Date
+        {
+            uint16 year;
+            uint8 month;
+            uint8 day;
+        };
+
+        struct Time
+        {
+            uint8 hour;
+            uint8 minute;
+            uint8 second;
+        };
+
+    public:
+
+        DateTime();
+
+
+        DateTime& update(const bool date = true, const bool time = true);
+
+        const Date& getDate() const;
+
+        const Time& getTime() const;
+
+
+        bool operator ==(const DateTime& right) const;
+        
+        bool operator !=(const DateTime& right) const;
+
+    private:
+
+        Date m_date;
+        Time m_time;
+    };
+}
+
+#endif

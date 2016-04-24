@@ -144,7 +144,7 @@ namespace jop
         // Ambient constant
         if ((attrib & m::AmbientConstant) != 0)
         {
-            static const auto colors = Color(SettingManager::getString("uAmbientConstant", "010101FF")).asRGBFloatVector();
+            static const auto colors = Color(SettingManager::get<std::string>("engine/Graphics|Shading|uAmbientConstant", "010101FF")).asRGBFloatVector();
             static const std::string ambConst = "#define JMAT_AMBIENT vec3("
                                               + std::to_string(colors.r) + ","
                                               + std::to_string(colors.g) + ","

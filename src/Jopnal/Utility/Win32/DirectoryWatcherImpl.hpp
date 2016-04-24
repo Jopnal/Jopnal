@@ -19,20 +19,53 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_DIRECTORYWATCHERIMPL_HPP
+#define JOP_DIRECTORYWATCHERIMPL_HPP
+
 // Headers
-#include <Jopnal/Utility/Any.hpp>
-#include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Utility/Clock.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/Utility/DateTime.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/DirectoryWatcher.hpp>
-#include <Jopnal/Utility/Json.hpp>
-#include <Jopnal/Utility/Randomizer.hpp>
-#include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Thread.hpp>
+#include <atomic>
 
-//////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription
+
+namespace jop { namespace detail
+{
+    class DirectoryWatcherImpl
+    {
+    private:
+    
+        JOP_DISALLOW_COPY_MOVE(DirectoryWatcherImpl);
+    
+    public:
+    
+        DirectoryWatcherImpl(const std::string& directory, DirectoryWatcher::EventCallback callback);
+    
+        ~DirectoryWatcherImpl();
+    
+    
+        void setActive(const bool active);
+    
+        bool isActive() const;
+    
+        bool hasError() const;
+    
+    private:
+    
+        void watch();
+    
+    
+        void* m_fileHandle;
+        Thread m_thread;
+        std::string m_directory;
+        DirectoryWatcher::Info m_lastEvent;
+        DirectoryWatcher::EventCallback m_callback;
+        std::atomic<bool> m_active;
+        std::atomic<bool> m_shouldClose;
+        std::atomic<bool> m_error;
+    };
+}}
+
+#endif

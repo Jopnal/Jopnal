@@ -399,6 +399,15 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\TerrainShape.hpp">
       <Filter>Physics\Headers\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\DateTime.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Utility\DirectoryWatcher.hpp">
+      <Filter>Utility\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp">
+      <Filter>Utility\Source\Win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -641,7 +650,18 @@
     <ClCompile Include="..\src\Jopnal\Graphics\ShaderAssembler.cpp">
       <Filter>Graphics\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.cpp">
+      <Filter>Utility\Source\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\DateTime.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Utility\DirectoryWatcher.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -685,6 +705,9 @@
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\Thread.inl">
       <Filter>Utility\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\SettingManager.inl">
+      <Filter>Core\Inl</Filter>
     </None>
   </ItemGroup>
 </Project>

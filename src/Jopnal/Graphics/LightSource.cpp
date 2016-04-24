@@ -206,7 +206,7 @@ namespace jop
         {
             if (castShadows)
             {
-                static const unsigned int mapSize = SettingManager::getUint("uShadowMapResolution", 512);
+                static const unsigned int mapSize = SettingManager::get<unsigned int>("engine/Graphics|Shading|uShadowMapResolution", 512);
                 
                 using ca = RenderTexture::ColorAttachment;
 
@@ -285,7 +285,7 @@ namespace jop
 
         m_shadowMap.clear(RenderTarget::DepthBit);
 
-        static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
+        static const float range = SettingManager::get<float>("engine/Graphics|Shading|fShadowMapFarPlane", 100.f);
 
         if (getType() == Type::Point)
         {
@@ -456,7 +456,7 @@ namespace jop
         const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
         const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-        static const float bias = SettingManager::getFloat("fLightCullBias", 0.02f);
+        static const float bias = SettingManager::get<float>("engine/Graphics|Shading|fLightCullBias", 0.02f);
 
         return att > bias;
     }
@@ -482,9 +482,9 @@ namespace jop
     {
         static const unsigned int maxLights[] =
         {
-            SettingManager::getUint("uMaxPointLights", 8),
-            SettingManager::getUint("uMaxDirectionalLights", 2),
-            SettingManager::getUint("uMaxSpotLights", 2)
+            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxPointLights", 8),
+            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxDirectionalLights", 2),
+            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxSpotLights", 2)
         };
 
         return maxLights[static_cast<int>(type)];
@@ -583,7 +583,7 @@ namespace jop
                 {
                     shader.setUniform(indexed + "castShadow", li.castsShadows());
 
-                    static const float range = SettingManager::getFloat("fShadowMapFarPlane", 100.f);
+                    static const float range = SettingManager::get<float>("engine/Graphics|Shading|fShadowMapFarPlane", 100.f);
                     
                     if (li.castsShadows())
                     {

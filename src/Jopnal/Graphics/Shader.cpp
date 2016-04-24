@@ -508,7 +508,7 @@ namespace jop
 
     int Shader::getUniformLocation(const std::string& name)
     {
-        static const bool printErr = SettingManager::getBool("bPrintShaderLocationErrors", true);
+        static const bool printErr = SettingManager::get<bool>("engine/Debug|bPrintShaderUniformLocationErrors", true);
 
         if (bind())
         {

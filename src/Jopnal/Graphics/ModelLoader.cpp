@@ -294,7 +294,7 @@ namespace jop
 
                             if (!hadShininess)
                             {
-                                static const float mult = SettingManager::getFloat("fDefaultGlossMapMultiplier", 255.f);
+                                static const float mult = SettingManager::get<float>("engine/Graphics|Shading|fGlossMapMultiplier", 255.f);
                                 m.setShininess(mult);
                             }
                         }

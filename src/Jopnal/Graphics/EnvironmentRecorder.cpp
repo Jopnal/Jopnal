@@ -70,7 +70,7 @@ namespace jop
           m_mask        (1),
           m_rendererRef (renderer)
     {
-        static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 128);
+        static const int mapResolution = SettingManager::get<unsigned int>("engine/Graphics|Shading|uEnvironmentMapSize", 128);
 
         using ca = RenderTexture::ColorAttachment;
         using da = RenderTexture::DepthAttachment;
@@ -99,7 +99,7 @@ namespace jop
 
     void EnvironmentRecorder::record()
     {
-        static const float farPlane = SettingManager::getFloat("fEnvironmentMapFarPlane", 1000.f);
+        static const float farPlane = SettingManager::get<float>("engine/Graphics|Shading|fEnvironmentMapFarPlane", 1000.f);
         static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
 
         LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);

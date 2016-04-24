@@ -97,7 +97,7 @@ namespace jop
 
     #ifdef JOP_DEBUG_MODE
 
-        static const bool validate = SettingManager::getBool("bValidateShaders", false);
+        static const bool validate = SettingManager::get<bool>("engine/Debug|bValidateShaders", false);
 
         if (validate && !s.validate())
             return;

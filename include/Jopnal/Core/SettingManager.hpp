@@ -24,19 +24,75 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Utility/Json.hpp>
+#include <Jopnal/Utility/DirectoryWatcher.hpp>
+#include <unordered_map>
 #include <string>
+#include <mutex>
+#include <atomic>
+#include <tuple>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API SettingManager : public Subsystem
+    namespace detail
     {
+        template<typename T>
+        T getSetting(const std::string&, const T&);
+
+        template<typename T>
+        void setSetting(const std::string&, const T&);
+
+        json::Document& findRoot(const std::string&);
+    }
+
+    class JOP_API SettingManager final : public Subsystem
+    {
+    public:
+
+        class ChangeCallbackBase
+        {
+            friend class SettingManager;
+
+            std::string m_path;
+
+
+            virtual ~ChangeCallbackBase() = 0;
+
+            virtual void valueChangedBase(const json::Value& val) = 0;
+        };
+
+        template<typename T>
+        class ChangeCallback : ChangeCallbackBase
+        {
+            void valueChangedBase(const json::Value& val) final override;
+
+        protected:
+
+            virtual void valueChanged(const T& value) = 0;
+        };
+
     private:
 
         friend class Engine;
+        friend class ChangeCallbackBase;
+
+        template<typename T>
+        friend T detail::getSetting(const std::string&, const T&);
+
+        template<typename T>
+        friend void detail::setSetting(const std::string&, const T&);
+
+        friend json::Document& detail::findRoot(const std::string&);
+
+
+        template<typename T = void>
+        static T get(const std::string& path, const T& defaultValue);
+
+        template<typename T = void>
+        static void set(const std::string& path, const T& value);
 
     public:
 
@@ -52,116 +108,85 @@ namespace jop
         ///
         ~SettingManager() override;
 
-
-        /// \brief Get an integer setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The integer setting
-        ///
-        static int getInt(const std::string& name, const int defaultValue);
-
-        /// \brief Get an unsigned integer setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The unsigned integer setting
-        ///
-        static unsigned int getUint(const std::string& name, const unsigned int defaultValue);
-
-        /// \brief Get a float setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The float setting
-        ///
-        static float getFloat(const std::string& name, const float defaultValue);
-
-        /// \brief Get a double setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The double setting
-        ///
-        static double getDouble(const std::string& name, const double defaultValue);
-
-        /// \brief Get a boolean setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The boolean setting
-        ///
-        static bool getBool(const std::string& name, const bool defaultValue);
-
-        /// \brief Get a string setting
-        ///
-        /// \param name Name of the setting
-        /// \param defaultValue The default value
-        ///
-        /// \return The string setting
-        ///
-        static std::string getString(const std::string& name, const std::string& defaultValue);
+        void preUpdate(const float deltaTime) override;
 
 
-        /// \brief Set an integer setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setInt(const std::string& name, const int value);
+        template<typename T>
+        static bool settingExists(const std::string& path);
 
-        /// \brief Set an unsigned integer setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setUint(const std::string& name, const unsigned int value);
 
-        /// \brief Set a float setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setFloat(const std::string& name, const float value);
+        template<>
+        static bool get<bool>(const std::string& path, const bool& defaultValue);
 
-        /// \brief Set a double setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setDouble(const std::string& name, const double value);
+        template<>
+        static int get<int>(const std::string& path, const int& defaultValue);
 
-        /// \brief Set a bool setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setBool(const std::string& name, const bool value);
+        template<>
+        static unsigned int get<unsigned int>(const std::string& path, const unsigned int& defaultValue);
 
-        /// \brief Set a string setting
-        ///
-        /// \param name Name of the setting
-        /// \param value The new value
-        ///
-        static void setString(const std::string& name, const std::string& value);
+        template<>
+        static float get<float>(const std::string& path, const float& defaultValue);
+
+        template<>
+        static double get<double>(const std::string& path, const double& defaultValue);
+
+        template<>
+        static std::string get<std::string>(const std::string& path, const std::string& defaultValue);
+
+
+        template<>
+        static void set<bool>(const std::string& path, const bool& value);
+
+        template<>
+        static void set<int>(const std::string& path, const int& value);
+
+        template<>
+        static void set<unsigned int>(const std::string& path, const unsigned int& value);
+
+        template<>
+        static void set<float>(const std::string& path, const float& value);
+
+        template<>
+        static void set<double>(const std::string& path, const double& value);
+
+        template<>
+        static void set<std::string>(const std::string& path, const std::string& value);
+
+
+        template<typename T>
+        static unsigned int registerCallback(const std::string& path, ChangeCallback<T>& callback);
 
 
         /// \brief Reload the settings from file
         ///
-        /// All individual settings need to be refreshed manually for changes to
-        /// take effect.
+        /// Avoid calling this function. It will replace all current settings with those found
+        /// in the files, discarding all unsaved changes. It will also invoke all registered change
+        /// callbacks, even when the value hadn't changed.
+        ///
+        /// \see set()
         ///
         static void reload();
 
         /// \brief Save the settings to file
         ///
         static void save();
+
+    private:
+
+        static void unregisterCallback(ChangeCallbackBase& callback);
+
+        static SettingManager* m_instance;
+
+        std::unordered_map<std::string, std::pair<json::Document, bool>> m_settings;
+        std::recursive_mutex m_mutex;
+        DirectoryWatcher m_watcher;
+        std::atomic<bool> m_filesUpdated;
+        std::string m_defaultRoot;
+        std::unordered_multimap<std::string, ChangeCallbackBase*> m_updaters;
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Core/Inl/SettingManager.inl>
 }
 
 #endif

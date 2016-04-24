@@ -104,6 +104,8 @@
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Clock.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\CommandHandler.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\DateTime.hpp" />
+    <ClInclude Include="..\include\Jopnal\Utility\DirectoryWatcher.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Json.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
@@ -119,6 +121,7 @@
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
     <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
+    <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\ThreadImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
@@ -207,11 +210,14 @@
     <ClCompile Include="..\src\Jopnal\Utility\Assert.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Clock.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\CommandHandler.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\DateTime.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\DirectoryWatcher.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Json.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Message.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Randomizer.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Thread.cpp" />
+    <ClCompile Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Win32\ThreadImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
@@ -225,6 +231,7 @@
     <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
     <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\SettingManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\StateLoader.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\CommandParser.inl" />

@@ -63,14 +63,14 @@ namespace jop
     {
         if (loadSettings)
         {
-            size.x = SettingManager::getUint("uDefaultWindowSizeX", 1280); size.y = SettingManager::getUint("uDefaultWindowSizeY", 720);
-            title = SettingManager::getString("sDefaultWindowTitle", getProjectName());
-            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::getUint("uDefaultWindowMode", 0)));
-            samples = SettingManager::getUint("uDefaultWindowMultisampling", 0);
-            maxFrameRate = SettingManager::getUint("uDefaultWindowFrameLimit", 0);
-            visible = SettingManager::getBool("uDefaultWindowVisible", true);
-            vSync = SettingManager::getBool("bDefaultWindowVSync", true);
-            debug = SettingManager::getBool("bDefaultWindowDebugContext", false);
+            size.x = SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeX", 1280); size.y = SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeY", 720);
+            title = SettingManager::get<std::string>("engine/DefaultWindow|sTitle", getProjectName());
+            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::get<unsigned int>("engine/DefaultWindow|uMode", 0)));
+            samples = SettingManager::get<unsigned int>("engine/DefaultWindow|uMultisampling", 0);
+            maxFrameRate = SettingManager::get<unsigned int>("engine/DefaultWindow|uFrameLimit", 0);
+            visible = SettingManager::get<bool>("engine/DefaultWindow|bVisible", true);
+            vSync = SettingManager::get<bool>("engine/DefaultWindow|bVerticalSync", true);
+            debug = SettingManager::get<bool>("engine/DefaultWindow|bDebugContext", false);
         }
     }
 
@@ -149,7 +149,7 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::getUint("uMaxControllers", 1) > 0;
+            static const bool controllers = SettingManager::get<unsigned int>("engine/Input|Controller|uMaxControllers", 1) > 0;
 
             pollEvents();
 
@@ -182,7 +182,7 @@ namespace jop
         auto s = getSize();
         gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::getString("sDefaultWindowClearColor", "121212FF"));
+        static const Color defColor(SettingManager::get<std::string>("engine/DefaultWindow|sClearColor", "121212FF"));
         setClearColor(defColor);
     }
 

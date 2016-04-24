@@ -149,18 +149,18 @@ namespace jop
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
-        const float y = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
+        const float x = static_cast<float>(SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeX", 1280));
+        const float y = static_cast<float>(SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeY", 720));
 
         if (mode == Projection::Orthographic)
         {
-            setClippingPlanes(SettingManager::getFloat("fOrthoCameraClipNear", -1.f), SettingManager::getFloat("fOrthoCameraClipFar", 1.f));
+            setClippingPlanes(SettingManager::get<float>("engine/Graphics|fOrthoCameraClipNear", -1.f), SettingManager::get<float>("engine/Graphics|fOrthoCameraClipFar", 1.f));
             setSize(x, y);
         }
         else
         {
-            setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
-            setFieldOfView(SettingManager::getFloat("fPerspCameraFovYRad", glm::radians(55.f)));
+            setClippingPlanes(SettingManager::get<float>("engine/Graphics|fPerspCameraClipNear", 1.f), SettingManager::get<float>("engine/Graphics|fPerspCameraClipFar", 9999999.f));
+            setFieldOfView(SettingManager::get<float>("engine/Graphics|fPerspCameraFovYRad", glm::radians(55.f)));
             setSize(x, y);
         }
 
