@@ -35,11 +35,6 @@
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc);
-}
-
 namespace jop
 {
     namespace detail
@@ -73,40 +68,31 @@ namespace jop
         unsigned int fetchVariable<unsigned int>(const json::Value& val);
         template<>
         std::string fetchVariable<std::string>(const json::Value& val);
-
-        template<typename T>
-        T getSetting(const std::string&, const T&);
-
-        template<typename T>
-        void setSetting(const std::string&, const T&);
-
-        json::Document& findRoot(const std::string&);
     }
 
     class JOP_API SettingManager final : public Subsystem
     {
     public:
 
+        /// Base-base class for a setting change callback
+        ///
+        /// This is for internal use only
+        ///
         class ChangeCallbackBase
         {
             friend class SettingManager;
-
-            template<typename T>
-            friend void detail::setSetting(const std::string&, const T&);
-
-            friend void ::detail::checkChanges(json::Value&, json::Value&, const std::string&, json::Value::AllocatorType&);
-
             std::string m_path;
 
         public:
 
             virtual ~ChangeCallbackBase() = 0;
-
-        private:
-
             virtual void valueChangedBase(const json::Value& val) = 0;
         };
 
+        /// \brief Base class For a setting change callback
+        ///
+        /// Inherit from this class to create a setting change callback.
+        ///
         template<typename T>
         class ChangeCallback : public ChangeCallbackBase
         {
@@ -114,24 +100,17 @@ namespace jop
 
         protected:
 
+            /// \brief The setting change callback function
+            ///
+            /// \param value The new setting value
+            /// 
             virtual void valueChanged(const T& value) = 0;
         };
 
+        typedef std::unordered_multimap<std::string, ChangeCallbackBase*> UpdaterMap;
+        typedef std::unordered_map<std::string, std::pair<json::Document, bool>> SettingMap;
+
     private:
-
-        friend class Engine;
-        friend class ChangeCallbackBase;
-
-        template<typename T>
-        friend T detail::getSetting(const std::string&, const T&);
-
-        template<typename T>
-        friend void detail::setSetting(const std::string&, const T&);
-
-        friend json::Document& detail::findRoot(const std::string&);
-
-        friend void ::detail::checkChanges(json::Value&, json::Value&, const std::string&, json::Value::AllocatorType&);
-
 
         template<typename T = void>
         static T get(const std::string& path, const T& defaultValue);
@@ -153,51 +132,143 @@ namespace jop
         ///
         ~SettingManager() override;
 
+        /// \brief Update function
+        ///
+        /// Whenever any setting changes occur via file modification, the change
+        /// callbacks will be called by this function in a synchronized manner.
+        ///
+        /// This never does anything if automatic setting updates have been
+        /// turned off.
+        ///
+        /// \param deltaTime The delta time, not used
+        ///
         void preUpdate(const float deltaTime) override;
 
 
-        template<typename T>
+        /// \brief Check if a certain setting exists
+        ///
+        /// \param path The setting path
+        ///
+        /// \return True if the setting exists
+        ///
         static bool settingExists(const std::string& path);
 
 
+        /// \brief Get a setting value
+        ///
+        /// The entry will be created if it doesn't exist.
+        ///
+        /// Example of a correctly formatted setting path:
+        /// "engine/Path|To|Setting|actualSetting"
+        ///
+        /// The first section "engine", specifies the setting file. The .json extension will be added
+        /// automatically. You must only use a <b>forward</b> slash here. You may leave the file part
+        /// out, in which case the default file will be used ("root.json" by default).
+        ///
+        /// After the file specification, comes the actual setting path. Nodes are separated with
+        /// "|" after which comes the actual setting name. This example would produce the following
+        /// setting file:
+        ///
+        /// \code
+        /// {
+        ///     "Path": {
+        ///         "To": {
+        ///             "Setting": {
+        ///                 "actualSetting": value
+        ///             }
+        ///         }
+        ///     }
+        /// }
+        /// \endcode
+        ///
+        /// \param path The setting path
+        /// \param defaultValue The default value, this will be used if the entry doesn't exist
+        ///
+        /// \return The setting value
+        ///
         template<>
         static bool get<bool>(const std::string& path, const bool& defaultValue);
 
+        /// \see get<bool>()
+        ///
         template<>
         static int get<int>(const std::string& path, const int& defaultValue);
 
+        /// \see get<bool>()
+        ///
         template<>
         static unsigned int get<unsigned int>(const std::string& path, const unsigned int& defaultValue);
 
+        /// \see get<bool>()
+        ///
         template<>
         static float get<float>(const std::string& path, const float& defaultValue);
 
+        /// \see get<bool>()
+        ///
         template<>
         static double get<double>(const std::string& path, const double& defaultValue);
 
+        /// \see get<bool>()
+        ///
         template<>
         static std::string get<std::string>(const std::string& path, const std::string& defaultValue);
 
 
+        /// \brief Set a setting value
+        ///
+        /// The entry will be created if it doesn't exist.
+        /// 
+        /// The value will be updated only if it differs from the existing one,
+        /// as is the requirement for invoking any corresponding callbacks.
+        /// 
+        /// \param path The setting path
+        /// \param value The value to set
+        ///
         template<>
         static void set<bool>(const std::string& path, const bool& value);
 
+        /// \see set<bool>()
+        ///
         template<>
         static void set<int>(const std::string& path, const int& value);
 
+        /// \see set<bool>()
+        ///
         template<>
         static void set<unsigned int>(const std::string& path, const unsigned int& value);
 
+        /// \see set<bool>()
+        ///
         template<>
         static void set<float>(const std::string& path, const float& value);
 
+        /// \see set<bool>()
+        ///
         template<>
         static void set<double>(const std::string& path, const double& value);
 
+        /// \see set<bool>()
+        ///
         template<>
         static void set<std::string>(const std::string& path, const std::string& value);
 
 
+        /// \brief Register a setting change callback
+        ///
+        /// The callback will be invoked when you change a corresponding setting using set()
+        /// or modify the setting file. The new value has to differ from the old one, or the
+        /// invocation won't happen.
+        ///
+        /// You are responsible for ensuring that the callback stays alive as long as it's
+        /// meant to be used. You won't need to explicitly unbind it. The callback will be unbound
+        /// during its destruction.
+        ///
+        /// \param path The setting path to associate the callback with
+        /// \param callback Reference to a callback object
+        ///
+        /// \return The number of callbacks that exist for the same setting, includes the one being registered
+        ///
         static unsigned int registerCallback(const std::string& path, ChangeCallbackBase& callback);
 
 
@@ -222,12 +293,12 @@ namespace jop
 
         static SettingManager* m_instance;
 
-        std::unordered_map<std::string, std::pair<json::Document, bool>> m_settings;
-        std::recursive_mutex m_mutex;
-        DirectoryWatcher m_watcher;
-        std::atomic<bool> m_filesUpdated;
-        std::string m_defaultRoot;
-        std::unordered_multimap<std::string, ChangeCallbackBase*> m_updaters;
+        SettingMap m_settings;              ///< Setting map
+        std::recursive_mutex m_mutex;       ///< Mutex
+        DirectoryWatcher m_watcher;         ///< File change watcher
+        std::atomic<bool> m_filesUpdated;   ///< Has any file been externally modified?
+        std::string m_defaultRoot;          ///< Default setting file
+        UpdaterMap m_updaters;              ///< Change callback map
     };
 
     // Include the template implementation file

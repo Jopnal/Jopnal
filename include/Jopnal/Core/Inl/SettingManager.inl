@@ -49,19 +49,6 @@ void SettingManager::ChangeCallback<T>::valueChangedBase(const json::Value& val)
 //////////////////////////////////////////////
 
 template<typename T>
-bool SettingManager::settingExists(const std::string& path)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
-    auto& map = m_instance->m_settings;
-    auto itr = map.find(std::make_pair(path, std::type_index(typeid(T))));
-
-    return itr != map.end();
-}
-
-//////////////////////////////////////////////
-
-template<typename T>
 T SettingManager::get(const std::string& path, const T& defaultValue)
 {
     static_assert(false, "Setting type not registered");

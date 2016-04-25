@@ -70,14 +70,14 @@ namespace detail
         return nullptr;
     }
 
-    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc)
+    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc, jop::SettingManager::UpdaterMap& changers)
     {
         if (newVal.IsObject())
         {
             for (auto itr = newVal.MemberBegin(); itr != newVal.MemberEnd(); ++itr)
             {
                 if (oldVal.HasMember(itr->name))
-                    checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc);
+                    checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc, changers);
             }
         }
         else
@@ -86,7 +86,7 @@ namespace detail
             {
                 oldVal = jop::json::Value(newVal, alloc);
 
-                auto range = jop::SettingManager::m_instance->m_updaters.equal_range(path);
+                auto range = changers.equal_range(path);
 
                 for (auto itr = range.first; itr != range.second; ++itr)
                     itr->second->valueChangedBase(oldVal);
@@ -240,11 +240,11 @@ namespace jop
         }
 #pragma endregion VariableFetchers
 
-        json::Document& findRoot(const std::string& name)
+        json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot)
         {
             auto pos = name.find_first_of("/\\");
 
-            json::Document& doc = std::get<0>(SettingManager::m_instance->m_settings[pos == std::string::npos || pos == 0 ? SettingManager::m_instance->m_defaultRoot : name.substr(0, pos)]);
+            json::Document& doc = std::get<0>(settings[pos == std::string::npos || pos == 0 ? defRoot : name.substr(0, pos)]);
 
             if (!doc.IsObject())
                 doc.SetObject();
@@ -255,16 +255,13 @@ namespace jop
         //////////////////////////////////////////////
 
         template<typename T>
-        T getSetting(const std::string& path, const T& defaultValue)
+        T getSetting(const std::string& path, const T& defaultValue, std::recursive_mutex& mutex, json::Document& root)
         {
             if (path.empty())
                 return defaultValue;
 
-            auto& inst = *SettingManager::m_instance;
+            std::lock_guard<std::recursive_mutex> lock(mutex);
 
-            std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
-
-            jop::json::Document& root = findRoot(path);
             auto val = ::detail::getJsonValue(path, root, false);
 
             if (!val)
@@ -296,13 +293,10 @@ namespace jop
         //////////////////////////////////////////////
 
         template<typename T>
-        void setSetting(const std::string& path, const T& value)
+        void setSetting(const std::string& path, const T& value, std::recursive_mutex& mutex, SettingManager::UpdaterMap& updaters, json::Document& root)
         {
-            auto& inst = *SettingManager::m_instance;
+            std::lock_guard<std::recursive_mutex> lock(mutex);
 
-            std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
-
-            json::Document& root = findRoot(path);
             json::Value* val = ::detail::getJsonValue(path, root, true);
 
             if (!val)
@@ -324,84 +318,97 @@ namespace jop
                 return;
             }
 
-            auto range = inst.m_updaters.equal_range(path);
+            auto range = updaters.equal_range(path);
             for (auto itr = range.first; itr != range.second; ++itr)
                 itr->second->valueChangedBase(*val);
         }
     }
 
+    //////////////////////////////////////////////
+
+    bool SettingManager::settingExists(const std::string& path)
+    {
+        return ::detail::getJsonValue(path, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot), false) != nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    #define GET_SETTING detail::getSetting(path, defaultValue, m_instance->m_mutex, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
+
     template<>
     bool SettingManager::get<bool>(const std::string& path, const bool& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     template<>
     int SettingManager::get<int>(const std::string& path, const int& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     template<>
     unsigned int SettingManager::get<unsigned int>(const std::string& path, const unsigned int& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     template<>
     float SettingManager::get<float>(const std::string& path, const float& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     template<>
     double SettingManager::get<double>(const std::string& path, const double& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     template<>
     std::string SettingManager::get<std::string>(const std::string& path, const std::string& defaultValue)
     {
-        return detail::getSetting(path, defaultValue);
+        return GET_SETTING;
     }
 
     //////////////////////////////////////////////
 
+    #define SET_SETTING detail::setSetting(path, value, m_instance->m_mutex, m_instance->m_updaters, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
+
     template<>
     void SettingManager::set<bool>(const std::string& path, const bool& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     template<>
     void SettingManager::set<int>(const std::string& path, const int& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     template<>
     void SettingManager::set<unsigned int>(const std::string& path, const unsigned int& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     template<>
     void SettingManager::set<float>(const std::string& path, const float& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     template<>
     void SettingManager::set<double>(const std::string& path, const double& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     template<>
     void SettingManager::set<std::string>(const std::string& path, const std::string& value)
     {
-        detail::setSetting(path, value);
+        SET_SETTING;
     }
 
     //////////////////////////////////////////////
@@ -600,7 +607,7 @@ namespace jop
                 for (auto itr = newVals.MemberBegin(); itr != newVals.MemberEnd(); ++itr)
                 {
                     if (val.HasMember(itr->name))
-                        ::detail::checkChanges(val, newVals, i.first + "/", val.GetAllocator());
+                        ::detail::checkChanges(val, newVals, i.first + "/", val.GetAllocator(), m_updaters);
                 }
             }
 
