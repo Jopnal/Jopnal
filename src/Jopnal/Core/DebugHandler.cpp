@@ -197,7 +197,7 @@ namespace jop
           m_last            (),
           m_consoleEnabled  (false),
           m_noSpam          (true),
-          m_debuggerOutput  (false),
+          m_debuggerOutput  (true),
           m_mutex           ()
     {
     #ifdef JOP_DEBUG_MODE

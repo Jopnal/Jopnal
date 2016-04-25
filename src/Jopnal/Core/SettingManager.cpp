@@ -31,7 +31,7 @@ namespace detail
     {
         if (root.IsObject())
         {
-            auto rootPos = path.find_first_of("/\\");
+            auto rootPos = path.find_first_of('/');
 
             auto pos = (rootPos == std::string::npos ? 0 : rootPos + 1);
             jop::json::Value* currentVal = &root;
@@ -70,94 +70,29 @@ namespace detail
         return nullptr;
     }
 
-    #pragma region VariableQueries
-    template<typename T>
-    bool queryVariable(const jop::json::Value&)
+    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc)
     {
-        static_assert(false, "Setting type not specialized");
-        return false;
-    }
+        if (newVal.IsObject())
+        {
+            for (auto itr = newVal.MemberBegin(); itr != newVal.MemberEnd(); ++itr)
+            {
+                if (oldVal.HasMember(itr->name))
+                    checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc);
+            }
+        }
+        else
+        {
+            if (oldVal != newVal)
+            {
+                oldVal = jop::json::Value(newVal, alloc);
 
-    template<>
-    bool queryVariable<bool>(const jop::json::Value& val)
-    {
-        return val.IsBool();
-    }
+                auto range = jop::SettingManager::m_instance->m_updaters.equal_range(path);
 
-    template<>
-    bool queryVariable<double>(const jop::json::Value& val)
-    {
-        return val.IsDouble();
+                for (auto itr = range.first; itr != range.second; ++itr)
+                    itr->second->valueChangedBase(oldVal);
+            }
+        }
     }
-
-    template<>
-    bool queryVariable<float>(const jop::json::Value& val)
-    {
-        return val.IsDouble();
-    }
-
-    template<>
-    bool queryVariable<int>(const jop::json::Value& val)
-    {
-        return val.IsInt();
-    }
-
-    template<>
-    bool queryVariable<unsigned int>(const jop::json::Value& val)
-    {
-        return val.IsUint();
-    }
-
-    template<>
-    bool queryVariable<std::string>(const jop::json::Value& val)
-    {
-        return val.IsString();
-    }
-#pragma endregion VariableQueries
-
-    #pragma region VariableFetchers
-    template<typename T>
-    T fetchVariable(const jop::json::Value&)
-    {
-        static_assert(false, "Setting type not specialized");
-    }
-
-    template<>
-    bool fetchVariable<bool>(const jop::json::Value& val)
-    {
-        return val.GetBool();
-    }
-
-    template<>
-    double fetchVariable<double>(const jop::json::Value& val)
-    {
-        return val.GetDouble();
-    }
-
-    template<>
-    float fetchVariable<float>(const jop::json::Value& val)
-    {
-        return static_cast<float>(val.GetDouble());
-    }
-
-    template<>
-    int fetchVariable<int>(const jop::json::Value& val)
-    {
-        return val.GetInt();
-    }
-
-    template<>
-    unsigned int fetchVariable<unsigned int>(const jop::json::Value& val)
-    {
-        return val.GetUint();
-    }
-
-    template<>
-    std::string fetchVariable<std::string>(const jop::json::Value& val)
-    {
-        return std::string(val.GetString());
-    }
-#pragma endregion VariableFetchers
 
     #pragma region VariableSetters
     template<typename T>
@@ -203,6 +138,19 @@ namespace detail
         val.SetString(value.c_str(), alloc);
     }
 #pragma endregion VariableSetters
+
+    #pragma region VariableCompare
+    template<typename T>
+    bool compareVariable(const jop::json::Value& left, const T& right)
+    {
+        return left == right;
+    }
+    template<>
+    bool compareVariable<std::string>(const jop::json::Value& left, const std::string& right)
+    {
+        return left == right.c_str();
+    }
+#pragma endregion VariableCompare
 }
 
 namespace jop
@@ -216,6 +164,82 @@ namespace jop
 
     namespace detail
     {
+        #pragma region VariableQueries
+        template<>
+        bool queryVariable<bool>(const json::Value& val)
+        {
+            return val.IsBool();
+        }
+
+        template<>
+        bool queryVariable<double>(const json::Value& val)
+        {
+            return val.IsDouble();
+        }
+
+        template<>
+        bool queryVariable<float>(const json::Value& val)
+        {
+            return val.IsDouble();
+        }
+
+        template<>
+        bool queryVariable<int>(const json::Value& val)
+        {
+            return val.IsInt();
+        }
+
+        template<>
+        bool queryVariable<unsigned int>(const json::Value& val)
+        {
+            return val.IsUint();
+        }
+
+        template<>
+        bool queryVariable<std::string>(const json::Value& val)
+        {
+            return val.IsString();
+        }
+        #pragma endregion VariableQueries
+
+        #pragma region VariableFetchers
+        template<>
+        bool fetchVariable<bool>(const json::Value& val)
+        {
+            return val.GetBool();
+        }
+
+        template<>
+        double fetchVariable<double>(const json::Value& val)
+        {
+            return val.GetDouble();
+        }
+
+        template<>
+        float fetchVariable<float>(const json::Value& val)
+        {
+            return static_cast<float>(val.GetDouble());
+        }
+
+        template<>
+        int fetchVariable<int>(const json::Value& val)
+        {
+            return val.GetInt();
+        }
+
+        template<>
+        unsigned int fetchVariable<unsigned int>(const json::Value& val)
+        {
+            return val.GetUint();
+        }
+
+        template<>
+        std::string fetchVariable<std::string>(const json::Value& val)
+        {
+            return std::string(val.GetString());
+        }
+#pragma endregion VariableFetchers
+
         json::Document& findRoot(const std::string& name)
         {
             auto pos = name.find_first_of("/\\");
@@ -251,7 +275,7 @@ namespace jop
                 {
                     JOP_DEBUG_DIAG("Setting \"" << path << "\" doesn't exist. Creating an entry using value " << defaultValue);
                     ::detail::setVariable<T>(*newVal, defaultValue, root.GetAllocator());
-                    return ::detail::fetchVariable<T>(*newVal);
+                    return detail::fetchVariable<T>(*newVal);
                 }
                 else
                 {
@@ -260,13 +284,13 @@ namespace jop
                 }
             }
 
-            if (!::detail::queryVariable<T>(*val))
+            if (!detail::queryVariable<T>(*val))
             {
                 JOP_DEBUG_ERROR("Setting \"" << path << "\" is not convertible into \"" << typeid(T).name() << "\". Using default value " << defaultValue);
                 return defaultValue;
             }
 
-            return ::detail::fetchVariable<T>(*val);
+            return detail::fetchVariable<T>(*val);
         }
 
         //////////////////////////////////////////////
@@ -287,11 +311,22 @@ namespace jop
                 return;
             }
 
-            if (::detail::queryVariable<T>(*val) || val->IsNull())
-                ::detail::setVariable<T>(*val, value, root.GetAllocator());
-
+            if (detail::queryVariable<T>(*val) || val->IsNull())
+            {
+                if (val->IsNull() || !::detail::compareVariable(*val, value))
+                    ::detail::setVariable<T>(*val, value, root.GetAllocator());
+                else
+                    return;
+            }
             else
+            {
                 JOP_DEBUG_ERROR("Setting \"" << path << "\" was not set, unmatched type");
+                return;
+            }
+
+            auto range = inst.m_updaters.equal_range(path);
+            for (auto itr = range.first; itr != range.second; ++itr)
+                itr->second->valueChangedBase(*val);
         }
     }
 
@@ -407,7 +442,9 @@ namespace jop
                 doc.first.Parse<0>(text.c_str());
 
                 if (!json::checkParseError(doc.first))
-                    JOP_DEBUG_ERROR("Setting file \"" << i << "\" has a parse error. Default values will be used");
+                    JOP_DEBUG_ERROR("Setting file \"" << i << "\" has a parse error. Default values will be used")
+                else
+                    JOP_DEBUG_INFO("Setting file \"" << i << "\" found and loaded");
             }
         }
 
@@ -438,6 +475,8 @@ namespace jop
     }
 
     //////////////////////////////////////////////
+
+    std::vector<std::unique_ptr<SettingManager::ChangeCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
         : Subsystem("Setting Manager"),
@@ -480,7 +519,16 @@ namespace jop
                     false;
                 #endif
 
+                struct Callback : ChangeCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setEnabled(value);}
+                };
+
                 DebugHandler::getInstance().setEnabled(get<bool>(str, console));
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str,  *ns_callbacks.back());
             }{
                 const char* const str = "engine/Debug|Console|uVerbosity";
 
@@ -510,6 +558,7 @@ namespace jop
     SettingManager::~SettingManager()
     {
         m_watcher.stop();
+        ns_callbacks.clear();
 
         save();
         m_instance = nullptr;
@@ -521,7 +570,39 @@ namespace jop
     {
         if (m_filesUpdated.load())
         {
+            std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
+            for (auto& i : m_settings)
+            {
+                if (!i.second.second)
+                    continue;
+
+                JOP_DEBUG_INFO("Setting file modification detected (\"" << i.first << ".json\"), reloading...");
+
+                auto& val = i.second.first;
+
+                std::string newStr;
+                if (!FileLoader::readTextfile(i.first + ".json", newStr))
+                {
+                    JOP_DEBUG_ERROR("Couldn't read updated setting file \"" << i.first << ".json\"");
+                    continue;
+                }
+
+                json::Document newVals;
+                newVals.ParseInsitu<0>(&newStr[0]);
+
+                if (!json::checkParseError(newVals))
+                {
+                    JOP_DEBUG_ERROR("Couldn't parse updated setting file \"" << i.first << ".json\"");
+                    continue;
+                }
+
+                for (auto itr = newVals.MemberBegin(); itr != newVals.MemberEnd(); ++itr)
+                {
+                    if (val.HasMember(itr->name))
+                        ::detail::checkChanges(val, newVals, i.first + "/", val.GetAllocator());
+                }
+            }
 
             m_filesUpdated = false;
         }
@@ -529,8 +610,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int SettingManager::registerCallback(const std::string& path, ChangeCallbackBase& callback)
+    {
+        if (!m_instance)
+            return 0;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        auto& inst = *m_instance;
+        auto& map = inst.m_updaters;
+
+        callback.m_path = path;
+
+        map.emplace(path, &callback);
+
+        return map.count(path);
+    }
+
+    //////////////////////////////////////////////
+
     void SettingManager::unregisterCallback(ChangeCallbackBase& callback)
     {
+        if (!m_instance)
+            return;
+
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
         auto& inst = *m_instance;

@@ -20,6 +20,34 @@
 //////////////////////////////////////////////
 
 
+namespace detail
+{
+    template<typename T>
+    bool queryVariable(const json::Value&)
+    {
+        static_assert(false, "Setting type not specialized");
+        return false;
+    }
+
+    template<typename T>
+    T fetchVariable(const json::Value&)
+    {
+        static_assert(false, "Setting type not specialized");
+        return T();
+    }
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+void SettingManager::ChangeCallback<T>::valueChangedBase(const json::Value& val)
+{
+    if (detail::queryVariable<T>(val))
+        valueChanged(detail::fetchVariable<T>(val));
+}
+
+//////////////////////////////////////////////
+
 template<typename T>
 bool SettingManager::settingExists(const std::string& path)
 {
@@ -46,21 +74,4 @@ template<typename T>
 void SettingManager::set(const std::string& path, const T& value)
 {
     static_assert(false, "Setting type not registered");
-}
-
-//////////////////////////////////////////////
-
-template<typename T>
-unsigned int SettingManager::registerCallback(const std::string& path, ChangeCallback<T>& callback)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
-    auto& inst = *m_instance;
-    auto& map = inst.m_updaters;
-
-    callback.m_path = path;
-
-    map.emplace(path, &callback);
-
-    return map.count(path);
 }

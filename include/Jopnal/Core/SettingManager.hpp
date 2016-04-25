@@ -35,10 +35,45 @@
 //////////////////////////////////////////////
 
 
+namespace detail
+{
+    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc);
+}
+
 namespace jop
 {
     namespace detail
     {
+        template<typename T>
+        bool queryVariable(const json::Value&);
+        template<>
+        bool queryVariable<bool>(const json::Value& val);
+        template<>
+        bool queryVariable<double>(const json::Value& val);
+        template<>
+        bool queryVariable<float>(const json::Value& val);
+        template<>
+        bool queryVariable<int>(const json::Value& val);
+        template<>
+        bool queryVariable<unsigned int>(const json::Value& val);
+        template<>
+        bool queryVariable<std::string>(const json::Value& val);
+
+        template<typename T>
+        T fetchVariable(const json::Value& val);
+        template<>
+        bool fetchVariable<bool>(const json::Value& val);
+        template<>
+        double fetchVariable<double>(const json::Value& val);
+        template<>
+        float fetchVariable<float>(const json::Value& val);
+        template<>
+        int fetchVariable<int>(const json::Value& val);
+        template<>
+        unsigned int fetchVariable<unsigned int>(const json::Value& val);
+        template<>
+        std::string fetchVariable<std::string>(const json::Value& val);
+
         template<typename T>
         T getSetting(const std::string&, const T&);
 
@@ -56,16 +91,24 @@ namespace jop
         {
             friend class SettingManager;
 
+            template<typename T>
+            friend void detail::setSetting(const std::string&, const T&);
+
+            friend void ::detail::checkChanges(json::Value&, json::Value&, const std::string&, json::Value::AllocatorType&);
+
             std::string m_path;
 
+        public:
 
             virtual ~ChangeCallbackBase() = 0;
+
+        private:
 
             virtual void valueChangedBase(const json::Value& val) = 0;
         };
 
         template<typename T>
-        class ChangeCallback : ChangeCallbackBase
+        class ChangeCallback : public ChangeCallbackBase
         {
             void valueChangedBase(const json::Value& val) final override;
 
@@ -86,6 +129,8 @@ namespace jop
         friend void detail::setSetting(const std::string&, const T&);
 
         friend json::Document& detail::findRoot(const std::string&);
+
+        friend void ::detail::checkChanges(json::Value&, json::Value&, const std::string&, json::Value::AllocatorType&);
 
 
         template<typename T = void>
@@ -153,8 +198,7 @@ namespace jop
         static void set<std::string>(const std::string& path, const std::string& value);
 
 
-        template<typename T>
-        static unsigned int registerCallback(const std::string& path, ChangeCallback<T>& callback);
+        static unsigned int registerCallback(const std::string& path, ChangeCallbackBase& callback);
 
 
         /// \brief Reload the settings from file
@@ -164,6 +208,7 @@ namespace jop
         /// callbacks, even when the value hadn't changed.
         ///
         /// \see set()
+        /// \see registerCallback()
         ///
         static void reload();
 
