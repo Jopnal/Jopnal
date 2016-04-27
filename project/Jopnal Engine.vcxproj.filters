@@ -408,6 +408,9 @@
     <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp">
       <Filter>Utility\Source\Win32</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\SettingCallback.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -662,6 +665,9 @@
     <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape.cpp">
       <Filter>Physics\Source\Shape</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SettingCallback.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -707,6 +713,9 @@
       <Filter>Utility\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Core\Inl\SettingManager.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\SettingCallback.inl">
       <Filter>Core\Inl</Filter>
     </None>
   </ItemGroup>

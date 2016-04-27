@@ -84,7 +84,7 @@ namespace detail
         {
             if (oldVal != newVal)
             {
-                oldVal = jop::json::Value(newVal, alloc);
+                oldVal.CopyFrom(newVal, alloc);
 
                 auto range = changers.equal_range(path);
 
@@ -155,91 +155,8 @@ namespace detail
 
 namespace jop
 {
-    SettingManager::ChangeCallbackBase::~ChangeCallbackBase()
-    {
-        SettingManager::unregisterCallback(*this);
-    }
-
-    //////////////////////////////////////////////
-
     namespace detail
     {
-        #pragma region VariableQueries
-        template<>
-        bool queryVariable<bool>(const json::Value& val)
-        {
-            return val.IsBool();
-        }
-
-        template<>
-        bool queryVariable<double>(const json::Value& val)
-        {
-            return val.IsDouble();
-        }
-
-        template<>
-        bool queryVariable<float>(const json::Value& val)
-        {
-            return val.IsDouble();
-        }
-
-        template<>
-        bool queryVariable<int>(const json::Value& val)
-        {
-            return val.IsInt();
-        }
-
-        template<>
-        bool queryVariable<unsigned int>(const json::Value& val)
-        {
-            return val.IsUint();
-        }
-
-        template<>
-        bool queryVariable<std::string>(const json::Value& val)
-        {
-            return val.IsString();
-        }
-        #pragma endregion VariableQueries
-
-        #pragma region VariableFetchers
-        template<>
-        bool fetchVariable<bool>(const json::Value& val)
-        {
-            return val.GetBool();
-        }
-
-        template<>
-        double fetchVariable<double>(const json::Value& val)
-        {
-            return val.GetDouble();
-        }
-
-        template<>
-        float fetchVariable<float>(const json::Value& val)
-        {
-            return static_cast<float>(val.GetDouble());
-        }
-
-        template<>
-        int fetchVariable<int>(const json::Value& val)
-        {
-            return val.GetInt();
-        }
-
-        template<>
-        unsigned int fetchVariable<unsigned int>(const json::Value& val)
-        {
-            return val.GetUint();
-        }
-
-        template<>
-        std::string fetchVariable<std::string>(const json::Value& val)
-        {
-            return std::string(val.GetString());
-        }
-#pragma endregion VariableFetchers
-
         json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot)
         {
             auto pos = name.find_first_of("/\\");
@@ -483,7 +400,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<std::unique_ptr<SettingManager::ChangeCallbackBase>> ns_callbacks;
+    std::vector<std::unique_ptr<SettingCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
         : Subsystem("Setting Manager"),
@@ -526,31 +443,61 @@ namespace jop
                     false;
                 #endif
 
-                struct Callback : ChangeCallback<bool>
+                DebugHandler::getInstance().setEnabled(get<bool>(str, console));
+
+                struct Callback : SettingCallback<bool>
                 {
                     void valueChanged(const bool& value) override
                     {DebugHandler::getInstance().setEnabled(value);}
                 };
 
-                DebugHandler::getInstance().setEnabled(get<bool>(str, console));
-
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str,  *ns_callbacks.back());
             }{
                 const char* const str = "engine/Debug|Console|uVerbosity";
+                using S = DebugHandler::Severity;
 
-                DebugHandler::getInstance()
-                .setVerbosity(static_cast<DebugHandler::Severity>(std::min(static_cast<unsigned int>(DebugHandler::Severity::Diagnostic), get<uint32>(str, JOP_CONSOLE_VERBOSITY))));
+                DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), get<uint32>(str, JOP_CONSOLE_VERBOSITY))));
+
+                struct Callback : SettingCallback<uint32>
+                {
+                    void valueChanged(const uint32& value) override
+                    {
+                        using S = DebugHandler::Severity;
+                        DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), value)));
+                    }
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
             }{
                 const char* const str = "engine/Debug|Console|bReduceSpam";
 
                 DebugHandler::getInstance().setReduceSpam(get<bool>(str, true));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setReduceSpam(value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
             }
         #ifdef JOP_OS_WINDOWS
             {
                 const char* const str = "engine/Debug|Console|bDebuggerOutput";
 
                 DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && get<bool>(str, true));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
             }
         #endif
 
@@ -558,6 +505,15 @@ namespace jop
                 const char* const str = "engine/Filesystem|bErrorChecks";
 
                 FileLoader::enableErrorChecks(get<bool>(str, true));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {FileLoader::enableErrorChecks(value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
             }
         }
     }
@@ -617,7 +573,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int SettingManager::registerCallback(const std::string& path, ChangeCallbackBase& callback)
+    unsigned int SettingManager::registerCallback(const std::string& path, SettingCallbackBase& callback)
     {
         if (!m_instance)
             return 0;
@@ -636,7 +592,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SettingManager::unregisterCallback(ChangeCallbackBase& callback)
+    void SettingManager::unregisterCallback(SettingCallbackBase& callback)
     {
         if (!m_instance)
             return;

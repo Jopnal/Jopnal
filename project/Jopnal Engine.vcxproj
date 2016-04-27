@@ -35,6 +35,7 @@
     <ClInclude Include="..\include\Jopnal\Core\Component.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Object.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\SettingCallback.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\StateLoader.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Subsystem.hpp" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\SettingCallback.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\StateLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
@@ -231,6 +233,7 @@
     <None Include="..\include\Jopnal\Core\Inl\Object.inl" />
     <None Include="..\include\Jopnal\Core\Inl\ResourceManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\Scene.inl" />
+    <None Include="..\include\Jopnal\Core\Inl\SettingCallback.inl" />
     <None Include="..\include\Jopnal\Core\Inl\SettingManager.inl" />
     <None Include="..\include\Jopnal\Core\Inl\StateLoader.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl" />

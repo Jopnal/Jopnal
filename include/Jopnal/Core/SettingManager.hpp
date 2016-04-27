@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Utility/Json.hpp>
+#include <Jopnal/Core/SettingCallback.hpp>
 #include <Jopnal/Utility/DirectoryWatcher.hpp>
 #include <unordered_map>
 #include <string>
@@ -37,80 +37,16 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        template<typename T>
-        bool queryVariable(const json::Value&);
-        template<>
-        bool queryVariable<bool>(const json::Value& val);
-        template<>
-        bool queryVariable<double>(const json::Value& val);
-        template<>
-        bool queryVariable<float>(const json::Value& val);
-        template<>
-        bool queryVariable<int>(const json::Value& val);
-        template<>
-        bool queryVariable<unsigned int>(const json::Value& val);
-        template<>
-        bool queryVariable<std::string>(const json::Value& val);
-
-        template<typename T>
-        T fetchVariable(const json::Value& val);
-        template<>
-        bool fetchVariable<bool>(const json::Value& val);
-        template<>
-        double fetchVariable<double>(const json::Value& val);
-        template<>
-        float fetchVariable<float>(const json::Value& val);
-        template<>
-        int fetchVariable<int>(const json::Value& val);
-        template<>
-        unsigned int fetchVariable<unsigned int>(const json::Value& val);
-        template<>
-        std::string fetchVariable<std::string>(const json::Value& val);
-    }
-
     class JOP_API SettingManager final : public Subsystem
     {
     public:
 
-        /// Base-base class for a setting change callback
-        ///
-        /// This is for internal use only
-        ///
-        class ChangeCallbackBase
-        {
-            friend class SettingManager;
-            std::string m_path;
-
-        public:
-
-            virtual ~ChangeCallbackBase() = 0;
-            virtual void valueChangedBase(const json::Value& val) = 0;
-        };
-
-        /// \brief Base class For a setting change callback
-        ///
-        /// Inherit from this class to create a setting change callback.
-        ///
-        template<typename T>
-        class ChangeCallback : public ChangeCallbackBase
-        {
-            void valueChangedBase(const json::Value& val) final override;
-
-        protected:
-
-            /// \brief The setting change callback function
-            ///
-            /// \param value The new setting value
-            /// 
-            virtual void valueChanged(const T& value) = 0;
-        };
-
-        typedef std::unordered_multimap<std::string, ChangeCallbackBase*> UpdaterMap;
+        typedef std::unordered_multimap<std::string, SettingCallbackBase*> UpdaterMap;
         typedef std::unordered_map<std::string, std::pair<json::Document, bool>> SettingMap;
 
     private:
+
+        friend class SettingCallbackBase;
 
         template<typename T = void>
         static T get(const std::string& path, const T& defaultValue);
@@ -269,7 +205,7 @@ namespace jop
         ///
         /// \return The number of callbacks that exist for the same setting, includes the one being registered
         ///
-        static unsigned int registerCallback(const std::string& path, ChangeCallbackBase& callback);
+        static unsigned int registerCallback(const std::string& path, SettingCallbackBase& callback);
 
 
         /// \brief Reload the settings from file
@@ -289,7 +225,7 @@ namespace jop
 
     private:
 
-        static void unregisterCallback(ChangeCallbackBase& callback);
+        static void unregisterCallback(SettingCallbackBase& callback);
 
         static SettingManager* m_instance;
 

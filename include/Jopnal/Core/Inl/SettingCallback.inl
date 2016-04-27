@@ -20,36 +20,9 @@
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    template<typename T>
-    bool queryVariable(const json::Value&)
-    {
-        static_assert(false, "Setting type not specialized");
-        return false;
-    }
-
-    template<typename T>
-    T fetchVariable(const json::Value&)
-    {
-        static_assert(false, "Setting type not specialized");
-        return T();
-    }
-}
-
-//////////////////////////////////////////////
-
 template<typename T>
-T SettingManager::get(const std::string& path, const T& defaultValue)
+void SettingCallback<T>::valueChangedBase(const json::Value& val)
 {
-    static_assert(false, "Setting type not registered");
-    return T();
-}
-
-//////////////////////////////////////////////
-
-template<typename T>
-void SettingManager::set(const std::string& path, const T& value)
-{
-    static_assert(false, "Setting type not registered");
+    if (detail::queryVariable<T>(val))
+        valueChanged(detail::fetchVariable<T>(val));
 }
