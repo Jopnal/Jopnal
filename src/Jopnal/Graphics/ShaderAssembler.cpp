@@ -60,7 +60,7 @@ namespace jop
 namespace jop
 {
     ShaderAssembler::ShaderAssembler()
-        : Subsystem ("Shader Manager"),
+        : Subsystem ("shaderassembler"),
           m_shaders (),
           m_uber    (),
           m_mutex   ()

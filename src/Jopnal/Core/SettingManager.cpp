@@ -86,7 +86,7 @@ namespace detail
             {
                 oldVal.CopyFrom(newVal, alloc);
 
-                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, invoking " << changers.count(path) << " callbacks");
+                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (changers.count(path) > 0 ? ("invoking " + std::to_string(changers.count(path)) + " callbacks") : ("no callbacks registered")));
 
                 auto range = changers.equal_range(path);
 
@@ -405,7 +405,7 @@ namespace jop
     std::vector<std::unique_ptr<SettingCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
-        : Subsystem("Setting Manager"),
+        : Subsystem("settingmanager"),
           m_defaultRoot("root")
     {
         {

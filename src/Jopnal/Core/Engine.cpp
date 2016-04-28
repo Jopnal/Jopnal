@@ -80,7 +80,7 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << " (" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
+            JOP_DEBUG_INFO("Subsystem \"" << (m_subsystems.end() - 1)->get()->getID() << "\" (" << typeid(*(*(m_subsystems.end() - 1))).name() << ") removed");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
@@ -94,11 +94,6 @@ namespace jop
 
     void Engine::loadDefaultConfiguration()
     {
-        // Set process priority
-    #ifdef JOP_OS_WINDOWS
-        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-    #endif
-
         // File system
         createSubsystem<FileSystemInitializer>(ns_argv[0]);
 
@@ -119,6 +114,12 @@ namespace jop
 
         // Shared scene
         m_sharedScene = std::make_unique<Scene>("sharedscene");
+
+        // Set process priority
+    #ifdef JOP_OS_WINDOWS
+        if (SettingManager::get<bool>("engine/bForceProcessHighPriority", true))
+            SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    #endif
 
         JOP_DEBUG_INFO("Default engine configuration loaded");
     }
@@ -163,10 +164,10 @@ namespace jop
 
                 if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
                 {
-                    if (eng.m_currentScene)
+                    if (hasCurrentScene())
                         eng.m_currentScene->updateBase(frameTime);
 
-                    if (eng.m_sharedScene)
+                    if (hasSharedScene())
                         eng.m_sharedScene->updateBase(frameTime);
                 }
 
@@ -181,10 +182,10 @@ namespace jop
             {
                 if (getState() != State::Frozen)
                 {
-                    if (eng.m_currentScene)
+                    if (hasCurrentScene())
                         eng.m_currentScene->drawBase();
 
-                    if (eng.m_sharedScene)
+                    if (hasSharedScene())
                         eng.m_sharedScene->drawBase();
                 }
 

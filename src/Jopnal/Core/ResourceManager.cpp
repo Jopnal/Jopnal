@@ -56,7 +56,7 @@ namespace jop
 namespace jop
 {
     ResourceManager::ResourceManager()
-        : Subsystem("Resource Manager")
+        : Subsystem("resourcemanager")
     {
         JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist at a time!");
     
