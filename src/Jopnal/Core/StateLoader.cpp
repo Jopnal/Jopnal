@@ -119,7 +119,7 @@ namespace jop
         if (scene && !getInstance().saveScene(*Engine::m_engineObject->m_currentScene, doc.AddMember(json::StringRef(ns_sceneField), json::kObjectType, doc.GetAllocator())[ns_sceneField], doc.GetAllocator(), path))
             return false;
 
-        static const bool pretty = SettingManager::getBool("bPrettyStateFormat", false);
+        static const bool pretty = SettingManager::get<bool>("engine/Serialization|bPrettyWriteFormat", false);
 
         json::StringBuffer buffer;
 

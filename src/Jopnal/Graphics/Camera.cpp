@@ -149,19 +149,18 @@ namespace jop
           m_mode                    (mode),
           m_projectionNeedUpdate    (true)
     {
-        const float x = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeX", 1280));
-        const float y = static_cast<float>(SettingManager::getUint("uDefaultWindowSizeY", 720));
+        typedef SettingManager SM;
 
         if (mode == Projection::Orthographic)
         {
-            setClippingPlanes(SettingManager::getFloat("fOrthoCameraClipNear", -1.f), SettingManager::getFloat("fOrthoCameraClipFar", 1.f));
-            setSize(x, y);
+            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
+            setSize(Engine::getMainRenderTarget().getSize());
         }
         else
         {
-            setClippingPlanes(SettingManager::getFloat("fPerspCameraClipNear", 1.f), SettingManager::getFloat("fPerspCameraClipFar", 9999999.f));
-            setFieldOfView(SettingManager::getFloat("fPerspCameraFovYRad", glm::radians(55.f)));
-            setSize(x, y);
+            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
+            setFieldOfView(SettingManager::get<float>("engine/Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
+            setSize(Engine::getMainRenderTarget().getSize());
         }
 
         renderer.bind(*this);

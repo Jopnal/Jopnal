@@ -135,19 +135,23 @@ namespace jop
         static T& copyResource(const std::string& name, const std::string& newName);
 
 
-        /// \brief Deletes resource from memory
+        /// \brief Deletes resources from memory
         ///
-        /// The resource, if found, will be deleted regardless of the persistence flag.
+        /// This will delete all the resources with the given name, regardless of type.
+        ///
+        /// The resources, if found, will be deleted regardless of the persistence flag.
         /// Resources with the persistence level of 0 will not be removed, however.
         ///
-        /// \param name Name of the resource to unload
+        /// \param name Name of the resources to unload
         ///
         static void unloadResource(const std::string& name);
 
-        /// \copydoc unloadResource(const std::string&)
+        /// \brief Delete a resource from memory
         ///
         /// When possible, you should prefer this overload.
         /// It's possibly magnitudes faster.
+        ///
+        /// \param name Name of the resource
         ///
         template<typename T>
         static void unloadResource(const std::string& name);

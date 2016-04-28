@@ -33,6 +33,7 @@
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
 #include <Jopnal/Physics/Shape/RectangleShape.hpp>
 #include <Jopnal/Physics/Shape/SphereShape.hpp>
+#include <Jopnal/Physics/Shape/TerrainShape.hpp>
 #include <Jopnal/Physics/World.hpp>
 
 //////////////////////////////////////////////

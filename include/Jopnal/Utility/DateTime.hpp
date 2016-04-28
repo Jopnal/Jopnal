@@ -19,27 +19,57 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_OS_HPP
-#define JOP_OS_HPP
+#ifndef JOP_DATETIME_HPP
+#define JOP_DATETIME_HPP
+
+// Headers
+#include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
 
-#ifdef _WIN32
+namespace jop
+{
+    class JOP_API DateTime
+    {
+    public:
 
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
+        struct Date
+        {
+            uint16 year;
+            uint8 month;
+            uint8 day;
+        };
+
+        struct Time
+        {
+            uint8 hour;
+            uint8 minute;
+            uint8 second;
+        };
+
+    public:
+
+        DateTime();
+
+
+        DateTime& update(const bool date = true, const bool time = true);
+
+        const Date& getDate() const;
+
+        const Time& getTime() const;
+
+
+        bool operator ==(const DateTime& right) const;
         
-    #define JOP_OS_WINDOWS
-    #define JOP_OS_DESKTOP
+        bool operator !=(const DateTime& right) const;
 
-#else
+    private:
 
-    #error Unsupported OS
-
-#endif
+        Date m_date;
+        Time m_time;
+    };
+}
 
 #endif

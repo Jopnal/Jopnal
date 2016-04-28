@@ -19,27 +19,37 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_OS_HPP
-#define JOP_OS_HPP
+
+namespace detail
+{
+    template<typename T>
+    bool queryVariable(const json::Value&)
+    {
+        static_assert(false, "Setting type not specialized");
+        return false;
+    }
+
+    template<typename T>
+    T fetchVariable(const json::Value&)
+    {
+        static_assert(false, "Setting type not specialized");
+        return T();
+    }
+}
 
 //////////////////////////////////////////////
 
+template<typename T>
+T SettingManager::get(const std::string& path, const T& defaultValue)
+{
+    static_assert(false, "Setting type not registered");
+    return T();
+}
 
-#ifdef _WIN32
+//////////////////////////////////////////////
 
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
-        
-    #define JOP_OS_WINDOWS
-    #define JOP_OS_DESKTOP
-
-#else
-
-    #error Unsupported OS
-
-#endif
-
-#endif
+template<typename T>
+void SettingManager::set(const std::string& path, const T& value)
+{
+    static_assert(false, "Setting type not registered");
+}
