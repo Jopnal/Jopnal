@@ -70,7 +70,7 @@ namespace jop
           m_mask        (1),
           m_rendererRef (renderer)
     {
-        static const int mapResolution = SettingManager::getUint("uEnvironmentMapSize", 128);
+        static const int mapResolution = SettingManager::get<unsigned int>("engine/Graphics|Shading|uEnvironmentMapSize", 128);
 
         using ca = RenderTexture::ColorAttachment;
         using da = RenderTexture::DepthAttachment;
@@ -99,10 +99,31 @@ namespace jop
 
     void EnvironmentRecorder::record()
     {
-        static const float farPlane = SettingManager::getFloat("fEnvironmentMapFarPlane", 1000.f);
-        static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+        static const struct Callback : SettingCallback<float>
+        {
+            const char* const str;
+            float farPlane;
+            glm::mat4 proj;
+            void updateProj()
+            {
+                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+            }
+            Callback()
+                : str("engine/Graphics|Shading|fEnvironmentRecordFarPlane"),
+                  farPlane(SettingManager::get<float>(str, 1000.f)),
+                  proj()
+            {
+                updateProj();
+                SettingManager::registerCallback(str, *this);
+            }
+            void valueChanged(const float& value) override
+            {
+                farPlane = value;
+                updateProj();
+            }
+        } cb;
 
-        LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);
+        LightSource::makeCubemapMatrices(cb.proj, getObject()->getGlobalPosition(), m_matrices);
 
         auto& rend = m_rendererRef;
 

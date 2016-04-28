@@ -97,7 +97,9 @@ namespace jop
         /// \brief Destructor
         ///
         /// This will deinitialize the engine, so that the program can exit.
-        /// Alternatively, a new jop::Engine object can be created.
+        ///
+        /// \warning You should only create the engine object once during the program's life time.
+        ///          Some of the sub systems are not designed to be initialized more than once.
         ///
         ~Engine();
 

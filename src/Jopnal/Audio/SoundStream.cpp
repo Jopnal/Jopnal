@@ -69,9 +69,7 @@ namespace jop
 
     bool SoundStream::setPath(const std::string& path)
     {
-        static const std::string m_relativity = SettingManager::getString("sResourceDirectory", "Resources") + "/";
-       
-        m_path = m_relativity + path;
+        m_path = "Resources/" + path;
 
         return static_cast<sf::Music*>(m_sound.get())->openFromFile(m_path);
     }

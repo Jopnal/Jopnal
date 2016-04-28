@@ -19,27 +19,27 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_OS_HPP
-#define JOP_OS_HPP
+#ifndef JOP_VIDEOINFOIMPL_HPP
+#define JOP_VIDEOINFOIMPL_HPP
+
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
-#ifdef _WIN32
+namespace jop { namespace detail
+{
+    class VideoInfoImpl
+    {
+    public:
 
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
-        
-    #define JOP_OS_WINDOWS
-    #define JOP_OS_DESKTOP
+        static const std::vector<glm::uvec2>& getSupportedResolutions();
 
-#else
-
-    #error Unsupported OS
-
-#endif
+        static glm::uvec2 getDesktopResolution();
+    };
+}}
 
 #endif

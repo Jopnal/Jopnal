@@ -39,8 +39,10 @@ namespace jop
         if (val.HasMember("size") && val["size"].IsDouble())
             size = static_cast<float>(val["size"].GetDouble());
 
-        ResourceManager::getNamedResource<RectangleMesh>(val["name"].GetString(), size)
-        ;//    .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        auto& res = ResourceManager::getNamedResource<RectangleMesh>(val["name"].GetString(), size);
+        
+        if (val.HasMember("persistence") && val["persistence"].IsUint())
+            res.setPersistence(static_cast<uint16>(val["persistence"].GetUint()));
 
         return true;
     }
@@ -52,7 +54,7 @@ namespace jop
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
         val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        val.AddMember(json::StringRef("persistence"), ref.getPersistence(), alloc);
 
         return true;
     }

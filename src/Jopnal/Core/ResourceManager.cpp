@@ -84,7 +84,10 @@ namespace jop
                 if (itr->first.first == name)
                 {
                     if (itr->second->getPersistence() != 0)
+                    {
+                        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                         inst.m_resources.erase(itr);
+                    }
                     
                     break;
                 }
@@ -109,7 +112,10 @@ namespace jop
                 if (itr->second->getPersistence() == 0 || (descending ? itr->second->getPersistence() < persistence : itr->second->getPersistence() != persistence))
                     ++itr;
                 else
+                {
+                    JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                     itr = res.erase(itr);
+                }
             }
         }
     }
@@ -145,7 +151,7 @@ namespace jop
                     }
                     else
                     {
-                        JOP_DEBUG_WARNING("Couldn't load resource with type \"" << i["type"].GetString() << "\", load function not registered. Attempting to load the rest");
+                        JOP_DEBUG_WARNING("Couldn't load resource with type \"" << i["type"].GetString() << "\", load function not registered. Attempting to load the rest...");
                         continue;
                     }
                 }

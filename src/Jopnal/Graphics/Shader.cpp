@@ -508,7 +508,21 @@ namespace jop
 
     int Shader::getUniformLocation(const std::string& name)
     {
-        static const bool printErr = SettingManager::getBool("bPrintShaderLocationErrors", true);
+        static const struct Callback : SettingCallback<bool>
+        {
+            const char* const str;
+            bool err;
+            Callback()
+                : str("engine/Debug|bPrintShaderUniformLocationErrors"),
+                  err(SettingManager::get<bool>(str, true))
+            {
+                SettingManager::registerCallback(str, *this);
+            }
+            void valueChanged(const bool& value) override
+            {
+                err = value;
+            }
+        } cb;
 
         if (bind())
         {
@@ -521,7 +535,7 @@ namespace jop
 
             if (location == -1)
             {
-                if (printErr)
+                if (cb.err)
                     JOP_DEBUG_WARNING("Uniform/attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
             }
             else

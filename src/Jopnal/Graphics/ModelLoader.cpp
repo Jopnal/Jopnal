@@ -294,8 +294,23 @@ namespace jop
 
                             if (!hadShininess)
                             {
-                                static const float mult = SettingManager::getFloat("fDefaultGlossMapMultiplier", 255.f);
-                                m.setShininess(mult);
+                                static const struct Callback : SettingCallback<float>
+                                {
+                                    const char* const str;
+                                    float mult;
+                                    Callback()
+                                        : str("engine/Graphics|Shading|fGlossMapMultiplier"),
+                                          mult(SettingManager::get<float>(str, 255.f))
+                                    {
+                                        SettingManager::registerCallback(str, *this);
+                                    }
+                                    void valueChanged(const float& value) override
+                                    {
+                                        mult = value;
+                                    }
+                                } cb;
+
+                                m.setShininess(cb.mult);
                             }
                         }
                     }

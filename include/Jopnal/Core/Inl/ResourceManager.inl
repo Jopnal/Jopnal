@@ -240,5 +240,8 @@ void ResourceManager::unloadResource(const std::string& name)
     auto itr = res.find(std::make_pair(name, std::type_index(typeid(T))));
 
     if (itr != res.end() && itr->second->getPersistence())
+    {
+        JOP_DEBUG_INFO("\"" << itr->first << "\" (" << typeid(T).name() << ") unloaded");
         res.erase(itr);
+    }
 }

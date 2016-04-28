@@ -39,8 +39,14 @@ namespace jop
         if (val.HasMember("size") && val["size"].IsDouble())
             size = static_cast<float>(val["size"].GetDouble());
 
-        ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(), size)
-        ;//    .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+        bool inv = false;
+        if (val.HasMember("inverted") && val["inverted"].IsBool())
+            inv = val["inverted"].GetBool();
+
+        auto& res = ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(), size);
+
+        if (val.HasMember("persistence") && val["persistence"].IsUint())
+            res.setPersistence(static_cast<uint16>(val["persistence"].GetUint()));
 
         return true;
     }
@@ -52,7 +58,8 @@ namespace jop
 
         val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
         val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+        val.AddMember(json::StringRef("persistence"), ref.getPersistence(), alloc);
+        val.AddMember(json::StringRef("inverted"), ref.isInverted(), alloc);
 
         return true;
     }
@@ -72,7 +79,7 @@ namespace jop
           m_size        (0.f),
           m_inverted    (false)
     {
-        load(other.getSize(), other.m_inverted);
+        load(other.getSize(), other.isInverted());
     }
 
     //////////////////////////////////////////////
@@ -165,5 +172,12 @@ namespace jop
     float BoxMesh::getSize() const
     {
         return m_size;
+    }
+
+    //////////////////////////////////////////////
+
+    bool BoxMesh::isInverted() const
+    {
+        return m_inverted;
     }
 }

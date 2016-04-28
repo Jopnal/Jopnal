@@ -25,324 +25,598 @@
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace detail
 {
-    JOP_DERIVED_COMMAND_HANDLER(Subsystem, SettingManager)
-
-        JOP_BIND_COMMAND(&SettingManager::reload, "reloadSettings");
-        JOP_BIND_COMMAND(&SettingManager::save, "saveSettings");
-
-    JOP_END_COMMAND_HANDLER(SettingManager)
-}
-
-namespace
-{
-    namespace rj = rapidjson;
-
-    rj::Document ns_document;
-    bool ns_init = false;
-    std::recursive_mutex ns_mutex;
-
-    rj::Value& getRJValue(const std::string& name)
+    jop::json::Value* getJsonValue(const std::string& path, jop::json::Document& root, const bool create)
     {
-        if (!ns_document.HasMember(name.c_str()))
-            ns_document.AddMember(rj::Value(name.c_str(), ns_document.GetAllocator()), rj::Value(rj::kNullType), ns_document.GetAllocator());
-        
-        return ns_document[name.c_str()];
-    }
-
-    #pragma region ValueCasters
-
-    template<typename T = void>
-    T getCastValue(const rj::Value&, const std::string&)
-    {
-        static_assert(!std::is_void<T>::value, "Setting type not specialized");
-    }
-
-    template<>
-    int getCastValue<int>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an int): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return val.GetInt();
-    }
-
-    template<>
-    unsigned int getCastValue<unsigned int>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for an unsigned int): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return val.GetUint();
-    }
-
-    template<>
-    float getCastValue<float>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a float): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return static_cast<float>(val.GetDouble());
-    }
-
-    template<>
-    double getCastValue<double>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsNumber(), "Setting type not convertible! (asked for a double): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return val.GetDouble();
-    }
-
-    template<>
-    bool getCastValue<bool>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsBool(), "Setting type not convertible! (asked for a bool): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return val.GetBool();
-    }
-
-    template<>
-    std::string getCastValue<std::string>(const rj::Value& val, const std::string& name)
-    {
-        JOP_ASSERT(val.IsString(), "Setting type not convertible! (asked for an string): " + name);
-
-    #ifndef JOP_ENABLE_ASSERTS
-        name;
-    #endif
-
-        return std::string(val.GetString());
-    }
-
-    #pragma endregion ValueCasters
-
-    #pragma region ValueSetters
-
-    template<typename T>
-    void setRJValue(rj::Value& val, const T& newVal)
-    {
-        val = rj::Value(newVal);
-    }
-
-    template<>
-    void setRJValue<std::string>(rj::Value& val, const std::string& newVal)
-    {
-        val = rj::Value(newVal.c_str(), ns_document.GetAllocator());
-    }
-
-    #pragma endregion ValueSetters
-
-    template<typename T>
-    T getSetting(const std::string& name, const T& defaultValue)
-    {
-        if (name.empty())
-            return defaultValue;
-
-        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
-
-        rj::Value& val = getRJValue(name);
-
-        if (val.IsNull())
+        if (root.IsObject())
         {
-            setRJValue(val, defaultValue);
-            return defaultValue;
+            auto rootPos = path.find_first_of('/');
+
+            auto pos = (rootPos == std::string::npos ? 0 : rootPos + 1);
+            jop::json::Value* currentVal = &root;
+
+            do
+            {
+                auto next = path.find_first_of('|', pos + 1);
+
+                if (next == std::string::npos)
+                {
+                    const std::string obj(path.substr(pos));
+
+                    if (currentVal->HasMember(obj.c_str()))
+                        return &(*currentVal)[obj.c_str()];
+                    else
+                        return create ? &currentVal->AddMember(jop::json::Value(obj.c_str(), root.GetAllocator()), jop::json::Value(jop::json::kNullType), root.GetAllocator())[obj.c_str()] : nullptr;
+                }
+
+                const std::string obj(path.substr(pos, next - pos));
+
+                if (currentVal->HasMember(obj.c_str()))
+                    currentVal = &(*currentVal)[obj.c_str()];
+                else
+                {
+                    if (create)
+                        currentVal = &currentVal->AddMember(jop::json::Value(obj.c_str(), root.GetAllocator()), jop::json::Value(jop::json::kObjectType), root.GetAllocator())[obj.c_str()];
+                    else
+                        return nullptr;
+                }
+
+                pos = next + 1;
+
+            } while (pos != std::string::npos);
         }
 
-        return getCastValue<T>(val, name);
+        return nullptr;
     }
 
-    template<typename T>
-    void setSetting(const std::string& name, const T& newValue)
+    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc, jop::SettingManager::UpdaterMap& changers)
     {
-        if (name.empty())
-            return;
+        if (newVal.IsObject())
+        {
+            for (auto itr = newVal.MemberBegin(); itr != newVal.MemberEnd(); ++itr)
+            {
+                if (oldVal.HasMember(itr->name))
+                    checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc, changers);
+            }
+        }
+        else
+        {
+            if (oldVal != newVal)
+            {
+                oldVal.CopyFrom(newVal, alloc);
 
-        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, invoking " << changers.count(path) << " callbacks");
 
-        rj::Value& val = getRJValue(name);
-        setRJValue(val, newValue);
+                auto range = changers.equal_range(path);
+
+                for (auto itr = range.first; itr != range.second; ++itr)
+                    itr->second->valueChangedBase(oldVal);
+            }
+        }
     }
+
+    #pragma region VariableSetters
+    template<typename T>
+    void setVariable(jop::json::Value&, const T&, jop::json::Value::AllocatorType&)
+    {
+        static_assert(false, "Setting type not specialized");
+    }
+
+    template<>
+    void setVariable<bool>(jop::json::Value& val, const bool& value, jop::json::Value::AllocatorType&)
+    {
+        val.SetBool(value);
+    }
+
+    template<>
+    void setVariable<double>(jop::json::Value& val, const double& value, jop::json::Value::AllocatorType&)
+    {
+        val.SetDouble(value);
+    }
+
+    template<>
+    void setVariable<float>(jop::json::Value& val, const float& value, jop::json::Value::AllocatorType&)
+    {
+        val.SetDouble(static_cast<float>(value));
+    }
+
+    template<>
+    void setVariable<int>(jop::json::Value& val, const int& value, jop::json::Value::AllocatorType&)
+    {
+        val.SetInt(value);
+    }
+
+    template<>
+    void setVariable<unsigned int>(jop::json::Value& val, const unsigned int& value, jop::json::Value::AllocatorType&)
+    {
+        val.SetUint(value);
+    }
+
+    template<>
+    void setVariable<std::string>(jop::json::Value& val, const std::string& value, jop::json::Value::AllocatorType& alloc)
+    {
+        // We can assume the map has at least one setting structure
+        val.SetString(value.c_str(), alloc);
+    }
+#pragma endregion VariableSetters
+
+    #pragma region VariableCompare
+    template<typename T>
+    bool compareVariable(const jop::json::Value& left, const T& right)
+    {
+        return left == right;
+    }
+    template<>
+    bool compareVariable<std::string>(const jop::json::Value& left, const std::string& right)
+    {
+        return left == right.c_str();
+    }
+#pragma endregion VariableCompare
 }
 
 namespace jop
 {
-    int SettingManager::getInt(const std::string& name, const int defaultValue)
+    namespace detail
     {
-        return getSetting<int>(name, defaultValue);
+        json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot)
+        {
+            auto pos = name.find_first_of("/\\");
+
+            json::Document& doc = std::get<0>(settings[pos == std::string::npos || pos == 0 ? defRoot : name.substr(0, pos)]);
+
+            if (!doc.IsObject())
+                doc.SetObject();
+
+            return doc;
+        }
+
+        //////////////////////////////////////////////
+
+        template<typename T>
+        T getSetting(const std::string& path, const T& defaultValue, std::recursive_mutex& mutex, json::Document& root)
+        {
+            if (path.empty())
+                return defaultValue;
+
+            std::lock_guard<std::recursive_mutex> lock(mutex);
+
+            auto val = ::detail::getJsonValue(path, root, false);
+
+            if (!val)
+            {
+                auto newVal = ::detail::getJsonValue(path, root, true);
+
+                if (newVal)
+                {
+                    JOP_DEBUG_DIAG("Setting \"" << path << "\" doesn't exist. Creating an entry using value " << defaultValue);
+                    ::detail::setVariable<T>(*newVal, defaultValue, root.GetAllocator());
+                    return detail::fetchVariable<T>(*newVal);
+                }
+                else
+                {
+                    JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written. Using default value " << defaultValue);
+                    return defaultValue;
+                }
+            }
+
+            if (!detail::queryVariable<T>(*val))
+            {
+                JOP_DEBUG_ERROR("Setting \"" << path << "\" is not convertible into \"" << typeid(T).name() << "\". Using default value " << defaultValue);
+                return defaultValue;
+            }
+
+            return detail::fetchVariable<T>(*val);
+        }
+
+        //////////////////////////////////////////////
+
+        template<typename T>
+        void setSetting(const std::string& path, const T& value, std::recursive_mutex& mutex, SettingManager::UpdaterMap& updaters, json::Document& root)
+        {
+            std::lock_guard<std::recursive_mutex> lock(mutex);
+
+            json::Value* val = ::detail::getJsonValue(path, root, true);
+
+            if (!val)
+            {
+                JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written");
+                return;
+            }
+
+            if (detail::queryVariable<T>(*val) || val->IsNull())
+            {
+                if (val->IsNull() || !::detail::compareVariable(*val, value))
+                    ::detail::setVariable<T>(*val, value, root.GetAllocator());
+                else
+                    return;
+            }
+            else
+            {
+                JOP_DEBUG_ERROR("Setting \"" << path << "\" was not set, unmatched type");
+                return;
+            }
+
+            auto range = updaters.equal_range(path);
+            for (auto itr = range.first; itr != range.second; ++itr)
+                itr->second->valueChangedBase(*val);
+        }
     }
 
     //////////////////////////////////////////////
 
-    unsigned int SettingManager::getUint(const std::string& name, const unsigned int defaultValue)
+    bool SettingManager::settingExists(const std::string& path)
     {
-        return getSetting<unsigned int>(name, defaultValue);
+        return ::detail::getJsonValue(path, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot), false) != nullptr;
     }
 
     //////////////////////////////////////////////
 
-    float SettingManager::getFloat(const std::string& name, const float defaultValue)
+    #define GET_SETTING detail::getSetting(path, defaultValue, m_instance->m_mutex, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
+
+    template<>
+    bool SettingManager::get<bool>(const std::string& path, const bool& defaultValue)
     {
-        return getSetting<float>(name, defaultValue);
+        return GET_SETTING;
+    }
+
+    template<>
+    int SettingManager::get<int>(const std::string& path, const int& defaultValue)
+    {
+        return GET_SETTING;
+    }
+
+    template<>
+    unsigned int SettingManager::get<unsigned int>(const std::string& path, const unsigned int& defaultValue)
+    {
+        return GET_SETTING;
+    }
+
+    template<>
+    float SettingManager::get<float>(const std::string& path, const float& defaultValue)
+    {
+        return GET_SETTING;
+    }
+
+    template<>
+    double SettingManager::get<double>(const std::string& path, const double& defaultValue)
+    {
+        return GET_SETTING;
+    }
+
+    template<>
+    std::string SettingManager::get<std::string>(const std::string& path, const std::string& defaultValue)
+    {
+        return GET_SETTING;
     }
 
     //////////////////////////////////////////////
 
-    double SettingManager::getDouble(const std::string& name, const double defaultValue)
+    #define SET_SETTING detail::setSetting(path, value, m_instance->m_mutex, m_instance->m_updaters, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
+
+    template<>
+    void SettingManager::set<bool>(const std::string& path, const bool& value)
     {
-        return getSetting<double>(name, defaultValue);
+        SET_SETTING;
     }
 
-    //////////////////////////////////////////////
-
-    bool SettingManager::getBool(const std::string& name, const bool defaultValue)
+    template<>
+    void SettingManager::set<int>(const std::string& path, const int& value)
     {
-        return getSetting<bool>(name, defaultValue);
+        SET_SETTING;
     }
 
-    //////////////////////////////////////////////
-
-    std::string SettingManager::getString(const std::string& name, const std::string& defaultValue)
+    template<>
+    void SettingManager::set<unsigned int>(const std::string& path, const unsigned int& value)
     {
-        return getSetting<std::string>(name, defaultValue);
+        SET_SETTING;
     }
 
-    //////////////////////////////////////////////
-
-    void SettingManager::setInt(const std::string& name, const int value)
+    template<>
+    void SettingManager::set<float>(const std::string& path, const float& value)
     {
-        setSetting<int>(name, value);
+        SET_SETTING;
     }
 
-    //////////////////////////////////////////////
-
-    void SettingManager::setUint(const std::string& name, const unsigned int value)
+    template<>
+    void SettingManager::set<double>(const std::string& path, const double& value)
     {
-        setSetting<unsigned int>(name, value);
+        SET_SETTING;
     }
 
-    //////////////////////////////////////////////
-
-    void SettingManager::setFloat(const std::string& name, const float value)
+    template<>
+    void SettingManager::set<std::string>(const std::string& path, const std::string& value)
     {
-        setSetting<float>(name, value);
-    }
-
-    //////////////////////////////////////////////
-
-    void SettingManager::setDouble(const std::string& name, const double value)
-    {
-        setSetting<double>(name, value);
-    }
-
-    //////////////////////////////////////////////
-
-    void SettingManager::setBool(const std::string& name, const bool value)
-    {
-        setSetting<bool>(name, value);
-    }
-
-    //////////////////////////////////////////////
-
-    void SettingManager::setString(const std::string& name, const std::string& value)
-    {
-        setSetting<std::string>(name, value);
+        SET_SETTING;
     }
 
     //////////////////////////////////////////////
 
     void SettingManager::reload()
     {
-        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
-
-        std::string buf;
-        if (!FileLoader::readTextfile("config.json", buf))
         {
-            // Not using DebugHandler here since it relies on the initialization of this class
-            JOP_DEBUG_ERROR("Couldn't read the config file. Default settings will be used");
-            return;
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+            if (!m_instance)
+            {
+                JOP_DEBUG_ERROR("Couldn't load settings, no SettingManager instance");
+                return;
+            }
         }
 
-        ns_document.Parse<0>(buf.c_str());
+        std::vector<std::string> files;
+        FileLoader::listFiles("", files);
 
-        if (!json::checkParseError(ns_document))
-            JOP_DEBUG_ERROR("Couldn't parse the config file. Default settings will be used");
+        files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& str)
+        {
+            return str.find(".json") == std::string::npos;
+
+        }), files.end());
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        for (auto& i : files)
+        {
+            std::string text;
+            if (!FileLoader::readTextfile(i, text))
+                JOP_DEBUG_ERROR("Failed to read setting file \"" << i << "\". Default values will be used")
+
+            else
+            {
+                auto& doc = m_instance->m_settings[i.substr(0, i.find_last_of('.'))];
+                doc.second = false;
+                doc.first.Parse<0>(text.c_str());
+
+                if (!json::checkParseError(doc.first))
+                    JOP_DEBUG_ERROR("Setting file \"" << i << "\" has a parse error. Default values will be used")
+                else
+                    JOP_DEBUG_INFO("Setting file \"" << i << "\" found and loaded");
+            }
+        }
+
+        m_instance->m_filesUpdated.store(false);
     }
 
     //////////////////////////////////////////////
 
     void SettingManager::save()
     {
-        std::lock_guard<std::recursive_mutex> lock(ns_mutex);
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-        rj::StringBuffer buffer;
-        rj::PrettyWriter<rj::StringBuffer> writer(buffer);
-        ns_document.Accept(writer);
+        if (!m_instance)
+            JOP_DEBUG_ERROR("Couldn't save settings, no SettingManager instance");
 
-        if (FileLoader::writeTextfile(FileLoader::Directory::User, "config.json", buffer.GetString()))
-            JOP_DEBUG_INFO("Successfully saved settings")
-        else
-            JOP_DEBUG_ERROR("Error while saving settings");
+        for (auto& i : m_instance->m_settings)
+        {
+            json::StringBuffer buffer;
+            json::PrettyWriter<json::StringBuffer> writer(buffer);
+            i.second.first.Accept(writer);
+
+            if (FileLoader::writeTextfile(FileLoader::Directory::User, i.first + ".json", buffer.GetString()))
+                JOP_DEBUG_INFO("Saved setting file \"" << i.first << ".json\"")
+
+            else
+                JOP_DEBUG_ERROR("Failed to save setting file \"" << i.first << ".json\"");
+        }
     }
 
     //////////////////////////////////////////////
+
+    std::vector<std::unique_ptr<SettingCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
-        : Subsystem("Setting Manager")
+        : Subsystem("Setting Manager"),
+          m_defaultRoot("root")
     {
-        JOP_ASSERT(!ns_init, "There must not be more than one jop::SettingManager!");
-
-        if (FileLoader::fileExists("config.json"))
         {
-            reload();
-            goto Mark;
+            std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+            JOP_ASSERT(m_instance == nullptr, "There must not be more than one jop::SettingManager!");
+            m_instance = this;
         }
 
-        ns_document.SetObject();
-        save();
+        reload();
 
-        Mark:
+        m_defaultRoot = get<std::string>("sDefaultSettingRoot", "root");
 
-        const unsigned int defaultVerbosity =
-        #ifdef JOP_DEBUG_MODE
-            2;
-        #else
-            0;
+        if (get<bool>("engine/Settings|bAutoUpdate", true))
+        {
+            if (!m_watcher.start(FileLoader::getDirectory(FileLoader::Directory::User), [this](DirectoryWatcher::Info info)
+            {
+                if (info.filename.find(".json") != std::string::npos)
+                {
+                    m_settings[info.filename.substr(0, info.filename.find_last_of('.'))].second = true;
+                    m_filesUpdated.store(true);
+                }
+            }))
+                JOP_DEBUG_ERROR("Failed to start setting file watcher, settings won't be automatically refreshed");
+        }
+
+        // Load some settings for external systems. They cannot fetch these themselves as they might be
+        // initialized before SettingManager.
+        {
+            {
+                const char* const str = "engine/Debug|Console|bEnabled";
+
+                const bool console =
+                #ifdef JOP_DEBUG_MODE
+                    true;
+                #else
+                    false;
+                #endif
+
+                DebugHandler::getInstance().setEnabled(get<bool>(str, console));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setEnabled(value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str,  *ns_callbacks.back());
+            }{
+                const char* const str = "engine/Debug|Console|uVerbosity";
+                using S = DebugHandler::Severity;
+
+                DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), get<uint32>(str, JOP_CONSOLE_VERBOSITY))));
+
+                struct Callback : SettingCallback<uint32>
+                {
+                    void valueChanged(const uint32& value) override
+                    {
+                        using S = DebugHandler::Severity;
+                        DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), value)));
+                    }
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
+            }{
+                const char* const str = "engine/Debug|Console|bReduceSpam";
+
+                DebugHandler::getInstance().setReduceSpam(get<bool>(str, true));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setReduceSpam(value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
+            }
+        #ifdef JOP_OS_WINDOWS
+            {
+                const char* const str = "engine/Debug|Console|bDebuggerOutput";
+
+                DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && get<bool>(str, true));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
+            }
         #endif
 
-        DebugHandler::getInstance().setEnabled(getBool("bConsoleEnabled", true));
-        DebugHandler::getInstance().setVerbosity(static_cast<DebugHandler::Severity>(std::min(static_cast<unsigned int>(DebugHandler::Severity::Diagnostic), getUint("uConsoleVerbosity", defaultVerbosity))));
-        DebugHandler::getInstance().setReduceSpam(getBool("bReduceConsoleSpam", true));
+            {
+                const char* const str = "engine/Filesystem|bErrorChecks";
 
-    #ifdef JOP_OS_WINDOWS
-        DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && getBool("bDebuggerOutput", true));
-    #endif
+                FileLoader::enableErrorChecks(get<bool>(str, true));
 
-        FileLoader::enableErrorChecks(getBool("bFilesystemErrorChecks", true));
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {FileLoader::enableErrorChecks(value);}
+                };
 
-        ns_init = true;
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
+            }
+        }
     }
-
-    //////////////////////////////////////////////
 
     SettingManager::~SettingManager()
     {
+        m_watcher.stop();
+        ns_callbacks.clear();
+
         save();
+        m_instance = nullptr;
     }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::preUpdate(const float)
+    {
+        if (m_filesUpdated.load())
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+            for (auto& i : m_settings)
+            {
+                if (!i.second.second)
+                    continue;
+
+                JOP_DEBUG_INFO("Setting file modification detected (\"" << i.first << ".json\"), reloading...");
+
+                auto& val = i.second.first;
+
+                std::string newStr;
+                if (!FileLoader::readTextfile(i.first + ".json", newStr))
+                {
+                    JOP_DEBUG_ERROR("Couldn't read updated setting file \"" << i.first << ".json\"");
+                    continue;
+                }
+
+                json::Document newVals;
+                newVals.ParseInsitu<0>(&newStr[0]);
+
+                if (!json::checkParseError(newVals))
+                {
+                    JOP_DEBUG_ERROR("Couldn't parse updated setting file \"" << i.first << ".json\"");
+                    continue;
+                }
+
+                for (auto itr = newVals.MemberBegin(); itr != newVals.MemberEnd(); ++itr)
+                {
+                    if (val.HasMember(itr->name))
+                        ::detail::checkChanges(val, newVals, i.first + "/", val.GetAllocator(), m_updaters);
+                }
+            }
+
+            m_filesUpdated = false;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int SettingManager::registerCallback(const std::string& path, SettingCallbackBase& callback)
+    {
+        if (!m_instance)
+            return 0;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        auto& inst = *m_instance;
+        auto& map = inst.m_updaters;
+
+        callback.m_path = path;
+
+        map.emplace(path, &callback);
+
+        return map.count(path);
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::unregisterCallback(SettingCallbackBase& callback)
+    {
+        if (!m_instance)
+            return;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        auto& inst = *m_instance;
+        auto& map = inst.m_updaters;
+
+        auto range = map.equal_range(callback.m_path);
+
+        for (auto itr = range.first; itr != range.second; ++itr)
+        {
+            if (itr->second == &callback)
+            {
+                map.erase(itr);
+                break;
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    SettingManager* SettingManager::m_instance = nullptr;
 }

@@ -19,27 +19,10 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_OS_HPP
-#define JOP_OS_HPP
 
-//////////////////////////////////////////////
-
-
-#ifdef _WIN32
-
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
-        
-    #define JOP_OS_WINDOWS
-    #define JOP_OS_DESKTOP
-
-#else
-
-    #error Unsupported OS
-
-#endif
-
-#endif
+template<typename T>
+void SettingCallback<T>::valueChangedBase(const json::Value& val)
+{
+    if (detail::queryVariable<T>(val))
+        valueChanged(detail::fetchVariable<T>(val));
+}

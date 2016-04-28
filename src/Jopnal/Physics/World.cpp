@@ -210,7 +210,7 @@ namespace jop
         renderer;
     #endif
         
-        static const float gravity = SettingManager::getFloat("fDefaultWorldGravity", -9.81f);
+        static const float gravity = SettingManager::get<float>("engine/Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
@@ -236,7 +236,17 @@ namespace jop
 
     void World::update(const float deltaTime)
     {
-        static const float timeStep = 1.f / static_cast<float>(SettingManager::getUint("uPhysicsUpdateFrequency", 50));
+        static const char* const str = "engine/Physics|uUpdateFrequency";
+        static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
+
+        static struct Callback : SettingCallback<unsigned int>
+        {
+            float* val;
+            Callback(float* _val, const char* str) : val(_val)
+            {SettingManager::registerCallback(str, *this);}
+            void valueChanged(const unsigned int& value) override
+            {*val = 1.f / static_cast<float>(value);}
+        } cb(&timeStep, str);
 
         m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
     }

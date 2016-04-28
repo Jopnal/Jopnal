@@ -76,10 +76,16 @@ namespace jop
         ///
         float getSize() const;
 
+        /// \brief Check if this box is inverted
+        ///
+        /// \return True if inverted
+        ///
+        bool isInverted() const;
+
     private:
 
-        float m_size;   ///< This box's size
-        bool m_inverted;
+        float m_size;       ///< This box's size
+        bool m_inverted;    ///< Inverted?
     };
 }
 
