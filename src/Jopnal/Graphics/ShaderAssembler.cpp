@@ -112,7 +112,7 @@ namespace jop
 
         if (&s != &Shader::getError())
         {
-            s.setManaged(true);
+            s.setShouldSerialize(false);
 
             cont[attributes] = static_ref_cast<Shader>(s.getReference());
 

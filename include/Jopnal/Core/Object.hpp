@@ -24,6 +24,7 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <unordered_set>
@@ -33,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Object : public SafeReferenceable<Object>
+    class JOP_API Object : public SafeReferenceable<Object>, public SerializeInfo
     {
     private:
 

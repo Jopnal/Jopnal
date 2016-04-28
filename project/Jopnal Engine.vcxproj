@@ -35,6 +35,7 @@
     <ClInclude Include="..\include\Jopnal\Core\Component.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Object.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\Engine.hpp" />
+    <ClInclude Include="..\include\Jopnal\Core\SerializeInfo.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingCallback.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\StateLoader.hpp" />
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp" />
@@ -145,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Engine.cpp" />
+    <ClCompile Include="..\src\Jopnal\Core\SerializeInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingCallback.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\StateLoader.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />

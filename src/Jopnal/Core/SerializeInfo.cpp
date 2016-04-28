@@ -27,39 +27,47 @@
 
 namespace jop
 {
-    Resource::Resource(const std::string& name)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (name),
-          m_persistence                 (USHRT_MAX)
-    {}
-
-    Resource::Resource(const Resource& other, const std::string& newName)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (newName),
-          m_persistence                 (other.m_persistence)
-    {}
-
-    Resource::~Resource()
-    {}
-
-    //////////////////////////////////////////////
-
-    const std::string& Resource::getName() const
+    SerializeInfo::SerializeInfo()
+        : m_package(),
+          m_shouldSerialize(true),
+          m_light(false)
     {
-        return m_name;
+
     }
 
     //////////////////////////////////////////////
 
-    void Resource::setPersistence(const unsigned short persistence)
+    void SerializeInfo::setSerializePackage(const uint16 package)
     {
-        m_persistence = persistence;
+        m_package = package;
+    }
+
+    uint16 SerializeInfo::getSerializePackage() const
+    {
+        return m_package;
     }
 
     //////////////////////////////////////////////
 
-    unsigned short Resource::getPersistence() const
+    void SerializeInfo::setShouldSerialize(const bool set)
     {
-        return m_persistence;
+        m_shouldSerialize = set;
+    }
+
+    bool SerializeInfo::shouldSerialize() const
+    {
+        return m_shouldSerialize;
+    }
+
+    //////////////////////////////////////////////
+
+    void SerializeInfo::setLightSerializeable(const bool set)
+    {
+        m_light = set;
+    }
+
+    bool SerializeInfo::isLightSerializeable() const
+    {
+        return m_light;
     }
 }

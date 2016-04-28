@@ -19,47 +19,51 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_SERIALIZEINFO_HPP
+#define JOP_SERIALIZEINFO_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Resource::Resource(const std::string& name)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (name),
-          m_persistence                 (USHRT_MAX)
-    {}
-
-    Resource::Resource(const Resource& other, const std::string& newName)
-        : SafeReferenceable<Resource>   (this),
-          m_name                        (newName),
-          m_persistence                 (other.m_persistence)
-    {}
-
-    Resource::~Resource()
-    {}
-
-    //////////////////////////////////////////////
-
-    const std::string& Resource::getName() const
+    class JOP_API SerializeInfo
     {
-        return m_name;
-    }
+    public:
+    
+        SerializeInfo();
 
-    //////////////////////////////////////////////
 
-    void Resource::setPersistence(const unsigned short persistence)
-    {
-        m_persistence = persistence;
-    }
 
-    //////////////////////////////////////////////
 
-    unsigned short Resource::getPersistence() const
-    {
-        return m_persistence;
-    }
+        void setSerializePackage(const uint16 package);
+
+        uint16 getSerializePackage() const;
+
+
+        void setShouldSerialize(const bool set);
+
+        bool shouldSerialize() const;
+
+
+        void setLightSerializeable(const bool set);
+
+        bool isLightSerializeable() const;
+        
+    private:
+
+        uint16 m_package;
+        bool m_shouldSerialize;
+        bool m_light;
+    };
 }
+
+#endif
+
+/// \class SerializeInfo
+/// \ingroup core
+///
+/// #TODO Detailed description

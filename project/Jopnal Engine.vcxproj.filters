@@ -417,6 +417,7 @@
     <ClInclude Include="..\src\Jopnal\Window\Desktop\VideoInfoImpl.hpp">
       <Filter>Window\Source\Desktop</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\SerializeInfo.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -679,6 +680,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Window\VideoInfo.cpp">
       <Filter>Window\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SerializeInfo.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
