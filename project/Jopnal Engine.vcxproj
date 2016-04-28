@@ -117,6 +117,7 @@
     <ClInclude Include="..\include\Jopnal\Window\Controller.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Keyboard.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Mouse.hpp" />
+    <ClInclude Include="..\include\Jopnal\Window\VideoInfo.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\ThreadImpl.hpp" />
+    <ClInclude Include="..\src\Jopnal\Window\Desktop\VideoInfoImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\Desktop\WindowImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Window\GlCheck.hpp" />
   </ItemGroup>
@@ -221,9 +223,11 @@
     <ClCompile Include="..\src\Jopnal\Utility\Thread.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Win32\ThreadImpl.cpp" />
+    <ClCompile Include="..\src\Jopnal\Window\Desktop\VideoInfoImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Desktop\WindowImpl.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\GlCheck.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Keyboard.cpp" />
+    <ClCompile Include="..\src\Jopnal\Window\VideoInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\Window.cpp" />
     <ClCompile Include="..\src\Jopnal\Window\WindowEventHandler.cpp" />
   </ItemGroup>

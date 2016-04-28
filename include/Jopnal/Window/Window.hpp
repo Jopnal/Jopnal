@@ -40,6 +40,7 @@ struct GLFWwindow;
 namespace jop
 {
     class WindowEventHandler;
+    class SettingCallbackBase;
 
     namespace detail
     {

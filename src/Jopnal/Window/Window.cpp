@@ -47,6 +47,13 @@ namespace
         explicit jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
         void closed() override {jop::Engine::exit();}
     };
+
+    const char* const ns_settingStr[] =
+    {
+        /* 0 */ "engine/DefaultWindow|uSizeX",
+        /* 1 */ "engine/DefaultWindow|uSizeY",
+        /* 2 */ "engine/DefaultWindow|bVerticalSync"
+    };
 }
 
 namespace jop
@@ -63,14 +70,16 @@ namespace jop
     {
         if (loadSettings)
         {
-            size.x = SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeX", 1280); size.y = SettingManager::get<unsigned int>("engine/DefaultWindow|uSizeY", 720);
-            title = SettingManager::get<std::string>("engine/DefaultWindow|sTitle", getProjectName());
-            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SettingManager::get<unsigned int>("engine/DefaultWindow|uMode", 0)));
-            samples = SettingManager::get<unsigned int>("engine/DefaultWindow|uMultisampling", 0);
-            maxFrameRate = SettingManager::get<unsigned int>("engine/DefaultWindow|uFrameLimit", 0);
-            visible = SettingManager::get<bool>("engine/DefaultWindow|bVisible", true);
-            vSync = SettingManager::get<bool>("engine/DefaultWindow|bVerticalSync", true);
-            debug = SettingManager::get<bool>("engine/DefaultWindow|bDebugContext", false);
+            typedef SettingManager SM;
+
+            size.x = SM::get<unsigned int>(ns_settingStr[0], 1280); size.y = SM::get<unsigned int>(ns_settingStr[1], 720);
+            title = SM::get<std::string>("engine/DefaultWindow|sTitle", getProjectName());
+            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine/DefaultWindow|uMode", 0)));
+            samples = SM::get<unsigned int>("engine/DefaultWindow|uMultisampling", 0);
+            maxFrameRate = SM::get<unsigned int>("engine/DefaultWindow|uFrameLimit", 0);
+            visible = SM::get<bool>("engine/DefaultWindow|bVisible", true);
+            vSync = SM::get<bool>(ns_settingStr[2], true);
+            debug = SM::get<bool>("engine/DefaultWindow|bDebugContext", false);
         }
     }
 
@@ -79,13 +88,15 @@ namespace jop
     Window::Window()
         : RenderTarget      ("window"),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_callbacks       ()
     {}
 
     Window::Window(const Settings& settings)
         : RenderTarget      ("window"),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_callbacks       ()
     {
         open(settings);
         setDefaultEventHandler();
@@ -96,17 +107,16 @@ namespace jop
             gl::DebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
             {
                 if (severity == gl::DEBUG_SEVERITY_HIGH)
-                {
-                    JOP_DEBUG_ERROR(msg);
-                }
+                    JOP_DEBUG_ERROR(msg)
+
                 else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
-                {
-                    JOP_DEBUG_WARNING(msg);
-                }
+                    JOP_DEBUG_WARNING(msg)
+
                 else if (severity == gl::DEBUG_SEVERITY_LOW)
-                {
-                    JOP_DEBUG_INFO(msg);
-                }
+                    JOP_DEBUG_INFO(msg)
+
+                else if (severity == gl::DEBUG_SEVERITY_NOTIFICATION)
+                    JOP_DEBUG_DIAG(msg);
 
             }, NULL);
         }

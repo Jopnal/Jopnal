@@ -86,6 +86,8 @@ namespace detail
             {
                 oldVal.CopyFrom(newVal, alloc);
 
+                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, invoking " << changers.count(path) << " callbacks");
+
                 auto range = changers.equal_range(path);
 
                 for (auto itr = range.first; itr != range.second; ++itr)

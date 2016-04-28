@@ -19,27 +19,40 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_OS_HPP
-#define JOP_OS_HPP
+#ifndef JOP_VIDEOINFO_HPP
+#define JOP_VIDEOINFO_HPP
+
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/MathInclude.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
-#ifdef _WIN32
+namespace jop
+{
+    class JOP_API VideoInfo
+    {
+    public:
+    
+        /// \brief Get the supported full screen resolutions
+        ///
+        /// \return Reference to an internal array
+        ///
+        static const std::vector<glm::uvec2>& getSupportedResolutions();
 
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
-        
-    #define JOP_OS_WINDOWS
-    #define JOP_OS_DESKTOP
-
-#else
-
-    #error Unsupported OS
+        /// \brief Get the primary monitor desktop resolution
+        ///
+        /// \return Primary monitor desktop resolution
+        /// 
+        static glm::uvec2 getDesktopResolution();
+    };
+}
 
 #endif
 
-#endif
+/// \class VideoInfo
+/// \ingroup window
+///
+/// #TODO Detailed description

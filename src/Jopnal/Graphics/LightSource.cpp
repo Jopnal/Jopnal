@@ -285,11 +285,11 @@ namespace jop
 
         m_shadowMap.clear(RenderTarget::DepthBit);
 
-        static const float range = SettingManager::get<float>("engine/Graphics|Shading|fShadowMapFarPlane", 100.f);
-
         if (getType() == Type::Point)
         {
             auto pos = getObject()->getGlobalPosition();
+
+            const float range = getRange() * 10.f;
 
             const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, range);
 
@@ -318,7 +318,7 @@ namespace jop
             else
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
-                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, range) * trans;
+                m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans;
 
                 shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
@@ -443,7 +443,7 @@ namespace jop
 
         const auto& att = m_attenuation;
 
-        return (att.y + std::sqrtf(att.y * att.y - 4 * att.z * (att.x - (255.f / 5.f) * max))) / (2 * att.z);
+        return (att.y + std::sqrtf(att.y * att.y - 4 * att.z * (att.x - (255.f / 4.5f) * max))) / (2 * att.z);
     }
 
     //////////////////////////////////////////////
@@ -456,9 +456,23 @@ namespace jop
         const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
         const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
 
-        static const float bias = SettingManager::get<float>("engine/Graphics|Shading|fLightCullBias", 0.02f);
+        static const struct Callback : SettingCallback<float>
+        {
+            const char* const str;
+            float bias;
+            Callback()
+                : str("engine/Graphics|Shading|fLightCullThreshold"),
+                  bias(SettingManager::get<float>(str, 0.001f))
+            {
+                SettingManager::registerCallback(str, *this);
+            }
+            void valueChanged(const float& value) override
+            {
+                bias = value;
+            }
+        } cb;
 
-        return att > bias;
+        return att > cb.bias;
     }
 
     //////////////////////////////////////////////

@@ -99,10 +99,31 @@ namespace jop
 
     void EnvironmentRecorder::record()
     {
-        static const float farPlane = SettingManager::get<float>("engine/Graphics|Shading|fEnvironmentMapFarPlane", 1000.f);
-        static const glm::mat4 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+        static const struct Callback : SettingCallback<float>
+        {
+            const char* const str;
+            float farPlane;
+            glm::mat4 proj;
+            void updateProj()
+            {
+                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+            }
+            Callback()
+                : str("engine/Graphics|Shading|fEnvironmentRecordFarPlane"),
+                  farPlane(SettingManager::get<float>(str, 1000.f)),
+                  proj()
+            {
+                updateProj();
+                SettingManager::registerCallback(str, *this);
+            }
+            void valueChanged(const float& value) override
+            {
+                farPlane = value;
+                updateProj();
+            }
+        } cb;
 
-        LightSource::makeCubemapMatrices(proj, getObject()->getGlobalPosition(), m_matrices);
+        LightSource::makeCubemapMatrices(cb.proj, getObject()->getGlobalPosition(), m_matrices);
 
         auto& rend = m_rendererRef;
 
