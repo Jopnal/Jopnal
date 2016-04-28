@@ -567,8 +567,8 @@ namespace jop
         static const unsigned int pointShadowStartUnit = static_cast<unsigned int>(Material::Map::Last);
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
-        static const unsigned int dirShadowStartUnit = pointShadowStartUnit + LS::getMaximumLights(LS::Type::Point);
-        unsigned int currentDirShadowUnit = dirShadowStartUnit;
+        static const unsigned int dirSpotShadowStartUnit = pointShadowStartUnit + LS::getMaximumLights(LS::Type::Point);
+        unsigned int currentDirSpotShadowUnit = dirSpotShadowStartUnit;
         
         static std::array<std::vector<std::vector<std::string>>, 3> strCache;
         static bool cacheInit = false;
@@ -576,12 +576,12 @@ namespace jop
         if (!cacheInit)
         {
             strCache[0].resize(LS::getMaximumLights(LS::Type::Point));
-            strCache[1].resize(LS::getMaximumLights(LS::Type::Directional));
-            strCache[2].resize(LS::getMaximumLights(LS::Type::Spot));
+            strCache[1].resize(LS::getMaximumLights(LS::Type::Spot));
+            strCache[2].resize(LS::getMaximumLights(LS::Type::Directional));
 
-            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Point); ++i)
+            for (std::size_t i = 0; i < LS::getMaximumLights(LS::Type::Point); ++i)
             {
-                auto& cache = strCache[0][i];
+                auto& cache = strCache[static_cast<int>(LS::Type::Point)][i];
                 cache.reserve(8);
                 const std::string indexed = "u_PointLights[" + std::to_string(i) + "].";
 
@@ -598,26 +598,9 @@ namespace jop
                 /* 7 */ cache.emplace_back(indexed + "farPlane");
             }
 
-            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Directional); ++i)
+            for (std::size_t i = 0; i < LS::getMaximumLights(LS::Type::Spot); ++i)
             {
-                auto& cache = strCache[1][i];
-                cache.reserve(7);
-                const std::string indexed = "u_DirectionalLights[" + std::to_string(i) + "].";
-
-                /* 0 */ cache.emplace_back(indexed + "direction");
-
-                /* 1 */ cache.emplace_back(indexed + "ambient");
-                /* 2 */ cache.emplace_back(indexed + "diffuse");
-                /* 3 */ cache.emplace_back(indexed + "specular");
-                
-                /* 4 */ cache.emplace_back(indexed + "castShadow");
-                /* 5 */ cache.emplace_back(indexed + "lsMatrix");
-                /* 6 */ cache.emplace_back("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]");
-            }
-
-            for (std::size_t i = 0; i < LightSource::getMaximumLights(LightSource::Type::Spot); ++i)
-            {
-                auto& cache = strCache[2][i];
+                auto& cache = strCache[static_cast<int>(LS::Type::Spot)][i];
                 cache.reserve(10);
                 const std::string indexed = "u_SpotLights[" + std::to_string(i) + "].";
 
@@ -638,26 +621,43 @@ namespace jop
                 /* 9 */ cache.emplace_back("u_SpotLightShadowMaps[" + std::to_string(i) + "]");
             }
 
+            for (std::size_t i = 0; i < LS::getMaximumLights(LS::Type::Directional); ++i)
+            {
+                auto& cache = strCache[static_cast<int>(LS::Type::Directional)][i];
+                cache.reserve(7);
+                const std::string indexed = "u_DirectionalLights[" + std::to_string(i) + "].";
+
+                /* 0 */ cache.emplace_back(indexed + "direction");
+
+                /* 1 */ cache.emplace_back(indexed + "ambient");
+                /* 2 */ cache.emplace_back(indexed + "diffuse");
+                /* 3 */ cache.emplace_back(indexed + "specular");
+
+                /* 4 */ cache.emplace_back(indexed + "castShadow");
+                /* 5 */ cache.emplace_back(indexed + "lsMatrix");
+                /* 6 */ cache.emplace_back("u_DirectionalLightShadowMaps[" + std::to_string(i) + "]");
+            }
+
             cacheInit = true;
         }
 
         // Point lights
         {
-            auto& points = (*this)[LightSource::Type::Point];
+            auto& points = (*this)[LS::Type::Point];
             shader.setUniform("u_NumPointLights", points.size());
 
             for (std::size_t i = 0; i < points.size(); ++i)
             {
                 auto& li = *points[i];
-                auto& cache = strCache[0][i];
+                auto& cache = strCache[static_cast<int>(LS::Type::Point)][i];
 
                 // Position
                 shader.setUniform(cache[0], li.getObject()->getGlobalPosition());
 
                 // Intensity
-                shader.setUniform(cache[1], li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[2], li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
 
                 // Attenuation
                 shader.setUniform(cache[4], li.getAttenuationVec());
@@ -676,47 +676,15 @@ namespace jop
             }
         }
 
-        // Directional lights
-        {
-            auto& dirs = (*this)[LightSource::Type::Directional];
-            shader.setUniform("u_NumDirectionalLights", dirs.size());
-
-            for (std::size_t i = 0; i < dirs.size(); ++i)
-            {
-                auto& li = *dirs[i];
-                auto& cache = strCache[1][i];
-
-                // Direction
-                shader.setUniform(cache[0], li.getObject()->getGlobalFront());
-                
-                // Intensity
-                shader.setUniform(cache[1], li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[2], li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
-
-                // Shadow map
-                if (drawable.receiveShadows())
-                {
-                    shader.setUniform(cache[4], li.castsShadows());
-
-                    if (li.castsShadows())
-                    {
-                        shader.setUniform(cache[5], li.getLightspaceMatrix());
-                        shader.setUniform(cache[6], *li.getShadowMap(), currentDirShadowUnit++);
-                    }
-                }
-            }
-        }
-
         // Spot lights
         {
-            auto& spots = (*this)[LightSource::Type::Spot];
+            auto& spots = (*this)[LS::Type::Spot];
             shader.setUniform("u_NumSpotLights", spots.size());
 
             for (std::size_t i = 0; i < spots.size(); ++i)
             {
                 auto& li = *spots[i];
-                auto& cache = strCache[2][i];
+                auto& cache = strCache[static_cast<int>(LS::Type::Spot)][i];
 
                 // Position
                 shader.setUniform(cache[0], li.getObject()->getGlobalPosition());
@@ -725,9 +693,9 @@ namespace jop
                 shader.setUniform(cache[1], li.getObject()->getGlobalFront());
 
                 // Intensity
-                shader.setUniform(cache[2], li.getIntensity(LightSource::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LightSource::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[4], li.getIntensity(LightSource::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(cache[4], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
 
                 // Attenuation
                 shader.setUniform(cache[5], li.getAttenuationVec());
@@ -743,7 +711,39 @@ namespace jop
                     if (li.castsShadows())
                     {
                         shader.setUniform(cache[8], li.getLightspaceMatrix());
-                        shader.setUniform(cache[9], *li.getShadowMap(), currentDirShadowUnit++);
+                        shader.setUniform(cache[9], *li.getShadowMap(), currentDirSpotShadowUnit++);
+                    }
+                }
+            }
+        }
+
+        // Directional lights
+        {
+            auto& dirs = (*this)[LS::Type::Directional];
+            shader.setUniform("u_NumDirectionalLights", dirs.size());
+
+            for (std::size_t i = 0; i < dirs.size(); ++i)
+            {
+                auto& li = *dirs[i];
+                auto& cache = strCache[static_cast<int>(LS::Type::Directional)][i];
+
+                // Direction
+                shader.setUniform(cache[0], li.getObject()->getGlobalFront());
+                
+                // Intensity
+                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
+
+                // Shadow map
+                if (drawable.receiveShadows())
+                {
+                    shader.setUniform(cache[4], li.castsShadows());
+
+                    if (li.castsShadows())
+                    {
+                        shader.setUniform(cache[5], li.getLightspaceMatrix());
+                        shader.setUniform(cache[6], *li.getShadowMap(), currentDirSpotShadowUnit++);
                     }
                 }
             }
