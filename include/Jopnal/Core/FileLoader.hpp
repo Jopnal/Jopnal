@@ -276,11 +276,12 @@ namespace jop
         ///
         /// If the directory already exists, this has no effect.
         ///
+        /// \param dir The base write directory
         /// \param path The directory to create
         ///
         /// \return True if successful
         ///
-        static bool makeDirectory(const std::string& path);
+        static bool makeDirectory(const Directory dir, const std::string& path);
 
         /// \brief Get a base directory as string
         ///

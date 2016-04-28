@@ -34,6 +34,7 @@
 #include <functional>
 #include <tuple>
 #include <typeindex>
+#include <mutex>
 
 //////////////////////////////////////////////
 
@@ -137,27 +138,17 @@ namespace jop
         void registerSaveable(const char* id, const typename detail::FuncChooser<T>::SaveFunc& func);
         
 
-        /// \brief Save the current state
-        ///
-        /// \param path The file path + name to save into. The .jop extension will be appended automatically
-        /// \param scene Save the current scene?
-        /// \param sharedScene Save the shared scene?
-        /// \param subsystems Save the sub systems?
+        /// \brief 
         ///
         /// \return True if successful
         ///
-        static bool saveState(const std::string& path, const bool scene = true, const bool sharedScene = false);
+        static bool save(const std::string& descPath);
 
-        /// \brief Load the current state
-        ///
-        /// \param path The file path + name to load from. The .jop extension will be appended automatically
-        /// \param scene Load the current scene?
-        /// \param sharedScene Load the shared scene?
-        /// \param subsystems Load the sub systems?
+        /// \brief 
         ///
         /// \return True if successful
         ///
-        static bool loadState(const std::string& path, const bool scene = true, const bool sharedScene = false);
+        static bool load(const std::string& descPath);
 
 
         /// \brief Get the container with the registered load/save functions for the type T
@@ -209,7 +200,6 @@ namespace jop
 
         > m_loaderSavers;
         bool m_loading; ///< Currently loading flag
-
     };
 
     // Include the template implementation file

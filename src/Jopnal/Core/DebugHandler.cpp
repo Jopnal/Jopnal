@@ -198,7 +198,9 @@ namespace jop
           m_consoleEnabled  (false),
           m_noSpam          (true),
           m_debuggerOutput  (true),
-          m_mutex           ()
+          m_fileLogging     (false),
+          m_mutex           (),
+          m_fileHandles     ()
     {
     #ifdef JOP_DEBUG_MODE
         setEnabled(true);
@@ -264,6 +266,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void DebugHandler::setFileLogging(const bool set)
+    {
+        m_fileLogging = set;
+    }
+
+    //////////////////////////////////////////////
+
+    bool DebugHandler::fileLoggingEnabled() const
+    {
+        return m_fileLogging;
+    }
+
+    //////////////////////////////////////////////
+
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -280,7 +296,7 @@ namespace jop
 
         if ((isConsoleEnabled() || m_debuggerOutput) && m_lastSeverity <= m_displaySeverity)
         {
-            std::string newStr(m_stream.str());
+            const std::string newStr(m_stream.str());
 
             if (!m_noSpam || m_last != newStr)
             {
@@ -292,12 +308,21 @@ namespace jop
                     "DIAG:\t\t"
                 };
 
-                const std::string baseStr = std::string("[JOPNAL] ") + severityStr[static_cast<int>(m_lastSeverity)];
+                const unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
+
+                const std::string baseStr = std::string("[JOPNAL] ") + severityStr[severity];
+                const std::string finalString = baseStr + newStr + '\n';
 
                 if (isConsoleEnabled())
                 {
-                    std::cout << baseStr << newStr << '\n' << std::endl;
+                    std::cout << finalString << std::endl;
                     setConsoleColor(Color::White);
+                }
+
+                if (fileLoggingEnabled() && m_fileHandles[severity])
+                {
+                    m_fileHandles[severity] << finalString;
+                    m_fileHandles[severity].flush();
                 }
 
             #ifdef JOP_OS_WINDOWS
@@ -325,5 +350,34 @@ namespace jop
             setConsoleColor(color);
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void DebugHandler::openFileHandles()
+    {
+        for (std::size_t i = 0; i < m_fileHandles.size(); ++i)
+        {
+            static const char* const filepath[] =
+            {
+                "error.log",
+                "warning.log",
+                "info.log",
+                "diag.log"
+            };
+
+            const char sep = FileLoader::getDirectorySeparator();
+
+            m_fileHandles[i].open((FileLoader::getDirectory(FileLoader::Directory::User) + sep + "Log" + sep + filepath[i]).c_str(), std::ios::out | std::ios::trunc);
+
+            if (!m_fileHandles[i].good())
+                JOP_DEBUG_ERROR("Failed to open log file \"" << filepath[i] << "\" for writing");
+        }
+    }
+
+    void DebugHandler::closeFileHandles()
+    {
+        for (auto& i : m_fileHandles)
+            i.close();
     }
 }

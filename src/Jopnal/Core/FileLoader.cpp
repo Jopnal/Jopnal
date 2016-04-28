@@ -91,6 +91,8 @@ namespace jop
         JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
 
         checkError("Init");
+
+        DebugHandler::getInstance().openFileHandles();
         
         struct Logger : Assimp::Logger
         {
@@ -134,6 +136,8 @@ namespace jop
     {
         ns_importer.reset();
         Assimp::DefaultLogger::kill();
+
+        DebugHandler::getInstance().closeFileHandles();
 
         if (!PHYSFS_deinit())
             checkError("Filesystem deinit");
@@ -523,9 +527,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool FileLoader::makeDirectory(const std::string& path)
+    bool FileLoader::makeDirectory(const Directory dir, const std::string& path)
     {
-        if (PHYSFS_mkdir(path.c_str()) == 0)
+        if (PHYSFS_setWriteDir(getDirectory(dir).c_str()) || PHYSFS_mkdir(path.c_str()))
         {
             checkError(path);
             return false;

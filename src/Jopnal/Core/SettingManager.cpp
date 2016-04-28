@@ -435,17 +435,17 @@ namespace jop
         // Load some settings for external systems. They cannot fetch these themselves as they might be
         // initialized before SettingManager.
         {
+            const bool debugMode =
+            #ifdef JOP_DEBUG_MODE
+                true;
+            #else
+                false;
+            #endif
+
             {
                 const char* const str = "engine/Debug|Console|bEnabled";
 
-                const bool console =
-                #ifdef JOP_DEBUG_MODE
-                    true;
-                #else
-                    false;
-                #endif
-
-                DebugHandler::getInstance().setEnabled(get<bool>(str, console));
+                DebugHandler::getInstance().setEnabled(get<bool>(str, debugMode));
 
                 struct Callback : SettingCallback<bool>
                 {
@@ -481,6 +481,19 @@ namespace jop
                 {
                     void valueChanged(const bool& value) override
                     {DebugHandler::getInstance().setReduceSpam(value);}
+                };
+
+                ns_callbacks.emplace_back(std::make_unique<Callback>());
+                registerCallback(str, *ns_callbacks.back());
+            }{
+                const char* const str = "engine/Debug|Console|bLogToFile";
+
+                DebugHandler::getInstance().setFileLogging(get<bool>(str, debugMode));
+
+                struct Callback : SettingCallback<bool>
+                {
+                    void valueChanged(const bool& value) override
+                    {DebugHandler::getInstance().setFileLogging(value);}
                 };
 
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
