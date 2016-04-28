@@ -88,15 +88,13 @@ namespace jop
     Window::Window()
         : RenderTarget      ("window"),
           m_impl            (),
-          m_eventHandler    (),
-          m_callbacks       ()
+          m_eventHandler    ()
     {}
 
     Window::Window(const Settings& settings)
         : RenderTarget      ("window"),
           m_impl            (),
-          m_eventHandler    (),
-          m_callbacks       ()
+          m_eventHandler    ()
     {
         open(settings);
         setDefaultEventHandler();
