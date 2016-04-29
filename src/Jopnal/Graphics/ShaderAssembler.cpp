@@ -141,17 +141,6 @@ namespace jop
 
         str += "#version 330 core\n";
 
-        // Ambient constant
-        if ((attrib & m::AmbientConstant) != 0)
-        {
-            static const auto colors = Color(SettingManager::get<std::string>("engine/Graphics|Shading|uAmbientConstant", "010101FF")).asRGBFloatVector();
-            static const std::string ambConst = "#define JMAT_AMBIENT vec3("
-                                              + std::to_string(colors.r) + ","
-                                              + std::to_string(colors.g) + ","
-                                              + std::to_string(colors.b) + ")\n";
-            str += ambConst;
-        }
-
         // Material
         if ((attrib & m::__Lighting) != 0)
             str += "#define JMAT_MATERIAL\n";

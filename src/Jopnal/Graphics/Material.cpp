@@ -173,48 +173,67 @@ namespace jop
     {
         if (shader.bind())
         {
+            static const std::string strCache[] =
+            {
+                /* 0 */  "u_CameraPosition",
+                /* 1 */  "u_Material.ambient",
+                /* 2 */  "u_Material.diffuse",
+                /* 3 */  "u_Material.specular",
+                /* 4 */  "u_Material.emission",
+                /* 5 */  "u_Material.shininess",
+                /* 6 */  "u_Material.reflectivity",
+                /* 7 */  "u_Emission",
+                /* 8 */  "u_DiffuseMap",
+                /* 9 */  "u_SpecularMap",
+                /* 10 */ "u_EmissionMap",
+                /* 11 */ "u_OpacityMap",
+                /* 12 */ "u_GlossMap",
+                /* 13 */ "u_EnvironmentMap",
+                /* 14 */ "u_ReflectionMap"
+            };
+
             if (!hasAttribute(Attribute::__SkyBox))
             {
                 // Send camera position to shader
                 if (camera && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
-                    shader.setUniform("u_CameraPosition", camera->getObject()->getGlobalPosition());
+                    shader.setUniform(strCache[0], camera->getObject()->getGlobalPosition());
 
                 if (hasAttribute(Attribute::__Lighting))
                 {
-                    shader.setUniform("u_Material.ambient", m_reflection[ns_ambIndex].asRGBFloatVector());
-                    shader.setUniform("u_Material.diffuse", m_reflection[ns_diffIndex].asRGBFloatVector());
-                    shader.setUniform("u_Material.specular", m_reflection[ns_specIndex].asRGBFloatVector());
-                    shader.setUniform("u_Material.emission", m_reflection[ns_emissIndex].asRGBFloatVector());
-                    shader.setUniform("u_Material.shininess", m_shininess);
+                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[5], m_shininess);
 
                     if (hasAttribute(Attribute::EnvironmentMap))
-                        shader.setUniform("u_Material.reflectivity", m_reflectivity);
+                        shader.setUniform(strCache[6], m_reflectivity);
                 }
                 else
-                    shader.setUniform("u_Emission", m_reflection[ns_emissIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].asRGBFloatVector());
 
                 if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                    shader.setUniform("u_DiffuseMap", *getMap(Material::Map::Diffuse), ns_diffMapIndex);
+                    shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), ns_diffMapIndex);
 
                 if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                    shader.setUniform("u_SpecularMap", *getMap(Map::Specular), ns_specMapIndex);
+                    shader.setUniform(strCache[9], *getMap(Map::Specular), ns_specMapIndex);
 
                 if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                    shader.setUniform("u_EmissionMap", *getMap(Map::Emission), ns_emissMapIndex);
+                    shader.setUniform(strCache[10], *getMap(Map::Emission), ns_emissMapIndex);
 
                 if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                    shader.setUniform("u_OpacityMap", *getMap(Map::Opacity), ns_opacMapIndex);
+                    shader.setUniform(strCache[11], *getMap(Map::Opacity), ns_opacMapIndex);
 
                 if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
-                    shader.setUniform("u_GlossMap", *getMap(Map::Gloss), ns_glossMapIndex);
+                    shader.setUniform(strCache[12], *getMap(Map::Gloss), ns_glossMapIndex);
             }
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
-                shader.setUniform("u_EnvironmentMap", *getMap(Material::Map::Environment), ns_envMapIndex);
+                shader.setUniform(strCache[13], *getMap(Material::Map::Environment), ns_envMapIndex);
 
                 if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
-                    shader.setUniform("u_ReflectionMap", *getMap(Material::Map::Reflection), ns_reflMapIndex);
+                    shader.setUniform(strCache[14], *getMap(Material::Map::Reflection), ns_reflMapIndex);
             }
         }
     }

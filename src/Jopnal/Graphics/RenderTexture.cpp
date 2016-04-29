@@ -28,11 +28,6 @@
 namespace
 {
     std::atomic<unsigned int> ns_currentBuffer = 0;
-
-    int ns_lastZeroViewport[] =
-    {
-        0, 0, 0, 0
-    };
 }
 
 namespace jop
@@ -360,9 +355,6 @@ namespace jop
         {
             if (m_frameBuffer != ns_currentBuffer)
             {
-                if (!ns_currentBuffer)
-                    glCheck(gl::GetIntegerv(gl::VIEWPORT, ns_lastZeroViewport));
-
                 glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer));
                 ns_currentBuffer = m_frameBuffer;
             }
@@ -379,7 +371,6 @@ namespace jop
     {
         if (ns_currentBuffer)
         {
-            gl::Viewport(ns_lastZeroViewport[0], ns_lastZeroViewport[1], ns_lastZeroViewport[2], ns_lastZeroViewport[3]);
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
             ns_currentBuffer = 0;
         }

@@ -509,32 +509,21 @@ void main()
 
     // Assign the initial color
     vec3 tempColor =
-    #ifdef JMAT_AMBIENT
 
-        JMAT_AMBIENT
+    #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
+        vec3(texture(u_DiffuseMap, outVert.TexCoords))
 
-        #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
-        #endif
         #ifdef JMAT_VERTEXCOLOR
             * vec3(outVert.Color)
         #endif
-        ;
-
     #else
-
-        #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
-            vec3(texture(u_DiffuseMap, outVert.TexCoords))
-
-            #ifdef JMAT_VERTEXCOLOR
-                * vec3(outVert.Color)
-            #endif
+        #if defined(JMAT_VERTEXCOLOR)
+            vec3(outVert.Color)
         #else
             vec3(0.0, 0.0, 0.0)
         #endif
-        ;
-
     #endif
+    ;
 
     #ifdef JMAT_ENVIRONMENTMAP
 
@@ -619,7 +608,7 @@ void main()
         // applied twice. This is a somewhat working
         // approximation, though the colors are
         // still a bit wrong
-        1.9
+        2.05
     #else
         2.2
     #endif

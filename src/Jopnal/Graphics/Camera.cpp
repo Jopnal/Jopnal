@@ -348,10 +348,7 @@ namespace jop
 
     void Camera::applyViewport(const RenderTarget& mainTarget) const
     {
-        glm::uvec2 mainSize = mainTarget.getSize();
-
-        if (m_renderTexture.isValid())
-            mainSize = m_renderTexture.getSize();
+        const glm::uvec2 mainSize = m_renderTexture.isValid() ? m_renderTexture.getSize() : mainTarget.getSize();
 
         const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
         const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;

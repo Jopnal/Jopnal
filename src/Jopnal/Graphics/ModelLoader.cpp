@@ -145,7 +145,7 @@ namespace jop
             {
                 auto& mat = *scene.mMaterials[i];
                 
-                auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true).setAttributeField(Material::Attribute::AmbientConstant);
+                auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true);
 
                 // Reflection
                 {

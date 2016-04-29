@@ -58,12 +58,11 @@ namespace jop
             enum : AttribType
             {
                 // Misc
-                AmbientConstant = 1,
-                DiffuseAlpha    = AmbientConstant   << 1,
+                DiffuseAlpha    = 1,
                 VertexColor     = DiffuseAlpha      << 1, 
 
                 // Maps
-                DiffuseMap      = 1                 << 4,
+                DiffuseMap      = 1                 << 3,
                 SpecularMap     = DiffuseMap        << 1,
                 EmissionMap     = SpecularMap       << 1,
                 EnvironmentMap  = EmissionMap       << 1,
@@ -83,7 +82,7 @@ namespace jop
 
                 // Bundles
                 Default         = DiffuseMap,
-                DefaultLighting = AmbientConstant | BlinnPhong,
+                DefaultLighting = BlinnPhong,
 
                 // For internal functionality, do not use
                 __SkySphere     = 1  << 29,

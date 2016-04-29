@@ -182,7 +182,7 @@ namespace jop
         mutable std::string m_commandStr;                                           ///< String with the command & arguments
         std::string m_idPattern;                                                    ///< The id filter to compare any passed ids against
         std::unordered_set<std::string> m_tags;                                     ///< Tags to compare against
-        mutable Any& m_ptr;                                                         ///< Any object to store a possible return value
+        Any& m_ptr;                                                                 ///< Any object to store a possible return value
         unsigned short m_filterBits;                                                ///< Bit field with the system filter bits
         bool (*m_idMatchMethod)(const std::string&, const std::string&);            ///< Function to use in comparing the filter id and the passed id
         bool (*m_tagMatchMethod)(const decltype(m_tags)&, const decltype(m_tags)&); ///< Function to use in comparing the filter tags and the passed tags

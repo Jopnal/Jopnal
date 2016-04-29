@@ -222,7 +222,7 @@ namespace jop
 
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
-        mutable World& m_world;                 ///< The physics world
+        World& m_world;                         ///< The physics world
         float m_deltaScale;                     ///< Delta time scalar
     };
 
