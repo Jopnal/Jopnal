@@ -518,6 +518,8 @@ namespace jop
         void update(const float deltaTime);
 
 
+        void printDebugTree(const unsigned int level = 0) const;
+
 
         ////////////////////////////////////////////////////////////////////////////////
         // Transformations

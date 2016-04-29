@@ -143,6 +143,9 @@ namespace jop
         bool fileLoggingEnabled() const;
 
 
+        std::recursive_mutex& getMutex();
+
+
         /// \brief Operator for setting the severity level for the next text object
         ///
         /// \param severity The severity level

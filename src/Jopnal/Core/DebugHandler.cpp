@@ -280,6 +280,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::recursive_mutex& DebugHandler::getMutex()
+    {
+        return m_mutex;
+    }
+
+    //////////////////////////////////////////////
+
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);

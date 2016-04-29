@@ -669,6 +669,47 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
+    void Object::printDebugTree(const unsigned int level) const
+    {
+        auto& deb = DebugHandler::getInstance();
+
+        std::lock_guard<std::recursive_mutex> lock(deb.getMutex());
+
+        static const unsigned char codes[] =
+        {
+            196, // 0: Horizontal line
+            194, // 1: Right & down
+            195, // 2: Down & right
+            192, // 3: Right from up
+            179  // 4: Vertical line
+        };
+
+        if (level == 0)
+            deb << "Tree: \n\n" << getID() << "\n " << codes[3] << codes[childCount() > 0];
+
+        const auto& ch = getChildren();
+
+        std::string tabs;
+        for (unsigned int i = 0; i <= level; ++i)
+        {
+            tabs += "  ";
+
+            if (i < level)
+                tabs += codes[4];
+        }
+
+        for (auto itr = ch.begin(); itr != ch.end(); ++itr)
+        {
+            
+        }
+
+
+        if (level == 0)
+            JOP_DEBUG_INFO("\n\n");
+    }
+
     /////////////////////////////////////////////
 
     const std::string& Object::getID() const
