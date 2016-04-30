@@ -29,7 +29,7 @@ namespace jop
 {
     JOP_DERIVED_COMMAND_HANDLER(Component, Listener)
 
-        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+        JOP_BIND_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
 
     JOP_END_COMMAND_HANDLER(Listener)
 }
@@ -66,7 +66,7 @@ namespace jop
 
     ///////////////////////////////////////
 
-    float Listener::getGlobalVolume() const
+    float Listener::getGlobalVolume()
     {
         return sf::Listener::getGlobalVolume();
     }

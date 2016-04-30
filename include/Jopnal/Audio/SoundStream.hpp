@@ -36,6 +36,11 @@ namespace sf
 
 namespace jop
 {
+    namespace detail
+    {
+        class AudioStream;
+    }
+
     class JOP_API SoundStream : public SoundSource
     {
     private:
@@ -57,6 +62,10 @@ namespace jop
         /// \param newObj New object for this stream component
         ///
         SoundStream(const SoundStream& other, Object& newObj);
+
+        /// \brief Destructor
+        ///
+        ~SoundStream() override;
 
 
         /// \brief Stream audio from file
@@ -104,6 +113,7 @@ namespace jop
     private:
 
         std::string m_path; ///< Remembers streaming path for cloning
+        std::unique_ptr<detail::AudioStream> m_stream;
     };
 }
 #endif

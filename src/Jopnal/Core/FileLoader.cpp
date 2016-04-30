@@ -47,6 +47,10 @@ namespace
 
             if (error)
                 JOP_DEBUG_ERROR("Filesystem error: " << error << " (" << info << ")");
+
+        #if JOP_CONSOLE_VERBOSITY < 0
+            info;
+        #endif
         }
     }
 

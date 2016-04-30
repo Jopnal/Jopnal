@@ -518,7 +518,7 @@ namespace jop
         void update(const float deltaTime);
 
 
-        void printDebugTree(const unsigned int level = 0) const;
+        void printDebugTree(std::vector<uint32> spacing = std::vector<uint32>()) const;
 
 
         ////////////////////////////////////////////////////////////////////////////////

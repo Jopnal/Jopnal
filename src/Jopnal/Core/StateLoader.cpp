@@ -287,6 +287,10 @@ namespace jop
             return false;
         }
 
+    #if JOP_CONSOLE_VERBOSITY < 0
+        path;
+    #endif
+
         return true;
     }
 

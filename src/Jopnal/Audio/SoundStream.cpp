@@ -40,20 +40,65 @@ namespace jop
 
 namespace jop
 {
+    namespace detail
+    {
+        class AudioStream : public sf::InputStream
+        {
+            FileLoader m_loader;
+
+        public:
+
+            AudioStream(const std::string& path)
+                : sf::InputStream   (),
+                  m_loader          (path)
+            {}
+
+            operator bool() const
+            {
+                return m_loader.isValid();
+            }
+
+            //////////////////////////////////////////////
+
+            sf::Int64 read(void* data, sf::Int64 size) override
+            {
+                return m_loader.read(data, size);
+            }
+
+            sf::Int64 seek(sf::Int64 position) override
+            {
+                m_loader.seek(position);
+                return tell();
+            }
+
+            sf::Int64 tell() override
+            {
+                return m_loader.tell();
+            }
+
+            sf::Int64 getSize() override
+            {
+                return m_loader.getSize();
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     SoundStream::SoundStream(Object& object)
         : SoundSource   (object, "soundstream"),
-          m_path        ()
+          m_path        (),
+          m_stream      ()
     {
         m_sound = std::make_unique<sf::Music>();
     }
 
     SoundStream::SoundStream(const SoundStream& other, Object& newObj)
         : SoundSource   (other, newObj),
-          m_path        (other.m_path)
+          m_path        (),
+          m_stream      ()
     {
-        m_sound = std::make_unique<sf::Music>();
-       
-        auto& s = static_cast<sf::Music&>(*m_sound);
+        auto& s = static_cast<sf::Music&>(*(m_sound = std::make_unique<sf::Music>()));
         auto& o = static_cast<const sf::Music&>(*other.m_sound);
         
         s.setPitch              (o.getPitch());
@@ -61,17 +106,42 @@ namespace jop
         s.setRelativeToListener (o.isRelativeToListener());
         s.setMinDistance        (o.getMinDistance());
         s.setAttenuation        (o.getAttenuation());
-        s.setLoop               (o.getLoop());       
-        s.openFromFile          (other.m_path);
+        s.setLoop               (o.getLoop());
+
+        if (!other.m_path.empty())
+            setPath(other.m_path);
+    }
+
+    SoundStream::~SoundStream()
+    {
+        // Sound needs to be freed before the file stream
+        m_sound.reset();
     }
 
     //////////////////////////////////////////////
 
     bool SoundStream::setPath(const std::string& path)
     {
-        m_path = "Resources/" + path;
+        if (path.empty())
+        {
+            JOP_DEBUG_ERROR("Failed to open sound stream (object \"" << getObject()->getID() << "\"), file path is empty");
+            return false;
+        }
 
-        return static_cast<sf::Music*>(m_sound.get())->openFromFile(m_path);
+        auto stream = std::make_unique<detail::AudioStream>(path);
+
+        if (stream->operator bool() && static_cast<sf::Music*>(m_sound.get())->openFromStream(*stream))
+        {
+            JOP_DEBUG_INFO("Successfully opened sound source: " << path);
+            m_path = path;
+            m_stream = std::move(stream);
+
+            return true;
+        }
+
+        JOP_DEBUG_ERROR("Failed to open sound stream, unable to open file stream: " << path);
+
+        return false;
     }
 
     //////////////////////////////////////////////

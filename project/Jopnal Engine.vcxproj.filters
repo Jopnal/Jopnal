@@ -608,9 +608,6 @@
     <ClCompile Include="..\src\Jopnal\Audio\SoundStream.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
-      <Filter>Audio\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp">
       <Filter>Physics\Source\Shape</Filter>
     </ClCompile>
@@ -685,6 +682,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\SerializeInfo.cpp">
       <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
+      <Filter>Audio\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

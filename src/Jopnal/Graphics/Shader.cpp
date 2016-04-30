@@ -136,6 +136,9 @@ namespace jop
 
                 JOP_DEBUG_ERROR("Failed to compile " << (shaderType == 0 ? "vertex" : (shaderType == 1 ? "geometry" : "fragment")) << " shader:\n" << log);
 
+            #if JOP_CONSOLE_VERBOSITY < 0
+                shaderType;
+            #endif
             }
 
         #ifdef JOP_DEBUG_MODE

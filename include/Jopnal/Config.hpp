@@ -36,6 +36,9 @@
 // Debug
 #define JOP_DEBUG_MODE
 
+// Disable console
+//#define JOP_DISABLE_CONSOLE
+
 // Console
 #if defined(JOP_DEBUG_MODE)
     #define JOP_CONSOLE_VERBOSITY 3

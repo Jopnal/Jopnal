@@ -100,7 +100,7 @@ namespace jop
         setDefaultEventHandler();
 
     #ifdef JOP_DEBUG_MODE
-        if (gl::exts::var_KHR_debug)
+        if (gl::exts::var_KHR_debug && settings.debug)
         {
             gl::DebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
             {

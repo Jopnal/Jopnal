@@ -456,6 +456,8 @@ namespace jop
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str,  *ns_callbacks.back());
             }{
+            #ifndef JOP_DISABLE_CONSOLE
+
                 const char* const str = "engine/Debug|Console|uVerbosity";
                 using S = DebugHandler::Severity;
 
@@ -472,6 +474,8 @@ namespace jop
 
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str, *ns_callbacks.back());
+
+            #endif
             }{
                 const char* const str = "engine/Debug|Console|bReduceSpam";
 

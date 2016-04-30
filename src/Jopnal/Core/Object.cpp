@@ -671,8 +671,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::printDebugTree(const unsigned int level) const
+    void Object::printDebugTree(std::vector<uint32> spacing) const
     {
+    #if JOP_CONSOLE_VERBOSITY >= 2
+
         auto& deb = DebugHandler::getInstance();
 
         std::lock_guard<std::recursive_mutex> lock(deb.getMutex());
@@ -686,28 +688,31 @@ namespace jop
             179  // 4: Vertical line
         };
 
-        if (level == 0)
-            deb << "Tree: \n\n" << getID() << "\n " << codes[3] << codes[childCount() > 0];
+        deb << getID();
+        spacing.emplace_back(getID().length() / 2 - 1);
 
-        const auto& ch = getChildren();
-
-        std::string tabs;
-        for (unsigned int i = 0; i <= level; ++i)
+        auto& c = getChildren();
+        for (auto itr = c.begin(); itr != c.end(); ++itr)
         {
-            tabs += "  ";
+            for (auto s : spacing)
+            {
+                for (uint32 i = 0; i < s; ++i)
+                    deb << " ";
 
-            if (i < level)
-                tabs += codes[4];
+                deb << codes[4];
+            }
+
+            itr->printDebugTree(spacing);
         }
 
-        for (auto itr = ch.begin(); itr != ch.end(); ++itr)
-        {
-            
-        }
-
-
-        if (level == 0)
+        if (spacing.size() == 1)
             JOP_DEBUG_INFO("\n\n");
+
+    #else
+
+        spacing;
+
+    #endif
     }
 
     /////////////////////////////////////////////

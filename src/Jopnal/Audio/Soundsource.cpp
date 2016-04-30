@@ -31,7 +31,7 @@ namespace jop
 
         JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setVolume, "setVolume");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setPitch, "setPitch");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setListener, "setListener");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setSpatialized, "setSpatialized");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setMinDistance, "setMinDistance");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setAttenuation, "setAttenuation");
 
@@ -93,17 +93,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::setListener(const bool toggle)
+    SoundSource& SoundSource::setSpatialized(const bool set)
     {
-        m_sound->setRelativeToListener(toggle);
+        m_sound->setRelativeToListener(!set);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    bool SoundSource::getListener() const
+    bool SoundSource::isSpatialized() const
     {
-        return m_sound->isRelativeToListener();
+        return !m_sound->isRelativeToListener();
     }
 
     //////////////////////////////////////////////
@@ -118,7 +118,7 @@ namespace jop
 
     SoundSource& SoundSource::setMinDistance(const float min)
     {
-        m_sound->setMinDistance(std::max(1.f, min));
+        m_sound->setMinDistance(std::max(FLT_MIN, min));
         return *this;
     }
 
