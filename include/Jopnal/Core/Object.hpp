@@ -736,7 +736,11 @@ namespace jop
 
         /// \brief Set this transform to look at a certain point
         ///
-        /// The rotation is applied locally.
+        /// The rotation is applied locally. If you want to set the rotation
+        /// to point at an absolute world position, use setIgnoreTransform() to
+        /// restrict the rotation.
+        ///
+        /// This overload will use Transform::Up as the up vector.
         ///
         /// \param point The point to look at
         ///
@@ -751,6 +755,8 @@ namespace jop
         Object& lookAt(const glm::vec3& point, const glm::vec3& up);
 
         /// \brief Set this transform to look at a certain point
+        ///
+        /// \copydetails lookAt(const glm::vec3)
         ///
         /// \param x The X point
         /// \param y The Y point
