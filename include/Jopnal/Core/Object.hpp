@@ -50,13 +50,33 @@ namespace jop
             ChildrenRemovedFlag = 1 << 2,
 
             // Transformations
-            IgnoreParent        = 1 << 3,
-            MatrixDirty         = 1 << 4,
-            InverseMatrixDirty  = 1 << 5,
+            MatrixDirty         = 1 << 3,
+            InverseMatrixDirty  = 1 << 4,
 
-            GlobalRotationDirty = 1 << 6,
-            GlobalScaleDirty    = 1 << 7,
-            GlobalPositionDirty = 1 << 8
+            GlobalRotationDirty = 1 << 5,
+            GlobalScaleDirty    = 1 << 6,
+            GlobalPositionDirty = 1 << 7
+        };
+
+    public:
+
+        /// Transformation restrictions
+        ///
+        enum TransformRestriction : uint16
+        {
+            TranslationX = 1 << 8,
+            TranslationY = 1 << 9,
+            TranslationZ = 1 << 10,
+            Translation = TranslationX | TranslationY | TranslationZ,
+
+            ScaleX = 1 << 11,
+            ScaleY = 1 << 12,
+            ScaleZ = 1 << 13,
+            Scale = ScaleX | ScaleY | ScaleZ,
+
+            Rotation = 1 << 14,
+
+            IgnoreParent = Translation | Scale | Rotation
         };
 
     public:
@@ -837,6 +857,30 @@ namespace jop
         /// \return True if ignores parent
         ///
         bool ignoresParent() const;
+
+
+        /// \brief Set transform restriction flags
+        ///
+        /// Use this function to ignore certain global transformations. The
+        /// local transformation values remain unaffected.
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see TransformRestriction
+        ///
+        Object& setIgnoreTransform(const uint16 flags);
+
+        /// \brief Check if a transform restriction has been set
+        ///
+        /// You should only check a single flag at a time.
+        ///
+        /// \param flag The flag to check
+        ///
+        /// \return True if the flag is set
+        ///
+        bool ignoresTransform(const uint16 flag);
 
     private:
 

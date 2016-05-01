@@ -73,6 +73,8 @@ namespace jop
 
         using Object::printDebugTree;
 
+        using TransformRestriction = Object::TransformRestriction;
+
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);

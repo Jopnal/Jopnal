@@ -412,21 +412,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::setIgnoreParent(const bool ignore)
-    {
-        ignore ? setFlags(IgnoreParent) : clearFlags(IgnoreParent);
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Object::ignoresParent() const
-    {
-        return flagSet(IgnoreParent);
-    }
-
-    //////////////////////////////////////////////
-
     WeakReference<Object> Object::getParent() const
     {
         return m_parent;
@@ -788,7 +773,55 @@ namespace jop
             m_transform.scale(getLocalScale());
 
             if (!m_parent.expired() && !ignoresParent())
-                m_transform = m_parent->getTransform() * m_transform;
+            {
+                Transform globalTrans = m_parent->getTransform();
+                glm::mat4& globalMat = globalTrans.getMatrix();
+
+                if (flagSet(ScaleX)) globalMat[0] = glm::normalize(globalMat[0]);
+                if (flagSet(ScaleY)) globalMat[1] = glm::normalize(globalMat[1]);
+                if (flagSet(ScaleZ)) globalMat[2] = glm::normalize(globalMat[2]);
+                
+                if (flagSet(Rotation))
+                {
+                    const glm::vec3 scl
+                    (
+                        glm::length(globalMat[0]),
+                        glm::length(globalMat[1]),
+                        glm::length(globalMat[2])
+                    );
+
+                    m_transform.getMatrix()[3] = glm::quat(globalMat) * m_transform.getMatrix()[3];
+
+                    globalMat[0] = glm::mat4::col_type(scl.x, 0.f, 0.f, 0.f);
+                    globalMat[1] = glm::mat4::col_type(0.f, scl.y, 0.f, 0.f);
+                    globalMat[2] = glm::mat4::col_type(0.f, 0.f, scl.z, 0.f);
+                }
+
+                if (flagSet(Translation))
+                {
+                    glm::mat4& localMat = m_transform.getMatrix();
+
+                    if (flagSet(TranslationX))
+                    {
+                        globalMat[3][0] = 0.f;
+                        localMat[3][0] = getLocalPosition().x;
+                    }
+                    
+                    if (flagSet(TranslationY))
+                    {
+                        globalMat[3][1] = 0.f;
+                        localMat[3][1] = getLocalPosition().y;
+                    }
+
+                    if (flagSet(TranslationZ))
+                    {
+                        globalMat[3][2] = 0.f;
+                        localMat[3][2] = getLocalPosition().z;
+                    }
+                }
+
+                m_transform = globalTrans * m_transform;
+            }
 
             clearFlags(MatrixDirty);
         }
@@ -869,10 +902,7 @@ namespace jop
     {
         if (flagSet(GlobalRotationDirty))
         {
-            if (m_parent.expired() || ignoresParent())
-                m_globals.rotation = getLocalRotation();
-            else
-                m_globals.rotation = m_parent->getGlobalRotation() * getLocalRotation();
+            m_globals.rotation = glm::quat(getTransform().getMatrix());
 
             clearFlags(GlobalRotationDirty);
         }
@@ -959,10 +989,14 @@ namespace jop
     {
         if (flagSet(GlobalScaleDirty))
         {
-            if (m_parent.expired() || ignoresParent())
-                m_globals.scale = getLocalScale();
-            else
-                m_globals.scale = m_parent->getGlobalScale() * getLocalScale();
+            const auto& mat = getTransform().getMatrix();
+
+            m_globals.scale = glm::vec3
+            (
+                glm::length(mat[0]),
+                glm::length(mat[1]),
+                glm::length(mat[2])
+            );
 
             clearFlags(GlobalScaleDirty);
         }
@@ -1000,7 +1034,7 @@ namespace jop
     {
         if (flagSet(GlobalPositionDirty))
         {
-            auto& mat = getTransform().getMatrix();
+            const auto& mat = getTransform().getMatrix();
             m_globals.position = glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
 
             clearFlags(GlobalPositionDirty);
@@ -1091,6 +1125,36 @@ namespace jop
     Object& Object::scale(const float delta)
     {
         return scale(glm::vec3(delta));
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setIgnoreParent(const bool ignore)
+    {
+        ignore ? setFlags(IgnoreParent) : clearFlags(IgnoreParent);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::ignoresParent() const
+    {
+        return (m_flags & IgnoreParent) == IgnoreParent;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setIgnoreTransform(const uint16 flags)
+    {
+        setFlags((flags & IgnoreParent) | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalScaleDirty | GlobalRotationDirty);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::ignoresTransform(const uint16 flag)
+    {
+        return flagSet(flag);
     }
 
     //////////////////////////////////////////////
