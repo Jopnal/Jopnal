@@ -102,7 +102,7 @@ namespace jop
             const char* const str;
             bool validate;
             Callback()
-                : str("engine/Debug|bValidateShaders"),
+                : str("engine@Debug|bValidateShaders"),
                   validate(SettingManager::get<bool>(str, false))
             {
                 SettingManager::registerCallback(str, *this);

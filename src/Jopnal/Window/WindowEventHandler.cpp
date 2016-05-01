@@ -583,8 +583,8 @@ namespace jop
     {
     #ifdef JOP_OS_DESKTOP
 
-        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine/Input|Controller|uMaxControllers", 1)));
-        static const float deadzone = SettingManager::get<float>("engine/Input|Controller|fDeadzone", 0.1f);
+        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
+        static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
         static unsigned int counter = 99;
 
         // Query the presence of controllers and update states.

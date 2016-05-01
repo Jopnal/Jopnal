@@ -70,7 +70,7 @@ namespace jop
           m_mask        (1),
           m_rendererRef (renderer)
     {
-        static const int mapResolution = SettingManager::get<unsigned int>("engine/Graphics|Shading|uEnvironmentMapSize", 128);
+        static const int mapResolution = SettingManager::get<unsigned int>("engine@Graphics|Shading|uEnvironmentMapSize", 128);
 
         using ca = RenderTexture::ColorAttachment;
         using da = RenderTexture::DepthAttachment;
@@ -109,7 +109,7 @@ namespace jop
                 proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
             }
             Callback()
-                : str("engine/Graphics|Shading|fEnvironmentRecordFarPlane"),
+                : str("engine@Graphics|Shading|fEnvironmentRecordFarPlane"),
                   farPlane(SettingManager::get<float>(str, 1000.f)),
                   proj()
             {

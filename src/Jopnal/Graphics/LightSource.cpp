@@ -206,7 +206,7 @@ namespace jop
         {
             if (castShadows)
             {
-                static const unsigned int mapSize = SettingManager::get<unsigned int>("engine/Graphics|Shading|uShadowMapResolution", 512);
+                static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
                 
                 using ca = RenderTexture::ColorAttachment;
 
@@ -461,7 +461,7 @@ namespace jop
             const char* const str;
             float bias;
             Callback()
-                : str("engine/Graphics|Shading|fLightCullThreshold"),
+                : str("engine@Graphics|Shading|fLightCullThreshold"),
                   bias(SettingManager::get<float>(str, 0.001f))
             {
                 SettingManager::registerCallback(str, *this);
@@ -496,9 +496,9 @@ namespace jop
     {
         static const unsigned int maxLights[] =
         {
-            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxPointLights", 8),
-            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxDirectionalLights", 2),
-            SettingManager::get<unsigned int>("engine/Graphics|Shading|uMaxSpotLights", 2)
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxPointLights", 8),
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxDirectionalLights", 2),
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxSpotLights", 2)
         };
 
         return maxLights[static_cast<int>(type)];

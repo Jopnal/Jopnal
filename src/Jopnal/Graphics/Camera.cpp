@@ -153,13 +153,13 @@ namespace jop
 
         if (mode == Projection::Orthographic)
         {
-            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
+            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
             setSize(Engine::getMainRenderTarget().getSize());
         }
         else
         {
-            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
-            setFieldOfView(SettingManager::get<float>("engine/Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
+            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
+            setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
             setSize(Engine::getMainRenderTarget().getSize());
         }
 

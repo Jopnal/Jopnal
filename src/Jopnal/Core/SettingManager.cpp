@@ -31,7 +31,7 @@ namespace detail
     {
         if (root.IsObject())
         {
-            auto rootPos = path.find_first_of('/');
+            auto rootPos = path.find_first_of('@');
 
             auto pos = (rootPos == std::string::npos ? 0 : rootPos + 1);
             jop::json::Value* currentVal = &root;
@@ -161,7 +161,7 @@ namespace jop
     {
         json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot)
         {
-            auto pos = name.find_first_of("/\\");
+            auto pos = name.find_first_of('@');
 
             json::Document& doc = std::get<0>(settings[pos == std::string::npos || pos == 0 ? defRoot : name.substr(0, pos)]);
 
@@ -345,7 +345,7 @@ namespace jop
         }
 
         std::vector<std::string> files;
-        FileLoader::listFiles("", files);
+        FileLoader::listFilesRecursive("Config", files);
 
         files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& str)
         {
@@ -363,8 +363,10 @@ namespace jop
 
             else
             {
-                auto& doc = m_instance->m_settings[i.substr(0, i.find_last_of('.'))];
+                const auto cutPos = i.find_first_of('/') + 1;
+                auto& doc = m_instance->m_settings[i.substr(cutPos, i.find_last_of('.') - cutPos)];
                 doc.second = false;
+
                 doc.first.Parse<0>(text.c_str());
 
                 if (!json::checkParseError(doc.first))
@@ -392,7 +394,13 @@ namespace jop
             json::PrettyWriter<json::StringBuffer> writer(buffer);
             i.second.first.Accept(writer);
 
-            if (FileLoader::writeTextfile(FileLoader::Directory::User, i.first + ".json", buffer.GetString()))
+            if (i.first.find_first_of('/') != std::string::npos)
+            {
+                if (!FileLoader::makeDirectory(FileLoader::Directory::User, "Config/" + i.first.substr(0, i.first.find_last_of('/'))))
+                    JOP_DEBUG_ERROR("Failed to save setting file \"" << i.first << "\", couldn't create directory");
+            }
+
+            if (FileLoader::writeTextfile(FileLoader::Directory::User, "Config/" + i.first + ".json", buffer.GetString()))
                 JOP_DEBUG_INFO("Saved setting file \"" << i.first << ".json\"")
 
             else
@@ -419,7 +427,7 @@ namespace jop
 
         m_defaultRoot = get<std::string>("sDefaultSettingRoot", "root");
 
-        if (get<bool>("engine/Settings|bAutoUpdate", true))
+        if (get<bool>("engine<Settings|bAutoUpdate", true))
         {
             if (!m_watcher.start(FileLoader::getDirectory(FileLoader::Directory::User), [this](DirectoryWatcher::Info info)
             {
@@ -443,7 +451,7 @@ namespace jop
             #endif
 
             {
-                const char* const str = "engine/Debug|Console|bEnabled";
+                const char* const str = "engine<Debug|Console|bEnabled";
 
                 DebugHandler::getInstance().setEnabled(get<bool>(str, debugMode));
 
@@ -458,7 +466,7 @@ namespace jop
             }{
             #ifndef JOP_DISABLE_CONSOLE
 
-                const char* const str = "engine/Debug|Console|uVerbosity";
+                const char* const str = "engine<Debug|Console|uVerbosity";
                 using S = DebugHandler::Severity;
 
                 DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), get<uint32>(str, JOP_CONSOLE_VERBOSITY))));
@@ -477,7 +485,7 @@ namespace jop
 
             #endif
             }{
-                const char* const str = "engine/Debug|Console|bReduceSpam";
+                const char* const str = "engine<Debug|Console|bReduceSpam";
 
                 DebugHandler::getInstance().setReduceSpam(get<bool>(str, true));
 
@@ -490,7 +498,7 @@ namespace jop
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str, *ns_callbacks.back());
             }{
-                const char* const str = "engine/Debug|Console|bLogToFile";
+                const char* const str = "engine<Debug|Console|bLogToFile";
 
                 DebugHandler::getInstance().setFileLogging(get<bool>(str, debugMode));
 
@@ -505,7 +513,7 @@ namespace jop
             }
         #ifdef JOP_OS_WINDOWS
             {
-                const char* const str = "engine/Debug|Console|bDebuggerOutput";
+                const char* const str = "engine<Debug|Console|bDebuggerOutput";
 
                 DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && get<bool>(str, true));
 
@@ -521,7 +529,7 @@ namespace jop
         #endif
 
             {
-                const char* const str = "engine/Filesystem|bErrorChecks";
+                const char* const str = "engine<Filesystem|bErrorChecks";
 
                 FileLoader::enableErrorChecks(get<bool>(str, true));
 

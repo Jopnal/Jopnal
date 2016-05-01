@@ -117,7 +117,7 @@ namespace jop
 
         // Set process priority
     #ifdef JOP_OS_WINDOWS
-        if (SettingManager::get<bool>("engine/bForceProcessHighPriority", true))
+        if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     #endif
 

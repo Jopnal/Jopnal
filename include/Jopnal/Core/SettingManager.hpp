@@ -95,10 +95,11 @@ namespace jop
         /// The entry will be created if it doesn't exist.
         ///
         /// Example of a correctly formatted setting path:
-        /// "engine/Path|To|Setting|actualSetting"
+        /// "engine@Path|To|Setting|actualSetting"
         ///
         /// The first section "engine", specifies the setting file. The .json extension will be added
-        /// automatically. You must only use a <b>forward</b> slash here. You may leave the file part
+        /// automatically. The file may be in a nested folder, but it must be specified using a
+        /// <b>forward</b> slash (/). You may also leave the file part
         /// out, in which case the default file will be used ("root.json" by default).
         ///
         /// After the file specification, comes the actual setting path. Nodes are separated with

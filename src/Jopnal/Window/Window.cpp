@@ -50,9 +50,9 @@ namespace
 
     const char* const ns_settingStr[] =
     {
-        /* 0 */ "engine/DefaultWindow|uSizeX",
-        /* 1 */ "engine/DefaultWindow|uSizeY",
-        /* 2 */ "engine/DefaultWindow|bVerticalSync"
+        /* 0 */ "engine@DefaultWindow|uSizeX",
+        /* 1 */ "engine@DefaultWindow|uSizeY",
+        /* 2 */ "engine@DefaultWindow|bVerticalSync"
     };
 }
 
@@ -72,14 +72,16 @@ namespace jop
         {
             typedef SettingManager SM;
 
-            size.x = SM::get<unsigned int>(ns_settingStr[0], 1280); size.y = SM::get<unsigned int>(ns_settingStr[1], 720);
-            title = SM::get<std::string>("engine/DefaultWindow|sTitle", getProjectName());
-            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine/DefaultWindow|uMode", 0)));
-            samples = SM::get<unsigned int>("engine/DefaultWindow|uMultisampling", 0);
-            maxFrameRate = SM::get<unsigned int>("engine/DefaultWindow|uFrameLimit", 0);
-            visible = SM::get<bool>("engine/DefaultWindow|bVisible", true);
+            auto deskTop = VideoInfo::getDesktopResolution();
+
+            size.x = SM::get<unsigned int>(ns_settingStr[0], deskTop.x); size.y = SM::get<unsigned int>(ns_settingStr[1], deskTop.y);
+            title = SM::get<std::string>("engine@DefaultWindow|sTitle", getProjectName());
+            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine@DefaultWindow|uMode", 2)));
+            samples = SM::get<unsigned int>("engine@DefaultWindow|uMultisampling", 0);
+            maxFrameRate = SM::get<unsigned int>("engine@DefaultWindow|uFrameLimit", 0);
+            visible = SM::get<bool>("engine@DefaultWindow|bVisible", true);
             vSync = SM::get<bool>(ns_settingStr[2], true);
-            debug = SM::get<bool>("engine/DefaultWindow|bDebugContext", false);
+            debug = SM::get<bool>("engine@DefaultWindow|bDebugContext", false);
         }
     }
 
@@ -157,7 +159,7 @@ namespace jop
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::get<unsigned int>("engine/Input|Controller|uMaxControllers", 1) > 0;
+            static const bool controllers = SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1) > 0;
 
             pollEvents();
 
@@ -190,7 +192,7 @@ namespace jop
         auto s = getSize();
         gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::get<std::string>("engine/DefaultWindow|sClearColor", "121212FF"));
+        static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "121212FF"));
         setClearColor(defColor);
     }
 

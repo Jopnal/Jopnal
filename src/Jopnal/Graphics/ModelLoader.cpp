@@ -299,7 +299,7 @@ namespace jop
                                     const char* const str;
                                     float mult;
                                     Callback()
-                                        : str("engine/Graphics|Shading|fGlossMapMultiplier"),
+                                        : str("engine@Graphics|Shading|fGlossMapMultiplier"),
                                           mult(SettingManager::get<float>(str, 255.f))
                                     {
                                         SettingManager::registerCallback(str, *this);

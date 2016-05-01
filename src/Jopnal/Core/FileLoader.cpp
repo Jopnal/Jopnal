@@ -58,7 +58,7 @@ namespace
     {
         const std::string prefDir = jop::FileLoader::getDirectory(jop::FileLoader::Directory::User);
 
-        if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log"))
+        if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log") || !PHYSFS_mkdir("Config"))
         {
             checkError("Create user dir");
             return false;
@@ -533,7 +533,7 @@ namespace jop
 
     bool FileLoader::makeDirectory(const Directory dir, const std::string& path)
     {
-        if (PHYSFS_setWriteDir(getDirectory(dir).c_str()) || PHYSFS_mkdir(path.c_str()))
+        if (!PHYSFS_setWriteDir(getDirectory(dir).c_str()) || !PHYSFS_mkdir(path.c_str()))
         {
             checkError(path);
             return false;

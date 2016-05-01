@@ -516,7 +516,7 @@ namespace jop
             const char* const str;
             bool err;
             Callback()
-                : str("engine/Debug|bPrintShaderUniformLocationErrors"),
+                : str("engine@Debug|bPrintShaderUniformLocationErrors"),
                   err(SettingManager::get<bool>(str, true))
             {
                 SettingManager::registerCallback(str, *this);
