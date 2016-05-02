@@ -673,25 +673,33 @@ namespace jop
             179  // 4: Vertical line
         };
 
-        deb << getID();
-        spacing.emplace_back(getID().length() / 2 - 1);
+        if (spacing.empty())
+            deb << "Tree: \n\n";
+
+        deb << " " << (getID().empty() ? "<unnamed>" : getID()) << "\n";
+        spacing.emplace_back(getID().length() / 2 + 1);
 
         auto& c = getChildren();
         for (auto itr = c.begin(); itr != c.end(); ++itr)
         {
-            for (auto s : spacing)
-            {
-                for (uint32 i = 0; i < s; ++i)
-                    deb << " ";
+            for (uint32 sp = 0; sp < spacing[0]; ++sp)
+                deb << " ";
 
+            for (uint32 sp = 1; sp < spacing.size(); ++sp)
+            {
                 deb << codes[4];
+
+                for (uint32 i = 0; i < spacing[sp]; ++i)
+                    deb << " ";
             }
+
+            deb << codes[2 + (itr == c.end() - 1)];
 
             itr->printDebugTree(spacing);
         }
 
         if (spacing.size() == 1)
-            JOP_DEBUG_INFO("\n\n");
+            JOP_DEBUG_INFO('\n');
 
     #else
 
