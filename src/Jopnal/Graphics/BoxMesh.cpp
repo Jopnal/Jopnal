@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, BoxMesh)[](const void*, const json::Value& val)
+    /*JOP_REGISTER_LOADABLE(jop, BoxMesh)[](const void*, const json::Value& val)
     {
         if (!val.HasMember("name") || !val["name"].IsString())
         {
@@ -63,7 +63,7 @@ namespace jop
 
         return true;
     }
-    JOP_END_SAVEABLE_REGISTRATION(BoxMesh)
+    JOP_END_SAVEABLE_REGISTRATION(BoxMesh)*/
 }
 
 namespace jop

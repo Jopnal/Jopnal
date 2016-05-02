@@ -45,6 +45,7 @@
     #include <Windows.h>
     #include <io.h>
     #include <fcntl.h>
+    #include <VersionHelpers.h>
     #include <Jopnal/../../project/Resources/resource.h>
 
 #endif

@@ -27,82 +27,82 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, Material)[](const void*, const json::Value& val) -> bool
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load material, no name found");
-            return false;
-        }
-        Material::AttribType attr = Material::Attribute::Default;
-        if (val.HasMember("attributes") && val["attributes"].IsUint())
-            attr = val["attributes"].GetUint();
-        else
-            JOP_DEBUG_WARNING("No attribute field found in material \"" << val["name"].GetString() << "\", using defaults");
+    //JOP_REGISTER_LOADABLE(jop, Material)[](const void*, const json::Value& val) -> bool
+    //{
+    //    if (!val.HasMember("name") || !val["name"].IsString())
+    //    {
+    //        JOP_DEBUG_ERROR("Couldn't load material, no name found");
+    //        return false;
+    //    }
+    //    Material::AttribType attr = Material::Attribute::Default;
+    //    if (val.HasMember("attributes") && val["attributes"].IsUint())
+    //        attr = val["attributes"].GetUint();
+    //    else
+    //        JOP_DEBUG_WARNING("No attribute field found in material \"" << val["name"].GetString() << "\", using defaults");
 
-        auto& m = ResourceManager::getEmptyResource<Material>(val["name"].GetString(), attr);
-        //m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+    //    auto& m = ResourceManager::getEmptyResource<Material>(val["name"].GetString(), attr);
+    //    //m.setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
 
-        if (val.HasMember("reflection") && val["reflection"].IsArray() && val["reflection"].Size() >= 4)
-        {
-            auto& refArr = val["reflection"];
-            for (auto& i : refArr)
-                if (!i.IsUint())
-                    goto RefDone;
+    //    if (val.HasMember("reflection") && val["reflection"].IsArray() && val["reflection"].Size() >= 4)
+    //    {
+    //        auto& refArr = val["reflection"];
+    //        for (auto& i : refArr)
+    //            if (!i.IsUint())
+    //                goto RefDone;
 
-            m.setReflection(Color(refArr[0u].GetUint()), Color(refArr[1u].GetUint()), Color(refArr[2u].GetUint()), Color(refArr[3u].GetUint()));
-        }
+    //        m.setReflection(Color(refArr[0u].GetUint()), Color(refArr[1u].GetUint()), Color(refArr[2u].GetUint()), Color(refArr[3u].GetUint()));
+    //    }
 
-        RefDone:
+    //    RefDone:
 
-        //if (val.HasMember("shininess") && val["shininess"].IsDouble())
-        //    m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
-        //
-        //if (val.HasMember("diffmap") && val["diffmap"].IsString())
-        //    m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
-        //
-        //if (val.HasMember("specmap") && val["specmap"].IsString())
-        //    m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
-        //
-        //if (val.HasMember("emissmap") && val["emissmap"].IsString())
-        //    m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
+    //    //if (val.HasMember("shininess") && val["shininess"].IsDouble())
+    //    //    m.setShininess(static_cast<float>(val["shininess"].GetDouble()));
+    //    //
+    //    //if (val.HasMember("diffmap") && val["diffmap"].IsString())
+    //    //    m.setMap(Material::Map::Diffuse, ResourceManager::getResource<Texture2D>(val["diffmap"].GetString()));
+    //    //
+    //    //if (val.HasMember("specmap") && val["specmap"].IsString())
+    //    //    m.setMap(Material::Map::Specular, ResourceManager::getResource<Texture2D>(val["specmap"].GetString()));
+    //    //
+    //    //if (val.HasMember("emissmap") && val["emissmap"].IsString())
+    //    //    m.setMap(Material::Map::Emission, ResourceManager::getResource<Texture2D>(val["emissmap"].GetString()));
 
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Material)
+    //    return true;
+    //}
+    //JOP_END_LOADABLE_REGISTRATION(Material)
 
-    JOP_REGISTER_SAVEABLE(jop, Material)[](const void* material, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        auto& ref = *static_cast<const Material*>(material);
+    //JOP_REGISTER_SAVEABLE(jop, Material)[](const void* material, json::Value& val, json::Value::AllocatorType& alloc)
+    //{
+    //    auto& ref = *static_cast<const Material*>(material);
 
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+    //    val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
+    //    //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
 
-        val.AddMember(json::StringRef("attributes"), ref.getAttributeField(), alloc);
+    //    val.AddMember(json::StringRef("attributes"), ref.getAttributeField(), alloc);
 
-        val.AddMember(json::StringRef("reflection"), json::kArrayType, alloc)["reflection"]
-           .PushBack(ref.getReflection(Material::Reflection::Ambient).asInteger(), alloc)
-           .PushBack(ref.getReflection(Material::Reflection::Diffuse).asInteger(), alloc)
-           .PushBack(ref.getReflection(Material::Reflection::Specular).asInteger(), alloc)
-           .PushBack(ref.getReflection(Material::Reflection::Emission).asInteger(), alloc);
+    //    val.AddMember(json::StringRef("reflection"), json::kArrayType, alloc)["reflection"]
+    //       .PushBack(ref.getReflection(Material::Reflection::Ambient).asInteger(), alloc)
+    //       .PushBack(ref.getReflection(Material::Reflection::Diffuse).asInteger(), alloc)
+    //       .PushBack(ref.getReflection(Material::Reflection::Specular).asInteger(), alloc)
+    //       .PushBack(ref.getReflection(Material::Reflection::Emission).asInteger(), alloc);
 
-        val.AddMember(json::StringRef("shininess"), ref.getShininess(), alloc);
+    //    val.AddMember(json::StringRef("shininess"), ref.getShininess(), alloc);
 
-        auto diff = ref.getMap(Material::Map::Diffuse);
-        if (diff)
-            val.AddMember(json::StringRef("diffmap"), json::StringRef(diff->getName().c_str()), alloc);
+    //    auto diff = ref.getMap(Material::Map::Diffuse);
+    //    if (diff)
+    //        val.AddMember(json::StringRef("diffmap"), json::StringRef(diff->getName().c_str()), alloc);
 
-        auto spec = ref.getMap(Material::Map::Specular);
-        if (spec)
-            val.AddMember(json::StringRef("specmap"), json::StringRef(spec->getName().c_str()), alloc);
+    //    auto spec = ref.getMap(Material::Map::Specular);
+    //    if (spec)
+    //        val.AddMember(json::StringRef("specmap"), json::StringRef(spec->getName().c_str()), alloc);
 
-        auto emiss = ref.getMap(Material::Map::Emission);
-        if (emiss)
-            val.AddMember(json::StringRef("emissmap"), json::StringRef(emiss->getName().c_str()), alloc);
+    //    auto emiss = ref.getMap(Material::Map::Emission);
+    //    if (emiss)
+    //        val.AddMember(json::StringRef("emissmap"), json::StringRef(emiss->getName().c_str()), alloc);
 
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Material);
+    //    return true;
+    //}
+    //JOP_END_SAVEABLE_REGISTRATION(Material);
 }
 
 namespace

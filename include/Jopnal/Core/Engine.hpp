@@ -57,8 +57,6 @@ namespace jop
     {
     private:
 
-        friend class StateLoader;
-
         template<typename, bool, bool>
         friend struct detail::SceneCreator;
 

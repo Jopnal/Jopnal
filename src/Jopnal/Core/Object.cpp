@@ -81,10 +81,12 @@ namespace jop
           m_children                (),
           m_components              (),
           m_tags                    (),
-          m_ID                      (ID),
+          m_ID                      (),
           m_parent                  (),
           m_flags                   (ActiveFlag | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
+        setID(ID);
+
         m_locals.position = glm::vec3(0.f);
         m_locals.scale = glm::vec3(1.f);
         m_locals.rotation = glm::quat(1.f, 0.f, 0.f, 0.f);
@@ -99,10 +101,12 @@ namespace jop
           m_children                (),
           m_components              (),
           m_tags                    (other.m_tags),
-          m_ID                      (newID),
+          m_ID                      (),
           m_parent                  (other.m_parent),
           m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
+        setID(newID);
+
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
             m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
@@ -264,6 +268,7 @@ namespace jop
 
         m_children.emplace_back(std::move(child));
         m_children.back().m_parent = *this;
+        m_children.back().propagateFlags(TransformDirty);
 
         child.removeSelf();
 
@@ -699,7 +704,7 @@ namespace jop
         }
 
         if (spacing.size() == 1)
-            JOP_DEBUG_INFO('\n');
+            deb << std::endl;
 
     #else
 
@@ -720,6 +725,7 @@ namespace jop
     Object& Object::setID(const std::string& ID)
     {
         m_ID = ID;
+        std::replace(m_ID.begin(), m_ID.end(), '>', '-');
         return *this;
     }
 
@@ -1154,7 +1160,7 @@ namespace jop
 
     Object& Object::setIgnoreTransform(const uint16 flags)
     {
-        setFlags((flags & IgnoreParent) | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalScaleDirty | GlobalRotationDirty);
+        setFlags((flags & IgnoreParent) | TransformDirty);
         return *this;
     }
 

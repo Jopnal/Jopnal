@@ -52,43 +52,43 @@ namespace
 
 namespace jop
 {
-    StateLoader& StateLoader::getInstance()
+    SceneLoader& SceneLoader::getInstance()
     {
-        static StateLoader instance;
+        static SceneLoader instance;
         return instance;
     }
 
     //////////////////////////////////////////////
 
-    bool StateLoader::save(const std::string& /*descPath*/)
+    bool SceneLoader::save(const std::string& /*descPath*/)
     {
         return false;
     }
 
     //////////////////////////////////////////////
 
-    bool StateLoader::load(const std::string& /*descPath*/)
+    bool SceneLoader::load(const std::string& /*descPath*/)
     {
         return false;
     }
 
     //////////////////////////////////////////////
 
-    const std::unordered_map<std::type_index, std::string>& StateLoader::getSavenameContainer()
+    const std::unordered_map<std::type_index, std::string>& SceneLoader::getSavenameContainer()
     {
         return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
     }
 
     //////////////////////////////////////////////
 
-    bool StateLoader::currentlyLoading()
+    bool SceneLoader::currentlyLoading()
     {
         return getInstance().m_loading;
     }
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
+    bool SceneLoader::loadScene(std::unique_ptr<Scene>& scene, const json::Value& data, const std::string& path)
     {
         const auto& sceneCont = std::get<SceneID>(m_loaderSavers);
 
@@ -138,7 +138,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadObjects(std::unique_ptr<Scene>& /*scene*/, const json::Value& /*data*/, const std::string& /*path*/)
+    bool SceneLoader::loadObjects(std::unique_ptr<Scene>& /*scene*/, const json::Value& /*data*/, const std::string& /*path*/)
     {
         /*for (auto& i : data)
         {
@@ -160,7 +160,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path)
+    bool SceneLoader::loadObject(Object& obj, const Scene& scene, const json::Value& data, const std::string& path)
     {
         const char* const activeField = "active";
         const char* const componentsField = "components";
@@ -251,7 +251,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    bool SceneLoader::saveScene(const Scene& scene, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
         const auto& sceneCont = std::get<SceneID>(m_loaderSavers);
         const auto& nameMap = getSavenameContainer();
@@ -296,7 +296,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveObjects(const Scene& /*scene*/, json::Value& /*data*/, json::Value::AllocatorType& /*alloc*/, const std::string& /*path*/)
+    bool SceneLoader::saveObjects(const Scene& /*scene*/, json::Value& /*data*/, json::Value::AllocatorType& /*alloc*/, const std::string& /*path*/)
     {
         /*for (auto& i : scene.m_objects)
         {
@@ -317,7 +317,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool StateLoader::saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
+    bool SceneLoader::saveObject(const Object& obj, json::Value& data, json::Value::AllocatorType& alloc, const std::string& path)
     {
         const char* const activeField = "active";
         const char* const componentsField = "components";

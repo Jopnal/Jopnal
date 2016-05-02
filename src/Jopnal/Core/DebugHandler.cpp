@@ -99,6 +99,12 @@ namespace
         font.dwFontSize.X = 5;
         font.dwFontSize.Y = 8;
 
+        if (IsWindows8OrGreater())
+        {
+            font.dwFontSize.X = 9;
+            font.dwFontSize.Y = 12;
+        }
+
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
         SetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
 
@@ -128,7 +134,7 @@ namespace
         {
             {
                 auto consoleSize = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
-                consoleSize.X -= 7;
+                consoleSize.X -= 7 /*- (IsWindows8OrGreater() * 3)*/;
                 consoleSize.Y = 1000;
 
                 SetConsoleScreenBufferSize(consoleHandle, consoleSize);
@@ -140,7 +146,7 @@ namespace
                 RECT consoleSize;
                 GetWindowRect(GetConsoleWindow(), &consoleSize);
 
-                MoveWindow(GetConsoleWindow(), pos.x + 5, pos.y + 5, consoleSize.right - consoleSize.left, consoleSize.bottom - consoleSize.top - 25, TRUE);
+                MoveWindow(GetConsoleWindow(), pos.x + 5 - (IsWindows8OrGreater() * 10), pos.y + 5, consoleSize.right - consoleSize.left - (IsWindows8OrGreater() * 6), consoleSize.bottom - consoleSize.top - 25, TRUE);
             }
         }
     }
@@ -231,7 +237,7 @@ namespace jop
         if (m_consoleEnabled != enabled)
         {
             enabled ? openConsoleWindow() : closeConsoleWindow();
-
+            
             m_consoleEnabled = enabled;
         }
     }

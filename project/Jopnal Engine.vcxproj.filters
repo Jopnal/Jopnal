@@ -249,9 +249,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp">
       <Filter>Graphics\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\StateLoader.hpp">
-      <Filter>Core\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Utility\Json.hpp">
       <Filter>Utility\Headers</Filter>
     </ClInclude>
@@ -420,6 +417,9 @@
     <ClInclude Include="..\include\Jopnal\Core\SerializeInfo.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\SceneLoader.hpp">
+      <Filter>Core\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -523,9 +523,6 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp">
       <Filter>Graphics\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Core\StateLoader.cpp">
-      <Filter>Core\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Utility\Json.cpp">
       <Filter>Utility\Source</Filter>
@@ -686,6 +683,9 @@
     <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\SceneLoader.cpp">
+      <Filter>Core\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">
@@ -718,9 +718,6 @@
     <None Include="..\include\Jopnal\Utility\Inl\Any.inl">
       <Filter>Utility\Inl</Filter>
     </None>
-    <None Include="..\include\Jopnal\Core\Inl\StateLoader.inl">
-      <Filter>Core\Inl</Filter>
-    </None>
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl">
       <Filter>Utility\Inl</Filter>
     </None>
@@ -734,6 +731,9 @@
       <Filter>Core\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Core\Inl\SettingCallback.inl">
+      <Filter>Core\Inl</Filter>
+    </None>
+    <None Include="..\include\Jopnal\Core\Inl\SceneLoader.inl">
       <Filter>Core\Inl</Filter>
     </None>
   </ItemGroup>

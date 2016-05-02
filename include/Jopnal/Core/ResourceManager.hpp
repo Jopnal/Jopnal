@@ -25,10 +25,9 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Utility/Json.hpp>
 #include <Jopnal/Utility/Clock.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <typeindex>
 #include <mutex>
@@ -47,6 +46,8 @@ namespace std
 
 namespace jop
 {
+    class Resource;
+
     class JOP_API ResourceManager : public Subsystem
     {
     public:
@@ -164,17 +165,30 @@ namespace jop
         static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
 
-        /// \brief Load the contents
+        /// \brief Mark the beginning of a resource loading phase
         ///
-        /// This is for internal use only.
+        /// This function is provided to make it easier to manage big amounts of resources. When called, every resource
+        /// that is referenced after, will become flagged. When the load phase is ended, all resources <b>not</b> flagged
+        /// will be removed, provided they pass the persistence test.
         ///
-        static bool loadBase(const json::Value& val);
+        /// \warning It's very important to call endLoadPhase() after this, right after all the needed resources are loaded
+        ///
+        /// \see endLoadPhase()
+        ///
+        static void beginLoadPhase();
 
-        /// \brief Save the contents
+        /// \brief Mark the ending of a resource loading phase
         ///
-        /// This is for internal use only.
+        /// If a load phase was previously initiated, calling this function will end it and clear
+        /// all resources as described on beginLoadPhase().
         ///
-        static bool saveBase(const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc);
+        /// \param persistence The maximum persistence level to take into account. Resources with equal or greater
+        ///                    persistence level will be removed
+        ///
+        /// \see beginLoadPhase()
+        ///
+        static void endLoadPhase(const uint16 persistence);
+
 
     private:
 
@@ -185,6 +199,11 @@ namespace jop
             std::pair<std::string, std::type_index>,
             std::unique_ptr<Resource>
         > m_resources;                              ///< Container holding resources
+        std::unordered_set
+        <
+            std::pair<std::string, std::type_index>
+        > m_loadPhaseResources;                     ///< Resource keys loaded during a load phase
+        std::atomic<bool> m_loadPhase;              ///< Is it load phase currently?
         std::recursive_mutex m_mutex;               ///< Mutex
     };
 

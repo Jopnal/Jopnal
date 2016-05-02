@@ -190,9 +190,8 @@ namespace jop
 
         m_impl = std::make_unique<detail::WindowImpl>(settings);
         auto s = getSize();
-        gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "121212FF"));
+        static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "000000FF"));
         setClearColor(defColor);
     }
 

@@ -27,38 +27,6 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, ShaderAssembler)[](const json::Value& val)
-    {
-        const char* const shdrField = "shaders";
-        if (val.HasMember(shdrField) && val[shdrField].IsArray())
-        {
-            const json::Value& arr = val[shdrField];
-
-            for (auto& i : arr)
-                ShaderAssembler::getShader(i.GetUint());
-        }
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(ShaderAssembler)
-
-    JOP_REGISTER_SAVEABLE(jop, ShaderAssembler)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        auto& map = ShaderAssembler::getShaderMap();
-
-        json::Value& arr = val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"];
-        arr.Reserve(map.size(), alloc);
-
-        for (auto& i : map)
-            arr.PushBack(i.first, alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(ShaderAssembler)
-}
-
-namespace jop
-{
     ShaderAssembler::ShaderAssembler()
         : Subsystem ("shaderassembler"),
           m_shaders (),

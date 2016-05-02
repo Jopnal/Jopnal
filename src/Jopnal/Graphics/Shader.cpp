@@ -27,51 +27,51 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, Shader)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load Shader, no name found");
-            return false;
-        }
-
-        if (!val.HasMember("shaders") || !val["shaders"].IsArray() || val["shaders"].Size() < 4)
-        {
-            JOP_DEBUG_ERROR("Couldn't load Shader, no shader paths or sources found");
-            return false;
-        }
-
-        auto& arr = val["shaders"];
-
-        ResourceManager::getNamedResource<Shader>(val["name"].GetString(),
-                                                  arr[0u].IsString() ? arr[0u].GetString() : "",
-                                                  arr[1u].IsString() ? arr[1u].GetString() : "", 
-                                                  arr[2u].IsString() ? arr[2u].GetString() : "",
-                                                  arr[3u].IsString() ? arr[3u].GetString() : "")
-            
-;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Shader)
-
-    JOP_REGISTER_SAVEABLE(jop, Shader)[](const void* shader, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        const Shader& ref = *static_cast<const Shader*>(shader);
-
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
-
-        val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
-           .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
-           .PushBack(json::StringRef(ref.getSource(Shader::Type::Geometry).c_str()), alloc)
-           .PushBack(json::StringRef(ref.getSource(Shader::Type::Fragment).c_str()), alloc)
-           .PushBack(json::StringRef(ref.getSource(Shader::Type::Preprocessor).c_str()), alloc);
-
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Shader)
+//    JOP_REGISTER_LOADABLE(jop, Shader)[](const void*, const json::Value& val)
+//    {
+//        if (!val.HasMember("name") || !val["name"].IsString())
+//        {
+//            JOP_DEBUG_ERROR("Couldn't load Shader, no name found");
+//            return false;
+//        }
+//
+//        if (!val.HasMember("shaders") || !val["shaders"].IsArray() || val["shaders"].Size() < 4)
+//        {
+//            JOP_DEBUG_ERROR("Couldn't load Shader, no shader paths or sources found");
+//            return false;
+//        }
+//
+//        auto& arr = val["shaders"];
+//
+//        ResourceManager::getNamedResource<Shader>(val["name"].GetString(),
+//                                                  arr[0u].IsString() ? arr[0u].GetString() : "",
+//                                                  arr[1u].IsString() ? arr[1u].GetString() : "", 
+//                                                  arr[2u].IsString() ? arr[2u].GetString() : "",
+//                                                  arr[3u].IsString() ? arr[3u].GetString() : "")
+//            
+//;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
+//
+//        return true;
+//    }
+//    JOP_END_LOADABLE_REGISTRATION(Shader)
+//
+//    JOP_REGISTER_SAVEABLE(jop, Shader)[](const void* shader, json::Value& val, json::Value::AllocatorType& alloc)
+//    {
+//        const Shader& ref = *static_cast<const Shader*>(shader);
+//
+//        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
+//        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
+//
+//        val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
+//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
+//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Geometry).c_str()), alloc)
+//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Fragment).c_str()), alloc)
+//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Preprocessor).c_str()), alloc);
+//
+//
+//        return true;
+//    }
+//    JOP_END_SAVEABLE_REGISTRATION(Shader)
 }
 
 namespace

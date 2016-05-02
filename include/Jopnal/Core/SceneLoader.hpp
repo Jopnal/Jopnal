@@ -49,8 +49,8 @@ namespace jop
     typedef std::function<bool(std::unique_ptr<Scene>&, const json::Value&)>                    SceneLoadFunc;
     typedef std::function<bool(const Scene&, json::Value&, json::Value::AllocatorType&)>        SceneSaveFunc;
 
-    typedef std::function<bool(const json::Value&)>                                             SubsystemLoadFunc;
-    typedef std::function<bool(const Subsystem&, json::Value&, json::Value::AllocatorType&)>    SubsystemSaveFunc;
+    typedef std::function<bool(const json::Value&)>                                             ResourceLoadFunc;
+    typedef std::function<bool(const Resource&, json::Value&, json::Value::AllocatorType&)>     ResourceSaveFunc;
 
     typedef std::function<bool(const void*, const json::Value&)>                                CustomLoadFunc;
     typedef std::function<bool(const void*, json::Value&, json::Value::AllocatorType&)>         CustomSaveFunc;
@@ -60,9 +60,9 @@ namespace jop
         template
         <
             typename T,
-            bool IsComp      = std::is_base_of<Component, T>::value,
-            bool IsScene     = std::is_base_of<Scene, T>::value,
-            bool IsSubsystem = std::is_base_of<Subsystem, T>::value
+            bool IsComp     = std::is_base_of<Component,    T>::value,
+            bool IsScene    = std::is_base_of<Scene,        T>::value,
+            bool IsResource = std::is_base_of<Resource,     T>::value
 
         > struct FuncChooser
         {
@@ -90,28 +90,28 @@ namespace jop
         template<typename T>
         struct FuncChooser<T, false, false, true>
         {
-            typedef SubsystemLoadFunc LoadFunc;
-            typedef SubsystemSaveFunc SaveFunc;
+            typedef ResourceLoadFunc LoadFunc;
+            typedef ResourceSaveFunc SaveFunc;
             typedef std::unordered_map<std::string, std::tuple<LoadFunc, SaveFunc>> FuncContainer;
             enum{ContainerID = 2};
         };
     }
 
-    class JOP_API StateLoader
+    class JOP_API SceneLoader
     {
     private:
 
         /// \brief Default constructor
         ///
-        StateLoader() = default;
+        SceneLoader() = default;
 
     public:
 
-        /// \brief Get the single StateLoader instance
+        /// \brief Get the single SceneLoader instance
         ///
         /// \return Reference to the instance
         ///
-        static StateLoader& getInstance();
+        static SceneLoader& getInstance();
     
 
         /// \brief Register a loadable object
@@ -192,18 +192,18 @@ namespace jop
         <
             detail::FuncChooser<Component>::FuncContainer,  // Component
             detail::FuncChooser<Scene>::FuncContainer,      // Scene
-            detail::FuncChooser<Subsystem>::FuncContainer,  // Subsystem
+            detail::FuncChooser<Resource>::FuncContainer,   // Resource
             detail::FuncChooser<void>::FuncContainer,       // Custom (other)
 
             // Maps the type info to identifiers, to be used when saving. Keep this last
             std::unordered_map<std::type_index, std::string>
 
         > m_loaderSavers;
-        bool m_loading; ///< Currently loading flag
+        std::atomic<bool> m_loading; ///< Currently loading flag
     };
 
     // Include the template implementation file
-    #include <Jopnal/Core/Inl/StateLoader.inl>
+    #include <Jopnal/Core/Inl/SceneLoader.inl>
 }
 
 #endif
@@ -211,12 +211,12 @@ namespace jop
 /// Macro for statically registering a loadable object
 ///
 #define JOP_REGISTER_LOADABLE(nameSpace, className) \
-struct ns_##className##_LoadRegistrar{ns_##className##_LoadRegistrar(){jop::StateLoader::getInstance().registerLoadable<className>(#nameSpace "::" #className,
+struct ns_##className##_LoadRegistrar{ns_##className##_LoadRegistrar(){jop::SceneLoader::getInstance().registerLoadable<className>(#nameSpace "::" #className,
 
 /// Macro for statically registering a saveable object
 ///
 #define JOP_REGISTER_SAVEABLE(nameSpace, className) \
-struct ns_##className##_SaveRegistrar{ns_##className##_SaveRegistrar(){jop::StateLoader::getInstance().registerSaveable<className>(#nameSpace "::" #className,
+struct ns_##className##_SaveRegistrar{ns_##className##_SaveRegistrar(){jop::SceneLoader::getInstance().registerSaveable<className>(#nameSpace "::" #className,
 
 #define JOP_END_LOADABLE_REGISTRATION(className) );}} ns_##className##_LoadRegistrarInstance;   ///< End loadable registration
 #define JOP_END_SAVEABLE_REGISTRATION(className) );}} ns_##className##_SaveRegistrarInstance;   ///< End saveable registration

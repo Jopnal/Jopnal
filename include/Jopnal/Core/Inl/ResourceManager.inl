@@ -142,6 +142,9 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
+            if (m_instance->m_loadPhase.load())
+                m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+
             JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
 
             return ptr;
@@ -179,7 +182,12 @@ T& ResourceManager::getExistingResource(const std::string& name)
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
     if (resourceExists<T>(name))
+    {
+        if (m_instance->m_loadPhase.load())
+            m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+
         return static_cast<T&>(*m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T))))->second);
+    }
 
     return detail::LoadFallback<T>::load(name);
 }

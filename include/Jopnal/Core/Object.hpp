@@ -40,7 +40,7 @@ namespace jop
 
         JOP_DISALLOW_COPY(Object);
 
-        friend class StateLoader;
+        friend class SceneLoader;
         friend class Component;
 
         enum : uint16
@@ -55,7 +55,9 @@ namespace jop
 
             GlobalRotationDirty = 1 << 5,
             GlobalScaleDirty    = 1 << 6,
-            GlobalPositionDirty = 1 << 7
+            GlobalPositionDirty = 1 << 7,
+
+            TransformDirty      = MatrixDirty | InverseMatrixDirty | GlobalRotationDirty | GlobalScaleDirty | GlobalPositionDirty
         };
 
     public:
@@ -483,9 +485,13 @@ namespace jop
         ///
         const std::string& getID() const;
 
-        /// \brief method for setting the ID
+        /// \brief Set the identifier
         ///
-        /// \param ID unique object identifier
+        /// The character '>' in an object identifier is
+        /// forbidden. These characters, if found, will be replaced
+        /// with '-'.
+        ///
+        /// \param ID Object identifier
         ///
         /// \return Reference to self
         ///
@@ -531,13 +537,19 @@ namespace jop
         bool hasTag(const std::string& tag) const;
 
 
-        /// \brief Update method for object - forwarded for its components
+        /// \brief Update method for object
         ///
-        /// \param deltaTime Double holding delta time
+        /// This is for internal use.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime);
 
 
+        /// \brief Print the tree of objects into the console, this as root
+        ///
+        /// \param spacing For internal use, leave this as the default
+        ///
         void printDebugTree(std::vector<uint32> spacing = std::vector<uint32>()) const;
 
 
