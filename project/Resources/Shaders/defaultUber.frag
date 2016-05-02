@@ -608,7 +608,7 @@ void main()
         // applied twice. This is a somewhat working
         // approximation, though the colors are
         // still a bit wrong
-        2.05
+        1.85
     #else
         2.2
     #endif
