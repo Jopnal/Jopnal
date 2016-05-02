@@ -675,14 +675,25 @@ namespace jop
             194, // 1: Right & down
             195, // 2: Down & right
             192, // 3: Right from up
-            179  // 4: Vertical line
+            179, // 4: Vertical line
+            191, // 5: Down from left
+            218, // 6: Down from right
+            217, // 7: Left from up
         };
 
         if (spacing.empty())
-            deb << "Tree: \n\n";
+        {
+            const auto n = childCountRecursive() + 1; // +1 for scene
+            deb << "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
+
+            for (uint32 i = 0; i < 45 + std::ceil(std::log10(n + 1)); ++i)
+                deb << codes[0];
+
+            deb << codes[7] << "\n" << codes[3];
+        }
 
         deb << " " << (getID().empty() ? "<unnamed>" : getID()) << "\n";
-        spacing.emplace_back(getID().length() / 2 + 1);
+        spacing.emplace_back(getID().length() / 2 + 1 + spacing.empty());
 
         auto& c = getChildren();
         for (auto itr = c.begin(); itr != c.end(); ++itr)
