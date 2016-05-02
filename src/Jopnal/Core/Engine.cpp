@@ -87,7 +87,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
+        JOP_DEBUG_INFO(Color::Blue << "Destroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////

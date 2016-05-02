@@ -86,7 +86,9 @@ namespace detail
             {
                 oldVal.CopyFrom(newVal, alloc);
 
-                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (changers.count(path) > 0 ? ("invoking " + std::to_string(changers.count(path)) + " callbacks") : ("no callbacks registered")));
+                const auto count = changers.count(path);
+
+                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (count > 0 ? ("invoking " + std::to_string(count) + " callback" + (count > 1 ? "s" : "")) : ("no callbacks registered")));
 
                 auto range = changers.equal_range(path);
 
@@ -189,20 +191,20 @@ namespace jop
 
                 if (newVal)
                 {
-                    JOP_DEBUG_DIAG("Setting \"" << path << "\" doesn't exist. Creating an entry using value " << defaultValue);
+                    JOP_DEBUG_DIAG("Setting \"" << path << "\" doesn't exist. Creating an entry using value \"" << defaultValue << "\"");
                     ::detail::setVariable<T>(*newVal, defaultValue, root.GetAllocator());
                     return detail::fetchVariable<T>(*newVal);
                 }
                 else
                 {
-                    JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written. Using default value " << defaultValue);
+                    JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written. Using default value \"" << defaultValue << "\"");
                     return defaultValue;
                 }
             }
 
             if (!detail::queryVariable<T>(*val))
             {
-                JOP_DEBUG_ERROR("Setting \"" << path << "\" is not convertible into \"" << typeid(T).name() << "\". Using default value " << defaultValue);
+                JOP_DEBUG_ERROR("Setting \"" << path << "\" is not convertible into \"" << typeid(T).name() << "\". Using default value \"" << defaultValue << "\"");
                 return defaultValue;
             }
 
@@ -427,9 +429,9 @@ namespace jop
 
         m_defaultRoot = get<std::string>("sDefaultSettingRoot", "root");
 
-        if (get<bool>("engine<Settings|bAutoUpdate", true))
+        if (get<bool>("engine@Settings|bAutoUpdate", true))
         {
-            if (!m_watcher.start(FileLoader::getDirectory(FileLoader::Directory::User), [this](DirectoryWatcher::Info info)
+            if (!m_watcher.start(FileLoader::getDirectory(FileLoader::Directory::User) + FileLoader::getDirectorySeparator() + "Config", [this](DirectoryWatcher::Info info)
             {
                 if (info.filename.find(".json") != std::string::npos)
                 {
@@ -451,7 +453,7 @@ namespace jop
             #endif
 
             {
-                const char* const str = "engine<Debug|Console|bEnabled";
+                const char* const str = "engine@Debug|Console|bEnabled";
 
                 DebugHandler::getInstance().setEnabled(get<bool>(str, debugMode));
 
@@ -466,7 +468,7 @@ namespace jop
             }{
             #ifndef JOP_DISABLE_CONSOLE
 
-                const char* const str = "engine<Debug|Console|uVerbosity";
+                const char* const str = "engine@Debug|Console|uVerbosity";
                 using S = DebugHandler::Severity;
 
                 DebugHandler::getInstance().setVerbosity(static_cast<S>(std::min(static_cast<unsigned int>(S::Diagnostic), get<uint32>(str, JOP_CONSOLE_VERBOSITY))));
@@ -485,7 +487,7 @@ namespace jop
 
             #endif
             }{
-                const char* const str = "engine<Debug|Console|bReduceSpam";
+                const char* const str = "engine@Debug|Console|bReduceSpam";
 
                 DebugHandler::getInstance().setReduceSpam(get<bool>(str, true));
 
@@ -498,7 +500,7 @@ namespace jop
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str, *ns_callbacks.back());
             }{
-                const char* const str = "engine<Debug|Console|bLogToFile";
+                const char* const str = "engine@Debug|Console|bLogToFile";
 
                 DebugHandler::getInstance().setFileLogging(get<bool>(str, debugMode));
 
@@ -513,7 +515,7 @@ namespace jop
             }
         #ifdef JOP_OS_WINDOWS
             {
-                const char* const str = "engine<Debug|Console|bDebuggerOutput";
+                const char* const str = "engine@Debug|Console|bDebuggerOutput";
 
                 DebugHandler::getInstance().setDebuggerOutput(IsDebuggerPresent() && get<bool>(str, true));
 
@@ -529,7 +531,7 @@ namespace jop
         #endif
 
             {
-                const char* const str = "engine<Filesystem|bErrorChecks";
+                const char* const str = "engine@Filesystem|bErrorChecks";
 
                 FileLoader::enableErrorChecks(get<bool>(str, true));
 
@@ -572,7 +574,7 @@ namespace jop
                 auto& val = i.second.first;
 
                 std::string newStr;
-                if (!FileLoader::readTextfile(i.first + ".json", newStr))
+                if (!FileLoader::readTextfile("Config/" + i.first + ".json", newStr))
                 {
                     JOP_DEBUG_ERROR("Couldn't read updated setting file \"" << i.first << ".json\"");
                     continue;
@@ -590,7 +592,7 @@ namespace jop
                 for (auto itr = newVals.MemberBegin(); itr != newVals.MemberEnd(); ++itr)
                 {
                     if (val.HasMember(itr->name))
-                        ::detail::checkChanges(val, newVals, i.first + "/", val.GetAllocator(), m_updaters);
+                        ::detail::checkChanges(val, newVals, i.first + "@", val.GetAllocator(), m_updaters);
                 }
             }
 
