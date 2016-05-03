@@ -119,6 +119,8 @@ namespace jop
         {
             auto& inst = *m_instance;
 
+            std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
+
             std::size_t count = 0;
             for (auto itr = inst.m_resources.begin(); itr != inst.m_resources.end();)
             {
