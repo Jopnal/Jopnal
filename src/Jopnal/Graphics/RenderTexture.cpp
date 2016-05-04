@@ -373,7 +373,6 @@ namespace jop
 
         if (attach() && isValid())
         {
-            JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow(), "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another.");
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer.first));
             glCheck(gl::Viewport(0, 0, getSize().x, getSize().y));
         }
@@ -409,7 +408,7 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        return m_frameBuffer.first != 0 || m_colorAttachments[1] || m_colorAttachments[0];
+        return m_frameBuffer.first != 0 || m_colorAttachments[0] || m_colorAttachments[1];
     }
 
     //////////////////////////////////////////////
@@ -434,7 +433,7 @@ namespace jop
 
     bool RenderTexture::attach() const
     {
-        JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another.");
+        JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another. RenderTexture id: " + getID());
 
         if (!m_frameBuffer.second && !m_frameBuffer.first)
         {

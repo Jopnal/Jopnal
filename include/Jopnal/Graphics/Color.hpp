@@ -97,10 +97,10 @@ namespace jop
 
     public:
 
-        uint8   r, ///< The red component
-                g, ///< The green component
-                b, ///< The blue component
-                a; ///< The alpha component
+        uint8   r; ///< The red component
+        uint8   g; ///< The green component
+        uint8   b; ///< The blue component
+        uint8   a; ///< The alpha component
 
         static const Color Black;       ///< Black color
         static const Color White;       ///< White color
@@ -115,7 +115,6 @@ namespace jop
         static const Color Gray;        ///< Gray color
         static const Color Brown;       ///< Brown color
         static const Color Transparent; ///< Transparent color
-
 
     public:
 
