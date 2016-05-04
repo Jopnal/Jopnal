@@ -41,7 +41,7 @@ namespace jop { namespace detail
     
     public:
 
-        explicit WindowImpl(const Window::Settings& settings);
+        explicit WindowImpl(const Window::Settings& settings, Window& windowPtr);
 
         ~WindowImpl();
 
@@ -63,6 +63,8 @@ namespace jop { namespace detail
         void setSize(const int width, const int height);
 
         glm::ivec2 getSize() const;
+
+        static Window* getCurrentContextWindow();
 
     private:
 

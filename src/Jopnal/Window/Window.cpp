@@ -188,7 +188,7 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        m_impl = std::make_unique<detail::WindowImpl>(settings);
+        m_impl = std::make_unique<detail::WindowImpl>(settings, *this);
         auto s = getSize();
 
         static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "000000FF"));
@@ -323,5 +323,12 @@ namespace jop
             return m_impl->getSize();
 
         return glm::uvec2();
+    }
+
+    //////////////////////////////////////////////
+
+    Window* Window::getCurrentContextWindow()
+    {
+        return detail::WindowImpl::getCurrentContextWindow();
     }
 }

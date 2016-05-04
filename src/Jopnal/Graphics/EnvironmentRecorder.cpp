@@ -72,10 +72,11 @@ namespace jop
     {
         static const int mapResolution = SettingManager::get<unsigned int>("engine@Graphics|Shading|uEnvironmentMapSize", 128);
 
-        using ca = RenderTexture::ColorAttachment;
-        using da = RenderTexture::DepthAttachment;
+        using CA = RenderTexture::ColorAttachment;
+        using DA = RenderTexture::DepthAttachment;
 
-        m_fbo.create(glm::uvec2(mapResolution), ca::RGBACube, da::Texture16);
+        m_fbo.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, CA::RGBACube, glm::uvec2(mapResolution));
+        m_fbo.addDepthAttachment(DA::TextureCube16, glm::uvec2(mapResolution));
 
         m_rendererRef.bind(*this);
     }
@@ -177,6 +178,6 @@ namespace jop
 
     const Texture* EnvironmentRecorder::getTexture() const
     {
-        return m_fbo.getTexture();
+        return m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1);
     }
 }

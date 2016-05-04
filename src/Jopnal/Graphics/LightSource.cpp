@@ -208,16 +208,15 @@ namespace jop
             {
                 static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
                 
-                using ca = RenderTexture::ColorAttachment;
+                using CA = RenderTexture::ColorAttachment;
 
-                if (!m_shadowMap.create(glm::ivec2(mapSize), m_type == Type::Point ? ca::DepthCube16 : ca::Depth2D16))
-                    return *this;
+                m_shadowMap.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, m_type == Type::Point ? CA::DepthCube16 : CA::Depth2D16, glm::uvec2(mapSize));
 
                 m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);
             }
             else
             {
-                m_shadowMap.destroy();
+                m_shadowMap.destroy(true, true);
                 m_lightSpaceMatrices.clear();
             }
         }
@@ -357,7 +356,7 @@ namespace jop
 
     const Texture* LightSource::getShadowMap() const
     {
-        return m_shadowMap.getTexture();
+        return m_shadowMap.getDepthTexture();
     }
 
     ///////////////////////////////////////////

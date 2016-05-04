@@ -92,7 +92,7 @@ namespace jop
         setPixelStore(bytesPerPixel);
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
 
         return true;
     }
@@ -159,10 +159,17 @@ namespace jop
         {
             case 2:
                 return gl::RG;
+
             case 3:
+            case 6:
+            case 12:
                 return gl::RGB;
+
             case 4:
+            case 8:
+            case 16:
                 return gl::RGBA;
+
             default:
                 return gl::RED;
         }
@@ -170,16 +177,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getInternalFormatEnum(const unsigned int formatEnum, const bool srgb)
+    unsigned int Texture2D::getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb)
     {
-        switch (formatEnum)
+        switch (bytesPerPixel)
         {
-            case gl::RG:
+            case 2:
                 return gl::RG8;
-            case gl::RGB:
+
+            case 3:
                 return srgb ? gl::SRGB8 : gl::RGB8;
-            case gl::RGBA:
+            case 6:
+                return gl::RGB16F;
+            case 12:
+                return gl::RGB32F;
+
+            case 4:
                 return srgb ? gl::SRGB8_ALPHA8 : gl::RGBA8;
+            case 8:
+                return gl::RGBA16F;
+            case 16:
+                return gl::RGBA32F;
+
+
             default:
                 return gl::R8;
         }
@@ -189,7 +208,7 @@ namespace jop
 
     bool Texture2D::checkDepthValid(const unsigned int depth)
     {
-        return depth >= 1 && depth <= 4;
+        return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
     }
 
     //////////////////////////////////////////////

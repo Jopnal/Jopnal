@@ -240,6 +240,9 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+
+        static Window* getCurrentContextWindow();
+
     private:
 
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object

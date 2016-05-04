@@ -31,7 +31,7 @@
 
 namespace
 {
-    unsigned int ns_windowCount = 0;
+    std::unordered_map<GLFWwindow*, jop::Window*> ns_windowRefs;
     GLFWwindow* ns_shared;
 
     void errorCallback(int code, const char* message)
@@ -75,7 +75,7 @@ namespace
 
     void initialize()
     {
-        if (ns_windowCount++ == 0)
+        if (ns_windowRefs.empty())
         {
             glfwSetErrorCallback(errorCallback);
             glfwInit();
@@ -106,7 +106,7 @@ namespace
 
     void deInitialize()
     {
-        if (--ns_windowCount == 0)
+        if (ns_windowRefs.empty())
         {
             glfwDestroyWindow(ns_shared);
             glfwTerminate();
@@ -116,7 +116,7 @@ namespace
 
 namespace jop { namespace detail
 {
-    WindowImpl::WindowImpl(const Window::Settings& settings)
+    WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
         : m_window      (nullptr),
           m_vertexArray (0)
     {
@@ -147,6 +147,8 @@ namespace jop { namespace detail
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
 
+        ns_windowRefs[m_window] = &windowPtr;
+
         if (settings.displayMode != Window::DisplayMode::Fullscreen)
         {
             auto vm = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -169,6 +171,7 @@ namespace jop { namespace detail
         glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
 
         // There should always be a valid window
+        ns_windowRefs.erase(m_window);
         glfwDestroyWindow(m_window);
         deInitialize();
     }
@@ -247,6 +250,18 @@ namespace jop { namespace detail
         glfwGetFramebufferSize(m_window, &s.x, &s.y);
 
         return s;
+    }
+
+    //////////////////////////////////////////////
+
+    Window* WindowImpl::getCurrentContextWindow()
+    {
+        auto itr = ns_windowRefs.find(glfwGetCurrentContext());
+
+        if (itr != ns_windowRefs.end())
+            return itr->second;
+
+        return nullptr;
     }
 }}
 

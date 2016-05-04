@@ -70,7 +70,7 @@ namespace jop
             }
 
             GLenum depthEnum = Texture2D::getFormatEnum(bytes);
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bytes, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
 
             stbi_image_free(pix);
         }
@@ -90,7 +90,7 @@ namespace jop
         GLenum depthEnum = Texture2D::getFormatEnum(bpp);
         for (std::size_t i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
         }
 
         m_size = size;
@@ -127,7 +127,7 @@ namespace jop
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);
@@ -157,7 +157,7 @@ namespace jop
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(depthEnum, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
             }
 
             stbi_image_free(pix);

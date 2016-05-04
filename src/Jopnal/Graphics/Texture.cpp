@@ -143,16 +143,15 @@ namespace jop
 
     void Texture::setPixelStore(const unsigned int depth)
     {
-        GLint param = 1;
+        GLint param = 4;
         switch (depth)
         {
-            case 2:
-                param = 2;
+            case 1:
+                param = 1;
                 break;
 
-            case 3:
-            case 4:
-                param = 4;
+            case 2:
+                param = 2;
                 break;
 
             case 8:

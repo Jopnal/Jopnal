@@ -115,7 +115,7 @@ namespace jop
         ///
         /// \return The OpenGL internal format enum
         ///
-        static unsigned int getInternalFormatEnum(const unsigned int formatEnum, const bool srgb);
+        static unsigned int getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
 
         /// \brief Check if the pixel depth value is supported
         ///
