@@ -217,7 +217,7 @@ namespace jop
         ///
         /// \return The intensity color
         ///
-        Color getIntensity(const Intensity intensity) const;
+        const Color& getIntensity(const Intensity intensity) const;
 
 
         /// \brief Set a single attenuation value

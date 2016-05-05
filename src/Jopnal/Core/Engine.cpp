@@ -33,7 +33,6 @@ namespace jop
         JOP_BIND_COMMAND(&Engine::exit, "exit");
         JOP_BIND_COMMAND(&Engine::setState, "setState");
         JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
-        JOP_BIND_COMMAND(&Engine::setDeltaScale, "setDeltaScale");
 
     JOP_END_COMMAND_HANDLER(Engine)
 }
@@ -55,7 +54,6 @@ namespace jop
           m_currentScene    (),
           m_exit            (false),
           m_state           (State::Running),
-          m_deltaScale      (1.f),
           m_advanceFrame    (false),
           m_mainTarget      (nullptr)
     {
@@ -151,7 +149,7 @@ namespace jop
             float frameTime = static_cast<float>(frameClock.reset().asSeconds());
             eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
 
-            frameTime *= (getDeltaScale() * (getState() != State::ZeroDelta || eng.m_advanceFrame.load()));
+            frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
 
             // Update
@@ -164,6 +162,8 @@ namespace jop
 
                 if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
                 {
+                    std::lock_guard<std::recursive_mutex> lock(eng.m_mutex);
+
                     if (hasCurrentScene())
                         eng.m_currentScene->updateBase(frameTime);
 
@@ -182,6 +182,8 @@ namespace jop
             {
                 if (getState() != State::Frozen)
                 {
+                    std::lock_guard<std::recursive_mutex> lock(eng.m_mutex);
+
                     if (hasCurrentScene())
                         eng.m_currentScene->drawBase();
 
@@ -242,7 +244,7 @@ namespace jop
             {
                 if ((*itr)->getID() == ID)
                 {
-                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (type: \"" << typeid(*(*itr)).name() << "\") removed");
+                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (" << typeid(*(*itr)).name() << ") removed");
                     m_engineObject->m_subsystems.erase(itr);
                     return true;
                 }
@@ -358,9 +360,9 @@ namespace jop
 
     Scene& Engine::getSharedScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
+
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
         return *m_engineObject->m_sharedScene;
     }
 
@@ -368,9 +370,13 @@ namespace jop
 
     bool Engine::hasSharedScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+        if (m_engineObject)
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+            return m_engineObject->m_sharedScene.operator bool();
+        }
 
-        return m_engineObject != nullptr && m_engineObject->m_sharedScene.operator bool();
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -387,9 +393,13 @@ namespace jop
 
     bool Engine::hasCurrentScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+        if (m_engineObject)
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+            return m_engineObject->m_currentScene.operator bool();
+        }
 
-        return m_engineObject != nullptr && m_engineObject->m_currentScene.operator bool();
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -398,21 +408,6 @@ namespace jop
     {
         if (!exiting())
             m_engineObject->m_advanceFrame.store(true);
-    }
-
-    //////////////////////////////////////////////
-
-    void Engine::setDeltaScale(const float scale)
-    {
-        if (m_engineObject)
-            m_engineObject->m_deltaScale.store(scale);
-    }
-
-    //////////////////////////////////////////////
-
-    float Engine::getDeltaScale()
-    {
-        return m_engineObject != nullptr ? m_engineObject->m_deltaScale.load() : 1.f;
     }
 
     //////////////////////////////////////////////

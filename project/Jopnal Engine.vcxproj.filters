@@ -420,6 +420,9 @@
     <ClInclude Include="..\include\Jopnal\Core\SceneLoader.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Graphics\PostProcessor.hpp">
+      <Filter>Graphics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -685,6 +688,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Core\SceneLoader.cpp">
       <Filter>Core\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Graphics\PostProcessor.cpp">
+      <Filter>Graphics\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

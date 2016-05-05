@@ -28,7 +28,8 @@
 namespace jop
 {
     Renderer::Renderer(const RenderTarget& mainTarget)
-        : m_lights          (),
+        : m_postProcessor   (),
+          m_lights          (),
           m_cameras         (),
           m_drawables       (),
           m_envRecorders    (),
@@ -43,6 +44,11 @@ namespace jop
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
         GlState::setBlendFunc(true);
+
+        const RenderTexture* rtex = dynamic_cast<const RenderTexture*>(&mainTarget);
+
+        if (rtex)
+            m_postProcessor = std::make_unique<PostProcessor>(*this, *rtex);
     }
 
     Renderer::~Renderer()
@@ -60,6 +66,20 @@ namespace jop
     uint32 Renderer::getMask() const
     {
         return m_mask;
+    }
+
+    //////////////////////////////////////////////
+
+    PostProcessor* Renderer::getPostProcessor()
+    {
+        return m_postProcessor.get();
+    }
+
+    //////////////////////////////////////////////
+
+    const PostProcessor* Renderer::getPostProcessor() const
+    {
+        return m_postProcessor.get();
     }
 
     //////////////////////////////////////////////

@@ -158,7 +158,7 @@ namespace jop
         ///
         /// \return The border color
         ///
-        Color getBorderColor() const;
+        const Color& getBorderColor() const;
 
         /// \brief Get the maximum anisotropy level supported by the system
         ///

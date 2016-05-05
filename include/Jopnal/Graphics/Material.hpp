@@ -202,7 +202,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
+        Material& setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission);
 
         /// \brief Set the reflection values using a preset
         ///
@@ -218,7 +218,7 @@ namespace jop
         ///
         /// \return The reflection value
         ///
-        Color getReflection(const Reflection reflection) const;
+        const Color& getReflection(const Reflection reflection) const;
 
         /// \brief Set the shininess value
         ///

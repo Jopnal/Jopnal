@@ -166,7 +166,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        DebugHandler& operator <<(const jop::Color& color);
+        DebugHandler& operator <<(const Color& color);
 
         /// \brief An operator for inputting data into the stream
         ///

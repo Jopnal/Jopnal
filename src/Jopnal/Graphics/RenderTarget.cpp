@@ -56,9 +56,7 @@ namespace jop
         {
             if (m_clearAttribsChanged)
             {
-                auto vec = m_clearColor.asRGBAFloatVector();
-
-                glCheck(gl::ClearColor(vec.r, vec.g, vec.b, vec.a));
+                glCheck(gl::ClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
                 glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
                 glCheck(gl::ClearStencil(m_clearStencil.load()));
 
@@ -76,7 +74,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RenderTarget& RenderTarget::setClearColor(const Color color)
+    RenderTarget& RenderTarget::setClearColor(const Color& color)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
@@ -88,7 +86,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Color RenderTarget::getClearColor() const
+    const Color& RenderTarget::getClearColor() const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 

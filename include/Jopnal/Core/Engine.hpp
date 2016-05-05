@@ -246,24 +246,6 @@ namespace jop
         static State getState();
 
 
-        /// \brief Set the global delta time scalar
-        ///
-        /// This makes it possible to create fast-forward or slow-down
-        /// effects.
-        ///
-        /// \comm setDeltaScale
-        ///
-        /// \param scale The scalar to set
-        ///
-        static void setDeltaScale(const float scale);
-
-        /// \brief Get the global delta time scalar
-        ///
-        /// \return The global delta time scalar
-        ///
-        static float getDeltaScale();
-
-
         /// \brief Get the main render target
         ///
         /// This could either return the main window or a HDR render texture.
@@ -351,7 +333,6 @@ namespace jop
         std::unique_ptr<Scene> m_sharedScene;                   ///< The shared scene
         std::atomic<bool> m_exit;                               ///< Should the engine exit?
         std::atomic<State> m_state;                             ///< Current state
-        std::atomic<float> m_deltaScale;                        ///< The global delta scale
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
         RenderTarget* m_mainTarget;
     };

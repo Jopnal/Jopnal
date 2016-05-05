@@ -223,7 +223,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Text& Text::setColor(const Color color)
+    Text& Text::setColor(const Color& color)
     {
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_material.setReflection(Material::Reflection::Solid, color);
@@ -233,7 +233,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Color Text::getColor() const
+    const Color& Text::getColor() const
     {
         return m_material.getReflection(Material::Reflection::Solid);
     }

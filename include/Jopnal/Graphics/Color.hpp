@@ -44,18 +44,18 @@ namespace jop
 
         /// \brief Overloaded constructor
         ///
-        /// \param _r The red value
-        /// \param _g The green value
-        /// \param _b The blue value
-        /// \param _a The alpha value
+        /// \param r The red value
+        /// \param g The green value
+        /// \param b The blue value
+        /// \param a The alpha value
         ///
-        Color(const uint8 _r, const uint8 _g, const uint8 _b, const uint8 _a = 255);
+        Color(const uint8 r, const uint8 g, const uint8 b, const uint8 a = 255);
 
         /// \brief Overloaded constructor
         ///
         /// The values need to be clamped between 0 and 1.
         ///
-        Color(const float _r, const float _g, const float _b, const float _a = 1.f);
+        Color(const float32 r, const float32 g, const float32 b, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///
@@ -72,35 +72,24 @@ namespace jop
         Color(const std::string& hexString);
 
 
-        /// \brief Get this color as a RGBA float vector
-        ///
-        /// The precision of the values is 32 bits each.
-        ///
-        /// \return A float vector describing the color
-        ///
-        glm::vec4 asRGBAFloatVector() const;
-
         /// \brief Get this color as a RGB float vector
         ///
         /// The precision of the values is 32 bits each.
         ///
         /// \return A float vector describing the color
         ///
-        glm::vec3 asRGBFloatVector() const;
+        glm::vec4 asRGBAVector() const;
 
         /// \brief Get this color as an 32-bit unsigned integer
         ///
         /// \return 32-bit unsigned integer
         ///
         unsigned int asInteger() const;
-
-
+        
     public:
 
-        uint8   r; ///< The red component
-        uint8   g; ///< The green component
-        uint8   b; ///< The blue component
-        uint8   a; ///< The alpha component
+        glm::vec3   colors;
+        float32     alpha;
 
         static const Color Black;       ///< Black color
         static const Color White;       ///< White color

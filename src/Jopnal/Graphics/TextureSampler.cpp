@@ -196,8 +196,7 @@ namespace jop
     {
         if (m_sampler && m_borderColor != color)
         {
-            const glm::vec4 col = color.asRGBAFloatVector();
-            glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &col[0]));
+            glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &m_borderColor.colors[0]));
 
             m_borderColor = color;
         }
@@ -235,7 +234,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Color TextureSampler::getBorderColor() const
+    const Color& TextureSampler::getBorderColor() const
     {
         return m_borderColor;
     }

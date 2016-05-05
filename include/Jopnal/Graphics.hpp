@@ -36,6 +36,7 @@
 #include <Jopnal/Graphics/Mesh.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
+#include <Jopnal/Graphics/PostProcessor.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>

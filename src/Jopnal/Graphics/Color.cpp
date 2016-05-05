@@ -28,67 +28,43 @@
 namespace jop
 {
     Color::Color()
-        : r(255),
-          g(255),
-          b(255),
-          a(255)
+        : colors    (1.f),
+          alpha     (1.f)
     {}
 
-    Color::Color(const uint8 _r, const uint8 _g, const uint8 _b, const uint8 _a)
-        : r(_r),
-          g(_g),
-          b(_b),
-          a(_a)
+    Color::Color(const uint8 r, const uint8 g, const uint8 b, const uint8 a)
+        : colors    (static_cast<float32>(r) / 255.f,
+                    (static_cast<float32>(g) / 255.f),
+                    (static_cast<float32>(b) / 255.f)),
+          alpha     (static_cast<float32>(a) / 255.f)
     {}
 
     Color::Color(const uint32 colors)
-        : r(static_cast<uint8>(colors >> 24)),
-          g(static_cast<uint8>(colors >> 16)),
-          b(static_cast<uint8>(colors >> 8)),
-          a(static_cast<uint8>(colors))
+        : colors    (static_cast<float32>(static_cast<uint8>(colors >> 24)) / 255.f,
+                    (static_cast<float32>(static_cast<uint8>(colors >> 16)) / 255.f),
+                    (static_cast<float32>(static_cast<uint8>(colors >> 8))  / 255.f)),
+          alpha     (static_cast<float32>(static_cast<uint8>(colors)) / 255.f)
     {}
 
     Color::Color(const std::string& hexString)
     {
         std::stringstream ss;
-        uint32 colors;
+        uint32 col;
         ss << std::hex << hexString;
-        ss >> colors;
-        *this = Color(colors);
+        ss >> col;
+        *this = Color(col);
     }
 
-    Color::Color(const float _r, const float _g, const float _b, const float _a)
-        : r(static_cast<uint8>(_r * 255)),
-          g(static_cast<uint8>(_g * 255)),
-          b(static_cast<uint8>(_b * 255)),
-          a(static_cast<uint8>(_a * 255))
-    {
-
-    }
+    Color::Color(const float32 r, const float32 g, const float32 b, const float32 a)
+        : colors    (r, g, b),
+          alpha     (a)
+    {}
 
     //////////////////////////////////////////////
 
-
-    glm::vec4 Color::asRGBAFloatVector() const
+    glm::vec4 Color::asRGBAVector() const
     {
-        typedef glm::vec4::value_type fType;
-
-        return glm::fvec4(static_cast<fType>(r) / 255.f,
-                          static_cast<fType>(g) / 255.f,
-                          static_cast<fType>(b) / 255.f,
-                          static_cast<fType>(a) / 255.f);
-
-    }
-
-    //////////////////////////////////////////////
-
-    glm::vec3 Color::asRGBFloatVector() const
-    {
-        typedef glm::vec3::value_type fType;
-
-        return glm::vec3(static_cast<fType>(r) / 255.f,
-                         static_cast<fType>(g) / 255.f,
-                         static_cast<fType>(b) / 255.f);
+        return glm::vec4(colors, alpha);
     }
 
     //////////////////////////////////////////////
@@ -97,10 +73,10 @@ namespace jop
     {
         return
         (
-            static_cast<unsigned int>(r) << 24 |
-            static_cast<unsigned int>(g) << 16 |
-            static_cast<unsigned int>(b) << 8  |
-            static_cast<unsigned int>(a)
+            static_cast<unsigned int>(std::abs(std::min(255.f, colors.r * 255.f))) << 24 |
+            static_cast<unsigned int>(std::abs(std::min(255.f, colors.g * 255.f))) << 16 |
+            static_cast<unsigned int>(std::abs(std::min(255.f, colors.b * 255.f))) << 8 |
+            static_cast<unsigned int>(std::abs(std::min(255.f, alpha * 255.f)))
         );
     }
 
@@ -126,20 +102,14 @@ namespace jop
 
     bool Color::operator ==(const Color& other) const
     {
-        return r == other.r &&
-               g == other.g &&
-               b == other.b &&
-               a == other.a;
+        return colors == other.colors;
     }
 
     //////////////////////////////////////////////
 
     bool Color::operator !=(const Color& other) const
     {
-        return r != other.r ||
-               g != other.g ||
-               b != other.b ||
-               a != other.a;
+        return !(*this == other);
     }
 
 } // namespace gp

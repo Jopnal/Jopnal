@@ -102,13 +102,13 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        RenderTarget& setClearColor(const Color color);
+        RenderTarget& setClearColor(const Color& color);
 
         /// \brief Get the clear color
         ///
         /// \return The clear color
         ///
-        Color getClearColor() const;
+        const Color& getClearColor() const;
 
         /// \brief Set the clear depth
         ///
@@ -144,10 +144,10 @@ namespace jop
 
     private:
 
-        Color m_clearColor;         ///< The clear color
-        std::atomic<float> m_clearDepth;         ///< The clear depth
-        std::atomic<int> m_clearStencil;         ///< The clear stencil
-        std::atomic<bool> m_clearAttribsChanged; ///< Have any of the clear values been changed?
+        Color m_clearColor;                         ///< The clear color
+        std::atomic<float> m_clearDepth;            ///< The clear depth
+        std::atomic<int> m_clearStencil;            ///< The clear stencil
+        std::atomic<bool> m_clearAttribsChanged;    ///< Have any of the clear values been changed?
     };
 }
 

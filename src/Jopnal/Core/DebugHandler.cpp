@@ -355,7 +355,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    DebugHandler& DebugHandler::operator <<(const jop::Color& color)
+    DebugHandler& DebugHandler::operator <<(const Color& color)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 

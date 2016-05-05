@@ -127,13 +127,26 @@ namespace
         jop::Color::White,
         jop::Color::Black
     };
+
+    const std::array<jop::Color, 4>& getDefaultColors()
+    {
+        static const std::array<jop::Color, 4> colors =
+        {
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "00000000"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "FFFFFFFF"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "00000000")
+        };
+
+        return colors;
+    }
 }
 
 namespace jop
 {
     Material::Material(const std::string& name, const bool autoAttributes)
         : Resource              (name),
-          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
+          m_reflection          (getDefaultColors()),
           m_reflectivity        (0.5f),
           m_attributes          (),
           m_shininess           (1.f),
@@ -147,7 +160,7 @@ namespace jop
 
     Material::Material(const std::string& name, const AttribType attributes, const bool autoAttributes)
         : Resource              (name),
-          m_reflection          ({{ns_defCol[0], ns_defCol[1], ns_defCol[2], ns_defCol[3]}}),
+          m_reflection          (getDefaultColors()),
           m_attributes          (attributes),
           m_shininess           (1.f),
           m_maps                (),
@@ -200,17 +213,17 @@ namespace jop
 
                 if (hasAttribute(Attribute::__Lighting))
                 {
-                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].asRGBFloatVector());
-                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].asRGBFloatVector());
-                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].asRGBFloatVector());
-                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].colors);
+                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].colors);
+                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].colors);
+                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].colors);
                     shader.setUniform(strCache[5], m_shininess);
 
                     if (hasAttribute(Attribute::EnvironmentMap))
                         shader.setUniform(strCache[6], m_reflectivity);
                 }
                 else
-                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].asRGBFloatVector());
+                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].colors);
 
                 if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
                     shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), ns_diffMapIndex);
@@ -262,7 +275,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material& Material::setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission)
+    Material& Material::setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission)
     {
         m_reflection[0] = ambient;
         m_reflection[1] = diffuse;
@@ -273,7 +286,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Color Material::getReflection(const Reflection reflection) const
+    const Color& Material::getReflection(const Reflection reflection) const
     {
         return m_reflection[static_cast<int>(reflection)];
     }

@@ -137,23 +137,34 @@ namespace jop
     JOP_END_SAVEABLE_REGISTRATION(LightSource)
 }
 
+namespace
+{
+    const std::array<jop::Color, 3>& getDefaultIntensities()
+    {
+        static const std::array<jop::Color, 3> intensities =
+        {
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultAmbient", "00000000"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultDiffuse", "FFFFFFFF"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultSpecular", "FFFFFFFF")
+        };
+
+        return intensities;
+    }
+}
+
 namespace jop
 {
     LightSource::LightSource(Object& object, Renderer& renderer, const Type type)
         : Component             (object, "lightsource"),
           m_lightSpaceMatrices  (),
           m_type                (type),
-          m_intensities         (),
+          m_intensities         (getDefaultIntensities()),
           m_attenuation         (1.f, 1.f, 2.f),
           m_cutoff              (0.17f, 0.17f), // ~10 degrees
           m_rendererRef         (renderer),
           m_renderMask          (1),
           m_shadowMap           ()
     {
-        m_intensities[0] = Color::Black; // Ambient
-        m_intensities[1] = Color::White; // Diffuse
-        m_intensities[2] = Color::White; // Specular
-
         renderer.bind(*this);
     }
 
@@ -387,7 +398,7 @@ namespace jop
 
     ///////////////////////////////////////////
 
-    Color LightSource::getIntensity(const Intensity intensity) const
+    const Color& LightSource::getIntensity(const Intensity intensity) const
     {
         return m_intensities[static_cast<int>(intensity)];
     }
@@ -433,12 +444,12 @@ namespace jop
 
     float LightSource::getRange() const
     {
-        const float max = static_cast<float>(std::max(
+        const float max = std::max(
         {
-            m_intensities[0].r, m_intensities[0].g, m_intensities[0].b,
-            m_intensities[1].r, m_intensities[1].g, m_intensities[1].b,
-            m_intensities[2].r, m_intensities[2].g, m_intensities[2].b
-        })) / 255.f;
+            m_intensities[0].colors.r, m_intensities[0].colors.g, m_intensities[0].colors.b,
+            m_intensities[1].colors.r, m_intensities[1].colors.g, m_intensities[1].colors.b,
+            m_intensities[2].colors.r, m_intensities[2].colors.g, m_intensities[2].colors.b
+        });
 
         const auto& att = m_attenuation;
 
@@ -654,9 +665,9 @@ namespace jop
                 shader.setUniform(cache[0], li.getObject()->getGlobalPosition());
 
                 // Intensity
-                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).colors);
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).colors);
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Attenuation
                 shader.setUniform(cache[4], li.getAttenuationVec());
@@ -692,9 +703,9 @@ namespace jop
                 shader.setUniform(cache[1], li.getObject()->getGlobalFront());
 
                 // Intensity
-                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[4], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Ambient).colors);
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Diffuse).colors);
+                shader.setUniform(cache[4], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Attenuation
                 shader.setUniform(cache[5], li.getAttenuationVec());
@@ -730,9 +741,9 @@ namespace jop
                 shader.setUniform(cache[0], li.getObject()->getGlobalFront());
                 
                 // Intensity
-                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).asRGBFloatVector());
-                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).asRGBFloatVector());
-                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).asRGBFloatVector());
+                shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).colors);
+                shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Diffuse).colors);
+                shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Shadow map
                 if (drawable.receiveShadows())

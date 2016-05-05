@@ -83,13 +83,13 @@ namespace jop
         ///
         /// \param color Color
         ///
-        Text& setColor(const Color color);
+        Text& setColor(const Color& color);
 
         /// \brief Get the color
         ///
         /// \return The color
         ///
-        Color getColor() const;
+        const Color& getColor() const;
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
