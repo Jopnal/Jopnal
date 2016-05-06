@@ -20,20 +20,37 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Core/FileLoader.hpp>
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Core/Scene.hpp>
-#include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/Serializer.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup core Core
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    Serializer& Serializer::getInstance()
+    {
+        static Serializer instance;
+        return instance;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Serializer::save(const std::string& descPath, const uint32 modes)
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Serializer::load(const std::string& descPath, const uint32 modes)
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::unordered_map<std::type_index, std::string>& Serializer::getSavenameContainer()
+    {
+        return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
+    }
+}

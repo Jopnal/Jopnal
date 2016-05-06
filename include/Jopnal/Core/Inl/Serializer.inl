@@ -21,24 +21,11 @@
 
 
 template<typename T>
-void SceneLoader::registerLoadable(const char* id, const typename detail::FuncChooser<T>::LoadFunc& func)
+void Serializer::registerSerializeable(const char* id,
+                                       const typename detail::FuncChooser<T>::FactoryFunc& factFunc,
+                                       const typename detail::FuncChooser<T>::LoadFunc& loadFunc,
+                                       const typename detail::FuncChooser<T>::SaveFunc& saveFunc)
 {
-    std::get<0>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)]) = func;
-}
-
-//////////////////////////////////////////////
-
-template<typename T>
-void SceneLoader::registerSaveable(const char* id, const typename detail::FuncChooser<T>::SaveFunc& func)
-{
-    std::get<1>(std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)]) = func;
+    std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)] = std::make_tuple(factFunc, loadFunc, saveFunc);
     std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers)[std::type_index(typeid(T))] = id;
-}
-
-//////////////////////////////////////////////
-
-template<typename T>
-const typename detail::FuncChooser<T>::FuncContainer& SceneLoader::getFunctionContainer()
-{
-    return std::get<detail::FuncChooser<T>::ContainerID>(getInstance().m_loaderSavers);
 }

@@ -45,10 +45,8 @@ namespace jop
         GlState::setSeamlessCubemap(true);
         GlState::setBlendFunc(true);
 
-        const RenderTexture* rtex = dynamic_cast<const RenderTexture*>(&mainTarget);
-
-        if (rtex)
-            m_postProcessor = std::make_unique<PostProcessor>(*this, *rtex);
+        if (typeid(mainTarget) == typeid(RenderTexture))
+            m_postProcessor = std::make_unique<PostProcessor>(*this, static_cast<const RenderTexture&>(mainTarget));
     }
 
     Renderer::~Renderer()

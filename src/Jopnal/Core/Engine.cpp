@@ -114,8 +114,8 @@ namespace jop
         m_sharedScene = std::make_unique<Scene>("sharedscene");
 
         // Set process priority
-    #ifdef JOP_OS_WINDOWS
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
+    #ifdef JOP_OS_WINDOWS
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     #endif
 

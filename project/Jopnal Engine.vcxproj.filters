@@ -417,11 +417,11 @@
     <ClInclude Include="..\include\Jopnal\Core\SerializeInfo.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Core\SceneLoader.hpp">
-      <Filter>Core\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\PostProcessor.hpp">
       <Filter>Graphics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Core\Serializer.hpp">
+      <Filter>Core\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -686,11 +686,11 @@
     <ClCompile Include="..\src\Jopnal\Audio\SoundSource.cpp">
       <Filter>Audio\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Core\SceneLoader.cpp">
-      <Filter>Core\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\PostProcessor.cpp">
       <Filter>Graphics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Core\Serializer.cpp">
+      <Filter>Core\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -739,7 +739,7 @@
     <None Include="..\include\Jopnal\Core\Inl\SettingCallback.inl">
       <Filter>Core\Inl</Filter>
     </None>
-    <None Include="..\include\Jopnal\Core\Inl\SceneLoader.inl">
+    <None Include="..\include\Jopnal\Core\Inl\Serializer.inl">
       <Filter>Core\Inl</Filter>
     </None>
   </ItemGroup>
