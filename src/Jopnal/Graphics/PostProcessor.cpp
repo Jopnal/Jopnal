@@ -36,7 +36,7 @@ namespace jop
           m_functions           (0),
           m_functionsChanged    (false)
     {
-
+        m_quad.load(2.f);
     }
 
     //////////////////////////////////////////////
