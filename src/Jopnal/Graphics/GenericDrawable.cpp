@@ -27,21 +27,6 @@
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
-    {
-        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(scene.getRenderer()), scene, val);
-    }
-    JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
-
-    JOP_REGISTER_SAVEABLE(jop, GenericDrawable)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
-    {
-        return Drawable::saveStateBase(static_cast<const GenericDrawable&>(comp), val, alloc);
-    }
-    JOP_END_SAVEABLE_REGISTRATION(GenericDrawable)
-}
-
-namespace jop
-{
     GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
         : Drawable(object, renderer, "genericdrawable")
     {}

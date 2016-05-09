@@ -32,25 +32,6 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Scene::setDeltaScale, "setDeltaScale");
 
     JOP_END_COMMAND_HANDLER(Scene)
-
-    JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
-    {
-        const float delta = val.HasMember("deltascale") && val["deltascale"].IsDouble() ? static_cast<float>(val["deltascale"].GetDouble()) : 1.f;
-
-        scene = std::make_unique<Scene>("");
-        scene->setDeltaScale(delta);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Scene)
-
-    JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
-    {
-        obj.AddMember(json::StringRef("deltascale"), scene.getDeltaScale(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Scene)
 }
 
 namespace jop

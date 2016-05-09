@@ -46,11 +46,4 @@ namespace jop
     {
         return false;
     }
-
-    //////////////////////////////////////////////
-
-    const std::unordered_map<std::type_index, std::string>& Serializer::getSavenameContainer()
-    {
-        return std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
-    }
 }
