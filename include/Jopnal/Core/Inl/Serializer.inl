@@ -21,11 +21,40 @@
 
 
 template<typename T>
-void Serializer::registerSerializeable(const char* id,
+void Serializer::registerSerializeable(const std::string& id,
                                        const typename detail::FuncChooser<T>::FactoryFunc& factFunc,
                                        const typename detail::FuncChooser<T>::LoadFunc& loadFunc,
                                        const typename detail::FuncChooser<T>::SaveFunc& saveFunc)
 {
-    std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[std::string(id)] = std::make_tuple(factFunc, loadFunc, saveFunc);
+    std::get<detail::FuncChooser<T>::ContainerID>(m_loaderSavers)[id] = std::make_tuple(factFunc, loadFunc, saveFunc);
     std::get<std::tuple_size<decltype(m_loaderSavers)>::value - 1>(m_loaderSavers)[std::type_index(typeid(T))] = id;
+}
+
+//////////////////////////////////////////////
+
+template<typename T, uint32 FuncID, typename ... Args>
+bool Serializer::callSingleFunc(const std::string& id, Args&&... args)
+{
+    auto& cont = std::get<detail::FuncChooser<T>::ContainerID>(getInstance().m_loaderSavers);
+    auto tupleItr = cont.find(id);
+
+    if (tupleItr != cont.end())
+        return std::get<FuncID>(tupleItr->second)(std::forward<Args>(args)...);
+
+    return false;
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+const std::string& Serializer::getSerializeID()
+{
+    auto& cont = std::get<std::tuple_size<decltype(getInstance().m_loaderSavers)>::value - 1>(getInstance().m_loaderSavers);
+    auto itr = cont.find(std::type_index(typeid(T)));
+
+    if (itr != cont.end())
+        return itr->second;
+
+    static const std::string dummy;
+    return dummy;
 }

@@ -40,6 +40,21 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Drawable)
+
+    bool jop__baseDrawableLoadFunc(JOP_COMPONENT_LOAD_ARGS)
+    {
+        // mesh & material
+
+        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Load>(Serializer::getSerializeID<Component>(), comp, val);
+    }
+    bool jop__baseDrawableSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        // mesh & material
+
+        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Save>(Serializer::getSerializeID<Component>(), comp, val, alloc);
+    }
+
+    JOP_REGISTER_SERIALIZER_NO_FACTORY(jop, Drawable, jop__baseDrawableLoadFunc, jop__baseDrawableSaveFunc);
 }
 
 namespace jop

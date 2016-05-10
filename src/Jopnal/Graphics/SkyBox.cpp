@@ -27,6 +27,33 @@
 
 namespace jop
 {
+    SkyBox& jop__skyBoxFactoryFunc(JOP_COMPONENT_FACTORY_ARGS)
+    {
+        float size = 2.f;
+        
+        if (val.HasMember("size") && val["size"].IsDouble())
+            size = static_cast<float>(val["size"].GetDouble());
+
+        return obj.createComponent<SkyBox>(scene.getRenderer(), size);
+    }
+    bool jop__skyBoxLoadFunc(JOP_COMPONENT_LOAD_ARGS)
+    {
+        // map
+
+        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Load>(Serializer::getSerializeID<Drawable>(), comp, val);
+    }
+    bool jop__skyBoxSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        // map
+
+        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Save>(Serializer::getSerializeID<Drawable>(), comp, val, alloc);
+    }
+
+    JOP_REGISTER_SERIALIZER(jop, SkyBox, jop__skyBoxFactoryFunc, jop__skyBoxLoadFunc, jop__skyBoxSaveFunc);
+}
+
+namespace jop
+{
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
         : Drawable      (obj, renderer, "skybox"),
           m_mesh        (""),

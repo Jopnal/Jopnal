@@ -25,47 +25,45 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Core/SubSystem.hpp>
-#include <Jopnal/Utility/Json.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Core/Scene.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <functional>
 #include <tuple>
 #include <typeindex>
-#include <mutex>
 
 //////////////////////////////////////////////
 
 
-#define JOP_COMPONENT_FACTORY_ARGS Object&, const Scene&, const json::Value&
-#define JOP_COMPONENT_LOAD_ARGS Component&, const json::Value&
-#define JOP_COMPONENT_SAVE_ARGS const Component&, json::Value&, json::Value::AllocatorType&
+#define JOP_COMPONENT_FACTORY_ARGS Object& obj, const Scene& scene, const json::Value& val
+#define JOP_COMPONENT_LOAD_ARGS Component& comp, const json::Value& val
+#define JOP_COMPONENT_SAVE_ARGS const Component& comp, json::Value& val, json::Value::AllocatorType& alloc
 
-#define JOP_SCENE_FACTORY_ARGS std::unique_ptr<Scene>&, const json::Value&
-#define JOP_SCENE_LOAD_ARGS Scene&, const json::Value&
-#define JOP_SCENE_SAVE_ARGS const Scene&, json::Value&, json::Value::AllocatorType&
+#define JOP_SCENE_FACTORY_ARGS const json::Value& val
+#define JOP_SCENE_LOAD_ARGS Scene& scene, const json::Value& val
+#define JOP_SCENE_SAVE_ARGS const Scene& scene, json::Value& val, json::Value::AllocatorType& alloc
 
-#define JOP_RESOURCE_FACTORY_ARGS const json::Value&
-#define JOP_RESOURCE_LOAD_ARGS Resource&, const json::Value&
-#define JOP_RESOURCE_SAVE_ARGS const Resource&, json::Value&, json::Value::AllocatorType&
+#define JOP_RESOURCE_FACTORY_ARGS const json::Value& val
+#define JOP_RESOURCE_LOAD_ARGS Resource& res, const json::Value& val
+#define JOP_RESOURCE_SAVE_ARGS const Resource& res, json::Value& val, json::Value::AllocatorType& alloc
 
 namespace jop
 {
     class Object;
 
-    typedef std::function<bool(JOP_RESOURCE_FACTORY_ARGS)>  ComponentFactoryFunc;
-    typedef std::function<bool(JOP_RESOURCE_LOAD_ARGS)>     ComponentLoadFunc;
-    typedef std::function<bool(JOP_RESOURCE_SAVE_ARGS)>     ComponentSaveFunc;
+    typedef std::function<Component&(JOP_COMPONENT_FACTORY_ARGS)>   ComponentFactoryFunc;
+    typedef std::function<bool(JOP_COMPONENT_LOAD_ARGS)>            ComponentLoadFunc;
+    typedef std::function<bool(JOP_COMPONENT_SAVE_ARGS)>            ComponentSaveFunc;
 
-    typedef std::function<bool(JOP_SCENE_FACTORY_ARGS)>     SceneFactoryFunc;
-    typedef std::function<bool(JOP_SCENE_LOAD_ARGS)>        SceneLoadFunc;
-    typedef std::function<bool(JOP_SCENE_SAVE_ARGS)>        SceneSaveFunc;
+    typedef std::function<Scene&(JOP_SCENE_FACTORY_ARGS)>           SceneFactoryFunc;
+    typedef std::function<bool(JOP_SCENE_LOAD_ARGS)>                SceneLoadFunc;
+    typedef std::function<bool(JOP_SCENE_SAVE_ARGS)>                SceneSaveFunc;
 
-    typedef std::function<bool(JOP_RESOURCE_FACTORY_ARGS)>  ResourceFactoryFunc;
-    typedef std::function<bool(JOP_RESOURCE_LOAD_ARGS)>     ResourceLoadFunc;
-    typedef std::function<bool(JOP_RESOURCE_SAVE_ARGS)>     ResourceSaveFunc;
+    typedef std::function<Resource&(JOP_RESOURCE_FACTORY_ARGS)>     ResourceFactoryFunc;
+    typedef std::function<bool(JOP_RESOURCE_LOAD_ARGS)>             ResourceLoadFunc;
+    typedef std::function<bool(JOP_RESOURCE_SAVE_ARGS)>             ResourceSaveFunc;
 
     namespace detail
     {
@@ -77,6 +75,7 @@ namespace jop
             bool IsResource = std::is_base_of<Resource,     T>::value
 
         > struct FuncChooser{};
+
         template<typename T>
         struct FuncChooser<T, true, false, false>
         {
@@ -127,6 +126,15 @@ namespace jop
             };
         };
 
+        struct FunctionID
+        {
+            enum : uint32
+            {
+                Load = 1,
+                Save
+            };
+        };
+
     public:
 
         /// \brief Get the single SceneLoader instance
@@ -139,7 +147,7 @@ namespace jop
         /// \brief 
         ///
         template<typename T>
-        void registerSerializeable(const char* id,
+        void registerSerializeable(const std::string& id,
                                    const typename detail::FuncChooser<T>::FactoryFunc& factFunc,
                                    const typename detail::FuncChooser<T>::LoadFunc& loadFunc,
                                    const typename detail::FuncChooser<T>::SaveFunc& saveFunc);
@@ -155,6 +163,13 @@ namespace jop
         /// \return True if successful
         ///
         static bool load(const std::string& descPath, const uint32 modes);
+
+
+        template<typename T, uint32 FuncID, typename ... Args>
+        static bool callSingleFunc(const std::string& id, Args&&... args);
+
+        template<typename T>
+        static const std::string& getSerializeID();
 
     private:
 
@@ -177,21 +192,23 @@ namespace jop
     #include <Jopnal/Core/Inl/Serializer.inl>
 }
 
-#define JOP_REGISTER_SERIALIZER(nameSpace, className)               \
-    struct __ns_##className##_SerializeRegistrar                    \
-    {                                                               \
-        __ns_##className##_SerializeRegistrar()                     \
-        {                                                           \
-            jop::Serializer::getInstance()                          \
-            .registerSerializeable<className>                       \
-            (                                                       \
-                #nameSpace "::" #className,                         \
-                JOP_FACTORY_FUNC,                                   \
-                JOP_LOAD_FUNC,                                      \
-                JOP_SAVE_FUNC                                       \
-            );                                                      \
-        }                                                           \
-    } __ns_##className##_SerializeRegistrar;
+#define JOP_REGISTER_SERIALIZER(nameSpace, className, factoryFunc, loadFunc, saveFunc)  \
+    static const struct __ns_##className##_SerializeRegistrar                           \
+    {                                                                                   \
+        __ns_##className##_SerializeRegistrar()                                         \
+        {                                                                               \
+            jop::Serializer::getInstance()                                              \
+            .registerSerializeable<className>                                           \
+            (                                                                           \
+                #nameSpace "::" #className,                                             \
+                factoryFunc, loadFunc, saveFunc                                         \
+            );                                                                          \
+        }                                                                               \
+    } __ns_##className##_SerializeRegistrar
+
+#define JOP_REGISTER_SERIALIZER_NO_FACTORY(nameSpace, className, loadFunc, saveFunc)    \
+        JOP_REGISTER_SERIALIZER(nameSpace, className,                                   \
+        jop::detail::FuncChooser<className>::FactoryFunc(), loadFunc, saveFunc)
 
 #endif
 

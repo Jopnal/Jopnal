@@ -32,6 +32,22 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Component::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Component)
+
+    bool jop__baseComponentLoadFunc(JOP_COMPONENT_LOAD_ARGS)
+    {
+        if (val.HasMember("id") && val["id"].IsString())
+            comp.setID(val["id"].GetString());
+
+        return true;
+    }
+    bool jop__baseComponentSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        val.AddMember(json::StringRef("id"), json::StringRef(comp.getID().c_str()), alloc);
+
+        return true;
+    }
+
+    JOP_REGISTER_SERIALIZER_NO_FACTORY(jop, Component, jop__baseComponentLoadFunc, jop__baseComponentSaveFunc);
 }
 
 namespace jop
