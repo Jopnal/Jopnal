@@ -132,10 +132,11 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
         glfwWindowHint(GLFW_ALPHA_BITS, 8);
+        glfwWindowHint(GLFW_SRGB_CAPABLE, gl::TRUE_);
 
         // Depth & stencil exist in the renderer frame buffer
-        glfwWindowHint(GLFW_DEPTH_BITS, 24);
-        glfwWindowHint(GLFW_STENCIL_BITS, 8);
+        glfwWindowHint(GLFW_DEPTH_BITS, 0);
+        glfwWindowHint(GLFW_STENCIL_BITS, 0);
 
         // Frame rate limit
         glfwWindowHint(GLFW_REFRESH_RATE, settings.maxFrameRate == 0 ? GLFW_DONT_CARE : settings.maxFrameRate);

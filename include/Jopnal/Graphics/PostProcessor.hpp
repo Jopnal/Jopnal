@@ -24,8 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
-#include <vector>
+#include <array>
 
 //////////////////////////////////////////////
 
@@ -36,11 +37,11 @@ namespace jop
     class Renderer;
     class RenderTexture;
 
-    class JOP_API PostProcessor
+    class JOP_API PostProcessor final : public Subsystem
     {
     private:
 
-        //JOP_DISALLOW_COPY_MOVE(PostProcessor);
+        JOP_DISALLOW_COPY_MOVE(PostProcessor);
 
     public:
 
@@ -48,28 +49,30 @@ namespace jop
         {
             enum : uint32
             {
-                GammaCorrection = 1
+                ToneMap = 1,
+                Bloom   = 1 << 1
             };
         };
 
     public:
 
-        PostProcessor(Renderer& renderer, const RenderTexture& mainTarget);
+        PostProcessor(const RenderTexture& mainTarget);
 
 
         PostProcessor& enableFunctions(const uint32 funcs);
 
         PostProcessor& disableFunctions(const uint32 funcs);
 
+        bool functionEnabled(const uint32 func) const;
+
 
         void draw();
 
     private:
 
-        std::vector<std::string> m_shaderSources;
+        std::array<std::string, 4> m_shaderSources;
         jop::WeakReference<Shader> m_shader;
         RectangleMesh m_quad;
-        Renderer& m_rendererRef;
         const RenderTexture& m_mainTarget;
         uint32 m_functions;
         bool m_functionsChanged;

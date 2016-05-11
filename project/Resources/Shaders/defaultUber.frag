@@ -497,7 +497,7 @@ in FragVertexData
 #endif
 
 // Final fragment color
-out vec4 out_FinalColor;
+layout(location = 0) out vec4 out_FinalColor;
 
 void main() 
 {
@@ -601,19 +601,7 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(pow(tempColor, vec3(1.0 /
-        
-    #ifdef JMAT_ENVIRONMENT_RECORD
-        // Temporary "fix" for gamma correction getting
-        // applied twice. This is a somewhat working
-        // approximation, though the colors are
-        // still a bit wrong
-        1.85
-    #else
-        2.2
-    #endif
-        
-    )), alpha);
+    out_FinalColor = vec4(tempColor, alpha);
 
 #endif // Sky box
 }

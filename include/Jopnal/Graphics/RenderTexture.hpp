@@ -100,9 +100,9 @@ namespace jop
             Texture24,      ///< 24 bit depth texture
             Texture32,      ///< 32 bit depth texture
 
-            TextureCube16,      ///< 16 bit depth cube map
-            TextureCube24,      ///< 24 bit depth cube map
-            TextureCube32,      ///< 32 bit depth cube map
+            TextureCube16,  ///< 16 bit depth cube map
+            TextureCube24,  ///< 24 bit depth cube map
+            TextureCube32,  ///< 32 bit depth cube map
         };
         
         /// Stencil attachment type
@@ -147,7 +147,9 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool bind() const;
+        bool bind() const override;
+
+        bool bind(const bool read) const;
 
         /// \brief Unbind the currently bound frame buffer
         ///

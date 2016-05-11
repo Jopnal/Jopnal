@@ -32,8 +32,7 @@ namespace jop
           m_mutex               (),
           m_clearColor          (Color::Black),
           m_clearDepth          (1.f),
-          m_clearStencil        (0),
-          m_clearAttribsChanged (true)
+          m_clearStencil        (0)
     {}
 
     RenderTarget::~RenderTarget()
@@ -54,14 +53,9 @@ namespace jop
 
         if (bind())
         {
-            if (m_clearAttribsChanged)
-            {
-                glCheck(gl::ClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
-                glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
-                glCheck(gl::ClearStencil(m_clearStencil.load()));
-
-                m_clearAttribsChanged = false;
-            }
+            glCheck(gl::ClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
+            glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
+            glCheck(gl::ClearStencil(m_clearStencil.load()));
 
             glCheck(gl::Clear
             (
@@ -79,17 +73,14 @@ namespace jop
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         m_clearColor = color;
-        m_clearAttribsChanged = true;
-
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    const Color& RenderTarget::getClearColor() const
+    Color RenderTarget::getClearColor() const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
         return m_clearColor;
     }
 
@@ -98,8 +89,6 @@ namespace jop
     RenderTarget& RenderTarget::setClearDepth(const float depth)
     {
         m_clearDepth.store(depth);
-        m_clearAttribsChanged.store(true);
-
         return *this;
     }
 
@@ -115,8 +104,6 @@ namespace jop
     RenderTarget& RenderTarget::setClearStencil(const int stencil)
     {
         m_clearStencil.store(stencil);
-        m_clearAttribsChanged.store(true);
-
         return *this;
     }
 

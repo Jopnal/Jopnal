@@ -35,7 +35,6 @@ namespace jop
     class World;
     class Window;
     class RenderTarget;
-    class PostProcessor;
 
     class JOP_API Renderer
     {
@@ -73,11 +72,6 @@ namespace jop
         ///
         uint32 getMask() const;
 
-
-        PostProcessor* getPostProcessor();
-
-        const PostProcessor* getPostProcessor() const;
-
     private:
 
         void bind(const LightSource& light);
@@ -109,7 +103,6 @@ namespace jop
 
     private:
 
-        std::unique_ptr<PostProcessor> m_postProcessor;
         std::set<const LightSource*> m_lights;          ///< The bound lights
         std::set<const Camera*> m_cameras;              ///< The bound cameras
         std::set<const Drawable*> m_drawables;          ///< The bound drawables

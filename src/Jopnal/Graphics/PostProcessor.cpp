@@ -27,11 +27,11 @@
 
 namespace jop
 {
-    PostProcessor::PostProcessor(Renderer& renderer, const RenderTexture& mainTarget)
-        : m_shaderSources       (),
+    PostProcessor::PostProcessor(const RenderTexture& mainTarget)
+        : Subsystem             ("postprocessor"),
+          m_shaderSources       (),
           m_shader              (),
           m_quad                (""),
-          m_rendererRef         (renderer),
           m_mainTarget          (mainTarget),
           m_functions           (0),
           m_functionsChanged    (false)
@@ -75,5 +75,12 @@ namespace jop
         m_shader->bind();
 
         
+    }
+
+    //////////////////////////////////////////////
+
+    bool PostProcessor::functionEnabled(const uint32 func) const
+    {
+        return (m_functions & func) != 0;
     }
 }

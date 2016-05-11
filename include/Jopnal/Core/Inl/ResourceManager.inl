@@ -131,7 +131,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 
     else
     {
-    #if JOP_CONSOLE_VERBOSITY >= 2
+    #if JOP_CONSOLE_VERBOSITY >= 3
         Clock clk;
     #endif
 
@@ -145,7 +145,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             if (m_instance->m_loadPhase.load())
                 m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
 
-            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
+            JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
 
             return ptr;
         }
@@ -213,7 +213,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
     if (resourceExists<T>(name))
     {
-    #if JOP_CONSOLE_VERBOSITY >= 2
+    #if JOP_CONSOLE_VERBOSITY >= 3
         Clock clk;
     #endif
 
@@ -224,7 +224,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
         m_instance->m_resources[newName] = std::move(res);
 
-        JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
+        JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
 
         return ptr;
     }

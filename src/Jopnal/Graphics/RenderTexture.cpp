@@ -369,11 +369,18 @@ namespace jop
 
     bool RenderTexture::bind() const
     {
+        return bind(false);
+    }
+
+    //////////////////////////////////////////////
+
+    bool RenderTexture::bind(const bool read) const
+    {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (attach() && isValid())
         {
-            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer.first));
+            glCheck(gl::BindFramebuffer(read ? gl::READ_FRAMEBUFFER : gl::DRAW_FRAMEBUFFER, m_frameBuffer.first));
             glCheck(gl::Viewport(0, 0, getSize().x, getSize().y));
         }
 

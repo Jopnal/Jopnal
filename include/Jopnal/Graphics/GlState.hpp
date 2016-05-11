@@ -173,6 +173,8 @@ namespace jop
         /// \param enable Enable depth writes?
         ///
         static void setDepthWrite(const bool enable);
+
+        static void setFramebufferSrgb(const bool enable);
     };
 }
 

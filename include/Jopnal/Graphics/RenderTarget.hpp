@@ -108,7 +108,7 @@ namespace jop
         ///
         /// \return The clear color
         ///
-        const Color& getClearColor() const;
+        Color getClearColor() const;
 
         /// \brief Set the clear depth
         ///
@@ -147,7 +147,6 @@ namespace jop
         Color m_clearColor;                         ///< The clear color
         std::atomic<float> m_clearDepth;            ///< The clear depth
         std::atomic<int> m_clearStencil;            ///< The clear stencil
-        std::atomic<bool> m_clearAttribsChanged;    ///< Have any of the clear values been changed?
     };
 }
 

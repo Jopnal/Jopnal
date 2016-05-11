@@ -684,7 +684,7 @@ namespace jop
         if (spacing.empty())
         {
             const auto n = childCountRecursive() + 1; // +1 for scene
-            deb << "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
+            deb << DebugHandler::Severity::Info << Color::White <<  "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
 
             for (uint32 i = 0; i < 45 + std::ceil(std::log10(n + 1)); ++i)
                 deb << codes[0];

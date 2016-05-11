@@ -60,6 +60,12 @@
     <None Include="Resources\Shaders\physicsDebug.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\postProcess.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\postProcess.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\kongtext.ttf">

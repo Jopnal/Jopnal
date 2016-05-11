@@ -53,7 +53,7 @@
 
 // Version
 #define JOP_VERSION_MAJOR 0
-#define JOP_VERSION_MINOR 2
-#define JOP_VERSION_STRING "indev 0.2"
+#define JOP_VERSION_MINOR 3
+#define JOP_VERSION_STRING "indev 0.3"
 
 #endif

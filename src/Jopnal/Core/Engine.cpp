@@ -108,7 +108,22 @@ namespace jop
         createSubsystem<ShaderAssembler>();
 
         // Main render target
-        m_mainTarget = &win;
+        typedef RenderTexture RT;
+        auto& rtex = createSubsystem<RT>();
+
+        {
+            m_mainTarget = &rtex;
+
+            const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(win.getSize()));
+
+            rtex.addColorAttachment(RT::ColorAttachmentSlot::_1, RT::ColorAttachment::RGBA2DFloat16, scaledRes);
+            rtex.addColorAttachment(RT::ColorAttachmentSlot::_2, RT::ColorAttachment::RGB2DFloat16, scaledRes);
+            rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
+            rtex.addStencilAttachment(RT::StencilAttachment::Int8, scaledRes);
+        }
+
+        // Post processor
+        createSubsystem<PostProcessor>(rtex);
 
         // Shared scene
         m_sharedScene = std::make_unique<Scene>("sharedscene");
@@ -119,20 +134,20 @@ namespace jop
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     #endif
 
-        JOP_DEBUG_INFO("Default engine configuration loaded");
+        JOP_DEBUG_INFO("Default engine sub system configuration loaded");
     }
 
     //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
-        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop without a valid jop::Engine instance!");
+        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop before initializing the engine!");
 
 #pragma warning(suppress: 6011)
         auto& eng = *m_engineObject;
 
         if (!eng.m_currentScene)
-            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
+            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used");
 
         Clock frameClock;
 

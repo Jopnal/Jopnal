@@ -49,6 +49,7 @@ namespace
     jop::GlState::PolygonMode ns_polygonMode;
     std::vector<bool> ns_vertexAttribs;
     bool ns_depthMask;
+    bool ns_framebufSrgb;
 
     void enableDisable(const bool enable, GLenum enum_)
     {
@@ -96,6 +97,9 @@ namespace jop
 
         // Depth mask is enabled by default
         ns_depthMask = true;
+
+        // Frame buffer srgb is disabled by default
+        ns_framebufSrgb = false;
 
         JOP_DEBUG_INFO("OpenGL state reset");
     }
@@ -281,6 +285,18 @@ namespace jop
             glCheck(gl::DepthMask(enable));
 
             ns_depthMask = enable;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void GlState::setFramebufferSrgb(const bool enable)
+    {
+        if (ns_framebufSrgb != enable)
+        {
+            enableDisable(enable, gl::FRAMEBUFFER_SRGB);
+
+            ns_framebufSrgb = enable;
         }
     }
 }
