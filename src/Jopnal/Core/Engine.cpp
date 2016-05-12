@@ -119,9 +119,9 @@ namespace jop
 
             rtex.addColorAttachment(RT::ColorAttachmentSlot::_1, RT::ColorAttachment::RGBA2DFloat16, scaledRes);
             rtex.addColorAttachment(RT::ColorAttachmentSlot::_2, RT::ColorAttachment::RGB2DFloat16, scaledRes);
-            //rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
+            rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
             //rtex.addStencilAttachment(RT::StencilAttachment::Int8, scaledRes);
-            rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
+            //rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
         }
 
         // Post processor

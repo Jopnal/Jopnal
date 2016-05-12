@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <array>
 #include <unordered_map>
 
@@ -54,7 +55,7 @@ namespace jop
                 Bloom   = 1 << 1,
 
                 // Bundles
-                Default = ToneMap
+                Default = ToneMap | Bloom
             };
         };
 
@@ -80,11 +81,15 @@ namespace jop
 
         void getPreprocessorStr(const uint32 funcs, std::string& str) const;
 
+        void applyBlur(const Texture& texture);
+
 
         static PostProcessor* m_instance;
 
+        std::array<RenderTexture, 2> m_pingPong;
         std::array<std::string, 2> m_shaderSources;
         std::unordered_map<uint32, jop::WeakReference<Shader>> m_shaders;
+        jop::WeakReference<Shader> m_blurShader;
         RectangleMesh m_quad;
         const RenderTexture& m_mainTarget;
         uint32 m_functions;

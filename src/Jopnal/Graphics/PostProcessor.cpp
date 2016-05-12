@@ -50,6 +50,21 @@ namespace jop
             m_shaderSources[0].assign(reinterpret_cast<const char*>(vertBuf.data()), vertBuf.size());
             m_shaderSources[1].assign(reinterpret_cast<const char*>(fragBuf.data()), fragBuf.size());
         }
+
+        // Gaussian blur buffers
+        for (auto& i : m_pingPong)
+        {
+            i.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, RenderTexture::ColorAttachment::RGB2DFloat16, mainTarget.getSize());
+            i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+        }
+
+        std::vector<uint8> blurFragBuf;
+        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_GAUSSIANBLUR_SHADER_FRAG, blurFragBuf), "Failed to read gaussian blur fragment shader source!");
+
+        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(blurFragBuf.data()), blurFragBuf.size()));
+        JOP_ASSERT(&blurShader != &Shader::getError(), "Failed to compile gaussian blur shader!");
+
+        m_blurShader = static_ref_cast<Shader>(blurShader.getReference());
     }
 
     //////////////////////////////////////////////
@@ -99,27 +114,31 @@ namespace jop
 
             JOP_ASSERT(&shader != &Shader::getError(), "Failed to compile post process shader!");
 
+            shader.setPersistence(1);
             m_shaders[m_functions] = static_ref_cast<Shader>(shader.getReference());
         }
 
-        RenderTexture::unbind();
-
         auto& shdr = *m_shaders[m_functions];
-        
-        m_quad.getVertexBuffer().bind();
-        shdr.setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
-        shdr.setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
 
-        shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
-        
         if (m_functions > 0)
         {
             if ((m_functions & Function::ToneMap) != 0)
                 shdr.setUniform("u_Exposure", m_exposure);
 
             if ((m_functions & Function::Bloom) != 0 && m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2))
-                shdr.setUniform("u_Bloom", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2), 2);
+            {
+                applyBlur(*m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2));
+                shdr.setUniform("u_Bloom", *m_pingPong[1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 2);
+            }
         }
+
+        RenderTexture::unbind();
+        
+        m_quad.getVertexBuffer().bind();
+        shdr.setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
+        shdr.setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+
+        shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 
         m_quad.getIndexBuffer().bind();
         glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
@@ -143,6 +162,52 @@ namespace jop
 
         if ((funcs & Function::Bloom) != 0)
             str += "#define JPP_BLOOM\n";
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::applyBlur(const Texture& texture)
+    {
+        /*GLboolean horizontal = true, first_iteration = true;
+        GLuint amount = 10;
+        shaderBlur.Use();
+        for (GLuint i = 0; i < amount; i++)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+            glUniform1i(glGetUniformLocation(shaderBlur.Program, "horizontal"), horizontal);
+            glBindTexture(
+                GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongBuffers[!horizontal]
+                );
+            RenderQuad();
+            horizontal = !horizontal;
+            if (first_iteration)
+                first_iteration = false;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+
+        bool horizontal = true;
+
+        m_blurShader->bind();
+        m_blurShader->setUniform("u_Buffer", texture, 1);
+
+        m_quad.getVertexBuffer().bind();
+        m_blurShader->setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
+        m_blurShader->setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+
+        m_quad.getIndexBuffer().bind();
+
+        for (uint32 i = 0; i < 15; ++i)
+        {
+            m_pingPong[horizontal].bind();
+
+            m_blurShader->setUniform("u_Horizontal", horizontal);
+
+            glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
+
+
+            horizontal = !horizontal;
+            m_blurShader->setUniform("u_Buffer", *m_pingPong[!horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
+        }
     }
 
     //////////////////////////////////////////////

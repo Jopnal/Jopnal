@@ -452,6 +452,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Texture* RenderTexture::getColorTexture(const ColorAttachmentSlot slot)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+        return m_colorAttachments[static_cast<int>(slot)].get();
+    }
+
+    //////////////////////////////////////////////
+
     const Texture* RenderTexture::getColorTexture(const ColorAttachmentSlot slot) const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);

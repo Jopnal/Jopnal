@@ -35,14 +35,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Serializer::save(const std::string& descPath, const uint32 modes)
+    bool Serializer::save(const std::string& /*descPath*/, const uint32 /*modes*/)
     {
         return false;
     }
 
     //////////////////////////////////////////////
 
-    bool Serializer::load(const std::string& descPath, const uint32 modes)
+    bool Serializer::load(const std::string& /*descPath*/, const uint32 /*modes*/)
     {
         return false;
     }

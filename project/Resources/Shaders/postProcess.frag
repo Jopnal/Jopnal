@@ -27,9 +27,5 @@ void main()
         tempColor += texture(u_Bloom, vf_TexCoords).rgb;
     #endif
 
-    #ifdef JPP_TONEMAP
-        tempColor = vec3(1.0) - exp(-tempColor * u_Exposure);
-    #endif
-
-    out_FinalColor = vec4(tempColor, 1.0);
+    out_FinalColor = vec4(vec3(1.0) - exp(-tempColor * u_Exposure), 1.0);
 }

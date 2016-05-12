@@ -131,7 +131,7 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_RED_BITS, 8);
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
-        glfwWindowHint(GLFW_ALPHA_BITS, 8);
+        glfwWindowHint(GLFW_ALPHA_BITS, 0);
         glfwWindowHint(GLFW_SRGB_CAPABLE, gl::TRUE_);
 
         // Depth & stencil exist in the renderer frame buffer

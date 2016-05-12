@@ -192,6 +192,8 @@ namespace jop
         ///
         /// \return Const pointer to the internal texture, nullptr if no texture exists
         ///
+        Texture* getColorTexture(const ColorAttachmentSlot slot);
+
         const Texture* getColorTexture(const ColorAttachmentSlot slot) const;
 
         /// \brief Get the depth texture
