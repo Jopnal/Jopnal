@@ -27,6 +27,30 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        class DrawableSorter
+        {
+            const glm::vec3& m_camPos;
+
+        public:
+
+            DrawableSorter(const Camera& cam)
+                : m_camPos(cam.getObject()->getGlobalPosition())
+            {}
+
+            bool operator()(const Drawable* first, const Drawable* second) const
+            {
+                auto& pos1 = first->getObject()->getGlobalPosition();
+                auto& pos2 = second->getObject()->getGlobalPosition();
+
+                return glm::distance2(m_camPos, pos1) < glm::distance2(m_camPos, pos2);
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
@@ -157,12 +181,20 @@ namespace jop
                 cam->getRenderTexture().bind();
                 cam->applyViewport(m_mainTarget);
 
-                for (auto drawable : m_drawables)
+                std::vector<const Drawable*> sorted;
+                sorted.reserve(m_drawables.size());
+                
+                for (auto& drawable : m_drawables)
                 {
                     const uint32 groupBit = 1 << drawable->getRenderGroup();
-                    if (!drawable->isActive() || (i & groupBit) == 0 || (camMask & groupBit) == 0)
-                        continue;
+                    if (drawable->isActive() && drawable->getModel().isValid() && (i & groupBit) > 0 && (camMask & groupBit) > 0)
+                        sorted.push_back(drawable);
+                }
 
+                std::sort(sorted.begin(), sorted.end(), detail::DrawableSorter(*cam));
+
+                for (auto& drawable : sorted)
+                {
                     if (drawable->receiveLights())
                     {
                         // Select lights

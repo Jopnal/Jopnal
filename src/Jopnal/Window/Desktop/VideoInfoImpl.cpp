@@ -37,6 +37,8 @@ namespace jop { namespace detail
 
         if (vec.empty())
         {
+            glfwInit();
+
             int count;
             auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
 
@@ -69,6 +71,8 @@ namespace jop { namespace detail
 
     glm::uvec2 VideoInfoImpl::getDesktopResolution()
     {
+        glfwInit();
+
         auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         return glm::uvec2(mode->width, mode->height);
     }

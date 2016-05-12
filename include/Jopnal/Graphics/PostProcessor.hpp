@@ -37,7 +37,6 @@ namespace jop
 {
     class Shader;
     class Renderer;
-    class RenderTexture;
 
     class JOP_API PostProcessor final : public Subsystem
     {
@@ -52,10 +51,7 @@ namespace jop
             enum : uint32
             {
                 ToneMap = 1,
-                Bloom   = 1 << 1,
-
-                // Bundles
-                Default = ToneMap | Bloom
+                Bloom   = 1 << 1
             };
         };
 
@@ -73,6 +69,10 @@ namespace jop
         static void setExposure(const float exposure);
 
         static float getExposure();
+
+        static void setBloomBlurPasses(const unsigned int passes);
+
+        static unsigned int getBloomBlurPasses();
 
 
         void draw() override;
@@ -94,6 +94,7 @@ namespace jop
         const RenderTexture& m_mainTarget;
         uint32 m_functions;
         float m_exposure;
+        unsigned int m_bloomBlurPasses;
     };
 }
 

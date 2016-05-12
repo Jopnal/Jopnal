@@ -33,13 +33,72 @@ namespace jop
           m_shaders             (),
           m_quad                (""),
           m_mainTarget          (mainTarget),
-          m_functions           (Function::Default),
-          m_exposure            (1.f)
+          m_functions           (0),
+          m_exposure            (1.f),
+          m_bloomBlurPasses     (0)
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
         m_quad.load(2.f);
+
+        // Tone mapping settings
+        {
+            static const struct EnabledCallback : SettingCallback<bool>
+            {
+                const char* const str;
+
+                EnabledCallback()
+                    : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
+                {
+                    enableFunctions(SettingManager::get<bool>(str, true) * Function::ToneMap);
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
+            } enabled;
+
+            static const struct ExposureCallback : SettingCallback<float>
+            {
+                const char* const str;
+
+                ExposureCallback()
+                    : str("engine@Graphics|Postprocessor|Tonemapping|fExposure")
+                {
+                    setExposure(SettingManager::get<float>(str, 1.f));
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const float& value) override {setExposure(value);}
+            } exposure;
+        }
+
+        // Bloom settings
+        {
+            static const struct EnabledCallback : SettingCallback<bool>
+            {
+                const char* const str;
+
+                EnabledCallback()
+                    : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
+                {
+                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Bloom);
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
+            } enabled;
+
+            static const struct PassesCallback : SettingCallback<unsigned int>
+            {
+                const char* const str;
+
+                PassesCallback()
+                    : str("engine@Graphics|Postprocessor|Bloom|uBlurPasses")
+                {
+                    setBloomBlurPasses(SettingManager::get<unsigned int>(str, 10));
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const unsigned int& value) override {setBloomBlurPasses(value);}
+            } passes;
+        }
 
         // Shader sources
         {
@@ -55,7 +114,7 @@ namespace jop
         for (auto& i : m_pingPong)
         {
             i.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, RenderTexture::ColorAttachment::RGB2DFloat16, mainTarget.getSize());
-            i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+            i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
         }
 
         std::vector<uint8> blurFragBuf;
@@ -99,6 +158,24 @@ namespace jop
             return m_instance->m_exposure;
 
         return 1.f;
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::setBloomBlurPasses(const unsigned int passes)
+    {
+        if (m_instance)
+            m_instance->m_bloomBlurPasses = passes;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int PostProcessor::getBloomBlurPasses()
+    {
+        if (m_instance)
+            return m_instance->m_bloomBlurPasses;
+
+        return 0;
     }
 
     //////////////////////////////////////////////
@@ -168,23 +245,6 @@ namespace jop
 
     void PostProcessor::applyBlur(const Texture& texture)
     {
-        /*GLboolean horizontal = true, first_iteration = true;
-        GLuint amount = 10;
-        shaderBlur.Use();
-        for (GLuint i = 0; i < amount; i++)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-            glUniform1i(glGetUniformLocation(shaderBlur.Program, "horizontal"), horizontal);
-            glBindTexture(
-                GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongBuffers[!horizontal]
-                );
-            RenderQuad();
-            horizontal = !horizontal;
-            if (first_iteration)
-                first_iteration = false;
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
-
         bool horizontal = true;
 
         m_blurShader->bind();
@@ -196,7 +256,7 @@ namespace jop
 
         m_quad.getIndexBuffer().bind();
 
-        for (uint32 i = 0; i < 15; ++i)
+        for (uint32 i = 0; i < m_bloomBlurPasses; ++i)
         {
             m_pingPong[horizontal].bind();
 
@@ -204,9 +264,9 @@ namespace jop
 
             glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
 
+            m_blurShader->setUniform("u_Buffer", *m_pingPong[horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 
             horizontal = !horizontal;
-            m_blurShader->setUniform("u_Buffer", *m_pingPong[!horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
         }
     }
 

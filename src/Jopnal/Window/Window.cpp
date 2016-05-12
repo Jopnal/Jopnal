@@ -89,7 +89,7 @@ namespace jop
         {
             typedef SettingManager SM;
 
-            auto deskTop = VideoInfo::getDesktopResolution();
+            static const glm::uvec2 deskTop = VideoInfo::getDesktopResolution();
 
             size.x = SM::get<unsigned int>(ns_settingStr[0], deskTop.x); size.y = SM::get<unsigned int>(ns_settingStr[1], deskTop.y);
             title = SM::get<std::string>("engine@DefaultWindow|sTitle", getProjectName());
