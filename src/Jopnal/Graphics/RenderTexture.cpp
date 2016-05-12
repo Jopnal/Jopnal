@@ -31,6 +31,7 @@ namespace jop
         : RenderTarget          ("rendertexture"),
           m_depthBuffer         (0),
           m_stencilBuffer       (0),
+          m_depthStencilBuffer  (0),
           m_frameBuffer         (0, nullptr),
           m_colorAttachments    ()
     {}
@@ -67,15 +68,19 @@ namespace jop
                     return 4;
 
                 case CA::RGB2DFloat16:
+                case CA::RGBCubeFloat16:
                     return 6;
 
                 case CA::RGB2DFloat32:
+                case CA::RGBCubeFloat32:
                     return 12;
 
                 case CA::RGBA2DFloat16:
+                case CA::RGBACubeFloat16:
                     return 8;
 
                 case CA::RGBA2DFloat32:
+                case CA::RGBACubeFloat32:
                     return 16;
 
                 default:
@@ -107,6 +112,10 @@ namespace jop
 
             case CA::RGBCube:
             case CA::RGBACube:
+            case CA::RGBCubeFloat16:
+            case CA::RGBCubeFloat32:
+            case CA::RGBACubeFloat16:
+            case CA::RGBACubeFloat32:
             {
                 auto tex = std::make_unique<Cubemap>("");
                 if (!tex->load(size, getColorBytes(attachment), true))
@@ -254,9 +263,9 @@ namespace jop
         {
             switch (stencil)
             {
-                case StencilAttachment::Int8:   return gl::STENCIL_INDEX8;
-                case StencilAttachment::Int16:  return gl::STENCIL_INDEX16;
-                default:                        return gl::STENCIL_INDEX;
+                case StencilAttachment::Renderbuffer8:  return gl::STENCIL_INDEX8;
+                case StencilAttachment::Renderbuffer16: return gl::STENCIL_INDEX16;
+                default:                                return gl::STENCIL_INDEX;
             }
         };
 
@@ -270,16 +279,23 @@ namespace jop
 
         if (attachment != StencilAttachment::None)
         {
-            glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
-
-            if (!m_stencilBuffer)
+            if (attachment < StencilAttachment::Texture8)
             {
-                JOP_DEBUG_ERROR("Failed to create stencil buffer");
-                return false;
-            }
+                glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
 
-            glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(attachment), size.x, size.y));
+                if (!m_stencilBuffer)
+                {
+                    JOP_DEBUG_ERROR("Failed to create stencil buffer");
+                    return false;
+                }
+
+                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
+                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(attachment), size.x, size.y));
+            }
+            else
+            {
+
+            }
         }
 
         destroy(true, false);
@@ -289,28 +305,35 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::addDepthStencilAttachment(const DepthAttachment depth, const StencilAttachment stencil, const glm::uvec2& size)
+    bool RenderTexture::addDepthStencilAttachment(const DepthStencilAttachment attachment, const glm::uvec2& size)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        if (m_depthBuffer)
+        if (m_depthStencilBuffer)
         {
-            glCheck(gl::DeleteRenderbuffers(1, &m_depthBuffer));
-            m_depthBuffer = 0;
+            glCheck(gl::DeleteRenderbuffers(1, &m_depthStencilBuffer));
+            m_depthStencilBuffer = 0;
         }
 
-        if (depth != DepthAttachment::None && stencil != StencilAttachment::None)
+        if (attachment != DepthStencilAttachment::None)
         {
-            glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
-
-            if (!m_depthBuffer)
+            if (attachment < DepthStencilAttachment::Texture24_8)
             {
-                JOP_DEBUG_ERROR("Failed to create depth-stencil buffer");
-                return false;
-            }
+                glCheck(gl::GenRenderbuffers(1, &m_depthStencilBuffer));
 
-            glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
-            glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, depth == DepthAttachment::Renderbuffer24 ? gl::DEPTH24_STENCIL8 : gl::DEPTH32F_STENCIL8, size.x, size.y));
+                if (!m_depthStencilBuffer)
+                {
+                    JOP_DEBUG_ERROR("Failed to create depth-stencil buffer");
+                    return false;
+                }
+
+                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthStencilBuffer));
+                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, attachment == DepthStencilAttachment::Renderbuffer24_8 ? gl::DEPTH24_STENCIL8 : gl::DEPTH32F_STENCIL8, size.x, size.y));
+            }
+            else
+            {
+
+            }
         }
 
         destroy(true, false);
@@ -348,6 +371,12 @@ namespace jop
 
         if (attachments)
         {
+            if (m_depthStencilBuffer)
+            {
+                glCheck(gl::DeleteRenderbuffers(1, &m_depthStencilBuffer));
+                m_depthStencilBuffer = 0;
+            }
+
             if (m_depthBuffer)
             {
                 glCheck(gl::DeleteRenderbuffers(1, &m_depthBuffer));
@@ -392,6 +421,9 @@ namespace jop
     void RenderTexture::unbind()
     {
         glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
+        
+        const auto size = Engine::getMainWindow().getSize();
+        glCheck(gl::Viewport(0, 0, size.x, size.y));
     }
 
     //////////////////////////////////////////////
@@ -415,7 +447,7 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        return m_frameBuffer.first != 0 || m_colorAttachments[0] || m_colorAttachments[1];
+        return m_frameBuffer.first != 0 || m_colorAttachments[0] || m_colorAttachments[2];
     }
 
     //////////////////////////////////////////////
@@ -438,6 +470,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const Texture* RenderTexture::getStencilTexture() const
+    {
+        return m_colorAttachments[1].get();
+    }
+
+    //////////////////////////////////////////////
+
     bool RenderTexture::attach() const
     {
         JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another. RenderTexture id: " + getID());
@@ -455,11 +494,13 @@ namespace jop
                 return false;
             }
 
+            m_frameBuffer.second = Window::getCurrentContextWindow();
+
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer.first));
 
-            if (m_depthBuffer && m_stencilBuffer)
+            if (m_depthStencilBuffer)
             {
-                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_depthStencilBuffer));
             }
             else if (m_depthBuffer)
             {
@@ -471,7 +512,7 @@ namespace jop
             }
             
             bool hasColor = false;
-            for (std::size_t i = 1; i < m_colorAttachments.size(); ++i)
+            for (std::size_t i = 2; i < m_colorAttachments.size(); ++i)
             {
                 if (m_colorAttachments[i])
                 {
@@ -494,13 +535,13 @@ namespace jop
             if (hasColor)
             {
                 std::vector<GLenum> colorAtt;
-                for (std::size_t i = 1; i < m_colorAttachments.size(); ++i)
+                for (std::size_t i = 2; i < m_colorAttachments.size(); ++i)
                 {
                     if (!m_colorAttachments[i])
                         continue;
 
-                    glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + i - 1, m_colorAttachments[i]->getHandle(), 0));
-                    colorAtt.push_back(gl::COLOR_ATTACHMENT0 + i - 1);
+                    glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + i - 2, m_colorAttachments[i]->getHandle(), 0));
+                    colorAtt.push_back(gl::COLOR_ATTACHMENT0 + i - 2);
                 }
 
                 if (!colorAtt.empty())
@@ -516,8 +557,6 @@ namespace jop
                 destroy(true, false);
                 return false;
             }
-
-            m_frameBuffer.second = Window::getCurrentContextWindow();
         }
 
         return true;

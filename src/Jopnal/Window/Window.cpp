@@ -58,6 +58,23 @@ namespace
 
 namespace jop
 {
+    BufferSwapper::BufferSwapper(Window& window)
+        : Subsystem     ("bufferswapper"),
+          m_windowRef   (window)
+    {}
+
+    //////////////////////////////////////////////
+
+    void BufferSwapper::draw()
+    {
+        if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
+            m_windowRef.m_impl->swapBuffers();
+    }
+
+
+    //////////////////////////////////////////////
+
+
     Window::Settings::Settings(const bool loadSettings)
         : size          (1u, 1u),
           title         ("Window Title"),
@@ -150,9 +167,6 @@ namespace jop
     void Window::draw()
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        if (isOpen() && Engine::getState() != Engine::State::Frozen)
-            m_impl->swapBuffers();
 
         // Only poll the events if they haven't yet been during this frame.
         // We care about this because we don't want to invoke controller

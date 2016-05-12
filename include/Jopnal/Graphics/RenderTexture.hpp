@@ -63,6 +63,11 @@ namespace jop
             RGB2DFloat32,   ///< 96 bit 2D texture
             RGBA2DFloat32,  ///< 128 bit 2D texture
 
+            RGBCubeFloat16,   ///< 48 bit 2D texture
+            RGBACubeFloat16,  ///< 64 bit 2D texture
+            RGBCubeFloat32,   ///< 96 bit 2D texture
+            RGBACubeFloat32,  ///< 128 bit 2D texture
+
             // Keep depth enums last
 
             Depth2D16,      ///< 16 bit 2D depth texture
@@ -78,7 +83,7 @@ namespace jop
         ///
         enum class ColorAttachmentSlot
         {
-            _1 = 1,
+            _1 = 2,
             _2,
             _3,
             _4
@@ -113,8 +118,22 @@ namespace jop
         {
             None,   ///< No stencil attachment
 
-            Int8,   ///< 8 bit stencil render buffer
-            Int16   ///< 16 bit stencil render buffer
+            Renderbuffer8,  ///< 8 bit stencil render buffer
+            Renderbuffer16, ///< 16 bit stencil render buffer
+
+            Texture8,
+            Texture16
+        };
+
+        enum class DepthStencilAttachment
+        {
+            None,
+
+            Renderbuffer24_8,
+            Renderbuffer32_8,
+
+            Texture24_8,
+            Texture32_8
         };
 
     public:
@@ -136,7 +155,7 @@ namespace jop
 
         bool addStencilAttachment(const StencilAttachment attachment, const glm::uvec2& size);
 
-        bool addDepthStencilAttachment(const DepthAttachment depth, const StencilAttachment stencil, const glm::uvec2& size);
+        bool addDepthStencilAttachment(const DepthStencilAttachment attachment, const glm::uvec2& size);
 
         /// \brief Destroy this frame buffer
         ///
@@ -181,6 +200,8 @@ namespace jop
         ///
         const Texture* getDepthTexture() const;
 
+        const Texture* getStencilTexture() const;
+
     private:
 
         bool attach() const;
@@ -190,8 +211,9 @@ namespace jop
 
         mutable unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
         mutable unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
+        mutable unsigned int m_depthStencilBuffer;
         mutable std::pair<unsigned int, Window*> m_frameBuffer;
-        mutable std::array<std::unique_ptr<Texture>, 5> m_colorAttachments;
+        mutable std::array<std::unique_ptr<Texture>, 6> m_colorAttachments;
     };
 }
 

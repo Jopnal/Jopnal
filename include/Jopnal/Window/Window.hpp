@@ -40,17 +40,37 @@ struct GLFWwindow;
 namespace jop
 {
     class WindowEventHandler;
+    class Window;
 
     namespace detail
     {
         class WindowImpl;
     }
 
+    class JOP_API BufferSwapper final : public Subsystem
+    {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(BufferSwapper);
+
+    public:
+
+        BufferSwapper(Window& window);
+
+        void draw() override;
+
+    private:
+
+        Window& m_windowRef;
+    };
+
     class JOP_API Window : public RenderTarget
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(Window);
+
+        friend class BufferSwapper;
 
     public:
 

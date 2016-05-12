@@ -498,6 +498,7 @@ in FragVertexData
 
 // Final fragment color
 layout(location = 0) out vec4 out_FinalColor;
+layout(location = 1) out vec4 out_BloomColor;
 
 void main() 
 {
@@ -602,6 +603,9 @@ void main()
 
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor, alpha);
+
+    if (dot(tempColor, vec3(0.2126, 0.7152, 0.0722)) > 1.0)
+        out_BloomColor = vec4(tempColor, 1.0);
 
 #endif // Sky box
 }

@@ -255,6 +255,9 @@ namespace jop
         static const RenderTarget& getMainRenderTarget();
 
 
+        static const Window& getMainWindow();
+
+
         /// \brief Send a message to the whole engine
         ///
         /// \param message String holding message
@@ -335,6 +338,7 @@ namespace jop
         std::atomic<State> m_state;                             ///< Current state
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
         RenderTarget* m_mainTarget;
+        Window* m_mainWindow;
     };
 
     /// \brief Get the project name

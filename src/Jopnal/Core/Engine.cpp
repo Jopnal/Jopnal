@@ -55,7 +55,8 @@ namespace jop
           m_exit            (false),
           m_state           (State::Running),
           m_advanceFrame    (false),
-          m_mainTarget      (nullptr)
+          m_mainTarget      (nullptr),
+          m_mainWindow      (nullptr)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -99,7 +100,7 @@ namespace jop
         createSubsystem<SettingManager>();
 
         // Main window
-        auto& win = createSubsystem<Window>(Window::Settings(true));
+        m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -114,16 +115,20 @@ namespace jop
         {
             m_mainTarget = &rtex;
 
-            const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(win.getSize()));
+            const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(m_mainWindow->getSize()));
 
             rtex.addColorAttachment(RT::ColorAttachmentSlot::_1, RT::ColorAttachment::RGBA2DFloat16, scaledRes);
             rtex.addColorAttachment(RT::ColorAttachmentSlot::_2, RT::ColorAttachment::RGB2DFloat16, scaledRes);
-            rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
-            rtex.addStencilAttachment(RT::StencilAttachment::Int8, scaledRes);
+            //rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
+            //rtex.addStencilAttachment(RT::StencilAttachment::Int8, scaledRes);
+            rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
         }
 
         // Post processor
         createSubsystem<PostProcessor>(rtex);
+
+        // Buffer swapper
+        createSubsystem<BufferSwapper>(*m_mainWindow);
 
         // Shared scene
         m_sharedScene = std::make_unique<Scene>("sharedscene");
@@ -455,6 +460,15 @@ namespace jop
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 
         return *m_engineObject->m_mainTarget;
+    }
+
+    //////////////////////////////////////////////
+
+    const Window& Engine::getMainWindow()
+    {
+        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainWindow != nullptr, "Tried to get the main window ehn it didn't exist!");
+
+        return *m_engineObject->m_mainWindow;
     }
 
     //////////////////////////////////////////////

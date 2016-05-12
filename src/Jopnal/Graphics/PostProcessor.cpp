@@ -30,57 +30,122 @@ namespace jop
     PostProcessor::PostProcessor(const RenderTexture& mainTarget)
         : Subsystem             ("postprocessor"),
           m_shaderSources       (),
-          m_shader              (),
+          m_shaders             (),
           m_quad                (""),
           m_mainTarget          (mainTarget),
-          m_functions           (0),
-          m_functionsChanged    (false)
+          m_functions           (Function::Default),
+          m_exposure            (1.f)
     {
+        JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
+        m_instance = this;
+
         m_quad.load(2.f);
+
+        // Shader sources
+        {
+            std::vector<uint8> vertBuf, fragBuf;
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_POSTPROCESS_SHADER_VERT, vertBuf), "Failed to read post process vertex shader source!");
+            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_POSTPROCESS_SHADER_FRAG, fragBuf), "Failed to read post process fragment shader source!");
+
+            m_shaderSources[0].assign(reinterpret_cast<const char*>(vertBuf.data()), vertBuf.size());
+            m_shaderSources[1].assign(reinterpret_cast<const char*>(fragBuf.data()), fragBuf.size());
+        }
     }
 
     //////////////////////////////////////////////
 
-    PostProcessor& PostProcessor::enableFunctions(const uint32 funcs)
+    void PostProcessor::enableFunctions(const uint32 funcs)
     {
-        m_functionsChanged = (m_functions & funcs) != funcs;
-        m_functions |= funcs;
-
-        return *this;
+        if (m_instance)
+            m_instance->m_functions |= funcs;
     }
 
     //////////////////////////////////////////////
 
-    PostProcessor& PostProcessor::disableFunctions(const uint32 funcs)
+    void PostProcessor::disableFunctions(const uint32 funcs)
     {
-        m_functionsChanged = (m_functions & funcs) > 0;
-        m_functions &= ~funcs;
+        if (m_instance)
+            m_instance->m_functions &= ~funcs;
+    }
 
-        return *this;
+    //////////////////////////////////////////////
+
+    void PostProcessor::setExposure(const float exposure)
+    {
+        if (m_instance)
+            m_instance->m_exposure = exposure;
+    }
+
+    //////////////////////////////////////////////
+
+    float PostProcessor::getExposure()
+    {
+        if (m_instance)
+            return m_instance->m_exposure;
+
+        return 1.f;
     }
 
     //////////////////////////////////////////////
 
     void PostProcessor::draw()
     {
-        if (m_functionsChanged)
+        if (m_shaders.find(m_functions) == m_shaders.end())
         {
+            std::string pp;
+            getPreprocessorStr(m_functions, pp);
 
-            m_functionsChanged = false;
+            auto& shader = ResourceManager::getNamedResource<Shader>("jop_pp_shader_" + std::to_string(m_functions), m_shaderSources[0], "", m_shaderSources[1], pp);
+
+            JOP_ASSERT(&shader != &Shader::getError(), "Failed to compile post process shader!");
+
+            m_shaders[m_functions] = static_ref_cast<Shader>(shader.getReference());
         }
 
         RenderTexture::unbind();
-        
-        // There should always be a valid shader
-        m_shader->bind();
 
+        auto& shdr = *m_shaders[m_functions];
         
+        m_quad.getVertexBuffer().bind();
+        shdr.setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
+        shdr.setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+
+        shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
+        
+        if (m_functions > 0)
+        {
+            if ((m_functions & Function::ToneMap) != 0)
+                shdr.setUniform("u_Exposure", m_exposure);
+
+            if ((m_functions & Function::Bloom) != 0 && m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2))
+                shdr.setUniform("u_Bloom", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2), 2);
+        }
+
+        m_quad.getIndexBuffer().bind();
+        glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
     }
 
     //////////////////////////////////////////////
 
-    bool PostProcessor::functionEnabled(const uint32 func) const
+    bool PostProcessor::functionEnabled(const uint32 func)
     {
-        return (m_functions & func) != 0;
+        return m_instance != nullptr && (m_instance->m_functions & func) != 0;
     }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::getPreprocessorStr(const uint32 funcs, std::string& str) const
+    {
+        str += "#version 330 core\n";
+
+        if ((funcs & Function::ToneMap) != 0)
+            str += "#define JPP_TONEMAP\n";
+
+        if ((funcs & Function::Bloom) != 0)
+            str += "#define JPP_BLOOM\n";
+    }
+
+    //////////////////////////////////////////////
+
+    PostProcessor* PostProcessor::m_instance = nullptr;
 }

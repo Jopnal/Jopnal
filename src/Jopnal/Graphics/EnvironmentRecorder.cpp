@@ -48,7 +48,7 @@ namespace jop
         using CA = RenderTexture::ColorAttachment;
         using DA = RenderTexture::DepthAttachment;
 
-        m_fbo.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, CA::RGBACube, glm::uvec2(mapResolution));
+        m_fbo.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, CA::RGBACubeFloat16, glm::uvec2(mapResolution));
         m_fbo.addDepthAttachment(DA::TextureCube16, glm::uvec2(mapResolution));
 
         m_rendererRef.bind(*this);

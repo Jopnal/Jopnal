@@ -59,7 +59,7 @@ namespace jop
         if (mode == Projection::Orthographic)
         {
             setClippingPlanes(SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
-            setSize(Engine::getMainRenderTarget().getSize());
+            setSize(Engine::getMainWindow().getSize());
         }
         else
         {

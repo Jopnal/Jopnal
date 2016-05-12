@@ -27,6 +27,7 @@
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/RectangleMesh.hpp>
 #include <array>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
@@ -50,7 +51,10 @@ namespace jop
             enum : uint32
             {
                 ToneMap = 1,
-                Bloom   = 1 << 1
+                Bloom   = 1 << 1,
+
+                // Bundles
+                Default = ToneMap
             };
         };
 
@@ -59,23 +63,32 @@ namespace jop
         PostProcessor(const RenderTexture& mainTarget);
 
 
-        PostProcessor& enableFunctions(const uint32 funcs);
+        static void enableFunctions(const uint32 funcs);
 
-        PostProcessor& disableFunctions(const uint32 funcs);
+        static void disableFunctions(const uint32 funcs);
 
-        bool functionEnabled(const uint32 func) const;
+        static bool functionEnabled(const uint32 func);
+
+        static void setExposure(const float exposure);
+
+        static float getExposure();
 
 
-        void draw();
+        void draw() override;
 
     private:
 
-        std::array<std::string, 4> m_shaderSources;
-        jop::WeakReference<Shader> m_shader;
+        void getPreprocessorStr(const uint32 funcs, std::string& str) const;
+
+
+        static PostProcessor* m_instance;
+
+        std::array<std::string, 2> m_shaderSources;
+        std::unordered_map<uint32, jop::WeakReference<Shader>> m_shaders;
         RectangleMesh m_quad;
         const RenderTexture& m_mainTarget;
         uint32 m_functions;
-        bool m_functionsChanged;
+        float m_exposure;
     };
 }
 
