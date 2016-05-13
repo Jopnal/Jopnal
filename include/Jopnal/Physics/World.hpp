@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <memory>
 
@@ -44,7 +44,7 @@ namespace jop
     }
     class Camera;
 
-    class JOP_API World : public Component
+    class JOP_API World : public Drawable
     {
     private:
 
@@ -81,7 +81,7 @@ namespace jop
         ///
         /// \param camera Camera to use
         ///
-        void draw(const Camera& camera);
+        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
 
         /// \brief Check if a ray hits a collider and return the closest one
@@ -133,7 +133,7 @@ namespace jop
         ///
         bool debugMode() const;
 
-    private:
+    protected:
 
         std::unique_ptr<detail::WorldImpl> m_worldData;             ///< The world data
         std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback

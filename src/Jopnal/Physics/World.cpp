@@ -78,9 +78,9 @@ namespace detail
 
         void reportErrorWarning(const char* warningString) override
         {
-#ifndef JOP_DEBUG_MODE
+        #ifndef JOP_DEBUG_MODE
             warningString;
-#endif
+        #endif
             JOP_DEBUG_WARNING(warningString);
         }
 
@@ -200,16 +200,10 @@ namespace detail
 namespace jop
 {
     World::World(Object& obj, Renderer& renderer)
-        : Component         (obj, "world"),
+        : Drawable          (obj, renderer, "world"),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
     {
-    #ifdef JOP_DEBUG_MODE
-        renderer.m_physicsWorld = this;
-    #else
-        renderer;
-    #endif
-        
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
@@ -253,18 +247,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World::draw(const Camera& camera)
+    void World::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
-    #ifdef JOP_DEBUG_MODE
-        if (!m_worldData->world->getDebugDrawer()->getDebugMode())
-            return;
-
-        static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = &camera;
-
-        m_worldData->world->debugDrawWorld();
-    #else
-        camera;
-    #endif
+        if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
+        {
+            static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
+            m_worldData->world->debugDrawWorld();
+        }
     }
 
     //////////////////////////////////////////////

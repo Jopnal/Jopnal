@@ -423,7 +423,12 @@
     <ClInclude Include="..\include\Jopnal\Core\Serializer.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Physics\Shape\FrustumShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\FrustumShape.hpp">
+      <Filter>Physics\Headers\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -693,7 +698,12 @@
     <ClCompile Include="..\src\Jopnal\Core\Serializer.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Physics\Shape\FrustumShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\FrustumShape.cpp">
+      <Filter>Physics\Source\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

@@ -58,10 +58,6 @@ namespace jop
           m_envRecorders    (),
           m_mask            (1),
           m_mainTarget      (mainTarget)
-
-        #ifdef JOP_DEBUG_MODE
-        , m_physicsWorld   (nullptr)
-        #endif
     {
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
@@ -205,11 +201,6 @@ namespace jop
                     else
                         drawable->draw(*cam, dummyLightCont);
                 }
-
-            #ifdef JOP_DEBUG_MODE
-                if (m_physicsWorld)
-                    m_physicsWorld->draw(*cam);
-            #endif
             }
         }
     }

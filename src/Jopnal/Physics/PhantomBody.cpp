@@ -20,26 +20,40 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/FrustumShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    PhantomBody::PhantomBody(Object& object, World& world, const CollisionShape& shape)
+        : Collider(object, world, "phantombody")
+    {
+        auto ghost = std::make_unique<btPairCachingGhostObject>();
+    }
+
+    PhantomBody::PhantomBody(const PhantomBody& other, Object& newObj)
+        : Collider(other, newObj)
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
+    void PhantomBody::update(const float)
+    {
+        auto& rot = getObject()->getGlobalRotation();
+        auto& pos = getObject()->getGlobalPosition();
+        btTransform transform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+
+        m_body->setWorldTransform(transform);
+    }    
+    
+    //////////////////////////////////////////////
+
+    void PhantomBody::setActive(const bool active)
+    {
+        m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
+    }
+}

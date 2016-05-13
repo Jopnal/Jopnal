@@ -19,27 +19,46 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_PHANTOMBODY_HPP
+#define JOP_PHANTOMBODY_HPP
+
 // Headers
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/FrustumShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
+
+namespace jop
+{
+    class CollisionShape;
+
+    class PhantomBody : public Collider
+    {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(PhantomBody);
+        JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
+
+        PhantomBody(const PhantomBody& other, Object& newObj);
+
+    public:
+    
+        PhantomBody(Object& object, World& world, const CollisionShape& shape);
+
+
+        void update(const float deltaTime) override;
+
+    private:
+
+        virtual void setActive(const bool) override;
+    };
+}
+
+#endif
+
+/// \class PhantomBody
+/// \ingroup physics
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

@@ -36,6 +36,21 @@ namespace jop
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullingWorld : public World
+        {
+        public:
+
+            CullingWorld(Object& obj, Renderer& renderer)
+                : World(obj, renderer)
+            {
+                m_worldData->world->setGravity(btVector3(0.f, 0.f, 0.f));
+                m_worldData->world->getPairCache()->setInternalGhostPairCallback(nullptr);
+            }
+        };
+    }
+
     Scene::Scene(const std::string& ID)
         : Object            (ID),
           m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget())),

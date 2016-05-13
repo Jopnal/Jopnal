@@ -8,7 +8,7 @@
 in vec3 vf_Color;
 
 // Final color
-out vec4 out_FinalColor;
+layout(location = 0) out vec4 out_FinalColor;
 
 void main()
 {
