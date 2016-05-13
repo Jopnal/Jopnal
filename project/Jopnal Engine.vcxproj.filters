@@ -423,6 +423,7 @@
     <ClInclude Include="..\include\Jopnal\Core\Serializer.hpp">
       <Filter>Core\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\FrustumShape.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -692,6 +693,7 @@
     <ClCompile Include="..\src\Jopnal\Core\Serializer.cpp">
       <Filter>Core\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\FrustumShape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\Jopnal\Core\Inl\DebugHandler.inl">

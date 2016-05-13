@@ -117,6 +117,8 @@ namespace jop
         ///
         World& getWorld() const;
 
+        World& getCullingWorld() const;
+
         
         /// \brief Set the delta time scalar
         ///
@@ -227,6 +229,7 @@ namespace jop
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
         World& m_world;                         ///< The physics world
+        World& m_cullingWorld;
         float m_deltaScale;                     ///< Delta time scalar
     };
 

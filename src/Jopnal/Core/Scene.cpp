@@ -37,10 +37,11 @@ namespace jop
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : Object        (ID),
-          m_renderer    (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
-          m_world       (createComponent<World>(*m_renderer)),
-          m_deltaScale  (1.f)
+        : Object            (ID),
+          m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
+          m_world           (createComponent<World>(*m_renderer)),
+          m_cullingWorld    (createComponent<World>(*m_renderer)),
+          m_deltaScale      (1.f)
     {}
 
     Scene::~Scene()
@@ -62,6 +63,13 @@ namespace jop
     World& Scene::getWorld() const
     {
         return m_world;
+    }
+
+    //////////////////////////////////////////////
+
+    World& Scene::getCullingWorld() const
+    {
+        return m_cullingWorld;
     }
 
     //////////////////////////////////////////////

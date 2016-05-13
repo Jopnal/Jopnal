@@ -248,7 +248,7 @@ namespace jop
                     return i.get();
             }
         }
-
+        
         return nullptr;
     }
 
