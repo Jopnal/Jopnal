@@ -71,7 +71,7 @@ namespace jop
         ///
         /// \param map Reference to the map
         ///
-        void setMap(const Texture2D& map);
+        SkySphere& setMap(const Texture2D& map);
 
         /// \brief Get the bound map
         ///
