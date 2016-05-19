@@ -139,12 +139,12 @@ namespace jop
         /// \return Pointer to the component. Nullptr if not found
         ///
         template<typename T>
-        T* getComponent(const uint32 ID = 0);
+        T* getComponent(const uint32 ID);
 
         /// \copydoc getComponent()
         ///
         template<typename T>
-        const T* getComponent(const uint32 ID = 0) const;
+        const T* getComponent(const uint32 ID) const;
 
         /// \brief Template function to create components
         ///

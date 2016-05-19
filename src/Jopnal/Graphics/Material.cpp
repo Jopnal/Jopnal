@@ -132,10 +132,10 @@ namespace
     {
         static const std::array<jop::Color, 4> colors =
         {
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "00000000"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF"),
             jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF"),
             jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "FFFFFFFF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "00000000")
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF")
         };
 
         return colors;
@@ -213,17 +213,17 @@ namespace jop
 
                 if (hasAttribute(Attribute::__Lighting))
                 {
-                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].colors);
-                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].colors);
-                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].colors);
-                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].colors);
+                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].asRGBAVector());
+                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].asRGBAVector());
+                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].asRGBAVector());
+                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].asRGBAVector());
                     shader.setUniform(strCache[5], m_shininess);
 
                     if (hasAttribute(Attribute::EnvironmentMap))
                         shader.setUniform(strCache[6], m_reflectivity);
                 }
                 else
-                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].colors);
+                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].asRGBAVector());
 
                 if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
                     shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), ns_diffMapIndex);

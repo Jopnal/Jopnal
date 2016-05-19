@@ -42,14 +42,7 @@ namespace jop
         ///
         Color();
 
-        /// \brief Overloaded constructor
-        ///
-        /// \param r The red value
-        /// \param g The green value
-        /// \param b The blue value
-        /// \param a The alpha value
-        ///
-        Color(const uint8 r, const uint8 g, const uint8 b, const uint8 a = 255);
+        Color(const glm::vec3& rgb, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///

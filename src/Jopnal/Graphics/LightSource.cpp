@@ -42,7 +42,7 @@ namespace
     {
         static const std::array<jop::Color, 3> intensities =
         {
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultAmbient", "00000000"),
+            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultAmbient", "000000FF"),
             jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultDiffuse", "FFFFFFFF"),
             jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultSpecular", "FFFFFFFF")
         };

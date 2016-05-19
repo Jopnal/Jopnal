@@ -28,9 +28,9 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable(obj, renderer, 0),
-          m_mesh(""),
-          m_material("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
+        : Drawable      (obj, renderer, 0),
+          m_mesh        (""),
+          m_material    ("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
     {
         m_mesh.load(radius, 20, 20, true);
 

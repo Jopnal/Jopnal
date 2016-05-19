@@ -77,10 +77,10 @@ in FragVertexData
 #ifdef JMAT_MATERIAL
     struct Material
     {
-        vec3 ambient;
-        vec3 diffuse;
-        vec3 specular;
-        vec3 emission;
+        vec4 ambient;
+        vec4 diffuse;
+        vec4 specular;
+        vec4 emission;
         float shininess;
 
         #ifdef JMAT_ENVIRONMENTMAP
@@ -89,7 +89,7 @@ in FragVertexData
     };
     uniform Material u_Material;
 #else
-    uniform vec3 u_Emission;
+    uniform vec4 u_Emission;
 #endif
 
 // Light info
@@ -189,7 +189,7 @@ in FragVertexData
         // Ambient impact
         vec3 ambient = l.ambient
         #ifdef JMAT_MATERIAL
-            * u_Material.ambient
+            * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -206,7 +206,7 @@ in FragVertexData
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = diff * l.diffuse
         #ifdef JMAT_MATERIAL
-            * u_Material.diffuse
+            * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -241,7 +241,7 @@ in FragVertexData
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
-            * u_Material.specular
+            * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
             * vec3(texture(u_SpecularMap, outVert.TexCoords))
@@ -332,7 +332,7 @@ in FragVertexData
         // Ambient impact
         vec3 ambient = l.ambient
         #ifdef JMAT_MATERIAL
-            * u_Material.ambient
+            * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -351,7 +351,7 @@ in FragVertexData
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = l.diffuse * diff
         #ifdef JMAT_MATERIAL
-            * u_Material.diffuse
+            * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -386,7 +386,7 @@ in FragVertexData
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
-            * u_Material.specular
+            * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
             * vec3(texture(u_SpecularMap, outVert.TexCoords))
@@ -411,7 +411,7 @@ in FragVertexData
         // Ambient impact
         vec3 ambient = l.ambient
         #ifdef JMAT_MATERIAL
-            * u_Material.ambient
+            * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -428,7 +428,7 @@ in FragVertexData
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = l.diffuse * diff
         #ifdef JMAT_MATERIAL
-            * u_Material.diffuse
+            * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
             * vec3(texture(u_DiffuseMap, outVert.TexCoords))
@@ -463,7 +463,7 @@ in FragVertexData
 
         vec3 specular = l.specular * spec
         #ifdef JMAT_MATERIAL
-            * u_Material.specular
+            * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
             * vec3(texture(u_SpecularMap, outVert.TexCoords))
@@ -509,19 +509,19 @@ void main()
 #else
 
     // Assign the initial color
-    vec3 tempColor =
+    vec4 tempColor =
 
     #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
-        vec3(texture(u_DiffuseMap, outVert.TexCoords))
+        texture(u_DiffuseMap, outVert.TexCoords)
 
         #ifdef JMAT_VERTEXCOLOR
-            * vec3(outVert.Color)
+            * outVert.Color
         #endif
     #else
         #if defined(JMAT_VERTEXCOLOR)
-            vec3(outVert.Color)
+            outVert.Color
         #else
-            vec3(0.0, 0.0, 0.0)
+            vec4(0.0, 0.0, 0.0, 1.0)
         #endif
     #endif
     ;
@@ -545,7 +545,7 @@ void main()
         #endif
         ;
 
-        tempColor += refl;
+        tempColor += vec4(refl, 0.0);
 
     #endif
 
@@ -556,15 +556,15 @@ void main()
         {
             // Point lights
             for (uint i = 0u; i < u_NumPointLights; ++i)
-                tempColor += calculatePointLight(i);
+                tempColor += vec4(calculatePointLight(i), 0.0);
 
             // Directional lights
             for (uint i = 0u; i < u_NumDirectionalLights; ++i)
-                tempColor += calculateDirectionalLight(i);
+                tempColor += vec4(calculateDirectionalLight(i), 0.0);
 
             // Spot lights
             for (uint i = 0u; i < u_NumSpotLights; ++i)
-                tempColor += calculateSpotLight(i);
+                tempColor += vec4(calculateSpotLight(i), 0.0);
         }
 
     #endif
@@ -574,7 +574,7 @@ void main()
         #ifdef JMAT_MATERIAL
             tempColor += u_Material.emission * vec3(texture(u_EmissionMap, outVert.TexCoords));
         #else
-            tempColor += vec3(texture(u_EmissionMap, outVert.TexCoords));
+            tempColor += texture(u_EmissionMap, outVert.TexCoords);
         #endif
     #else
         #ifdef JMAT_MATERIAL
@@ -584,17 +584,26 @@ void main()
         #endif
     #endif
     
-    float alpha = 1.0;
+    float alpha =
 
     #if defined(JMAT_OPACITYMAP)
-        alpha = texture(u_OpacityMap, outVert.TexCoords).r + specularComponent;
+        (texture(u_OpacityMap, outVert.TexCoords).r + specularComponent)
     #elif defined(JMAT_DIFFUSEALPHA)
-        alpha *= texture(u_DiffuseMap, outVert.TexCoords).a;
+        texture(u_DiffuseMap, outVert.TexCoords).a
+    #else
+        1.0
+    #endif
+
+    #ifdef JMAT_MATERIAL
+        * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a * u_Material.emission.a
+    #else
+        * u_Emission.a
     #endif
 
     #ifdef JMAT_VERTEXCOLOR
-        alpha *= outVert.Color.a;
+        * outVert.Color.a
     #endif
+    ;
 
     #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
         if (alpha < 0.1)
@@ -602,10 +611,10 @@ void main()
     #endif
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor, alpha);
+    out_FinalColor = vec4(tempColor.rgb, alpha);
 
-    if (dot(tempColor, vec3(0.2126, 0.7152, 0.0722)) > 1.0)
-        out_BloomColor = vec4(tempColor, 1.0);
+    if (dot(tempColor.rgb, vec3(0.2126, 0.7152, 0.0722)) > 1.0)
+        out_BloomColor = vec4(tempColor.rgb * alpha, 1.0);
 
 #endif // Sky box
 }

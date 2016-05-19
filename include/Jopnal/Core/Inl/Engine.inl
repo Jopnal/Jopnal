@@ -67,12 +67,10 @@ namespace detail
             {
                 ::jop::Window win(getWindowSettings());
 
-                T* scene = new T(std::forward<Args>(args)...);
+                ::jop::Engine::m_engineObject->m_newScene.store(new T(std::forward<Args>(args)...));
 
                 while (!::jop::Engine::m_engineObject->m_newSceneSignal.load())
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-                ::jop::Engine::m_engineObject->m_newScene.store(scene);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         };
 

@@ -157,7 +157,7 @@ namespace jop
         ///
         static Scene& getCurrentScene();
 
-        /// \brief Signal a new scene loaded in a threaded manner to set itself current
+        /// \brief Signal a new scene (loaded in a threaded manner) to set itself current
         ///
         /// If a scene wasn't previously loaded with a thread, this function has no effect.
         ///

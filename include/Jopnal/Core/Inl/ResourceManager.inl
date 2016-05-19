@@ -249,7 +249,7 @@ void ResourceManager::unloadResource(const std::string& name)
 
     if (itr != res.end() && itr->second->getPersistence())
     {
-        JOP_DEBUG_INFO("\"" << itr->first << "\" (" << typeid(T).name() << ") unloaded");
+        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
         res.erase(itr);
     }
 }

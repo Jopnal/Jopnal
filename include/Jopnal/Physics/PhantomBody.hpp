@@ -45,7 +45,7 @@ namespace jop
 
     public:
     
-        PhantomBody(Object& object, World& world, const CollisionShape& shape);
+        PhantomBody(Object& object, World& world, CollisionShape& shape);
 
 
         void update(const float deltaTime) override;

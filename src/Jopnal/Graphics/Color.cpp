@@ -32,18 +32,16 @@ namespace jop
           alpha     (1.f)
     {}
 
-    Color::Color(const uint8 r, const uint8 g, const uint8 b, const uint8 a)
-        : colors    (static_cast<float32>(r) / 255.f,
-                    (static_cast<float32>(g) / 255.f),
-                    (static_cast<float32>(b) / 255.f)),
-          alpha     (static_cast<float32>(a) / 255.f)
+    Color::Color(const glm::vec3& rgb, const float32 a)
+        : colors    (rgb),
+          alpha     (a)
     {}
 
     Color::Color(const uint32 colors)
         : colors    (static_cast<float32>(static_cast<uint8>(colors >> 24)) / 255.f,
                     (static_cast<float32>(static_cast<uint8>(colors >> 16)) / 255.f),
                     (static_cast<float32>(static_cast<uint8>(colors >> 8))  / 255.f)),
-          alpha     (static_cast<float32>(static_cast<uint8>(colors)) / 255.f)
+          alpha     (static_cast<float32>(static_cast<uint8>(colors))       / 255.f)
     {}
 
     Color::Color(const std::string& hexString)
