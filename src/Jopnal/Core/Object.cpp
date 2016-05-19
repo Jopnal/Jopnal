@@ -42,14 +42,19 @@ namespace jop
 
         // Object
 
+        //// Tags
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
+
         // Component
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeComponents, "removeComponents");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearComponents, "clearComponents");
 
-        // Activity
+        //// Activity
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setActive, "setActive");
 
-        // Children
+        //// Children
         JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
@@ -57,12 +62,7 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
 
-        // Tags
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
-
-        // Other
+        //// Other
         JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setID, "setID");
         JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setIgnoreParent, "setIgnoreParent");
@@ -157,60 +157,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Component* Object::getComponent(const std::string& ID)
-    {
-        for (auto& i : m_components)
-        {
-            if (i->getID() == ID)
-                return i.get();
-        }
-
-        return nullptr;
-    }
-
-    const Component* Object::getComponent(const std::string& ID) const
-    {
-        for (auto& i : m_components)
-        {
-            if (i->getID() == ID)
-                return i.get();
-        }
-
-        return nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    Component* Object::cloneComponent(Object& object, const std::string& ID) const
-    {
-        auto i = getComponent(ID);
-
-        if (i)
-        {
-            object.m_components.emplace_back(i->clone(object));
-            return object.m_components.back().get();
-        }
-
-        return nullptr;
-    }
-
-    /////////////////////////////////////////////
-
-    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
-    {
-        auto i = getComponent(ID);
-
-        if (i)
-        {
-            m_components.emplace_back(i->clone(*this));
-            m_components.back()->setID(newID);
-        }
-
-        return i;
-    }
-
-    //////////////////////////////////////////////
-
     const std::vector<std::unique_ptr<Component>>& Object::getComponents() const
     {
         return m_components;
@@ -218,7 +164,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    Object& Object::removeComponents(const std::string& ID)
+    Object& Object::removeComponents(const uint32 ID)
     {
         m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
         {

@@ -36,7 +36,7 @@ namespace jop
     //////////////////////////////////////////////
 
     ModelLoader::ModelLoader(Object& obj)
-        : Component (obj, "modelloader"),
+        : Component (obj, 0),
           m_path    ()
     {}
 

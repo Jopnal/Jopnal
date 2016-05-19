@@ -59,7 +59,7 @@ namespace jop
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, Renderer& renderer, const std::string& ID)
+    Drawable::Drawable(Object& object, Renderer& renderer, const uint32 ID)
         : Component     (object, ID),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
@@ -236,61 +236,5 @@ namespace jop
     bool Drawable::isReflected() const
     {
         return (m_flags & Reflected) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::loadStateBase(Drawable& drawable, const Scene&, const json::Value& val)
-    {
-        drawable.setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
-
-        if (val.HasMember("shader") && val["shader"].IsString())
-        {
-            const std::string shstr = val["shader"].GetString();
-
-            if (ResourceManager::resourceExists<Shader>(shstr))
-                drawable.setShader(ResourceManager::getExistingResource<Shader>(shstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find shader named \"" << shstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-        if (val.HasMember("mesh") && val["mesh"].IsString())
-        {
-            const std::string mshstr = val["mesh"].GetString();
-
-            if (ResourceManager::resourceExists<Mesh>(mshstr))
-                drawable.m_model.setMesh(ResourceManager::getExistingResource<Mesh>(mshstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find mesh named \"" << mshstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-
-        if (val.HasMember("material") && val["material"].IsString())
-        {
-            const std::string matstr = val["material"].GetString();
-
-            if (ResourceManager::resourceExists<Material>(matstr))
-                drawable.m_model.setMaterial(ResourceManager::getExistingResource<Material>(matstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find material named \"" << matstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        val.AddMember(json::StringRef("id"), json::StringRef(drawable.getID().c_str()), alloc);
-
-        if (!drawable.m_shader.expired())
-            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);
-
-        if (drawable.m_model.getMesh())
-            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh()->getName().c_str()), alloc);
-
-        if (drawable.getModel().getMaterial())
-            val.AddMember(json::StringRef("material"), json::StringRef(drawable.getModel().getMaterial()->getName().c_str()), alloc);
-
-        return true;
     }
 }

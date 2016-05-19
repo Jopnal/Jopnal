@@ -86,7 +86,7 @@ namespace jop
     //////////////////////////////////////////////
 
     SoundStream::SoundStream(Object& object)
-        : SoundSource   (object, "soundstream"),
+        : SoundSource   (object, 0),
           m_path        (),
           m_stream      ()
     {

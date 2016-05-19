@@ -69,7 +69,7 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Component identifier
         ///
-        SoundSource(Object& object, const std::string& ID);
+        SoundSource(Object& object, const uint32 ID);
 
         /// \brief Virtual destructor
         ///

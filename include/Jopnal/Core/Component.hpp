@@ -26,7 +26,6 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <string>
 
 //////////////////////////////////////////////
 
@@ -53,19 +52,19 @@ namespace jop
 
     protected:
 
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this component will be bound to
+        /// \param ID Component identifier
+        ///
+        Component(Object& object, const uint32 ID);
+
         /// \brief Copy constructor
         ///
         /// \param other The other component to be copied
         /// \param newObj The new object
         ///
         Component(const Component& other, Object& newObj);
-
-        /// \brief Constructor
-        ///
-        /// \param object Reference to the object this component will be bound to
-        /// \param ID Component identifier
-        ///
-        Component(Object& object, const std::string& ID);
 
     public:
 
@@ -109,7 +108,7 @@ namespace jop
         ///
         /// \return Reference to the identifier
         ///
-        const std::string& getID() const;
+        uint32 getID() const;
 
         /// \brief Set the identifier
         ///
@@ -117,7 +116,7 @@ namespace jop
         ///
         /// \comm setID
         ///
-        void setID(const std::string& ID);
+        void setID(const uint32 ID);
 
         /// \brief Get the object this component is bound to
         ///
@@ -158,7 +157,7 @@ namespace jop
         virtual Message::Result sendMessageImpl(const Message& message);
 
 
-        std::string m_ID;                   ///< Identifier
+        uint32 m_ID;                        ///< Identifier
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }

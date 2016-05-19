@@ -43,7 +43,7 @@ namespace jop
 {
 
     Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
-        : Component                 (object, "camera"),
+        : Component                 (object, 0),
           m_renderTexture           (),
           m_projectionMatrix        (),
           m_viewPort                (glm::vec2(0.f), glm::vec2(1.f)),

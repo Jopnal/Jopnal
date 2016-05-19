@@ -48,7 +48,7 @@ namespace
 namespace jop
 {
     SoundEffect::SoundEffect(Object& object)
-        : SoundSource       (object, "soundeffect"),
+        : SoundSource       (object, 0),
           m_personalSpeed   (1.f),
           m_speedCounter    (0.f),
           m_playWithSpeed   (false),

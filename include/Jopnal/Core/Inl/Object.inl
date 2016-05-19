@@ -23,7 +23,7 @@
 namespace detail
 {
     template<typename T = ::jop::Component>
-    T* componentGetter(const std::vector<std::unique_ptr<::jop::Component>>& comps, const std::string* ID)
+    T* componentGetter(const std::vector<std::unique_ptr<::jop::Component>>& comps, const uint32* ID)
     {
         static_assert(std::is_base_of<::jop::Component, T>::value, "Object::getComponent(): Tried to get a component that doesn't inherit from jop::Component");
 
@@ -52,13 +52,13 @@ const T* Object::getComponent() const
 //////////////////////////////////////////////
 
 template<typename T>
-T* Object::getComponent(const std::string& ID)
+T* Object::getComponent(const uint32 ID)
 {
     return detail::componentGetter<T>(m_components, &ID);
 }
 
 template<typename T>
-const T* Object::getComponent(const std::string& ID) const
+const T* Object::getComponent(const uint32 ID) const
 {
     return detail::componentGetter<const T>(m_components, &ID);
 }
@@ -72,4 +72,20 @@ T& Object::createComponent(Args&&... args)
     
     m_components.emplace_back(std::make_unique<T>(*this, std::forward<Args>(args)...));
     return static_cast<T&>(*m_components.back());
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+T* Object::cloneComponent(Object& object, const uint32 ID) const
+{
+    auto i = getComponent<T>(ID);
+
+    if (i)
+    {
+        object.m_components.emplace_back(i->clone(object));
+        return object.m_components.back().get();
+    }
+
+    return nullptr;
 }

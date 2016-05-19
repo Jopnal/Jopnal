@@ -37,7 +37,7 @@ namespace jop
 namespace jop
 {
     Listener::Listener(Object& object)
-        : Component(object, "listener")
+        : Component(object, 0)
     {}
 
     Listener::Listener(const Listener& other, Object& newObj)

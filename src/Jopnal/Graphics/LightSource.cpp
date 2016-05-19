@@ -54,7 +54,7 @@ namespace
 namespace jop
 {
     LightSource::LightSource(Object& object, Renderer& renderer, const Type type)
-        : Component             (object, "lightsource"),
+        : Component             (object, 0),
           m_lightSpaceMatrices  (),
           m_type                (type),
           m_intensities         (getDefaultIntensities()),

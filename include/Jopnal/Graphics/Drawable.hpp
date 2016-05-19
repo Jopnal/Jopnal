@@ -71,7 +71,7 @@ namespace jop
         /// \param renderer Reference to the renderer
         /// \param ID Component identifier
         ///
-        Drawable(Object& object, Renderer& renderer, const std::string& ID);
+        Drawable(Object& object, Renderer& renderer, const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -241,31 +241,6 @@ namespace jop
         /// \return True if this is reflected
         ///
         bool isReflected() const;
-
-
-        /// \brief Load the state
-        ///
-        /// This can be called by the derived class while loading serialized state.
-        ///
-        /// \param drawable Reference to the drawable to load
-        /// \param scene The scene this drawable is bound to
-        /// \param val The json value
-        ///
-        /// \return True if successful
-        ///
-        static bool loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val);
-
-        /// \brief Save the state
-        ///
-        /// This can be called by the derived class while serializing state.
-        ///
-        /// \param drawable Reference to the drawable to save
-        /// \param val The json value
-        /// \param alloc The json allocator
-        ///
-        /// \return True if successful
-        ///
-        static bool saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc);
 
     private:
 

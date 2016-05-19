@@ -200,7 +200,7 @@ namespace detail
 namespace jop
 {
     World::World(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, "world"),
+        : Drawable          (obj, renderer, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
     {

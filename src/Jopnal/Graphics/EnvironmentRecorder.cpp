@@ -37,7 +37,7 @@ namespace jop
 namespace jop
 {
     EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
-        : Component     (obj, "environmentrecorder"),
+        : Component     (obj, 0),
           m_matrices    (6),
           m_fbo         (),
           m_mask        (1),

@@ -62,7 +62,7 @@ namespace jop
     //////////////////////////////////////////////
 
     RigidBody::RigidBody(Object& object, World& world, const ConstructInfo& info)
-        : Collider                  (object, world, "rigidbody"),
+        : Collider                  (object, world, 0),
           m_type                    (info.m_type),
           m_mass                    (info.m_mass),
           m_rigidBody               (nullptr)

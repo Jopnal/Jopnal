@@ -115,19 +115,6 @@ namespace jop
         ///
         ~Object();
 
-
-        /// \brief Get a component with the given id
-        ///
-        /// \param ID Component identifier to search with
-        ///
-        /// \return Pointer to the component, nullptr if the component wasn't found
-        ///
-        Component* getComponent(const std::string& ID);
-
-        /// \copydoc getComponent()
-        ///
-        const Component* getComponent(const std::string& ID) const;
-
         
         /// \brief Get all components
         ///
@@ -152,12 +139,12 @@ namespace jop
         /// \return Pointer to the component. Nullptr if not found
         ///
         template<typename T>
-        T* getComponent(const std::string& ID);
+        T* getComponent(const uint32 ID = 0);
 
         /// \copydoc getComponent()
         ///
         template<typename T>
-        const T* getComponent(const std::string& ID) const;
+        const T* getComponent(const uint32 ID = 0) const;
 
         /// \brief Template function to create components
         ///
@@ -173,18 +160,8 @@ namespace jop
         ///
         /// \return Pointer to the cloned component. Nullptr if not found
         ///
-        Component* cloneComponent(Object& object, const std::string& ID) const;
-
-        /// \brief Template function to duplicates component
-        ///
-        /// The same object will be used.
-        ///
-        /// \param ID Identifier of the component
-        /// \param newID Identifier of the cloned component
-        ///
-        /// \return Pointer to the cloned component. Nullptr if not found
-        ///
-        Component* cloneComponent(const std::string& ID, const std::string& newID);
+        template<typename T>
+        T* cloneComponent(Object& object, const uint32 ID = 0) const;
 
         /// \brief Remove components
         ///
@@ -196,7 +173,7 @@ namespace jop
         ///
         /// \return Reference to self
         /// 
-        Object& removeComponents(const std::string& ID);
+        Object& removeComponents(const uint32 ID);
 
         /// \brief Remove all components
         ///

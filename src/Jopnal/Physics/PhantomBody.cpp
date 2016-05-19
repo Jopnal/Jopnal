@@ -28,7 +28,7 @@
 namespace jop
 {
     PhantomBody::PhantomBody(Object& object, World& world, const CollisionShape& shape)
-        : Collider(object, world, "phantombody")
+        : Collider(object, world, 0)
     {
         auto ghost = std::make_unique<btPairCachingGhostObject>();
     }

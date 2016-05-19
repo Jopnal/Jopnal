@@ -35,14 +35,14 @@ namespace jop
 
     bool jop__baseComponentLoadFunc(JOP_COMPONENT_LOAD_ARGS)
     {
-        if (val.HasMember("id") && val["id"].IsString())
-            comp.setID(val["id"].GetString());
+        if (val.HasMember("id") && val["id"].IsUint())
+            comp.setID(val["id"].GetUint());
 
         return true;
     }
     bool jop__baseComponentSaveFunc(JOP_COMPONENT_SAVE_ARGS)
     {
-        val.AddMember(json::StringRef("id"), json::StringRef(comp.getID().c_str()), alloc);
+        val.AddMember(json::StringRef("id"), comp.getID(), alloc);
 
         return true;
     }
@@ -52,7 +52,7 @@ namespace jop
 
 namespace jop
 {
-    Component::Component(Object& object, const std::string& ID)
+    Component::Component(Object& object, const uint32 ID)
         : m_objectRef   (object),
           m_ID          (ID)
     {}
@@ -83,7 +83,7 @@ namespace jop
 
     Message::Result Component::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Component) && message.passFilter(getID()))
+        if (message.passFilter(Message::Component))
         {
             if (message.passFilter(Message::Command))
             {
@@ -106,14 +106,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::string& Component::getID() const
+    uint32 Component::getID() const
     {
         return m_ID;
     }
 
     //////////////////////////////////////////////
 
-    void Component::setID(const std::string& ID)
+    void Component::setID(const uint32 ID)
     {
         m_ID = ID;
     }

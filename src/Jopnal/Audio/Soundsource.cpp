@@ -40,7 +40,7 @@ namespace jop
 
 namespace jop
 {
-    SoundSource::SoundSource(Object& object, const std::string& ID)
+    SoundSource::SoundSource(Object& object, const uint32 ID)
         : Component         (object, ID),
           m_sound           ()
     {}
