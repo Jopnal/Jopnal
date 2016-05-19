@@ -211,6 +211,8 @@ namespace jop
         m_worldData->world->setWorldUserInfo(this);
         
         setDebugMode(false);
+
+        setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
     }
 
     World::~World()
