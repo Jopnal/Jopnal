@@ -393,8 +393,8 @@ namespace jop
             }
             else
             {
-                realX = x;
-                realY = y;
+                realX = -x;
+                realY = -y;
             }
 
             h->mouseMoved(static_cast<float>(-realX), static_cast<float>(-realY));
