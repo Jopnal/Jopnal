@@ -122,6 +122,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Color Color::operator *(const float right) const
+    {
+        return Color(*this) *= right;
+    }
+
+    //////////////////////////////////////////////
+
+    Color& Color::operator *=(const float right)
+    {
+        colors *= right;
+        alpha *= right;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     Color& Color::operator -=(const Color& right)
     {
         colors -= right.colors;

@@ -114,11 +114,15 @@ namespace jop
 
         Color operator *(const Color& right) const;
 
+        Color operator *(const float right) const;
+
         Color& operator +=(const Color& right);
 
         Color& operator -=(const Color& right);
 
         Color& operator *=(const Color& right);
+
+        Color& operator *=(const float right);
     };
 }
 
