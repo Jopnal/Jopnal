@@ -93,6 +93,7 @@ namespace jop
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
         glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(gl::GenerateMipmap(gl::TEXTURE_2D));
 
         return true;
     }

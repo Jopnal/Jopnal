@@ -119,23 +119,15 @@ namespace
     static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
     static const int ns_opacMapIndex = static_cast<int>(jop::Material::Map::Opacity);
     static const int ns_glossMapIndex = static_cast<int>(jop::Material::Map::Gloss);
-    
-    static const jop::Color ns_defCol[] =
-    {
-        jop::Color::Black,
-        jop::Color::White,
-        jop::Color::White,
-        jop::Color::Black
-    };
 
     const std::array<jop::Color, 4>& getDefaultColors()
     {
         static const std::array<jop::Color, 4> colors =
         {
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "FFFFFFFF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF")
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "FFFFFFFF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF"))
         };
 
         return colors;
@@ -166,7 +158,10 @@ namespace jop
           m_maps                (),
           m_attributesChanged   (true),
           m_autoAttribs         (autoAttributes)
-    {}
+    {
+        if (hasAttribute(Attribute::DiffuseMap))
+            setMap(Map::Diffuse, Texture2D::getDefault());
+    }
 
     Material::Material(const Material& other, const std::string& newName)
         : Resource              (newName),

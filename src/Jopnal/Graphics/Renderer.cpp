@@ -29,22 +29,37 @@ namespace jop
 {
     namespace detail
     {
-        class DrawableSorter
+        class DrawableSorterOpaque
         {
             const glm::vec3& m_camPos;
 
         public:
 
-            DrawableSorter(const Camera& cam)
+            DrawableSorterOpaque(const Camera& cam)
                 : m_camPos(cam.getObject()->getGlobalPosition())
             {}
 
-            bool operator()(const Drawable* first, const Drawable* second) const
+            bool operator ()(const Drawable* first, const Drawable* second) const
             {
-                auto& pos1 = first->getObject()->getGlobalPosition();
-                auto& pos2 = second->getObject()->getGlobalPosition();
+                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) <
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
+            }
+        };
 
-                return glm::distance2(m_camPos, pos1) < glm::distance2(m_camPos, pos2);
+        class DrawableSorterTranslucent
+        {
+            const glm::vec3& m_camPos;
+
+        public:
+
+            DrawableSorterTranslucent(const Camera& cam)
+                : m_camPos(cam.getObject()->getGlobalPosition())
+            {}
+
+            bool operator ()(const Drawable* first, const Drawable* second) const
+            {
+                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) >
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
             }
         };
     }
@@ -177,29 +192,42 @@ namespace jop
                 cam->getRenderTexture().bind();
                 cam->applyViewport(m_mainTarget);
 
-                std::vector<const Drawable*> sorted;
-                sorted.reserve(m_drawables.size());
+                // 0 - Opaque
+                // 1 - Translucent
+                // 2 - Sky box/sphere
+                std::array<std::vector<const Drawable*>, 3> sorted;
+                sorted[0].reserve(m_drawables.size());
+                sorted[1].reserve(m_drawables.size() / 4);
                 
-                for (auto& drawable : m_drawables)
+                for (auto drawable : m_drawables)
                 {
                     const uint32 groupBit = 1 << drawable->getRenderGroup();
                     if (drawable->isActive() && drawable->getModel().isValid() && (i & groupBit) > 0 && (camMask & groupBit) > 0)
-                        sorted.push_back(drawable);
+                    {
+                        using M = Material::Attribute;
+                        auto& mat = *drawable->getModel().getMaterial();
+
+                        sorted[std::min(2, mat.hasAttributes(M::Alpha | M::DiffuseAlpha) + (mat.hasAttribute(M::__SkyBox | M::__SkySphere) * 2))].push_back(drawable);
+                    }
                 }
 
-                std::sort(sorted.begin(), sorted.end(), detail::DrawableSorter(*cam));
+                std::sort(sorted[0].begin(), sorted[0].end(), detail::DrawableSorterOpaque(*cam));
+                std::sort(sorted[1].begin(), sorted[1].end(), detail::DrawableSorterTranslucent(*cam));
 
-                for (auto& drawable : sorted)
+                for (auto& s : sorted)
                 {
-                    if (drawable->receiveLights())
+                    for (auto drawable : s)
                     {
-                        // Select lights
-                        LightContainer lights;
-                        chooseLights(*drawable, lights);
-                        drawable->draw(*cam, lights);
+                        if (drawable->receiveLights())
+                        {
+                            // Select lights
+                            LightContainer lights;
+                            chooseLights(*drawable, lights);
+                            drawable->draw(*cam, lights);
+                        }
+                        else
+                            drawable->draw(*cam, dummyLightCont);
                     }
-                    else
-                        drawable->draw(*cam, dummyLightCont);
                 }
             }
         }

@@ -42,9 +42,9 @@ namespace
     {
         static const std::array<jop::Color, 3> intensities =
         {
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultAmbient", "000000FF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultDiffuse", "FFFFFFFF"),
-            jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultSpecular", "FFFFFFFF")
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultAmbient", "000000FF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultDiffuse", "FFFFFFFF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Light|sDefaultSpecular", "FFFFFFFF"))
         };
 
         return intensities;
@@ -343,6 +343,9 @@ namespace jop
 
     float LightSource::getRange() const
     {
+        if (m_type == Type::Directional)
+            return FLT_MAX;
+
         const float max = std::max(
         {
             m_intensities[0].colors.r, m_intensities[0].colors.g, m_intensities[0].colors.b,

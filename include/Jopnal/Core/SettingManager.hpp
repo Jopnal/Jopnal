@@ -236,6 +236,7 @@ namespace jop
         std::atomic<bool> m_filesUpdated;   ///< Has any file been externally modified?
         std::string m_defaultRoot;          ///< Default setting file
         UpdaterMap m_updaters;              ///< Change callback map
+        std::atomic<bool> m_wasSaved;
     };
 
     // Include the template implementation file

@@ -69,6 +69,8 @@ namespace detail
 
                 ::jop::Engine::m_engineObject->m_newScene.store(new T(std::forward<Args>(args)...));
 
+                JOP_DEBUG_INFO("Scene \"" << ::jop::Engine::m_engineObject->m_newScene.load()->getID() << "\" loaded, waiting for signal...");
+
                 while (!::jop::Engine::m_engineObject->m_newSceneSignal.load())
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }

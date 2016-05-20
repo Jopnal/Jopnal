@@ -74,7 +74,7 @@ namespace jop
             static_cast<unsigned int>(std::abs(std::min(255.f, colors.r * 255.f))) << 24 |
             static_cast<unsigned int>(std::abs(std::min(255.f, colors.g * 255.f))) << 16 |
             static_cast<unsigned int>(std::abs(std::min(255.f, colors.b * 255.f))) << 8 |
-            static_cast<unsigned int>(std::abs(std::min(255.f, alpha * 255.f)))
+            static_cast<unsigned int>(std::abs(std::min(255.f, alpha    * 255.f)))
         );
     }
 
@@ -110,4 +110,54 @@ namespace jop
         return !(*this == other);
     }
 
-} // namespace gp
+    //////////////////////////////////////////////
+
+    Color& Color::operator *=(const Color& right)
+    {
+        colors *= right.colors;
+        alpha *= right.alpha;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Color& Color::operator -=(const Color& right)
+    {
+        colors -= right.colors;
+        alpha -= right.alpha;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Color& Color::operator +=(const Color& right)
+    {
+        colors += right.colors;
+        alpha += right.alpha;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Color Color::operator *(const Color& right) const
+    {
+        return Color(*this) *= right;
+    }
+
+    //////////////////////////////////////////////
+
+    Color Color::operator -(const Color& right) const
+    {
+        return Color(*this) -= right;
+    }
+
+    //////////////////////////////////////////////
+
+    Color Color::operator +(const Color& right) const
+    {
+        return Color(*this) += right;
+    }
+}

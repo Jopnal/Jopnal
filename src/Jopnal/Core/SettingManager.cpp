@@ -388,7 +388,10 @@ namespace jop
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
         if (!m_instance)
+        {
             JOP_DEBUG_ERROR("Couldn't save settings, no SettingManager instance");
+            return;
+        }
 
         for (auto& i : m_instance->m_settings)
         {
@@ -408,6 +411,8 @@ namespace jop
             else
                 JOP_DEBUG_ERROR("Failed to save setting file \"" << i.first << ".json\"");
         }
+
+        m_instance->m_wasSaved.store(true);
     }
 
     //////////////////////////////////////////////
@@ -416,7 +421,8 @@ namespace jop
 
     SettingManager::SettingManager()
         : Subsystem("settingmanager"),
-          m_defaultRoot("root")
+          m_defaultRoot("root"),
+          m_wasSaved(false)
     {
         {
             std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -560,7 +566,7 @@ namespace jop
 
     void SettingManager::preUpdate(const float)
     {
-        if (m_filesUpdated.load())
+        if (m_filesUpdated.load() && !m_wasSaved.load())
         {
             std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
@@ -595,9 +601,10 @@ namespace jop
                         ::detail::checkChanges(val, newVals, i.first + "@", val.GetAllocator(), m_updaters);
                 }
             }
-
-            m_filesUpdated = false;
         }
+
+        m_wasSaved.store(false);
+        m_filesUpdated.store(false);
     }
 
     //////////////////////////////////////////////

@@ -59,7 +59,8 @@ namespace jop
             {
                 // Misc
                 DiffuseAlpha    = 1,
-                VertexColor     = DiffuseAlpha      << 1, 
+                VertexColor     = DiffuseAlpha      << 1,
+                Alpha           = VertexColor       << 1,
 
                 // Maps
                 DiffuseMap      = 1                 << 3,

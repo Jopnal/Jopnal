@@ -42,7 +42,7 @@ namespace jop
         ///
         Color();
 
-        Color(const glm::vec3& rgb, const float32 a = 1.f);
+        explicit Color(const glm::vec3& rgb, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///
@@ -55,14 +55,14 @@ namespace jop
         /// \param colors A 32-bit unsigned integer to represent the colors,
         ///               as in 0xFFFFFFFF
         ///
-        Color(const uint32 colors);
+        explicit Color(const uint32 colors);
 
         /// \brief Overloaded constructor
         ///
         /// \param hexString A string in hex form to describe the color, as
         ///                  in "FFFFFFFF"
         ///
-        Color(const std::string& hexString);
+        explicit Color(const std::string& hexString);
 
 
         /// \brief Get this color as a RGB float vector
@@ -102,11 +102,23 @@ namespace jop
 
         /// \brief Equality operator
         ///
-        bool operator ==(const Color& other) const;
+        bool operator ==(const Color& right) const;
 
         /// \brief Inequality operator
         ///
-        bool operator !=(const Color& other) const;
+        bool operator !=(const Color& right) const;
+
+        Color operator +(const Color& right) const;
+
+        Color operator -(const Color& right) const;
+
+        Color operator *(const Color& right) const;
+
+        Color& operator +=(const Color& right);
+
+        Color& operator -=(const Color& right);
+
+        Color& operator *=(const Color& right);
     };
 }
 

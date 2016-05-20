@@ -40,6 +40,13 @@ namespace jop
           m_path    ()
     {}
 
+    ModelLoader::ModelLoader(Object& obj, const std::string& path, const Options& options)
+        : Component (obj, 0),
+          m_path    ()
+    {
+        load(path, options);
+    }
+
     ModelLoader::ModelLoader(const ModelLoader& other, Object& obj)
         : Component (other, obj),
           m_path    (other.m_path)
@@ -265,21 +272,6 @@ namespace jop
                     }
 
                     // Specular
-                    if (mat.GetTextureCount(aiTextureType_SPECULAR))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Specular, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_SPECULAR, 0, tex);
-                        }
-                    }
-
-                    // Gloss
                     if (mat.GetTextureCount(aiTextureType_SHININESS))
                     {
                         aiString path;
@@ -288,9 +280,27 @@ namespace jop
                         if (path.length)
                         {
                             auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Gloss, tex);
+                            m.setMap(Material::Map::Specular, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_SHININESS, 0, tex);
+
+                            if (!hadShininess)
+                                m.setShininess(64.f);
+                        }
+                    }
+
+                    // Gloss
+                    if (mat.GetTextureCount(aiTextureType_SPECULAR))
+                    {
+                        aiString path;
+                        mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
+
+                        if (path.length)
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            m.setMap(Material::Map::Gloss, tex);
+
+                            processTexFlags(mat, m, options, aiTextureType_SPECULAR, 0, tex);
 
                             if (!hadShininess)
                             {
