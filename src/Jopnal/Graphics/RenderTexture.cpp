@@ -102,7 +102,7 @@ namespace jop
             case CA::RGBA2DFloat32:
             {
                 auto tex = std::make_unique<Texture2D>("");
-                if (!tex->load(size, getColorBytes(attachment), true))
+                if (!tex->load(size, getColorBytes(attachment), true, false))
                     return false;
 
                 texture = std::move(tex);
@@ -118,7 +118,7 @@ namespace jop
             case CA::RGBACubeFloat32:
             {
                 auto tex = std::make_unique<Cubemap>("");
-                if (!tex->load(size, getColorBytes(attachment), true))
+                if (!tex->load(size, getColorBytes(attachment), true, false))
                     return false;
 
                 texture = std::move(tex);

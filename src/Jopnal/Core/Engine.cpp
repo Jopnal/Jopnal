@@ -52,6 +52,8 @@ namespace jop
           m_totalTime       (0.0),
           m_subsystems      (),
           m_currentScene    (),
+          m_newScene        (nullptr),
+          m_newSceneSignal  (false),
           m_exit            (false),
           m_state           (State::Running),
           m_advanceFrame    (false),
@@ -117,11 +119,15 @@ namespace jop
 
             const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(m_mainWindow->getSize()));
 
-            rtex.addColorAttachment(RT::ColorAttachmentSlot::_1, RT::ColorAttachment::RGBA2DFloat16, scaledRes);
-            rtex.addColorAttachment(RT::ColorAttachmentSlot::_2, RT::ColorAttachment::RGB2DFloat16, scaledRes);
-            //rtex.addDepthAttachment(RT::DepthAttachment::Texture24, scaledRes);
-            //rtex.addStencilAttachment(RT::StencilAttachment::Int8, scaledRes);
+            using Slot = RT::ColorAttachmentSlot;
+            using CA = RT::ColorAttachment;
+
+            rtex.addColorAttachment(Slot::_1, CA::RGBA2DFloat16, scaledRes);
+            rtex.addColorAttachment(Slot::_2, CA::RGB2DFloat16, scaledRes);
             rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
+
+            rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
         }
 
         // Post processor

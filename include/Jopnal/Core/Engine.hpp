@@ -45,12 +45,6 @@ namespace jop
     {
         template<typename, bool, bool>
         struct SceneCreator;
-
-        template<typename T, bool Threaded>
-        struct SceneTypeSelector{typedef T& type;};
-        template<typename T>
-        struct SceneTypeSelector<T, true>
-        {typedef ::jop::Scene& type;};
     }
 
     class JOP_API Engine final
@@ -141,7 +135,7 @@ namespace jop
         /// \see newSceneReady
         ///
         template<typename T, bool Threaded = false, bool WaitSignal = false, typename ... Args>
-        static typename detail::SceneTypeSelector<T, Threaded>::type createScene(Args&&... args);
+        static void createScene(Args&&... args);
 
         /// \brief Check if there's a current scene
         ///

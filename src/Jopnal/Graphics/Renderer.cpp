@@ -214,21 +214,32 @@ namespace jop
                 std::sort(sorted[0].begin(), sorted[0].end(), detail::DrawableSorterOpaque(*cam));
                 std::sort(sorted[1].begin(), sorted[1].end(), detail::DrawableSorterTranslucent(*cam));
 
-                for (auto& s : sorted)
+                auto drawSet = [this](const std::vector<const Drawable*>& drawables, const Camera& cam)
                 {
-                    for (auto drawable : s)
+                    for (auto drawable : drawables)
                     {
                         if (drawable->receiveLights())
                         {
                             // Select lights
                             LightContainer lights;
                             chooseLights(*drawable, lights);
-                            drawable->draw(*cam, lights);
+                            drawable->draw(cam, lights);
                         }
                         else
-                            drawable->draw(*cam, dummyLightCont);
+                            drawable->draw(cam, dummyLightCont);
                     }
-                }
+                };
+
+                // Opaque
+                drawSet(sorted[0], *cam);
+
+                // Sky boxes/spheres
+                drawSet(sorted[2], *cam);
+
+                // Translucent
+                GlState::setDepthWrite(false);
+                drawSet(sorted[1], *cam);
+                GlState::setDepthWrite(true);
             }
         }
     }

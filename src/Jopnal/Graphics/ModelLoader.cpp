@@ -264,7 +264,7 @@ namespace jop
                         
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true, true);
                             m.setMap(Material::Map::Diffuse, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_DIFFUSE, 0, tex);
@@ -279,7 +279,7 @@ namespace jop
 
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false, false);
                             m.setMap(Material::Map::Specular, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_SHININESS, 0, tex);
@@ -297,7 +297,7 @@ namespace jop
 
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false, false);
                             m.setMap(Material::Map::Gloss, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_SPECULAR, 0, tex);
@@ -333,7 +333,7 @@ namespace jop
 
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true, true);
                             m.setMap(Material::Map::Emission, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_EMISSIVE, 0, tex);
@@ -349,7 +349,7 @@ namespace jop
 
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false, false);
                             m.setMap(Material::Map::Reflection, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_REFLECTION, 0, tex);
@@ -364,7 +364,7 @@ namespace jop
 
                         if (path.length)
                         {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false, false);
                             m.setMap(Material::Map::Opacity, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_OPACITY, 0, tex);
@@ -428,7 +428,7 @@ namespace jop
                             else
                                 continue;
 
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission);
+                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission, map == M::Diffuse || map == M::Emission);
                             m.setMap(map, tex);
 
                             processTexFlags(mat, m, options, aiTextureType_UNKNOWN, i, tex);

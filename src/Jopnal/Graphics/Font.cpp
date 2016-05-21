@@ -46,19 +46,25 @@ namespace detail
         std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Texture coordinates
 
         FontImpl()
-            : m_texture     (""),
+            : m_library     (nullptr),
+              m_face        (nullptr),
+              m_buffer      (),
+              m_context     (),
+              m_texture     (""),
               m_nodes       (1024),
-              m_numNodes    (1024)
+              m_numNodes    (1024),
+              m_bitmaps     ()
         {
-            FT_Error err = FT_Init_FreeType(&m_library);
-            if (err)
-                JOP_DEBUG_ERROR("Could not initialize freetype: " << err);
+            JOP_ASSERT_EVAL(FT_Init_FreeType(&m_library) == FT_Err_Ok, "Failed to initialize font library!");
         }
 
         ~FontImpl()
         {
-            FT_Done_Face(m_face);
-            FT_Done_FreeType(m_library);
+            if (m_face)
+                FT_Done_Face(m_face);
+
+            if (m_library)
+                FT_Done_FreeType(m_library);
         }
     };
 }
@@ -92,31 +98,37 @@ namespace jop
 
     bool Font::load(const std::string& path, const int pixelSize)
     {
-        // Load font data from file
-        FileLoader::readBinaryfile(path, m_data.get()->m_buffer);
-        return load(pixelSize);
+        if (FileLoader::readBinaryfile(path, m_data.get()->m_buffer))
+            return load(pixelSize);
+
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool Font::load(const int id, const int pixelSize)
     {
-        if (!FileLoader::readResource(id, m_data.get()->m_buffer))
-            return false;
+        if (FileLoader::readResource(id, m_data.get()->m_buffer))
+            return load(pixelSize);
 
-        return load(pixelSize);
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool Font::load(const int pixelSize)
     {
+        if (m_data->m_buffer.empty())
+            return false;
+
         m_pixelSize = pixelSize;
 
         // Create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
 
-        m_data->m_texture.load(glm::uvec2(m_pixelSize * 32, m_pixelSize * 32), 1, false);
+        m_data->m_texture.load(glm::uvec2(m_pixelSize * 32, m_pixelSize * 32), 1, false, false);
+        m_data->m_texture.getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+
         stbrp_init_target(context_ptr.get(), 1024, 1024, m_data->m_nodes.data(), m_data->m_numNodes);
 
         if (!m_data.get()->m_buffer.empty())

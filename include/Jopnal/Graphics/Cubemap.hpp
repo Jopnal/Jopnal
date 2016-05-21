@@ -57,7 +57,7 @@ namespace jop
         bool load(const std::string& right, const std::string& left,
                   const std::string& top, const std::string& bottom,
                   const std::string& back, const std::string& front,
-                  const bool srgb);
+                  const bool srgb, const bool genMipmaps);
 
         /// \brief Load an empty cube map
         ///
@@ -67,7 +67,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bpp, const bool srgb);
+        bool load(const glm::uvec2& size, const unsigned int bpp, const bool srgb, const bool genMipmaps);
 
         /// \brief Get the texture size
         ///

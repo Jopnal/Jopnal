@@ -53,7 +53,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path, const bool srgb);
+        bool load(const std::string& path, const bool srgb, const bool genMipmaps);
 
         /// \brief Creates flat/empty texture
         ///
@@ -63,7 +63,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb, const bool genMipmaps);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -76,7 +76,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb);
+        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps);
 
 
         /// \brief Set a subset of pixels
@@ -142,7 +142,7 @@ namespace jop
 
         /// For internal use
         ///
-        bool load(const int id, const bool srgb);
+        bool load(const int id, const bool srgb, const bool genMipmaps);
 
 
         glm::uvec2 m_size;              ///< Size
