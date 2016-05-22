@@ -52,6 +52,15 @@ namespace jop
 
 namespace jop
 {
+    Component* Component::clone(Object&) const
+    {
+        JOP_DEBUG_ERROR("clone() not defined for component \"" << typeid(*this).name() << "\", was not copied");
+
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
     Component::Component(Object& object, const uint32 ID)
         : m_objectRef   (object),
           m_ID          (ID)

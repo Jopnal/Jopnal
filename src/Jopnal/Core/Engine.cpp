@@ -112,7 +112,7 @@ namespace jop
 
         // Main render target
         typedef RenderTexture RT;
-        auto& rtex = createSubsystem<RT>();
+        auto& rtex = createSubsystem<RT>("mainrendertarget");
 
         {
             m_mainTarget = &rtex;

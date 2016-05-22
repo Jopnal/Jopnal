@@ -196,6 +196,7 @@ namespace jop
     {
         m_children.emplace_back(ID);
         m_children.back().m_parent = *this;
+        m_children.back().setActive(isActive());
 
         return m_children.back().getReference();
     }
@@ -215,6 +216,7 @@ namespace jop
         m_children.emplace_back(std::move(child));
         m_children.back().m_parent = *this;
         m_children.back().propagateFlags(TransformDirty);
+        m_children.back().setActive(isActive());
 
         child.removeSelf();
 

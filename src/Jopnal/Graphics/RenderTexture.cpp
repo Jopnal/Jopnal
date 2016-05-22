@@ -36,6 +36,15 @@ namespace jop
           m_colorAttachments    ()
     {}
 
+    RenderTexture::RenderTexture(const std::string& ID)
+        : RenderTarget          (ID),
+          m_depthBuffer         (0),
+          m_stencilBuffer       (0),
+          m_depthStencilBuffer  (0),
+          m_frameBuffer         (0, nullptr),
+          m_colorAttachments    ()
+    {}
+
     RenderTexture::~RenderTexture()
     {
         destroy(true, true);

@@ -110,7 +110,7 @@ namespace jop
 
     SoundSource& SoundSource::setAttenuation(const float at)
     {
-        m_sound->setAttenuation(glm::clamp(at, 0.f, 100.f));
+        m_sound->setAttenuation(std::max(at, 0.f));
         return *this;
     }
 

@@ -48,7 +48,7 @@ namespace jop
         ///
         /// \return Pointer to the cloned component
         /// 
-        virtual Component* clone(Object& newObj) const = 0;
+        virtual Component* clone(Object& newObj) const;
 
     protected:
 

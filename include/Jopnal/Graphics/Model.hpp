@@ -49,6 +49,8 @@ namespace jop
         ///
         Model(const Mesh& mesh);
 
+        Model(const Material& material);
+
         /// \brief Constructor for initializing with a mesh and a material
         ///
         /// \param mesh Mesh to initialize with
@@ -56,6 +58,8 @@ namespace jop
         ///
         Model(const Mesh& mesh, const Material& material);
 
+
+        Mesh* getMesh();
 
         /// \brief Get the mesh
         ///
@@ -71,6 +75,8 @@ namespace jop
         ///
         Model& setMesh(const Mesh& mesh);
 
+
+        Material* getMaterial();
 
         /// \brief Get the material
         ///
@@ -101,7 +107,7 @@ namespace jop
     private:
 
         WeakReference<Material> m_material; ///< The material
-        WeakReference<const Mesh> m_mesh;   ///< The mesh
+        WeakReference<Mesh> m_mesh;         ///< The mesh
     };
 }
 

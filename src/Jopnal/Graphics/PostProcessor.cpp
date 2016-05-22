@@ -247,7 +247,6 @@ namespace jop
     {
         bool horizontal = true;
 
-        m_blurShader->bind();
         m_blurShader->setUniform("u_Buffer", texture, 1);
 
         m_quad.getVertexBuffer().bind();

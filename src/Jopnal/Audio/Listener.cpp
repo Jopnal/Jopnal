@@ -55,6 +55,9 @@ namespace jop
 
         var = getObject()->getGlobalFront();
         sf::Listener::setDirection(var.x, var.y, var.z);
+
+        var = getObject()->getGlobalUp();
+        sf::Listener::setUpVector(var.x, var.y, var.z);
     }
 
     ///////////////////////////////////////

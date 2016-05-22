@@ -144,6 +144,8 @@ namespace jop
         ///
         RenderTexture();
 
+        RenderTexture(const std::string& ID);
+
         /// \brief Destructor
         ///
         ~RenderTexture() override;

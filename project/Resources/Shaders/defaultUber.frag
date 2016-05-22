@@ -505,6 +505,7 @@ void main()
 #ifdef JMAT_SKYBOX
 
     out_FinalColor = texture(u_EnvironmentMap, outVert.Position);
+    out_FinalColor.a *= u_Emission.a;
 
 #else
 
@@ -604,11 +605,6 @@ void main()
         * outVert.Color.a
     #endif
     ;
-
-    #if defined(JMAT_OPACITYMAP) || defined(JMAT_DIFFUSEALPHA)
-        if (alpha < 0.1)
-            discard;
-    #endif
 
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor.rgb, alpha);

@@ -299,4 +299,11 @@ namespace jop
             ns_framebufSrgb = enable;
         }
     }
+
+    //////////////////////////////////////////////
+
+    void GlState::flush()
+    {
+        glCheck(gl::Flush());
+    }
 }

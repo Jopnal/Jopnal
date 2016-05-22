@@ -80,7 +80,7 @@ namespace jop
             glm::mat4 proj;
             void updateProj()
             {
-                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, farPlane);
             }
             Callback()
                 : str("engine@Graphics|Shading|fEnvironmentRecordFarPlane"),
@@ -121,13 +121,23 @@ namespace jop
 
             if (lastShader != shdr)
             {
-                shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
+                if (drawable->getModel().getMaterial()->hasAttribute(Material::Attribute::__SkyBox | Material::Attribute::__SkySphere))
+                {
+                    std::vector<glm::mat4> tempMat(6);
+
+                    LightSource::makeCubemapMatrices(cb.proj, glm::vec3(0.f), tempMat);
+
+                    shdr->setUniform("u_PVMatrices", glm::value_ptr(tempMat[0]), 6);
+                }
+                else
+                    shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
 
                 lastShader = shdr;
             }
 
             LightContainer lights;
-            rend.chooseLights(*drawable, lights);
+            if (drawable->receiveLights())
+                rend.chooseLights(*drawable, lights);
 
             drawable->draw(nullptr, lights, *shdr);
         }

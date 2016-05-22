@@ -49,7 +49,12 @@ void main()
         for (int i = 0; i < 3; ++i)
         {
             vec4 temp = gl_in[i].gl_Position;
-            gl_Position = u_PVMatrices[face] * temp;
+            gl_Position = (u_PVMatrices[face] * temp)
+                
+            #if defined(JMAT_SKYBOX) || defined(JMAT_SKYSPHERE)
+                .xyww
+            #endif
+            ;
 
             vgf_FragPosition = vec3(temp);
 

@@ -126,7 +126,7 @@ namespace
         {
             jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF")),
             jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF")),
-            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "FFFFFFFF")),
+            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "000000FF")),
             jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF"))
         };
 

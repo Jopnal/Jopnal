@@ -72,6 +72,8 @@ namespace detail
                 delete scenePtr.load();
                 
                 scenePtr.store(newPtr);
+                ::jop::GlState::flush();
+
                 ::jop::Engine::signalNewScene();
             }
         };
@@ -89,6 +91,7 @@ namespace detail
                 delete scenePtr.load();
 
                 scenePtr.store(newPtr);
+                ::jop::GlState::flush();
 
                 JOP_DEBUG_INFO("Scene \"" << newPtr->getID() << "\" loaded, waiting for signal...");
 
