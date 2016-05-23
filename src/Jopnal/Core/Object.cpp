@@ -225,6 +225,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::vector<Object>& Object::getChildren()
+    {
+        return m_children;
+    }
+
+    //////////////////////////////////////////////
+
     const std::vector<Object>& Object::getChildren() const
     {
         return m_children;

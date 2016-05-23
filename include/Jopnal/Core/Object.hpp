@@ -213,6 +213,8 @@ namespace jop
         ///
         WeakReference<Object> adoptChild(Object& child);
 
+        std::vector<Object>& getChildren();
+
         /// \brief Get all children
         ///
         /// \return Reference to the internal vector with the components
