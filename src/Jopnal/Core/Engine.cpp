@@ -126,8 +126,8 @@ namespace jop
             rtex.addColorAttachment(Slot::_2, CA::RGB2DFloat16, scaledRes);
             rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
 
-            rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
-            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+            rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
         }
 
         // Post processor
