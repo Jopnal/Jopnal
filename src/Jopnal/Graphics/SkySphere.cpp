@@ -69,7 +69,7 @@ namespace jop
         s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
         s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);

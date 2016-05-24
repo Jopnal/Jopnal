@@ -57,6 +57,8 @@ namespace jop
         {
             enum : AttribType
             {
+                None            = 0,
+
                 // Misc
                 DiffuseAlpha    = 1,
                 VertexColor     = DiffuseAlpha      << 1,
@@ -176,7 +178,7 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         /// \param camera The camera to use
         ///
-        void sendToShader(Shader& shader, const Camera* camera) const;
+        void sendToShader(Shader& shader, const Camera* camera, const float alphaMult) const;
 
         /// \brief Get the shader
         ///

@@ -322,7 +322,7 @@ namespace jop
 
     LightSource& LightSource::setAttenuation(const float range)
     {
-        return setAttenuation(1.0f, 4.5f / range, 75.0f / (range * range));
+        return setAttenuation(1.0f, 4.5f / std::max(FLT_MIN, range), 75.0f / std::max(FLT_MIN, range * range));
     }
 
     //////////////////////////////////////////////

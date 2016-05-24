@@ -177,7 +177,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(Shader& shader, const Camera* camera) const
+    void Material::sendToShader(Shader& shader, const Camera* camera, const float alphaMult) const
     {
         if (shader.bind())
         {
@@ -197,7 +197,8 @@ namespace jop
                 /* 11 */ "u_OpacityMap",
                 /* 12 */ "u_GlossMap",
                 /* 13 */ "u_EnvironmentMap",
-                /* 14 */ "u_ReflectionMap"
+                /* 14 */ "u_ReflectionMap",
+                /* 15 */ "u_AlphaMult"
             };
 
             if (!hasAttribute(Attribute::__SkyBox))
@@ -235,6 +236,8 @@ namespace jop
                 if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
                     shader.setUniform(strCache[12], *getMap(Map::Gloss), ns_glossMapIndex);
             }
+
+            shader.setUniform(strCache[15], alphaMult);
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {

@@ -86,7 +86,9 @@ namespace detail
             {
                 oldVal.CopyFrom(newVal, alloc);
 
+            #if JOP_CONSOLE_VERBOSITY >= 2
                 const auto count = changers.count(path);
+            #endif
 
                 JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (count > 0 ? ("invoking " + std::to_string(count) + " callback" + (count > 1 ? "s" : "")) : ("no callbacks registered")));
 

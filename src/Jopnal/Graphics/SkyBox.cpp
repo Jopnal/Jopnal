@@ -95,7 +95,7 @@ namespace jop
         const auto stride = msh.getVertexSize();
         s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
 
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
 

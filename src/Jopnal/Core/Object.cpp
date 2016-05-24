@@ -109,7 +109,12 @@ namespace jop
 
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
-            m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
+        {
+            auto ptr = std::unique_ptr<Component>(i->clone(*this));
+
+            if (ptr)
+                m_components.emplace_back(std::move(ptr));
+        }
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
@@ -732,9 +737,17 @@ namespace jop
     {
         if (flagSet(ChildrenRemovedFlag))
         {
-            m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](const Object& obj)
+            m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](Object& obj)
             {
-                return obj.isRemoved();
+                if (obj.isRemoved())
+                {
+                    obj.clearChildren();
+                    obj.clearComponents();
+                    return true;
+                }
+
+                return false;
+
             }), m_children.end());
 
             clearFlags(ChildrenRemovedFlag);

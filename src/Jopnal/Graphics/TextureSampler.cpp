@@ -34,9 +34,9 @@ namespace jop
           m_anisotropic (1.f),
           m_borderColor ()
     {
-        static const Filter defFilter = static_cast<Filter>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultFilterMode", 0));
+        static const Filter defFilter = static_cast<Filter>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultFilterMode", 3));
         static const Repeat defRepeat = static_cast<Repeat>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultRepeatMode", 0));
-        static const float defAniso = SettingManager::get<float>("engine@Graphics|Texture|fDefaultAnisotropyLevel", 1.f);
+        static const float defAniso = SettingManager::get<float>("engine@Graphics|Texture|fDefaultAnisotropyLevel", 16.f);
         static const Color defColor = Color(SettingManager::get<std::string>("engine@Graphics|Texture|fDefaultBorderColor", "FFFFFFFF"));
 
         reset().setFilterMode(defFilter, defAniso).setRepeatMode(defRepeat).setBorderColor(defColor);

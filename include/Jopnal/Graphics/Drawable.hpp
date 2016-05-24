@@ -242,11 +242,16 @@ namespace jop
         ///
         bool isReflected() const;
 
+        void setAlphaMultiplier(const float mult);
+
+        float getAlphaMultiplier() const;
+
     private:
 
         mutable Model m_model;                  ///< The bound model
         mutable WeakReference<Shader> m_shader; ///< The bound shader
         Renderer& m_rendererRef;                ///< Reference to the renderer
+        float m_alphaMult;
         uint8 m_renderGroup;                    ///< The render group
         unsigned char m_flags;                  ///< Property flags
     };

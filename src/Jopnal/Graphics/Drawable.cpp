@@ -64,6 +64,7 @@ namespace jop
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (renderer),
+          m_alphaMult   (1.f),
           m_renderGroup (0),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
@@ -75,6 +76,7 @@ namespace jop
           m_model       (other.m_model),
           m_shader      (other.m_shader),
           m_rendererRef (other.m_rendererRef),
+          m_alphaMult   (other.m_alphaMult),
           m_renderGroup (other.m_renderGroup),
           m_flags       (other.m_flags)
     {
@@ -236,5 +238,19 @@ namespace jop
     bool Drawable::isReflected() const
     {
         return (m_flags & Reflected) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::setAlphaMultiplier(const float mult)
+    {
+        m_alphaMult = mult;
+    }
+
+    //////////////////////////////////////////////
+
+    float Drawable::getAlphaMultiplier() const
+    {
+        return m_alphaMult;
     }
 }

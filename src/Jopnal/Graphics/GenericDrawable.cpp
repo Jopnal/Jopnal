@@ -78,7 +78,7 @@ namespace jop
         }
 
         // Set material
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
     #ifdef JOP_DEBUG_MODE
 

@@ -92,6 +92,9 @@ in FragVertexData
     uniform vec4 u_Emission;
 #endif
 
+// Alpha multiplier
+uniform float u_AlphaMult;
+
 // Light info
 #ifdef JMAT_PHONG
 
@@ -605,6 +608,8 @@ void main()
         * outVert.Color.a
     #endif
     ;
+
+    alpha *= u_AlphaMult;
 
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor.rgb, alpha);

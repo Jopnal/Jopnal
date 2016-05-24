@@ -83,8 +83,13 @@ T* Object::cloneComponent(Object& object, const uint32 ID) const
 
     if (i)
     {
-        object.m_components.emplace_back(i->clone(object));
-        return object.m_components.back().get();
+        auto ptr = std::make_unique<T>(i->clone(object));
+
+        if (ptr)
+        {
+            object.m_components.emplace_back(std::move(ptr));
+            return object.m_components.back().get();
+        }
     }
 
     return nullptr;

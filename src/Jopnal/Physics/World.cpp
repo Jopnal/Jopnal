@@ -251,11 +251,15 @@ namespace jop
 
     void World::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
+    #ifdef JOP_DEBUG_MODE
         if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
         {
             static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
             m_worldData->world->debugDrawWorld();
         }
+    #else
+        camera;
+    #endif
     }
 
     //////////////////////////////////////////////

@@ -31,13 +31,13 @@
 #define JOP_OPENGL_VERSION_MINOR 3
 
 // Define to enable gl error checks
-#define JOP_OPENGL_ERROR_CHECKS
+//#define JOP_OPENGL_ERROR_CHECKS
 
 // Debug
-#define JOP_DEBUG_MODE
+//#define JOP_DEBUG_MODE
 
 // Disable console
-//#define JOP_DISABLE_CONSOLE
+#define JOP_DISABLE_CONSOLE
 
 // Console
 #if defined(JOP_DEBUG_MODE)
