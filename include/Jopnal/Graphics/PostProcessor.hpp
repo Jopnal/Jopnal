@@ -51,7 +51,8 @@ namespace jop
             enum : uint32
             {
                 ToneMap = 1,
-                Bloom   = 1 << 1
+                Bloom   = 1 << 1,
+                Dither  = 1 << 2
             };
         };
 

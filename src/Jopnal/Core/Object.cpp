@@ -621,7 +621,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Object::printDebugTree(std::vector<uint32> spacing) const
+    void Object::printDebugTree() const
+    {
+        printDebugTreeImpl(std::vector<uint32>(), false);
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const
     {
     #if JOP_CONSOLE_VERBOSITY >= 2
 
@@ -663,7 +670,10 @@ namespace jop
 
             for (uint32 sp = 1; sp < spacing.size(); ++sp)
             {
-                deb << codes[4];
+                if (sp + 1 < spacing.size() || !isLast) 
+                    deb << codes[4];
+                else
+                    deb << " ";
 
                 for (uint32 i = 0; i < spacing[sp]; ++i)
                     deb << " ";
@@ -671,7 +681,7 @@ namespace jop
 
             deb << codes[2 + (itr == c.end() - 1)];
 
-            itr->printDebugTree(spacing);
+            itr->printDebugTreeImpl(spacing, itr == c.end() - 1);
         }
 
         if (spacing.size() == 1)
@@ -680,6 +690,7 @@ namespace jop
     #else
 
         spacing;
+        isLast;
 
     #endif
     }

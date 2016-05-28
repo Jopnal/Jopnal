@@ -529,7 +529,7 @@ namespace jop
         ///
         /// \param spacing For internal use, leave this as the default
         ///
-        void printDebugTree(std::vector<uint32> spacing = std::vector<uint32>()) const;
+        void printDebugTree() const;
 
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -880,6 +880,8 @@ namespace jop
         bool ignoresTransform(const uint16 flag);
 
     private:
+
+        void printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const;
 
         void sweepRemoved();
 

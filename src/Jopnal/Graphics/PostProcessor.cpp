@@ -239,6 +239,9 @@ namespace jop
 
         if ((funcs & Function::Bloom) != 0)
             str += "#define JPP_BLOOM\n";
+
+        if ((funcs & Function::Dither) != 0)
+            str += "#define JPP_DITHER\n";
     }
 
     //////////////////////////////////////////////

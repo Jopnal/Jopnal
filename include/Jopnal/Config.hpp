@@ -36,17 +36,12 @@
 // Debug
 #define JOP_DEBUG_MODE
 
-// Disable console
-//#define JOP_DISABLE_CONSOLE
-
 // Console
-#if defined(JOP_DEBUG_MODE)
-    #define JOP_CONSOLE_VERBOSITY 3
-#elif !defined(JOP_DISABLE_CONSOLE)
-    #define JOP_CONSOLE_VERBOSITY 0
-#else
-    #define JOP_CONSOLE_VERBOSITY -1
-#endif
+//
+// -1 = Disable
+//  3 = Verbose
+//
+#define JOP_CONSOLE_VERBOSITY 3
 
 // Asserts
 #define JOP_ENABLE_ASSERTS
