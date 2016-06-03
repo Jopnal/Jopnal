@@ -73,13 +73,7 @@ namespace jop
           m_envRecorders    (),
           m_mask            (1),
           m_mainTarget      (mainTarget)
-    {
-        GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
-        GlState::setSeamlessCubemap(true);
-        GlState::setBlendFunc(true);
-        GlState::setFramebufferSrgb(true);
-    }
+    {}
 
     Renderer::~Renderer()
     {}

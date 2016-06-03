@@ -33,14 +33,30 @@ namespace jop
           m_shaders             (),
           m_quad                (""),
           m_mainTarget          (mainTarget),
-          m_functions           (0),
+          m_functions           (),
           m_exposure            (1.f),
-          m_bloomBlurPasses     (0)
+          m_bloomBlurPasses     (0),
+          m_ditherMatrix        ("")
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
         m_quad.load(2.f);
+
+        static const unsigned char pattern[] = 
+        {
+            0,  32, 8,  40, 2,  34, 10, 42,   
+            48, 16, 56, 24, 50, 18, 58, 26,
+            12, 44, 4,  36, 14, 46, 6,  38,  
+            60, 28, 52, 20, 62, 30, 54, 22,
+            3,  35, 11, 43, 1,  33, 9,  41,   
+            51, 19, 59, 27, 49, 17, 57, 25,
+            15, 47, 7,  39, 13, 45, 5,  37,
+            63, 31, 55, 23, 61, 29, 53, 21
+        };
+
+        m_ditherMatrix.load(glm::uvec2(8, 8), 1, pattern, false, false);
+        m_ditherMatrix.getSampler().setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
 
         // Tone mapping settings
         {
@@ -207,6 +223,9 @@ namespace jop
                 applyBlur(*m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2));
                 shdr.setUniform("u_Bloom", *m_pingPong[1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 2);
             }
+
+            if ((m_functions & Function::Dither) != 0)
+                shdr.setUniform("u_DitherMatrix", m_ditherMatrix, 3);
         }
 
         RenderTexture::unbind();

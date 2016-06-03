@@ -96,6 +96,7 @@ namespace jop
         uint32 m_functions;
         float m_exposure;
         unsigned int m_bloomBlurPasses;
+        Texture2D m_ditherMatrix;
     };
 }
 

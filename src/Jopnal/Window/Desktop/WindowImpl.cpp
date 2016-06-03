@@ -164,6 +164,14 @@ namespace jop { namespace detail
         
         glCheck(gl::GenVertexArrays(1, &m_vertexArray));
         glCheck(gl::BindVertexArray(m_vertexArray));
+
+        GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
+        GlState::setSeamlessCubemap(true);
+        GlState::setBlendFunc(true);
+        GlState::setFramebufferSrgb(true);
+
+        glCheck(gl::Disable(gl::DITHER));
     }
 
     WindowImpl::~WindowImpl()
