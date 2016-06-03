@@ -253,23 +253,6 @@ namespace jop
         static const Window& getMainWindow();
 
 
-        /// \brief Send a message to the whole engine
-        ///
-        /// \param message String holding message
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message);
-
-        /// \brief Send a message to the whole engine
-        ///
-        /// \param message String holding message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
         /// \brief Function to handle messages
         ///
         /// \param message The message
@@ -341,27 +324,6 @@ namespace jop
     /// \return A reference to the internal string containing the project name
     ///
     JOP_API const std::string& getProjectName();
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message);
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    /// \param returnWrap Pointer to hold extra data
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message, Any& returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///

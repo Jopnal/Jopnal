@@ -27,20 +27,20 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, RigidBody)
+    JOP_REGISTER_COMMAND_HANDLER(RigidBody)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setGravity, "setBodyGravity");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setLinearFactor, "setLinearFactor");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setAngularFactor, "setAngularFactor");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyForce, "applyForce");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyImpulse, "applyImpulse");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyTorque, "applyTorque");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setLinearVelocity, "setLinearVelocity");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::setAngularFactor, "setAngularVelocity");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralForce, "applyCentralForce");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&RigidBody::clearForces, "clearForces");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorque, "applyTorque");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearVelocity, "setLinearVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralForce, "applyCentralForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
 
     JOP_END_COMMAND_HANDLER(RigidBody)
 }
@@ -269,5 +269,15 @@ namespace jop
     void RigidBody::setActive(const bool active)
     {
         m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result RigidBody::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(RigidBody, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

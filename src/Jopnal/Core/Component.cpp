@@ -76,34 +76,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Component::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result Component::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
     Message::Result Component::sendMessage(const Message& message)
     {
         if (message.passFilter(Message::Component))
-        {
-            if (message.passFilter(Message::Command))
-            {
-                Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Component, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-
-            if (message.passFilter(Message::Custom))
-                return sendMessageImpl(message);
-        }
+            return receiveMessage(message);
 
         return Message::Result::Continue;
     }
@@ -170,8 +146,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Component::sendMessageImpl(const Message&)
+    Message::Result Component::receiveMessage(const Message& message)
     {
-        return Message::Result::Continue;
+        return JOP_EXECUTE_COMMAND(Component, message.getString(), this);
     }
 }

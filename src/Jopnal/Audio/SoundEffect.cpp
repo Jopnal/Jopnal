@@ -27,15 +27,15 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, SoundEffect)
+    JOP_REGISTER_COMMAND_HANDLER(SoundEffect)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundEffect& (SoundEffect::*)(const bool reset))&SoundEffect::play, "playEffect");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::pause, "pauseEffect");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::stop, "stopEffect");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setOffset, "setEffectOffset");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setLoop, "setEffectLoop");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::speedOfSound, "speedOfSound");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundEffect::setPersonalSpeed, "setPersonalSpeed");
+        JOP_BIND_MEMBER_COMMAND((SoundEffect& (SoundEffect::*)(const bool reset))&SoundEffect::play, "playEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::pause, "pauseEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::stop, "stopEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::setOffset, "setEffectOffset");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::setLoop, "setEffectLoop");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::speedOfSound, "speedOfSound");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::setPersonalSpeed, "setPersonalSpeed");
 
     JOP_END_COMMAND_HANDLER(SoundEffect)
 }
@@ -244,5 +244,15 @@ namespace jop
 
             m_playOnce = false;
         }
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result SoundEffect::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(SoundEffect, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return SoundSource::receiveMessage(message);
     }
 }

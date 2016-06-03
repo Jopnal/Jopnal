@@ -135,6 +135,9 @@ namespace jop
 
     protected:
 
+        Message::Result receiveMessage(const Message& message) override;
+
+
         std::unique_ptr<detail::WorldImpl> m_worldData;             ///< The world data
         std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback
     };

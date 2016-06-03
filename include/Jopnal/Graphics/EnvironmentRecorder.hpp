@@ -91,6 +91,10 @@ namespace jop
         ///
         const Texture* getTexture() const;
 
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         RenderTexture m_fbo;                ///< The frame buffer

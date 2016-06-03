@@ -332,6 +332,10 @@ namespace jop
         ///
         static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
         
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         mutable RenderTexture m_shadowMap;                      ///< The shadow map

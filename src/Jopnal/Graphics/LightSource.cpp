@@ -27,11 +27,11 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, LightSource)
+    JOP_REGISTER_COMMAND_HANDLER(LightSource)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const LightSource::Intensity, const Color&))&LightSource::setIntensity, "setIntensity");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((LightSource& (LightSource::*)(const float, const float, const float))&LightSource::setAttenuation, "setAttenuation");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&LightSource::setCutoff, "setCutoff");
+        JOP_BIND_MEMBER_COMMAND((LightSource& (LightSource::*)(const LightSource::Intensity, const Color&))&LightSource::setIntensity, "setIntensity");
+        JOP_BIND_MEMBER_COMMAND((LightSource& (LightSource::*)(const float, const float, const float))&LightSource::setAttenuation, "setAttenuation");
+        JOP_BIND_MEMBER_COMMAND(&LightSource::setCutoff, "setCutoff");
 
     JOP_END_COMMAND_HANDLER(LightSource)
 }
@@ -428,6 +428,15 @@ namespace jop
         viewMats[5] = projection * glm::lookAt(position, position + glm::vec3( 0.0,  0.0, -1.0), glm::vec3(0.0, -1.0,  0.0)); // Front
     }
 
+    //////////////////////////////////////////////
+
+    Message::Result LightSource::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(LightSource, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
+    }
 
     //////////////////////////////////////////////
 

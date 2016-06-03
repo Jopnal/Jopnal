@@ -27,16 +27,16 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, Drawable)
+    JOP_REGISTER_COMMAND_HANDLER(Drawable)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveLights, "setReceiveLights");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveShadows, "setReceiveShadows");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setCastShadows, "setCastShadows");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReflected, "setReflected");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setRenderGroup, "setRenderGroup");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveLights, "setReceiveLights");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveShadows, "setReceiveShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setCastShadows, "setCastShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReflected, "setReflected");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
         JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Drawable)
@@ -252,5 +252,15 @@ namespace jop
     float Drawable::getAlphaMultiplier() const
     {
         return m_alphaMult;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Drawable::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Drawable, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

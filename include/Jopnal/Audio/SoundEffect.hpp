@@ -221,6 +221,8 @@ namespace jop
         ///
         void allowSound(const float deltaTime);
 
+        Message::Result receiveMessage(const Message& message) override;
+
 
         float m_speedCounter;   ///< Counter for speed of sound
         bool m_playWithSpeed;   ///< Calculate when sound is allowed to play

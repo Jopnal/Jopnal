@@ -173,6 +173,9 @@ namespace jop
 
     protected:
 
+        virtual Message::Result receiveMessage(const Message& message) override;
+
+
         std::unique_ptr<sf::SoundSource> m_sound;   ///< Sound source
     };
 }

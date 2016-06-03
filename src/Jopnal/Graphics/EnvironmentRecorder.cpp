@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
+    JOP_REGISTER_COMMAND_HANDLER(EnvironmentRecorder)
 
         JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
 
@@ -164,5 +164,15 @@ namespace jop
     const Texture* EnvironmentRecorder::getTexture() const
     {
         return m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1);
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result EnvironmentRecorder::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(EnvironmentRecorder, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

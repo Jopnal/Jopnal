@@ -71,13 +71,6 @@ namespace jop
             while (pos2 < length && args[pos2] != '\"')
                 ++pos2;
         }
-        /*else if (args[pos1] == '(')
-        {
-            Command nesting would be handled here. Simply detect if the argument is inside brackets (ignore escape sequences),
-            and pass it to the same command handler instance (would need to pass a reference into this function)
-
-            There would also need to be a way to convert jop::Any to string.
-        }*/
         else
         {
             pos2 = pos1 + 1;
@@ -98,15 +91,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result CommandHandler::execute(const std::string& command, Any& instance)
-    {
-        Any returnWrap(nullptr);
-        return execute(command, instance, returnWrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result CommandHandler::execute(const std::string& command, Any& instance, Any& returnWrap)
+    Message::Result CommandHandler::execute(const std::string& command, void* instance)
     {
         std::string comm, args;
         handleCommand(command, comm, args);
@@ -115,7 +100,7 @@ namespace jop
             auto itr = m_funcParsers.find(comm);
             if (itr != m_funcParsers.end())
             {
-                itr->second.first(args, returnWrap);
+                itr->second.first(args);
                 return itr->second.second;
             }
         }
@@ -125,7 +110,7 @@ namespace jop
             auto itr = m_memberParsers.find(comm);
             if (itr != m_memberParsers.end())
             {
-                itr->second.first(args, returnWrap, instance);
+                itr->second.first(args, instance);
                 itr->second.second;
             }
         }

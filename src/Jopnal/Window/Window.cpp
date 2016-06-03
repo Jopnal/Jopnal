@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
+    JOP_REGISTER_COMMAND_HANDLER(Window)
 
         JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
 
@@ -344,5 +344,15 @@ namespace jop
     Window* Window::getCurrentContextWindow()
     {
         return detail::WindowImpl::getCurrentContextWindow();
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Window::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Window, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Subsystem::receiveMessage(message);
     }
 }

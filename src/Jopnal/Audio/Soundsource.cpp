@@ -27,13 +27,13 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, SoundSource)
+    JOP_REGISTER_COMMAND_HANDLER(SoundSource)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setVolume, "setVolume");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setPitch, "setPitch");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setSpatialized, "setSpatialized");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setMinDistance, "setMinDistance");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundSource::setAttenuation, "setAttenuation");
+        JOP_BIND_MEMBER_COMMAND(&SoundSource::setVolume, "setVolume");
+        JOP_BIND_MEMBER_COMMAND(&SoundSource::setPitch, "setPitch");
+        JOP_BIND_MEMBER_COMMAND(&SoundSource::setSpatialized, "setSpatialized");
+        JOP_BIND_MEMBER_COMMAND(&SoundSource::setMinDistance, "setMinDistance");
+        JOP_BIND_MEMBER_COMMAND(&SoundSource::setAttenuation, "setAttenuation");
 
     JOP_END_COMMAND_HANDLER(SoundSource)
 }
@@ -134,5 +134,15 @@ namespace jop
     float SoundSource::getMinDistance() const
     {
         return m_sound->getMinDistance();
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result SoundSource::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(SoundSource, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

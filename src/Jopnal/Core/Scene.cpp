@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
+    JOP_REGISTER_COMMAND_HANDLER(Scene)
 
         JOP_BIND_MEMBER_COMMAND(&Scene::setDeltaScale, "setDeltaScale");
 
@@ -103,39 +103,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Scene::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result Scene::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result Scene::sendMessage(const Message& message)
     {
         if (message.passFilter(getID()))
         {
-            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
+            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene))))
             {
-                Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                if (receiveMessage(message) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
-
-            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == Message::Result::Escape)
-                return Message::Result::Escape;
         }
 
-        static const unsigned short objectField = Message::Object |
-                                                  Message::Component;
+        const unsigned short objectField = Message::Object | Message::Component;
 
         if (message.passFilter(objectField) && Object::sendMessage(message) == Message::Result::Escape)
             return Message::Result::Escape;
@@ -207,8 +186,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Scene::sendMessageImpl(const Message&)
+    Message::Result Scene::receiveMessage(const Message& message)
     {
-        return Message::Result::Continue;
+        return JOP_EXECUTE_COMMAND(Scene, message.getString(), this);
     }
 }

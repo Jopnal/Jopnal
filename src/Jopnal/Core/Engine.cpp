@@ -329,45 +329,28 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Engine::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result Engine::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result Engine::sendMessage(const Message& message)
     {
         if (m_engineObject)
         {
-            if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            if (message.passFilter(Message::Engine))
             {
-                Any engPtr(m_engineObject);
-                if (JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper()) == Message::Result::Escape)
+                if (JOP_EXECUTE_COMMAND(Engine, message.getString(), m_engineObject) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
 
-            static const unsigned short sceneField = Message::SharedScene   |
-                                                     Message::Scene         |
-                                                     Message::Object        |
-                                                     Message::Component;
+            const unsigned short sceneField = Message::SharedScene | Message::Scene |Message::Object | Message::Component;
 
-            if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
+            if (hasSharedScene() && message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
                 return Message::Result::Escape;
 
-            auto& s = m_engineObject->m_currentScene;
+            if (hasCurrentScene())
+            {
+                auto& s = m_engineObject->m_currentScene;
 
-            if (s && message.passFilter(sceneField) && s->sendMessage(message) == Message::Result::Escape)
-                return Message::Result::Escape;
+                if (s && message.passFilter(sceneField) && s->sendMessage(message) == Message::Result::Escape)
+                    return Message::Result::Escape;
+            }
 
             if (message.passFilter(Message::Subsystem))
             {
@@ -489,17 +472,6 @@ namespace jop
     }
 
     //////////////////////////////////////////////
-
-    Message::Result broadcast(const std::string& message)
-    {
-        return Engine::sendMessage(message);
-    }
-
-    Message::Result broadcast(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return Engine::sendMessage(msg);
-    }
 
     Message::Result broadcast(const Message& message)
     {

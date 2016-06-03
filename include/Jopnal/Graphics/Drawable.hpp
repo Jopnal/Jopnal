@@ -246,6 +246,10 @@ namespace jop
 
         float getAlphaMultiplier() const;
 
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         mutable Model m_model;                  ///< The bound model

@@ -30,42 +30,42 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Object)
 
         // Transform
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
 
         // Object
 
         //// Tags
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
+        JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
 
         // Component
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearComponents, "clearComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
 
         //// Activity
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
 
         //// Children
         JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeChildren, "removeChildren");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
 
         //// Other
         JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setIgnoreParent, "setIgnoreParent");
+        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -403,30 +403,13 @@ namespace jop
         return getParent().expired() ? static_cast<const Scene&>(*this) : getParent()->getScene();
     }
 
-    //////////////////////////////////////////////
-
-    Message::Result Object::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    /////////////////////////////////////////////
-
-    Message::Result Object::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
     /////////////////////////////////////////////
 
     Message::Result Object::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags) && message.passFilter(Message::Command))
+        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags))
         {
-            Any instance(this);
-            if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+            if (JOP_EXECUTE_COMMAND(Object, message.getString(), this) == Message::Result::Escape)
                 return Message::Result::Escape;
         }
 

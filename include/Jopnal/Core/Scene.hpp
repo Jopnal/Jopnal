@@ -135,29 +135,6 @@ namespace jop
         float getDeltaScale() const;
 
 
-        /// \brief Base sendMessage function
-        ///
-        /// This will handle message filtering and forwarding
-        /// to the objects
-        ///
-        /// \param message String holding message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Base sendMessage function
-        ///
-        /// This will handle message filtering and forwarding
-        /// to the objects
-        ///
-        /// \param message String holding message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
         /// \brief Function to handle messages
         ///
         /// \param message The message
@@ -224,7 +201,7 @@ namespace jop
 
         /// \brief Virtual sendMessage
         ///
-        virtual Message::Result sendMessageImpl(const Message& message);
+        virtual Message::Result receiveMessage(const Message& message);
 
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer

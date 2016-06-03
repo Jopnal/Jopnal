@@ -265,6 +265,9 @@ namespace jop
 
     private:
 
+        Message::Result receiveMessage(const Message& message) override;
+
+
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
     };

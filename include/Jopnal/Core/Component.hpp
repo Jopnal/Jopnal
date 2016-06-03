@@ -83,15 +83,6 @@ namespace jop
 
         /// \brief Function to handle messages
         ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return Message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
-        /// \brief Function to handle messages
-        ///
         /// \param message The message
         ///
         /// \return Message result
@@ -141,6 +132,12 @@ namespace jop
         /// The component will be removed immediately.
         ///
         void removeSelf();
+
+    protected:
+
+        /// \brief Receive message
+        ///
+        virtual Message::Result receiveMessage(const Message& message);
         
     private:
 
@@ -151,10 +148,6 @@ namespace jop
         /// that happens.
         ///
         virtual void setActive(const bool active);
-
-        /// \brief Virtual sendMessage
-        ///
-        virtual Message::Result sendMessageImpl(const Message& message);
 
 
         uint32 m_ID;                        ///< Identifier

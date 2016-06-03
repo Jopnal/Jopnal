@@ -27,13 +27,13 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, SoundStream)
+    JOP_REGISTER_COMMAND_HANDLER(SoundStream)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::pause, "pauseStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::stop, "stopStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setOffset, "setStreamOffset");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setLoop, "setStreamLoop");
+        JOP_BIND_MEMBER_COMMAND((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::pause, "pauseStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::stop, "stopStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setOffset, "setStreamOffset");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setLoop, "setStreamLoop");
 
     JOP_END_COMMAND_HANDLER(SoundStream)
 }
@@ -208,5 +208,15 @@ namespace jop
     {
         static_cast<sf::Music*>(m_sound.get())->setLoop(loop);
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result SoundStream::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(SoundStream, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return SoundSource::receiveMessage(message);
     }
 }

@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, World)
+    JOP_REGISTER_COMMAND_HANDLER(World)
 
         JOP_BIND_MEMBER_COMMAND(&World::setDebugMode, "setWorldDebugMode");
 
@@ -364,5 +364,15 @@ namespace jop
         m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 
         return cb.vec;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result World::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(World, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

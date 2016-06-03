@@ -27,14 +27,14 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, Camera)
+    JOP_REGISTER_COMMAND_HANDLER(Camera)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setProjectionMode, "setProjectionMode");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setClippingPlanes, "setClippingPlanes");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setViewport, "setViewport");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setProjectionMode, "setProjectionMode");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setClippingPlanes, "setClippingPlanes");
+        JOP_BIND_MEMBER_COMMAND((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setAspectRatio, "setAspectRatio");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setViewport, "setViewport");
 
     JOP_END_COMMAND_HANDLER(Camera)
 }
@@ -286,5 +286,15 @@ namespace jop
                    getProjectionMatrix(),
                    glm::vec4(glm::vec2(0.f), glm::vec2(target.getSize()))
                ));
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Camera::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Camera, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message); 
     }
 }

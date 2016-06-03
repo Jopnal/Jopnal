@@ -36,7 +36,7 @@ namespace jop
     class Renderer;
     class RenderTarget;
 
-    class JOP_API Camera final : public Component
+    class JOP_API Camera : public Component
     {
     private:
 
@@ -279,6 +279,10 @@ namespace jop
         /// \return Normalized ray pointing from camera to the pointed position
         ///
         glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
+
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
 
     private:
 

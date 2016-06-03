@@ -84,6 +84,10 @@ namespace jop
         /// \return The global volume
         ///
         static float getGlobalVolume();
+
+    private:
+
+        Message::Result receiveMessage(const Message& message) override;
     };
 }
 #endif

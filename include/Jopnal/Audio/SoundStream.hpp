@@ -112,6 +112,9 @@ namespace jop
 
     private:
 
+        Message::Result receiveMessage(const Message& message) override;
+
+
         std::string m_path; ///< Remembers streaming path for cloning
         std::unique_ptr<detail::AudioStream> m_stream;
     };

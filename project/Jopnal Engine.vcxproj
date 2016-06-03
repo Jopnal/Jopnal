@@ -113,7 +113,6 @@
     <ClInclude Include="..\include\Jopnal\Utility\DirectoryWatcher.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Json.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Message.hpp" />
-    <ClInclude Include="..\include\Jopnal\Utility\Any.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Randomizer.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\SafeReferenceable.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Thread.hpp" />
@@ -226,7 +225,6 @@
     <ClCompile Include="..\src\Jopnal\Utility\DirectoryWatcher.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Json.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Message.cpp" />
-    <ClCompile Include="..\src\Jopnal\Utility\Any.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Randomizer.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Thread.cpp" />
     <ClCompile Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.cpp" />
@@ -251,7 +249,6 @@
     <None Include="..\include\Jopnal\Utility\Inl\CommandHandler.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\CommandParser.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Message.inl" />
-    <None Include="..\include\Jopnal\Utility\Inl\Any.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Randomizer.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\SafeReferenceable.inl" />
     <None Include="..\include\Jopnal\Utility\Inl\Thread.inl" />
