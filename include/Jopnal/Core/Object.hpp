@@ -43,19 +43,19 @@ namespace jop
         friend class SceneLoader;
         friend class Component;
 
-        enum : uint16
+        enum : uint32
         {
             ActiveFlag          = 1,
-            RemoveFlag          = 1 << 1,
-            ChildrenRemovedFlag = 1 << 2,
+            RemoveFlag          = 1 << 2,
+            ChildrenRemovedFlag = 1 << 3,
 
             // Transformations
-            MatrixDirty         = 1 << 3,
-            InverseMatrixDirty  = 1 << 4,
+            MatrixDirty         = 1 << 4,
+            InverseMatrixDirty  = 1 << 5,
 
-            GlobalRotationDirty = 1 << 5,
-            GlobalScaleDirty    = 1 << 6,
-            GlobalPositionDirty = 1 << 7,
+            GlobalRotationDirty = 1 << 6,
+            GlobalScaleDirty    = 1 << 7,
+            GlobalPositionDirty = 1 << 8,
 
             TransformDirty      = MatrixDirty | InverseMatrixDirty | GlobalRotationDirty | GlobalScaleDirty | GlobalPositionDirty
         };
@@ -64,19 +64,19 @@ namespace jop
 
         /// Transformation restrictions
         ///
-        enum TransformRestriction : uint16
+        enum TransformRestriction : uint32
         {
-            TranslationX = 1 << 8,
-            TranslationY = 1 << 9,
-            TranslationZ = 1 << 10,
+            TranslationX = 1 << 10,
+            TranslationY = 1 << 11,
+            TranslationZ = 1 << 12,
             Translation = TranslationX | TranslationY | TranslationZ,
 
-            ScaleX = 1 << 11,
-            ScaleY = 1 << 12,
-            ScaleZ = 1 << 13,
+            ScaleX = 1 << 13,
+            ScaleY = 1 << 14,
+            ScaleZ = 1 << 15,
             Scale = ScaleX | ScaleY | ScaleZ,
 
-            Rotation = 1 << 14,
+            Rotation = 1 << 16,
 
             IgnoreParent = Translation | Scale | Rotation
         };
@@ -845,7 +845,7 @@ namespace jop
         ///
         /// \see TransformRestriction
         ///
-        Object& setIgnoreTransform(const uint16 flags);
+        Object& setIgnoreTransform(const uint32 flags);
 
         /// \brief Check if a transform restriction has been set
         ///
@@ -855,7 +855,7 @@ namespace jop
         ///
         /// \return True if the flag is set
         ///
-        bool ignoresTransform(const uint16 flag);
+        bool ignoresTransform(const uint32 flag);
 
     private:
 
@@ -863,13 +863,19 @@ namespace jop
 
         void sweepRemoved();
 
-        bool flagSet(const uint16 flag) const;
+        bool flagSet(const uint32 flag) const;
 
-        void setFlags(const uint16 flags) const;
+        void setFlags(const uint32 flags) const;
 
-        void clearFlags(const uint16 flags) const;
+        void clearFlags(const uint32 flags) const;
 
-        void propagateFlags(const uint16 flags);
+        void setFlagsIf(const uint32 flags, const bool cond) const;
+
+        void propagateFlags(const uint32 flags);
+
+        void propagateClearFlags(const uint32 flags);
+
+        void propagateActiveComponents(const bool active);
 
 
         // Transformation
@@ -884,7 +890,7 @@ namespace jop
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
-        mutable uint16 m_flags;                                 ///< Flags
+        mutable uint32 m_flags;                                 ///< Flags
     };
 
     // Include the template implementation file

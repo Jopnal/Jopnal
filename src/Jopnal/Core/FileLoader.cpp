@@ -87,7 +87,7 @@ namespace jop
     //////////////////////////////////////////////
 
     FileSystemInitializer::FileSystemInitializer(const char* arg)
-        : Subsystem("filesysteminitializer")
+        : Subsystem(0)
     {
         JOP_ASSERT(!PHYSFS_isInit(), "You can only have a single jop::FileSystemInitializer sub system instance!");
 

@@ -422,9 +422,14 @@ namespace jop
     std::vector<std::unique_ptr<SettingCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
-        : Subsystem("settingmanager"),
-          m_defaultRoot("root"),
-          m_wasSaved(false)
+        : Subsystem         (0),
+          m_settings        (),
+          m_mutex           (),
+          m_watcher         (),
+          m_filesUpdated    (),
+          m_defaultRoot     ("root"),
+          m_updaters        (),
+          m_wasSaved        (false)
     {
         {
             std::lock_guard<std::recursive_mutex> lock(m_mutex);

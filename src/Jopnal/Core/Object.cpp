@@ -201,7 +201,6 @@ namespace jop
     {
         m_children.emplace_back(ID);
         m_children.back().m_parent = *this;
-        m_children.back().setActive(isActive());
 
         return m_children.back().getReference();
     }
@@ -218,10 +217,15 @@ namespace jop
         if (m_children.size() == m_children.capacity())
             m_children.reserve(m_children.size() + 1);
 
+        const bool thisActive = isActive();
+        const bool activityStateChanged = child.getParent()->isActive() != thisActive;
+
         m_children.emplace_back(std::move(child));
         m_children.back().m_parent = *this;
         m_children.back().propagateFlags(TransformDirty);
-        m_children.back().setActive(isActive());
+
+        if (activityStateChanged)
+            m_children.back().propagateActiveComponents(thisActive);
 
         child.removeSelf();
 
@@ -562,15 +566,18 @@ namespace jop
 
     Object& Object::setActive(const bool active)
     {
-        if (isActive() != active)
+        const bool wasActive = isActive();
+
+        if (((m_flags & ActiveFlag) != 0) != active)
         {
-            active ? setFlags(ActiveFlag) : clearFlags(ActiveFlag);
+            setFlagsIf(ActiveFlag, active);
 
-            for (auto& i : m_components)
-                i->setActive(active);
-
-            for (auto& i : m_children)
-                i.setActive(active);
+            const bool active = isActive();
+            if (wasActive != active)
+            {
+                for (auto& i : m_children)
+                    i.propagateActiveComponents(active);
+            }
         }
 
         return *this;
@@ -580,7 +587,7 @@ namespace jop
 
     bool Object::isActive() const
     {
-        return (m_flags & ActiveFlag) != 0 && !isRemoved();
+        return ((m_flags & ActiveFlag) != 0) && !isRemoved() && (m_parent.expired() || m_parent->isActive());
     }
 
     /////////////////////////////////////////////
@@ -1134,7 +1141,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::setIgnoreTransform(const uint16 flags)
+    Object& Object::setIgnoreTransform(const uint32 flags)
     {
         setFlags((flags & IgnoreParent) | TransformDirty);
         return *this;
@@ -1142,33 +1149,55 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Object::ignoresTransform(const uint16 flag)
+    bool Object::ignoresTransform(const uint32 flag)
     {
         return flagSet(flag);
     }
 
     //////////////////////////////////////////////
 
-    bool Object::flagSet(const uint16 flag) const
+    bool Object::flagSet(const uint32 flag) const
     {
         return (m_flags & flag) != 0;
     }
 
-    void Object::setFlags(const uint16 flags) const
+    void Object::setFlags(const uint32 flags) const
     {
         m_flags |= flags;
     }
 
-    void Object::clearFlags(const uint16 flags) const
+    void Object::clearFlags(const uint32 flags) const
     {
         m_flags &= ~flags;
     }
 
-    void Object::propagateFlags(const uint16 flags)
+    void Object::setFlagsIf(const uint32 flags, const bool cond) const
+    {
+        (m_flags &= ~flags) |= (flags * cond);
+    }
+
+    void Object::propagateFlags(const uint32 flags)
     {
         setFlags(flags);
 
         for (auto& i : m_children)
             i.propagateFlags(flags);
+    }
+
+    void Object::propagateClearFlags(const uint32 flags)
+    {
+        clearFlags(flags);
+
+        for (auto& i : m_children)
+            i.propagateClearFlags(flags);
+    }
+
+    void Object::propagateActiveComponents(const bool active)
+    {
+        for (auto& i : m_components)
+            i->setActive(active);
+
+        for (auto& i : m_children)
+            i.propagateActiveComponents(active);
     }
 }

@@ -60,7 +60,7 @@ namespace jop
         ///
         /// \param ID Identifier of this render target
         ///
-        RenderTarget(const std::string& ID);
+        RenderTarget(const uint32 ID);
 
         /// \brief Virtual destructor
         ///

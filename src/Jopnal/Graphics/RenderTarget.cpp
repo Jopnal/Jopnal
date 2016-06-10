@@ -27,7 +27,7 @@
 
 namespace jop
 {
-    RenderTarget::RenderTarget(const std::string& ID)
+    RenderTarget::RenderTarget(const uint32 ID)
         : Subsystem             (ID),
           m_mutex               (),
           m_clearColor          (Color::Black),

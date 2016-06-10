@@ -47,7 +47,7 @@ namespace jop
         ///
         /// \param ID Identifier of this subsystem
         ///
-        Subsystem(const std::string& ID);
+        Subsystem(const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -104,7 +104,7 @@ namespace jop
         ///
         /// \return Reference to the ID string
         ///
-        const std::string& getID() const;
+        uint32 getID() const;
 
     protected:
 
@@ -118,7 +118,7 @@ namespace jop
 
     private:
 
-        const std::string m_ID;     ///< This subsystem's name
+        const uint32 m_ID;          ///< This subsystem's name
         std::atomic<bool> m_active; ///< Sets activity 
     };
 }

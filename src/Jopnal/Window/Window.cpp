@@ -59,7 +59,7 @@ namespace
 namespace jop
 {
     BufferSwapper::BufferSwapper(Window& window)
-        : Subsystem     ("bufferswapper"),
+        : Subsystem     (0),
           m_windowRef   (window)
     {}
 
@@ -105,13 +105,13 @@ namespace jop
     //////////////////////////////////////////////
 
     Window::Window()
-        : RenderTarget      ("window"),
+        : RenderTarget      (0),
           m_impl            (),
           m_eventHandler    ()
     {}
 
     Window::Window(const Settings& settings)
-        : RenderTarget      ("window"),
+        : RenderTarget      (0),
           m_impl            (),
           m_eventHandler    ()
     {

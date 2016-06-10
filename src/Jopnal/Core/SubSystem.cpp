@@ -36,7 +36,7 @@ namespace jop
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& ID)
+    Subsystem::Subsystem(const uint32 ID)
         : m_ID      (ID),
           m_active  (true)
     {}
@@ -87,7 +87,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::string& Subsystem::getID() const
+    uint32 Subsystem::getID() const
     {
         return m_ID;
     }

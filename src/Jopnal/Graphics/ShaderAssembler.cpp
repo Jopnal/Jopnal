@@ -28,7 +28,7 @@
 namespace jop
 {
     ShaderAssembler::ShaderAssembler()
-        : Subsystem ("shaderassembler"),
+        : Subsystem (0),
           m_shaders (),
           m_uber    (),
           m_mutex   ()

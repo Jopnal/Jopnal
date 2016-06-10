@@ -28,7 +28,7 @@
 namespace jop
 {
     PostProcessor::PostProcessor(const RenderTexture& mainTarget)
-        : Subsystem             ("postprocessor"),
+        : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
           m_quad                (""),

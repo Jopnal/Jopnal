@@ -144,7 +144,7 @@ namespace jop
         ///
         RenderTexture();
 
-        RenderTexture(const std::string& ID);
+        RenderTexture(const uint32 ID);
 
         /// \brief Destructor
         ///

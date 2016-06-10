@@ -29,7 +29,6 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Engine)
     
-        JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
         JOP_BIND_COMMAND(&Engine::exit, "exit");
         JOP_BIND_COMMAND(&Engine::setState, "setState");
         JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
@@ -81,7 +80,7 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            JOP_DEBUG_INFO("Subsystem \"" << (m_subsystems.end() - 1)->get()->getID() << "\" (" << typeid(*(*(m_subsystems.end() - 1))).name() << ") removed");
+            JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
@@ -112,7 +111,7 @@ namespace jop
 
         // Main render target
         typedef RenderTexture RT;
-        auto& rtex = createSubsystem<RT>("mainrendertarget");
+        auto& rtex = createSubsystem<RT>(UINT_MAX);
 
         {
             m_mainTarget = &rtex;
@@ -242,46 +241,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Subsystem* Engine::getSubsystem(const std::string& ID)
-    {
-        if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
-            for (auto& i : m_engineObject->m_subsystems)
-            {
-                if (i->getID() == ID)
-                    return i.get();
-            }
-        }
-        
-        return nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Engine::removeSubsystem(const std::string& ID)
-    {
-        if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
-            for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
-            {
-                if ((*itr)->getID() == ID)
-                {
-                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (" << typeid(*(*itr)).name() << ") removed");
-                    m_engineObject->m_subsystems.erase(itr);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //////////////////////////////////////////////
-
     bool Engine::exiting()
     {
         return (m_engineObject == nullptr ? true : m_engineObject->m_exit.load());
@@ -339,7 +298,7 @@ namespace jop
                     return Message::Result::Escape;
             }
 
-            const unsigned short sceneField = Message::SharedScene | Message::Scene |Message::Object | Message::Component;
+            const unsigned short sceneField = Message::SharedScene | Message::Scene | Message::Object | Message::Component;
 
             if (hasSharedScene() && message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
                 return Message::Result::Escape;

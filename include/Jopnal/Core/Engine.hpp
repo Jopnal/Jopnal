@@ -190,15 +190,7 @@ namespace jop
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        static T* getSubsystem(const std::string& ID);
-
-        /// \brief Get a subsystem
-        ///
-        /// \param ID Identifier of the subsystem
-        ///
-        /// \return Pointer to the subsystem. Nullptr if not found
-        ///
-        static Subsystem* getSubsystem(const std::string& ID);
+        static T* getSubsystem(const uint32 ID);
 
         /// \brief Remove a subsystem
         ///
@@ -206,7 +198,8 @@ namespace jop
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        static bool removeSubsystem(const std::string& ID);
+        template<typename T>
+        static bool removeSubsystem(const uint32 ID);
 
 
         /// \brief Check if the engine is signaled to exit

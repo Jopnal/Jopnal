@@ -135,7 +135,7 @@ T& Engine::createSubsystem(Args&&... args)
 #pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 
-    JOP_DEBUG_INFO("Subsystem \"" << m_engineObject->m_subsystems.back()->getID() << "\" (" << typeid(T).name() << ") added");
+    JOP_DEBUG_INFO("Subsystem \"" << typeid(T).name() << "\" added");
 
     return static_cast<T&>(*m_engineObject->m_subsystems.back());
 }
@@ -166,7 +166,7 @@ T* Engine::getSubsystem()
 //////////////////////////////////////////////
 
 template<typename T>
-T* Engine::getSubsystem(const std::string& ID)
+T* Engine::getSubsystem(const uint32 ID)
 {
     static_assert(std::is_base_of<Subsystem, T>::value, "jop::Engine::getSubsystem<T>(): Attempted to get a subsystem which is not derived from jop::Subsystem");
 
@@ -184,6 +184,29 @@ T* Engine::getSubsystem(const std::string& ID)
     }
 
     return nullptr;
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+bool Engine::removeSubsystem(const uint32 ID)
+{
+    if (m_engineObject)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
+        for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
+        {
+            if (typeid(*(*itr)) == typeid(T) && (*itr)->getID() == ID)
+            {
+                JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*itr)).name() << "\" removed");
+                m_engineObject->m_subsystems.erase(itr);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////
