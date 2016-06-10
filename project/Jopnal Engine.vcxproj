@@ -124,6 +124,7 @@
     <ClInclude Include="..\include\Jopnal\Window\Window.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
+    <ClInclude Include="..\src\Jopnal\gl_4.5.h" />
     <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp" />
@@ -153,6 +154,12 @@
     <ClCompile Include="..\src\Jopnal\Core\Serializer.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\SettingManager.cpp" />
     <ClCompile Include="..\src\Jopnal\Core\Subsystem.cpp" />
+    <ClCompile Include="..\src\Jopnal\gl_4.5.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">Default</CompileAs>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">NotUsing</PrecompiledHeader>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</CompileAs>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\BoxMesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Buffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
@@ -365,7 +372,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -430,7 +437,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s.lib;sfml-audio-s.lib;winmm.lib;assimp.lib;freetype.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;physfs.lib;opengl32.lib;%(AdditionalDependencies);BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;BulletSoftBody.lib;LinearMath.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s.lib;sfml-audio-s.lib;winmm.lib;assimp.lib;freetype.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogl.lib;glfw3.lib;physfs.lib;%(AdditionalDependencies);opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s.lib;sfml-audio-s.lib</AdditionalDependencies>

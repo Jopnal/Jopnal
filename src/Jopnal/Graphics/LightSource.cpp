@@ -245,17 +245,17 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, gl::FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
+            shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
             shdr.setUniform("u_MMatrix", d->getObject()->getTransform().getMatrix());
 
             if (mesh.getElementAmount())
             {
                 mesh.getIndexBuffer().bind();
-                glCheck(gl::DrawElements(gl::TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), (void*)0));
+                glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), (void*)0));
             }
             else
             {
-                glCheck(gl::DrawArrays(gl::TRIANGLES, 0, mesh.getVertexAmount()));
+                glCheck(glDrawArrays(GL_TRIANGLES, 0, mesh.getVertexAmount()));
             }
         }
 

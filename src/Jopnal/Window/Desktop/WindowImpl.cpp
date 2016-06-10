@@ -62,16 +62,24 @@ namespace
 
         if (!init)
         {
-            auto result = gl::sys::LoadFunctions();
+            const int result = ogl_LoadFunctions();
 
-            JOP_ASSERT(result, "Failed to load OpenGL extensions!");
+            JOP_ASSERT(result != ogl_LOAD_FAILED, "Failed to load OpenGL extensions!");
 
-            if (result.GetNumMissing() > 0)
-                JOP_DEBUG_WARNING("Some requested OpenGL extensions failed to load. Missing extensions: " << result.GetNumMissing());
+            const int failed = result - ogl_LOAD_SUCCEEDED;
+
+            if (failed > 0)
+                JOP_DEBUG_WARNING("Some requested OpenGL extensions failed to load. Missing extensions: " << failed);
 
             init = true;
         }
     }
+
+    #ifdef JOP_OPENGL_ES
+        #define JOP_DEF_OGL_MINOR 0
+    #else
+        #define JOP_DEF_OGL_MINOR 3
+    #endif
 
     void initialize()
     {
@@ -88,12 +96,20 @@ namespace
             glfwWindowHint(GLFW_DEPTH_BITS, 0);
             glfwWindowHint(GLFW_STENCIL_BITS, 0);
 
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, jop::SettingManager::get<unsigned int>("engine@Graphics|OpenGL|uVersionMajor", 3));
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, jop::SettingManager::get<unsigned int>("engine@Graphics|OpenGL|uVersionMinor", JOP_DEF_OGL_MINOR));
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CLIENT_API, 
 
-            glfwWindowHint(GLFW_VISIBLE, gl::FALSE_);
-            glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
+            #ifdef JOP_OPENGL_ES
+                GLFW_OPENGL_ES_API
+            #else
+                GLFW_OPENGL_API
+            #endif
+            );
+
+            glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
             ns_shared = glfwCreateWindow(1, 1, "", NULL, NULL);
             glfwMakeContextCurrent(ns_shared);
@@ -122,7 +138,7 @@ namespace jop { namespace detail
     {
         initialize();
 
-        glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
         glfwWindowHint(GLFW_VISIBLE, settings.visible);
         glfwWindowHint(GLFW_SAMPLES, settings.samples);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, settings.debug);
@@ -132,7 +148,7 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
         glfwWindowHint(GLFW_ALPHA_BITS, 0);
-        glfwWindowHint(GLFW_SRGB_CAPABLE, gl::TRUE_);
+        glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
 
         // Depth & stencil exist in the renderer frame buffer
         glfwWindowHint(GLFW_DEPTH_BITS, 0);
@@ -162,8 +178,8 @@ namespace jop { namespace detail
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
         
-        glCheck(gl::GenVertexArrays(1, &m_vertexArray));
-        glCheck(gl::BindVertexArray(m_vertexArray));
+        glCheck(glGenVertexArrays(1, &m_vertexArray));
+        glCheck(glBindVertexArray(m_vertexArray));
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
@@ -171,13 +187,13 @@ namespace jop { namespace detail
         GlState::setBlendFunc(true);
         GlState::setFramebufferSrgb(true);
 
-        glCheck(gl::Disable(gl::DITHER));
+        glCheck(glDisable(GL_DITHER));
     }
 
     WindowImpl::~WindowImpl()
     {
-        glCheck(gl::BindVertexArray(0));
-        glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
+        glCheck(glBindVertexArray(0));
+        glCheck(glDeleteVertexArrays(1, &m_vertexArray));
 
         // There should always be a valid window
         ns_windowRefs.erase(m_window);

@@ -149,7 +149,7 @@ namespace jop
             // Create default glyph
             const unsigned char data[4] = {255, 255, 255, 255};
 
-            gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             m_data->m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
 
             std::pair<glm::ivec2, glm::ivec2> bounds;

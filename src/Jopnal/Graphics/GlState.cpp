@@ -29,14 +29,14 @@ namespace
 {
     const GLenum ns_depthEnums[] =
     {
-        gl::NEVER,
-        gl::LESS,
-        gl::EQUAL,
-        gl::LEQUAL,
-        gl::GREATER,
-        gl::NOTEQUAL,
-        gl::GEQUAL,
-        gl::ALWAYS
+        GL_NEVER,
+        GL_LESS,
+        GL_EQUAL,
+        GL_LEQUAL,
+        GL_GREATER,
+        GL_NOTEQUAL,
+        GL_GEQUAL,
+        GL_ALWAYS
     };
 
     std::pair<bool, jop::GlState::DepthFunc> ns_depth;
@@ -55,11 +55,11 @@ namespace
     {
         if (enable)
         {
-            glCheck(gl::Enable(enum_));
+            glCheck(glEnable(enum_));
         }
         else
         {
-            glCheck(gl::Disable(enum_));
+            glCheck(glDisable(enum_));
         }
     }
 }
@@ -110,8 +110,8 @@ namespace jop
     {
         if (enable != ns_depth.first || func != ns_depth.second)
         {
-            enableDisable(enable, gl::DEPTH_TEST);
-            glCheck(gl::DepthFunc(ns_depthEnums[static_cast<int>(func)]));
+            enableDisable(enable, GL_DEPTH_TEST);
+            glCheck(glDepthFunc(ns_depthEnums[static_cast<int>(func)]));
 
             ns_depth = std::make_pair(enable, func);
         }
@@ -125,13 +125,13 @@ namespace jop
         {
             static const GLenum modes[] =
             {
-                gl::FRONT,
-                gl::BACK,
-                gl::FRONT_AND_BACK
+                GL_FRONT,
+                GL_BACK,
+                GL_FRONT_AND_BACK
             };
 
-            enableDisable(enable, gl::CULL_FACE);
-            glCheck(gl::CullFace(modes[static_cast<int>(cull)]));
+            enableDisable(enable, GL_CULL_FACE);
+            glCheck(glCullFace(modes[static_cast<int>(cull)]));
 
             ns_faceCull = std::make_pair(enable, cull);
         }
@@ -145,24 +145,24 @@ namespace jop
         {
             static const GLenum modes[] =
             {
-                gl::ZERO,
-                gl::ONE,
-                gl::SRC_COLOR,
-                gl::ONE_MINUS_SRC_COLOR,
-                gl::DST_COLOR,
-                gl::ONE_MINUS_DST_COLOR,
-                gl::SRC_ALPHA,
-                gl::ONE_MINUS_SRC_ALPHA,
-                gl::DST_ALPHA,
-                gl::ONE_MINUS_DST_ALPHA,
-                gl::CONSTANT_COLOR,
-                gl::ONE_MINUS_CONSTANT_COLOR,
-                gl::CONSTANT_ALPHA,
-                gl::ONE_MINUS_CONSTANT_ALPHA
+                GL_ZERO,
+                GL_ONE,
+                GL_SRC_COLOR,
+                GL_ONE_MINUS_SRC_COLOR,
+                GL_DST_COLOR,
+                GL_ONE_MINUS_DST_COLOR,
+                GL_SRC_ALPHA,
+                GL_ONE_MINUS_SRC_ALPHA,
+                GL_DST_ALPHA,
+                GL_ONE_MINUS_DST_ALPHA,
+                GL_CONSTANT_COLOR,
+                GL_ONE_MINUS_CONSTANT_COLOR,
+                GL_CONSTANT_ALPHA,
+                GL_ONE_MINUS_CONSTANT_ALPHA
             };
 
-            enableDisable(enable, gl::BLEND);
-            glCheck(gl::BlendFunc(modes[static_cast<int>(srcFactor)], modes[static_cast<int>(dstFactor)]));
+            enableDisable(enable, GL_BLEND);
+            glCheck(glBlendFunc(modes[static_cast<int>(srcFactor)], modes[static_cast<int>(dstFactor)]));
 
             ns_blend = std::make_tuple(enable, srcFactor, dstFactor);
         }
@@ -174,8 +174,8 @@ namespace jop
     {
         if (enable != std::get<0>(ns_stencil) || func != std::get<1>(ns_stencil) || mask != std::get<2>(ns_stencil))
         {
-            enableDisable(enable, gl::STENCIL_TEST);
-            glCheck(gl::StencilFunc(ns_depthEnums[static_cast<int>(func)], 0, mask));
+            enableDisable(enable, GL_STENCIL_TEST);
+            glCheck(glStencilFunc(ns_depthEnums[static_cast<int>(func)], 0, mask));
 
             ns_stencil = std::make_tuple(enable, func, mask);
         }
@@ -187,7 +187,7 @@ namespace jop
     {
         if (enable != ns_seamlessCubemap)
         {
-            enableDisable(enable, gl::TEXTURE_CUBE_MAP_SEAMLESS);
+            enableDisable(enable, GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
             ns_seamlessCubemap = enable;
         }
@@ -199,7 +199,7 @@ namespace jop
     {
         if (enable != ns_polygonSmooth)
         {
-            enableDisable(enable, gl::POLYGON_SMOOTH);
+            enableDisable(enable, GL_POLYGON_SMOOTH);
 
             ns_polygonSmooth = enable;
         }
@@ -211,7 +211,7 @@ namespace jop
     {
         if (enable != ns_line.first)
         {
-            enableDisable(enable, gl::LINE_SMOOTH);
+            enableDisable(enable, GL_LINE_SMOOTH);
 
             ns_line.first = enable;
         }
@@ -223,7 +223,7 @@ namespace jop
     {
         if (width != ns_line.second)
         {
-            glCheck(gl::LineWidth(width));
+            glCheck(glLineWidth(width));
 
             ns_line.second = width;
         }
@@ -237,12 +237,12 @@ namespace jop
         {
             static const GLenum polyModes[] =
             {
-                gl::FILL,
-                gl::LINE,
-                gl::POINT
+                GL_FILL,
+                GL_LINE,
+                GL_POINT
             };
 
-            glCheck(gl::PolygonMode(gl::FRONT_AND_BACK, polyModes[static_cast<int>(mode)]));
+            glCheck(glPolygonMode(GL_FRONT_AND_BACK, polyModes[static_cast<int>(mode)]));
 
             ns_polygonMode = mode;
         }
@@ -256,7 +256,7 @@ namespace jop
 
         if (ns_vertexAttribs.empty())
         {
-            glCheck(gl::GetIntegerv(gl::MAX_VERTEX_ATTRIBS, &attribLocs));
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attribLocs));
             ns_vertexAttribs.resize(attribLocs, false);
         }
 
@@ -265,11 +265,11 @@ namespace jop
         {
             if (enable)
             {
-                glCheck(gl::EnableVertexAttribArray(clamp));
+                glCheck(glEnableVertexAttribArray(clamp));
             }
             else
             {
-                glCheck(gl::DisableVertexAttribArray(clamp));
+                glCheck(glDisableVertexAttribArray(clamp));
             }
 
             ns_vertexAttribs[clamp] = enable;
@@ -282,7 +282,7 @@ namespace jop
     {
         if (ns_depthMask != enable)
         {
-            glCheck(gl::DepthMask(enable));
+            glCheck(glDepthMask(enable));
 
             ns_depthMask = enable;
         }
@@ -294,7 +294,7 @@ namespace jop
     {
         if (ns_framebufSrgb != enable)
         {
-            enableDisable(enable, gl::FRAMEBUFFER_SRGB);
+            enableDisable(enable, GL_FRAMEBUFFER_SRGB);
 
             ns_framebufSrgb = enable;
         }
@@ -304,6 +304,6 @@ namespace jop
 
     void GlState::flush()
     {
-        glCheck(gl::Flush());
+        glCheck(glFlush());
     }
 }

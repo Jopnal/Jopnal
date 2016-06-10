@@ -29,7 +29,7 @@
 namespace jop
 {
     Cubemap::Cubemap(const std::string& name)
-        : Texture           (name, gl::TEXTURE_CUBE_MAP),
+        : Texture           (name, GL_TEXTURE_CUBE_MAP),
           m_size            (),
           m_bytesPerPixel   (0)
     {
@@ -70,11 +70,11 @@ namespace jop
             }
 
             GLenum depthEnum = Texture2D::getFormatEnum(bytes);
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bytes, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
+            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bytes, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
 
             if (genMipmaps)
             {
-                glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
 
             stbi_image_free(pix);
@@ -95,11 +95,11 @@ namespace jop
         GLenum depthEnum = Texture2D::getFormatEnum(bpp);
         for (std::size_t i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, NULL));
+            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, NULL));
 
             if (genMipmaps)
             {
-                glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
         }
 
@@ -137,8 +137,8 @@ namespace jop
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
-                glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
+                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
 
             stbi_image_free(pix);
@@ -168,8 +168,8 @@ namespace jop
             GLenum depthEnum = Texture2D::getFormatEnum(bpp);
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, gl::UNSIGNED_BYTE, pix));
-                glCheck(gl::GenerateMipmap(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
+                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
 
             stbi_image_free(pix);

@@ -178,20 +178,20 @@ namespace jop
                 case DA::Renderbuffer16:
                 case DA::Texture16:
                 case DA::TextureCube16:
-                    return gl::DEPTH_COMPONENT16;
+                    return GL_DEPTH_COMPONENT16;
 
                 case DA::Renderbuffer24:
                 case DA::Texture24:
                 case DA::TextureCube24:
-                    return gl::DEPTH_COMPONENT24;
+                    return GL_DEPTH_COMPONENT24;
 
                 case DA::Renderbuffer32:
                 case DA::Texture32:
                 case DA::TextureCube32:
-                    return gl::DEPTH_COMPONENT32;
+                    return GL_DEPTH_COMPONENT32;
 
                 default:
-                    return gl::DEPTH_COMPONENT;
+                    return GL_DEPTH_COMPONENT;
             }
         };
 
@@ -199,7 +199,7 @@ namespace jop
 
         if (m_depthBuffer)
         {
-            glCheck(gl::DeleteRenderbuffers(1, &m_depthBuffer));
+            glCheck(glDeleteRenderbuffers(1, &m_depthBuffer));
             m_depthBuffer = 0;
         }
 
@@ -207,7 +207,7 @@ namespace jop
         {
             if (attachment < DA::Texture16)
             {
-                glCheck(gl::GenRenderbuffers(1, &m_depthBuffer));
+                glCheck(glGenRenderbuffers(1, &m_depthBuffer));
 
                 if (!m_depthBuffer)
                 {
@@ -215,8 +215,8 @@ namespace jop
                     return false;
                 }
 
-                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthBuffer));
-                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getDepthEnum(attachment), size.x, size.y));
+                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer));
+                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, getDepthEnum(attachment), size.x, size.y));
             }
             else
             {
@@ -272,9 +272,9 @@ namespace jop
         {
             switch (stencil)
             {
-                case StencilAttachment::Renderbuffer8:  return gl::STENCIL_INDEX8;
-                case StencilAttachment::Renderbuffer16: return gl::STENCIL_INDEX16;
-                default:                                return gl::STENCIL_INDEX;
+                case StencilAttachment::Renderbuffer8:  return GL_STENCIL_INDEX8;
+                case StencilAttachment::Renderbuffer16: return GL_STENCIL_INDEX16;
+                default:                                return GL_STENCIL_INDEX;
             }
         };
 
@@ -282,7 +282,7 @@ namespace jop
 
         if (m_stencilBuffer)
         {
-            glCheck(gl::DeleteRenderbuffers(1, &m_stencilBuffer));
+            glCheck(glDeleteRenderbuffers(1, &m_stencilBuffer));
             m_stencilBuffer = 0;
         }
 
@@ -290,7 +290,7 @@ namespace jop
         {
             if (attachment < StencilAttachment::Texture8)
             {
-                glCheck(gl::GenRenderbuffers(1, &m_stencilBuffer));
+                glCheck(glGenRenderbuffers(1, &m_stencilBuffer));
 
                 if (!m_stencilBuffer)
                 {
@@ -298,8 +298,8 @@ namespace jop
                     return false;
                 }
 
-                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_stencilBuffer));
-                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, getStencilEnum(attachment), size.x, size.y));
+                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_stencilBuffer));
+                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, getStencilEnum(attachment), size.x, size.y));
             }
             else
             {
@@ -320,7 +320,7 @@ namespace jop
 
         if (m_depthStencilBuffer)
         {
-            glCheck(gl::DeleteRenderbuffers(1, &m_depthStencilBuffer));
+            glCheck(glDeleteRenderbuffers(1, &m_depthStencilBuffer));
             m_depthStencilBuffer = 0;
         }
 
@@ -328,7 +328,7 @@ namespace jop
         {
             if (attachment < DepthStencilAttachment::Texture24_8)
             {
-                glCheck(gl::GenRenderbuffers(1, &m_depthStencilBuffer));
+                glCheck(glGenRenderbuffers(1, &m_depthStencilBuffer));
 
                 if (!m_depthStencilBuffer)
                 {
@@ -336,8 +336,8 @@ namespace jop
                     return false;
                 }
 
-                glCheck(gl::BindRenderbuffer(gl::RENDERBUFFER, m_depthStencilBuffer));
-                glCheck(gl::RenderbufferStorage(gl::RENDERBUFFER, attachment == DepthStencilAttachment::Renderbuffer24_8 ? gl::DEPTH24_STENCIL8 : gl::DEPTH32F_STENCIL8, size.x, size.y));
+                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilBuffer));
+                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, attachment == DepthStencilAttachment::Renderbuffer24_8 ? GL_DEPTH24_STENCIL8 : GL_DEPTH32F_STENCIL8, size.x, size.y));
             }
             else
             {
@@ -373,7 +373,7 @@ namespace jop
         {
             JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow(), "Tried to destroy frame buffer within different context!");
 
-            glCheck(gl::DeleteFramebuffers(1, &m_frameBuffer.first));
+            glCheck(glDeleteFramebuffers(1, &m_frameBuffer.first));
             m_frameBuffer.first = 0;
             m_frameBuffer.second = nullptr;
         }
@@ -382,19 +382,19 @@ namespace jop
         {
             if (m_depthStencilBuffer)
             {
-                glCheck(gl::DeleteRenderbuffers(1, &m_depthStencilBuffer));
+                glCheck(glDeleteRenderbuffers(1, &m_depthStencilBuffer));
                 m_depthStencilBuffer = 0;
             }
 
             if (m_depthBuffer)
             {
-                glCheck(gl::DeleteRenderbuffers(1, &m_depthBuffer));
+                glCheck(glDeleteRenderbuffers(1, &m_depthBuffer));
                 m_depthBuffer = 0;
             }
 
             if (m_stencilBuffer)
             {
-                glCheck(gl::DeleteRenderbuffers(1, &m_stencilBuffer));
+                glCheck(glDeleteRenderbuffers(1, &m_stencilBuffer));
                 m_stencilBuffer = 0;
             }
 
@@ -418,8 +418,8 @@ namespace jop
 
         if (attach() && isValid())
         {
-            glCheck(gl::BindFramebuffer(read ? gl::READ_FRAMEBUFFER : gl::DRAW_FRAMEBUFFER, m_frameBuffer.first));
-            glCheck(gl::Viewport(0, 0, getSize().x, getSize().y));
+            glCheck(glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_frameBuffer.first));
+            glCheck(glViewport(0, 0, getSize().x, getSize().y));
         }
 
         return isValid();
@@ -429,10 +429,10 @@ namespace jop
 
     void RenderTexture::unbind()
     {
-        glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
+        glCheck(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         
         const auto size = Engine::getMainWindow().getSize();
-        glCheck(gl::Viewport(0, 0, size.x, size.y));
+        glCheck(glViewport(0, 0, size.x, size.y));
     }
 
     //////////////////////////////////////////////
@@ -504,7 +504,7 @@ namespace jop
             if (!isValid())
                 return true;
 
-            glCheck(gl::GenFramebuffers(1, &m_frameBuffer.first));
+            glCheck(glGenFramebuffers(1, &m_frameBuffer.first));
 
             if (!m_frameBuffer.first)
             {
@@ -514,19 +514,19 @@ namespace jop
 
             m_frameBuffer.second = Window::getCurrentContextWindow();
 
-            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, m_frameBuffer.first));
+            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer.first));
 
             if (m_depthStencilBuffer)
             {
-                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_depthStencilBuffer));
+                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
             }
             else if (m_depthBuffer)
             {
-                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, m_depthBuffer));
+                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer));
             }
             else if (m_stencilBuffer)
             {
-                glCheck(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::STENCIL_ATTACHMENT, gl::RENDERBUFFER, m_stencilBuffer));
+                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_stencilBuffer));
             }
             
             bool hasColor = false;
@@ -541,12 +541,12 @@ namespace jop
 
             if (m_colorAttachments[0] && !m_depthBuffer)
             {
-                glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_colorAttachments[0]->getHandle(), 0));
+                glCheck(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_colorAttachments[0]->getHandle(), 0));
 
                 if (!hasColor)
                 {
-                    glCheck(gl::DrawBuffer(gl::NONE));
-                    glCheck(gl::ReadBuffer(gl::NONE));
+                    glCheck(glDrawBuffer(GL_NONE));
+                    glCheck(glReadBuffer(GL_NONE));
                 }
             }
             
@@ -558,18 +558,18 @@ namespace jop
                     if (!m_colorAttachments[i])
                         continue;
 
-                    glCheck(gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + i - 2, m_colorAttachments[i]->getHandle(), 0));
-                    colorAtt.push_back(gl::COLOR_ATTACHMENT0 + i - 2);
+                    glCheck(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i - 2, m_colorAttachments[i]->getHandle(), 0));
+                    colorAtt.push_back(GL_COLOR_ATTACHMENT0 + i - 2);
                 }
 
                 if (!colorAtt.empty())
                 {
-                    glCheck(gl::DrawBuffers(colorAtt.size(), colorAtt.data()));
+                    glCheck(glDrawBuffers(colorAtt.size(), colorAtt.data()));
                 }
             }
 
-            auto status = glCheck(gl::CheckFramebufferStatus(gl::FRAMEBUFFER));
-            if (status != gl::FRAMEBUFFER_COMPLETE)
+            auto status = glCheck(glCheckFramebufferStatus(GL_FRAMEBUFFER));
+            if (status != GL_FRAMEBUFFER_COMPLETE)
             {
                 JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer");
                 destroy(true, false);

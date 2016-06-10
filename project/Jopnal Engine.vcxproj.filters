@@ -426,6 +426,9 @@
     <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Jopnal\gl_4.5.h">
+      <Filter>Root\Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -697,6 +700,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp">
       <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\gl_4.5.c">
+      <Filter>Root\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

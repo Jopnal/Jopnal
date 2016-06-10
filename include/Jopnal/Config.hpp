@@ -26,9 +26,8 @@
 
 // This file contains the configuration options for the engine compilation
 
-// OpenGL
-#define JOP_OPENGL_VERSION_MAJOR 3
-#define JOP_OPENGL_VERSION_MINOR 3
+// OpenGL/ES
+//#define JOP_OPENGL_ES
 
 // Define to enable gl error checks
 #define JOP_OPENGL_ERROR_CHECKS

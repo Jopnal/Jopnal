@@ -119,24 +119,26 @@ namespace jop
         setDefaultEventHandler();
 
     #ifdef JOP_DEBUG_MODE
-        if (gl::exts::var_KHR_debug && settings.debug)
+
+        if (ogl_ext_KHR_debug != ogl_LOAD_FAILED && settings.debug)
         {
-            gl::DebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+            glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
             {
-                if (severity == gl::DEBUG_SEVERITY_HIGH)
+                if (severity == GL_DEBUG_SEVERITY_HIGH)
                     JOP_DEBUG_ERROR(msg)
 
-                else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
+                else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
                     JOP_DEBUG_WARNING(msg)
 
-                else if (severity == gl::DEBUG_SEVERITY_LOW)
+                else if (severity == GL_DEBUG_SEVERITY_LOW)
                     JOP_DEBUG_INFO(msg)
 
-                else if (severity == gl::DEBUG_SEVERITY_NOTIFICATION)
+                else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
                     JOP_DEBUG_DIAG(msg);
 
             }, NULL);
         }
+
     #endif
     }
 

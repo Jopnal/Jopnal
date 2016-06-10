@@ -25,62 +25,13 @@
 //////////////////////////////////////////////
 
 
-namespace jop
-{
-//    JOP_REGISTER_LOADABLE(jop, Shader)[](const void*, const json::Value& val)
-//    {
-//        if (!val.HasMember("name") || !val["name"].IsString())
-//        {
-//            JOP_DEBUG_ERROR("Couldn't load Shader, no name found");
-//            return false;
-//        }
-//
-//        if (!val.HasMember("shaders") || !val["shaders"].IsArray() || val["shaders"].Size() < 4)
-//        {
-//            JOP_DEBUG_ERROR("Couldn't load Shader, no shader paths or sources found");
-//            return false;
-//        }
-//
-//        auto& arr = val["shaders"];
-//
-//        ResourceManager::getNamedResource<Shader>(val["name"].GetString(),
-//                                                  arr[0u].IsString() ? arr[0u].GetString() : "",
-//                                                  arr[1u].IsString() ? arr[1u].GetString() : "", 
-//                                                  arr[2u].IsString() ? arr[2u].GetString() : "",
-//                                                  arr[3u].IsString() ? arr[3u].GetString() : "")
-//            
-//;//            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
-//
-//        return true;
-//    }
-//    JOP_END_LOADABLE_REGISTRATION(Shader)
-//
-//    JOP_REGISTER_SAVEABLE(jop, Shader)[](const void* shader, json::Value& val, json::Value::AllocatorType& alloc)
-//    {
-//        const Shader& ref = *static_cast<const Shader*>(shader);
-//
-//        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-//        //val.AddMember(json::StringRef("persistent"), ref.isPersistent(), alloc);
-//
-//        val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"]
-//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Vertex).c_str()), alloc)
-//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Geometry).c_str()), alloc)
-//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Fragment).c_str()), alloc)
-//           .PushBack(json::StringRef(ref.getSource(Shader::Type::Preprocessor).c_str()), alloc);
-//
-//
-//        return true;
-//    }
-//    JOP_END_SAVEABLE_REGISTRATION(Shader)
-}
-
 namespace
 {
     static const int ns_shaderTypes[] =
     {
-        gl::VERTEX_SHADER,
-        gl::GEOMETRY_SHADER,
-        gl::FRAGMENT_SHADER
+        GL_VERTEX_SHADER,
+        GL_GEOMETRY_SHADER,
+        GL_FRAGMENT_SHADER
     };
 
     unsigned int ns_boundProgram = 0;
@@ -107,7 +58,7 @@ namespace jop
         static const int shaderAmount = sizeof(ns_shaderTypes) / sizeof(ns_shaderTypes[0]);
 
         destroy();
-        m_shaderProgram = glCheck(gl::CreateProgram());
+        m_shaderProgram = glCheck(glCreateProgram());
 
         unsigned int shaderHandles[shaderAmount] = {0u, 0u, 0u};
         auto deleteHandles = [](const unsigned int* handles, const unsigned int program)
@@ -117,9 +68,9 @@ namespace jop
                 if (handles[i])
                 {
                     if (program)
-                        glCheck(gl::DetachShader(handles[i], program));
+                        glCheck(glDetachShader(handles[i], program));
 
-                    glCheck(gl::DeleteShader(handles[i]));
+                    glCheck(glDeleteShader(handles[i]));
                 }
             }
         };
@@ -127,12 +78,12 @@ namespace jop
         auto handleShaderInfo = [](const unsigned int handle, const unsigned int shaderType) -> bool
         {
             GLint success;
-            glCheck(gl::GetShaderiv(handle, gl::COMPILE_STATUS, &success));
+            glCheck(glGetShaderiv(handle, GL_COMPILE_STATUS, &success));
 
-            if (success == gl::FALSE_)
+            if (success == GL_FALSE)
             {
                 char log[1024];
-                glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
+                glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
                 JOP_DEBUG_ERROR("Failed to compile " << (shaderType == 0 ? "vertex" : (shaderType == 1 ? "geometry" : "fragment")) << " shader:\n" << log);
 
@@ -146,12 +97,12 @@ namespace jop
             else
             {
                 GLint len;
-                glCheck(gl::GetShaderiv(handle, gl::INFO_LOG_LENGTH, &len));
+                glCheck(glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &len));
 
                 if (len > 0)
                 {
                     char log[1024];
-                    glCheck(gl::GetShaderInfoLog(handle, sizeof(log), NULL, log));
+                    glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
                     if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
@@ -160,17 +111,17 @@ namespace jop
 
         #endif
 
-            return success == gl::TRUE_;
+            return success == TRUE;
         };
         auto handleProgramInfo = [](const unsigned int program) -> bool
         {
             GLint success;
-            glCheck(gl::GetProgramiv(program, gl::LINK_STATUS, &success));
+            glCheck(glGetProgramiv(program, GL_LINK_STATUS, &success));
 
-            if (success == gl::FALSE_)
+            if (success == GL_FALSE)
             {
                 char log[1024];
-                glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
+                glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
                 JOP_DEBUG_ERROR("Failed to link shader program:\n" << log);
 
@@ -181,12 +132,12 @@ namespace jop
             else
             {
                 GLint len;
-                glCheck(gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &len));
+                glCheck(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len));
 
                 if (len > 0)
                 {
                     char log[1024];
-                    glCheck(gl::GetProgramInfoLog(program, sizeof(log), NULL, log));
+                    glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
                     if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
@@ -195,7 +146,7 @@ namespace jop
 
         #endif
 
-            return success == gl::TRUE_;
+            return success == GL_TRUE;
         };
 
         for (int i = 0; i < shaderAmount; i++)
@@ -214,11 +165,11 @@ namespace jop
 
             FileLoader::enableErrorChecks(previouslyEnabled);
 
-            shaderHandles[i] = glCheck(gl::CreateShader(ns_shaderTypes[i]));
+            shaderHandles[i] = glCheck(glCreateShader(ns_shaderTypes[i]));
 
             int sizes[] = {pp.length(), 1, fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size()};
-            glCheck(gl::ShaderSource(shaderHandles[i], 3, sources, sizes));
-            glCheck(gl::CompileShader(shaderHandles[i]));
+            glCheck(glShaderSource(shaderHandles[i], 3, sources, sizes));
+            glCheck(glCompileShader(shaderHandles[i]));
 
             if (!handleShaderInfo(shaderHandles[i], i))
             {
@@ -227,10 +178,10 @@ namespace jop
 
                 return false;
             }
-            glCheck(gl::AttachShader(m_shaderProgram, shaderHandles[i]));
+            glCheck(glAttachShader(m_shaderProgram, shaderHandles[i]));
         }
 
-        glCheck(gl::LinkProgram(m_shaderProgram));
+        glCheck(glLinkProgram(m_shaderProgram));
 
         if (!handleProgramInfo(m_shaderProgram))
         {
@@ -260,7 +211,7 @@ namespace jop
             if (ns_boundProgram == m_shaderProgram)
                 unbind();
 
-            glCheck(gl::DeleteProgram(m_shaderProgram));
+            glCheck(glDeleteProgram(m_shaderProgram));
         }
 
         m_unifMap.clear();
@@ -275,7 +226,7 @@ namespace jop
         {
             if (ns_boundProgram != m_shaderProgram)
             {
-                glCheck(gl::UseProgram(m_shaderProgram));
+                glCheck(glUseProgram(m_shaderProgram));
                 ns_boundProgram = m_shaderProgram;
             }
             return true;
@@ -290,7 +241,7 @@ namespace jop
     {
         if (ns_boundProgram != 0)
         {
-            glCheck(gl::UseProgram(0));
+            glCheck(glUseProgram(0));
             ns_boundProgram = 0;
         }
     }
@@ -309,7 +260,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::UniformMatrix4fv(loc, amount, gl::FALSE_, matrices));
+            glCheck(glUniformMatrix4fv(loc, amount, GL_FALSE, matrices));
 
         return loc != -1;
     }
@@ -321,7 +272,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::UniformMatrix3fv(loc, 1, gl::FALSE_, glm::value_ptr(matrix)));
+            glCheck(glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(matrix)));
 
         return loc != -1;
     }
@@ -333,7 +284,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::Uniform2f(loc, vector.x, vector.y));
+            glCheck(glUniform2f(loc, vector.x, vector.y));
 
         return loc != -1;
     }
@@ -345,7 +296,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::Uniform3f(loc, vector.x, vector.y, vector.z));
+            glCheck(glUniform3f(loc, vector.x, vector.y, vector.z));
 
         return loc != -1;
     }
@@ -357,7 +308,7 @@ namespace jop
         const int loc = getUniformLocation(name);
         
         if (loc != -1)
-            glCheck(gl::Uniform4f(loc, vector.x, vector.y, vector.z, vector.w));
+            glCheck(glUniform4f(loc, vector.x, vector.y, vector.z, vector.w));
 
         return loc != -1;
     }
@@ -371,7 +322,7 @@ namespace jop
         if (loc != -1)
         {
             texture.bind(unit);
-            glCheck(gl::Uniform1i(loc, unit));
+            glCheck(glUniform1i(loc, unit));
         }
 
         return loc != -1;
@@ -384,7 +335,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::Uniform1f(loc, value));
+            glCheck(glUniform1f(loc, value));
 
         return loc != -1;
     }
@@ -396,7 +347,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::Uniform1i(loc, value));
+            glCheck(glUniform1i(loc, value));
 
         return loc != -1;
     }
@@ -408,7 +359,7 @@ namespace jop
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
-            glCheck(gl::Uniform1ui(loc, value));
+            glCheck(glUniform1ui(loc, value));
 
         return loc != -1;
     }
@@ -425,7 +376,7 @@ namespace jop
     void Shader::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer)
     {
         GlState::setVertexAttribute(true, loc);
-        glCheck(gl::VertexAttribPointer(loc, amount, type, normalize, stride, pointer));
+        glCheck(glVertexAttribPointer(loc, amount, type, normalize, stride, pointer));
     }
 
     //////////////////////////////////////////////
@@ -446,18 +397,18 @@ namespace jop
 
     bool Shader::validate() const
     {
-        glCheck(gl::ValidateProgram(m_shaderProgram));
+        glCheck(glValidateProgram(m_shaderProgram));
 
         GLint valid;
-        glCheck(gl::GetProgramiv(m_shaderProgram, gl::VALIDATE_STATUS, &valid));
+        glCheck(glGetProgramiv(m_shaderProgram, GL_VALIDATE_STATUS, &valid));
 
-        if (valid == gl::FALSE_)
+        if (valid == GL_FALSE)
         {
             GLint size;
-            glCheck(gl::GetProgramiv(m_shaderProgram, gl::INFO_LOG_LENGTH, &size));
+            glCheck(glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &size));
 
             std::string log(size, '0');
-            glCheck(gl::GetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
+            glCheck(glGetProgramInfoLog(m_shaderProgram, size, &size, &log[0]));
 
             JOP_DEBUG_ERROR("Shader validation failed: " << log);
             return false;
@@ -534,7 +485,7 @@ namespace jop
             if (itr != m_unifMap.end())
                 return itr->second;
 
-            const int location = glCheck(gl::GetUniformLocation(m_shaderProgram, name.c_str()));
+            const int location = glCheck(glGetUniformLocation(m_shaderProgram, name.c_str()));
 
             if (location == -1)
             {

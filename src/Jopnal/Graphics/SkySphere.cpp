@@ -66,8 +66,8 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
         mat.sendToShader(s, camera, getAlphaMultiplier());
 
@@ -77,11 +77,11 @@ namespace jop
         if (msh.getElementAmount())
         {
             msh.getIndexBuffer().bind();
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
 
         GlState::setDepthTest(true);

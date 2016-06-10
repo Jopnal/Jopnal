@@ -30,33 +30,33 @@ namespace jop { namespace detail
 {
     void detail::openGlCheck(const char* func, const char* file, const unsigned int line)
     {
-        GLenum errCode = gl::GetError();
+        GLenum errCode = glGetError();
 
-        if (errCode != gl::NO_ERROR_)
+        if (errCode != GL_NO_ERROR)
         {
             const char* errorS = "unknown error";
 
             switch (errCode)
             {
-                case gl::INVALID_ENUM:
+                case GL_INVALID_ENUM:
                     errorS = "GL_INVALID_ENUM";
                     break;
-                case gl::INVALID_VALUE:
+                case GL_INVALID_VALUE:
                     errorS = "GL_INVALID_VALUE";
                     break;
-                case gl::INVALID_OPERATION:
+                case GL_INVALID_OPERATION:
                     errorS = "GL_INVALID_OPERATION";
                     break;
-                case gl::STACK_OVERFLOW:
+                case GL_STACK_OVERFLOW:
                     errorS = "GL_STACK_OVERFLOW";
                     break;
-                case gl::STACK_UNDERFLOW:
+                case GL_STACK_UNDERFLOW:
                     errorS = "GL_STACK_UNDERFLOW";
                     break;
-                case gl::OUT_OF_MEMORY:
+                case GL_OUT_OF_MEMORY:
                     errorS = "GL_OUT_OF_MEMORY";
                     break;
-                case gl::INVALID_FRAMEBUFFER_OPERATION:
+                case GL_INVALID_FRAMEBUFFER_OPERATION:
                     errorS = "GL_INVALID_FRAMEBUFFER_OPERATION";
             }
 

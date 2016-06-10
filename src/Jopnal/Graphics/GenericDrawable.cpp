@@ -61,16 +61,16 @@ namespace jop
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
         if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-            s.setAttribute(5, gl::FLOAT, 4, stride, false, msh.getVertexOffset(Mesh::Color));
+            s.setAttribute(5, GL_FLOAT, 4, stride, false, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
+            s.setAttribute(2, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::__Lighting))
@@ -110,11 +110,11 @@ namespace jop
             msh.getIndexBuffer().bind();
 
             // Finally draw
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
     }
 }

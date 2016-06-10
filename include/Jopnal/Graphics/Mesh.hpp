@@ -135,7 +135,7 @@ namespace jop
 
         /// \brief Get the element type OpenGL enum
         ///
-        /// The returned enum can be used with gl::DrawElements.
+        /// The returned enum can be used with glDrawElements.
         ///
         /// \return The element type OpenGL enum
         ///

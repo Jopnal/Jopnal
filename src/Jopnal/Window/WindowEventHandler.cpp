@@ -592,7 +592,7 @@ namespace jop
         // so we can do a little optimization using a counter.
         for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
         {
-            bool present = glfwJoystickPresent(i) == gl::TRUE_;
+            bool present = glfwJoystickPresent(i) == GL_TRUE;
 
             if (present != ns_controllersPresent[i])
             {

@@ -95,7 +95,7 @@ namespace jop
     TextureSampler::~TextureSampler()
     {
         if (m_sampler)
-            glCheck(gl::DeleteSamplers(1, &m_sampler));
+            glCheck(glDeleteSamplers(1, &m_sampler));
     }
 
     //////////////////////////////////////////////
@@ -103,7 +103,7 @@ namespace jop
     void TextureSampler::bind(const unsigned int textureUnit) const
     {
         if (m_sampler)
-            glCheck(gl::BindSampler(textureUnit, m_sampler));
+            glCheck(glBindSampler(textureUnit, m_sampler));
     }
 
     //////////////////////////////////////////////
@@ -111,9 +111,9 @@ namespace jop
     TextureSampler& TextureSampler::reset()
     {
         if (m_sampler)
-            glCheck(gl::DeleteSamplers(1, &m_sampler));
+            glCheck(glDeleteSamplers(1, &m_sampler));
 
-        glCheck(gl::GenSamplers(1, &m_sampler));
+        glCheck(glGenSamplers(1, &m_sampler));
 
         return *this;
     }
@@ -127,21 +127,21 @@ namespace jop
             switch (mode)
             {
                 case Filter::None:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MIN_FILTER, gl::NEAREST));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MAG_FILTER, gl::NEAREST));
-                    break;
-                case Filter::Bilinear:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MIN_FILTER, gl::LINEAR));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MAG_FILTER, gl::LINEAR));
-                    break;
-                case Filter::Trilinear:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_MAG_FILTER, gl::LINEAR));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                    break;                                                        
+                case Filter::Bilinear:                                            
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    break;                                                        
+                case Filter::Trilinear:                                           
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                     break;
                 case Filter::Anisotropic:
                     if (getMaxAnisotropy() > 0.f)
                     {
-                        glCheck(gl::SamplerParameterf(m_sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, getMaxAnisotropy())));
+                        glCheck(glSamplerParameterf(m_sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, getMaxAnisotropy())));
                     }
                     else
                         // Should never happen but just to be sure.
@@ -164,24 +164,24 @@ namespace jop
             switch (repeat)
             {
                 case Repeat::Basic:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::REPEAT));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::REPEAT));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_REPEAT));
                     break;
                 case Repeat::Mirrored:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::MIRRORED_REPEAT));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::MIRRORED_REPEAT));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::MIRRORED_REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
                     break;
                 case Repeat::ClampEdge:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::CLAMP_TO_EDGE));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
                     break;
                 case Repeat::ClampBorder:
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_BORDER));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_BORDER));
-                    glCheck(gl::SamplerParameteri(m_sampler, gl::TEXTURE_WRAP_R, gl::CLAMP_TO_BORDER));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+                    glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
             }
 
             m_repeat = repeat;
@@ -196,7 +196,7 @@ namespace jop
     {
         if (m_sampler && m_borderColor != color)
         {
-            glCheck(gl::SamplerParameterfv(m_sampler, gl::TEXTURE_BORDER_COLOR, &m_borderColor.colors[0]));
+            glCheck(glSamplerParameterfv(m_sampler, GL_TEXTURE_BORDER_COLOR, &m_borderColor.colors[0]));
 
             m_borderColor = color;
         }
@@ -245,8 +245,8 @@ namespace jop
     {
         float level = 0.f;
 
-        if (gl::exts::var_EXT_texture_filter_anisotropic)
-            glCheck(gl::GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &level));
+        if (ogl_ext_EXT_texture_filter_anisotropic != ogl_LOAD_FAILED)
+            glCheck(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &level));
 
         return level;
     }

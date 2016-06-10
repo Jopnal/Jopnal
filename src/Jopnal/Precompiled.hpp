@@ -25,6 +25,7 @@
 //******** HEADERS ********//
 
 // Needed for configuration
+#include <Jopnal/Config.hpp>
 #include <Jopnal/OS.hpp>
 
 // Windows
@@ -51,7 +52,11 @@
 #endif
 
 // OpenGL
-#include <GL/GL.hpp>
+#ifdef JOP_OPENGL_ES
+
+#else
+    #include <Jopnal/gl_4.5.h>
+#endif
 #include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW

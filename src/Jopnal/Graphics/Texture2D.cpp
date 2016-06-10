@@ -35,7 +35,7 @@
 namespace jop
 {
     Texture2D::Texture2D(const std::string& name)
-        : Texture(name, gl::TEXTURE_2D)
+        : Texture(name, GL_TEXTURE_2D)
     {}
 
     //////////////////////////////////////////////
@@ -92,11 +92,11 @@ namespace jop
         setPixelStore(bytesPerPixel);
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, gl::UNSIGNED_BYTE, pixels));
+        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, pixels));
 
         if (genMipmap)
         {
-            glCheck(gl::GenerateMipmap(gl::TEXTURE_2D));
+            glCheck(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
         return true;
@@ -119,7 +119,7 @@ namespace jop
 
         bind();
         setPixelStore(m_bytesPerPixel);
-        glCheck(gl::TexSubImage2D(gl::TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, pixels));
+        glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -163,20 +163,20 @@ namespace jop
         switch (bytesPerPixel)
         {
             case 2:
-                return gl::RG;
+                return GL_RG;
 
             case 3:
             case 6:
             case 12:
-                return gl::RGB;
+                return GL_RGB;
 
             case 4:
             case 8:
             case 16:
-                return gl::RGBA;
+                return GL_RGBA;
 
             default:
-                return gl::RED;
+                return GL_RED;
         }
     }
 
@@ -187,25 +187,25 @@ namespace jop
         switch (bytesPerPixel)
         {
             case 2:
-                return gl::RG8;
+                return GL_RG8;
 
             case 3:
-                return srgb ? gl::SRGB8 : gl::RGB8;
+                return srgb ? GL_SRGB8 : GL_RGB8;
             case 6:
-                return gl::RGB16F;
+                return GL_RGB16F;
             case 12:
-                return gl::RGB32F;
+                return GL_RGB32F;
 
             case 4:
-                return srgb ? gl::SRGB8_ALPHA8 : gl::RGBA8;
+                return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
             case 8:
-                return gl::RGBA16F;
+                return GL_RGBA16F;
             case 16:
-                return gl::RGBA32F;
+                return GL_RGBA32F;
 
 
             default:
-                return gl::R8;
+                return GL_R8;
         }
     }
 

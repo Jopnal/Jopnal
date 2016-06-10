@@ -231,13 +231,13 @@ namespace jop
         RenderTexture::unbind();
         
         m_quad.getVertexBuffer().bind();
-        shdr.setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
-        shdr.setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+        shdr.setAttribute(0, GL_FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
+        shdr.setAttribute(1, GL_FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
 
         shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 
         m_quad.getIndexBuffer().bind();
-        glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
+        glCheck(glDrawElements(GL_TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
     }
 
     //////////////////////////////////////////////
@@ -272,8 +272,8 @@ namespace jop
         m_blurShader->setUniform("u_Buffer", texture, 1);
 
         m_quad.getVertexBuffer().bind();
-        m_blurShader->setAttribute(0, gl::FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
-        m_blurShader->setAttribute(1, gl::FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
+        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
 
         m_quad.getIndexBuffer().bind();
 
@@ -283,7 +283,7 @@ namespace jop
 
             m_blurShader->setUniform("u_Horizontal", horizontal);
 
-            glCheck(gl::DrawElements(gl::TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
+            glCheck(glDrawElements(GL_TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
 
             m_blurShader->setUniform("u_Buffer", *m_pingPong[horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 

@@ -134,11 +134,11 @@ namespace jop
     {
         static const GLenum enums[] =
         {
-            gl::UNSIGNED_INT,
-            gl::UNSIGNED_BYTE,
-            gl::UNSIGNED_SHORT,
-            gl::UNSIGNED_INT,
-            gl::UNSIGNED_INT
+            GL_UNSIGNED_INT,
+            GL_UNSIGNED_BYTE,
+            GL_UNSIGNED_SHORT,
+            GL_UNSIGNED_INT,
+            GL_UNSIGNED_INT
         };
 
         return enums[getElementSize()];

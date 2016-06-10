@@ -53,15 +53,15 @@ namespace jop
 
         if (bind())
         {
-            glCheck(gl::ClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
-            glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
-            glCheck(gl::ClearStencil(m_clearStencil.load()));
+            glCheck(glClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
+            glCheck(glClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
+            glCheck(glClearStencil(m_clearStencil.load()));
 
-            glCheck(gl::Clear
+            glCheck(glClear
             (
-                ((bits & ColorBit) != 0)   * gl::COLOR_BUFFER_BIT |
-                ((bits & DepthBit) != 0)   * gl::DEPTH_BUFFER_BIT |
-                ((bits & StencilBit) != 0) * gl::STENCIL_BUFFER_BIT
+                ((bits & ColorBit) != 0)   * GL_COLOR_BUFFER_BIT |
+                ((bits & DepthBit) != 0)   * GL_DEPTH_BUFFER_BIT |
+                ((bits & StencilBit) != 0) * GL_STENCIL_BUFFER_BIT
             ));
         }
     }

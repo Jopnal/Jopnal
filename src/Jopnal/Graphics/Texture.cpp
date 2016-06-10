@@ -71,7 +71,7 @@ namespace jop
     {
         if (m_texture)
         {
-            glCheck(gl::DeleteTextures(1, &m_texture));
+            glCheck(glDeleteTextures(1, &m_texture));
             m_texture = 0;
         }
     }
@@ -81,10 +81,10 @@ namespace jop
     void Texture::bind(const unsigned int texUnit) const
     {
         if (!m_texture)
-            glCheck(gl::GenTextures(1, &m_texture));
+            glCheck(glGenTextures(1, &m_texture));
 
-        glCheck(gl::ActiveTexture(gl::TEXTURE0 + texUnit));
-        glCheck(gl::BindTexture(m_target, m_texture));
+        glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
+        glCheck(glBindTexture(m_target, m_texture));
 
         m_sampler.bind(texUnit);
     }
@@ -123,7 +123,7 @@ namespace jop
     {
         static unsigned int size = 0;
         if (!size)
-            glCheck(gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, reinterpret_cast<GLint*>(&size)));
+            glCheck(glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint*>(&size)));
 
         return size;
     }
@@ -134,7 +134,7 @@ namespace jop
     {
         static unsigned int maxUnits = 0;
         if (!maxUnits)
-            glCheck(gl::GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint*>(&maxUnits)));
+            glCheck(glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint*>(&maxUnits)));
 
         return maxUnits;
     }
@@ -158,6 +158,6 @@ namespace jop
                 param = 8;
         }
 
-        glCheck(gl::PixelStorei(gl::UNPACK_ALIGNMENT, param));
+        glCheck(glPixelStorei(GL_UNPACK_ALIGNMENT, param));
     }
 }

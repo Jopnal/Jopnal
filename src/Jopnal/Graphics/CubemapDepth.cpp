@@ -28,7 +28,7 @@
 namespace jop
 {
     CubemapDepth::CubemapDepth(const std::string& name)
-        : Texture   (name, gl::TEXTURE_CUBE_MAP),
+        : Texture   (name, GL_TEXTURE_CUBE_MAP),
           m_size    (),
           m_bytes   (0)
     {
@@ -49,7 +49,7 @@ namespace jop
 
         for (unsigned int i = 0; i < 6; ++i)
         {
-            glCheck(gl::TexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2DDepth::getFormatEnum(bytes), size.x, size.y, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
+            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2DDepth::getFormatEnum(bytes), size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
         }
         
         m_size = size;

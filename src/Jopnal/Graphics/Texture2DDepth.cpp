@@ -28,7 +28,7 @@
 namespace jop
 {
     Texture2DDepth::Texture2DDepth(const std::string& name)
-        : Texture   (name, gl::TEXTURE_2D),
+        : Texture   (name, GL_TEXTURE_2D),
           m_size    (),
           m_bytes   (0)
     {
@@ -47,7 +47,7 @@ namespace jop
 
         bind();
 
-        glCheck(gl::TexImage2D(gl::TEXTURE_2D, 0, getFormatEnum(bytes), size.x, size.y, 0, gl::DEPTH_COMPONENT, gl::FLOAT, NULL));
+        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getFormatEnum(bytes), size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
 
         m_size = size;
         m_bytes = bytes;
@@ -69,13 +69,13 @@ namespace jop
         switch (bytes)
         {
             case 2:
-                return gl::DEPTH_COMPONENT16;
+                return GL_DEPTH_COMPONENT16;
             case 3:
-                return gl::DEPTH_COMPONENT24;
+                return GL_DEPTH_COMPONENT24;
             case 4:
-                return gl::DEPTH_COMPONENT32;
+                return GL_DEPTH_COMPONENT32;
             default:
-                return gl::DEPTH_COMPONENT;
+                return GL_DEPTH_COMPONENT;
         }
     }
 }

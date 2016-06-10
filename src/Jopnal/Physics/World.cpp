@@ -125,10 +125,10 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
+                shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
 
-                glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+                glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
                 m_lines.clear();
             }
@@ -136,12 +136,12 @@ namespace detail
             // Draw points
             if (m_points.empty())
             {
-                glCheck(gl::PointSize(3));
+                glCheck(glPointSize(3));
                 GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
                 m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
-                glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+                glCheck(glDrawArrays(GL_POINTS, 0, m_points.size()));
 
                 m_points.clear();
             }
