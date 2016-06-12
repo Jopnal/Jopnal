@@ -25,7 +25,7 @@
 //////////////////////////////////////////////
 
 
-#ifdef _WIN32
+#if defined(_WIN32)
 
     #pragma warning(disable: 4251)
     #pragma warning(disable: 4201)
@@ -36,9 +36,26 @@
     #define JOP_OS_WINDOWS
     #define JOP_OS_DESKTOP
 
+#elif defined(__unix__)
+
+    #if defined(__linux__)
+
+        #define JOP_OS_LINUX
+        #define JOP_OS_DESKTOP
+
+    #elif defined(__ANDROID__)
+
+        #define JOP_OS_ANDROID
+
+    #else
+
+        #error Jopnal: unsupported unix operating system
+
+    #endif
+
 #else
 
-    #error Unsupported OS
+    #error Jopnal: unsupported OS
 
 #endif
 

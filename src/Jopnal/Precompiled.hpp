@@ -31,8 +31,6 @@
 // Windows
 #if defined(JOP_OS_WINDOWS)
 
-    #define _CRT_SECURE_NO_WARNINGS
-
     #ifndef NOMINMAX
         #define NOMINMAX
     #endif
@@ -74,7 +72,7 @@
 #include <Jopnal/MathInclude.hpp>
 
 // SFML
-#include <SFML/Audio.hpp>
+//#include <SFML/Audio.hpp>
 
 // Bullet
 #pragma warning(push)
@@ -94,23 +92,23 @@
 #pragma warning(pop)
 
 // FreeType
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-#include FT_OUTLINE_H
-#include FT_BITMAP_H
+//#include <ft2build.h>
+//#include FT_FREETYPE_H
+//#include FT_GLYPH_H
+//#include FT_OUTLINE_H
+//#include FT_BITMAP_H
 
 // PhysFS
-#include <PhysicsFS/physfs.h>
+#include <PhysFS/physfs.h>
 
 // Assimp
-#include <assimp/Importer.hpp>
-#include <assimp/Logger.hpp>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/IOSystem.hpp>
-#include <assimp/IOStream.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/Logger.hpp>
+//#include <assimp/DefaultLogger.hpp>
+//#include <assimp/IOSystem.hpp>
+//#include <assimp/IOStream.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
 
 // Standard headers
 #include <algorithm>

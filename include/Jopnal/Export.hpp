@@ -40,6 +40,20 @@
         #define JOP_API_EXPORT __declspec(dllexport)
         #define JOP_API_IMPORT __declspec(dllimport)
 
+    #elif defined(JOP_OS_LINUX) || defined(JOP_OS_ANDROID)
+
+        #if __GNUC__ >= 4
+
+            #define JOP_API_EXPORT __attribute__((__visibility__("default")))
+            #define JOP_API_IMPORT __attribute__((__visibility__("default")))
+
+        #else
+
+            #define JOP_API_EXPORT
+            #define JOP_API_IMPORT
+
+        #endif
+
     #endif
 
     #if defined(JOP_EXPORT_API)

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Jopnal\Main\AndroidActivity.cpp" />
     <ClCompile Include="..\src\Jopnal\Main\Main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

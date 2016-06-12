@@ -39,4 +39,8 @@ extern int main(int argc, char* argv[]);
         return main(__argc, __argv);
     }
 
+#elif __ANDROID__
+
+
+
 #endif
