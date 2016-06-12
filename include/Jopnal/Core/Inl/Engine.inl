@@ -103,7 +103,7 @@ namespace detail
         template<typename ... Args>
         static void create(Args&&... args)
         {
-            ::jop::Thread t(&Waiter<WaitSignal>::wait<Args...>, std::forward<Args>(args)...);
+            ::jop::Thread t(&Waiter<WaitSignal>::template wait<Args...>, std::forward<Args>(args)...);
 
             t.setPriority(::jop::Thread::Priority::Lowest);
             t.detach();
@@ -118,7 +118,7 @@ void Engine::createScene(Args&&... args)
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
     
-    detail::SceneCreator<T, Threaded, WaitSignal>::create(std::forward<Args>(args)...);
+    detail::SceneCreator<T, Threaded, WaitSignal>::template create(std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////

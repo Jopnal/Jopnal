@@ -142,6 +142,9 @@ if (JOP_OPENGL_ES)
 
 endif()
 
+# Force inclusion of available c++11/14 features
+set(CMAKE_CXX_STANDARD 14)
+
 # Enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")

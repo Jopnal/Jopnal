@@ -4,9 +4,17 @@
 include(${PROJECT_SOURCE_DIR}/cmake/Macros.cmake)
 
 # Let CMake know about additional library paths
-if (JOP_OS_WINDOWS)
+if (NOT JOP_OS_LINUX)
 
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${PROJECT_SOURCE_DIR}/extlibs/include" "${PROJECT_SOURCE_DIR}/extlibs/include/PhysFS")
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${PROJECT_SOURCE_DIR}/extlibs/include"
+                                                 "${PROJECT_SOURCE_DIR}/extlibs/include/PhysFS"
+                                                 "${PROJECT_SOURCE_DIR}/extlibs/include/Bullet")
+
+    include_directories(${CMAKE_INCLUDE_PATH})
+
+endif()
+
+if (JOP_OS_WINDOWS)
 
     if (JOP_COMPILER_GCC)
 
@@ -53,12 +61,7 @@ if (JOP_OS_WINDOWS)
     endif()
 
 elseif (JOP_OS_ANDROID)
-
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${PROJECT_SOURCE_DIR}/extlibs/include")
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${PROJECT_SOURCE_DIR}/extlibs/include/PhysFS")
-
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/android/${ANDROID_ABI}")
-
 endif()
 
 # Add the sources path
@@ -458,18 +461,16 @@ list(APPEND EXT_LIBS ${PHYSFS_LIBRARY})
 # Bullet
 if (NOT JOP_OS_ANDROID)
     find_package(Bullet REQUIRED)
+else ()
+    find_host_package(Bullet REQUIRED)
 endif()
 
 if (NOT BULLET_FOUND)
     message(FATAL_ERROR "Couldn't find Bullet")
 endif()
 
-if (NOT JOP_OS_ANDROID)
-    include_directories(${BULLET_INCLUDE_DIRS})
-    list(APPEND EXT_LIBS ${BULLET_LIBRARIES})
-else ()
-    include_directories(${PROJECT_SOURCE_DIR}/extlibs/include/Bu)
-endif()
+include_directories(${BULLET_INCLUDE_DIRS})
+list(APPEND EXT_LIBS ${BULLET_LIBRARIES})
 
 # GLFW
 if (NOT JOP_OS_ANDROID)

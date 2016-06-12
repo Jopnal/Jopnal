@@ -28,5 +28,5 @@ install(TARGETS jopnal-main ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT devel
 
 # jopnal-activity
 if (JOP_OS_ANDROID)
-    sfml_add_library(jopnal-activity SOURCES ${PROJECT_SOURCE_DIR}/src/Jopnal/Main/AndroidActivity.cpp)
+    jopAddLibrary(jopnal-activity SOURCES ${PROJECT_SOURCE_DIR}/src/Jopnal/Main/AndroidActivity.cpp)
 endif()

@@ -102,10 +102,7 @@ namespace detail
 
     #pragma region VariableSetters
     template<typename T>
-    void setVariable(jop::json::Value&, const T&, jop::json::Value::AllocatorType&)
-    {
-        static_assert(false, "Setting type not specialized");
-    }
+    void setVariable(jop::json::Value&, const T&, jop::json::Value::AllocatorType&);
 
     template<>
     void setVariable<bool>(jop::json::Value& val, const bool& value, jop::json::Value::AllocatorType&)
@@ -143,7 +140,7 @@ namespace detail
         // We can assume the map has at least one setting structure
         val.SetString(value.c_str(), alloc);
     }
-#pragma endregion VariableSetters
+    #pragma endregion VariableSetters
 
     #pragma region VariableCompare
     template<typename T>
@@ -156,7 +153,7 @@ namespace detail
     {
         return left == right.c_str();
     }
-#pragma endregion VariableCompare
+    #pragma endregion VariableCompare
 }
 
 namespace jop

@@ -256,7 +256,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    GLFWwindow* Window::getLibraryHandle()
+    WindowLibHandle Window::getLibraryHandle()
     {
     #ifdef JOP_OS_DESKTOP
         std::lock_guard<std::recursive_mutex> lock(m_mutex);

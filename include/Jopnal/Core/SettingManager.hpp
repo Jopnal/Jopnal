@@ -48,10 +48,10 @@ namespace jop
 
         friend class SettingCallbackBase;
 
-        template<typename T = void>
+        template<typename T>
         static T get(const std::string& path, const T& defaultValue);
 
-        template<typename T = void>
+        template<typename T>
         static void set(const std::string& path, const T& value);
 
     public:

@@ -65,7 +65,7 @@ namespace jop
         {
             return val.IsString();
         }
-#pragma endregion VariableQueries
+    #pragma endregion VariableQueries
 
         #pragma region VariableFetchers
         template<>

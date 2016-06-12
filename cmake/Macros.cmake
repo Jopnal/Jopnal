@@ -88,8 +88,7 @@ macro(jopAddLibrary target)
         set_target_properties(${target} PROPERTIES COMPILE_FLAGS -fvisibility=hidden)
     endif()
 
-    # sfml-activity library is our bootstrap activity and must not depend on stlport_shared
-    # (otherwise Android will fail to load it)
+    # jopnal-activity is the bootstrap activity and must not depend on stlport_shared
     if (JOP_OS_ANDROID)
 
         if (${target} MATCHES "jopnal-activity")

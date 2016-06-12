@@ -157,7 +157,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-static T& ResourceManager::getEmptyResource(Args&&... args)
+T& ResourceManager::getEmptyResource(Args&&... args)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -222,7 +222,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
         auto res = std::make_unique<T>(oldRes, newName);
         T& ptr = *res;
 
-        m_instance->m_resources[newName] = std::move(res);
+        m_instance->m_resources[std::make_pair(newName, std::type_index(typeid(T)))] = std::move(res);
 
         JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
 

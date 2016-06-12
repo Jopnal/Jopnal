@@ -285,12 +285,6 @@ namespace ArgumentSplitter
 namespace DefaultParser
 {
     template<typename Ret, typename ... Args>
-    void parse(const std::function<Ret(Args...)>& func, const std::string& args)
-    {
-        Helper<Ret, Args...>::parse(func, args);
-    }
-
-    template<typename Ret, typename ... Args>
     struct Helper
     {
         static void parse(const std::function<Ret(Args...)>& func, const std::string& args)
@@ -298,7 +292,6 @@ namespace DefaultParser
             ArgumentApplier::apply<decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
-
     template<typename Ret>
     struct Helper<Ret>
     {
@@ -308,14 +301,19 @@ namespace DefaultParser
         }
     };
 
-    //////////////////////////////////////////////
-
-    template<typename Ret, typename T, typename ... Args>
-    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, void* instance)
+    template<typename Ret, typename ... Args>
+    void parse(const std::function<Ret(Args...)>& func, const std::string& args)
     {
-        if (instance)
-            MemberHelper<Ret, T, Args...>::parse(func, args, *static_cast<T*>(instance));
+        Helper<Ret, Args...>::
+            
+        #ifdef JOP_COMPILER_GNU  // Workaround for msvc non-compliance
+            template
+        #endif
+        
+            parse(func, args);
     }
+
+    //////////////////////////////////////////////
 
     template<typename Ret, typename T, typename ... Args>
     struct MemberHelper
@@ -325,7 +323,6 @@ namespace DefaultParser
             ArgumentApplier::applyMember<decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
         }
     };
-
     template<typename Ret, typename T>
     struct MemberHelper<Ret, T>
     {
@@ -334,4 +331,19 @@ namespace DefaultParser
             func(instance);
         }
     };
+
+    template<typename Ret, typename T, typename ... Args>
+    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, void* instance)
+    {
+        if (instance)
+        {
+            MemberHelper<Ret, T, Args...>::
+                
+            #ifdef JOP_COMPILER_GNU // Workaround for msvc non-compliance
+                template    
+            #endif
+
+                parse(func, args, *static_cast<T*>(instance));
+        }
+    }
 }
