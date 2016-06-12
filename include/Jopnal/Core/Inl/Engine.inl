@@ -30,82 +30,70 @@ namespace detail
         {
             auto newPtr = new T(std::forward<Args>(args)...);
 
-            if (!::jop::Engine::hasCurrentScene())
+            if (!Engine::hasCurrentScene())
             {
-                ::jop::Engine::m_engineObject->m_currentScene.reset(newPtr);
+                Engine::m_engineObject->m_currentScene.reset(newPtr);
                 return;
             }
 
-            auto& scenePtr = ::jop::Engine::m_engineObject->m_newScene;
+            auto& scenePtr = Engine::m_engineObject->m_newScene;
             delete scenePtr.load();
 
             scenePtr.store(newPtr);
-            ::jop::Engine::signalNewScene();
+            Engine::signalNewScene();
         }
     };
+
+    inline Window::Settings getWindowSettings()
+    {
+        Window::Settings s(false);
+        s.size.x = 1; s.size.y = 1;
+        s.visible = false;
+        s.displayMode = Window::DisplayMode::Borderless;
+        s.vSync = false;
+
+        return s;
+    }
+
+    template<bool Wait>
+    inline void waitSignal(std::atomic<bool>&, const std::string&)
+    {
+        Engine::signalNewScene();
+    }
+    template<>
+    inline void waitSignal<true>(std::atomic<bool>& signal, const std::string& id)
+    {
+        JOP_DEBUG_INFO("Scene \"" << id << "\" loaded, waiting for signal...");
+
+        while (!signal.load())
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 
     template<typename T, bool WaitSignal>
     struct SceneCreator<T, true, WaitSignal>
     {
-        static ::jop::Window::Settings getWindowSettings()
+        template<typename ... Args>
+        static void wait(Args&&... args)
         {
-            ::jop::Window::Settings s(false);
-            s.size.x = 1; s.size.y = 1;
-            s.visible = false;
-            s.displayMode = Window::DisplayMode::Borderless;
-            s.vSync = false;
+            Window win(getWindowSettings());
 
-            return s;
+            auto newPtr = new T(std::forward<Args>(args)...);
+
+            auto& scenePtr = Engine::m_engineObject->m_newScene;
+            delete scenePtr.load();
+
+            scenePtr.store(newPtr);
+            GlState::flush();
+
+            waitSignal<WaitSignal>(Engine::m_engineObject->m_newSceneSignal, newPtr->getID());
         }
-
-        template<bool Wait>
-        struct Waiter
-        {
-            template<typename ... Args>
-            static void wait(Args&&... args)
-            {
-                ::jop::Window win(getWindowSettings());
-
-                auto newPtr = new T(std::forward<Args>(args)...);
-
-                auto& scenePtr = ::jop::Engine::m_engineObject->m_newScene;
-                delete scenePtr.load();
-                
-                scenePtr.store(newPtr);
-                ::jop::GlState::flush();
-
-                ::jop::Engine::signalNewScene();
-            }
-        };
-        template<>
-        struct Waiter<true>
-        {
-            template<typename ... Args>
-            static void wait(Args&&... args)
-            {
-                ::jop::Window win(getWindowSettings());
-
-                auto newPtr = new T(std::forward<Args>(args)...);
-
-                auto& scenePtr = ::jop::Engine::m_engineObject->m_newScene;
-                delete scenePtr.load();
-
-                scenePtr.store(newPtr);
-                ::jop::GlState::flush();
-
-                JOP_DEBUG_INFO("Scene \"" << newPtr->getID() << "\" loaded, waiting for signal...");
-
-                while (!::jop::Engine::m_engineObject->m_newSceneSignal.load())
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
-        };
 
         template<typename ... Args>
         static void create(Args&&... args)
         {
-            ::jop::Thread t(&Waiter<WaitSignal>::template wait<Args...>, std::forward<Args>(args)...);
+            Thread t(&wait<Args...>, std::forward<Args>(args)...);
 
-            t.setPriority(::jop::Thread::Priority::Lowest);
+            t.setPriority(Thread::Priority::Lowest);
             t.detach();
         }
     };
@@ -118,7 +106,7 @@ void Engine::createScene(Args&&... args)
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a scene while the engine wasn't loaded!");
     
-    detail::SceneCreator<T, Threaded, WaitSignal>::template create(std::forward<Args>(args)...);
+    detail::SceneCreator<T, Threaded, WaitSignal>::create(std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////

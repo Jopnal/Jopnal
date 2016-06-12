@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SettingCallback.hpp>
 #include <Jopnal/Utility/DirectoryWatcher.hpp>
+#include <Jopnal/Utility/Json.hpp>
 #include <unordered_map>
 #include <string>
 #include <mutex>
@@ -47,12 +48,6 @@ namespace jop
     private:
 
         friend class SettingCallbackBase;
-
-        template<typename T>
-        static T get(const std::string& path, const T& defaultValue);
-
-        template<typename T>
-        static void set(const std::string& path, const T& value);
 
     public:
 
@@ -123,72 +118,21 @@ namespace jop
         ///
         /// \return The setting value
         ///
-        template<>
-        static bool get<bool>(const std::string& path, const bool& defaultValue);
+        template<typename T>
+        static T get(const std::string& path, const T& defaultValue);
 
-        /// \see get<bool>()
-        ///
-        template<>
-        static int get<int>(const std::string& path, const int& defaultValue);
-
-        /// \see get<bool>()
-        ///
-        template<>
-        static unsigned int get<unsigned int>(const std::string& path, const unsigned int& defaultValue);
-
-        /// \see get<bool>()
-        ///
-        template<>
-        static float get<float>(const std::string& path, const float& defaultValue);
-
-        /// \see get<bool>()
-        ///
-        template<>
-        static double get<double>(const std::string& path, const double& defaultValue);
-
-        /// \see get<bool>()
-        ///
-        template<>
-        static std::string get<std::string>(const std::string& path, const std::string& defaultValue);
-
-
-        /// \brief Set a setting value
-        ///
-        /// The entry will be created if it doesn't exist.
-        /// 
-        /// The value will be updated only if it differs from the existing one,
-        /// as is the requirement for invoking any corresponding callbacks.
-        /// 
-        /// \param path The setting path
-        /// \param value The value to set
-        ///
-        template<>
-        static void set<bool>(const std::string& path, const bool& value);
-
-        /// \see set<bool>()
-        ///
-        template<>
-        static void set<int>(const std::string& path, const int& value);
-
-        /// \see set<bool>()
-        ///
-        template<>
-        static void set<unsigned int>(const std::string& path, const unsigned int& value);
-
-        /// \see set<bool>()
-        ///
-        template<>
-        static void set<float>(const std::string& path, const float& value);
-
-        /// \see set<bool>()
-        ///
-        template<>
-        static void set<double>(const std::string& path, const double& value);
-
-        /// \see set<bool>()
-        ///
-        template<>
-        static void set<std::string>(const std::string& path, const std::string& value);
+        ///// \brief Set a setting value
+        /////
+        ///// The entry will be created if it doesn't exist.
+        ///// 
+        ///// The value will be updated only if it differs from the existing one,
+        ///// as is the requirement for invoking any corresponding callbacks.
+        ///// 
+        ///// \param path The setting path
+        ///// \param value The value to set
+        /////
+        template<typename T>
+        static void set(const std::string& path, const T& value);
 
 
         /// \brief Register a setting change callback
@@ -238,6 +182,13 @@ namespace jop
         UpdaterMap m_updaters;              ///< Change callback map
         std::atomic<bool> m_wasSaved;
     };
+
+    namespace detail
+    {
+        json::Value* getJsonValue(const std::string& path, json::Document& root, const bool create);
+
+        json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot);
+    }
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/SettingManager.inl>

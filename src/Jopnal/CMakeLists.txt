@@ -549,6 +549,10 @@ jopAddLibrary(jopnal
 )
 
 # Precompiled header
-set_source_files_properties(jopnal PROPERTIES COTIRE_EXCLUDED "${CMAKE_CURRENT_SOURCE_DIR}/gl_4.5.c")
-set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
-cotire(jopnal)
+if (NOT JOP_COMPILER_GCC)
+
+    set_source_files_properties(jopnal PROPERTIES COTIRE_EXCLUDED "${CMAKE_CURRENT_SOURCE_DIR}/gl_4.5.c")
+    set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
+    cotire(jopnal)
+
+endif()

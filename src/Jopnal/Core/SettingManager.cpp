@@ -25,141 +25,87 @@
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    jop::json::Value* getJsonValue(const std::string& path, jop::json::Document& root, const bool create)
-    {
-        if (root.IsObject())
-        {
-            auto rootPos = path.find_first_of('@');
-
-            auto pos = (rootPos == std::string::npos ? 0 : rootPos + 1);
-            jop::json::Value* currentVal = &root;
-
-            do
-            {
-                auto next = path.find_first_of('|', pos + 1);
-
-                if (next == std::string::npos)
-                {
-                    const std::string obj(path.substr(pos));
-
-                    if (currentVal->HasMember(obj.c_str()))
-                        return &(*currentVal)[obj.c_str()];
-                    else
-                        return create ? &currentVal->AddMember(jop::json::Value(obj.c_str(), root.GetAllocator()), jop::json::Value(jop::json::kNullType), root.GetAllocator())[obj.c_str()] : nullptr;
-                }
-
-                const std::string obj(path.substr(pos, next - pos));
-
-                if (currentVal->HasMember(obj.c_str()))
-                    currentVal = &(*currentVal)[obj.c_str()];
-                else
-                {
-                    if (create)
-                        currentVal = &currentVal->AddMember(jop::json::Value(obj.c_str(), root.GetAllocator()), jop::json::Value(jop::json::kObjectType), root.GetAllocator())[obj.c_str()];
-                    else
-                        return nullptr;
-                }
-
-                pos = next + 1;
-
-            } while (pos != std::string::npos);
-        }
-
-        return nullptr;
-    }
-
-    void checkChanges(jop::json::Value& oldVal, jop::json::Value& newVal, const std::string& path, jop::json::Value::AllocatorType& alloc, jop::SettingManager::UpdaterMap& changers)
-    {
-        if (newVal.IsObject())
-        {
-            for (auto itr = newVal.MemberBegin(); itr != newVal.MemberEnd(); ++itr)
-            {
-                if (oldVal.HasMember(itr->name))
-                    checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc, changers);
-            }
-        }
-        else
-        {
-            if (oldVal != newVal)
-            {
-                oldVal.CopyFrom(newVal, alloc);
-
-            #if JOP_CONSOLE_VERBOSITY >= 2
-                const auto count = changers.count(path);
-            #endif
-
-                JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (count > 0 ? ("invoking " + std::to_string(count) + " callback" + (count > 1 ? "s" : "")) : ("no callbacks registered")));
-
-                auto range = changers.equal_range(path);
-
-                for (auto itr = range.first; itr != range.second; ++itr)
-                    itr->second->valueChangedBase(oldVal);
-            }
-        }
-    }
-
-    #pragma region VariableSetters
-    template<typename T>
-    void setVariable(jop::json::Value&, const T&, jop::json::Value::AllocatorType&);
-
-    template<>
-    void setVariable<bool>(jop::json::Value& val, const bool& value, jop::json::Value::AllocatorType&)
-    {
-        val.SetBool(value);
-    }
-
-    template<>
-    void setVariable<double>(jop::json::Value& val, const double& value, jop::json::Value::AllocatorType&)
-    {
-        val.SetDouble(value);
-    }
-
-    template<>
-    void setVariable<float>(jop::json::Value& val, const float& value, jop::json::Value::AllocatorType&)
-    {
-        val.SetDouble(static_cast<float>(value));
-    }
-
-    template<>
-    void setVariable<int>(jop::json::Value& val, const int& value, jop::json::Value::AllocatorType&)
-    {
-        val.SetInt(value);
-    }
-
-    template<>
-    void setVariable<unsigned int>(jop::json::Value& val, const unsigned int& value, jop::json::Value::AllocatorType&)
-    {
-        val.SetUint(value);
-    }
-
-    template<>
-    void setVariable<std::string>(jop::json::Value& val, const std::string& value, jop::json::Value::AllocatorType& alloc)
-    {
-        // We can assume the map has at least one setting structure
-        val.SetString(value.c_str(), alloc);
-    }
-    #pragma endregion VariableSetters
-
-    #pragma region VariableCompare
-    template<typename T>
-    bool compareVariable(const jop::json::Value& left, const T& right)
-    {
-        return left == right;
-    }
-    template<>
-    bool compareVariable<std::string>(const jop::json::Value& left, const std::string& right)
-    {
-        return left == right.c_str();
-    }
-    #pragma endregion VariableCompare
-}
-
 namespace jop
 {
     namespace detail
     {
+        json::Value* getJsonValue(const std::string& path, json::Document& root, const bool create)
+        {
+            if (root.IsObject())
+            {
+                auto rootPos = path.find_first_of('@');
+
+                auto pos = (rootPos == std::string::npos ? 0 : rootPos + 1);
+                json::Value* currentVal = &root;
+
+                do
+                {
+                    auto next = path.find_first_of('|', pos + 1);
+
+                    if (next == std::string::npos)
+                    {
+                        const std::string obj(path.substr(pos));
+
+                        if (currentVal->HasMember(obj.c_str()))
+                            return &(*currentVal)[obj.c_str()];
+                        else
+                            return create ? &currentVal->AddMember(json::Value(obj.c_str(), root.GetAllocator()), json::Value(jop::json::kNullType), root.GetAllocator())[obj.c_str()] : nullptr;
+                    }
+
+                    const std::string obj(path.substr(pos, next - pos));
+
+                    if (currentVal->HasMember(obj.c_str()))
+                        currentVal = &(*currentVal)[obj.c_str()];
+                    else
+                    {
+                        if (create)
+                            currentVal = &currentVal->AddMember(json::Value(obj.c_str(), root.GetAllocator()), json::Value(jop::json::kObjectType), root.GetAllocator())[obj.c_str()];
+                        else
+                            return nullptr;
+                    }
+
+                    pos = next + 1;
+
+                } while (pos != std::string::npos);
+            }
+
+            return nullptr;
+        }
+
+        //////////////////////////////////////////////
+
+        void checkChanges(json::Value& oldVal, json::Value& newVal, const std::string& path, json::Value::AllocatorType& alloc, SettingManager::UpdaterMap& changers)
+        {
+            if (newVal.IsObject())
+            {
+                for (auto itr = newVal.MemberBegin(); itr != newVal.MemberEnd(); ++itr)
+                {
+                    if (oldVal.HasMember(itr->name))
+                        checkChanges(oldVal[itr->name], itr->value, path + itr->name.GetString() + (itr->value.IsObject() ? "|" : ""), alloc, changers);
+                }
+            }
+            else
+            {
+                if (oldVal != newVal)
+                {
+                    oldVal.CopyFrom(newVal, alloc);
+
+                #if JOP_CONSOLE_VERBOSITY >= 2
+                    const auto count = changers.count(path);
+                #endif
+
+                    JOP_DEBUG_INFO("Setting \"" << path << "\" changed, " << (count > 0 ? ("invoking " + std::to_string(count) + " callback" + (count > 1 ? "s" : "")) : ("no callbacks registered")));
+
+                    auto range = changers.equal_range(path);
+
+                    for (auto itr = range.first; itr != range.second; ++itr)
+                        itr->second->valueChangedBase(oldVal);
+                }
+            }
+        }
+
+        //////////////////////////////////////////////
+
         json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot)
         {
             auto pos = name.find_first_of('@');
@@ -171,164 +117,13 @@ namespace jop
 
             return doc;
         }
-
-        //////////////////////////////////////////////
-
-        template<typename T>
-        T getSetting(const std::string& path, const T& defaultValue, std::recursive_mutex& mutex, json::Document& root)
-        {
-            if (path.empty())
-                return defaultValue;
-
-            std::lock_guard<std::recursive_mutex> lock(mutex);
-
-            auto val = ::detail::getJsonValue(path, root, false);
-
-            if (!val)
-            {
-                auto newVal = ::detail::getJsonValue(path, root, true);
-
-                if (newVal)
-                {
-                    JOP_DEBUG_DIAG("Setting \"" << path << "\" doesn't exist. Creating an entry using value \"" << defaultValue << "\"");
-                    ::detail::setVariable<T>(*newVal, defaultValue, root.GetAllocator());
-                    return detail::fetchVariable<T>(*newVal);
-                }
-                else
-                {
-                    JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written. Using default value \"" << defaultValue << "\"");
-                    return defaultValue;
-                }
-            }
-
-            if (!detail::queryVariable<T>(*val))
-            {
-                JOP_DEBUG_ERROR("Setting \"" << path << "\" is not convertible into \"" << typeid(T).name() << "\". Using default value \"" << defaultValue << "\"");
-                return defaultValue;
-            }
-
-            return detail::fetchVariable<T>(*val);
-        }
-
-        //////////////////////////////////////////////
-
-        template<typename T>
-        void setSetting(const std::string& path, const T& value, std::recursive_mutex& mutex, SettingManager::UpdaterMap& updaters, json::Document& root)
-        {
-            std::lock_guard<std::recursive_mutex> lock(mutex);
-
-            json::Value* val = ::detail::getJsonValue(path, root, true);
-
-            if (!val)
-            {
-                JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written");
-                return;
-            }
-
-            if (detail::queryVariable<T>(*val) || val->IsNull())
-            {
-                if (val->IsNull() || !::detail::compareVariable(*val, value))
-                    ::detail::setVariable<T>(*val, value, root.GetAllocator());
-                else
-                    return;
-            }
-            else
-            {
-                JOP_DEBUG_ERROR("Setting \"" << path << "\" was not set, unmatched type");
-                return;
-            }
-
-            auto range = updaters.equal_range(path);
-            for (auto itr = range.first; itr != range.second; ++itr)
-                itr->second->valueChangedBase(*val);
-        }
     }
 
     //////////////////////////////////////////////
 
     bool SettingManager::settingExists(const std::string& path)
     {
-        return ::detail::getJsonValue(path, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot), false) != nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    #define GET_SETTING detail::getSetting(path, defaultValue, m_instance->m_mutex, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
-
-    template<>
-    bool SettingManager::get<bool>(const std::string& path, const bool& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    template<>
-    int SettingManager::get<int>(const std::string& path, const int& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    template<>
-    unsigned int SettingManager::get<unsigned int>(const std::string& path, const unsigned int& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    template<>
-    float SettingManager::get<float>(const std::string& path, const float& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    template<>
-    double SettingManager::get<double>(const std::string& path, const double& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    template<>
-    std::string SettingManager::get<std::string>(const std::string& path, const std::string& defaultValue)
-    {
-        return GET_SETTING;
-    }
-
-    //////////////////////////////////////////////
-
-    #define SET_SETTING detail::setSetting(path, value, m_instance->m_mutex, m_instance->m_updaters, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
-
-    template<>
-    void SettingManager::set<bool>(const std::string& path, const bool& value)
-    {
-        SET_SETTING;
-    }
-
-    template<>
-    void SettingManager::set<int>(const std::string& path, const int& value)
-    {
-        SET_SETTING;
-    }
-
-    template<>
-    void SettingManager::set<unsigned int>(const std::string& path, const unsigned int& value)
-    {
-        SET_SETTING;
-    }
-
-    template<>
-    void SettingManager::set<float>(const std::string& path, const float& value)
-    {
-        SET_SETTING;
-    }
-
-    template<>
-    void SettingManager::set<double>(const std::string& path, const double& value)
-    {
-        SET_SETTING;
-    }
-
-    template<>
-    void SettingManager::set<std::string>(const std::string& path, const std::string& value)
-    {
-        SET_SETTING;
+        return detail::getJsonValue(path, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot), false) != nullptr;
     }
 
     //////////////////////////////////////////////
@@ -602,7 +397,7 @@ namespace jop
                 for (auto itr = newVals.MemberBegin(); itr != newVals.MemberEnd(); ++itr)
                 {
                     if (val.HasMember(itr->name))
-                        ::detail::checkChanges(val, newVals, i.first + "@", val.GetAllocator(), m_updaters);
+                        detail::checkChanges(val, newVals, i.first + "@", val.GetAllocator(), m_updaters);
                 }
             }
         }

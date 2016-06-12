@@ -40,8 +40,20 @@ endif()
 project(Jopnal)
 
 
-# Cotire for precompiled headers
+# Include config
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+# Hide cotire options
+mark_as_advanced(COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS)
+mark_as_advanced(COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_PATH)
+mark_as_advanced(COTIRE_DEBUG)
+mark_as_advanced(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
+mark_as_advanced(COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES)
+mark_as_advanced(COTIRE_UNITY_SOURCE_EXCLUDE_EXTENSIONS)
+mark_as_advanced(COTIRE_VERBOSE)
+
+# Cotire for precompiled headers
+set (COTIRE_PCH_MEMORY_SCALING_FACTOR "500")
 include(cotire)
 
 # Include the configuration file
@@ -142,8 +154,8 @@ if (JOP_OPENGL_ES)
 
 endif()
 
-# Force inclusion of available c++11/14 features
-set(CMAKE_CXX_STANDARD 14)
+# Force inclusion of available c++11 features
+set(CMAKE_CXX_STANDARD 11)
 
 # Enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
