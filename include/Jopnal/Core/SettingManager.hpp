@@ -189,9 +189,6 @@ namespace jop
 
         json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot);
     }
-
-    // Include the template implementation file
-    #include <Jopnal/Core/Inl/SettingManager.inl>
 }
 
 #endif

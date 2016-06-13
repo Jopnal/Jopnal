@@ -32,10 +32,10 @@
 
 
 struct PHYSFS_File;
-namespace Assimp
-{
-    class Importer;
-}
+//namespace Assimp
+//{
+//    class Importer;
+//}
 
 namespace jop
 {
@@ -47,7 +47,7 @@ namespace jop
 
         friend class ModelLoader;
 
-        static Assimp::Importer& getImporter();
+        //static Assimp::Importer& getImporter();
 
     public:
 

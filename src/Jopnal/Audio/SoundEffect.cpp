@@ -55,7 +55,6 @@ namespace jop
           m_playOnce        (false),
           m_resetSound      (false)
     {
-        m_sound = std::make_unique<sf::Sound>();
 
         m_playOnce = false;
         m_playWithSpeed = false;
@@ -69,7 +68,6 @@ namespace jop
           m_playOnce        (false),
           m_resetSound      (false)
     {
-        m_sound = std::make_unique<sf::Sound>(static_cast<const sf::Sound&>(*other.m_sound));
     }
 
     //////////////////////////////////////////////
@@ -86,7 +84,6 @@ namespace jop
 
     SoundEffect& SoundEffect::setBuffer(const SoundBuffer& buffer)
     {
-        static_cast<sf::Sound*>(m_sound.get())->setBuffer(*buffer.m_soundBuf);
         return *this;
     }
 
@@ -121,14 +118,7 @@ namespace jop
     {
         m_resetSound = false;
 
-        if (!m_playWithSpeed)
-            static_cast<sf::Sound*>(m_sound.get())->play();
 
-        else if (!m_playOnce)
-        {
-            calculateSound();
-            m_playOnce = true;
-        }
 
         return *this;
     }
@@ -137,7 +127,6 @@ namespace jop
 
     SoundEffect& SoundEffect::stop()
     {
-        static_cast<sf::Sound*>(m_sound.get())->stop();
         m_playOnce = false;
 
         return *this;
@@ -147,7 +136,6 @@ namespace jop
 
     SoundEffect& SoundEffect::pause()
     {
-        static_cast<sf::Sound*>(m_sound.get())->pause();
         return *this;
     }
 
@@ -155,10 +143,6 @@ namespace jop
 
     SoundEffect& SoundEffect::setOffset(const float time)
     {
-        auto& sound = *static_cast<sf::Sound*>(m_sound.get());
-
-        sf::Time t(sf::seconds(glm::clamp(time, 0.f, sound.getBuffer()->getDuration().asSeconds())));
-        sound.setPlayingOffset(t);
 
         return *this;
     }
@@ -167,21 +151,20 @@ namespace jop
 
     float SoundEffect::getOffset() const
     {
-        return static_cast<sf::Sound*>(m_sound.get())->getPlayingOffset().asSeconds();
+        return 0.f;
     }
 
     //////////////////////////////////////////////
 
     SoundSource::Status SoundEffect::getStatus() const
     {
-        return static_cast<Status>(static_cast<sf::Sound*>(m_sound.get())->getStatus());
+        return Status::Stopped;
     }
 
     //////////////////////////////////////////////
 
     SoundEffect& SoundEffect::setLoop(const bool loop)
     {
-        static_cast<sf::Sound*>(m_sound.get())->setLoop(loop);
         return *this;
     }
 
@@ -226,11 +209,6 @@ namespace jop
 
     void SoundEffect::calculateSound()
     {
-        const auto target = sf::Listener::getPosition();
-        const float lenght = glm::length(glm::vec3(target.x, target.y, target.z) - getObject()->getGlobalPosition());
-        const float multiplier = std::max(FLT_MIN, 343.f * ns_globalFactor * m_personalSpeed);
-
-        m_speedCounter = lenght / multiplier;
     }
 
     //////////////////////////////////////////////
@@ -239,8 +217,6 @@ namespace jop
     {
         if ((m_speedCounter -= deltaTime) <= 0.0f)
         {
-            if (getStatus() != Status::Playing || m_resetSound)
-                static_cast<sf::Sound*>(m_sound.get())->play();
 
             m_playOnce = false;
         }

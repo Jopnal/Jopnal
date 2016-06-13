@@ -29,11 +29,6 @@
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class Music;
-}
-
 namespace jop
 {
     namespace detail
@@ -116,7 +111,6 @@ namespace jop
 
 
         std::string m_path; ///< Remembers streaming path for cloning
-        std::unique_ptr<detail::AudioStream> m_stream;
     };
 }
 #endif

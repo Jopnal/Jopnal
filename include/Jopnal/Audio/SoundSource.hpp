@@ -31,11 +31,6 @@
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class SoundSource;
-}
-
 namespace jop
 {
     class JOP_API SoundSource : public Component
@@ -175,8 +170,6 @@ namespace jop
 
         virtual Message::Result receiveMessage(const Message& message) override;
 
-
-        std::unique_ptr<sf::SoundSource> m_sound;   ///< Sound source
     };
 }
 

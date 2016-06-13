@@ -19,45 +19,26 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_STL_HPP
+#define JOP_STL_HPP
+
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Header.hpp>
+#include <memory>
 
-//////////////////////////////////////////////
 
-
-namespace jop
+namespace std
 {
-    ModelLoader::Options::Options()
-        : forceDiffuseAlpha     (false),
-          collapseTree          (true),
-          fixInfacingNormals    (true)
-    {}
+#ifdef JOP_OS_ANDROID
 
-    //////////////////////////////////////////////
-
-    ModelLoader::ModelLoader(Object& obj)
-        : Component (obj, 0),
-          m_path    ()
-    {}
-
-    ModelLoader::ModelLoader(Object& obj, const std::string& path, const Options& options)
-        : Component (obj, 0),
-          m_path    ()
+    // Android STL doesn't have make_unique, so implement it here
+    template<typename T, typename ... Args>
+    inline unique_ptr<T> make_unique(Args&&... args)
     {
-        load(path, options);
+        return unique_ptr<T>(new T(forward<Args>(args)...));
     }
 
-    ModelLoader::ModelLoader(const ModelLoader& other, Object& obj)
-        : Component (other, obj),
-          m_path    (other.m_path)
-    {}
-
-    //////////////////////////////////////////////
-
-    bool ModelLoader::load(const std::string& path, const Options& options)
-    {
-        
-
-        return false;
-    }
+#endif
 }
+
+#endif

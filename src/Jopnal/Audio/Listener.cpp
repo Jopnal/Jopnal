@@ -22,6 +22,14 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Audio/Listener.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 
@@ -50,28 +58,19 @@ namespace jop
 
     void Listener::update(const float)
     {
-        glm::vec3 var = getObject()->getGlobalPosition();
-        sf::Listener::setPosition(var.x, var.y, var.z);
-
-        var = getObject()->getGlobalFront();
-        sf::Listener::setDirection(var.x, var.y, var.z);
-
-        var = getObject()->getGlobalUp();
-        sf::Listener::setUpVector(var.x, var.y, var.z);
     }
 
     ///////////////////////////////////////
 
     void Listener::setGlobalVolume(const float volume)
     {
-        sf::Listener::setGlobalVolume(glm::clamp(volume, 0.f, 100.f));
     }
 
     ///////////////////////////////////////
 
     float Listener::getGlobalVolume()
     {
-        return sf::Listener::getGlobalVolume();
+        return 0.f;
     }
 
     //////////////////////////////////////////////

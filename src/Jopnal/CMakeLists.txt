@@ -127,7 +127,6 @@ set(INL_COR
     ${INCROOT_COR}/Inl/Scene.inl
     ${INCROOT_COR}/Inl/Serializer.inl
     ${INCROOT_COR}/Inl/SettingCallback.inl
-    ${INCROOT_COR}/Inl/SettingManager.inl
 )
 set(SRC_COR
     ${SRCROOT_COR}/Component.cpp
@@ -551,6 +550,7 @@ jopAddLibrary(jopnal
 # Precompiled header
 if (NOT JOP_COMPILER_GCC)
 
+    add_definitions(-DJOP_PRECOMPILED_HEADER)
     set_source_files_properties(jopnal PROPERTIES COTIRE_EXCLUDED "${CMAKE_CURRENT_SOURCE_DIR}/gl_4.5.c")
     set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
     cotire(jopnal)

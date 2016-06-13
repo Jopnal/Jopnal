@@ -19,7 +19,7 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PRECOMPILED_HPP
+#if !defined(JOP_PRECOMPILED_HPP) && defined(JOP_PRECOMPILED_HEADER)
 #define JOP_PRECOMPILED_HPP
 
 //******** HEADERS ********//
@@ -71,9 +71,6 @@
 // GLM
 #include <Jopnal/MathInclude.hpp>
 
-// SFML
-//#include <SFML/Audio.hpp>
-
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)
@@ -91,24 +88,8 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
-// FreeType
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
-//#include FT_GLYPH_H
-//#include FT_OUTLINE_H
-//#include FT_BITMAP_H
-
 // PhysFS
 #include <PhysFS/physfs.h>
-
-// Assimp
-//#include <assimp/Importer.hpp>
-//#include <assimp/Logger.hpp>
-//#include <assimp/DefaultLogger.hpp>
-//#include <assimp/IOSystem.hpp>
-//#include <assimp/IOStream.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
 
 // Standard headers
 #include <algorithm>
@@ -122,15 +103,8 @@
 #include <locale>
 #include <codecvt>
 
-#ifdef JOP_OS_ANDROID
-namespace std
-{
-template<typename T, typename... Args>
-unique_ptr<T> make_unique(Args&&... args) {
-    return unique_ptr<T>(new T(forward<Args>(args)...));
-}
-}
-#endif
+// Additional STL header
+#include <Jopnal/STL.hpp>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

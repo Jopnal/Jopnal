@@ -41,13 +41,11 @@ namespace jop
 namespace jop
 {
     SoundSource::SoundSource(Object& object, const uint32 ID)
-        : Component         (object, ID),
-          m_sound           ()
+        : Component         (object, ID)
     {}
 
     SoundSource::SoundSource(const SoundSource& other, Object& newObj)
-        : Component         (other, newObj),
-          m_sound           ()
+        : Component         (other, newObj)
     {}
 
     SoundSource::~SoundSource()
@@ -57,15 +55,12 @@ namespace jop
 
     void SoundSource::update(const float)
     {
-        glm::vec3 pos = getObject()->getGlobalPosition();
-        m_sound->setPosition(pos.x, pos.y, pos.z);
     }
 
     //////////////////////////////////////////////
 
     SoundSource& SoundSource::setVolume(const float vol)
     {
-        m_sound->setVolume(glm::clamp(vol, 0.f, 100.f));
         return *this;
     }
 
@@ -73,14 +68,13 @@ namespace jop
 
     float SoundSource::getVolume() const
     {
-        return m_sound->getVolume();
+        return 0.f;
     }
 
     //////////////////////////////////////////////
 
     SoundSource& SoundSource::setPitch(const float value)
     {
-        m_sound->setPitch(std::max(value, 0.f));
         return *this;
     }
 
@@ -88,14 +82,13 @@ namespace jop
 
     float SoundSource::getPitch() const
     {
-        return m_sound->getPitch();
+        return 0.f;
     }
 
     //////////////////////////////////////////////
 
     SoundSource& SoundSource::setSpatialized(const bool set)
     {
-        m_sound->setRelativeToListener(!set);
         return *this;
     }
 
@@ -103,14 +96,13 @@ namespace jop
 
     bool SoundSource::isSpatialized() const
     {
-        return !m_sound->isRelativeToListener();
+        return false;
     }
 
     //////////////////////////////////////////////
 
     SoundSource& SoundSource::setAttenuation(const float at)
     {
-        m_sound->setAttenuation(std::max(at, 0.f));
         return *this;
     }
 
@@ -118,7 +110,6 @@ namespace jop
 
     SoundSource& SoundSource::setMinDistance(const float min)
     {
-        m_sound->setMinDistance(std::max(FLT_MIN, min));
         return *this;
     }
 
@@ -126,14 +117,14 @@ namespace jop
 
     float SoundSource::getAttenuation() const
     {
-        return m_sound->getAttenuation();
+        return 0.f;
     }
 
     //////////////////////////////////////////////
 
     float SoundSource::getMinDistance() const
     {
-        return m_sound->getMinDistance();
+        return 0.f;
     }
 
     //////////////////////////////////////////////

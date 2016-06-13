@@ -29,11 +29,6 @@
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class Sound;
-}
-
 namespace jop
 {
     class JOP_API SoundEffect : public SoundSource

@@ -429,6 +429,7 @@
     <ClInclude Include="..\src\Jopnal\gl_4.5.h">
       <Filter>Root\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Jopnal\STL.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -741,9 +742,6 @@
     </None>
     <None Include="..\include\Jopnal\Utility\Inl\Thread.inl">
       <Filter>Utility\Inl</Filter>
-    </None>
-    <None Include="..\include\Jopnal\Core\Inl\SettingManager.inl">
-      <Filter>Core\Inl</Filter>
     </None>
     <None Include="..\include\Jopnal\Core\Inl\SettingCallback.inl">
       <Filter>Core\Inl</Filter>

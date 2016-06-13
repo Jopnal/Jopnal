@@ -28,13 +28,11 @@
 namespace jop
 {
     SoundBuffer::SoundBuffer(const std::string& name)
-        : Resource      (name),
-          m_soundBuf    (std::make_unique<sf::SoundBuffer>())
+        : Resource      (name)
     {}
 
     SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
-        : Resource      (newName),
-          m_soundBuf    (std::make_unique<sf::SoundBuffer>(*other.m_soundBuf))
+        : Resource      (newName)
     {}
 
     SoundBuffer::~SoundBuffer()
@@ -47,7 +45,7 @@ namespace jop
         std::vector<uint8> buf;
         FileLoader::readBinaryfile(path, buf);
         
-        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -59,7 +57,7 @@ namespace jop
         if (!FileLoader::readResource(id, buf))
             return false;
 
-        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+        return false;
     }
 
     //////////////////////////////////////////////

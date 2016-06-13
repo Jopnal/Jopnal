@@ -33,11 +33,6 @@
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    struct FontImpl;
-}
-
 namespace jop
 {
     class JOP_API Font : public Resource
@@ -126,7 +121,6 @@ namespace jop
         bool load(const int pixelSize);
 
 
-        std::unique_ptr<::detail::FontImpl> m_data;
         int m_pixelSize;
     };
 }
