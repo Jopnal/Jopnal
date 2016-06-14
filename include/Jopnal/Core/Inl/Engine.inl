@@ -26,7 +26,7 @@ namespace detail
     struct SceneCreator
     {
         template<typename ... Args>
-        static void create(Args&&... args)
+        inline static void create(Args&&... args)
         {
             auto newPtr = new T(std::forward<Args>(args)...);
 

@@ -20,11 +20,24 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/RenderTexture.hpp>
+    #include <Jopnal/Graphics/PostProcessor.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/Window.hpp>
+
+    #ifndef JOP_OS_WINDOWS
+        #include <unistd.h>
+    #endif
 
 #endif
 
@@ -146,8 +159,10 @@ namespace jop
 
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
-    #ifdef JOP_OS_WINDOWS
+    #if defined(JOP_OS_WINDOWS)
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    #else
+            nice(-10);
     #endif
 
         JOP_DEBUG_INFO("Default engine sub system configuration loaded");

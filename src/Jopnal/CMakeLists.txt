@@ -112,7 +112,7 @@ set(INC_COR
     ${INCROOT_COR}/Object.hpp
     ${INCROOT_COR}/Resource.hpp
     ${INCROOT_COR}/ResourceManager.hpp
-    ${SRCROOT_COR}/Scene.cpp
+    ${INCROOT_COR}/Scene.hpp
     ${INCROOT_COR}/SerializeInfo.hpp
     ${INCROOT_COR}/Serializer.hpp
     ${INCROOT_COR}/SettingCallback.hpp
@@ -555,8 +555,13 @@ jopAddLibrary(jopnal
 if (NOT JOP_COMPILER_GCC)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
+	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=JOP_PRECOMPILED_HEADER_FILE)
                                                                   
     set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
     cotire(jopnal)
+
+else()
+
+	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/PrecompiledEmpty.hpp>)
 
 endif()

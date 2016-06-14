@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #pragma warning(push)

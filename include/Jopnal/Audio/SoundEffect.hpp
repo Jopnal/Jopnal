@@ -31,6 +31,8 @@
 
 namespace jop
 {
+    class SoundBuffer;
+
     class JOP_API SoundEffect : public SoundSource
     {
     private:

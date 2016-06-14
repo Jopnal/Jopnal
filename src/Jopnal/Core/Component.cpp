@@ -20,11 +20,14 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Core/Component.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
 
 #endif
 

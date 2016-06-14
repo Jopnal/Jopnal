@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Utility/Clock.hpp>
@@ -62,7 +63,7 @@ namespace jop
         ~ResourceManager() override;
 
 
-        /// \brief Load and get a resource
+        /// \brief Get a resource
         ///
         /// If resource is not found this creates a new one. The first argument must be convertible
         /// into std::string, as it's used as a hash map key.

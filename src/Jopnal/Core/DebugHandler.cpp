@@ -20,32 +20,46 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+
+    #ifdef JOP_OS_ANDROID
+        #include <android/log.h>
+    #endif
 
 #endif
 
 //////////////////////////////////////////////
 
 
-#ifdef JOP_OS_WINDOWS
 namespace
 {
+#ifdef JOP_OS_WINDOWS
+
     BOOL WINAPI handleConsoleEvent(DWORD event)
     {
         return event == CTRL_C_EVENT;
     }
 
+#endif
+
     bool checkConsoleWindow()
     {
+    #if defined(JOP_OS_WINDOWS)
         return GetConsoleWindow() != NULL;
+    #elif defined(JOP_OS_ANDROID)
+        return true;
+    #endif
     }
 
     void openConsoleWindow()
     {
+    #if defined(JOP_OS_WINDOWS)
+
         if (!checkConsoleWindow())
         {
             if (!AllocConsole())
@@ -155,19 +169,27 @@ namespace
                 MoveWindow(GetConsoleWindow(), pos.x + 5 - (IsWindows8OrGreater() * 10), pos.y + 5, consoleSize.right - consoleSize.left - (IsWindows8OrGreater() * 6), consoleSize.bottom - consoleSize.top - 25, TRUE);
             }
         }
+
+    #endif
     }
 
     void closeConsoleWindow()
     {
         if (checkConsoleWindow())
         {
+        #if defined(JOP_OS_WINDOWS)
+
             ShowWindow(GetConsoleWindow(), SW_HIDE);
             FreeConsole();
+
+        #endif
         }
     }
 
     void setConsoleColor(const jop::Color& color)
     {
+    #if defined(JOP_OS_WINDOWS)
+
         using jop::Color;
 
         WORD attrib = 1; // White
@@ -196,9 +218,14 @@ namespace
             attrib = 11;
 
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attrib);
+
+    #else
+
+        color;
+
+    #endif
     }
 }
-#endif
 
 namespace jop
 {
@@ -287,7 +314,11 @@ namespace jop
 
     bool DebugHandler::fileLoggingEnabled() const
     {
+    #ifdef JOP_OS_ANDROID
+        return false;
+    #else
         return m_fileLogging;
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -334,8 +365,24 @@ namespace jop
 
                 if (isConsoleEnabled())
                 {
+                #ifdef JOP_OS_ANDROID
+
+                    static const int androidSeverity[] =
+                    {
+                        ANDROID_LOG_ERROR,
+                        ANDROID_LOG_WARN,
+                        ANDROID_LOG_INFO,
+                        ANDROID_LOG_DEBUG
+                    };
+
+                    __android_log_print(androidSeverity[severity], "Jopnal", newStr.c_str());
+
+                #else
+
                     std::cout << finalString << std::endl;
                     setConsoleColor(Color::White);
+
+                #endif
                 }
 
                 if (fileLoggingEnabled() && m_fileHandles[severity])

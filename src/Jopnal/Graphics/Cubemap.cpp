@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 #include <Jopnal/Graphics/stb/stb_image.h>
 
 #ifndef JOP_PRECOMPILED_HEADER

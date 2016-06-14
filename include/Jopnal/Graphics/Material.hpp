@@ -36,6 +36,7 @@ namespace jop
 {
     class Shader;
     class Texture;
+    class Camera;
 
     class JOP_API Material final : public Resource
     {

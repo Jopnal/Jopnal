@@ -25,7 +25,7 @@ namespace detail
     template<typename Str, typename ... Rest>
     std::string getStringArg(const Str& str, Rest&&...)
     {
-        return str;
+        return std::string(str);
     }
 
     //////////////////////////////////////////////

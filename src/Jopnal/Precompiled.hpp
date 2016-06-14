@@ -19,7 +19,7 @@
 
 //////////////////////////////////////////////
 
-#if !defined(JOP_PRECOMPILED_HPP) && defined(JOP_PRECOMPILED_HEADER)
+#ifndef JOP_PRECOMPILED_HPP
 #define JOP_PRECOMPILED_HPP
 
 //******** HEADERS ********//

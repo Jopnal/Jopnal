@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/WindowImpl.hpp>

@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 //headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
