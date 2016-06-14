@@ -22,6 +22,12 @@
 //headers
 #include <Jopnal/Precompiled.hpp>
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 

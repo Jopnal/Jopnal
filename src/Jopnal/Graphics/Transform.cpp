@@ -22,6 +22,12 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Transform.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 

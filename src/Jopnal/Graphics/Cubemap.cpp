@@ -23,6 +23,12 @@
 #include <Jopnal/Precompiled.hpp>
 #include <Jopnal/Graphics/stb/stb_image.h>
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Texture/Cubemap.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 

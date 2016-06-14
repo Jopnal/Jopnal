@@ -29,6 +29,12 @@
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 

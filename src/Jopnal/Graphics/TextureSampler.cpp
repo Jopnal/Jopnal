@@ -21,6 +21,11 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Texture/TextureSampler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 

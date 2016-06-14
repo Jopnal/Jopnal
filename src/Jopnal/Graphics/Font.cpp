@@ -29,6 +29,12 @@
 #pragma warning(pop)
 #pragma warning(disable: 4505)
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Font.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 
