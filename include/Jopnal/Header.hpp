@@ -28,5 +28,6 @@
 #include <Jopnal/Export.hpp>
 #include <Jopnal/HelperMacros.hpp>
 #include <Jopnal/Types.hpp>
+#include <Jopnal/STL.hpp>
 
 #endif

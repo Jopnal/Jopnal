@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Utility/Clock.hpp>
 #include <unordered_map>
 #include <unordered_set>

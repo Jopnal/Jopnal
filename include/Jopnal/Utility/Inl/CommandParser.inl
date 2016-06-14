@@ -304,13 +304,7 @@ namespace DefaultParser
     template<typename Ret, typename ... Args>
     void parse(const std::function<Ret(Args...)>& func, const std::string& args)
     {
-        Helper<Ret, Args...>::
-            
-        #ifdef JOP_COMPILER_GNU  // Workaround for msvc non-compliance
-            template
-        #endif
-        
-            parse(func, args);
+        Helper<Ret, Args...>::parse(func, args);
     }
 
     //////////////////////////////////////////////
@@ -337,13 +331,7 @@ namespace DefaultParser
     {
         if (instance)
         {
-            MemberHelper<Ret, T, Args...>::
-                
-            #ifdef JOP_COMPILER_GNU // Workaround for msvc non-compliance
-                template    
-            #endif
-
-                parse(func, args, *static_cast<T*>(instance));
+            MemberHelper<Ret, T, Args...>::parse(func, args, *static_cast<T*>(instance));
         }
     }
 }

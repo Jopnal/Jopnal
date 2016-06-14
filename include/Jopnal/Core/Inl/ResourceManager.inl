@@ -23,10 +23,8 @@
 namespace detail
 {
     template<typename Str, typename ... Rest>
-    std::string getStringArg(const Str& str, Rest&...)
+    std::string getStringArg(const Str& str, Rest&&...)
     {
-        static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
-        
         return str;
     }
 
