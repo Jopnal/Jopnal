@@ -99,11 +99,17 @@ namespace jop
 
         std::vector<Vertex> vertices;
 
+
+
         float x = 0, y = 0;
         int previous = -1;
 
         for (auto i : m_string)
         {
+            // TODO: Remove purkka
+            // use glyphs advance + kerning
+
+
             if (i == L' ')
             {
                 x += (1.0 / 128.0);
@@ -128,27 +134,28 @@ namespace jop
 
             if (previous != -1)
             {
-                kerning = 1.0f / 256.0f;
-
-                // TODO: Kerning not working... fix later if there's time
-                //m_font->getKerning(previous, i);
+                // Kerning
+                kerning = m_font->getKerning(previous, i);
             }
             previous = i;
 
             // Get bitmap location and size inside the texture in pixels
-            m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
+            // getCharacterPosition here
+            //m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
             // Get font texture
             const Texture2D& tex = m_font->getTexture();
 
+            
             // Get font origin
             std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
 
             float texWidth = static_cast<float>(tex.getSize().x);
             float texHeight = static_cast<float>(tex.getSize().y);
 
-            metrics.first.x /= (32.f * (64.f / m_font->getPixelSize()) * texWidth);
-            metrics.first.y /= (32.f * (64.f / m_font->getPixelSize()) * texHeight);
+            metrics.first.x /= (32.f * (64.f / m_font->getFontSize()) * texWidth);
+            metrics.first.y /= (32.f * (64.f / m_font->getFontSize()) * texHeight);
+
 
             // Calculate coordinates
             glm::vec2 glyphPos;
@@ -213,6 +220,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::pair<glm::vec2, glm::vec2> Text::getBounds(jop::Glyph& glyph) const
+    {
+        // Use codepoint instead -?
+        return glyph.getBounds();
+    }
+
+    //////////////////////////////////////////////
+
+    const glm::vec2 Text::getCharacterPosition(const int codepoint)
+    {
+        // codepoint, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY
+
+        
+
+        
+    }
+
+    //////////////////////////////////////////////
+
     Text& Text::setFont(const Font& font)
     {
         m_font = static_ref_cast<const Font>(font.getReference());
@@ -229,6 +255,34 @@ namespace jop
         m_material.setReflection(Material::Reflection::Solid, color);
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    jop::Text& Text::setStyle()
+    {
+        // TODO:
+
+        //     stbtt_FindMatchingFont() will use *case-sensitive* comparisons on
+        //             unicode-encoded names to try to find the font you want;
+        //             you can run this before calling stbtt_InitFont()
+        //
+        //     stbtt_GetFontNameString() lets you get any of the various strings
+        //             from the file yourself and do your own comparisons on them.
+        //             You have to have called stbtt_InitFont() first.
+
+        /*
+        stbtt_FindMatchingFont(const unsigned char *fontdata, const char *name, int flags);
+        // returns the offset (not index) of the font that matches, or -1 if none
+        //   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
+        //   if you use any other flag, use a font name like "Arial"; this checks
+        //     the 'macStyle' header field; i don't know if fonts set this consistently
+        #define STBTT_MACSTYLE_DONTCARE     0
+        #define STBTT_MACSTYLE_BOLD         1
+        #define STBTT_MACSTYLE_ITALIC       2
+        #define STBTT_MACSTYLE_UNDERSCORE   4
+        #define STBTT_MACSTYLE_NONE         8   // <= not same as 0, this makes us check the bitfield is 0
+        */
     }
 
     //////////////////////////////////////////////

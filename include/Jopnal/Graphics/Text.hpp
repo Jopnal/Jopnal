@@ -34,6 +34,7 @@
 
 namespace jop
 {
+
     class Font;
 
     class JOP_API Text : public GenericDrawable
@@ -72,6 +73,12 @@ namespace jop
         /// \return Reference to the internal string
         ///
         const std::wstring& getString() const;
+        
+        /// \brief Get bounds for a glyph relative to the given codepoint
+        ///
+        std::pair<glm::vec2, glm::vec2> getBounds(jop::Glyph& glyph) const;
+
+        const glm::vec2 getCharacterPosition(const int codepoint);
 
         /// \brief Set font
         ///
@@ -84,6 +91,12 @@ namespace jop
         /// \param color Color
         ///
         Text& setColor(const Color color);
+
+        /// \brief Set text style
+        ///
+        /// 
+        ///
+        Text& setStyle();
 
         /// \brief Get the color
         ///

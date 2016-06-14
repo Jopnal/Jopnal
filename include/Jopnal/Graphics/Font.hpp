@@ -19,19 +19,20 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_FONT_HPP
-#define JOP_FONT_HPP
+#ifndef JOP_Font_HPP
+#define JOP_Font_HPP
 
 // Headers
+
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Texture2D.hpp>
 #include <Jopnal/MathInclude.hpp>
 #include <memory>
 #include <unordered_map>
+#include <Jopnal/Graphics/Glyph.hpp>
 
 //////////////////////////////////////////////
-
 
 namespace detail
 {
@@ -40,6 +41,8 @@ namespace detail
 
 namespace jop
 {
+
+
     class JOP_API Font : public Resource
     {
     private:
@@ -58,36 +61,29 @@ namespace jop
         ///
         ~Font() override;
 
-
         /// \brief Loads a font from targeted path
         ///
         /// \param path Path to desired .ttf font file
-        /// \param pixelSize Glyph size in texture
+        /// \param fontSize Glyph size in texture
         ///
-        bool load(const std::string& path, const int pixelSize);
+        bool load(const std::string& path, const int fontSize);
 
-        /// \brief Calculates font boundaries
+        /// \brief Returns the necessary kerning correction between characters
         ///
-        /// \param codepoint Numerical value pointing to a single character
+        /// \param left Numerical value pointing to the desired character
+        /// \param right Numerical value pointing to the next character
         ///
-        std::pair<glm::vec2, glm::vec2> getBounds(const int codepoint) const;
+        float getKerning(const uint32 left,const uint32 right) const;
 
-        /// \brief Returns the necessary kerning between characters
+        /// \brief Returns a single glyph from given codepoint
         ///
-        /// \param codepoint1 Numerical value pointing to the desired character
-        /// \param codepoint2 Ditto
+        /// \param Unicode codepoint of a character
         ///
-        float getKerning(const int codepoint1, const int codepoint2) const;
+        const jop::Glyph& getGlyph(uint32 codepoint);
 
-        /// \brief Checks if glyph is in bitmap
+        /// \brief Returns the distance between two rows
         ///
-        /// \param codepoint Pointer to a single character
-        /// \param width Width of a single character
-        /// \param height Height of a single character
-        /// \param x The X coordinate
-        /// \param y The Y coordinate
-        ///
-        void getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y) const;
+        float getLineSpacing() const;
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
@@ -95,7 +91,7 @@ namespace jop
 
         /// \brief Returns pixel size 
         ///
-        float getPixelSize() const;
+        float getFontSize() const;
 
 
         /// \brief Get the error font
@@ -112,22 +108,14 @@ namespace jop
 
     private:
 
-        /// \brief Loads a font from DLL file
-        ///
-        /// \param id ID
-        /// \param pixelSize Glyph size in texture
-        ///
-        bool load(const int id, const int pixelSize);
-
-        /// \brief Loads a font from internal buffer
-        ///
-        /// \param pixelSize Glyph size in texture
-        ///
-        bool load(const int pixelSize);
-
-
         std::unique_ptr<::detail::FontImpl> m_data;
-        int m_pixelSize;
+        jop::Texture2D m_texture;  ///< Texture
+        std::vector<unsigned char> m_buffer;        ///< File buffer
+        std::unordered_map <int, jop::Glyph> m_bitmaps; ///< Texture coordinates
+        int m_textureSize; ///< 256x256 by default
+        int m_numNodes;
+        int m_fontSize;
+
     };
 }
 

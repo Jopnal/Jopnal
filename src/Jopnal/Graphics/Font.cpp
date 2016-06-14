@@ -21,54 +21,42 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
-
-#define STB_RECT_PACK_IMPLEMENTATION
 #pragma warning(push)
 #pragma warning(disable: 4100)
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <Jopnal/Graphics/STB/stb_truetype.h>
+#define STB_RECT_PACK_IMPLEMENTATION
 #include <Jopnal/Graphics/stb/stb_rect_pack.h>
 #pragma warning(pop)
 #pragma warning(disable: 4505)
 
 //////////////////////////////////////////////
 
-
 namespace detail
 {
     struct FontImpl
     {
-        FT_Library m_library;                       ///< Freetype library
-        FT_Face m_face;                             ///< Font info
-        std::vector<unsigned char> m_buffer;        ///< File buffer
-        std::unique_ptr<stbrp_context> m_context;   ///< Rectangle packing context
-        ::jop::Texture2D m_texture;                 ///< Texture
+        stbtt_fontinfo m_fontInfo; ///< Font info
+        stbrp_context m_context;   ///< Rectangle packing context
         std::vector<stbrp_node> m_nodes;
-        int m_numNodes;
-        std::unordered_map <int, std::pair<glm::ivec2, glm::ivec2>> m_bitmaps; ///< Texture coordinates
-
-        FontImpl()
-            : m_texture     (""),
-              m_nodes       (1024),
-              m_numNodes    (1024)
-        {
-            FT_Error err = FT_Init_FreeType(&m_library);
-            if (err)
-                JOP_DEBUG_ERROR("Could not initialize freetype: " << err);
-        }
-
-        ~FontImpl()
-        {
-            FT_Done_Face(m_face);
-            FT_Done_FreeType(m_library);
-        }
+        
+        FontImpl():
+            m_nodes(),
+            m_fontInfo(),
+            m_context()
+        {}
     };
 }
 
 namespace jop
 {
     Font::Font(const std::string& name)
-        : Resource      (name),
-          m_data        (std::make_unique<::detail::FontImpl>()),
-          m_pixelSize   (64)
+        : Resource(name),
+        m_data(std::make_unique<::detail::FontImpl>()),
+        m_texture(""),
+        m_buffer(0),
+        m_textureSize(256),
+        m_fontSize(64)
     {}
 
     Font::~Font()
@@ -76,193 +64,130 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture2D& Font::getTexture()const
+    const Texture2D& Font::getTexture() const
     {
-        return m_data.get()->m_texture;
+        return m_texture;
     }
 
     //////////////////////////////////////////////
 
-    float Font::getPixelSize() const
+    float Font::getFontSize() const
     {
-        return static_cast<float>(m_pixelSize);
+        return static_cast<float>(m_fontSize);
     }
 
     //////////////////////////////////////////////
 
-    bool Font::load(const std::string& path, const int pixelSize)
+    bool Font::load(const std::string& path, const int fontSize)
     {
-        // Load font data from file
-        FileLoader::readBinaryfile(path, m_data.get()->m_buffer);
-        return load(pixelSize);
-    }
+        FileLoader::readBinaryfile(path, m_buffer);
 
-    //////////////////////////////////////////////
-
-    bool Font::load(const int id, const int pixelSize)
-    {
-        if (!FileLoader::readResource(id, m_data.get()->m_buffer))
-            return false;
-
-        return load(pixelSize);
-    }
-
-    //////////////////////////////////////////////
-
-    bool Font::load(const int pixelSize)
-    {
-        m_pixelSize = pixelSize;
+        m_fontSize = fontSize;
 
         // Create texture and context for glyph atlas
         auto context_ptr = std::make_unique<stbrp_context>();
+        m_texture.load(glm::uvec2(m_fontSize * 32, m_fontSize * 32), 1, false);
 
-        m_data->m_texture.load(glm::uvec2(m_pixelSize * 32, m_pixelSize * 32), 1, false);
-        stbrp_init_target(context_ptr.get(), 1024, 1024, m_data->m_nodes.data(), m_data->m_numNodes);
+        // Initialize rectangle packer
+        stbrp_init_target(context_ptr.get(), m_textureSize, m_textureSize, m_data->m_nodes.data(), m_numNodes);
 
-        if (!m_data.get()->m_buffer.empty())
+        if (!m_buffer.empty())
         {
-            // Save loaded data
-            if (FT_New_Memory_Face(m_data.get()->m_library, m_data.get()->m_buffer.data(), m_data.get()->m_buffer.size() * sizeof(unsigned char), 0, &m_data.get()->m_face))
-                return false;
-            
-            FT_Select_Charmap(m_data.get()->m_face, ft_encoding_unicode);
-
-            // Set glyph size in pixels
-            FT_Set_Pixel_Sizes(m_data.get()->m_face, m_pixelSize, m_pixelSize);
-            if (FT_Select_Charmap(m_data.get()->m_face, FT_ENCODING_UNICODE))
-                return false;
-
-            m_data.get()->m_context = std::move(context_ptr);
+            // Load & init
+            stbtt_InitFont(&m_data->m_fontInfo, reinterpret_cast<const unsigned char*>(m_buffer.data()), 0/*stbtt_GetFontOffsetForIndex(buffer,0)*/); 
+            // Calculate scale
+            stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, 15);
 
             // Create default glyph
-            const unsigned char data[4] = {255, 255, 255, 255};
+            const unsigned char data[4] = { 255, 255, 255, 255 };
 
+            // Set pixel storage modes
             gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-            m_data->m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
+            m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
 
             std::pair<glm::ivec2, glm::ivec2> bounds;
-
             bounds.first.x = 0;
             bounds.first.y = 0;
             bounds.second.x = 2;
             bounds.second.y = 2;
-            
-            stbrp_rect rectangle = {0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1)};
-            stbrp_pack_rects(m_data.get()->m_context.get(), &rectangle, 1);
+
+            // Create stb_rectangle
+            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
+            // Pack rectangle - was_packed is non zero if packing succeeded
+            stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
 
             if (rectangle.was_packed != 0)
             {
+                Glyph emptyGlyph(2, 0, 0, 2, 2);
                 GlState::setBlendFunc(true);
-                m_data->m_bitmaps[0] = bounds;
+                m_bitmaps[0] = emptyGlyph;
             }
             else
-                JOP_DEBUG_ERROR("Failure creating white rectangle!");
+                JOP_DEBUG_ERROR("Failure creating empty glyph!");
 
             return true;
         }
 
         return false;
     }
-    
-    std::pair<glm::vec2, glm::vec2> Font::getBounds(const int codepoint) const
+
+    //////////////////////////////////////////////
+
+    float Font::getKerning(const uint32 left, const uint32 right) const
     {
-        FT_Load_Glyph(m_data.get()->m_face, FT_Get_Char_Index(m_data.get()->m_face, codepoint), FT_LOAD_NO_BITMAP | FT_LOAD_NO_SCALE);
-
-        // X and Y are offset from glyph origin
-        int x, y, w, h;
-        x = m_data.get()->m_face->glyph->metrics.horiBearingX;  // bitmap_left;
-        y = m_data.get()->m_face->glyph->metrics.horiBearingY;  // bitmap_top;
-        w = m_data.get()->m_face->glyph->metrics.width;         // bitmap.width;
-        h = m_data.get()->m_face->glyph->metrics.height;        // bitmap.rows;
-
-        return std::make_pair(glm::vec2(x, y), glm::vec2(w, h));
+        return stbtt_GetCodepointKernAdvance(&m_data->m_fontInfo, left, right);
     }
 
     //////////////////////////////////////////////
 
-    float Font::getKerning(const int codepoint1, const int codepoint2) const
+    const jop::Glyph& Font::getGlyph(uint32 codepoint)
     {
-        FT_Vector vector;
-        FT_Get_Kerning(m_data.get()->m_face, FT_Get_Char_Index(m_data.get()->m_face, codepoint1), FT_Get_Char_Index(m_data.get()->m_face, codepoint2), FT_KERNING_DEFAULT, &vector);
+        static const jop::Glyph emptyGlyph;
 
-        return static_cast<float>(vector.x);
-    }
+        auto it = m_bitmaps.find(codepoint);
 
-    //////////////////////////////////////////////
-    
-    void Font::getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y) const
-    {
-        auto it = m_data->m_bitmaps.find(codepoint);
+        if (it != m_bitmaps.end())
+            return it->second;
 
-        if (it != m_data->m_bitmaps.end())
-        {           
-            // Return glyph texture coordinates in pixels
-            *x = it->second.first.x;
-            *y = it->second.first.y;
-            *width = it->second.second.x;
-            *height = it->second.second.y;
+        int left, right, bottom, top, advance;
+        // Get glyph id and bounding boxes
+        int glyphID = stbtt_FindGlyphIndex(&m_data->m_fontInfo, codepoint);
+        stbtt_GetGlyphBox(&m_data->m_fontInfo, glyphID, &left, &right, &bottom, &top);
+        // Get advance
+        stbtt_GetCodepointHMetrics(&m_data->m_fontInfo, codepoint, &advance, 0);
+        
+        // Find an empty spot in the texture
+        stbrp_rect rectangle = 
+        { 0, static_cast<stbrp_coord>(right + 1), static_cast<stbrp_coord>(top + 1) };
+        stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
+        rectangle.w -= 1;
+        rectangle.h -= 1;
+
+        if (rectangle.was_packed != 0)
+        {
+            //GlState::setBlendFunc(true);
+            // Was packed successfully, pass pixel data to texture
+           // m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(rectangle.w, rectangle.h), pixelData);
+
+            // Glyph data to map
+            //bounds.first.x = rectangle.x;
+            //bounds.first.y = rectangle.y;
+
+            // Create new glyph & return it
+            jop::Glyph glyph(advance, left, right, bottom, top);
+            return glyph;
         }
         else
-        {
-            // Load glyph
-            FT_UInt index = FT_Get_Char_Index(m_data.get()->m_face, codepoint);
+            JOP_DEBUG_ERROR("Failure packing glyph!");
+    }
 
-            FT_GlyphSlot slot = m_data.get()->m_face->glyph;
+    //////////////////////////////////////////////
 
-            FT_Error err = FT_Load_Glyph(m_data.get()->m_face, index, FT_LOAD_DEFAULT);
-            if (err)
-                JOP_DEBUG_ERROR("Error while loading glyph: " << err);
-
-            FT_Glyph glyphDesc;
-            err = FT_Get_Glyph(slot, &glyphDesc);
-
-            if (err)
-                JOP_DEBUG_ERROR("Gylph not found: " << err);
-
-            FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, 0, 1);
-            FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyphDesc;
-
-            FT_Bitmap& bitmap = bitmapGlyph->bitmap;
-
-            // Get glyph rectangle size in pixels
-            std::pair<glm::ivec2, glm::ivec2> bounds; 
-
-            bounds.first.x = bitmapGlyph->left;
-            bounds.first.y = bitmapGlyph->top;
-            bounds.second.x = bitmapGlyph->bitmap.width;
-            bounds.second.y = bitmapGlyph->bitmap.rows;
-           
-            unsigned char* pixelData = bitmap.buffer;
-            
-            // Find an empty spot in the texture
-            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
-            stbrp_pack_rects(m_data.get()->m_context.get(), &rectangle, 1);
-            rectangle.w -= 1;
-            rectangle.h -= 1;
-
-            if (rectangle.was_packed != 0)
-            {
-                GlState::setBlendFunc(true);
-
-                // Was packed successfully, pass pixel data to texture
-                m_data->m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(rectangle.w, rectangle.h), pixelData);
-                
-                // Glyph data to map
-                bounds.first.x = rectangle.x;
-                bounds.first.y = rectangle.y;
-
-                m_data->m_bitmaps[codepoint] = bounds;
-
-                *x = rectangle.x;
-                *y = rectangle.y;
-                *width = rectangle.w;
-                *height = rectangle.h;
-            }
-            else
-                JOP_DEBUG_ERROR("Failure packing rectangle! Need bigger texture!");
-
-            FT_Done_Glyph(glyphDesc);
-        }
+    float Font::getLineSpacing() const
+    {
+        int lineGap;
+        stbtt_GetFontVMetrics(&m_data->m_fontInfo, 0, 0, &lineGap);
+        return static_cast<float>(lineGap);
     }
 
     //////////////////////////////////////////////
