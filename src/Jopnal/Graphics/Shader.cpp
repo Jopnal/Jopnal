@@ -441,16 +441,12 @@ namespace jop
 
         if (errShader.expired())
         {
-            std::vector<unsigned char> vert;
-            std::vector<unsigned char> frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_ERROR_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_ERROR_SHADER_FRAG, frag), "Failed to load error shader!");
-
             errShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_shader_error").getReference());
 
-            JOP_ASSERT_EVAL(errShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                "",
-                std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                "Couldn't compile the default shader!");
+            JOP_ASSERT_EVAL(errShader->load(std::string(reinterpret_cast<const char*>(jopr::defaultShaderVert), sizeof(jopr::defaultShaderVert)),
+                                            "",
+                                            std::string(reinterpret_cast<const char*>(jopr::defaultShaderFrag), sizeof(jopr::defaultShaderFrag))),
+                                            "Couldn't compile the default shader!");
 
             errShader->setPersistence(0);
         }

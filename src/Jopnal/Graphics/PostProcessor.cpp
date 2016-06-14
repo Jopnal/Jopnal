@@ -118,12 +118,8 @@ namespace jop
 
         // Shader sources
         {
-            std::vector<uint8> vertBuf, fragBuf;
-            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_POSTPROCESS_SHADER_VERT, vertBuf), "Failed to read post process vertex shader source!");
-            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_POSTPROCESS_SHADER_FRAG, fragBuf), "Failed to read post process fragment shader source!");
-
-            m_shaderSources[0].assign(reinterpret_cast<const char*>(vertBuf.data()), vertBuf.size());
-            m_shaderSources[1].assign(reinterpret_cast<const char*>(fragBuf.data()), fragBuf.size());
+            m_shaderSources[0].assign(reinterpret_cast<const char*>(jopr::postProcessVert), sizeof(jopr::postProcessVert));
+            m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
         // Gaussian blur buffers
@@ -133,10 +129,7 @@ namespace jop
             i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
         }
 
-        std::vector<uint8> blurFragBuf;
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_GAUSSIANBLUR_SHADER_FRAG, blurFragBuf), "Failed to read gaussian blur fragment shader source!");
-
-        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(blurFragBuf.data()), blurFragBuf.size()));
+        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)));
         JOP_ASSERT(&blurShader != &Shader::getError(), "Failed to compile gaussian blur shader!");
 
         m_blurShader = static_ref_cast<Shader>(blurShader.getReference());

@@ -100,24 +100,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Font& Font::getError()
-    {
-        static WeakReference<Font> errFont;
-
-        if (errFont.expired())
-        {
-            errFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_error_font").getReference());
-
-            JOP_ASSERT_EVAL(errFont->load(JOP_RES_ERROR_FONT, 32), "Failed to load error font!");
-
-            errFont->setPersistence(0);
-        }
-
-        return *errFont;
-    }
-
-    //////////////////////////////////////////////
-
     Font& Font::getDefault()
     {
         static WeakReference<Font> defFont;
@@ -126,7 +108,7 @@ namespace jop
         {
             defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
 
-            JOP_ASSERT_EVAL(defFont->load(JOP_RES_DEFAULT_FONT, 32), "Failed to load default font!");
+            //JOP_ASSERT_EVAL(defFont->load(jopr::defaultFont, sizeof(jopr::defaultFont), 32), "Failed to load default font!");
 
             defFont->setPersistence(0);
         }

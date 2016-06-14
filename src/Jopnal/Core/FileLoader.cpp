@@ -27,12 +27,6 @@
 
 namespace
 {
-#ifdef JOP_OS_WINDOWS
-
-    HINSTANCE ns_resourceDll = nullptr;
-
-#endif
-
     const char* const ns_resourceDir = "Resources";
     bool ns_errorChecksEnabled = true;
     std::mutex ns_mutex;
@@ -437,50 +431,6 @@ namespace jop
     char FileLoader::getDirectorySeparator()
     {
         return PHYSFS_getDirSeparator()[0];
-    }
-
-    //////////////////////////////////////////////
-
-    bool FileLoader::readResource(const int id, std::vector<uint8>& buffer)
-    {
-        static std::mutex mutex;
-        std::lock_guard<std::mutex> lock(mutex);
-
-        if (!ns_resourceDll)
-        {
-            ns_resourceDll = LoadLibrary("Jopnal Resources.dll");
-            JOP_ASSERT(ns_resourceDll != nullptr, "Failed to load the Jopnal resource dll!");
-        }
-
-        bool success = false;
-
-        auto handle = FindResource(ns_resourceDll, MAKEINTRESOURCE(id), RT_RCDATA);
-
-        if (handle)
-        {
-            auto res = LoadResource(ns_resourceDll, handle);
-
-            if (res)
-            {
-                buffer.clear();
-
-                auto size = SizeofResource(ns_resourceDll, handle);
-                auto locked = LockResource(res);
-
-                if (locked && size)
-                {
-                    buffer.resize(size);
-                    std::memcpy(buffer.data(), locked, size);
-                    success = true;
-                }
-
-                UnlockResource(locked);
-
-                FreeResource(res);
-            }
-        }
-
-        return success;
     }
 
     //////////////////////////////////////////////

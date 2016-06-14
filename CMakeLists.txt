@@ -76,6 +76,18 @@ else ()
 
 endif()
 
+# Compile resources
+if (JOP_OS_WINDOWS)
+
+    execute_process(COMMAND jopres desc.json
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools/Jopresource)
+
+else ()
+
+    message(WARNING "Resource compiler is provided only for Windows, using pre-assembled Jopnal resource files")
+
+endif()
+
 # Version numbers
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 3)

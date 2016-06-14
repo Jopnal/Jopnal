@@ -138,14 +138,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const int id, const bool srgb, const bool genMipmap)
+    bool Texture2D::load(const unsigned char* data, const unsigned int dataSize, const bool srgb, const bool genMipmap)
     {
-        std::vector<unsigned char> buf;
-        if (!FileLoader::readResource(id, buf))
-            return false;
-
         int x, y, bpp;
-        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+        unsigned char* pix = stbi_load_from_memory(data, dataSize, &x, &y, &bpp, 0);
 
         bool success = false;
         if (pix && checkDepthValid(bpp))
@@ -226,7 +222,7 @@ namespace jop
         {
             errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex->load(JOP_RES_ERROR_TEXTURE, true, true), "Failed to load error 2D texture!");
+            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, true), "Failed to load error 2D texture!");
 
             errTex->setPersistence(0);
         }
@@ -244,7 +240,7 @@ namespace jop
         {
             defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
 
-            JOP_ASSERT_EVAL(defTex->load(JOP_RES_DEFAULT_TEXTURE, true, true), "Failed to load default 2D texture!");
+            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, true), "Failed to load default 2D texture!");
 
             defTex->setPersistence(0);
         }

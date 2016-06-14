@@ -105,15 +105,12 @@ namespace detail
 
             if (shdr.expired())
             {
-                std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
-
                 shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
 
-                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                    "",
-                    std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                    "Failed to compile physics debug shader!");
+                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)),
+                                           "",
+                                           std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag, sizeof(jopr::physicsDebugShaderFrag)))),
+                                           "Failed to compile physics debug shader!");
             }
 
             // Draw lines

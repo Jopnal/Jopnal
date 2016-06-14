@@ -169,10 +169,10 @@ namespace jop
             dirSpotShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader").getReference());
             dirSpotShader->setPersistence(0);
 
-            std::vector<unsigned char> vert, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_FRAG, frag), "Couldn't read depth record shader source!");
-
-            JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), "", std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile depth record shader!");
+            JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
+                                                "",
+                                                std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag))),
+                                                "Failed to compile depth record shader!");
         }
 
         // Point light recorder
@@ -181,10 +181,10 @@ namespace jop
             pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
             pointShader->setPersistence(0);
 
-            std::vector<unsigned char> vert, geom, frag;
-            JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_VERT, vert) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, geom) && FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_FRAG, frag), "Couldn't read point depth record shader source!");
-
-            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()), std::string(reinterpret_cast<const char*>(geom.data()), geom.size()), std::string(reinterpret_cast<const char*>(frag.data()), frag.size())), "Failed to compile point depth record shader!");
+            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
+                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
+                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag))),
+                                              "Failed to compile point depth record shader!");
         }
 
         auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;

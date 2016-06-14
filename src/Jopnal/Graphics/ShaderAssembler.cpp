@@ -36,16 +36,9 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderAssembler instance!");
         m_instance = this;
 
-        std::vector<unsigned char> buf;
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_VERT, buf), "Failed to read default vertex uber shader source!");
-        m_uber[0].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, buf), "Failed to read default geometry uber shader source!");
-        m_uber[1].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_FRAG, buf), "Failed to read default fragment uber shader source!");
-        m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
+        m_uber[0].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderVert), sizeof(jopr::defaultUberShaderVert));
+        m_uber[1].assign(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom));
+        m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
     }
 
     ShaderAssembler::~ShaderAssembler()

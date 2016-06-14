@@ -142,7 +142,7 @@ namespace jop
 
         /// For internal use
         ///
-        bool load(const int id, const bool srgb, const bool genMipmaps);
+        bool load(const unsigned char* data, const unsigned int dataSize, const bool srgb, const bool genMipmaps);
 
 
         glm::uvec2 m_size;              ///< Size

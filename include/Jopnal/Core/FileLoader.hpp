@@ -297,17 +297,6 @@ namespace jop
         ///
         static char getDirectorySeparator();
 
-        /// \brief Read a resource file
-        ///
-        /// This is mostly used internally.
-        ///
-        /// \param id Identifier of the resource
-        /// \param buffer The data buffer
-        ///
-        /// \return True if successful
-        /// 
-        static bool readResource(const int id, std::vector<uint8>& buffer);
-
         /// \brief Enable/disable file system error checks
         ///
         /// \param enable True to enable

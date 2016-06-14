@@ -52,10 +52,6 @@ namespace jop
 
     bool SoundBuffer::load(const int id)
     {
-        std::vector<uint8> buf;
-
-        if (!FileLoader::readResource(id, buf))
-            return false;
 
         return false;
     }
@@ -70,7 +66,7 @@ namespace jop
         {
             defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
 
-            JOP_ASSERT_EVAL(defBuf->load(JOP_RES_DEFAULT_SOUND), "Failed to load default Sound!");
+            //JOP_ASSERT_EVAL(defBuf->load(jopr::defaultSound, sizeof(jopr::defaultSound)), "Failed to load default Sound!");
 
             defBuf->setPersistence(0);
         }

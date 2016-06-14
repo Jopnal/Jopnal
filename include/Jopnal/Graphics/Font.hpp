@@ -93,12 +93,6 @@ namespace jop
         float getPixelSize() const;
 
 
-        /// \brief Get the error font
-        ///
-        /// \return Reference to the font
-        ///
-        static Font& getError();
-
         /// \brief Get the default font
         ///
         /// \return Reference to the font

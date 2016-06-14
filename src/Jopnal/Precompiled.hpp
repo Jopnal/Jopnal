@@ -45,9 +45,11 @@
     #include <io.h>
     #include <fcntl.h>
     #include <VersionHelpers.h>
-    #include <Jopnal/../../project/Resources/resource.h>
 
 #endif
+
+// Compiled resources
+#include <../tools/Jopresource/Resources.hpp>
 
 // OpenGL
 #ifdef JOP_OPENGL_ES

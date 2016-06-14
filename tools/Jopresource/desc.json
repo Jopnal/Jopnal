@@ -1,0 +1,89 @@
+{
+    "namespace": "jopr",
+    "filename": "Resources",
+    
+    "resources":[
+    
+        {
+            "name": "defaultFont",
+            "path": "res/Fonts/kongtext.ttf"
+        },
+        
+        {
+            "name": "defaultSound",
+            "path": "res/Sounds/beep.wav"
+        },
+        
+        {
+            "name": "defaultTexture",
+            "path": "res/Textures/checker.png"
+        },
+        {
+            "name": "errorTexture",
+            "path": "res/Textures/error.png"
+        },
+        
+        {
+            "name": "defaultShaderFrag",
+            "path": "res/Shaders/default.frag"
+        },
+        {
+            "name": "defaultShaderVert",
+            "path": "res/Shaders/default.vert"
+        },
+        
+        {
+            "name": "defaultUberShaderFrag",
+            "path": "res/Shaders/defaultUber.frag"
+        },
+        {
+            "name": "defaultUberShaderVert",
+            "path": "res/Shaders/defaultUber.vert"
+        },
+        
+        {
+            "name": "depthRecordShaderFrag",
+            "path": "res/Shaders/depthRecord.frag"
+        },
+        {
+            "name": "depthRecordShaderVert",
+            "path": "res/Shaders/depthRecord.vert"
+        },
+        
+        {
+            "name": "depthRecordShaderPointFrag",
+            "path": "res/Shaders/depthRecordPoint.frag"
+        },
+        {
+            "name": "depthRecordShaderPointGeom",
+            "path": "res/Shaders/depthRecordPoint.geom"
+        },
+        {
+            "name": "depthRecordShaderPointVert",
+            "path": "res/Shaders/depthRecordPoint.frag"
+        },
+        
+        {
+            "name": "gaussianBlurShaderFrag",
+            "path": "res/Shaders/gaussianBlur.frag"
+        },
+        
+        {
+            "name": "physicsDebugShaderFrag",
+            "path": "res/Shaders/physicsDebug.frag"
+        },
+        {
+            "name": "physicsDebugShaderVert",
+            "path": "res/Shaders/physicsDebug.vert"
+        },
+        
+        {
+            "name": "postProcessFrag",
+            "path": "res/Shaders/postProcess.frag"
+        },
+        {
+            "name": "postProcessVert",
+            "path": "res/Shaders/postProcess.vert"
+        }
+    ]
+}

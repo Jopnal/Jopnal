@@ -328,6 +328,10 @@ set(INC_ROOT
 set(SRC_ROOT
     ${SRCROOT_ROOT}/gl_4.5.c
     ${SRCROOT_ROOT}/gl_4.5.h
+    ${SRCROOT_ROOT}/Precompiled.hpp
+    ${SRCROOT_ROOT}/STL.hpp
+    ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
+    ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
 )
 source_group("Root\\Headers" FILES ${INC_ROOT})
 source_group("Root\\Source" FILES ${SRC_ROOT})
@@ -551,7 +555,7 @@ jopAddLibrary(jopnal
 if (NOT JOP_COMPILER_GCC)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
-    set_source_files_properties(jopnal PROPERTIES COTIRE_EXCLUDED "${CMAKE_CURRENT_SOURCE_DIR}/gl_4.5.c")
+                                                                  
     set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
     cotire(jopnal)
 
