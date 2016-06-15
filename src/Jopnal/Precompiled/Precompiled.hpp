@@ -46,17 +46,18 @@
     #include <fcntl.h>
     #include <VersionHelpers.h>
 
+// Android
+#elif defined(JOP_OS_ANDROID)
+
+    #include <android/asset_manager.h>
+
 #endif
 
 // Compiled resources
 #include <../tools/Jopresource/Resources.hpp>
 
 // OpenGL
-#ifdef JOP_OPENGL_ES
-
-#else
-    #include <Jopnal/gl_4.5.h>
-#endif
+#include <Jopnal/Graphics/OpenGL.hpp>
 #include <Jopnal/Window/GlCheck.hpp>
 
 // GLFW
@@ -71,7 +72,11 @@
 #endif
 
 // GLM
-#include <Jopnal/MathInclude.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 
 // Bullet
 #pragma warning(push)
@@ -106,7 +111,7 @@
 #include <codecvt>
 
 // Additional STL header
-#include <Jopnal/STL.hpp>
+#include <Jopnal/Android/STL.hpp>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

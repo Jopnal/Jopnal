@@ -32,8 +32,11 @@
 
 namespace jop
 {
-    class Window;
-    class RenderTarget;
+    class LightSource;
+    class Camera;
+    class Drawable;
+    class EnvironmentRecorder;
+    class LightContainer;
 
     class JOP_API Renderer
     {

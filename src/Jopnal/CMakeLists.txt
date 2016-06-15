@@ -318,7 +318,6 @@ set(INC_ROOT
     ${INCROOT_ROOT}/Header.hpp
     ${INCROOT_ROOT}/HelperMacros.hpp
     ${INCROOT_ROOT}/Jopnal.hpp
-    ${INCROOT_ROOT}/MathInclude.hpp
     ${INCROOT_ROOT}/OS.hpp
     ${INCROOT_ROOT}/Physics.hpp
     ${INCROOT_ROOT}/Types.hpp
@@ -326,10 +325,10 @@ set(INC_ROOT
     ${INCROOT_ROOT}/Window.hpp
 )
 set(SRC_ROOT
-    ${SRCROOT_ROOT}/gl_4.5.c
-    ${SRCROOT_ROOT}/gl_4.5.h
-    ${SRCROOT_ROOT}/Precompiled.hpp
-    ${SRCROOT_ROOT}/STL.hpp
+    ${SRCROOT_ROOT}/OpenGL/gl_4.5.c
+    ${SRCROOT_ROOT}/OpenGL/gl_4.5.h
+    ${SRCROOT_ROOT}/Precompiled/Precompiled.hpp
+    ${SRCROOT_ROOT}/Android/STL.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
 )
@@ -555,13 +554,13 @@ jopAddLibrary(jopnal
 if (NOT JOP_COMPILER_GCC)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
-	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=JOP_PRECOMPILED_HEADER_FILE)
+	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)
                                                                   
-    set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled.hpp")
+    set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled/Precompiled.hpp")
     cotire(jopnal)
 
 else()
 
-	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/PrecompiledEmpty.hpp>)
+	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/PrecompiledEmpty.hpp>)
 
 endif()

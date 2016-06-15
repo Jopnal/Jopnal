@@ -25,6 +25,10 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/Scene.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif
@@ -43,26 +47,10 @@ namespace jop
 
 namespace jop
 {
-    namespace detail
-    {
-        class CullingWorld : public World
-        {
-        public:
-
-            CullingWorld(Object& obj, Renderer& renderer)
-                : World(obj, renderer)
-            {
-                m_worldData->world->setGravity(btVector3(0.f, 0.f, 0.f));
-                m_worldData->world->getPairCache()->setInternalGhostPairCallback(nullptr);
-            }
-        };
-    }
-
     Scene::Scene(const std::string& ID)
         : Object            (ID),
           m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
           m_world           (createComponent<World>(*m_renderer)),
-          m_cullingWorld    (createComponent<World>(*m_renderer)),
           m_deltaScale      (1.f)
     {}
 
@@ -85,13 +73,6 @@ namespace jop
     World& Scene::getWorld() const
     {
         return m_world;
-    }
-
-    //////////////////////////////////////////////
-
-    World& Scene::getCullingWorld() const
-    {
-        return m_cullingWorld;
     }
 
     //////////////////////////////////////////////

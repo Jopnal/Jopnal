@@ -32,10 +32,6 @@
 
 
 struct PHYSFS_File;
-//namespace Assimp
-//{
-//    class Importer;
-//}
 
 namespace jop
 {
@@ -46,8 +42,6 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
         friend class ModelLoader;
-
-        //static Assimp::Importer& getImporter();
 
     public:
 

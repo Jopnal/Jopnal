@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Core/SettingCallback.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
+
 #endif
 
 //////////////////////////////////////////////

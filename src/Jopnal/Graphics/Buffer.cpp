@@ -26,6 +26,10 @@
 
 	#include <Jopnal/Graphics/Buffer.hpp>
 
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -37,8 +41,6 @@ namespace
     {
         GL_ARRAY_BUFFER,
         GL_ELEMENT_ARRAY_BUFFER,
-        GL_TEXTURE_BUFFER,
-        GL_TRANSFORM_FEEDBACK_BUFFER,
         GL_UNIFORM_BUFFER
     };
 

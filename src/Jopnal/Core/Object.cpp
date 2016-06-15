@@ -26,6 +26,10 @@
 
 	#include <Jopnal/Core/Object.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -39,36 +43,36 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
-
+       
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
-
+       
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
-
+       
         // Object
-
-        //// Tags
+       
+        // Tags
         JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
         JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
         JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
-
+       
         // Component
         JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
         JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
-
-        //// Activity
+       
+        // Activity
         JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
-
-        //// Children
+       
+        // Children
         JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
         JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
-
-        //// Other
+       
+        // Other
         JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
         JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
         JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");

@@ -24,8 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 
 //////////////////////////////////////////////

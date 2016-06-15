@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Core/SettingCallback.hpp>
 #include <Jopnal/Utility/DirectoryWatcher.hpp>
 #include <Jopnal/Utility/Json.hpp>

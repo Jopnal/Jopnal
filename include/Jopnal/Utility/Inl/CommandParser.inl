@@ -264,32 +264,32 @@ namespace ArgumentApplier
 
 //////////////////////////////////////////////
 
-namespace ArgumentSplitter
-{
-    template<typename Left, typename Right, typename ... Rest>
-    std::tuple<Left, Right, Rest...> split(const std::string& args)
-    {
-        std::tuple<std::string, std::string> parsedArgs = splitFirstArguments(args);
-        return std::tuple_cat(std::make_tuple(ArgumentConverter<Left>::convert(std::get<0>(parsedArgs))), split<Right, Rest...>(std::get<1>(parsedArgs)));
-    }
-
-    template<typename Last>
-    std::tuple<Last> split(const std::string& arg)
-    {
-        return std::make_tuple(ArgumentConverter<Last>::convert(arg));
-    }
-}
-
-//////////////////////////////////////////////
-
 namespace DefaultParser
 {
+    template<typename Left, typename ... Rest>
+    struct Splitter
+    {
+        static std::tuple<Left, Rest...> split(const std::string& args)
+        {
+            std::tuple<std::string, std::string> parsedArgs = splitFirstArguments(args);
+            return std::tuple_cat(std::make_tuple(ArgumentConverter<Left>::convert(std::get<0>(parsedArgs))), Splitter<Rest...>::split(std::get<1>(parsedArgs)));
+        }
+    };
+    template<typename Rest>
+    struct Splitter<Rest>
+    {
+        static std::tuple<Rest> split(const std::string& arg)
+        {
+            return std::make_tuple(ArgumentConverter<Rest>::convert(arg));
+        }
+    };
+
     template<typename Ret, typename ... Args>
     struct Helper
     {
         static void parse(const std::function<Ret(Args...)>& func, const std::string& args)
         {
-            ArgumentApplier::apply<decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::apply<decltype(func), typename RealType<Args>::type...>(func, Splitter<typename RealType<Args>::type...>::split(args));
         }
     };
     template<typename Ret>
@@ -314,7 +314,7 @@ namespace DefaultParser
     {
         static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, T& instance)
         {
-            ArgumentApplier::applyMember<decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<decltype(func), T, typename RealType<Args>::type...>(func, instance, Splitter<typename RealType<Args>::type...>::split(args));
         }
     };
     template<typename Ret, typename T>

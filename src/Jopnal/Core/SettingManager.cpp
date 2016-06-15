@@ -26,6 +26,11 @@
 
 	#include <Jopnal/Core/SettingManager.hpp>
 
+    #include <Jopnal/Core/SettingCallback.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Android/STL.hpp>
+
 #endif
 
 //////////////////////////////////////////////

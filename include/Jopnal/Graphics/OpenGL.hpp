@@ -19,19 +19,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MATHINCLUDE_HPP
-#define JOP_MATHINCLUDE_HPP
+#ifndef JOP_OPENGL_HPP
+#define JOP_OPENGL_HPP
+
+// Headers
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-// Include all the GLM headers here
-#define GLM_PRECISION_MEDIUMP_INT
-#define GLM_PRECISION_HIGHP_FLOAT
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/norm.hpp>
+#ifdef JOP_OPENGL_ES
+
+    #include <EGL/egl.h>
+    #include <GLES3/gl3.h>
+    #include <GLES3/gl3ext.h>
+
+#else
+
+    #include <Jopnal/OpenGL/gl_4.5.h>
+
+#endif
 
 #endif

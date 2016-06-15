@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Core/Subsystem.hpp>
 
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////

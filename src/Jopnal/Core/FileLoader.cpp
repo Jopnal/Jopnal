@@ -26,6 +26,14 @@
 
 	#include <Jopnal/Core/FileLoader.hpp>
 
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <PhysFS/physfs.h>
+
+    #ifdef JOP_OS_ANDROID
+        #include <android/asset_manager.h>
+    #endif
+
 #endif
 
 //////////////////////////////////////////////
@@ -293,7 +301,10 @@ namespace jop
         {
             std::string fileString((std::string(dir).empty() ? "" : (std::string(dir) + "/")) + std::string(file));
 
-            if (!PHYSFS_isDirectory(fileString.c_str()))
+            PHYSFS_Stat stat;
+            PHYSFS_stat(fileString.c_str(), &stat);
+
+            if (stat.filetype != PHYSFS_FILETYPE_DIRECTORY)
                 static_cast<std::vector<std::string>*>(list)->emplace_back(std::move(fileString));
 
         }, &list);
@@ -307,7 +318,10 @@ namespace jop
         {
             std::string fileString(std::string(dir) + "/" + std::string(file));
 
-            if (!PHYSFS_isDirectory(fileString.c_str()))
+            PHYSFS_Stat stat;
+            PHYSFS_stat(fileString.c_str(), &stat);
+
+            if (stat.filetype != PHYSFS_FILETYPE_DIRECTORY)
                 static_cast<std::vector<std::string>*>(list)->emplace_back(std::move(fileString));
             else
                 listFilesRecursive(fileString, *static_cast<std::vector<std::string>*>(list));
