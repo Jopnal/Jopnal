@@ -26,6 +26,13 @@
 
 	#include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+    #include <glm/gtc/type_ptr.hpp>
+
 #endif
 
 //////////////////////////////////////////////

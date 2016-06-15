@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <random>
 #include <type_traits>
 

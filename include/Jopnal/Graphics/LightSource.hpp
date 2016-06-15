@@ -26,7 +26,9 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 #include <array>
 #include <set>
 
@@ -39,6 +41,7 @@ namespace jop
     class Shader;
     class Renderer;
     class RenderTexture;
+    class Drawable;
 
     class JOP_API LightSource final : public Component
     {

@@ -26,6 +26,9 @@
 
 	#include <Jopnal/Graphics/Model.hpp>
 
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh.hpp>
+
 #endif
 
 //////////////////////////////////////////////

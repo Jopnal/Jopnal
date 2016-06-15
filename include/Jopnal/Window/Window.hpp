@@ -27,6 +27,7 @@
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
+#include <Jopnal/Android/STL.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>

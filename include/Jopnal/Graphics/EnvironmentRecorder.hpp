@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <memory>
+#include <vector>
 #include <set>
 
 //////////////////////////////////////////////

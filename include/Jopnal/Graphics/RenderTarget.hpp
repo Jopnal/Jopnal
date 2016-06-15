@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <mutex>
 #include <atomic>
 

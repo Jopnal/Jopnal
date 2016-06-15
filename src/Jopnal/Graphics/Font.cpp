@@ -22,18 +22,19 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Font.hpp>
+
+    #include <Jopnal/Core/ResourceManager.hpp>
+
+#endif
+
 #define STB_RECT_PACK_IMPLEMENTATION
 #pragma warning(push)
 #pragma warning(disable: 4100)
 #include <Jopnal/Graphics/stb/stb_rect_pack.h>
 #pragma warning(pop)
-#pragma warning(disable: 4505)
-
-#ifndef JOP_PRECOMPILED_HEADER
-
-	#include <Jopnal/Graphics/Font.hpp>
-
-#endif
 
 //////////////////////////////////////////////
 

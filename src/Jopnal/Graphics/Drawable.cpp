@@ -26,6 +26,11 @@
 
 	#include <Jopnal/Graphics/Drawable.hpp>
 
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/Model.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////

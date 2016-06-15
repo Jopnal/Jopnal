@@ -26,6 +26,9 @@
 
 	#include <Jopnal/Graphics/RenderTarget.hpp>
 
+#include <Jopnal/Graphics/OpenGL.hpp>
+#include <Jopnal/Window/GlCheck.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -60,7 +63,12 @@ namespace jop
         if (bind())
         {
             glCheck(glClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
+
+        #ifndef JOP_OPENGL_ES
             glCheck(glClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
+        #else
+            glCheck(glClearDepthf(m_clearDepth.load()));
+        #endif
             glCheck(glClearStencil(m_clearStencil.load()));
 
             glCheck(glClear

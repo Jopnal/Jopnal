@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Audio/Listener.hpp>
+
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 

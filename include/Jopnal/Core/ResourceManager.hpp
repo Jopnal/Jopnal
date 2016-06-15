@@ -28,6 +28,7 @@
 #include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Utility/Clock.hpp>
+#include <Jopnal/Android/STL.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>

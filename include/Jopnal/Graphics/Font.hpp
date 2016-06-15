@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <unordered_map>
 

@@ -28,6 +28,7 @@
 #include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/Android/STL.hpp>
 #include <unordered_set>
 #include <memory>
 #include <vector>

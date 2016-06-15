@@ -26,6 +26,10 @@
 
 	#include <Jopnal/Graphics/PostProcessor.hpp>
 
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -135,7 +139,7 @@ namespace jop
             i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
         }
 
-        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)));
+        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)), Shader::getVersionString());
         JOP_ASSERT(&blurShader != &Shader::getError(), "Failed to compile gaussian blur shader!");
 
         m_blurShader = static_ref_cast<Shader>(blurShader.getReference());
@@ -250,7 +254,7 @@ namespace jop
 
     void PostProcessor::getPreprocessorStr(const uint32 funcs, std::string& str) const
     {
-        str += "#version 330 core\n";
+        str += Shader::getVersionString();
 
         if ((funcs & Function::ToneMap) != 0)
             str += "#define JPP_TONEMAP\n";

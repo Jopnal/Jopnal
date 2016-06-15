@@ -26,6 +26,16 @@
 
 	#include <Jopnal/Graphics/Renderer.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+    #include <Jopnal/Graphics/RenderTarget.hpp>
+    #include <Jopnal/Graphics/GlState.hpp>
+    #include <glm/gtx/norm.hpp>
+
 #endif
 
 //////////////////////////////////////////////

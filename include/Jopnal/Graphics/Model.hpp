@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 
 //////////////////////////////////////////////
 

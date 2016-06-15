@@ -26,6 +26,12 @@
 
 	#include <Jopnal/Graphics/GlState.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+    #include <tuple>
+    #include <vector>
+
 #endif
 
 //////////////////////////////////////////////
@@ -191,36 +197,60 @@ namespace jop
 
     void GlState::setSeamlessCubemap(const bool enable)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (enable != ns_seamlessCubemap)
         {
             enableDisable(enable, GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
             ns_seamlessCubemap = enable;
         }
+
+    #else
+
+        enable;
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void GlState::setPolygonSmooth(const bool enable)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (enable != ns_polygonSmooth)
         {
             enableDisable(enable, GL_POLYGON_SMOOTH);
 
             ns_polygonSmooth = enable;
         }
+
+    #else
+
+        enable;
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void GlState::setLineSmooth(const bool enable)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (enable != ns_line.first)
         {
             enableDisable(enable, GL_LINE_SMOOTH);
 
             ns_line.first = enable;
         }
+
+    #else
+
+        enable;
+
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -239,6 +269,8 @@ namespace jop
 
     void GlState::setPolygonMode(const PolygonMode mode)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (mode != ns_polygonMode)
         {
             static const GLenum polyModes[] =
@@ -252,6 +284,12 @@ namespace jop
 
             ns_polygonMode = mode;
         }
+
+    #else
+
+        mode;
+
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -298,12 +336,20 @@ namespace jop
 
     void GlState::setFramebufferSrgb(const bool enable)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (ns_framebufSrgb != enable)
         {
             enableDisable(enable, GL_FRAMEBUFFER_SRGB);
 
             ns_framebufSrgb = enable;
         }
+
+    #else
+
+        enable;
+
+    #endif
     }
 
     //////////////////////////////////////////////

@@ -26,6 +26,28 @@
 
 	#include <Jopnal/Graphics/RenderTexture.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture2DDepth.hpp>
+    #include <Jopnal/Graphics/Cubemap.hpp>
+    #include <Jopnal/Graphics/CubemapDepth.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Window/Window.hpp>
+    #include <vector>
+
+#ifdef JOP_OPENGL_ES
+
+    #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
+    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX8
+    #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
+
+    #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
+
+#endif
+
 #endif
 
 //////////////////////////////////////////////
@@ -551,7 +573,7 @@ namespace jop
 
                 if (!hasColor)
                 {
-                    glCheck(glDrawBuffer(GL_NONE));
+                    glCheck(glDrawBuffers(1, GL_NONE));
                     glCheck(glReadBuffer(GL_NONE));
                 }
             }

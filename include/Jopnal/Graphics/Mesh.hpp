@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 

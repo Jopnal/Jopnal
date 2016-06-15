@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Graphics/Color.hpp>
 
+    #include <sstream>
+
 #endif
 
 //////////////////////////////////////////////

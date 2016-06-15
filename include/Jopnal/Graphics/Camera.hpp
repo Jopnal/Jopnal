@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 

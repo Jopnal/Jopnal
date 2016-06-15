@@ -26,6 +26,18 @@
 
 	#include <Jopnal/Graphics/LightSource.hpp>
 
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/Texture.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+    #include <glm/mat4x4.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+    #include <glm/gtc/type_ptr.hpp>
+
 #endif
 
 ///////////////////////////////////////////
@@ -177,7 +189,8 @@ namespace jop
 
             JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
                                                 "",
-                                                std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag))),
+                                                std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag)),
+                                                Shader::getVersionString()),
                                                 "Failed to compile depth record shader!");
         }
 
@@ -189,7 +202,8 @@ namespace jop
 
             JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
                                               std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
-                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag))),
+                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag)),
+                                              Shader::getVersionString()),
                                               "Failed to compile point depth record shader!");
         }
 

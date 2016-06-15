@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Core/Engine.hpp>
+
     #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
@@ -34,6 +35,7 @@
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
+    #include <Jopnal/Android/STL.hpp>
 
     #ifndef JOP_OS_WINDOWS
         #include <unistd.h>

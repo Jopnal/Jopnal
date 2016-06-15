@@ -26,6 +26,24 @@
 
 	#include <Jopnal/Graphics/Shader.hpp>
 
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Window/GlCheck.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+    #include <glm/gtc/type_ptr.hpp>
+
+    #ifdef JOP_OPENGL_ES
+
+    #ifdef GL_GEOMETRY_SHADER_EXT
+        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+    #else
+        #define GL_GEOMETRY_SHADER 0
+    #endif
+
+    #endif
+
 #endif
 
 //////////////////////////////////////////////
@@ -117,7 +135,7 @@ namespace jop
 
         #endif
 
-            return success == TRUE;
+            return success == GL_TRUE;
         };
         auto handleProgramInfo = [](const unsigned int program) -> bool
         {
@@ -173,7 +191,7 @@ namespace jop
 
             shaderHandles[i] = glCheck(glCreateShader(ns_shaderTypes[i]));
 
-            int sizes[] = {pp.length(), 1, fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size()};
+            int sizes[] = {static_cast<int>(pp.length()), 1, static_cast<int>(fileReadBuffer.empty() ? shaderStr.length() : fileReadBuffer.size())};
             glCheck(glShaderSource(shaderHandles[i], 3, sources, sizes));
             glCheck(glCompileShader(shaderHandles[i]));
 
@@ -425,6 +443,35 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const std::string& Shader::getVersionString()
+    {
+        static std::string versionString;
+
+        if (versionString.empty())
+        {
+            versionString += "#version ";
+
+        #ifndef JOP_OPENGL_ES
+
+            versionString += std::to_string(ogl_GetMajorVersion());
+            versionString += std::to_string(ogl_GetMinorVersion());
+            versionString += " core";
+
+        #else
+
+            const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+            versionString += *(esVersion.end() - 3);
+            versionString += *(esVersion.end() - 1);
+            versionString += " es\n#define JOP_OPENGL_ES";
+
+        #endif
+        }
+
+        return versionString;
+    }
+
+    //////////////////////////////////////////////
+
     Shader& Shader::getDefault()
     {
         static WeakReference<Shader> defShader;
@@ -451,7 +498,8 @@ namespace jop
 
             JOP_ASSERT_EVAL(errShader->load(std::string(reinterpret_cast<const char*>(jopr::defaultShaderVert), sizeof(jopr::defaultShaderVert)),
                                             "",
-                                            std::string(reinterpret_cast<const char*>(jopr::defaultShaderFrag), sizeof(jopr::defaultShaderFrag))),
+                                            std::string(reinterpret_cast<const char*>(jopr::defaultShaderFrag), sizeof(jopr::defaultShaderFrag)),
+                                            Shader::getVersionString()),
                                             "Couldn't compile the default shader!");
 
             errShader->setPersistence(0);

@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Audio/SoundSource.hpp>
+
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif

@@ -26,6 +26,11 @@
 
 	#include <Jopnal/Graphics/ShaderAssembler.hpp>
 
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -106,7 +111,7 @@ namespace jop
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-        str += "#version 330 core\n";
+        str += Shader::getVersionString();
 
         // Material
         if ((attrib & m::__Lighting) != 0)

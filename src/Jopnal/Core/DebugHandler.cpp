@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Core/DebugHandler.hpp>
+
     #include <Jopnal/Core/FileLoader.hpp>
 
     #ifdef JOP_OS_ANDROID

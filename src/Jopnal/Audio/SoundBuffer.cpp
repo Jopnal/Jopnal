@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Audio/SoundBuffer.hpp>
+
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <vector>
