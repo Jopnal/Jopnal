@@ -76,9 +76,11 @@ namespace jop
         
         /// \brief Get bounds for a glyph relative to the given codepoint
         ///
-        std::pair<glm::vec2, glm::vec2> getBounds(jop::Glyph& glyph) const;
+        //std::pair<glm::vec2, glm::vec2> getBounds(const jop::Glyph& glyph);
 
-        const glm::vec2 getCharacterPosition(const int codepoint);
+        /// \brief Get the position of a single character
+        ///
+        glm::vec2 getCharacterPosition(const int codepoint);
 
         /// \brief Set font
         ///
@@ -108,7 +110,7 @@ namespace jop
 
     private:
 
-        WeakReference<const Font> m_font;
+        WeakReference<Font> m_font;
         Mesh m_mesh;
         Material m_material;
         std::wstring m_string;

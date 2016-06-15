@@ -27,35 +27,10 @@
 namespace jop
 {
     Glyph::Glyph() : 
-        m_advance(0),
-        m_left(0),
-        m_right(0),
-        m_bottom(0),
-        m_top(0)
+        bounds({0,0,0,0}),
+        textCoord({ 0, 0, 0, 0 }),
+        advance(0)
     {}
 
-    Glyph::Glyph(float advance, float left, float right, float bottom, float top)
-        : m_advance(advance),
-        m_left(left),
-        m_right(right),
-        m_bottom(bottom),
-        m_top(top)
-    {}
 
-    Glyph::~Glyph()
-    {}
-
-    //////////////////////////////////////////////
-
-    const float Glyph::getAdvance() const
-    {
-        return m_advance;
-    }
-
-    //////////////////////////////////////////////
-
-    std::pair<glm::vec2, glm::vec2> Glyph::getBounds()
-    {
-        return std::make_pair(glm::vec2(m_left, m_right), glm::vec2(m_bottom, m_top));
-    }
 }

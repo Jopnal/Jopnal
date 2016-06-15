@@ -30,26 +30,28 @@
 
 namespace jop
 {
+    struct Rect
+    {
+        int left; ///< Glyphs left border
+        int right; ///< Glyphs right border
+        int bottom; ///< Glyphs bottom border
+        int top; ///< Glyphs top border
+    };
+
     class JOP_API Glyph
     {
     public:
-
-        Glyph(float advance, float left, float right, float bottom, float top);
-            
+         
         Glyph();
 
-        ~Glyph();
 
-        const float getAdvance() const;
-        std::pair<glm::vec2, glm::vec2> getBounds();
+        int advance; ///< Advance to next glyph
+        
+        Rect bounds;
+        Rect textCoord;
 
-    private:
 
-        float m_advance; ///< Advance to next glyph
-        float m_left; ///< Glyphs left border
-        float m_right; ///< Glyphs right border
-        float m_bottom; ///< Glyphs bottom border
-        float m_top; ///< Glyphs top border
+
     };
 }
 

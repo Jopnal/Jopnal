@@ -59,7 +59,7 @@ namespace jop
 {
     Text::Text(Object& object, Renderer& renderer)
         : GenericDrawable   (object, renderer),
-          m_font            (static_ref_cast<const Font>(Font::getDefault().getReference())),
+          m_font            (static_ref_cast<Font>(Font::getDefault().getReference())),
           m_mesh            (""),
           m_material        ("", Material::Attribute::OpacityMap, false),
           m_string          ()
@@ -99,8 +99,6 @@ namespace jop
 
         std::vector<Vertex> vertices;
 
-
-
         float x = 0, y = 0;
         int previous = -1;
 
@@ -112,23 +110,19 @@ namespace jop
 
             if (i == L' ')
             {
-                x += (1.0 / 128.0);
+
+                x += m_font->getFontSize() / 4; // Do this according to font size!?
                 previous = -1;
                 continue;
             }
             else if (i == L'\n')
             {
-                x = 1.0f / 256.0f;
-                y -= 1.0f / 24.0f;
+                
+                x = 1.0f / 256.0f; // Move to start of the bitmap
+                //y -= 1.0f / 24.0f; // getLineSpacing() 
+                y -= m_font->getLineSpacing();
                 continue;
             }
-
-            // Init variables
-            int bitmapX = 0;
-            int bitmapY = 0;
-
-            int bitmapWidth = 0;
-            int bitmapHeight = 0;
 
             float kerning = 0.01f;
 
@@ -143,66 +137,55 @@ namespace jop
             // getCharacterPosition here
             //m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
 
+            
             // Get font texture
             const Texture2D& tex = m_font->getTexture();
-
-            
-            // Get font origin
-            std::pair<glm::vec2, glm::vec2> metrics = m_font->getBounds(i);
-
             float texWidth = static_cast<float>(tex.getSize().x);
             float texHeight = static_cast<float>(tex.getSize().y);
 
-            metrics.first.x /= (32.f * (64.f / m_font->getFontSize()) * texWidth);
-            metrics.first.y /= (32.f * (64.f / m_font->getFontSize()) * texHeight);
+            // Get glyph
+            const jop::Glyph& glyph = m_font->getGlyph(i);
+            // Get glyph bounds vec2(left,top), vec2(right,bottom)
 
+            // Top-Left
+     
 
-            // Calculate coordinates
-            glm::vec2 glyphPos;
-            glyphPos.x = static_cast<float>(bitmapX) / texWidth;
-            glyphPos.y = static_cast<float>(bitmapY) / texHeight;
-
-            glm::vec2 glyphSize;
-            glyphSize.x = static_cast<float>(bitmapWidth) / texWidth;
-            glyphSize.y = static_cast<float>(bitmapHeight) / texHeight;
-
-            x += kerning;
+            x += (kerning / texWidth) * 8;
 
             // Calculate vertex positions
+
             // Top left
             Vertex v;
-            v.position.x = (x + metrics.first.x);
-            v.position.y = (y + metrics.first.y);
+            v.position.x = (x + glyph.bounds.left);
+            v.position.y = (y + glyph.bounds.top);
             v.position.z = 0;
-            v.texCoords.x = glyphPos.x;
-            v.texCoords.y = glyphPos.y;
+            v.texCoords.x = glyph.textCoord.left / texWidth;
+            v.texCoords.y = glyph.textCoord.top / texHeight;
             vertices.push_back(v);
 
             // Bottom left
-            v.position.y = (y + metrics.first.y - glyphSize.y);
-            v.texCoords.y = glyphPos.y + glyphSize.y;
+            v.position.y = (y + glyph.bounds.bottom);
+            v.texCoords.y = glyph.textCoord.bottom / texHeight;
             vertices.push_back(v);
 
             // Bottom right
-            v.position.x = (x + metrics.first.x + static_cast<float>(bitmapWidth) / texWidth);
-            v.texCoords.x = glyphPos.x + glyphSize.x;
+            v.position.x = (x + glyph.bounds.right);
+            v.texCoords.x = glyph.textCoord.right / texWidth;
             vertices.push_back(v);
             vertices.push_back(v);
 
             // Top right
-            v.position.y = (y + metrics.first.y);
-            v.texCoords.y = glyphPos.y;
+            v.position.y = (y + glyph.bounds.top);
+            v.texCoords.y = glyph.textCoord.top / texHeight;
             vertices.push_back(v);
 
             // Top left
-            v.position.x = (x + metrics.first.x);
-            v.position.y = (y + metrics.first.y);
-            v.texCoords.x = glyphPos.x;
-            v.texCoords.y = glyphPos.y;
+            v.position.x = (x + glyph.bounds.left);
+            v.texCoords.x = glyph.textCoord.left / texWidth;
             vertices.push_back(v);
-
+            
             // Advance
-            x += static_cast<float>(bitmapWidth) / texWidth;
+            x += glyph.advance;
         }
 
         // Load vertices to mesh and set material
@@ -220,20 +203,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::pair<glm::vec2, glm::vec2> Text::getBounds(jop::Glyph& glyph) const
+ /*   std::pair<glm::vec2, glm::vec2> Text::getBounds(const jop::Glyph& glyph)
     {
-        // Use codepoint instead -?
-        return glyph.getBounds();
-    }
+        
+    }*/
 
     //////////////////////////////////////////////
 
-    const glm::vec2 Text::getCharacterPosition(const int codepoint)
+    glm::vec2 Text::getCharacterPosition(const int codepoint)
     {
         // codepoint, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY
 
         
-
+        return glm::vec2(0, 0);
         
     }
 
@@ -241,7 +223,7 @@ namespace jop
 
     Text& Text::setFont(const Font& font)
     {
-        m_font = static_ref_cast<const Font>(font.getReference());
+        m_font = static_ref_cast<Font>(font.getReference());
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
 
         return setString(m_string);
@@ -283,6 +265,7 @@ namespace jop
         #define STBTT_MACSTYLE_UNDERSCORE   4
         #define STBTT_MACSTYLE_NONE         8   // <= not same as 0, this makes us check the bitfield is 0
         */
+        return *this;
     }
 
     //////////////////////////////////////////////

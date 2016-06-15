@@ -247,6 +247,11 @@
     <None Include="..\include\Jopnal\Utility\Inl\Thread.inl" />
     <None Include="..\include\Jopnal\Window\Inl\Window.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Jopnal Resources.vcxproj">
+      <Project>{071b6dbf-2422-42c5-aa5b-a92129af838a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{05E2B2F8-17E8-4A01-8396-27CE1B84720E}</ProjectGuid>
     <RootNamespace>JopnalEngine</RootNamespace>

@@ -73,7 +73,7 @@ namespace jop
         /// \param left Numerical value pointing to the desired character
         /// \param right Numerical value pointing to the next character
         ///
-        float getKerning(const uint32 left,const uint32 right) const;
+        const float getKerning(const uint32 left,const uint32 right);
 
         /// \brief Returns a single glyph from given codepoint
         ///
@@ -81,18 +81,17 @@ namespace jop
         ///
         const jop::Glyph& getGlyph(uint32 codepoint);
 
-        /// \brief Returns the distance between two rows
+        /// \brief Returns the spacing between two rows in the font
         ///
-        float getLineSpacing() const;
+        float getLineSpacing();
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
-        const Texture2D& getTexture() const;
+        const Texture2D& getTexture();
 
         /// \brief Returns pixel size 
         ///
-        float getFontSize() const;
-
+        float getFontSize();
 
         /// \brief Get the error font
         ///
@@ -108,11 +107,24 @@ namespace jop
 
     private:
 
+        /// \brief Loads a font from DLL file
+        ///
+        /// \param id ID
+        /// \param pixelSize Glyph size in texture
+        ///
+        bool load(const int id, const int fontSize);
+
+        /// \brief Loads a font from internal buffer
+        ///
+        /// \param pixelSize Glyph size in texture
+        ///
+        bool load(const int fontSize);
+
         std::unique_ptr<::detail::FontImpl> m_data;
         jop::Texture2D m_texture;  ///< Texture
-        std::vector<unsigned char> m_buffer;        ///< File buffer
+        std::vector<uint8> m_buffer;        ///< File buffer
         std::unordered_map <int, jop::Glyph> m_bitmaps; ///< Texture coordinates
-        int m_textureSize; ///< 256x256 by default
+        int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
         int m_numNodes;
         int m_fontSize;
 
