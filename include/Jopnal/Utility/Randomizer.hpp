@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <glm/vec2.hpp>
+#include <glm/geometric.hpp>
 #include <random>
 #include <type_traits>
 

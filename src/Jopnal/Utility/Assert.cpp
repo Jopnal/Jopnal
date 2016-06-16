@@ -25,6 +25,8 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Utility/Assert.hpp>
+    #include <cassert>
+    #include <cstdlib>
 
 #endif
 
@@ -47,9 +49,13 @@ namespace jop
 
             MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 
+        #elif defined(JOP_OS_ANDROID)
+
+            assert(false);
+
         #endif
 
-        #if defined(JOP_DEBUG_MODE) && defined(_MSC_VER)
+        #if defined(JOP_DEBUG_MODE) && defined(JOP_COMPILER_MSVC)
             // An assertion failed. There's a break here so you can traverse the call stack
             DebugBreak();
         #endif

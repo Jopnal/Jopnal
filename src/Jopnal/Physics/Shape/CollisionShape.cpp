@@ -24,7 +24,9 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+
+    #include <btBulletCollisionCommon.h>
 
 #endif
 

@@ -24,68 +24,15 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
+	#include <Jopnal/Graphics/SphereMesh.hpp>
+
+    #include <glm/gtc/constants.hpp>
+    #include <cmath>
 
 #endif
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    //JOP_REGISTER_LOADABLE(jop, SphereMesh)[](const void*, const json::Value& val)
-    //{
-    //    if (!val.HasMember("name") || !val["name"].IsString())
-    //    {
-    //        JOP_DEBUG_ERROR("Couldn't load SphereMesh, no name found");
-    //        return false;
-    //    }
-
-    //    float radius = 1.f;
-    //    unsigned int rings = 20;
-    //    unsigned int sectors = 20;
-    //    bool norm = true;
-
-    //    // Radius
-    //    if (val.HasMember("radius") && val["radius"].IsDouble())
-    //        radius = static_cast<float>(val["radius"].GetDouble());
-
-    //    // Rings
-    //    if (val.HasMember("rings") && val["rings"].IsUint())
-    //        rings = val["rings"].GetUint();
-
-    //    // Sectors
-    //    if (val.HasMember("sectors") && val["sectors"].IsUint())
-    //        sectors = val["sectors"].GetUint();
-
-    //    // Normalized?
-    //    if (val.HasMember("normtc") && val["normtc"].IsBool())
-    //        norm = val["normtc"].GetBool();
-
-    //    auto& res = ResourceManager::getNamedResource<SphereMesh>(val["name"].GetString(), radius, rings, sectors, norm);
-    //    
-    //    if (val.HasMember("persistence") && val["persistence"].IsUint())
-    //        res.setPersistence(static_cast<uint16>(val["persistence"].GetUint()));
-
-    //    return true;
-    //}
-    //JOP_END_LOADABLE_REGISTRATION(SphereMesh)
-
-    //JOP_REGISTER_SAVEABLE(jop, SphereMesh)[](const void* sphere, json::Value& val, json::Value::AllocatorType& alloc)
-    //{
-    //    const SphereMesh& ref = *static_cast<const SphereMesh*>(sphere);
-
-    //    val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc)
-    //       .AddMember(json::StringRef("radius"), ref.getRadius(), alloc)
-    //       .AddMember(json::StringRef("rings"), ref.getRings(), alloc)
-    //       .AddMember(json::StringRef("sectors"), ref.getSectors(), alloc)
-    //       .AddMember(json::StringRef("normtc"), ref.normalizedTexCoords(), alloc)
-    //       .AddMember(json::StringRef("persistence"), ref.getPersistence(), alloc);
-
-    //    return true;
-    //}
-    //JOP_END_SAVEABLE_REGISTRATION(SphereMesh)
-}
 
 namespace jop
 {    

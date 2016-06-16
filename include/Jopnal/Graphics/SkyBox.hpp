@@ -33,6 +33,8 @@
 
 namespace jop
 {
+    class Cubemap;
+
     class JOP_API SkyBox : public Drawable
     {
     private:

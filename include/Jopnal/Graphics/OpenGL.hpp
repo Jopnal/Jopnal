@@ -30,13 +30,22 @@
 
 #ifdef JOP_OPENGL_ES
 
-    #include <EGL/egl.h>
     #include <GLES3/gl3.h>
-    #include <GLES3/gl3ext.h>
+    #include <GLES2/gl2ext.h>
+    #include <GLES3/gl3platform.h>
+
+    namespace jop { namespace detail
+    {
+        bool checkEGLExtension(const char* ext);
+    }}
+
+    #define JOP_CHECK_GL_EXTENSION(extension) (::jop::detail::checkEGLExtension(#extension))
 
 #else
 
     #include <Jopnal/OpenGL/gl_4.5.h>
+
+    #define JOP_CHECK_GL_EXTENSION(extension) ((ogl_ext_##extension)  != ogl_LOAD_FAILED)
 
 #endif
 

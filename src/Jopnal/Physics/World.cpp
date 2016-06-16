@@ -26,6 +26,19 @@
 
 	#include <Jopnal/Physics/World.hpp>
 
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlState.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Android/STL.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+    #include <Bullet/btBulletDynamicsCommon.h>
+    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
 #endif
 
 //////////////////////////////////////////////
@@ -115,7 +128,8 @@ namespace detail
 
                 JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)),
                                            "",
-                                           std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag, sizeof(jopr::physicsDebugShaderFrag)))),
+                                           std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag, sizeof(jopr::physicsDebugShaderFrag))),
+                                           Shader::getVersionString()),
                                            "Failed to compile physics debug shader!");
             }
 
@@ -139,7 +153,10 @@ namespace detail
             // Draw points
             if (m_points.empty())
             {
+            #ifndef JOP_OPENGL_ES
                 glCheck(glPointSize(3));
+            #endif
+
                 GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
                 m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));

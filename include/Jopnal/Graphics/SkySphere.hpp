@@ -33,6 +33,8 @@
 
 namespace jop
 {
+    class Texture2D;
+
     class JOP_API SkySphere : public Drawable
     {
     private:

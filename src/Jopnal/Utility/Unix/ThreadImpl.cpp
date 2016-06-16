@@ -19,38 +19,46 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_INFINITEPLANESHAPE_HPP
-#define JOP_INFINITEPLANESHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <glm/vec3.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_OS_WINDOWS
+
+#include <Jopnal/Utility/Unix/ThreadImpl.hpp>
+#include <pthread.h>
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    const int ns_enums[] =
     {
-    public:
-
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        InfinitePlaneShape(const std::string& name);
-
-
-        /// \brief Load this shape
-        ///
-        /// \param normal The surface normal
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
+        10,
+        5,
+        0,
+        -5,
+        -10
     };
 }
+
+namespace jop { namespace detail
+{
+    bool ThreadDetail::setPriority(std::thread& /*thread*/, const unsigned int /*priority*/)
+    {
+        //return pthread_setschedprio(thread.native_handle(), ns_enums[priority]) == 0;
+
+        // TODO: find out how to do this
+
+        return false;
+    }
+    
+    //////////////////////////////////////////////
+
+    void ThreadDetail::terminate(std::thread& thread)
+    {
+        pthread_kill(thread.native_handle(), 0);
+    }
+}}
 
 #endif

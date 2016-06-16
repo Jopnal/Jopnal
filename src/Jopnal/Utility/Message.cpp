@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Utility/Message.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////

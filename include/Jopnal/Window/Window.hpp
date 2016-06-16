@@ -36,8 +36,6 @@
 //////////////////////////////////////////////
 
 
-struct GLFWwindow;
-
 namespace jop
 {
     class WindowEventHandler;

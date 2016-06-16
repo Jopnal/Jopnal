@@ -19,38 +19,56 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_INFINITEPLANESHAPE_HPP
-#define JOP_INFINITEPLANESHAPE_HPP
+#ifndef JOP_WINDOWIMPL_HPP
+#define JOP_WINDOWIMPL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <glm/vec3.hpp>
+#include <Jopnal/Window/Window.hpp>
+#include <Jopnal/Window/WindowHandle.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    class WindowImpl
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(WindowImpl);
+    
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        InfinitePlaneShape(const std::string& name);
+        explicit WindowImpl(const Window::Settings& settings, Window& windowPtr);
+
+        ~WindowImpl();
 
 
-        /// \brief Load this shape
-        ///
-        /// \param normal The surface normal
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
+        void swapBuffers();
+
+        WindowLibHandle getLibraryHandle();
+
+        WindowHandle getNativeHandle();
+
+        static void pollEvents();
+
+        void setMouseMode(const Mouse::Mode mode);
+
+        void setPosition(const int x, const int y);
+
+        glm::ivec2 getPosition() const;
+
+        void setSize(const int width, const int height);
+
+        glm::ivec2 getSize() const;
+
+        static Window* getCurrentContextWindow();
+
+    private:
+
+
     };
-}
+}}
 
 #endif

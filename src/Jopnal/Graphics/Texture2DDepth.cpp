@@ -24,7 +24,15 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
+	#include <Jopnal/Graphics/Texture2DDepth.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+
+    #ifdef JOP_OPENGL_ES
+        #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
+    #endif
 
 #endif
 

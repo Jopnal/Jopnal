@@ -26,8 +26,10 @@
 
 	#include <Jopnal/Graphics/PostProcessor.hpp>
 
+    #include <Jopnal/Graphics/RectangleMesh.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <../tools/Jopresource/Resources.hpp>
 
 #endif
@@ -41,7 +43,7 @@ namespace jop
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
-          m_quad                (""),
+          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamedResource<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
           m_mainTarget          (mainTarget),
           m_functions           (),
           m_exposure            (1.f),
@@ -51,7 +53,7 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
-        m_quad.load(2.f);
+        m_quad->load(2.f);
 
         static const unsigned char pattern[] = 
         {
@@ -233,14 +235,14 @@ namespace jop
 
         RenderTexture::unbind();
         
-        m_quad.getVertexBuffer().bind();
-        shdr.setAttribute(0, GL_FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
-        shdr.setAttribute(1, GL_FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+        m_quad->getVertexBuffer().bind();
+        shdr.setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::Position));
+        shdr.setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::TexCoords));
 
         shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 
-        m_quad.getIndexBuffer().bind();
-        glCheck(glDrawElements(GL_TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
+        m_quad->getIndexBuffer().bind();
+        glCheck(glDrawElements(GL_TRIANGLES, m_quad->getElementAmount(), m_quad->getElementEnum(), 0));
     }
 
     //////////////////////////////////////////////
@@ -274,11 +276,11 @@ namespace jop
 
         m_blurShader->setUniform("u_Buffer", texture, 1);
 
-        m_quad.getVertexBuffer().bind();
-        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::Position));
-        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad.getVertexSize(), false, m_quad.getVertexOffset(Mesh::TexCoords));
+        m_quad->getVertexBuffer().bind();
+        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::Position));
+        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::TexCoords));
 
-        m_quad.getIndexBuffer().bind();
+        m_quad->getIndexBuffer().bind();
 
         for (uint32 i = 0; i < m_bloomBlurPasses; ++i)
         {
@@ -286,7 +288,7 @@ namespace jop
 
             m_blurShader->setUniform("u_Horizontal", horizontal);
 
-            glCheck(glDrawElements(GL_TRIANGLES, m_quad.getElementAmount(), m_quad.getElementEnum(), 0));
+            glCheck(glDrawElements(GL_TRIANGLES, m_quad->getElementAmount(), m_quad->getElementEnum(), 0));
 
             m_blurShader->setUniform("u_Buffer", *m_pingPong[horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 

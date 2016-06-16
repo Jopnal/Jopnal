@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <glm/vec3.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 

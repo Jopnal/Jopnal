@@ -24,7 +24,16 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/RigidBody.hpp>
+    #include <Jopnal/Physics/RigidBody.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Android/STL.hpp>
+    #include <Bullet/btBulletCollisionCommon.h>
+    #include <Bullet/btBulletDynamicsCommon.h>
 
 #endif
 

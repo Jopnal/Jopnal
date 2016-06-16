@@ -21,9 +21,15 @@
 
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
+
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/TextureSampler.hpp>
+	#include <Jopnal/Graphics/TextureSampler.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
 
 #endif
 
@@ -183,10 +189,15 @@ namespace jop
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
                     break;
+
+            #ifndef JOP_OPENGL_ES
+
                 case Repeat::ClampBorder:
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+
+            #endif
             }
 
             m_repeat = repeat;
@@ -199,12 +210,20 @@ namespace jop
 
     TextureSampler& TextureSampler::setBorderColor(const Color& color)
     {
+    #ifndef JOP_OPENGL_ES
+
         if (m_sampler && m_borderColor != color)
         {
             glCheck(glSamplerParameterfv(m_sampler, GL_TEXTURE_BORDER_COLOR, &m_borderColor.colors[0]));
 
             m_borderColor = color;
         }
+
+    #else
+
+        color;
+
+    #endif
 
         return *this;
     }
@@ -250,7 +269,7 @@ namespace jop
     {
         float level = 0.f;
 
-        if (ogl_ext_EXT_texture_filter_anisotropic != ogl_LOAD_FAILED)
+        if (JOP_CHECK_GL_EXTENSION(EXT_texture_filter_anisotropic))
             glCheck(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &level));
 
         return level;

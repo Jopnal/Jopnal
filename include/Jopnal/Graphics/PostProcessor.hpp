@@ -25,8 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
-#include <Jopnal/Graphics/RectangleMesh.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
+#include <Jopnal/Graphics/Texture2D.hpp>
 #include <array>
 #include <unordered_map>
 
@@ -37,6 +37,7 @@ namespace jop
 {
     class Shader;
     class Renderer;
+    class RectangleMesh;
 
     class JOP_API PostProcessor final : public Subsystem
     {
@@ -89,9 +90,9 @@ namespace jop
 
         std::array<RenderTexture, 2> m_pingPong;
         std::array<std::string, 2> m_shaderSources;
-        std::unordered_map<uint32, jop::WeakReference<Shader>> m_shaders;
-        jop::WeakReference<Shader> m_blurShader;
-        RectangleMesh m_quad;
+        std::unordered_map<uint32, WeakReference<Shader>> m_shaders;
+        WeakReference<Shader> m_blurShader;
+        WeakReference<RectangleMesh> m_quad;
         const RenderTexture& m_mainTarget;
         uint32 m_functions;
         float m_exposure;

@@ -19,38 +19,36 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_INFINITEPLANESHAPE_HPP
-#define JOP_INFINITEPLANESHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <glm/vec3.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_OS_DESKTOP
+
+#include <Jopnal/Window/Android/VideoInfoImpl.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    const std::vector<glm::uvec2>& VideoInfoImpl::getSupportedResolutions()
     {
-    public:
+        static std::vector<glm::uvec2> vec;
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        InfinitePlaneShape(const std::string& name);
+        if (vec.empty())
+        {
+            
+        }
 
+        return vec;
+    }
 
-        /// \brief Load this shape
-        ///
-        /// \param normal The surface normal
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
-    };
-}
+    //////////////////////////////////////////////
+
+    glm::uvec2 VideoInfoImpl::getDesktopResolution()
+    {
+        
+    }
+}}
 
 #endif

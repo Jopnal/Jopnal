@@ -27,6 +27,7 @@
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 

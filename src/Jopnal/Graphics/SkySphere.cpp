@@ -26,6 +26,11 @@
 
 	#include <Jopnal/Graphics/SkySphere.hpp>
 
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+
 #endif
 
 //////////////////////////////////////////////

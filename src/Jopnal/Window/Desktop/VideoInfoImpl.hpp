@@ -32,7 +32,7 @@
 
 namespace jop { namespace detail
 {
-    class VideoInfoImpl
+    class JOP_API VideoInfoImpl
     {
     public:
 

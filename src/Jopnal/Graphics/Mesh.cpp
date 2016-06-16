@@ -24,7 +24,13 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/Mesh.hpp>
+	#include <Jopnal/Graphics/Mesh.hpp>
+    #include <Jopnal/Graphics/BoxMesh.hpp>
+
+#include <Jopnal/Core/ResourceManager.hpp>
+#include <Jopnal/Graphics/OpenGL.hpp>
+#include <Jopnal/Utility/Assert.hpp>
+
 
 #endif
 
@@ -96,9 +102,15 @@ namespace jop
             sizeof(Color)
         };
 
-    #ifdef _MSC_VER
+    #if defined(JOP_COMPILER_MSVC)
+
         DWORD index;
         _BitScanForward(&index, component);
+
+    #elif defined(JOP_COMPILER_GNU)
+
+        int index = __builtin_ffs(component);
+
     #endif
 
         return reinterpret_cast<void*>

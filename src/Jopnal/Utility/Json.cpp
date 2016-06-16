@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Utility/Json.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////

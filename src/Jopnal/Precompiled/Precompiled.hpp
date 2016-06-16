@@ -58,7 +58,7 @@
 
 // OpenGL
 #include <Jopnal/Graphics/OpenGL.hpp>
-#include <Jopnal/Window/GlCheck.hpp>
+#include <Jopnal/Graphics/GlCheck.hpp>
 
 // GLFW
 #ifdef JOP_OS_DESKTOP
@@ -109,6 +109,7 @@
 #include <climits>
 #include <locale>
 #include <codecvt>
+#include <cstring>
 
 // Additional STL header
 #include <Jopnal/Android/STL.hpp>

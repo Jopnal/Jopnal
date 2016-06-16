@@ -28,7 +28,7 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <tuple>
     #include <vector>
 

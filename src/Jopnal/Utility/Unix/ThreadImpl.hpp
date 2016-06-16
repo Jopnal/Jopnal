@@ -19,35 +19,26 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_GLCHECK_HPP
-#define JOP_GLCHECK_HPP
+#ifndef JOP_THREADDETAIL_HPP
+#define JOP_THREADDETAIL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <thread>
 
 //////////////////////////////////////////////
 
 
 namespace jop { namespace detail
 {
-#ifdef JOP_OPENGL_ERROR_CHECKS
+    class ThreadDetail
+    {
+    public:
+    
+        static bool setPriority(std::thread& thread, const unsigned int priority);
 
-    #define glCheck(glFunction) glFunction; jop::detail::openGlCheck(#glFunction, __FILE__, __LINE__)
-
-    /// \brief Check a gl function call for errors
-    ///
-    /// \param func The function signature
-    /// \param file The file in which the function was called
-    /// \param line The line number where the function was called
-    ///
-    void openGlCheck(const char* func, const char* file, const unsigned int line);
-
-#else
-
-    #define glCheck(glFunction) glFunction
-
-#endif
-
+        static void terminate(std::thread& thread);
+    };
 }}
 
 #endif

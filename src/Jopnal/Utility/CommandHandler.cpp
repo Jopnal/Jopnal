@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Utility/CommandHandler.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+
 #endif
 
 //////////////////////////////////////////////

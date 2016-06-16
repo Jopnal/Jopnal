@@ -22,83 +22,96 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifndef JOP_PRECOMPILED_HEADER
+#include <Jopnal/Window/Android/WindowImpl.hpp>
 
-	#include <Jopnal/Utility/Thread.hpp>
-
-#endif
-
-#ifdef JOP_OS_WINDOWS
-    #include <Jopnal/Utility/Win32/ThreadImpl.hpp>
-#else
-    #include <Jopnal/Utility/Unix/ThreadImpl.hpp>
-#endif
+#ifdef JOP_OS_ANDROID
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    Thread::Thread()
-        : m_thread()
-    {}
-
-    Thread::Thread(Thread&& other)
-        : m_thread(std::move(other.m_thread))
-    {}
-
-    Thread& Thread::operator=(Thread&& other)
+    WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
     {
-        m_thread = std::move(other.m_thread);
-        return *this;
+        
     }
 
-    Thread::~Thread()
+    WindowImpl::~WindowImpl()
     {
-        join();
+        
     }
 
     //////////////////////////////////////////////
 
-    void Thread::join()
+    void WindowImpl::swapBuffers()
     {
-        if (isJoinable())
-            m_thread.join();
+       
     }
 
     //////////////////////////////////////////////
 
-    bool Thread::isJoinable() const
+    WindowLibHandle WindowImpl::getLibraryHandle()
     {
-        return m_thread.joinable();
+        //return m_window;
+        return nullptr;
     }
 
     //////////////////////////////////////////////
 
-    void Thread::detach()
+    WindowHandle WindowImpl::getNativeHandle()
     {
-        if (isJoinable())
-            m_thread.detach();
+        return nullptr;
     }
 
     //////////////////////////////////////////////
 
-    bool Thread::setPriority(const Priority priority)
+    void WindowImpl::pollEvents()
     {
-        return detail::ThreadDetail::setPriority(m_thread, static_cast<unsigned int>(priority));
+        
+    }
+
+    void WindowImpl::setMouseMode(const Mouse::Mode mode)
+    {
+        
     }
 
     //////////////////////////////////////////////
 
-    void Thread::terminate()
+    void WindowImpl::setPosition(const int x, const int y)
     {
-        detail::ThreadDetail::terminate(m_thread);
+        
     }
 
     //////////////////////////////////////////////
 
-    std::thread::id Thread::getId() const
+    glm::ivec2 WindowImpl::getPosition() const
     {
-        return m_thread.get_id();
+        return glm::ivec2();
     }
-}
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setSize(const int width, const int height)
+    {
+        
+    }
+
+    //////////////////////////////////////////////
+
+    glm::ivec2 WindowImpl::getSize() const
+    {
+        glm::ivec2 s;
+
+        return s;
+    }
+
+    //////////////////////////////////////////////
+
+    Window* WindowImpl::getCurrentContextWindow()
+    {
+        
+        return nullptr;
+    }
+}}
+
+#endif

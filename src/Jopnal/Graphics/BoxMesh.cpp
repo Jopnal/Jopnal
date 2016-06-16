@@ -24,53 +24,12 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
+	#include <Jopnal/Graphics/BoxMesh.hpp>
 
 #endif
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    /*JOP_REGISTER_LOADABLE(jop, BoxMesh)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load BoxMesh, no name found");
-            return false;
-        }
-
-        float size = 1.f;
-        if (val.HasMember("size") && val["size"].IsDouble())
-            size = static_cast<float>(val["size"].GetDouble());
-
-        bool inv = false;
-        if (val.HasMember("inverted") && val["inverted"].IsBool())
-            inv = val["inverted"].GetBool();
-
-        auto& res = ResourceManager::getNamedResource<BoxMesh>(val["name"].GetString(), size);
-
-        if (val.HasMember("persistence") && val["persistence"].IsUint())
-            res.setPersistence(static_cast<uint16>(val["persistence"].GetUint()));
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(BoxMesh)
-
-    JOP_REGISTER_SAVEABLE(jop, BoxMesh)[](const void* box, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        const BoxMesh& ref = *static_cast<const BoxMesh*>(box);
-
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        val.AddMember(json::StringRef("persistence"), ref.getPersistence(), alloc);
-        val.AddMember(json::StringRef("inverted"), ref.isInverted(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(BoxMesh)*/
-}
 
 namespace jop
 {

@@ -73,6 +73,7 @@ namespace jop
         float m_size;   ///< This rectangle's size
     };
 }
+
 #endif
 
 /// \class RectangleMesh

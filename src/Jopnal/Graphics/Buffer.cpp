@@ -27,8 +27,8 @@
 	#include <Jopnal/Graphics/Buffer.hpp>
 
     #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
 
 #endif
 
@@ -107,7 +107,9 @@ namespace jop
     void Buffer::bind() const
     {
         if (!m_buffer)
+        {
             glCheck(glGenBuffers(1, &m_buffer));
+        }
 
         glCheck(glBindBuffer(m_bufferType, m_buffer));
     }

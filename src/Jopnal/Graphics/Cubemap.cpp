@@ -21,13 +21,22 @@
 
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
-#include <Jopnal/Graphics/stb/stb_image.h>
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Cubemap.hpp>
+	#include <Jopnal/Graphics/Cubemap.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/Texture2D.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+    #include <vector>
 
 #endif
+
+#include <Jopnal/Graphics/stb/stb_image.h>
 
 //////////////////////////////////////////////
 

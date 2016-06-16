@@ -24,38 +24,15 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Texture.hpp>
+	#include <Jopnal/Graphics/Texture.hpp>
+
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
 
 #endif
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    /*JOP_REGISTER_LOADABLE(jop, Texture)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load Texture, no name found");
-            return false;
-        }
-
-        ResourceManager::getResource<Texture>(val["name"].GetString())
-            .setPersistent(val.HasMember("persistent") && val["persistent"].IsBool() ? val["persistent"].GetBool() : false);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Texture)
-
-    JOP_REGISTER_SAVEABLE(jop, Texture)[](const void* texture, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        val.AddMember(json::StringRef("name"), json::StringRef(static_cast<const Texture*>(texture)->getName().c_str()), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Texture)*/
-}
 
 namespace jop
 {

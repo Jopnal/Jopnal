@@ -22,8 +22,26 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/Window.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/RenderTexture.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/WindowEventHandler.hpp>
+    #include <Jopnal/Window/VideoInfo.hpp>
+    #include <Jopnal/Android/STL.hpp>
+
+#endif
+
 #if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/WindowImpl.hpp>
+#else
+    #include <Jopnal/Window/Android/WindowImpl.hpp>
 #endif
 
 //////////////////////////////////////////////
@@ -118,9 +136,9 @@ namespace jop
         open(settings);
         setDefaultEventHandler();
 
-    #ifdef JOP_DEBUG_MODE
+    #if defined(JOP_DEBUG_MODE) && !defined(JOP_OPENGL_ES)
 
-        if (ogl_ext_KHR_debug != ogl_LOAD_FAILED && settings.debug)
+        if (JOP_CHECK_GL_EXTENSION(KHR_debug) && settings.debug)
         {
             glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
             {

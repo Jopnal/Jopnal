@@ -26,6 +26,9 @@
 
 	#include <Jopnal/Physics/Shape/RectangleShape.hpp>
 
+    #include <Jopnal/Android/STL.hpp>
+    #include <Bullet/btBulletCollisionCommon.h>
+
 #endif
 
 //////////////////////////////////////////////

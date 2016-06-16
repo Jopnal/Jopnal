@@ -19,38 +19,35 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_INFINITEPLANESHAPE_HPP
-#define JOP_INFINITEPLANESHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <glm/vec3.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifdef JOP_OPENGL_ES
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <unordered_map>
+    #include <cstring>
+
+#endif
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    bool checkEGLExtension(const char* ext)
     {
-    public:
+        static std::unordered_map<const char*, bool> extMap;
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        InfinitePlaneShape(const std::string& name);
+        auto itr = extMap.find(ext);
 
+        if (itr != extMap.end())
+            return itr->second;
 
-        /// \brief Load this shape
-        ///
-        /// \param normal The surface normal
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
-    };
-}
+        const bool available = strstr(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), ext) != NULL;
+    }
+}}
 
 #endif

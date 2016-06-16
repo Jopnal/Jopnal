@@ -22,18 +22,27 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Texture2D.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <../tools/Jopresource/Resources.hpp>
+
+#endif
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #pragma warning(push)
 #pragma warning(disable: 4189)
 #pragma warning(disable: 4244)
 #include <Jopnal/Graphics/stb/stb_image.h>
 #pragma warning(pop)
-
-#ifndef JOP_PRECOMPILED_HEADER
-
-	#include <Jopnal/Graphics/Texture/Texture2D.hpp>
-
-#endif
 
 //////////////////////////////////////////////
 

@@ -22,8 +22,16 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifdef JOP_OS_DESKTOP
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/VideoInfo.hpp>
+
+#endif
+
+#if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/VideoInfoImpl.hpp>
+#elif defined(JOP_OS_ANDROID)
+    #include <Jopnal/Window/Android/VideoInfoImpl.hpp>
 #endif
 
 //////////////////////////////////////////////

@@ -22,9 +22,9 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifdef JOP_OS_DESKTOP
-
 #include <Jopnal/Window/Desktop/VideoInfoImpl.hpp>
+
+#ifdef JOP_OS_DESKTOP
 
 //////////////////////////////////////////////
 

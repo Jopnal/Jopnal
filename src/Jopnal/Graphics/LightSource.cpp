@@ -32,7 +32,7 @@
     #include <Jopnal/Graphics/Shader.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <../tools/Jopresource/Resources.hpp>
     #include <glm/mat4x4.hpp>
     #include <glm/gtc/matrix_transform.hpp>

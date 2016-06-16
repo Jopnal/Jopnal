@@ -26,6 +26,10 @@
 
 	#include <Jopnal/Physics/Shape/CompoundShape.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Android/STL.hpp>
+    #include <btBulletCollisionCommon.h>
+
 #endif
 
 //////////////////////////////////////////////

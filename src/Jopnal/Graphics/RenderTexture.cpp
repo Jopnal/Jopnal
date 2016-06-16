@@ -34,7 +34,7 @@
     #include <Jopnal/Graphics/Cubemap.hpp>
     #include <Jopnal/Graphics/CubemapDepth.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <vector>
 
@@ -42,7 +42,6 @@
 
     #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
     #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX8
-    #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
 
     #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
 

@@ -22,6 +22,12 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/Keyboard.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 
@@ -31,7 +37,9 @@ namespace jop
     {
         char str[64] = "UNKNOWN";
 
+    #if defined(JOP_OS_WINDOWS)
         GetKeyNameTextA(scanCode, str, sizeof(str) / sizeof(str[0]));
+    #endif
 
         return std::string(str);
     }

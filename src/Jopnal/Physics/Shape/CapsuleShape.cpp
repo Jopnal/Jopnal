@@ -26,6 +26,9 @@
 
 	#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
 
+    #include <Jopnal/Android/STL.hpp>
+    #include <btBulletCollisionCommon.h>
+
 #endif
 
 //////////////////////////////////////////////

@@ -19,38 +19,34 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_INFINITEPLANESHAPE_HPP
-#define JOP_INFINITEPLANESHAPE_HPP
+#ifndef JOP_GLCHECK_HPP
+#define JOP_GLCHECK_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
-    {
-    public:
+#ifdef JOP_OPENGL_ERROR_CHECKS
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        InfinitePlaneShape(const std::string& name);
+    #define glCheck(glFunction) glFunction; ::jop::detail::openGlCheck(#glFunction, __FILE__, __LINE__)
 
+    /// \brief Check a gl function call for errors
+    ///
+    /// \param func The function signature
+    /// \param file The file in which the function was called
+    /// \param line The line number where the function was called
+    ///
+    void openGlCheck(const char* func, const char* file, const unsigned int line);
 
-        /// \brief Load this shape
-        ///
-        /// \param normal The surface normal
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
-    };
-}
+#else
+
+    #define glCheck(glFunction) glFunction
+
+#endif
+}}
 
 #endif

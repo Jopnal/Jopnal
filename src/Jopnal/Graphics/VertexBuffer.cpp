@@ -26,6 +26,10 @@
 
 	#include <Jopnal/Graphics/VertexBuffer.hpp>
 
+    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+
 #endif
 
 //////////////////////////////////////////////

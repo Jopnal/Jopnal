@@ -30,7 +30,7 @@
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/OpenGL.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Window/GlCheck.hpp>
+    #include <Jopnal/Graphics/GlCheck.hpp>
     #include <../tools/Jopresource/Resources.hpp>
     #include <glm/gtc/type_ptr.hpp>
 

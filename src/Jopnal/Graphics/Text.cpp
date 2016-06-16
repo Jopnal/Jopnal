@@ -26,6 +26,9 @@
 
 	#include <Jopnal/Graphics/Text.hpp>
 
+    #include <Jopnal/Graphics/Font.hpp>
+    #include <Jopnal/Graphics/GlState.hpp>
+
 #endif
 
 //////////////////////////////////////////////

@@ -24,48 +24,12 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
+	#include <Jopnal/Graphics/RectangleMesh.hpp>
 
 #endif
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    /*JOP_REGISTER_LOADABLE(jop, RectangleMesh)[](const void*, const json::Value& val)
-    {
-        if (!val.HasMember("name") || !val["name"].IsString())
-        {
-            JOP_DEBUG_ERROR("Couldn't load RectangleMesh, no name found");
-            return false;
-        }
-
-        float size = 1.f;
-        if (val.HasMember("size") && val["size"].IsDouble())
-            size = static_cast<float>(val["size"].GetDouble());
-
-        auto& res = ResourceManager::getNamedResource<RectangleMesh>(val["name"].GetString(), size);
-        
-        if (val.HasMember("persistence") && val["persistence"].IsUint())
-            res.setPersistence(static_cast<uint16>(val["persistence"].GetUint()));
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(RectangleMesh)
-
-    JOP_REGISTER_SAVEABLE(jop, RectangleMesh)[](const void* box, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        const RectangleMesh& ref = *static_cast<const RectangleMesh*>(box);
-
-        val.AddMember(json::StringRef("name"), json::StringRef(ref.getName().c_str()), alloc);
-        val.AddMember(json::StringRef("size"), ref.getSize(), alloc);
-        val.AddMember(json::StringRef("persistence"), ref.getPersistence(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(RectangleMesh)*/
-}
 
 namespace jop
 {

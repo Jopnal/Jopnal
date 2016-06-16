@@ -26,6 +26,12 @@
 
 	#include <Jopnal/Physics/PhantomBody.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Android/STL.hpp>
+    #include <Bullet/btBulletCollisionCommon.h>
+    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
 #endif
 
 //////////////////////////////////////////////

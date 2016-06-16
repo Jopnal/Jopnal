@@ -26,6 +26,8 @@
 
 	#include <Jopnal/Utility/DateTime.hpp>
 
+    #include <ctime>
+
 #endif
 
 //////////////////////////////////////////////
@@ -47,8 +49,17 @@ namespace jop
         std::time_t t = std::time(0);
 
     #ifdef JOP_OS_WINDOWS
+
         struct tm dt;
         localtime_s(&dt, &t);
+
+    #else
+
+        struct tm* timeInfo;
+        timeInfo = localtime(&t);
+
+        tm& dt = *timeInfo;
+
     #endif
         
         if (date)

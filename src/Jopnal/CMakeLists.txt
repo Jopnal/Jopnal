@@ -179,6 +179,7 @@ set(INC_GRA
     ${INCROOT_GRA}/Material.hpp
     ${INCROOT_GRA}/Model.hpp
     ${INCROOT_GRA}/ModelLoader.hpp
+    ${INCROOT_GRA}/OpenGL.hpp
     ${INCROOT_GRA}/PostProcessor.hpp
     ${INCROOT_GRA}/Renderer.hpp
     ${INCROOT_GRA}/RenderTarget.hpp
@@ -214,11 +215,14 @@ set(SRC_GRA
     ${SRCROOT_GRA}/EnvironmentRecorder.cpp
     ${SRCROOT_GRA}/Font.cpp
     ${SRCROOT_GRA}/GenericDrawable.cpp
+    ${SRCROOT_GRA}/GlCheck.cpp
+    ${SRCROOT_GRA}/GlCheck.hpp
     ${SRCROOT_GRA}/GlState.cpp
     ${SRCROOT_GRA}/LightSource.cpp
     ${SRCROOT_GRA}/Material.cpp
     ${SRCROOT_GRA}/Model.cpp
     ${SRCROOT_GRA}/ModelLoader.cpp
+    ${SRCROOT_GRA}/OpenGL.cpp
     ${SRCROOT_GRA}/PostProcessor.cpp
     ${SRCROOT_GRA}/Renderer.cpp
     ${SRCROOT_GRA}/RenderTarget.cpp
@@ -325,13 +329,19 @@ set(INC_ROOT
     ${INCROOT_ROOT}/Window.hpp
 )
 set(SRC_ROOT
-    ${SRCROOT_ROOT}/OpenGL/gl_4.5.c
-    ${SRCROOT_ROOT}/OpenGL/gl_4.5.h
     ${SRCROOT_ROOT}/Precompiled/Precompiled.hpp
     ${SRCROOT_ROOT}/Android/STL.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
 )
+if (NOT JOP_OS_ANDROID)
+
+	set(SRC_ROOT ${SRC_ROOT}
+		${SRCROOT_ROOT}/OpenGL/gl_4.5.c
+		${SRCROOT_ROOT}/OpenGL/gl_4.5.h)
+
+endif()
+
 source_group("Root\\Headers" FILES ${INC_ROOT})
 source_group("Root\\Source" FILES ${SRC_ROOT})
 
@@ -371,6 +381,12 @@ if (JOP_OS_WINDOWS)
         ${SRCROOT_UTI}/Win32/ThreadImpl.hpp
     )
 
+else ()
+
+	set(SRC_UTI_UNIX
+        ${SRCROOT_UTI}/Unix/ThreadImpl.cpp
+        ${SRCROOT_UTI}/Unix/ThreadImpl.hpp)
+
 endif()
 
 set(SRC_UTI
@@ -391,6 +407,11 @@ if (JOP_OS_WINDOWS)
 
     source_group("Utility\\Source\\Win32" FILES ${SRC_UTI_WIN32})
     list(APPEND SRC_UTI ${SRC_UTI_WIN32})
+
+else ()
+
+	source_group("Utility\\Source\\Unix" FILES ${SRC_UTI_UNIX})
+	list(APPEND SRC_UTI ${SRC_UTI_UNIX})
 
 endif()
 
@@ -422,11 +443,17 @@ if (JOP_OS_WINDOWS OR JOP_OS_LINUX)
         ${SRCROOT_WIN}/Desktop/WindowImpl.hpp
     )
 
+elseif (JOP_OS_ANDROID)
+
+	set(SRC_WIN_ANDROID
+        ${SRCROOT_WIN}/Android/VideoInfoImpl.cpp
+        ${SRCROOT_WIN}/Android/VideoInfoImpl.hpp
+        ${SRCROOT_WIN}/Android/WindowImpl.cpp
+        ${SRCROOT_WIN}/Android/WindowImpl.hpp)
+
 endif()
 
 set(SRC_WIN
-    ${SRCROOT_WIN}/GlCheck.cpp
-    ${SRCROOT_WIN}/GlCheck.hpp
     ${SRCROOT_WIN}/Keyboard.cpp
     ${SRCROOT_WIN}/VideoInfo.cpp
     ${SRCROOT_WIN}/Window.cpp
@@ -439,6 +466,11 @@ if (JOP_OS_WINDOWS OR JOP_OS_LINUX)
 
     source_group("Window\\Source\\Desktop" FILES ${SRC_WIN_DESKTOP})
     list(APPEND SRC_WIN ${SRC_WIN_DESKTOP})
+
+elseif (JOP_OS_ANDROID)
+
+	source_group("Window\\Source\\Android" FILES ${SRC_WIN_ANDROID})
+    list(APPEND SRC_WIN ${SRC_WIN_ANDROID})
 
 endif()
 

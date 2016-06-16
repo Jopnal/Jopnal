@@ -22,13 +22,22 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/OpenGL.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Graphics/OpenGL.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 #ifdef JOP_OPENGL_ERROR_CHECKS
 
 namespace jop { namespace detail
 {
-    void detail::openGlCheck(const char* func, const char* file, const unsigned int line)
+    void openGlCheck(const char* func, const char* file, const unsigned int line)
     {
         GLenum errCode = glGetError();
 
@@ -47,12 +56,18 @@ namespace jop { namespace detail
                 case GL_INVALID_OPERATION:
                     errorS = "GL_INVALID_OPERATION";
                     break;
+
+            #ifndef JOP_OPENGL_ES
+
                 case GL_STACK_OVERFLOW:
                     errorS = "GL_STACK_OVERFLOW";
                     break;
                 case GL_STACK_UNDERFLOW:
                     errorS = "GL_STACK_UNDERFLOW";
                     break;
+
+            #endif
+
                 case GL_OUT_OF_MEMORY:
                     errorS = "GL_OUT_OF_MEMORY";
                     break;
