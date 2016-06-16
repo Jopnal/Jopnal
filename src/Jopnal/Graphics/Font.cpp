@@ -130,7 +130,7 @@ namespace jop
 
             // Create stb_rectangle
             stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
-            // Pack rectangle - was_packed is non zero if packing succeeded
+            // Pack rectangle - was_packed is non-zero if packing succeeded
             stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
 
             if (rectangle.was_packed != 0)
@@ -178,7 +178,7 @@ namespace jop
         
         int width = right * scale - left * scale;
         int height = bottom * scale - top * scale;
-        // Find an empty spot in the texture
+        // Find an empty spot in the texture - Add empty pixels after each rect to avoid artifacts
         stbrp_rect rectangle = 
         { 0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2) };
         stbrp_pack_rects(&m_data->m_context, &rectangle, 1);

@@ -44,14 +44,9 @@ namespace jop
          
         Glyph();
 
-
         int advance; ///< Advance to next glyph
-        
-        Rect bounds;
-        Rect textCoord;
-
-
-
+        Rect bounds; ///< Bounding boxes around glyph
+        Rect textCoord; ///< Coordinates inside texture
     };
 }
 

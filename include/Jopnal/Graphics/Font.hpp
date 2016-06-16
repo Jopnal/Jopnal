@@ -68,10 +68,12 @@ namespace jop
         ///
         bool load(const std::string& path, const int fontSize);
 
-        /// \brief Returns the necessary kerning correction between characters
+        /// \brief Returns the necessary kerning advancement between two characters
         ///
-        /// \param left Numerical value pointing to the desired character
-        /// \param right Numerical value pointing to the next character
+        /// \param left Codepoint value pointing to the desired character
+        /// \param right Codepoint value pointing to the next character
+        ///
+        /// NOTE: Every font does NOT have support for this!
         ///
         const float getKerning(const uint32 left,const uint32 right);
 
@@ -82,6 +84,8 @@ namespace jop
         const jop::Glyph& getGlyph(uint32 codepoint);
 
         /// \brief Returns the spacing between two rows in the font
+        ///
+        /// NOTE: Every font does NOT have support for this!
         ///
         float getLineSpacing();
 

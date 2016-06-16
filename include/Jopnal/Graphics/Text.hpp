@@ -34,7 +34,6 @@
 
 namespace jop
 {
-
     class Font;
 
     class JOP_API Text : public GenericDrawable
@@ -76,7 +75,7 @@ namespace jop
         
         /// \brief Get bounds for a glyph relative to the given codepoint
         ///
-        //std::pair<glm::vec2, glm::vec2> getBounds(const jop::Glyph& glyph);
+        const std::pair<glm::vec2, glm::vec2> getBounds() const;
 
         /// \brief Get the position of a single character
         ///
@@ -114,6 +113,7 @@ namespace jop
         Mesh m_mesh;
         Material m_material;
         std::wstring m_string;
+        Rect m_bounds;
     };
 }
 

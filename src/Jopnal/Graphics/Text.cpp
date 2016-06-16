@@ -62,7 +62,8 @@ namespace jop
           m_font            (static_ref_cast<Font>(Font::getDefault().getReference())),
           m_mesh            (""),
           m_material        ("", Material::Attribute::OpacityMap, false),
-          m_string          ()
+          m_string          (),
+          m_bounds          ({ 0, 0, 0, 0 })
     {
         GenericDrawable::setModel(Model(m_mesh, m_material));
     }
@@ -72,7 +73,8 @@ namespace jop
           m_font            (other.m_font),
           m_mesh            (""),
           m_material        (other.m_material, ""),
-          m_string          ()
+          m_string          (),
+          m_bounds          ({ 0, 0, 0, 0 })
     {
         GenericDrawable::setModel(Model(m_mesh, m_material));
         setString(other.m_string);
@@ -97,30 +99,29 @@ namespace jop
             return *this;
         }
 
-        std::vector<Vertex> vertices;
-
         float x = 0, y = 0;
         int previous = -1;
+        std::vector<Vertex> vertices;
 
         for (auto i : m_string)
         {
-            // TODO: Remove purkka
-            // use glyphs advance + kerning
-
-
             if (i == L' ')
             {
 
-                x += m_font->getFontSize() / 4; // Do this according to font size!?
+                x += m_font->getFontSize() / 2;
                 previous = -1;
                 continue;
             }
             else if (i == L'\n')
             {
                 
-                x = 1.0f / 256.0f; // Move to start of the bitmap
-                //y -= 1.0f / 24.0f; // getLineSpacing() 
-                y -= m_font->getLineSpacing();
+                x = 0; // Move to start of the bitmap
+          /*      if (m_font->getLineSpacing() <= 0)
+                    y -= m_font->getFontSize();
+                else
+                    y -= m_font->getLineSpacing();*/
+
+                y -= m_font->getFontSize();
                 continue;
             }
 
@@ -132,28 +133,21 @@ namespace jop
                 kerning = m_font->getKerning(previous, i);
             }
             previous = i;
-
-            // Get bitmap location and size inside the texture in pixels
-            // getCharacterPosition here
-            //m_font->getTextureCoordinates(i, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY);
-
-            
+          
             // Get font texture
             const Texture2D& tex = m_font->getTexture();
             float texWidth = static_cast<float>(tex.getSize().x);
             float texHeight = static_cast<float>(tex.getSize().y);
 
+            // Kerning advancement
+            x += (kerning / texWidth) * 8; // Multiply for greater effect
+            //x += kerning;
+
             // Get glyph
             const jop::Glyph& glyph = m_font->getGlyph(i);
-            // Get glyph bounds vec2(left,top), vec2(right,bottom)
-
-            // Top-Left
-     
-
-            x += (kerning / texWidth) * 8;
 
             // Calculate vertex positions
-
+            
             // Top left
             Vertex v;
             v.position.x = (x + glyph.bounds.left);
@@ -171,6 +165,7 @@ namespace jop
             // Bottom right
             v.position.x = (x + glyph.bounds.right);
             v.texCoords.x = glyph.textCoord.right / texWidth;
+            // NOTE: push_back twice since the 2 drawn triangles share this point
             vertices.push_back(v);
             vertices.push_back(v);
 
@@ -203,20 +198,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
- /*   std::pair<glm::vec2, glm::vec2> Text::getBounds(const jop::Glyph& glyph)
+    const std::pair<glm::vec2, glm::vec2> Text::getBounds() const
     {
-        
-    }*/
+        return std::pair<glm::vec2, glm::vec2>(glm::vec2(m_bounds.left, m_bounds.right), glm::vec2(m_bounds.bottom, m_bounds.top));
+    }
 
     //////////////////////////////////////////////
 
     glm::vec2 Text::getCharacterPosition(const int codepoint)
     {
-        // codepoint, &bitmapWidth, &bitmapHeight, &bitmapX, &bitmapY
-
-        
-        return glm::vec2(0, 0);
-        
+        // TODO: Implement      
+        return glm::vec2(0, 0);     
     }
 
     //////////////////////////////////////////////
