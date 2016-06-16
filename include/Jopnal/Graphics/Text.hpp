@@ -47,6 +47,14 @@ namespace jop
 
     public:
 
+        enum Style:uint32
+        {
+            Default = 0,
+            Italic = 1,
+            Underlined = 1 << 1,
+            Strikethrough = 1 << 2
+        };
+
         /// \brief Constructor
         ///
         /// \param object Parent
@@ -75,17 +83,21 @@ namespace jop
         
         /// \brief Get bounds for a glyph relative to the given codepoint
         ///
-        const std::pair<glm::vec2, glm::vec2> getBounds() const;
+        std::pair<glm::vec2, glm::vec2> getBounds() const;
 
         /// \brief Get the position of a single character
         ///
-        glm::vec2 getCharacterPosition(const int codepoint);
+        glm::vec2 getCharacterPosition(const int codepoint) const;
 
         /// \brief Set font
         ///
         /// \param font Font
         ///
         Text& setFont(const Font& font);
+
+        /// \brief Get font
+        ///
+        const Font& getFont() const;
 
         /// \brief Set color
         ///
@@ -95,15 +107,25 @@ namespace jop
 
         /// \brief Set text style
         ///
-        /// 
+        Text& setStyle(uint32 style);
+
+        /// \brief Get text style
         ///
-        Text& setStyle();
+        uint32 getStyle() const;
 
         /// \brief Get the color
         ///
         /// \return The color
         ///
         Color getColor() const;
+
+        /// \brief Add a line to m_vertices
+        ///
+        /// \param m_vertices Reference to vertex vector
+        /// \param offset Offset distance from the texts bottom bound
+        /// \param thickness Thickness of the drawn line
+        ///
+        void addLine(std::vector<Vertex>& m_vertices, float offset, float thickness);
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
@@ -114,6 +136,8 @@ namespace jop
         Material m_material;
         std::wstring m_string;
         Rect m_bounds;
+        uint32 m_style;
+        std::vector<Vertex> m_vertices;
     };
 }
 

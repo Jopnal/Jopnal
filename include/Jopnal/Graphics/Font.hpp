@@ -85,8 +85,6 @@ namespace jop
 
         /// \brief Returns the spacing between two rows in the font
         ///
-        /// NOTE: Every font does NOT have support for this!
-        ///
         float getLineSpacing();
 
         /// \brief Returns the texture that contains all loaded glyphs

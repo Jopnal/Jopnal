@@ -155,7 +155,8 @@ namespace jop
 
     const float Font::getKerning(const uint32 left, const uint32 right)
     {
-        return (float)stbtt_GetCodepointKernAdvance(&m_data->m_fontInfo, left, right);
+        float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
+        return (float)stbtt_GetCodepointKernAdvance(&m_data->m_fontInfo, left, right) * scale;
     }
 
     //////////////////////////////////////////////
@@ -167,18 +168,19 @@ namespace jop
         if (it != m_bitmaps.end())
             return it->second;
 
+        // Scale according to font size
         float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
 
         int left = 0, right = 0, bottom = 0, top = 0, advance = 0;
-        // Get glyph id and bounding boxes
-        //int glyphID = stbtt_FindGlyphIndex(&m_data->m_fontInfo, codepoint);
+
+        // Get bounding box
         stbtt_GetCodepointBox(&m_data->m_fontInfo, codepoint, &left, &top, &right, &bottom);
         // Get advance
         stbtt_GetCodepointHMetrics(&m_data->m_fontInfo, codepoint, &advance, 0);
         
         int width = right * scale - left * scale;
         int height = bottom * scale - top * scale;
-        // Find an empty spot in the texture - Add empty pixels after each rect to avoid artifacts
+        // Find an empty spot in the texture - Add empty pixels (2) after each rect to avoid artifacts
         stbrp_rect rectangle = 
         { 0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2) };
         stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
@@ -213,9 +215,12 @@ namespace jop
 
     float Font::getLineSpacing()
     {
-        int lineGap;
-        stbtt_GetFontVMetrics(&m_data->m_fontInfo, 0, 0, &lineGap);
-        return static_cast<float>(lineGap);
+        float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
+        float lineSpace = 0;
+        int ascent, descent, lineGap;
+        stbtt_GetFontVMetrics(&m_data->m_fontInfo, &ascent, &descent, &lineGap);
+        lineSpace = ascent * scale - descent * scale + lineGap * scale;
+        return lineSpace;
     }
 
     //////////////////////////////////////////////
