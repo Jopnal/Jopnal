@@ -103,7 +103,7 @@ namespace jop
 
         float x = 0, y = 0;
         int previous = -1;
-        
+        std::vector<Vertex> vertices;
 
         // Get font texture
         const Texture2D& tex = m_font->getTexture();
@@ -153,31 +153,31 @@ namespace jop
             v.position.z = 0;
             v.texCoords.x = glyph.textCoord.left / texWidth;
             v.texCoords.y = glyph.textCoord.top / texHeight;
-            m_vertices.push_back(v);
+            vertices.push_back(v);
 
             // Bottom left
             v.position.x = (x + glyph.bounds.left + italic);
             v.position.y = (y + glyph.bounds.bottom);
             v.texCoords.y = glyph.textCoord.bottom / texHeight;
-            m_vertices.push_back(v);
+            vertices.push_back(v);
 
             // Bottom right
             v.position.x = (x + glyph.bounds.right + italic);
             v.texCoords.x = glyph.textCoord.right / texWidth;
             // NOTE: push_back twice since the 2 drawn triangles share this point
-            m_vertices.push_back(v);
-            m_vertices.push_back(v);
+            vertices.push_back(v);
+            vertices.push_back(v);
 
             // Top right
             v.position.x = (x + glyph.bounds.right);
             v.position.y = (y + glyph.bounds.top);
             v.texCoords.y = glyph.textCoord.top / texHeight;
-            m_vertices.push_back(v);
+            vertices.push_back(v);
 
             // Top left
             v.position.x = (x + glyph.bounds.left);
             v.texCoords.x = glyph.textCoord.left / texWidth;
-            m_vertices.push_back(v);
+            vertices.push_back(v);
             
             // Update text bounds
             m_bounds.left = std::min(m_bounds.left, static_cast<int>(x) + glyph.bounds.left);
@@ -185,14 +185,16 @@ namespace jop
             m_bounds.right = std::max(m_bounds.right, static_cast<int>(x)+glyph.bounds.right);
             m_bounds.bottom = std::max(m_bounds.bottom, static_cast<int>(y) + glyph.bounds.bottom);
 
-            addLine(m_vertices, 1, 50);
+            
             // Advance
             x += glyph.advance;
         }
 
-        
-        // Load m_vertices to mesh and set material
-        m_mesh.load(m_vertices, std::vector<unsigned int>());
+        // Add underline / strikethrough - update bounds after?
+        addLine(vertices, -5, 2);
+
+        // Load vertices to mesh and set material
+        m_mesh.load(vertices, std::vector<unsigned int>());
 
         return *this;
     }
@@ -276,42 +278,40 @@ namespace jop
         return m_material.getReflection(Material::Reflection::Solid);
     }
 
-    void Text::addLine(std::vector<Vertex>& m_vertices, float offset, float thickness)
+    void Text::addLine(std::vector<Vertex>& vertices, float offset, float thickness)
     {
-        
-        float top = m_bounds.bottom + offset;
-        float bottom = m_bounds.bottom + offset + thickness;
+        float top = m_bounds.top + offset;
+        float bottom = m_bounds.top + offset + thickness;
 
         Vertex v; 
         // Top left
         v.position.x = m_bounds.left;
         v.position.y = top;
         v.position.z = 0;
-        v.texCoords.x = 1;
-        v.texCoords.y = 1;
-        m_vertices.push_back(v);
+        //v.texCoords.x = ;
+        //v.texCoords.y = ;
+        vertices.push_back(v);
 
         // Bottom left
         v.position.y = bottom;
-        //texcoords
-        m_vertices.push_back(v);
+        //v.texCoords.y = ;
+        vertices.push_back(v);
 
         // Bottom right - push_back x2
-        v.position.x = m_bounds.left;
-        //texcoords
-        m_vertices.push_back(v);
-        m_vertices.push_back(v);
+        v.position.x = m_bounds.right;
+        //v.texCoords.x = ;
+        vertices.push_back(v);
+        vertices.push_back(v);
 
         // Top right
         v.position.y = top;
-        //texcoords
-        m_vertices.push_back(v);
+        //v.texCoords.y = ;
+        vertices.push_back(v);
 
         // Top left
         v.position.x = m_bounds.left;
-        //v.texCoords.x
-        //v.texCoords.y
-        m_vertices.push_back(v);
+        //v.texCoords.x = ;
+        vertices.push_back(v);
 
 
 

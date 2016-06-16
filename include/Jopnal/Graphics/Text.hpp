@@ -137,7 +137,7 @@ namespace jop
         std::wstring m_string;
         Rect m_bounds;
         uint32 m_style;
-        std::vector<Vertex> m_vertices;
+        
     };
 }
 
