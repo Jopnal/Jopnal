@@ -376,7 +376,7 @@ namespace jop
                         ANDROID_LOG_DEBUG
                     };
 
-                    __android_log_print(androidSeverity[severity], "Jopnal", newStr.c_str());
+                    __android_log_write(androidSeverity[severity], "jopnal", newStr.c_str());
 
                 #else
 

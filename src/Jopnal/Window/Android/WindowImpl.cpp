@@ -52,8 +52,7 @@ namespace jop { namespace detail
 
     WindowLibHandle WindowImpl::getLibraryHandle()
     {
-        //return m_window;
-        return nullptr;
+        return getNativeHandle();
     }
 
     //////////////////////////////////////////////
