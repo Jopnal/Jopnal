@@ -1,5 +1,3 @@
-# This file is adapted from SFML (http://www.sfml-dev.org/)
-
 include(CMakeParseArguments)
 
 # Add a new target
@@ -42,8 +40,7 @@ macro(jopAddLibrary target)
 
     endif()
 
-    # set the version and soversion of the target (for compatible systems -- mostly Linuxes)
-    # except for Android which strips soversion suffixes
+    # Set the version and soversion of the target for compatible systems
     if (NOT JOP_OS_ANDROID)
 
         set_target_properties(${target} PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR})
@@ -51,7 +48,7 @@ macro(jopAddLibrary target)
 
     endif()
 
-    # set the target's folder (for IDEs that support it, e.g. Visual Studio)
+    # Set the target's folder (for IDEs that support it)
     set_target_properties(${target} PROPERTIES FOLDER "jopnal")
 
     # For Visual Studio on Windows, export debug symbols (PDB files) to lib directory

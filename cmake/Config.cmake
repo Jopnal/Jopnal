@@ -1,5 +1,3 @@
-# This file is adapted from SFML (http://www.sfml-dev.org/)
-
 # OS detection
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 

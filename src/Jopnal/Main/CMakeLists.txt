@@ -1,4 +1,4 @@
-# This file is adapted from SFML (http://www.sfml-dev.org/)
+# Jopnal Main CMakeLists
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/Jopnal/Main)
 set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Jopnal/Main)
@@ -25,3 +25,15 @@ set_target_properties(jopnal-main PROPERTIES FOLDER "jopnal")
 
 # Setup install rule
 install(TARGETS jopnal-main ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT devel)
+
+# Add bootstrap activity
+if (JOP_OS_ANDROID)
+
+    set(WAS_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
+    set(BUILD_SHARED_LIBS TRUE)
+	jopAddLibrary(jopnal-activity SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Activity.cpp)
+    
+    set(BUILD_SHARED_LIBS ${WAS_SHARED_LIBS})
+    
+endif()

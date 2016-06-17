@@ -1,4 +1,4 @@
-# This file is adapted from SFML (http://www.sfml-dev.org/)
+# Jopnal Source CMakeLists
 
 # Include macros
 include(${PROJECT_SOURCE_DIR}/cmake/Macros.cmake)
@@ -565,6 +565,10 @@ include_directories(${OPENAL_INCLUDE_DIR})
 list(APPEND EXT_LIBS ${OPENAL_LIBRARY})
 
 
+# Include resource files
+include(${CMAKE_CURRENT_SOURCE_DIR}/Resources/CMakeLists.txt)
+
+
 # Preprocessor symbols
 add_definitions(-DSTBI_FAILURE_USERMSG)
 
@@ -578,9 +582,12 @@ jopAddLibrary(jopnal
                       ${INC_ROOT} ${SRC_ROOT}
                       ${INC_UTI} ${INL_UTI} ${SRC_UTI}
                       ${INC_WIN} ${INL_WIN} ${SRC_WIN}
-
-              EXTERNAL_LIBS ${EXT_LIBS}
-)
+              EXTERNAL_LIBS ${EXT_LIBS})
+              
+# Add the resource target as a dependency
+if (TARGET jopnal-resources) 
+    add_dependencies(jopnal jopnal-resources)
+endif()
 
 # Precompiled header
 if (NOT JOP_COMPILER_GCC)

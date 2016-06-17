@@ -35,11 +35,12 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Android/STL.hpp>
-    #include <../tools/Jopresource/Resources.hpp>
     #include <Bullet/btBulletDynamicsCommon.h>
     #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #endif
+
+#include <../tools/Jopresource/Resources.hpp>
 
 //////////////////////////////////////////////
 

@@ -53,9 +53,6 @@
 
 #endif
 
-// Compiled resources
-#include <../tools/Jopresource/Resources.hpp>
-
 // OpenGL
 #include <Jopnal/Graphics/OpenGL.hpp>
 #include <Jopnal/Graphics/GlCheck.hpp>

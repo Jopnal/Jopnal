@@ -31,11 +31,11 @@
     #include <Jopnal/Graphics/OpenGL.hpp>
     #include <Jopnal/Graphics/GlCheck.hpp>
     #include <Jopnal/Graphics/Texture2D.hpp>
-    #include <../tools/Jopresource/Resources.hpp>
     #include <vector>
 
 #endif
 
+#include <../tools/Jopresource/Resources.hpp>
 #include <Jopnal/Graphics/stb/stb_image.h>
 
 //////////////////////////////////////////////

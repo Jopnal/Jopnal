@@ -32,9 +32,10 @@
     #include <Jopnal/Graphics/OpenGL.hpp>
     #include <Jopnal/Graphics/GlCheck.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <../tools/Jopresource/Resources.hpp>
 
 #endif
+
+#include <../tools/Jopresource/Resources.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 

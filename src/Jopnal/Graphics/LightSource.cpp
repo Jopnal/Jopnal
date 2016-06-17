@@ -33,12 +33,13 @@
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/GlCheck.hpp>
-    #include <../tools/Jopresource/Resources.hpp>
     #include <glm/mat4x4.hpp>
     #include <glm/gtc/matrix_transform.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
 #endif
+
+#include <../tools/Jopresource/Resources.hpp>
 
 ///////////////////////////////////////////
 

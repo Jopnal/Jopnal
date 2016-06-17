@@ -1,4 +1,4 @@
-# This file is adapted from SFML (http://www.sfml-dev.org/)
+# Jopnal Engine CMakeLists
 
 # 3.1 is the minimum for pdb file generation
 cmake_minimum_required(VERSION 3.1.0)
@@ -6,8 +6,10 @@ cmake_minimum_required(VERSION 3.1.0)
 # Helper for defining options
 macro(jopSetOption var default type docstring)
 
-    if(NOT DEFINED ${var})
+    if (NOT DEFINED ${var})
+    
         set(${var} ${default})
+        
     endif()
 
     set(${var} ${${var}} CACHE ${type} ${docstring} FORCE)
@@ -43,7 +45,7 @@ project(Jopnal)
 # Include config
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-# Hide cotire options
+# Hide non-essential options
 mark_as_advanced(COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS)
 mark_as_advanced(COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_PATH)
 mark_as_advanced(COTIRE_DEBUG)
@@ -51,6 +53,13 @@ mark_as_advanced(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
 mark_as_advanced(COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES)
 mark_as_advanced(COTIRE_UNITY_SOURCE_EXCLUDE_EXTENSIONS)
 mark_as_advanced(COTIRE_VERBOSE)
+mark_as_advanced(PHYSFS_INCLUDE_DIR)
+mark_as_advanced(PHYSFS_LIBRARY)
+mark_as_advanced(CMAKE_BUILD_TYPE)
+mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
+mark_as_advanced(CMAKE_INSTALL_PREFIX)
+mark_as_advanced(BULLET_INCLUDE_DIR)
+
 
 # Cotire for precompiled headers
 set (COTIRE_PCH_MEMORY_SCALING_FACTOR "500")
@@ -58,6 +67,17 @@ include(cotire)
 
 # Include the configuration file
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake)
+
+# Option for precompiled headers
+set(USE_PRECOMPILED_HEADER_DEFAULT TRUE)
+
+# Set precompiled header utilization to false on android & MinGW, as
+# it tends to crash the compiler
+if (JOP_OS_ANDROID OR (JOP_OS_WINDOWS AND JOP_COMPILER_GCC))
+    set(USE_PRECOMPILED_HEADER_DEFAULT FALSE)
+endif() 
+   
+jopSetOption(USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
 
 # Extract extlibs.7z
 if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/include)
@@ -73,18 +93,6 @@ if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/include)
 else ()
 
     message(STATUS "External libraries seem to be already extracted")
-
-endif()
-
-# Compile resources
-if (JOP_OS_WINDOWS)
-
-    execute_process(COMMAND jopres desc.json
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools/Jopresource)
-
-else ()
-
-    message(WARNING "Resource compiler is provided only for Windows, using pre-assembled Jopnal resource files")
 
 endif()
 

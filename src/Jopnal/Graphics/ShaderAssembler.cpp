@@ -29,9 +29,10 @@
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/Shader.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
-    #include <../tools/Jopresource/Resources.hpp>
 
 #endif
+
+#include <../tools/Jopresource/Resources.hpp>
 
 //////////////////////////////////////////////
 
