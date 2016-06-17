@@ -75,25 +75,25 @@ namespace jop
         ///
         /// NOTE: Every font does NOT have support for this!
         ///
-        const float getKerning(const uint32 left,const uint32 right);
+        float getKerning(const uint32 left,const uint32 right) const;
 
         /// \brief Returns a single glyph from given codepoint
         ///
         /// \param Unicode codepoint of a character
         ///
-        const jop::Glyph& getGlyph(uint32 codepoint);
+        const jop::Glyph& getGlyph(uint32 codepoint) const;
 
         /// \brief Returns the spacing between two rows in the font
         ///
-        float getLineSpacing();
+        float getLineSpacing() const;
 
         /// \brief Returns the texture that contains all loaded glyphs
         ///
-        const Texture2D& getTexture();
+        const Texture2D& getTexture() const;
 
         /// \brief Returns pixel size 
         ///
-        float getFontSize();
+        float getFontSize() const;
 
         /// \brief Get the error font
         ///
@@ -123,9 +123,9 @@ namespace jop
         bool load(const int fontSize);
 
         std::unique_ptr<::detail::FontImpl> m_data;
-        jop::Texture2D m_texture;  ///< Texture
+        mutable jop::Texture2D m_texture;  ///< Texture
         std::vector<uint8> m_buffer;        ///< File buffer
-        std::unordered_map <int, jop::Glyph> m_bitmaps; ///< Texture coordinates
+        mutable std::unordered_map <int,jop::Glyph> m_bitmaps; ///< Texture coordinates
         int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
         int m_numNodes;
         int m_fontSize;

@@ -65,14 +65,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture2D& Font::getTexture()
+    const Texture2D& Font::getTexture() const
     {
         return m_texture;
     }
 
     //////////////////////////////////////////////
 
-    float Font::getFontSize()
+    float Font::getFontSize() const
     {
         return static_cast<float>(m_fontSize);
     }
@@ -153,7 +153,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const float Font::getKerning(const uint32 left, const uint32 right)
+    float Font::getKerning(const uint32 left, const uint32 right) const
     {
         float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
         return (float)stbtt_GetCodepointKernAdvance(&m_data->m_fontInfo, left, right) * scale;
@@ -161,7 +161,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const jop::Glyph& Font::getGlyph(uint32 codepoint)
+    const jop::Glyph& Font::getGlyph(uint32 codepoint) const
     {
         auto it = m_bitmaps.find(codepoint);
 
@@ -193,9 +193,10 @@ namespace jop
             
             unsigned char* pixelData = stbtt_GetCodepointBitmap(&m_data->m_fontInfo, scale, scale, codepoint, &width, &height, 0, 0);
             // Pass pixel data to texture
-            m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(width, height), pixelData);
+            if (pixelData)
+                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(width, height), pixelData);
 
-            // Create new glyph & return it (left-to-right, top-to-bottom)
+            // Create new glyph & return it (left, right, bottom ,top)
             jop::Glyph glyph; 
             glyph.advance = advance * scale;
             glyph.bounds = Rect{ left * scale, right * scale, bottom * scale, top * scale };
@@ -213,7 +214,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float Font::getLineSpacing()
+    float Font::getLineSpacing() const
     {
         float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
         float lineSpace = 0;

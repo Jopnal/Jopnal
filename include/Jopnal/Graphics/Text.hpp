@@ -87,7 +87,9 @@ namespace jop
 
         /// \brief Get the position of a single character
         ///
-        glm::vec2 getCharacterPosition(const int codepoint) const;
+        /// \return Single characters position in local coordinates.
+        ///
+        glm::vec2 getCharacterPosition(uint32 codepoint);
 
         /// \brief Set font
         ///
@@ -117,26 +119,34 @@ namespace jop
         ///
         /// \return The color
         ///
-        Color getColor() const;
+        const Color getColor() const;
+
+        /// \brief Updates geometry of the text when necessary
+        ///
+        void updateGeometry() const;
 
         /// \brief Add a line to m_vertices
         ///
         /// \param m_vertices Reference to vertex vector
-        /// \param offset Offset distance from the texts bottom bound
+        /// \param lineLength Length of the drawn line
+        /// \param offset Offset distance from lineTop
         /// \param thickness Thickness of the drawn line
         ///
-        void addLine(std::vector<Vertex>& m_vertices, float lineLenght, float lineTop, float offset, float thickness);
+        void addLine(std::vector<Vertex>& m_vertices, float lineLenght, float lineTop, float offset, float thickness) const;
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
     private:
 
         WeakReference<Font> m_font;
-        Mesh m_mesh;
+        mutable Mesh m_mesh;
         Material m_material;
-        std::wstring m_string;
-        Rect m_bounds;
-        uint32 m_style;
+        std::wstring m_string;              ///< String to display
+        mutable Rect m_bounds;                      ///< Bounding rectangle around text
+        uint32 m_style;                     ///< Text style
+        mutable bool m_geometryNeedsUpdate; ///< Does geometry need to be recomputed
+        mutable std::vector<Vertex> vertices;
+
     };
 }
 
