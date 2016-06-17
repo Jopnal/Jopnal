@@ -27,6 +27,9 @@ jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or
 # Setup version value for the toolchain
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 
+# Enable RTTI
+set(ANDROID_RTTI TRUE)
+
 # NDK path
 jopSetOption(ANDROID_NDK "$ENV{ANDROID_NDK}" PATH "Path to the Android NDK")
 # STL implementation
@@ -55,7 +58,7 @@ mark_as_advanced(COTIRE_UNITY_SOURCE_EXCLUDE_EXTENSIONS)
 mark_as_advanced(COTIRE_VERBOSE)
 mark_as_advanced(PHYSFS_INCLUDE_DIR)
 mark_as_advanced(PHYSFS_LIBRARY)
-mark_as_advanced(CMAKE_BUILD_TYPE)
+mark_as_advanced(PHYSFS_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 mark_as_advanced(BULLET_INCLUDE_DIR)
@@ -188,7 +191,7 @@ add_subdirectory(src/Jopnal)
 install(DIRECTORY include
         DESTINATION .
         COMPONENT devel
-        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl")
+        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.inl" PATTERN "*.h")
 
 if (JOP_GENERATE_PDB)
     install(DIRECTORY ${PROJECT_BINARY_DIR}/lib
@@ -242,6 +245,10 @@ elseif (JOP_OS_ANDROID)
     install(FILES extlibs/Android.mk DESTINATION extlibs)
 
     # Install Android.mk
-    install(FILES src/Jopnal/Android.mk DESTINATION .)
-
+    if (BUILD_SHARED_LIBS)
+        install(FILES src/Jopnal/Android/MakefileShared/Android.mk DESTINATION .)
+    else ()
+        install(FILES src/Jopnal/Android/MakefileStatic/Android.mk DESTINATION .)
+    endif()
+    
 endif()

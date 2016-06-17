@@ -76,6 +76,8 @@ if (JOP_OS_WINDOWS OR JOP_OS_ANDROID)
 endif()
 
 # Jopnal library
+set(INCROOT ${PROJECT_SOURCE_DIR}/include/Jopnal)
+set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Jopnal)
 
 # Audio
 set(INCROOT_AUD ${PROJECT_SOURCE_DIR}/include/Jopnal/Audio)
@@ -327,10 +329,10 @@ set(INC_ROOT
     ${INCROOT_ROOT}/Types.hpp
     ${INCROOT_ROOT}/Utility.hpp
     ${INCROOT_ROOT}/Window.hpp
+    ${INCROOT_ROOT}/Android/STL.hpp
 )
 set(SRC_ROOT
     ${SRCROOT_ROOT}/Precompiled/Precompiled.hpp
-    ${SRCROOT_ROOT}/Android/STL.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
     ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
 )
@@ -582,6 +584,7 @@ jopAddLibrary(jopnal
                       ${INC_ROOT} ${SRC_ROOT}
                       ${INC_UTI} ${INL_UTI} ${SRC_UTI}
                       ${INC_WIN} ${INL_WIN} ${SRC_WIN}
+                      ${SRC_ANDROID}
               EXTERNAL_LIBS ${EXT_LIBS})
               
 # Add the resource target as a dependency

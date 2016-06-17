@@ -38,7 +38,7 @@ namespace detail
 template<typename T>
 T Randomizer::range(const T start, const T end)
 {
-    return detail::distribution<T>::dist(start, end)(m_randomGenerator);
+    return typename detail::distribution<T>::dist(start, end)(m_randomGenerator);
 }
 
 //////////////////////////////////////////////
