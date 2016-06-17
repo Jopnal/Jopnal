@@ -81,7 +81,7 @@ namespace jop
         ///
         /// \param Unicode codepoint of a character
         ///
-        const jop::Glyph& getGlyph(uint32 codepoint) const;
+        const jop::Glyph& getGlyph(uint32 codepoint) const;;
 
         /// \brief Returns the spacing between two rows in the font
         ///
@@ -127,7 +127,6 @@ namespace jop
         std::vector<uint8> m_buffer;        ///< File buffer
         mutable std::unordered_map <int,jop::Glyph> m_bitmaps; ///< Texture coordinates
         int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
-        int m_numNodes;
         int m_fontSize;
 
     };
@@ -138,6 +137,6 @@ namespace jop
 /// \class Font
 /// \ingroup graphics
 ///
-/// Font manager class, which loads fonts from file.
-/// 
+/// Font manager class, which loads fonts from file and packs them to textures.
+/// Supports .ttf format.
 ///

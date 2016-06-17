@@ -137,7 +137,7 @@ namespace jop
             // Apply kerning offset
             position.x += m_font->getKerning(prevChar, curChar);
             prevChar = curChar;
-
+            
             // Handle special characters
             if (i == L' ')
                 position.x += m_font->getGlyph(i).advance;
@@ -222,16 +222,19 @@ namespace jop
         // Mark geometry as updated.
         m_geometryNeedsUpdate = false;
 
-        // Clear previous geometry-?
+        // Clear previous geometry
+        vertices.clear();
+        m_bounds = { 0, 0, 0, 0 };
         
+        // Initialize variables
         float x = 0, y = 0;
-
+        float kerning = 0.f;
         float underlineOffset = 0;
         float strikethroughOffset = 0;
         float thickness = 0;
         int previous = -1;
 
-        // Get font texture
+        // Get font texture & calculate dimensions
         const Texture2D& tex = m_font->getTexture();
         float texWidth = static_cast<float>(tex.getSize().x);
         float texHeight = static_cast<float>(tex.getSize().y);
@@ -241,7 +244,7 @@ namespace jop
             // Get glyph
             const jop::Glyph& glyph = m_font->getGlyph(i);
 
-            // Compute values related to the text style
+            // Compute values related to text style
             thickness = m_font->getFontSize() * 0.04;
             underlineOffset = -m_font->getFontSize() * 0.10f * ((m_style&Style::Underlined) != 0);
             strikethroughOffset = (glyph.bounds.bottom + glyph.bounds.top) / 2.f / ((m_style&Style::Strikethrough) != 0);
@@ -275,19 +278,14 @@ namespace jop
                 continue;
             }
 
-            float kerning = 0.f;
-
             if (previous != -1)
-            {
-                // Kerning
-                kerning = m_font->getKerning(previous, i);
-            }
+                kerning = m_font->getKerning(previous, i); // Calculate kerning if previous character was not special
             previous = i;
 
             // Kerning advancement
             x += kerning;
 
-            // Calculate vertex positions
+            // Calculate vertex positions:
             // Top left
             Vertex v;
             v.position.x = (x + glyph.bounds.left);
@@ -296,26 +294,22 @@ namespace jop
             v.texCoords.x = glyph.textCoord.left / texWidth;
             v.texCoords.y = glyph.textCoord.top / texHeight;
             vertices.push_back(v);
-
             // Bottom left
             v.position.x = (x + glyph.bounds.left + italic);
             v.position.y = (y + glyph.bounds.bottom);
             v.texCoords.y = glyph.textCoord.bottom / texHeight;
             vertices.push_back(v);
-
             // Bottom right
             v.position.x = (x + glyph.bounds.right + italic);
             v.texCoords.x = glyph.textCoord.right / texWidth;
             // NOTE: push_back twice since the 2 drawn triangles share this vertex
             vertices.push_back(v);
             vertices.push_back(v);
-
             // Top right
             v.position.x = (x + glyph.bounds.right);
             v.position.y = (y + glyph.bounds.top);
             v.texCoords.y = glyph.textCoord.top / texHeight;
             vertices.push_back(v);
-
             // Top left
             v.position.x = (x + glyph.bounds.left);
             v.texCoords.x = glyph.textCoord.left / texWidth;
@@ -339,8 +333,6 @@ namespace jop
 
         // Load vertices to mesh and set material
         m_mesh.load(vertices, std::vector<unsigned int>());
-        
-
     }
 
     //////////////////////////////////////////////
@@ -359,20 +351,16 @@ namespace jop
         v.position.y = top;
         v.position.z = 0.1;
         vertices.push_back(v);
-
         // Bottom left
         v.position.y = bottom;
         vertices.push_back(v);
-
         // Bottom right - push_back x2
         v.position.x = right;
         vertices.push_back(v);
         vertices.push_back(v);
-
         // Top right
         v.position.y = top;
         vertices.push_back(v);
-
         // Top left
         v.position.x = left;
         vertices.push_back(v);
@@ -382,7 +370,7 @@ namespace jop
 
     void Text::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
     {
-        updateGeometry();
+        updateGeometry(); // Update geometry before drawing if necessary
 
         GlState::setFaceCull(false);
         GenericDrawable::draw(camera, lights, shader);

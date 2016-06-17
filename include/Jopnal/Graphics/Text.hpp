@@ -81,7 +81,7 @@ namespace jop
         ///
         const std::wstring& getString() const;
         
-        /// \brief Get bounds for a glyph relative to the given codepoint
+        /// \brief Get bounds for whole text
         ///
         std::pair<glm::vec2, glm::vec2> getBounds() const;
 
@@ -109,6 +109,9 @@ namespace jop
 
         /// \brief Set text style
         ///
+        /// \param style jop::Text::Style (Default, Italic, Underlined, Strikethrough)
+        /// Can use multiple styles at the same time
+        ///
         Text& setStyle(uint32 style);
 
         /// \brief Get text style
@@ -123,6 +126,8 @@ namespace jop
 
         /// \brief Updates geometry of the text when necessary
         ///
+        /// This has to be called before drawing
+        ///
         void updateGeometry() const;
 
         /// \brief Add a line to m_vertices
@@ -134,6 +139,8 @@ namespace jop
         ///
         void addLine(std::vector<Vertex>& m_vertices, float lineLenght, float lineTop, float offset, float thickness) const;
 
+        /// \brief Draws text from given string
+        ///
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
     private:
@@ -142,7 +149,7 @@ namespace jop
         mutable Mesh m_mesh;
         Material m_material;
         std::wstring m_string;              ///< String to display
-        mutable Rect m_bounds;                      ///< Bounding rectangle around text
+        mutable Rect m_bounds;              ///< Bounding rectangle around text
         uint32 m_style;                     ///< Text style
         mutable bool m_geometryNeedsUpdate; ///< Does geometry need to be recomputed
         mutable std::vector<Vertex> vertices;
@@ -155,6 +162,6 @@ namespace jop
 /// \class Text
 /// \ingroup graphics
 ///
-/// Class for rendering text
-/// 
+/// Handles text rendering
+/// Supports multiple styles
 ///
