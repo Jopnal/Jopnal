@@ -125,7 +125,7 @@ namespace jop
         /// \param offset Offset distance from the texts bottom bound
         /// \param thickness Thickness of the drawn line
         ///
-        void addLine(std::vector<Vertex>& m_vertices, float offset, float thickness);
+        void addLine(std::vector<Vertex>& m_vertices, float lineLenght, float lineTop, float offset, float thickness);
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
@@ -137,7 +137,6 @@ namespace jop
         std::wstring m_string;
         Rect m_bounds;
         uint32 m_style;
-        
     };
 }
 

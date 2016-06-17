@@ -102,9 +102,13 @@ namespace jop
         }
 
         float x = 0, y = 0;
+
+        float underlineOffset = 0;
+        float strikethroughOffset = 0;
+        float thickness = 0;
         int previous = -1;
         std::vector<Vertex> vertices;
-
+        
         // Get font texture
         const Texture2D& tex = m_font->getTexture();
         float texWidth = static_cast<float>(tex.getSize().x);
@@ -112,6 +116,16 @@ namespace jop
 
         for (auto i : m_string)
         {
+            // Get glyph
+            const jop::Glyph& glyph = m_font->getGlyph(i);
+
+            // Compute values related to the text style
+            thickness = m_font->getFontSize() * 0.04;
+            underlineOffset = -m_font->getFontSize() * 0.10f * ((m_style&Style::Underlined) != 0);
+            strikethroughOffset = (glyph.bounds.bottom + glyph.bounds.top) / 2.f / ((m_style&Style::Strikethrough) != 0);
+            float italic = 0;
+            italic = 0.208*m_font->getFontSize() * ((m_style&Style::Italic) != 0);
+
             if (i == L' ')
             {
                 x += m_font->getFontSize() / 2; // Add empty space
@@ -120,9 +134,15 @@ namespace jop
             }
             else if (i == L'\n')
             {
-                
-                x = 0; // Move to start on x-axis
                 y -= m_font->getLineSpacing(); // Advance to next row on y-axis
+                // Create new underline/strikethrough 
+                if (m_style == Style::Underlined)
+                addLine(vertices,x ,y, underlineOffset + m_font->getLineSpacing(), thickness);
+                else if (m_style == Style::Strikethrough)
+                    addLine(vertices, x, y, strikethroughOffset + m_font->getLineSpacing(), thickness);
+
+                x = 0; // Move to start on x-axis
+
                 continue;
             }
 
@@ -137,13 +157,6 @@ namespace jop
           
             // Kerning advancement
             x += kerning;
-
-            // Get glyph
-            const jop::Glyph& glyph = m_font->getGlyph(i);
-        
-            // Check if italic
-            float italic = 0;
-            italic = 0.208*m_font->getFontSize() * ((m_style&Style::Italic)!= 0);
 
             // Calculate vertex positions
             // Top left
@@ -190,8 +203,11 @@ namespace jop
             x += glyph.advance;
         }
 
-        // Add underline / strikethrough - update bounds after?
-        addLine(vertices, -5, 2);
+        // Add underline / strikethrough
+        if (m_style == Style::Underlined)
+            addLine(vertices, x, y, underlineOffset, thickness);
+        else if (m_style == Style::Strikethrough)
+            addLine(vertices, x, y, strikethroughOffset, thickness);
 
         // Load vertices to mesh and set material
         m_mesh.load(vertices, std::vector<unsigned int>());
@@ -278,39 +294,36 @@ namespace jop
         return m_material.getReflection(Material::Reflection::Solid);
     }
 
-    void Text::addLine(std::vector<Vertex>& vertices, float offset, float thickness)
+    void Text::addLine(std::vector<Vertex>& vertices, float lineLenght, float lineTop, float offset, float thickness)
     {
-        float top = m_bounds.top + offset;
-        float bottom = m_bounds.top + offset + thickness;
+        float top = std::floor(lineTop + offset - (thickness / 2) + 0.5);
+        float bottom = top + std::floor(thickness + 0.5f);
+
+        float left = 0;
+        float right = lineLenght;
 
         Vertex v; 
         // Top left
-        v.position.x = m_bounds.left;
+        v.position.x = left;
         v.position.y = top;
         v.position.z = 0;
-        //v.texCoords.x = ;
-        //v.texCoords.y = ;
         vertices.push_back(v);
 
         // Bottom left
         v.position.y = bottom;
-        //v.texCoords.y = ;
         vertices.push_back(v);
 
         // Bottom right - push_back x2
-        v.position.x = m_bounds.right;
-        //v.texCoords.x = ;
+        v.position.x = right;
         vertices.push_back(v);
         vertices.push_back(v);
 
         // Top right
         v.position.y = top;
-        //v.texCoords.y = ;
         vertices.push_back(v);
 
         // Top left
-        v.position.x = m_bounds.left;
-        //v.texCoords.x = ;
+        v.position.x = left;
         vertices.push_back(v);
 
 
