@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
     #include <cassert>
     #include <cstdlib>
 

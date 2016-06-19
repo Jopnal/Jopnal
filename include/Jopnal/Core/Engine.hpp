@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Graphics/GlState.hpp>
+#include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
 #include <Jopnal/Window/Window.hpp>

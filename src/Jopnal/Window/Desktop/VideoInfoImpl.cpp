@@ -26,6 +26,12 @@
 
 #ifdef JOP_OS_DESKTOP
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <GLFW/glfw3.h>
+
+#endif
+
 //////////////////////////////////////////////
 
 

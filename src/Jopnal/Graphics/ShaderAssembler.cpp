@@ -32,7 +32,7 @@
 
 #endif
 
-#include <../tools/Jopresource/Resources.hpp>
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 

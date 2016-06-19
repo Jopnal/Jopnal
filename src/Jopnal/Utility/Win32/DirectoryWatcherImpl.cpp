@@ -22,9 +22,18 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#include <Jopnal/Utility/Win32/DirectoryWatcherImpl.hpp>
+
 #ifdef JOP_OS_WINDOWS
 
-#include <Jopnal/Utility/Win32/DirectoryWatcherImpl.hpp>
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <algorithm>
+    #include <codecvt>
+
+#endif
 
 //////////////////////////////////////////////
 

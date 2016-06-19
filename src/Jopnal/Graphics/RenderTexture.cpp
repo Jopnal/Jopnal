@@ -28,13 +28,13 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Engine.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Graphics/Texture2D.hpp>
-    #include <Jopnal/Graphics/Texture2DDepth.hpp>
-    #include <Jopnal/Graphics/Cubemap.hpp>
-    #include <Jopnal/Graphics/CubemapDepth.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
+    #include <Jopnal/Graphics/Texture/Cubemap.hpp>
+    #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <vector>
 

@@ -33,7 +33,7 @@
     #include <Jopnal/Graphics/Material.hpp>
     #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
     #include <Jopnal/Graphics/RenderTarget.hpp>
-    #include <Jopnal/Graphics/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <glm/gtx/norm.hpp>
 
 #endif

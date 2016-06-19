@@ -67,19 +67,16 @@ elseif(MSVC)
 
     set(JOP_COMPILER_MSVC 1)
 
-    # VC++11 is the minimum supported version
+    # VC++12 is the minimum supported version
 
-    if (MSVC_VERSION EQUAL 1700)
-        set(JOP_MSVC_VERSION 11)
-
-    elseif (MSVC_VERSION EQUAL 1800)
+    if (MSVC_VERSION EQUAL 1800)
         set(JOP_MSVC_VERSION 12)
 
     elseif (MSVC_VERSION EQUAL 1900)
         set(JOP_MSVC_VERSION 14)
 
     else ()
-        message(FATAL_ERROR "Unsupported VC++ version, minimum is 11")
+        message(FATAL_ERROR "Unsupported VC++ version, minimum is 12")
 
     endif()
 

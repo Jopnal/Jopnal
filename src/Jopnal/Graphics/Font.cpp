@@ -33,7 +33,7 @@
 #define STB_RECT_PACK_IMPLEMENTATION
 #pragma warning(push)
 #pragma warning(disable: 4100)
-#include <Jopnal/Graphics/stb/stb_rect_pack.h>
+#include <STB/stb_rect_pack.h>
 #pragma warning(pop)
 
 //////////////////////////////////////////////

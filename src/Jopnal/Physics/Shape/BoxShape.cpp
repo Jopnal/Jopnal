@@ -26,7 +26,7 @@
 
 	#include <Jopnal/Physics/Shape/BoxShape.hpp>
 
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
     #include <btBulletCollisionCommon.h>
 
 #endif

@@ -28,8 +28,8 @@
 
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/Shader.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 #endif
 

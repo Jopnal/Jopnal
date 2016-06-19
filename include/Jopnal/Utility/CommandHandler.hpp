@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <unordered_map>
+#include <algorithm>
 #include <functional>
 #include <string>
 #include <tuple>

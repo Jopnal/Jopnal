@@ -26,7 +26,6 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
-#include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
 
@@ -48,7 +47,7 @@ namespace jop { namespace detail
 
         void swapBuffers();
 
-        GLFWwindow* getLibraryHandle();
+        WindowLibHandle getLibraryHandle();
 
         WindowHandle getNativeHandle();
 
@@ -68,7 +67,7 @@ namespace jop { namespace detail
 
     private:
 
-        GLFWwindow* m_window;
+        WindowLibHandle m_window;
         unsigned int m_vertexArray;
 
     };

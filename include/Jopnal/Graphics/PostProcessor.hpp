@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
+#include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <array>
 #include <unordered_map>
 

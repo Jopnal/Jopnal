@@ -31,7 +31,7 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
     #include <Bullet/btBulletCollisionCommon.h>
     #include <Bullet/btBulletDynamicsCommon.h>
 

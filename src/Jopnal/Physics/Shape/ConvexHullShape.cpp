@@ -27,7 +27,7 @@
 	#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
 
     #include <Jopnal/Core/ResourceManager.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
     #include <Bullet/btBulletCollisionCommon.h>
 
 #endif

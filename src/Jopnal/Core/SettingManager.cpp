@@ -29,7 +29,8 @@
     #include <Jopnal/Core/SettingCallback.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
 
 #endif
 

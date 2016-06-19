@@ -155,18 +155,18 @@ set(INCROOT_GRA ${PROJECT_SOURCE_DIR}/include/Jopnal/Graphics)
 set(SRCROOT_GRA ${PROJECT_SOURCE_DIR}/src/Jopnal/Graphics)
 
 set(INC_GRA_MESH
-    ${INCROOT_GRA}/BoxMesh.hpp
-    ${INCROOT_GRA}/Mesh.hpp
-    ${INCROOT_GRA}/RectangleMesh.hpp
-    ${INCROOT_GRA}/SphereMesh.hpp
+    ${INCROOT_GRA}/Mesh/BoxMesh.hpp
+    ${INCROOT_GRA}/Mesh/Mesh.hpp
+    ${INCROOT_GRA}/Mesh/RectangleMesh.hpp
+    ${INCROOT_GRA}/Mesh/SphereMesh.hpp
 )
 set(INC_GRA_TEXTURE
-    ${INCROOT_GRA}/Cubemap.hpp
-    ${INCROOT_GRA}/CubemapDepth.hpp
-    ${INCROOT_GRA}/Texture.hpp
-    ${INCROOT_GRA}/Texture2D.hpp
-    ${INCROOT_GRA}/Texture2DDepth.hpp
-    ${INCROOT_GRA}/TextureSampler.hpp
+    ${INCROOT_GRA}/Texture/Cubemap.hpp
+    ${INCROOT_GRA}/Texture/CubemapDepth.hpp
+    ${INCROOT_GRA}/Texture/Texture.hpp
+    ${INCROOT_GRA}/Texture/Texture2D.hpp
+    ${INCROOT_GRA}/Texture/Texture2DDepth.hpp
+    ${INCROOT_GRA}/Texture/TextureSampler.hpp
 )
 set(INC_GRA
     ${INCROOT_GRA}/Buffer.hpp
@@ -176,12 +176,12 @@ set(INC_GRA
     ${INCROOT_GRA}/EnvironmentRecorder.hpp
     ${INCROOT_GRA}/Font.hpp
     ${INCROOT_GRA}/GenericDrawable.hpp
-    ${INCROOT_GRA}/GlState.hpp
+    ${INCROOT_GRA}/OpenGL/GlState.hpp
     ${INCROOT_GRA}/LightSource.hpp
     ${INCROOT_GRA}/Material.hpp
     ${INCROOT_GRA}/Model.hpp
     ${INCROOT_GRA}/ModelLoader.hpp
-    ${INCROOT_GRA}/OpenGL.hpp
+    ${INCROOT_GRA}/OpenGL/OpenGL.hpp
     ${INCROOT_GRA}/PostProcessor.hpp
     ${INCROOT_GRA}/Renderer.hpp
     ${INCROOT_GRA}/RenderTarget.hpp
@@ -196,18 +196,18 @@ set(INC_GRA
     ${INCROOT_GRA}/VertexBuffer.hpp
 )
 set(SRC_GRA_MESH
-    ${SRCROOT_GRA}/BoxMesh.cpp
-    ${SRCROOT_GRA}/Mesh.cpp
-    ${SRCROOT_GRA}/RectangleMesh.cpp
-    ${SRCROOT_GRA}/SphereMesh.cpp
+    ${SRCROOT_GRA}/Mesh/BoxMesh.cpp
+    ${SRCROOT_GRA}/Mesh/Mesh.cpp
+    ${SRCROOT_GRA}/Mesh/RectangleMesh.cpp
+    ${SRCROOT_GRA}/Mesh/SphereMesh.cpp
 )
 set(SRC_GRA_TEXTURE
-    ${SRCROOT_GRA}/Cubemap.cpp
-    ${SRCROOT_GRA}/CubemapDepth.cpp
-    ${SRCROOT_GRA}/Texture.cpp
-    ${SRCROOT_GRA}/Texture2D.cpp
-    ${SRCROOT_GRA}/Texture2DDepth.cpp
-    ${SRCROOT_GRA}/TextureSampler.cpp
+    ${SRCROOT_GRA}/Texture/Cubemap.cpp
+    ${SRCROOT_GRA}/Texture/CubemapDepth.cpp
+    ${SRCROOT_GRA}/Texture/Texture.cpp
+    ${SRCROOT_GRA}/Texture/Texture2D.cpp
+    ${SRCROOT_GRA}/Texture/Texture2DDepth.cpp
+    ${SRCROOT_GRA}/Texture/TextureSampler.cpp
 )
 set(SRC_GRA
     ${SRCROOT_GRA}/Buffer.cpp
@@ -217,14 +217,14 @@ set(SRC_GRA
     ${SRCROOT_GRA}/EnvironmentRecorder.cpp
     ${SRCROOT_GRA}/Font.cpp
     ${SRCROOT_GRA}/GenericDrawable.cpp
-    ${SRCROOT_GRA}/GlCheck.cpp
-    ${SRCROOT_GRA}/GlCheck.hpp
-    ${SRCROOT_GRA}/GlState.cpp
+    ${SRCROOT_GRA}/OpenGL/GlCheck.cpp
+    ${SRCROOT_GRA}/OpenGL/GlCheck.hpp
+    ${SRCROOT_GRA}/OpenGL/GlState.cpp
     ${SRCROOT_GRA}/LightSource.cpp
     ${SRCROOT_GRA}/Material.cpp
     ${SRCROOT_GRA}/Model.cpp
     ${SRCROOT_GRA}/ModelLoader.cpp
-    ${SRCROOT_GRA}/OpenGL.cpp
+    ${SRCROOT_GRA}/OpenGL/OpenGL.cpp
     ${SRCROOT_GRA}/PostProcessor.cpp
     ${SRCROOT_GRA}/Renderer.cpp
     ${SRCROOT_GRA}/RenderTarget.cpp
@@ -238,6 +238,13 @@ set(SRC_GRA
     ${SRCROOT_GRA}/Vertex.cpp
     ${SRCROOT_GRA}/VertexBuffer.cpp
 )
+if (NOT JOP_OS_ANDROID)
+
+	set(SRC_GRA ${SRC_GRA}
+		${SRCROOT_GRA}/OpenGL/gl_4.5.c
+		${SRCROOT_GRA}/OpenGL/gl_4.5.h)
+
+endif()
 source_group("Graphics\\Headers" FILES ${INC_GRA})
 source_group("Graphics\\Headers\\Mesh" FILES ${INC_GRA_MESH})
 source_group("Graphics\\Headers\\Texture" FILES ${INC_GRA_TEXTURE})
@@ -329,20 +336,13 @@ set(INC_ROOT
     ${INCROOT_ROOT}/Types.hpp
     ${INCROOT_ROOT}/Utility.hpp
     ${INCROOT_ROOT}/Window.hpp
-    ${INCROOT_ROOT}/Android/STL.hpp
+    ${INCROOT_ROOT}/STL.hpp
 )
 set(SRC_ROOT
     ${SRCROOT_ROOT}/Precompiled/Precompiled.hpp
-    ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
-    ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
+    ${SRCROOT_ROOT}/Resources/Resources.hpp
+    ${SRCROOT_ROOT}/Resources/Resources.cpp
 )
-if (NOT JOP_OS_ANDROID)
-
-	set(SRC_ROOT ${SRC_ROOT}
-		${SRCROOT_ROOT}/OpenGL/gl_4.5.c
-		${SRCROOT_ROOT}/OpenGL/gl_4.5.h)
-
-endif()
 
 source_group("Root\\Headers" FILES ${INC_ROOT})
 source_group("Root\\Source" FILES ${SRC_ROOT})
@@ -593,7 +593,7 @@ if (TARGET jopnal-resources)
 endif()
 
 # Precompiled header
-if (NOT JOP_COMPILER_GCC)
+if (NOT JOP_COMPILER_GCC AND USE_PRECOMPILED_HEADER)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
 	add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)

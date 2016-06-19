@@ -26,20 +26,20 @@
 
 	#include <Jopnal/Graphics/LightSource.hpp>
 
-    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Drawable.hpp>
-    #include <Jopnal/Graphics/Texture.hpp>
+    #include <Jopnal/Graphics/Texture/Texture.hpp>
     #include <Jopnal/Graphics/Shader.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <glm/mat4x4.hpp>
     #include <glm/gtc/matrix_transform.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
 #endif
 
-#include <../tools/Jopresource/Resources.hpp>
+#include <Jopnal/Resources/Resources.hpp>
 
 ///////////////////////////////////////////
 

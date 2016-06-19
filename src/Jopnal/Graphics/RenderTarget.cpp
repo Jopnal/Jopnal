@@ -26,8 +26,8 @@
 
 	#include <Jopnal/Graphics/RenderTarget.hpp>
 
-#include <Jopnal/Graphics/OpenGL.hpp>
-#include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 #endif
 

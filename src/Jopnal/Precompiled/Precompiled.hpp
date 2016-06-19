@@ -29,33 +29,18 @@
 #include <Jopnal/OS.hpp>
 
 // Windows
-#if defined(JOP_OS_WINDOWS)
-
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
-    #include <io.h>
-    #include <fcntl.h>
-    #include <VersionHelpers.h>
+#include <Jopnal/Core/Win32/Win32.hpp>
 
 // Android
-#elif defined(JOP_OS_ANDROID)
+#if defined(JOP_OS_ANDROID)
 
     #include <android/asset_manager.h>
 
 #endif
 
 // OpenGL
-#include <Jopnal/Graphics/OpenGL.hpp>
-#include <Jopnal/Graphics/GlCheck.hpp>
+#include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+#include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 // GLFW
 #ifdef JOP_OS_DESKTOP
@@ -109,7 +94,7 @@
 #include <cstring>
 
 // Additional STL header
-#include <Jopnal/Android/STL.hpp>
+#include <Jopnal/STL.hpp>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

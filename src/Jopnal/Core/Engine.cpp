@@ -35,7 +35,8 @@
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
 
     #ifndef JOP_OS_WINDOWS
         #include <unistd.h>

@@ -20,24 +20,24 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Graphics/BoxMesh.hpp>
+#include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Cubemap.hpp>
-#include <Jopnal/Graphics/CubemapDepth.hpp>
+#include <Jopnal/Graphics/Texture/Cubemap.hpp>
+#include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/GenericDrawable.hpp>
-#include <Jopnal/Graphics/GlState.hpp>
+#include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/Material.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
+#include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
 #include <Jopnal/Graphics/PostProcessor.hpp>
-#include <Jopnal/Graphics/RectangleMesh.hpp>
+#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/Renderer.hpp>
@@ -45,11 +45,11 @@
 #include <Jopnal/Graphics/ShaderAssembler.hpp>
 #include <Jopnal/Graphics/SkyBox.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
-#include <Jopnal/Graphics/SphereMesh.hpp>
+#include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Text.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/Graphics/Texture2DDepth.hpp>
-#include <Jopnal/Graphics/TextureSampler.hpp>
+#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+#include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
+#include <Jopnal/Graphics/Texture/TextureSampler.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>

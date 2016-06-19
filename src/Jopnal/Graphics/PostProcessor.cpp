@@ -26,14 +26,14 @@
 
 	#include <Jopnal/Graphics/PostProcessor.hpp>
 
-    #include <Jopnal/Graphics/RectangleMesh.hpp>
+    #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 #endif
 
-#include <../tools/Jopresource/Resources.hpp>
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 

@@ -26,9 +26,12 @@
 
     #include <Jopnal/Window/WindowEventHandler.hpp>
 
-#include <Jopnal/Window/Window.hpp>
-#include <array>
-#include <vector>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
+    #include <Jopnal/Window/Window.hpp>
+    #include <GLFW/glfw3.h>
+    #include <array>
+    #include <vector>
 
 #endif
 

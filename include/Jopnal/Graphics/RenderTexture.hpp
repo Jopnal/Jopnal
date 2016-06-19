@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/Texture/Texture.hpp>
 #include <glm/vec2.hpp>
 #include <string>
 #include <array>

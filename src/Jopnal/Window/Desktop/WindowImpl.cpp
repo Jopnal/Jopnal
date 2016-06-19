@@ -22,9 +22,23 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#if defined(JOP_OS_WINDOWS)
-
 #include <Jopnal/Window/Desktop/WindowImpl.hpp>
+
+#ifdef JOP_OS_WINDOWS
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <GLFW/glfw3.h>
+
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+
+#endif
 
 //////////////////////////////////////////////
 

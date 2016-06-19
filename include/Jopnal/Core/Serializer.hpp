@@ -33,6 +33,7 @@
 #include <functional>
 #include <tuple>
 #include <typeindex>
+#include <atomic>
 
 //////////////////////////////////////////////
 

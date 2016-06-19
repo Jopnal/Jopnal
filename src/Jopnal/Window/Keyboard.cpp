@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/Keyboard.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
 
 #endif
 

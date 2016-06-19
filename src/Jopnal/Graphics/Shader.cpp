@@ -28,9 +28,9 @@
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
     #ifdef JOP_OPENGL_ES
@@ -45,7 +45,7 @@
 
 #endif
 
-#include <../tools/Jopresource/Resources.hpp>
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 

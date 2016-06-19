@@ -29,10 +29,10 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/Object.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <glm/gtc/matrix_transform.hpp>
 
 #endif

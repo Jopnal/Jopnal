@@ -29,12 +29,12 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/RenderTexture.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/WindowEventHandler.hpp>
     #include <Jopnal/Window/VideoInfo.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
 
 #endif
 

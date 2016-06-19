@@ -27,7 +27,7 @@
 	#include <Jopnal/Graphics/Text.hpp>
 
     #include <Jopnal/Graphics/Font.hpp>
-    #include <Jopnal/Graphics/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
 
 #endif
 

@@ -28,19 +28,19 @@
 
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
-    #include <Jopnal/Graphics/OpenGL.hpp>
-    #include <Jopnal/Graphics/GlCheck.hpp>
-    #include <Jopnal/Graphics/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/Shader.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
-    #include <Jopnal/Android/STL.hpp>
+    #include <Jopnal/STL.hpp>
     #include <Bullet/btBulletDynamicsCommon.h>
     #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #endif
 
-#include <../tools/Jopresource/Resources.hpp>
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 
