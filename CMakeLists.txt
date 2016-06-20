@@ -40,7 +40,6 @@ if(NOT ANDROID_ABI)
     set(ANDROID_ABI armeabi-v7a)
 endif()
 
-
 # Project name
 project(Jopnal)
 

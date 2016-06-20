@@ -28,8 +28,11 @@
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/Win32/Win32.hpp>
-    #include <GLFW/glfw3.h> 
-    #include <iostream>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h> 
+        #include <iostream>
+    #endif
 
     #if defined(JOP_OS_ANDROID)
         #include <android/log.h>

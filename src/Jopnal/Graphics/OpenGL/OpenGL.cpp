@@ -26,7 +26,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Graphics/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <unordered_map>
     #include <cstring>
 

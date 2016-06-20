@@ -1,21 +1,19 @@
 # Jopnal Main CMakeLists
 
-set(INCROOT ${PROJECT_SOURCE_DIR}/include/Jopnal/Main)
-set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Jopnal/Main)
+set(__INCDIR ${PROJECT_SOURCE_DIR}/include/Jopnal/Main)
+set(__SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Sources
 if (JOP_OS_WINDOWS OR JOP_OS_ANDROID)
-    set(SRC ${SRC} ${SRCROOT}/Main.cpp)
-
+    list(APPEND SRC_MAIN ${__SRCDIR}/Main.cpp)
 else()
     return()
-
 endif()
 
-source_group("" FILES ${SRC})
+source_group("" FILES ${SRC_MAIN})
 
 # jopnal-main target
-add_library(jopnal-main STATIC ${SRC})
+add_library(jopnal-main STATIC ${SRC_MAIN})
 
 # Set debug suffix
 set_target_properties(jopnal-main PROPERTIES DEBUG_POSTFIX d)

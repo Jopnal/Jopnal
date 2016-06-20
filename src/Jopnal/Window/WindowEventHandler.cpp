@@ -29,9 +29,12 @@
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Window/Keyboard.hpp>
     #include <Jopnal/Window/Window.hpp>
-    #include <GLFW/glfw3.h>
     #include <array>
     #include <vector>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h>
+    #endif
 
 #endif
 

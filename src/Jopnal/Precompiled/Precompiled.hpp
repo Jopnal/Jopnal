@@ -29,10 +29,16 @@
 #include <Jopnal/OS.hpp>
 
 // Windows
-#include <Jopnal/Core/Win32/Win32.hpp>
+#ifdef JOP_OS_WINDOWS
+
+    #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <io.h>
+    #include <fcntl.h>
+
+#endif
 
 // Android
-#if defined(JOP_OS_ANDROID)
+#ifdef JOP_OS_ANDROID
 
     #include <android/asset_manager.h>
 

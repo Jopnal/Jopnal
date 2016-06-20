@@ -19,19 +19,15 @@
 
 //////////////////////////////////////////////
 
+// Headers
+#include <Jopnal/Header.hpp>
+
 
 extern int main(int argc, char* argv[]);
 
-#ifdef _WIN32
+#if defined(JOP_OS_WINDOWS)
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef VC_EXTRALEAN
-        #define VC_EXTRALEAN
-    #endif
-
-    #include <Windows.h>
+    #include <Jopnal/Core/Win32/Win32.hpp>
     #include <cstdlib>
 
     int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
@@ -39,8 +35,61 @@ extern int main(int argc, char* argv[]);
         return main(__argc, __argv);
     }
 
-#elif __ANDROID__
+#elif defined(JOP_OS_ANDROID)
 
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Utility/Thread.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <thread>
+    #include <atomic>
+    #include <memory>
 
+    namespace jop { namespace detail
+    {
+        void startMain(ActivityState* state)
+        {
+            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+            state->looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+
+            state->configuration = AConfiguration_new();
+            AConfiguration_fromAssetManager(state->configuration, state->nativeActivity->assetManager);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+
+        void endMain(ActivityState* state)
+        {
+            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+            state->mainDone = true;
+            ANativeActivity_finish(state->nativeActivity);
+        }
+
+        void main(ActivityState* state)
+        {
+            startMain(state);
+
+            ::main(0, NULL);
+
+            endMain(state);
+
+            state->terminated = true;
+        }
+    }}
+
+    void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_t savedStateSize)
+    {
+        auto state = new jop::detail::ActivityState(activity, savedState, savedStateSize);
+
+        jop::Thread mainThread(&jop::detail::main, state);
+        mainThread.setPriority(jop::Thread::Priority::Highest);
+        mainThread.detach();
+
+        while (!state->init)
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        activity->instance = state;
+    }
 
 #endif

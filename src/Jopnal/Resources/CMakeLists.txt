@@ -3,55 +3,69 @@
 # Add resource files & build step
 if (JOP_OS_WINDOWS)
 
-    set(SRCROOT_RES ${PROJECT_SOURCE_DIR}/tools/Jopresource/res)
+    set(__SRCDIR_RESOURCES ${PROJECT_SOURCE_DIR}/tools/Jopresource/res)
 
     # Fonts
-    set(SRC_FONTS
-        ${SRCROOT_RES}/Fonts/kongtext.ttf)
-    source_group("Resources\\Fonts" FILES ${SRC_FONTS})
+    set(__SRC_FONTS
+        ${__SRCDIR_RESOURCES}/Fonts/kongtext.ttf
+    )
+    source_group("Fonts" FILES ${__SRC_FONTS})
+    list(APPEND RES ${__SRC_FONTS})
     
     # Shaders
-    set(SRC_SHADERS
-        ${SRCROOT_RES}/Shaders/default.frag
-        ${SRCROOT_RES}/Shaders/default.vert
-        ${SRCROOT_RES}/Shaders/defaultUber.frag
-        ${SRCROOT_RES}/Shaders/defaultUber.vert
-        ${SRCROOT_RES}/Shaders/depthRecord.frag
-        ${SRCROOT_RES}/Shaders/depthRecord.vert
-        ${SRCROOT_RES}/Shaders/depthRecordPoint.frag
-        ${SRCROOT_RES}/Shaders/depthRecordPoint.geom
-        ${SRCROOT_RES}/Shaders/depthRecordPoint.vert
-        ${SRCROOT_RES}/Shaders/gaussianBlur.frag
-        ${SRCROOT_RES}/Shaders/physicsDebug.frag
-        ${SRCROOT_RES}/Shaders/physicsDebug.vert
-        ${SRCROOT_RES}/Shaders/postProcess.frag
-        ${SRCROOT_RES}/Shaders/postProcess.vert)
-    source_group("Resources\\Shaders" FILES ${SRC_SHADERS})
+    set(__SRC_SHADERS
+        ${__SRCDIR_RESOURCES}/Shaders/default.frag
+        ${__SRCDIR_RESOURCES}/Shaders/default.vert
+        ${__SRCDIR_RESOURCES}/Shaders/defaultUber.frag
+        ${__SRCDIR_RESOURCES}/Shaders/defaultUber.vert
+        ${__SRCDIR_RESOURCES}/Shaders/depthRecord.frag
+        ${__SRCDIR_RESOURCES}/Shaders/depthRecord.vert
+        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.frag
+        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.geom
+        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.vert
+        ${__SRCDIR_RESOURCES}/Shaders/gaussianBlur.frag
+        ${__SRCDIR_RESOURCES}/Shaders/physicsDebug.frag
+        ${__SRCDIR_RESOURCES}/Shaders/physicsDebug.vert
+        ${__SRCDIR_RESOURCES}/Shaders/postProcess.frag
+        ${__SRCDIR_RESOURCES}/Shaders/postProcess.vert
+    )
+    source_group("Shaders" FILES ${__SRC_SHADERS})
+    list(APPEND RES ${__SRC_SHADERS})
     
     # Sounds
-    set(SRC_SOUNDS
-        ${SRCROOT_RES}/Sounds/beep.wav)
-    source_group("Resources\\Sounds" FILES ${SRC_SOUNDS})
+    set(__SRC_SOUNDS
+        ${__SRCDIR_RESOURCES}/Sounds/beep.wav
+    )
+    source_group("Sounds" FILES ${__SRC_SOUNDS})
+    list(APPEND RES ${__SRC_SOUNDS})
     
     # Textures
-    set(SRC_TEXTURES
-        ${SRCROOT_RES}/Textures/checker.png
-        ${SRCROOT_RES}/Textures/error.png)
-    source_group("Resources\\Textures" FILES ${SRC_TEXTURES})
-    
-    set(SRC_RES ${SRC_FONTS} ${SRC_SHADERS} ${SRC_SOUNDS} ${SRC_TEXTURES})
+    set(__SRC_TEXTURES
+        ${__SRCDIR_RESOURCES}/Textures/checker.png
+        ${__SRCDIR_RESOURCES}/Textures/error.png
+    )
+    source_group("Textures" FILES ${__SRC_TEXTURES})
+    list(APPEND RES ${__SRC_TEXTURES})
     
     add_custom_target(jopnal-resources
-                      SOURCES ${SRC_RES})
+                      SOURCES ${RES})
                       
     add_custom_command(TARGET jopnal-resources
                        PRE_BUILD
                        COMMAND jopres desc.json
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools/Jopresource
-                       DEPENDS ${SRC_RES})
+                       DEPENDS ${RES})
                        
 else ()
 
     message(WARNING "Resource compiler is provided only for Windows, using pre-assembled Jopnal resource files")
 
 endif()
+
+# Add header & source to jopnal-resources
+set(__SRC_RESOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Resources.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Resources.cpp
+)
+source_group("Resources" FILES ${__SRC_RESOURCES})
+list(APPEND SRC ${__SRC_RESOURCES})
