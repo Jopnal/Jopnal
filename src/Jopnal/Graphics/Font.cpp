@@ -105,7 +105,7 @@ namespace jop
         // Create texture and context for glyph atlas;
         m_texture.load(glm::uvec2(m_packerSize, m_packerSize), 1, false);
 
-        // Initialize rectangle packer
+        // Initialize rectangle packer - NOTE: Make sure 'num_nodes' >= 'width'
         stbrp_init_target(&m_data->m_context, m_packerSize, m_packerSize, m_data->m_nodes.data(), m_data->m_nodes.size());
 
         if (!m_buffer.empty())
@@ -113,7 +113,6 @@ namespace jop
             // Load & init
             stbtt_InitFont(&m_data->m_fontInfo, m_buffer.data(), 0); 
   
-
             // Create default glyph
             const unsigned char data[4] = { 255, 255, 255, 255 };
 
@@ -169,67 +168,10 @@ namespace jop
 
         // If glyph was not found in the bitmap
         // Create new one and pack it
-
-        // Scale according to font size (in pixels)
-        float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
-        int left = 0, right = 0, bottom = 0, top = 0, advance = 0;
-
-        // Get bounding box
-        stbtt_GetCodepointBox(&m_data->m_fontInfo, codepoint, &left, &top, &right, &bottom);
-        // Get advance
-        stbtt_GetCodepointHMetrics(&m_data->m_fontInfo, codepoint, &advance, 0);
-
-        int width = right * scale - left * scale;
-        int height = bottom * scale - top * scale;
-        // Find an empty spot in the texture
-        // Add padding (2 empty pixels) after each rect to avoid artifacts
-        stbrp_rect rectangle =
-        { 0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2) };
-        stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
-        rectangle.w -= 1;
-        rectangle.h -= 1;
-
-        if (rectangle.was_packed != 0)
-        {
-            GlState::setBlendFunc(true);
-
-            unsigned char* pixelData = stbtt_GetCodepointBitmap(&m_data->m_fontInfo, scale, scale, codepoint, &width, &height, 0, 0);
-            // Pass pixel data to texture
-            if (pixelData)
-                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(width, height), pixelData);
-
-            // Create new glyph & return it (left, right, bottom ,top)
-            jop::Glyph glyph;
-            glyph.advance = advance * scale;
-            glyph.bounds = Rect{ left * scale, right * scale, bottom * scale, top * scale };
-            glyph.textCoord = Rect{ rectangle.x, rectangle.x + width, rectangle.y, rectangle.y + height };
-            m_bitmaps[codepoint] = glyph;
+        if(packGlyph(codepoint))
             return m_bitmaps[codepoint];
-        }
-        else
-        {
-            JOP_DEBUG_ERROR("Text packer full");
-            // Create new init target with 2x size of the last one
 
-
-            /*
-            stbrp_context tempContext; // Temporary context
-            int packerSize = m_packerSize * 2;
-            int numNodes = m_data->m_nodes.size() * 2;
-            std::vector<stbrp_node> nodes(numNodes);
-            jop::Texture2D tempTextr("");
-            //stbrp_init_target(&m_data->m_context, m_packerSize, m_packerSize, m_data->m_nodes.data(), m_data->m_nodes.size());
-            stbrp_init_target(&tempContext, packerSize, packerSize, nodes.data(), nodes.size());
-            tempTextr.load(glm::uvec2(packerSize, packerSize), 1, false);
-            tempTextr.setPixels(glm::uvec2(0,0),m_texture.getSize(), m_texture.)
-            // Replace old data with new
-            m_data->m_context = tempContext;
-            m_data->m_nodes = nodes;
-            */
-
-        }
-
-        // If everything else fails return dummy glyph
+        // If everything else fails return empty glyph
         static const jop::Glyph emptyGlyph;
         return emptyGlyph;
     }
@@ -280,5 +222,96 @@ namespace jop
         }
 
         return *defFont;
+    }
+
+    bool Font::packGlyph(uint32 codepoint) const
+    {
+        // Scale according to font size (in pixels)
+        float scale = stbtt_ScaleForPixelHeight(&m_data->m_fontInfo, m_fontSize);
+        int left = 0, right = 0, bottom = 0, top = 0, advance = 0;
+
+        // Get bounding box
+        stbtt_GetCodepointBox(&m_data->m_fontInfo, codepoint, &left, &top, &right, &bottom);
+        // Get advance
+        stbtt_GetCodepointHMetrics(&m_data->m_fontInfo, codepoint, &advance, 0);
+
+        // Width & Height - scaled
+        int width = right * scale - left * scale;
+        int height = bottom * scale - top * scale;
+
+        // Find an empty spot in the texture
+        // Add padding (2 empty pixels) after each rect to avoid artifacts 
+        stbrp_rect rectangle =
+        { 0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2) };
+        stbrp_pack_rects(&m_data->m_context, &rectangle, 1);
+        rectangle.w -= 1;
+        rectangle.h -= 1;
+
+        if (rectangle.was_packed != 0)
+        {
+            GlState::setBlendFunc(true);
+
+            unsigned char* pixelData = stbtt_GetCodepointBitmap(&m_data->m_fontInfo, scale, scale, codepoint, &width, &height, 0, 0);
+            // Pass pixel data to texture
+            if (pixelData)
+                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y), glm::uvec2(width, height), pixelData);
+
+            // Create new glyph & return it (left, right, bottom ,top)
+            jop::Glyph glyph;
+            glyph.advance = advance * scale;
+            glyph.bounds = Rect{ left * scale, right * scale, bottom * scale, top * scale };
+            glyph.textCoord = Rect{ rectangle.x, rectangle.x + width, rectangle.y, rectangle.y + height };
+            m_bitmaps[codepoint] = glyph;
+            return true;
+        }
+        else
+        {
+            // If texture is full - create new bigger one and copy and replace the old one
+
+            // Pass the glyph that did not fit in to the old texture into memory
+            jop::Glyph glyph;
+            glyph.advance = advance * scale;
+            glyph.bounds = Rect{ left * scale, right * scale, bottom * scale, top * scale };
+            glyph.textCoord = Rect{ rectangle.x, rectangle.x + width, rectangle.y, rectangle.y + height };
+            m_bitmaps[codepoint] = glyph;
+            
+            resizePacker();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    void Font::resizePacker() const
+    {
+        int size = 512;
+        // Create temps
+        std::unordered_map <int, jop::Glyph> tempBitmap;
+        tempBitmap = m_bitmaps;
+
+        // Create new bigger texture and replace the old one with it  
+        //tempTexture.load(glm::uvec2(size, size), 1, false);
+        //m_texture = tempTexture;
+        //tempTexture.destroy();
+
+        m_texture.load(glm::uvec2(512, 512), 1, false);
+
+        m_data->m_nodes.resize(size);
+        // Re-initialize rectangle packer with new dimensions
+        stbrp_init_target(&m_data->m_context, size, size, m_data->m_nodes.data(), m_data->m_nodes.size());
+        
+        // Clear old bitmap
+        m_bitmaps.clear();
+
+        // Go through tempBitmaps
+        for (auto& i : tempBitmap)
+        {
+            // Get all glyphs and pack them into the new texture
+            packGlyph(i.first);
+        }
+
+        m_packerSize = size;
+
     }
 }

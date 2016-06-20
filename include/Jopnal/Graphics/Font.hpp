@@ -81,7 +81,7 @@ namespace jop
         ///
         /// \param Unicode codepoint of a character
         ///
-        const jop::Glyph& getGlyph(uint32 codepoint) const;;
+        const jop::Glyph& getGlyph(uint32 codepoint) const;
 
         /// \brief Returns the spacing between two rows in the font
         ///
@@ -107,6 +107,16 @@ namespace jop
         ///
         static Font& getDefault();
 
+        /// \brief Pack and create a glyph
+        ///
+        /// \return True if successful
+        ///
+        bool packGlyph(uint32 codepoint) const;
+
+        /// \brief Resizes and remakes the packed texture
+        ///
+        void resizePacker() const;
+
     private:
 
         /// \brief Loads a font from DLL file
@@ -126,7 +136,7 @@ namespace jop
         mutable jop::Texture2D m_texture;  ///< Texture
         std::vector<uint8> m_buffer;        ///< File buffer
         mutable std::unordered_map <int,jop::Glyph> m_bitmaps; ///< Texture coordinates
-        int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
+        mutable int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
         int m_fontSize;
 
     };

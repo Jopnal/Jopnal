@@ -249,7 +249,7 @@ namespace jop
             underlineOffset = -m_font->getFontSize() * 0.10f * ((m_style&Style::Underlined) != 0);
             strikethroughOffset = (glyph.bounds.bottom + glyph.bounds.top) / 2.f / ((m_style&Style::Strikethrough) != 0);
             float italic = 0;
-            italic = 0.208*m_font->getFontSize() * ((m_style&Style::Italic) != 0);
+            italic = 0.208*m_font->getFontSize() * ((m_style&Style::Italic) != 0); //(0.208 = 12 degrees)
 
             // Handle special characters
             if (i == L' ')
@@ -260,6 +260,7 @@ namespace jop
             }
             else if (i == L'\t')
             {
+                i = L' ';
                 x += m_font->getGlyph(i).advance * 4; // Add tabulator
                 previous = -1;
                 continue;
@@ -273,7 +274,7 @@ namespace jop
                     addLine(vertices, x, y, underlineOffset + m_font->getLineSpacing(), thickness);
                 if ((m_style&Style::Strikethrough) != 0)
                     addLine(vertices, x, y, strikethroughOffset + m_font->getLineSpacing(), thickness);
-
+                previous = -1;
                 x = 0; // Move to start on x-axis
                 continue;
             }

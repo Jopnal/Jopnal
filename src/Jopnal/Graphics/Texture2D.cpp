@@ -22,12 +22,7 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push)
-#pragma warning(disable: 4189)
-#pragma warning(disable: 4244)
-#include <Jopnal/Graphics/stb/stb_image.h>
-#pragma warning(pop)
+
 
 //////////////////////////////////////////////
 
@@ -42,23 +37,8 @@ namespace jop
 
     bool Texture2D::load(const std::string& path, const bool srgb)
     {
-        if (path.empty())
-            return false;
-
-        std::vector<uint8> buf;
-        FileLoader::readBinaryfile(path, buf);
-
-        glm::ivec2 size;
-        int bpp;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bpp, 0);
-
-        bool success = false;
-        if (colorData && checkDepthValid(bpp))
-            success = load(size, bpp, colorData, srgb);
-
-        stbi_image_free(colorData);
-
-        return success;
+        Image image;
+        return image.load(path, srgb);
     }
 
     //////////////////////////////////////////////
