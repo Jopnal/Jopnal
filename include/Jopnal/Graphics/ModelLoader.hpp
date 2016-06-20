@@ -106,6 +106,10 @@ namespace jop
         ///
         bool load(const std::string& path, const Options& options = Options());
 
+
+
+		bool readFile(std::string fileName);
+
     private:
 
         std::string m_path; ///< Path to model file
