@@ -38,26 +38,26 @@ namespace jop
     bool Texture2D::load(const std::string& path, const bool srgb)
     {
         Image image;
-        return image.load(path, srgb);
+        return image.load(path) && load(image, srgb);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb)
+    bool Texture2D::load(const glm::uvec2& size, const uint32 bytesPerPixel, const bool srgb)
     {
         return load(size, bytesPerPixel, nullptr, srgb);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb)
+    bool Texture2D::load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb)
     {
         if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
             return false;
         }
-        else if (!checkDepthValid(bytesPerPixel))
+        else if (!Image::checkDepthValid(bytesPerPixel))
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be between 1 and 4");
             return false;
@@ -78,6 +78,12 @@ namespace jop
     }
 
     //////////////////////////////////////////////
+
+    bool Texture2D::load(const Image& image, const bool srgb)
+    {
+        return load(image.getSize(), image.getDepth(), image.getPixels(), srgb);
+    }
+    
 
     void Texture2D::setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels)
     {
@@ -113,22 +119,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Image Texture2D::getImage() const
+    {
+        // If empty texture
+        if (!getHandle())
+            return Image();
+
+        std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
+
+#ifdef JOP_OPENGL_ES       
+        GLuint frameBuffer = 0;
+        glCheck(gl::GenFramebuffers(1, &frameBuffer));
+        if (frameBuffer)
+        {
+            GLint previousFrameBuffer;
+            glCheck(gl::GetIntegerv(gl::FRAMEBUFFER_BINDING, &previousFrameBuffer));
+
+            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, frameBuffer));
+            glCheck(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, getHandle(), 0));
+            glCheck(gl::ReadPixels(0, 0, m_size.x, m_size.y, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, &pixels[0]));
+            glCheck(gl::DeleteFramebuffers(1, &frameBuffer));
+
+            glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, previousFrameBuffer));
+        }
+#else        
+        bind();
+        glCheck(gl::GetTexImage(gl::TEXTURE_2D, 0, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, &pixels[0]));
+        
+#endif
+        Image image;
+        image.load(m_size, m_bytesPerPixel, &pixels[0]);
+        return image;
+    }
+
+    //////////////////////////////////////////////
+
     bool Texture2D::load(const int id, const bool srgb)
     {
-        std::vector<unsigned char> buf;
-        if (!FileLoader::readResource(id, buf))
-            return false;
-
-        int x, y, bpp;
-        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
-
-        bool success = false;
-        if (pix && checkDepthValid(bpp))
-            success = load(glm::uvec2(x, y), bpp, pix, srgb);
-
-        stbi_image_free(pix);
-
-        return success;
+        Image image;
+        return image.load(id, srgb) && load(image, srgb);
     }
 
     //////////////////////////////////////////////
@@ -167,13 +196,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::checkDepthValid(const unsigned int depth)
-    {
-        return depth >= 1 && depth <= 4;
-    }
-
-    //////////////////////////////////////////////
-
     Texture2D& Texture2D::getError()
     {
         static WeakReference<Texture2D> errTex;
@@ -207,4 +229,9 @@ namespace jop
 
         return *defTex;
     }
+
+
+
+
+
 }

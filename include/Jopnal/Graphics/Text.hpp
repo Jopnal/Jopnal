@@ -153,6 +153,7 @@ namespace jop
         uint32 m_style;                     ///< Text style
         mutable bool m_geometryNeedsUpdate; ///< Does geometry need to be recomputed
         mutable std::vector<Vertex> vertices;
+        mutable unsigned int m_lastFontSize;
 
     };
 }

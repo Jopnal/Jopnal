@@ -31,6 +31,8 @@
 
 namespace jop
 {
+    class Image;
+
     class JOP_API Texture2D final : public Texture
     {
     private:
@@ -44,7 +46,6 @@ namespace jop
         /// \param name Name of the resource
         ///
         Texture2D(const std::string& name);
-
 
         /// \brief Method for using file loader to load new resource from file
         ///
@@ -63,7 +64,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb);
+        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const bool srgb);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -76,8 +77,14 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb);
+        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb);
 
+        /// \brief Load texture from image
+        /// 
+        /// \param image Image to load into the texture
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const Image& image, const bool srgb);
 
         /// \brief Set a subset of pixels
         ///
@@ -89,7 +96,6 @@ namespace jop
         ///
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
 
-
         /// \brief Get the texture size
         ///
         /// \return The size
@@ -99,6 +105,10 @@ namespace jop
         /// \brief Returns image's bytes per pixel value
         ///
         unsigned int getDepth() const;
+
+        /// \brief Copies the texture into image and returns it
+        ///
+        Image getImage() const;
 
         /// \brief Get the OpenGL format enum
         ///
@@ -116,15 +126,6 @@ namespace jop
         /// \return The OpenGL internal format enum
         ///
         static unsigned int getInternalFormatEnum(const unsigned int formatEnum, const bool srgb);
-
-        /// \brief Check if the pixel depth value is supported
-        ///
-        /// \param depth The pixel depth in bytes
-        ///
-        /// \return True if the depth is supported
-        ///
-        static bool checkDepthValid(const unsigned int depth);
-
 
         /// \brief Get the error texture
         ///
@@ -145,7 +146,7 @@ namespace jop
         bool load(const int id, const bool srgb);
 
         glm::uvec2 m_size;              ///< Size
-        unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
+        uint32 m_bytesPerPixel;         ///< Byte depth of the texture
     };
 }
 

@@ -39,63 +39,11 @@ namespace jop
         m_size(0,0),
         m_pixels()
     {
-
     }
 
-    void Image::create(uint32 width, uint32 height, const Color& color)
-    {
-        if (width && height)
-        {
-            // Assign the new size
-            m_size.x = width;
-            m_size.y = height;
+    //////////////////////////////////////////////
 
-            // Resize pixel buffer
-            m_pixels.resize(width*height*4);
-
-            // Fill it with given color
-            uint32* ptr = &m_pixels[0];
-            uint32* end = ptr + m_pixels.size();
-            // Could be done with Auto ?
-            while (ptr < end)
-            {
-                *ptr++ = color.r;
-                *ptr++ = color.g;
-                *ptr++ = color.b;
-                *ptr++ = color.a;
-            }
-        }
-        else
-        {
-            // Create empty image
-            m_size.x = 0;
-            m_size.y = 0;
-            m_pixels.clear();
-        }
-    }
-
-    void Image::create(uint32 width, uint32 height, const unsigned char* pixels)
-    {
-        if (pixels && width && height)
-        {
-            // Assign the new size
-            m_size.x = width;
-            m_size.y = height;
-
-            // Copy the pixels
-            m_pixels.resize(width*height * 4);
-            std::memcpy(&m_pixels[0], pixels, m_pixels.size());
-        }
-        else
-        {
-            // Create empty image
-            m_size.x = 0;
-            m_size.y = 0;
-            m_pixels.clear();
-        }
-    }
-
-    bool Image::load(const std::string& path, const bool srgb)
+    bool Image::load(const std::string& path)
     {
         if (path.empty())
             return false;
@@ -103,52 +51,98 @@ namespace jop
         std::vector<uint8> buf;
         FileLoader::readBinaryfile(path, buf);
 
-        glm::ivec2 size;
-        int bpp;
+        glm::ivec2 size(0,0);
+        int bpp = 0;
         unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bpp, 0);
 
         bool success = false;
         if (colorData && checkDepthValid(bpp))
-            success = load(size, bpp, colorData, srgb);
+            success = load(size, bpp, colorData);
 
         stbi_image_free(colorData);
 
         return success;
     }
 
-    bool Image::load(const void* data, uint32 size)
-    {
+    //////////////////////////////////////////////
 
+    bool Image::load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels)
+    {
+        if (pixels)
+        {
+            if (checkDepthValid(bytesPerPixel))
+            {
+                // Clear array
+                m_pixels.clear();
+                m_bytesPerPixel = bytesPerPixel;
+                m_size = size;
+
+
+                int s = size.x * size.y * bytesPerPixel;
+                m_pixels.resize(s);
+                // Copy new data into memory
+                std::memcpy(&m_pixels[0], pixels, s);
+
+                return true;
+            }
+        }
+        else
+        {
+            JOP_DEBUG_ERROR("Failure loading image.");
+            return false;
+        }
+
+        return false;
     }
 
-    glm::vec2 Image::getSize() const
-    {
+    //////////////////////////////////////////////
 
+    bool Image::load(const int id, const bool srgb)
+    {
+        std::vector<unsigned char> buf;
+        if (!FileLoader::readResource(id, buf))
+            return false;
+
+        int x = 0;
+        int y = 0;
+        int bpp = 0;
+        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+
+        bool success = false;
+        if (pix && checkDepthValid(bpp))
+            success = load(glm::uvec2(x, y), bpp, pix);
+
+        stbi_image_free(pix);
+
+        return success;
     }
 
-    void Image::copy(const Image& sourceImg, uint32 x, uint32 y, const Rect sourceRect, bool applyAlhpa)
-    {
+    //////////////////////////////////////////////
 
+    glm::uvec2 Image::getSize() const
+    {
+        return m_size;
     }
 
-    void Image::setPixel(uint32 x, uint32 y, const Color& color)
-    {
+    //////////////////////////////////////////////
 
+    jop::uint32 Image::getDepth() const
+    {
+        return m_bytesPerPixel;
     }
 
-    const jop::Color Image::getPixelColor(uint32 x, uint32 y) const
-    {
+    //////////////////////////////////////////////
 
+    const jop::uint8* Image::getPixels() const
+    {
+        return m_pixels.data();
     }
 
-    void Image::flipHorizontally()
+    //////////////////////////////////////////////
+
+    bool Image::checkDepthValid(const uint32 depth)
     {
-
-    }
-
-    void Image::flipVertically()
-    {
-
+        return depth >= 1 && depth <= 4;
     }
 
 }

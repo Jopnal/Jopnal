@@ -115,7 +115,7 @@ namespace jop
 
         /// \brief Resizes and remakes the packed texture
         ///
-        void resizePacker() const;
+        void resizePacker(uint32 lastCodepoint) const;
 
     private:
 
@@ -136,9 +136,8 @@ namespace jop
         mutable jop::Texture2D m_texture;  ///< Texture
         std::vector<uint8> m_buffer;        ///< File buffer
         mutable std::unordered_map <int,jop::Glyph> m_bitmaps; ///< Texture coordinates
-        mutable int m_packerSize; ///< The bitmap size where glyph rectangles will be packed. 256x256 by default
         int m_fontSize;
-
+        mutable unsigned int m_packerIndex;
     };
 }
 

@@ -161,6 +161,8 @@ namespace jop
         m_material.setMap(Material::Map::Opacity, m_font->getTexture());
         m_geometryNeedsUpdate = true;
 
+        m_lastFontSize = font.getTexture().getSize().x;
+
         return setString(m_string);
     }
 
@@ -371,6 +373,12 @@ namespace jop
 
     void Text::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
     {
+        while (m_font->getTexture().getSize().x != m_lastFontSize)
+        {
+            m_geometryNeedsUpdate = true;
+            m_lastFontSize = m_font->getTexture().getSize().x;
+            updateGeometry();
+        }
         updateGeometry(); // Update geometry before drawing if necessary
 
         GlState::setFaceCull(false);

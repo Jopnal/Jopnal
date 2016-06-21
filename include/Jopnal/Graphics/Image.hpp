@@ -38,14 +38,6 @@ namespace jop
         ///
         Image();
 
-        /// \brief Create image and fill it with color
-        ///
-        void create(uint32 width, uint32 height, const Color& color);
-
-        /// \brief Create image from an array of pixels
-        ///
-        void create(uint32 width, uint32 height, const unsigned char* pixels);
-
         /// \brief Method for using file loader to load new resource from file
         ///
         /// \param path The file path
@@ -53,52 +45,50 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path, const bool srgb);
+        bool load(const std::string& path);
 
         /// \brief Load the image from memory
         ///
-        bool load(const void* data, uint32 size);
+        /// \param size The size
+        /// \param bytesPerPixel The byte depth of the image
+        /// \param pixels Pointer to the beginning of the pixel array
+        /// \param srgb Use SRGB color space?
+        ///
+        /// \return True if loading was successful
+        ///
+        bool load(const glm::uvec2& size, const uint32 bytesPerpixel, const unsigned char* pixels);
+
+        /// \brief Load from resource
+        ///
+        /// \param id Resource id
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const int id, const bool srgb);
 
         /// \brief Return the size of the image
         ///
-        glm::vec2 getSize() const;
+        glm::uvec2 getSize() const;
 
-        /// \brief Copy pixels from another image into this one
+        /// \brief Get image depth (bytes per pixel)
         ///
-        /// \param sourceImg Source image to copy
-        /// \param x X coordinate of the destination position
-        /// \param y Y coordinate of the destination position
-        /// \param sourceRect Sub-rectangle of the source image to copy
-        /// \param applyAlpha Should the copy take into account the source transparency
-        ///
-        void copy(const Image& sourceImg, uint32 x, uint32 y, const Rect sourceRect, bool applyAlhpa);
+        uint32 getDepth() const;
 
-        /// \brief Change the color of a pixel
+        /// \brief Get pixels in image
         ///
-        /// \param x X coordinate of pixel to change
-        /// \param y Y coordinate of pixel to change
-        /// \param color New color of the pixel
-        ///
-        void setPixel(uint32 x, uint32 y, const Color& color);
+        const uint8* getPixels() const;
 
-        /// \brief Get the color of a pixel
+        /// \brief Check if the pixel depth value is supported
         ///
-        /// \param x X coordinate of the target pixel
-        /// \param y Y coordinate of the target pixel
+        /// \param depth The pixel depth in bytes
         ///
-        const Color getPixelColor(uint32 x, uint32 y) const;
-
-        /// \brief Flip the image horizontally
+        /// \return True if the depth is supported
         ///
-        void flipHorizontally();
-
-        /// \brief Flip the image vertically
-        ///
-        void flipVertically();
+         static bool checkDepthValid(const uint32 depth);
 
     private:
-        glm::vec2           m_size;
-        std::vector<uint32> m_pixels;
+        glm::uvec2           m_size;
+        std::vector<uint8>  m_pixels;
+        uint32              m_bytesPerPixel;
     };
 }
 
