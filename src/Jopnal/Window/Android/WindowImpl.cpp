@@ -26,26 +26,63 @@
 
 #ifdef JOP_OS_ANDROID
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+#include <Jopnal/Core/Android/ActivityState.hpp>
+#include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+#include <android/looper.h>
+#include <unordered_map>
+
+#endif
+
 //////////////////////////////////////////////
 
+
+namespace
+{
+    std::unordered_map<jop::WindowHandle, jop::Window*> ns_windows;
+    jop::detail::WindowImpl* ns_instance = nullptr;
+
+    void createSurface(EGLSurface* surface, EGLDisplay display, EGLConfig config, EGLNativeWindowType window)
+    {
+        *surface = eglCheck(eglCreateWindowSurface(display, config, window, NULL));
+    }
+
+    void destroySurface(EGLSurface* surface, EGLDisplay display)
+    {
+        eglCheck(eglDestroySurface(display, *surface));
+        *surface = EGL_NO_SURFACE;
+    }
+}
 
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
     {
-        
+        if (ns_instance)
+        {
+
+            ns_instance = this;
+        }
+
+        ns_windows[m_context] = &windowPtr;
     }
 
     WindowImpl::~WindowImpl()
     {
-        
+
+
+        ns_instance = nullptr;
     }
 
     //////////////////////////////////////////////
 
     void WindowImpl::swapBuffers()
     {
-       
+        if (m_surface != EGL_NO_SURFACE)
+        {
+            eglCheck(eglSwapBuffers(m_display, m_surface));
+        }
     }
 
     //////////////////////////////////////////////
@@ -59,27 +96,48 @@ namespace jop { namespace detail
 
     WindowHandle WindowImpl::getNativeHandle()
     {
-        return nullptr;
+        auto state = ActivityState::get();
+
+        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+        return state->nativeWindow;
     }
 
     //////////////////////////////////////////////
 
     void WindowImpl::pollEvents()
     {
-        
-    }
+        ALooper_pollAll(0, NULL, NULL, NULL);
 
-    void WindowImpl::setMouseMode(const Mouse::Mode mode)
-    {
-        
+        auto state = ActivityState::get();
+
+        auto& inst = *ns_instance;
+
+        if (inst.m_focusRestored)
+        {
+            createSurface(&inst.m_surface, inst.m_display, inst.m_config, state->nativeWindow);
+            eglCheck(eglMakeCurrent(inst.m_display, inst.m_surface, inst.m_surface, inst.m_context));
+            inst.m_focusRestored = false;
+        }
+        if (inst.m_focusLost)
+        {
+            destroySurface(&inst.m_surface, inst.m_display);
+            eglCheck(eglMakeCurrent(inst.m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+            inst.m_focusLost = false;
+        }
+
+        state->updated.store(true);
     }
 
     //////////////////////////////////////////////
 
-    void WindowImpl::setPosition(const int x, const int y)
-    {
-        
-    }
+    void WindowImpl::setMouseMode(const Mouse::Mode)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::setPosition(const int, const int)
+    {}
 
     //////////////////////////////////////////////
 
@@ -90,26 +148,51 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void WindowImpl::setSize(const int width, const int height)
-    {
-        
-    }
+    void WindowImpl::setSize(const int, const int)
+    {}
 
     //////////////////////////////////////////////
 
-    glm::ivec2 WindowImpl::getSize() const
+    glm::uvec2 WindowImpl::getSize() const
     {
-        glm::ivec2 s;
-
-        return s;
+        return m_size;
     }
 
     //////////////////////////////////////////////
 
     Window* WindowImpl::getCurrentContextWindow()
     {
-        
+        auto itr = ns_windows.find(eglGetCurrentContext());
+
+        if (itr != ns_windows.end())
+            return itr->second;
+
         return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    int WindowImpl::handleEvent(int fd, int events, void* data)
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::updateFocus(const bool focus)
+    {
+        auto state = ActivityState::get();
+
+        if (focus)
+        {
+            ns_instance->m_size.x = ANativeWindow_getWidth(state->nativeWindow);
+            ns_instance->m_size.y = ANativeWindow_getHeight(state->nativeWindow);
+            ns_instance->m_focusRestored = true;
+        }
+        else
+        {
+            ns_instance->m_focusLost = true;
+        }
     }
 }}
 

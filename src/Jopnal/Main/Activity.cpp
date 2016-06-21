@@ -31,27 +31,69 @@
 //////////////////////////////////////////////
 
 
-void log(const char* str)
-{
-    __android_log_write(ANDROID_LOG_INFO, "jopnal-activity", str);
-}
+#define LOG_ERROR(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "jopnal-activity", __VA_ARGS__))
+#define LOG_INFO(...) ((void)__android_log_print(ANDROID_LOG_INFO, "jopnal-activity", __VA_ARGS__))
 
 const char* getLibraryName(JNIEnv* env, jobject& objectActivityInfo)
 {
-    
+    static char name[256];
+
+    jstring valueString = (jstring)env->CallObjectMethod(env->GetObjectField(objectActivityInfo, env->GetFieldID(env->FindClass("android/content/pm/ActivityInfo"), "metaData", "Landroid/os/Bundle;")), env->GetMethodID(env->FindClass("android/os/Bundle"), "getString", "(Ljava/lang/String;)Ljava/lang/String;"), env->NewStringUTF("jopnal.app.lib_name"));
+
+    if (!valueString)
+    {
+        LOG_ERROR("\"jopnal.app.lib_name\" not found in AndroidManifest.xml");
+        exit(1);
+    }
+
+    const char* appName = env->GetStringUTFChars(valueString, NULL);
+    const jsize length = env->GetStringUTFLength(valueString);
+
+    if (length >= 256)
+    {
+        LOG_ERROR("The value of \"jopnal.app.lib_name\" is longer than 256 characters");
+        exit(1);
+    }
+
+    strncpy(name, appName, length);
+    name[length] = '\0';
+
+    env->ReleaseStringUTFChars(valueString, appName);
+
+    return name;
 }
 
-void* loadLibrary(const char* name, JNIEnv* env, jobject& ObjectActivityInfo)
+void* loadLibrary(const char* name, JNIEnv* env, jobject& activityInfo)
 {
+    jclass systemClass = env->FindClass("java/lang/System");
+    jclass fileClass = env->FindClass("java/io/File");
 
+    jstring javaLibPath = static_cast<jstring>(env->CallObjectMethod(env->NewObject(fileClass, env->GetMethodID(fileClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V"), env->GetObjectField(env->GetObjectField(activityInfo, env->GetFieldID(env->FindClass("android/content/pm/ActivityInfo"), "applicationInfo", "Landroid/content/pm/ApplicationInfo;")), env->GetFieldID(env->FindClass("android/content/pm/ApplicationInfo"), "nativeLibraryDir", "Ljava/lang/String;")), env->CallStaticObjectMethod(systemClass, env->GetStaticMethodID(systemClass, "mapLibraryName", "(Ljava/lang/String;)Ljava/lang/String;"), env->NewStringUTF(name))), env->GetMethodID(fileClass, "getPath", "()Ljava/lang/String;")));
+
+    const char* libPath = env->GetStringUTFChars(javaLibPath, NULL);
+    void * handle = dlopen(libPath, RTLD_NOW | RTLD_GLOBAL);
+
+    if (!handle)
+    {
+        LOG_ERROR("Failed to load library \"%s\": %s", libPath, dlerror());
+        exit(1);
+    }
+    
+    LOG_INFO("Successfully loaded library \"%s\"", libPath);
+
+    env->ReleaseStringUTFChars(javaLibPath, libPath);
+
+    return handle;
 }
 
 void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_t savedStateSize)
 {
-    jclass ClassNativeActivity = activity->env->GetObjectClass(activity->clazz);
-    jclass ClassPackageManager = activity->env->FindClass("android/content/pm/PackageManager");
+    LOG_INFO("Entered jopnal-activity");
+    
+    jclass nativeActivityClass = activity->env->GetObjectClass(activity->clazz);
+    jclass packageManagerClass = activity->env->FindClass("android/content/pm/PackageManager");
 
-    jobject ObjectActivityInfo = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(ClassNativeActivity, "getPackageManager", "()Landroid/content/pm/PackageManager;")), activity->env->GetMethodID(ClassPackageManager, "getActivityInfo", "(Landroid/content/ComponentName;I)Landroid/content/pm/ActivityInfo;"), activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(ClassNativeActivity, "getIntent", "()Landroid/content/Intent;")), activity->env->GetMethodID(activity->env->FindClass("android/content/Intent"), "getComponent", "()Landroid/content/ComponentName;")), activity->env->GetStaticIntField(ClassPackageManager, activity->env->GetStaticFieldID(ClassPackageManager, "GET_META_DATA", "I")));
+    jobject activityInfo = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(nativeActivityClass, "getPackageManager", "()Landroid/content/pm/PackageManager;")), activity->env->GetMethodID(packageManagerClass, "getActivityInfo", "(Landroid/content/ComponentName;I)Landroid/content/pm/ActivityInfo;"), activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(nativeActivityClass, "getIntent", "()Landroid/content/Intent;")), activity->env->GetMethodID(activity->env->FindClass("android/content/Intent"), "getComponent", "()Landroid/content/ComponentName;")), activity->env->GetStaticIntField(packageManagerClass, activity->env->GetStaticFieldID(packageManagerClass, "GET_META_DATA", "I")));
 
     // Libraries must be loaded in reverse dependency order
 
@@ -60,30 +102,30 @@ void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_
         #define JOP_STRINGIZE(token) JOP_STRINGIZEX(token)
         #define JOP_STRINGIZEX(token) #token
 
-        loadLibrary(JOP_STRINGIZE(STL_LIBRARY), activity->env, ObjectActivityInfo);
+        loadLibrary(JOP_STRINGIZE(STL_LIBRARY), activity->env, activityInfo);
 
         #undef JOP_STRINGIZE
         #undef JOP_STRINGIZEX
 
     #endif
 
-    loadLibrary("openal", activity->env, ObjectActivityInfo);
+    loadLibrary("openal", activity->env, activityInfo);
 
     #ifndef JOP_STATIC
         #ifdef _DEBUG
-            loadLibrary("jopnald", activity->env, ObjectActivityInfo);
+            loadLibrary("jopnald", activity->env, activityInfo);
         #else
-            loadLibrary("jopnal", activity->env, ObjectActivityInfo);
+            loadLibrary("jopnal", activity->env, activityInfo);
         #endif
     #endif
 
     typedef void (*OnCreateFunc)(ANativeActivity*, void*, size_t);
 
-    OnCreateFunc onCreate = (OnCreateFunc)dlsym(loadLibrary(getLibraryName(activity->env, ObjectActivityInfo), activity->env, ObjectActivityInfo), "ANativeActivity_onCreate");
+    OnCreateFunc onCreate = (OnCreateFunc)dlsym(loadLibrary(getLibraryName(activity->env, activityInfo), activity->env, activityInfo), "ANativeActivity_onCreate");
 
     if (!onCreate)
     {
-        log("[JOPNAL ACTIVITY] Couldn't find entry point ANativeActivity_onCreate");
+        LOG_ERROR("Couldn't find entry point ANativeActivity_onCreate");
         exit(1);
     }
 

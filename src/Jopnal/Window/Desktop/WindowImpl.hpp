@@ -24,6 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#ifdef JOP_OS_DESKTOP
+
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
 
@@ -73,4 +76,5 @@ namespace jop { namespace detail
     };
 }}
 
+#endif
 #endif

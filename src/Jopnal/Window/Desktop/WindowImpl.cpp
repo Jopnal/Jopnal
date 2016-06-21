@@ -24,7 +24,7 @@
 
 #include <Jopnal/Window/Desktop/WindowImpl.hpp>
 
-#ifdef JOP_OS_WINDOWS
+#ifdef JOP_OS_DESKTOP
 
 #ifndef JOP_PRECOMPILED_HEADER
 

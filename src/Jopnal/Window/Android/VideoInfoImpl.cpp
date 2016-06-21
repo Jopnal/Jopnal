@@ -22,9 +22,15 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifndef JOP_OS_DESKTOP
-
 #include <Jopnal/Window/Android/VideoInfoImpl.hpp>
+
+#ifdef JOP_OS_ANDROID
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -37,7 +43,10 @@ namespace jop { namespace detail
 
         if (vec.empty())
         {
-            
+            const glm::uvec2 res = getDesktopResolution();
+
+            vec.push_back(res);
+            vec.push_back(glm::uvec2(res.y, res.x));
         }
 
         return vec;
@@ -47,7 +56,11 @@ namespace jop { namespace detail
 
     glm::uvec2 VideoInfoImpl::getDesktopResolution()
     {
-        
+        auto state = detail::ActivityState::get();
+
+        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+        return state->screenSize;
     }
 }}
 

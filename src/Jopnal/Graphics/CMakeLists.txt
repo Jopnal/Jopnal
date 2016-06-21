@@ -115,6 +115,8 @@ list(APPEND SRC ${__SRC_GRAPHICS_TEXTURE})
 
 # Source - OpenGL
 set(__SRC_GRAPHICS_OPENGL
+    ${__SRCDIR_GRAPHICS}/OpenGL/EglCheck.cpp
+    ${__SRCDIR_GRAPHICS}/OpenGL/EglCheck.hpp
     ${__SRCDIR_GRAPHICS}/OpenGL/GlCheck.cpp
     ${__SRCDIR_GRAPHICS}/OpenGL/GlCheck.hpp
     ${__SRCDIR_GRAPHICS}/OpenGL/GlState.cpp

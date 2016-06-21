@@ -25,6 +25,7 @@
 #ifdef JOP_OS_ANDROID
 
 #include <Jopnal/Utility/Assert.hpp>
+#include <Jopnal/Window/Android/WindowImpl.hpp>
 
 //////////////////////////////////////////////
 
@@ -44,6 +45,7 @@ namespace
 
         {
             jclass versionClass = activity->env->FindClass("android/os/Build$VERSION");
+
             if (versionClass)
             {
                 jfieldID sdkIntFieldID = activity->env->GetStaticFieldID(versionClass, "SDK_INT", "I");
@@ -53,14 +55,14 @@ namespace
             }
         }
 
-        jclass classView = activity->env->FindClass("android/view/View");
+        jclass viewClass = activity->env->FindClass("android/view/View");
 
         jint flags = 0;
 
         if (apiLevel >= 19)
-            flags |= activity->env->GetStaticIntField(classView, activity->env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I"));
+            flags |= activity->env->GetStaticIntField(viewClass, activity->env->GetStaticFieldID(viewClass, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I"));
 
-        activity->env->CallVoidMethod(activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity->clazz), "getWindow", "()Landroid/view/Window;")), activity->env->GetMethodID(activity->env->FindClass("android/view/Window"), "getDecorView", "()Landroid/view/View;")), activity->env->GetMethodID(classView, "setSystemUiVisibility", "(I)V"), flags);
+        activity->env->CallVoidMethod(activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity->clazz), "getWindow", "()Landroid/view/Window;")), activity->env->GetMethodID(activity->env->FindClass("android/view/Window"), "getDecorView", "()Landroid/view/View;")), activity->env->GetMethodID(viewClass, "setSystemUiVisibility", "(I)V"), flags);
     }
 
     // Callbacks
@@ -118,6 +120,7 @@ namespace
 
         state->nativeWindow = window;
 
+        jop::detail::WindowImpl::updateFocus(true);
         state->eventHandler->gainedFocus();
 
         state->updated.store(false);
@@ -133,6 +136,7 @@ namespace
 
         state->nativeWindow = nullptr;
 
+        jop::detail::WindowImpl::updateFocus(false);
         state->eventHandler->lostFocus();
 
         state->updated.store(false);
@@ -152,7 +156,7 @@ namespace
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-        //AInputQueue_attachLooper(queue, state->looper, 1, state->processEvent, nullptr);
+        AInputQueue_attachLooper(queue, state->looper, 1, &jop::detail::WindowImpl::handleEvent, nullptr);
         state->inputQueue = queue;
     }
 
@@ -250,15 +254,15 @@ namespace jop { namespace detail
 
         // Get the screen size
         {
-            jclass classDisplayMetrics = act->env->FindClass("android/util/DisplayMetrics");
+            jclass displayMetricsClass = act->env->FindClass("android/util/DisplayMetrics");
 
-            jobject objectDisplayMetrics = act->env->NewObject(classDisplayMetrics, act->env->GetMethodID(classDisplayMetrics, "<init>", "()V"));
-            jobject objectDisplay = act->env->CallObjectMethod(act->env->CallObjectMethod(act->clazz, act->env->GetMethodID(act->env->GetObjectClass(act->clazz), "getWindowManager", "()Landroid/view/WindowManager;")), act->env->GetMethodID(act->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view/Display;"));
+            jobject displayMetricsObject = act->env->NewObject(displayMetricsClass, act->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
+            jobject displayObject = act->env->CallObjectMethod(act->env->CallObjectMethod(act->clazz, act->env->GetMethodID(act->env->GetObjectClass(act->clazz), "getWindowManager", "()Landroid/view/WindowManager;")), act->env->GetMethodID(act->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view/Display;"));
 
-            act->env->CallVoidMethod(objectDisplay, act->env->GetMethodID(act->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), objectDisplayMetrics);
+            act->env->CallVoidMethod(displayObject, act->env->GetMethodID(act->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), displayMetricsObject);
 
-            screenSize.x = static_cast<unsigned int>(act->env->GetIntField(objectDisplayMetrics, act->env->GetFieldID(classDisplayMetrics, "widthPixels", "I")));
-            screenSize.y = static_cast<unsigned int>(act->env->GetIntField(objectDisplayMetrics, act->env->GetFieldID(classDisplayMetrics, "heightPixels", "I")));
+            screenSize.x = static_cast<unsigned int>(act->env->GetIntField(displayMetricsObject, act->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
+            screenSize.y = static_cast<unsigned int>(act->env->GetIntField(displayMetricsObject, act->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
         }
     }
 

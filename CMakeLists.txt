@@ -245,9 +245,9 @@ elseif (JOP_OS_ANDROID)
 
     # Install Android.mk
     if (BUILD_SHARED_LIBS)
-        install(FILES src/Jopnal/Android/MakefileShared/Android.mk DESTINATION .)
+        install(FILES tools/Android/MakefileShared/Android.mk DESTINATION .)
     else ()
-        install(FILES src/Jopnal/Android/MakefileStatic/Android.mk DESTINATION .)
+        install(FILES tools/Android/MakefileStatic/Android.mk DESTINATION .)
     endif()
     
 endif()

@@ -43,7 +43,7 @@
 
 namespace jop { namespace detail
 {
-    struct JOP_API ActivityState
+    struct ActivityState
     {
         ActivityState(ANativeActivity* act, void* saved, const size_t savedSize);
 

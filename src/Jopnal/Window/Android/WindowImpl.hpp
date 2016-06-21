@@ -24,8 +24,12 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#ifdef JOP_OS_ANDROID
+
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
+#include <EGL/egl.h>
 
 //////////////////////////////////////////////
 
@@ -61,14 +65,27 @@ namespace jop { namespace detail
 
         void setSize(const int width, const int height);
 
-        glm::ivec2 getSize() const;
+        glm::uvec2 getSize() const;
 
         static Window* getCurrentContextWindow();
 
+        static int handleEvent(int fd, int events, void* data);
+
+        static void updateFocus(const bool focus);
+
     private:
 
+        EGLDisplay m_display;
+        EGLContext m_context;
+        EGLSurface m_surface;
+        EGLConfig m_config;
 
+        glm::uvec2 m_size;
+        unsigned int m_vao;
+        bool m_focusRestored;
+        bool m_focusLost;
     };
 }}
 
+#endif
 #endif
