@@ -49,6 +49,8 @@ namespace jop
 
         /// \brief Method for using file loader to load new resource from file
         ///
+        /// Creates an image and calls images load method and load(image, srgb)
+        ///
         /// \param path The file path
         /// \param srgb Use SRGB color space?
         ///
@@ -80,7 +82,9 @@ namespace jop
         bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb);
 
         /// \brief Load texture from image
-        /// 
+        ///
+        /// Uses images data and calls load function that creates texture from array of pixels
+        ///
         /// \param image Image to load into the texture
         /// \param srgb Use SRGB color space?
         ///
@@ -102,11 +106,11 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
-        /// \brief Returns image's bytes per pixel value
+        /// \brief Returns textures bytes per pixel value
         ///
         unsigned int getDepth() const;
 
-        /// \brief Copies the texture into image and returns it
+        /// \brief Copies the texture into an image and returns it
         ///
         Image getImage() const;
 

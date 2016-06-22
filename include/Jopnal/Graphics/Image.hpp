@@ -41,7 +41,6 @@ namespace jop
         /// \brief Method for using file loader to load new resource from file
         ///
         /// \param path The file path
-        /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
@@ -52,7 +51,6 @@ namespace jop
         /// \param size The size
         /// \param bytesPerPixel The byte depth of the image
         /// \param pixels Pointer to the beginning of the pixel array
-        /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
@@ -61,9 +59,8 @@ namespace jop
         /// \brief Load from resource
         ///
         /// \param id Resource id
-        /// \param srgb Use SRGB color space?
         ///
-        bool load(const int id, const bool srgb);
+        bool load(const int id);
 
         /// \brief Return the size of the image
         ///
@@ -86,9 +83,9 @@ namespace jop
          static bool checkDepthValid(const uint32 depth);
 
     private:
-        glm::uvec2           m_size;
-        std::vector<uint8>  m_pixels;
-        uint32              m_bytesPerPixel;
+        glm::uvec2          m_size;             ///< Size of the image
+        std::vector<uint8>  m_pixels;           ///< Pixels in image
+        uint32              m_bytesPerPixel;    ///< Image depth
     };
 }
 

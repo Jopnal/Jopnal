@@ -157,7 +157,7 @@ namespace jop
     bool Texture2D::load(const int id, const bool srgb)
     {
         Image image;
-        return image.load(id, srgb) && load(image, srgb);
+        return image.load(id) && load(image, srgb);
     }
 
     //////////////////////////////////////////////

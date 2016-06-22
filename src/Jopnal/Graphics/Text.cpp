@@ -247,11 +247,11 @@ namespace jop
             const jop::Glyph& glyph = m_font->getGlyph(i);
 
             // Compute values related to text style
-            thickness = m_font->getFontSize() * 0.04;
-            underlineOffset = -m_font->getFontSize() * 0.10f * ((m_style&Style::Underlined) != 0);
+            thickness = m_font->getSize() * 0.04;
+            underlineOffset = -m_font->getSize() * 0.10f * ((m_style&Style::Underlined) != 0);
             strikethroughOffset = (glyph.bounds.bottom + glyph.bounds.top) / 2.f / ((m_style&Style::Strikethrough) != 0);
             float italic = 0;
-            italic = 0.208*m_font->getFontSize() * ((m_style&Style::Italic) != 0); //(0.208 = 12 degrees)
+            italic = 0.208*m_font->getSize() * ((m_style&Style::Italic) != 0); //(0.208 = 12 degrees)
 
             // Handle special characters
             if (i == L' ')
@@ -334,7 +334,7 @@ namespace jop
         if ((m_style&Style::Strikethrough) != 0)
             addLine(vertices, x, y, strikethroughOffset, thickness);
 
-        // Load vertices to mesh and set material
+        // Load vertices to mesh
         m_mesh.load(vertices, std::vector<unsigned int>());
     }
 
@@ -375,6 +375,7 @@ namespace jop
     {
         while (m_font->getTexture().getSize().x != m_lastFontSize)
         {
+            // If size has changed
             m_geometryNeedsUpdate = true;
             m_lastFontSize = m_font->getTexture().getSize().x;
             updateGeometry();

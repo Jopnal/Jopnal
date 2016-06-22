@@ -79,7 +79,9 @@ namespace jop
 
         /// \brief Returns a single glyph from given codepoint
         ///
-        /// \param Unicode codepoint of a character
+        /// If glyph with the given codepoint does not exist yet calls packGlyph() and create and pack it
+        ///
+        /// \param codepoint Unicode codepoint of a character
         ///
         const jop::Glyph& getGlyph(uint32 codepoint) const;
 
@@ -91,9 +93,9 @@ namespace jop
         ///
         const Texture2D& getTexture() const;
 
-        /// \brief Returns pixel size 
+        /// \brief Returns pixel size of the font
         ///
-        float getFontSize() const;
+        float getSize() const;
 
         /// \brief Get the error font
         ///
@@ -109,16 +111,25 @@ namespace jop
 
         /// \brief Pack and create a glyph
         ///
+        /// \param codepoint Unicode codepoint
+        ///
+        /// Packs a glyph in to a texture and checks if there is room in the texture
+        /// if there is no room resizePacker() is called
+        ///
         /// \return True if successful
         ///
         bool packGlyph(uint32 codepoint) const;
 
         /// \brief Resizes and remakes the packed texture
         ///
+        /// \param lastCodepoint The last glyphs codepoint that did not fit into the old packer
+        ///
+        /// When a packer runs out of space this function gets called
+        /// Creates two new packers and creates new bigger texture and copy the old texture on it
+        ///
         void resizePacker(uint32 lastCodepoint) const;
 
     private:
-
         /// \brief Loads a font from DLL file
         ///
         /// \param id ID
@@ -133,11 +144,11 @@ namespace jop
         bool load(const int fontSize);
 
         std::unique_ptr<::detail::FontImpl> m_data;
-        mutable jop::Texture2D m_texture;  ///< Texture
-        std::vector<uint8> m_buffer;        ///< File buffer
-        mutable std::unordered_map <int,jop::Glyph> m_bitmaps; ///< Texture coordinates
-        int m_fontSize;
-        mutable unsigned int m_packerIndex;
+        mutable jop::Texture2D m_texture;                       ///< Texture
+        std::vector<uint8> m_buffer;                            ///< File buffer
+        mutable std::unordered_map <int,jop::Glyph> m_bitmaps;  ///< Texture coordinates
+        int m_fontSize;                                         ///< Font size
+        mutable unsigned int m_packerIndex;                     ///< Current packer index
     };
 }
 

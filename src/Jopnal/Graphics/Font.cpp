@@ -72,7 +72,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float Font::getFontSize() const
+    float Font::getSize() const
     {
         return static_cast<float>(m_fontSize);
     }
@@ -228,6 +228,8 @@ namespace jop
         return *defFont;
     }
 
+    //////////////////////////////////////////////
+
     bool Font::packGlyph(uint32 codepoint) const
     {
         // Scale according to font size (in pixels)
@@ -254,7 +256,7 @@ namespace jop
         if (rectangle.was_packed != 0)
         {
             unsigned char* pixelData = stbtt_GetCodepointBitmap(&m_data->fontInfo, scale, scale, codepoint, &width, &height, 0, 0);
-            const glm::uvec2& orig = m_data->packers[m_packerIndex].origin;
+            const glm::uvec2& orig = m_data->packers[m_packerIndex].origin; // current packer origin
             // Pass pixel data to texture
             if (pixelData)
                 m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), pixelData);
@@ -277,43 +279,49 @@ namespace jop
         return false;
     }
 
+    //////////////////////////////////////////////
+
     void Font::resizePacker(uint32 lastCodepoint) const
     {
         if (m_packerIndex > 0 || m_data->packers.size() < 2)
         {
             unsigned int oldSize = m_texture.getSize().x;
-
             {
+                // Clear old packers
                 m_data->packers.clear();
+                // Resize
                 m_data->packers.resize(2);
 
                 auto& first = m_data->packers[0];
-
+                // Adjust nodes size
                 first.nodes.resize(oldSize * 2);
-
+                // Set init target
                 stbrp_init_target(&first.context, oldSize * 2, oldSize, first.nodes.data(), first.nodes.size());
+                // Adjust origin
                 first.origin.y = oldSize;
                 m_packerIndex = 0;
             }
             {
                 auto& second = m_data->packers[1];
-
+                // Adjust nodes size
                 second.nodes.resize(oldSize);
-
+                // Set init target
                 stbrp_init_target(&second.context, oldSize, oldSize, second.nodes.data(), second.nodes.size());
+                // Adjust origin
                 second.origin.x = oldSize;
-
             }
-
-            // Resize & remake texture
+            // Create image from old texture
             Image image = m_texture.getImage();
+            // Get size and increase it
             glm::uvec2 size(image.getSize() * 2u);
-
+            // Load texture with new size
             m_texture.load(size, 1, false);
+            // Copy images pixels to new texture
             m_texture.setPixels(glm::uvec2(0, 0), size / 2u, image.getPixels());
         }
 
         m_packerIndex++;
+        // Pack the last glyph that did not fit into the old texture
         packGlyph(lastCodepoint);
         
     }

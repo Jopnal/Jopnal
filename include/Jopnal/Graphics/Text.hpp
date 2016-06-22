@@ -62,7 +62,6 @@ namespace jop
         ///
         Text(Object& object, Renderer& renderer);
 
-        
         /// \brief Set string that is displayed
         ///
         /// \param string text
@@ -110,7 +109,8 @@ namespace jop
         /// \brief Set text style
         ///
         /// \param style jop::Text::Style (Default, Italic, Underlined, Strikethrough)
-        /// Can use multiple styles at the same time
+        ///
+        /// Can use multiple styles simultaneously
         ///
         Text& setStyle(uint32 style);
 
@@ -126,14 +126,17 @@ namespace jop
 
         /// \brief Updates geometry of the text when necessary
         ///
-        /// This has to be called before drawing
+        /// This has to be called before drawing.
         ///
         void updateGeometry() const;
 
-        /// \brief Add a line to m_vertices
+        /// \brief Adds a line to the text
+        ///
+        /// Adds extra vertices to be drawn, depending on text style (Strikethrough/Underline)
         ///
         /// \param m_vertices Reference to vertex vector
         /// \param lineLength Length of the drawn line
+        /// \param lineTop Starting height of the line
         /// \param offset Offset distance from lineTop
         /// \param thickness Thickness of the drawn line
         ///
@@ -144,17 +147,15 @@ namespace jop
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 
     private:
-
-        WeakReference<Font> m_font;
-        mutable Mesh m_mesh;
-        Material m_material;
-        std::wstring m_string;              ///< String to display
-        mutable Rect m_bounds;              ///< Bounding rectangle around text
-        uint32 m_style;                     ///< Text style
-        mutable bool m_geometryNeedsUpdate; ///< Does geometry need to be recomputed
-        mutable std::vector<Vertex> vertices;
-        mutable unsigned int m_lastFontSize;
-
+        WeakReference<Font> m_font;             ///< Reference to the current font
+        Material m_material;                    ///< Material to be used
+        std::wstring m_string;                  ///< String to display
+        uint32 m_style;                         ///< Text style
+        mutable unsigned int m_lastFontSize;    ///< Most recent font size
+        mutable bool m_geometryNeedsUpdate;     ///< Does geometry need to be recomputed
+        mutable std::vector<Vertex> vertices;   ///< Vector of vertices
+        mutable Rect m_bounds;                  ///< Bounding rectangle around text
+        mutable Mesh m_mesh;                    ///< Mesh for holding vertices and drawing
     };
 }
 

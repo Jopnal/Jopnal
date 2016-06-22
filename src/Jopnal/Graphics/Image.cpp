@@ -97,7 +97,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Image::load(const int id, const bool srgb)
+    bool Image::load(const int id)
     {
         std::vector<unsigned char> buf;
         if (!FileLoader::readResource(id, buf))
