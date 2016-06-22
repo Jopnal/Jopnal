@@ -24,13 +24,12 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-    Glyph::Glyph() : 
-        bounds({0,0,0,0}),
-        textCoord({ 0, 0, 0, 0 }),
-        advance(0)
+    Glyph::Glyph() 
+        : bounds      ({0,0,0,0}),
+          textCoord   ({ 0, 0, 0, 0 }),
+          advance     (0)
     {}
-
-
 }

@@ -149,8 +149,9 @@ namespace jop
         ///
         bool load(const int id, const bool srgb);
 
-        glm::uvec2 m_size;              ///< Size
-        uint32 m_bytesPerPixel;         ///< Byte depth of the texture
+
+        glm::uvec2  m_size;             ///< Size
+        uint32      m_bytesPerPixel;    ///< Byte depth of the texture
     };
 }
 

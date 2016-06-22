@@ -1,21 +1,21 @@
-//Jopnal Engine C++ Library
-//Copyright(c) 2016 Team Jopnal
+// Jopnal Engine C++ Library
+// Copyright (c) 2016 Team Jopnal
 //
-//This software is provided 'as-is', without any express or implied
-//warranty.In no event will the authors be held liable for any damages
-//arising from the use of this software.
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
 //
-//Permission is granted to anyone to use this software for any purpose,
-//including commercial applications, and to alter it and redistribute it
-//freely, subject to the following restrictions :
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
 //
-//1. The origin of this software must not be misrepresented; you must not
-//claim that you wrote the original software.If you use this software
-//in a product, an acknowledgement in the product documentation would be
-//appreciated but is not required.
-//2. Altered source versions must be plainly marked as such, and must not be
-//misrepresented as being the original software.
-//3. This notice may not be removed or altered from any source distribution.
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -33,29 +33,32 @@
 
 //////////////////////////////////////////////
 
-namespace detail
-{
-    struct Packer
-    {
-        stbrp_context               context;
-        std::vector<stbrp_node>     nodes;
-        glm::uvec2                  origin;
-    };
-    struct FontImpl
-    {
-        stbtt_fontinfo fontInfo;          ///< Font info  
-        std::vector<Packer> packers;      ///< Texture packers
-    };
-
-}
 
 namespace jop
 {
+    namespace detail
+    {
+        struct Packer
+        {
+            stbrp_context               context;
+            std::vector<stbrp_node>     nodes;
+            glm::uvec2                  origin;
+        };
+        struct FontImpl
+        {
+            stbtt_fontinfo fontInfo;          ///< Font info  
+            std::vector<Packer> packers;      ///< Texture packers
+        };
+    }
+
+    //////////////////////////////////////////////
+
     Font::Font(const std::string& name)
         : Resource(name),
-        m_data(std::make_unique<::detail::FontImpl>()),
         m_texture(""),
+        m_glyphs(),
         m_buffer(0),
+        m_data(std::make_unique<detail::FontImpl>()),      
         m_fontSize(0),
         m_packerIndex(0)
     {}
@@ -72,80 +75,63 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    float Font::getSize() const
+    int Font::getSize() const
     {
-        return static_cast<float>(m_fontSize);
+        return m_fontSize;
     }
 
     //////////////////////////////////////////////
 
     bool Font::load(const std::string& path, const int fontSize)
     {
-        // Load font data from file
-        FileLoader::readBinaryfile(path, m_buffer);
-        return load(fontSize);
+        return FileLoader::readBinaryfile(path, m_buffer) && load(fontSize);
     }
 
     //////////////////////////////////////////////
 
     bool Font::load(const int id, const int fontSize)
     {
-        if (!FileLoader::readResource(id, m_buffer))
-            return false;
-
-        return load(fontSize);
+        return FileLoader::readResource(id, m_buffer) && load(fontSize);
     }
 
     //////////////////////////////////////////////
 
     bool Font::load(const int fontSize)
     {
-        m_fontSize = fontSize;
-        static const unsigned int initialSize = SettingManager::get<unsigned int>("engine@Graphics|Font|uTextureInitialSize", 256);
-
-        // Create texture and context for glyph atlas;
-        m_texture.load(glm::uvec2(initialSize, initialSize), 1, false);
-
-        m_data->packers.emplace_back();
-        m_data->packers.back().nodes.resize(initialSize);
-        m_data->packers.back().origin = glm::uvec2(0);
-        // Initialize rectangle packer - NOTE: Make sure 'num_nodes' >= 'width'
-        stbrp_init_target(&m_data->packers.back().context, initialSize, initialSize, m_data->packers.back().nodes.data(), m_data->packers.back().nodes.size());
-
-        if (!m_buffer.empty())
+        if (!m_buffer.empty() && stbtt_InitFont(&m_data->fontInfo, m_buffer.data(), 0))
         {
-            // Load & init
-            stbtt_InitFont(&m_data->fontInfo, m_buffer.data(), 0); 
-  
+            m_fontSize = fontSize;
+            static const unsigned int initialSize = std::max(64u, SettingManager::get<unsigned int>("engine@Graphics|Font|uTextureInitialSize", 256));
+
+            // Create texture and context for glyph atlas;
+            m_texture.load(glm::uvec2(initialSize, initialSize), 1, false);
+
+            m_data->packers.emplace_back();
+            m_data->packers.back().nodes.resize(initialSize);
+            m_data->packers.back().origin = glm::uvec2(0);
+            // Initialize rectangle packer - NOTE: Make sure 'num_nodes' >= 'width'
+            stbrp_init_target(&m_data->packers.back().context, initialSize, initialSize, m_data->packers.back().nodes.data(), m_data->packers.back().nodes.size());
+
             // Create default glyph
             const unsigned char data[4] = { 255, 255, 255, 255 };
 
-            // Set pixel storage modes
-            gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
             m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
 
-            std::pair<glm::ivec2, glm::ivec2> bounds;
-            bounds.first.x = 0;
-            bounds.first.y = 0;
-            bounds.second.x = 2;
-            bounds.second.y = 2;
+            Rect bounds{ 0, 0, 2, 2 };
 
             // Create rectangle
-            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.second.x + 1), static_cast<stbrp_coord>(bounds.second.y + 1) };
+            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.right + 1), static_cast<stbrp_coord>(bounds.top + 1) };
             // Pack rectangle - was_packed is non-zero if packing succeeded
             stbrp_pack_rects(&m_data->packers.back().context, &rectangle, 1);
 
-            if (rectangle.was_packed != 0)
+            if (rectangle.was_packed)
             {
                 Glyph emptyGlyph;
                 emptyGlyph.advance = m_fontSize;
-                emptyGlyph.bounds = Rect{ 0, 0, 2, 2 };
-                emptyGlyph.textCoord = Rect{ 0, 0, 2, 2 };
-                GlState::setBlendFunc(true);
-                m_bitmaps[0] = emptyGlyph;
+                emptyGlyph.bounds = bounds;
+                emptyGlyph.textCoord = bounds;
+                m_glyphs[0] = emptyGlyph;
             }
-            else
-                JOP_DEBUG_ERROR("Failure creating empty glyph!");
 
             return true;
         }
@@ -157,23 +143,22 @@ namespace jop
 
     float Font::getKerning(const uint32 left, const uint32 right) const
     {
-        float scale = stbtt_ScaleForPixelHeight(&m_data->fontInfo, m_fontSize);
-        return (float)stbtt_GetCodepointKernAdvance(&m_data->fontInfo, left, right) * scale;
+        return static_cast<float>(stbtt_GetCodepointKernAdvance(&m_data->fontInfo, left, right) * stbtt_ScaleForPixelHeight(&m_data->fontInfo, static_cast<float>(m_fontSize)));
     }
 
     //////////////////////////////////////////////
 
-    const jop::Glyph& Font::getGlyph(uint32 codepoint) const
+    const Glyph& Font::getGlyph(const uint32 codepoint) const
     {
-        auto it = m_bitmaps.find(codepoint);
+        auto it = m_glyphs.find(codepoint);
 
-        if (it != m_bitmaps.end())
+        if (it != m_glyphs.end())
             return it->second;
 
         // If glyph was not found in the bitmap
         // Create new one and pack it
-        if(packGlyph(codepoint))
-            return m_bitmaps[codepoint];
+        if (packGlyph(codepoint))
+            return m_glyphs[codepoint];
 
         // If everything else fails return empty glyph
         static const jop::Glyph emptyGlyph;
@@ -184,12 +169,12 @@ namespace jop
 
     float Font::getLineSpacing() const
     {
-        float scale = stbtt_ScaleForPixelHeight(&m_data->fontInfo, m_fontSize);
-        float lineSpace = 0;
+        const float scale = stbtt_ScaleForPixelHeight(&m_data->fontInfo, static_cast<float>(m_fontSize));
+        
         int ascent, descent, lineGap;
         stbtt_GetFontVMetrics(&m_data->fontInfo, &ascent, &descent, &lineGap);
-        lineSpace = ascent * scale - descent * scale + lineGap * scale;
-        return lineSpace;
+
+        return ascent * scale - descent * scale + lineGap * scale;
     }
 
     //////////////////////////////////////////////
@@ -230,10 +215,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Font::packGlyph(uint32 codepoint) const
+    bool Font::packGlyph(const uint32 codepoint) const
     {
         // Scale according to font size (in pixels)
-        float scale = stbtt_ScaleForPixelHeight(&m_data->fontInfo, m_fontSize);
+        const float scale = stbtt_ScaleForPixelHeight(&m_data->fontInfo, static_cast<float>(m_fontSize));
         int left = 0, right = 0, bottom = 0, top = 0, advance = 0;
 
         // Get bounding box
@@ -242,50 +227,53 @@ namespace jop
         stbtt_GetCodepointHMetrics(&m_data->fontInfo, codepoint, &advance, 0);
 
         // Width & Height - scaled
-        int width = right * scale - left * scale;
-        int height = bottom * scale - top * scale;
+        int width = static_cast<int>(right * scale - left * scale);
+        int height = static_cast<int>(bottom * scale - top * scale);
 
         // Find an empty spot in the texture
         // Add padding (2 empty pixels) after each rect to avoid artifacts 
-        stbrp_rect rectangle =
-        { 0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2) };
+        stbrp_rect rectangle = {0, static_cast<stbrp_coord>(width + 2), static_cast<stbrp_coord>(height + 2)};
         stbrp_pack_rects(&m_data->packers[m_packerIndex].context, &rectangle, 1);
         rectangle.w -= 1;
         rectangle.h -= 1;
 
-        if (rectangle.was_packed != 0)
+        if (rectangle.was_packed)
         {
             unsigned char* pixelData = stbtt_GetCodepointBitmap(&m_data->fontInfo, scale, scale, codepoint, &width, &height, 0, 0);
-            const glm::uvec2& orig = m_data->packers[m_packerIndex].origin; // current packer origin
+            const glm::uvec2& orig = m_data->packers[m_packerIndex].origin;
+
             // Pass pixel data to texture
             if (pixelData)
+            {
                 m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), pixelData);
-            // Create new glyph & return it (left, right, bottom ,top)
+                stbtt_FreeBitmap(pixelData, nullptr);
+            }
+
+            // Create new glyph
             jop::Glyph glyph;
-            glyph.advance = advance * scale;
-            glyph.bounds = Rect{ left * scale, right * scale, bottom * scale, top * scale };
-            glyph.textCoord = Rect{ rectangle.x + orig.x, rectangle.x + width + orig.x, rectangle.y + orig.y, rectangle.y + height + orig.y };
-            m_bitmaps[codepoint] = glyph;
-            return true;
-        }
-        else
-        {
-            // If texture is full - create new bigger one and copy and replace the old one
-            resizePacker(codepoint);
+            glyph.advance = static_cast<int>(advance * scale);
+            glyph.bounds = Rect{static_cast<int>(left * scale), static_cast<int>(right * scale), static_cast<int>(bottom * scale), static_cast<int>(top * scale)};
+            glyph.textCoord = Rect{rectangle.x + orig.x, rectangle.x + width + orig.x, rectangle.y + orig.y, rectangle.y + height + orig.y};
+            m_glyphs[codepoint] = glyph;
 
             return true;
         }
 
-        return false;
+        // If texture is full - create new bigger one and copy and replace the old one
+        return resizePacker(codepoint);
     }
 
     //////////////////////////////////////////////
 
-    void Font::resizePacker(uint32 lastCodepoint) const
+    bool Font::resizePacker(const uint32 lastCodepoint) const
     {
         if (m_packerIndex > 0 || m_data->packers.size() < 2)
         {
-            unsigned int oldSize = m_texture.getSize().x;
+            const unsigned int oldSize = m_texture.getSize().x;
+
+            if (Texture::getMaximumSize() < oldSize * 2)
+                return false;
+
             {
                 // Clear old packers
                 m_data->packers.clear();
@@ -310,6 +298,7 @@ namespace jop
                 // Adjust origin
                 second.origin.x = oldSize;
             }
+
             // Create image from old texture
             Image image = m_texture.getImage();
             // Get size and increase it
@@ -320,9 +309,9 @@ namespace jop
             m_texture.setPixels(glm::uvec2(0, 0), size / 2u, image.getPixels());
         }
 
-        m_packerIndex++;
+        ++m_packerIndex;
+
         // Pack the last glyph that did not fit into the old texture
-        packGlyph(lastCodepoint);
-        
+        return packGlyph(lastCodepoint);
     }
 }

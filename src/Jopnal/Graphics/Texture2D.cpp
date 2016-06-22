@@ -22,15 +22,15 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-
-
 //////////////////////////////////////////////
 
 
 namespace jop
 {
     Texture2D::Texture2D(const std::string& name)
-        : Texture(name, gl::TEXTURE_2D)
+        : Texture           (name, gl::TEXTURE_2D),
+          m_size            (0),
+          m_bytesPerPixel   (0)
     {}
 
     //////////////////////////////////////////////
@@ -83,7 +83,8 @@ namespace jop
     {
         return load(image.getSize(), image.getDepth(), image.getPixels(), srgb);
     }
-    
+
+    //////////////////////////////////////////////
 
     void Texture2D::setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels)
     {
@@ -127,9 +128,11 @@ namespace jop
 
         std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
 
-#ifdef JOP_OPENGL_ES       
+    #ifdef JOP_OPENGL_ES   
+
         GLuint frameBuffer = 0;
         glCheck(gl::GenFramebuffers(1, &frameBuffer));
+
         if (frameBuffer)
         {
             GLint previousFrameBuffer;
@@ -142,11 +145,14 @@ namespace jop
 
             glCheck(gl::BindFramebuffer(gl::FRAMEBUFFER, previousFrameBuffer));
         }
-#else        
+
+    #else        
+
         bind();
         glCheck(gl::GetTexImage(gl::TEXTURE_2D, 0, getFormatEnum(m_bytesPerPixel), gl::UNSIGNED_BYTE, &pixels[0]));
         
-#endif
+    #endif
+
         Image image;
         image.load(m_size, m_bytesPerPixel, &pixels[0]);
         return image;
@@ -229,9 +235,4 @@ namespace jop
 
         return *defTex;
     }
-
-
-
-
-
 }
