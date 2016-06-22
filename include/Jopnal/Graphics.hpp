@@ -23,6 +23,7 @@
 #include <Jopnal/Graphics/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/CircleMesh.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Cubemap.hpp>
 #include <Jopnal/Graphics/CubemapDepth.hpp>
