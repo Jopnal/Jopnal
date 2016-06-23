@@ -93,9 +93,47 @@ namespace jop
         return true;       
     }
 
+    //////////////////////////////////////////////
+
     glm::uvec2 CompressedTexture2D::getSize() const
     {
         return m_size;
     }
+
+    //////////////////////////////////////////////
+
+    //CompressedTexture2D& CompressedTexture2D::getError()
+    //{
+    //    static WeakReference<CompressedTexture2D> errTex;
+
+    //    if (errTex.expired())
+    //    {
+    //        errTex = static_ref_cast<CompressedTexture2D>(ResourceManager::getEmptyResource<CompressedTexture2D>("jop_error_compressed_texture").getReference());
+
+    //        JOP_ASSERT_EVAL(errTex->load(JOP_RES_ERROR_COMPRESSED_TEXTURE, true), "Failed to load error texture!");
+
+    //        errTex->setPersistence(0);
+    //    }
+
+    //    return *errTex;
+    //}
+
+    ////////////////////////////////////////////////
+
+    //CompressedTexture2D& CompressedTexture2D::getDefault()
+    //{
+    //    static WeakReference<CompressedTexture2D> defTex;
+
+    //    if (defTex.expired())
+    //    {
+    //        defTex = static_ref_cast<CompressedTexture2D>(ResourceManager::getEmptyResource<CompressedTexture2D>("jop_default_compressed_texture").getReference());
+
+    //        JOP_ASSERT_EVAL(defTex->load(JOP_RES_DEFAULT_COMPRESSED_TEXTURE, true), "Failed to load default texture!");
+
+    //        defTex->setPersistence(0);
+    //    }
+
+    //    return *defTex;
+    //}
 
 }
