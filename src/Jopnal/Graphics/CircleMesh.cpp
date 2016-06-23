@@ -27,103 +27,63 @@
 
 namespace jop
 {
-	CircleMesh::CircleMesh(const std::string& name)
-		: Mesh(name),
-		m_radius(0.f)
-	{}
+    CircleMesh::CircleMesh(const std::string& name)
+        : Mesh        (name),
+          m_radius    (0.f)
+    {}
 
-	CircleMesh::CircleMesh(const CircleMesh& other, const std::string& newName)
-		: Mesh(newName),
-		m_radius(0.f)
-	{
-		load(other.m_radius, other.m_points);
-	}
+    CircleMesh::CircleMesh(const CircleMesh& other, const std::string& newName)
+        : Mesh        (newName),
+          m_radius    (0.f)
+    {
+        load(other.m_radius, other.m_points);
+    }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool CircleMesh::load(const float radius, const int pointCount)
-	{
-		m_radius = radius * 0.5;
+    bool CircleMesh::load(const float radius, int pointCount)
+    {
+        pointCount = std::max(3, pointCount);
 
-		//float position[3]({ 2.f, 3.f, 0.f }); //X, Y, Z; middle point
+        const float radians = glm::two_pi<float>() / pointCount;
+        float totalRadians = glm::half_pi<float>();
 
+        std::vector<Vertex> vertexarray;
+        vertexarray.reserve(pointCount + 1);
 
-		if (pointCount > 2)
-		{
-			float degrees = 360 / pointCount;
-			float totaldegrees = degrees;
+        vertexarray.emplace_back(glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.5f, 0.5f), glm::vec3(0.f, 0.f, 1.f));
 
-			struct pos
-			{
-				float x, y, z;
+        for (int i = 0; i < pointCount; ++i)
+        {
+            vertexarray.emplace_back(glm::vec3(std::cos(totalRadians) * radius, std::sin(totalRadians) * radius, 0.f), glm::vec2(0.f), glm::vec3(0.f, 0.f, 1.f));
 
-				pos(float x, float y, float z) : x(x), y(y), z(z){}
-			};
+            vertexarray.back().texCoords.x = (vertexarray.back().position.x / radius + 1.f) * 0.5f;
+            vertexarray.back().texCoords.y = (vertexarray.back().position.y / radius + 1.f) * 0.5f;
 
-			std::vector<pos> points;
+            totalRadians += radians;
+        }
 
-			points.emplace_back(0.f, m_radius, 0.f);
+        std::vector<unsigned int> indices;
 
-			for (int i = 0; i <= pointCount; ++i) // start 0, equal to pointCount because first point already done
-			{
-				points.emplace_back((points[i].x * cos(totaldegrees) - points[i].y * sin(totaldegrees)), (points[i].x * sin(totaldegrees) - points[i].y * cos(totaldegrees)), 0);
-				totaldegrees += degrees;
-			}
+        for (int i = 2; i < vertexarray.size(); ++i)
+        {
+            indices.push_back(0);
+            indices.push_back(i - 1);
+            indices.push_back(i);
+        }
+        indices.push_back(0);
+        indices.push_back(vertexarray.size() - 1);
+        indices.push_back(1);
 
-			//FIX degrees =/= radians
+        m_radius = radius;
 
+        return Mesh::load(vertexarray, indices);
+    }
 
-			std::vector<Vertex> vertexarray;
+    //////////////////////////////////////////////
 
-			for (int i = 0; i < points.size(); ++i)
-			{
-				//push 3 vertices? 1 for each point?
-				//if so, what about the texture position
-				vertexarray.emplace_back(Vertex{
-					glm::vec3(0, 0, 0),
-					glm::vec2((((points[i].x / m_radius) + 1) / 2), (((points[i].y / m_radius) + 1) / 2)),
-					glm::vec3(0.f, 0.f, 1.f) });
-
-				vertexarray.emplace_back(Vertex{
-					glm::vec3(points[i].x, points[i].y, points[i].z),
-					glm::vec2((((points[i].x / m_radius) + 1) / 2), (((points[i].y / m_radius) + 1) / 2)),
-					glm::vec3(0.f, 0.f, 1.f) });
-
-				vertexarray.emplace_back(Vertex{
-					glm::vec3(points[i].x, points[i].y, points[i].z),
-					glm::vec2((((points[i].x / m_radius) + 1) / 2), (((points[i].y / m_radius) + 1) / 2)),
-					glm::vec3(0.f, 0.f, 1.f) });
-			}
-
-
-			//iterate through indices backwards
-
-			std::vector<unsigned int> indices;
-
-			const unsigned int origo = 0;
-			unsigned int point = 1;
-
-
-			for (auto itr = vertexarray.rbegin(); itr != vertexarray.rend(); ++itr)
-			{
-				indices.push_back(origo);
-				indices.push_back(point);
-				++point;
-				if (itr->position.y != vertexarray[0].position.y)
-				{
-					indices.push_back(point);
-				}
-			}
-			indices.push_back(1);
-			return Mesh::load(vertexarray, indices);
-		}
-		return false;
-	}
-
-	//////////////////////////////////////////////
-
-	float CircleMesh::getSize() const
-	{
-		return m_radius;
-	}
+    float CircleMesh::getRadius() const
+    {
+        return m_radius;
+    }
 }

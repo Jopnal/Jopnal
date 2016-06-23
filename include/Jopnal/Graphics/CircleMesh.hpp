@@ -23,7 +23,7 @@
 #define JOP_CIRCLEMESH_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh.hpp>
 
 //////////////////////////////////////////////
@@ -31,48 +31,49 @@
 
 namespace jop
 {
-	class JOP_API CircleMesh : public Mesh
-	{
-	public:
+    class JOP_API CircleMesh : public Mesh
+    {
+    public:
 
-		/// \brief Default constructor
-		///
-		/// Does not initialize the vertices.
-		///
-		/// \param name Name of the Circle
-		///
-		CircleMesh(const std::string& name);
+        /// \brief Default constructor
+        ///
+        /// Does not initialize the vertices.
+        ///
+        /// \param name Name of the Circle
+        ///
+        CircleMesh(const std::string& name);
 
-		/// \brief Copy constructor
-		///
-		/// \param other The other mesh to be copied
-		/// \param newName Name of the new mesh
-		///
-		CircleMesh(const CircleMesh& other, const std::string& newName);
-
-
-		/// \brief Load this Circle
-		///
-		/// This will set up the vertices and create the buffers.
-		///
-		/// \param size Size of the Circle
-		///
-		/// \return True if successful
-		///
-		bool load(const float size, const int accuracy);
+        /// \brief Copy constructor
+        ///
+        /// \param other The other mesh to be copied
+        /// \param newName Name of the new mesh
+        ///
+        CircleMesh(const CircleMesh& other, const std::string& newName);
 
 
-		/// \brief Get the size
-		///
-		/// \return The size
-		///
-		float getSize() const;
+        /// \brief Load this Circle
+        ///
+        /// This will set up the vertices and create the buffers.
+        ///
+        /// \param radius Radius of the Circle
+        /// \param pointCount How many points on the perimeter of the circle
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float radius, int pointCount);
 
-	private:
 
-		float m_radius;   ///< This Circle's size
-		int m_points;		///How many points does this circle have; triangle, pentagon, circle
-	};
+        /// \brief Get the radius
+        ///
+        /// \return The radius
+        ///
+        float getRadius() const;
+
+    private:
+
+        float m_radius; ///< This Circle's size
+        int m_points;   ///How many points does this circle have; triangle, pentagon, circle
+    };
 }
 #endif
 
