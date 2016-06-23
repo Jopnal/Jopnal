@@ -124,5 +124,6 @@
 
 // Implementation classes
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+#include <Jopnal/Physics/Detail/WorldImpl2D.hpp>
 
 #endif

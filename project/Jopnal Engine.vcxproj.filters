@@ -426,6 +426,15 @@
     <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.hpp">
+      <Filter>Physics\Source\Detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Collider2D.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\World2D.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -697,6 +706,15 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp">
       <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Collider2D.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\World2D.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.cpp">
+      <Filter>Physics\Source\Detail</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

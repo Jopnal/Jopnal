@@ -87,6 +87,7 @@
     <ClInclude Include="..\include\Jopnal\OS.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Collider.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Collider2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\ContactInfo.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\RayInfo.hpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\TerrainShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\World.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\World2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Types.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility.hpp" />
     <ClInclude Include="..\include\Jopnal\Utility\Assert.hpp" />
@@ -125,6 +127,7 @@
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
     <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl.hpp" />
+    <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\ThreadImpl.hpp" />
@@ -192,8 +195,10 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Vertex.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Collider.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Collider2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\ContactInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RayInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody.cpp" />
@@ -210,6 +215,7 @@
     <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\World.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\World2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugDynamic|Win32'">Create</PrecompiledHeader>
@@ -365,7 +371,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
+      <AdditionalDependencies>Box2D.lib;ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>

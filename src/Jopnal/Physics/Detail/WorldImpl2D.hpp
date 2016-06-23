@@ -19,31 +19,34 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_WORLDIMPL2D_HPP
+#define JOP_WORLDIMPL2D_HPP
+
 // Headers
-#include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/Collider2D.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/FrustumShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/World2D.hpp>
-
-
+#include <Jopnal/Header.hpp>
+//#include <Bullet/btBulletDynamicsCommon.h>
+#include <Box2D/Box2D.h>
+#include <memory>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop { namespace detail
+{
+    struct WorldImpl2D final
+    {
+        explicit WorldImpl2D();
+
+        ~WorldImpl2D();
+
+
+        //std::unique_ptr<btDefaultCollisionConfiguration>         config;
+        //std::unique_ptr<btCollisionDispatcher>                   dispatcher;
+        //std::unique_ptr<btBroadphaseInterface>                   overlappingPairCache;
+        //std::unique_ptr<btSequentialImpulseConstraintSolver>     solver;
+        std::unique_ptr<b2World>                 world;
+
+    };
+}}
+
+#endif
