@@ -24,12 +24,18 @@
 
 //////////////////////////////////////////////
 
+#define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
+#define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
+#define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
+
 namespace jop
 {
-    CompressedImage::CompressedImage()
-    {
-
-    }
+    CompressedImage::CompressedImage() 
+        : m_pixels  (),
+          m_size    (0),
+          m_format  (0),
+          m_mipMapLevels (0)
+    {}
 
     //////////////////////////////////////////////
 
@@ -38,20 +44,81 @@ namespace jop
         if (path.empty())
             return false;
 
-        std::vector<uint8> buffer;
+        FileLoader f;
 
-        if (!FileLoader::readBinaryfile(path, buffer))
+        if (!f.open(path))
             return false;
 
-        DDS_header header;
+        // DDS Header
+        unsigned char ddsheader[124];
 
-        //http://www.racer.nl/download/dds.cpp
-        //http://www.racer.nl/download/dds.h
-        //http://www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
-        //http://www.mindcontrol.org/~hplus/graphics/dds-info/MyDDS.cpp
-        //http://www.mindcontrol.org/~hplus/graphics/dds-info/MyDDS.h
+        // Read in ddsheader
+        f.read(ddsheader, sizeof(ddsheader));
 
+        // DDS Header data       
+        unsigned int height = *reinterpret_cast<unsigned int*>(&ddsheader[8]);
+        unsigned int width = *reinterpret_cast<unsigned int*>(&ddsheader[12]);
+        const unsigned int linearSize = *reinterpret_cast<unsigned int*>(&ddsheader[16]);
+        m_size = glm::uvec2(width, height);
+        m_mipMapLevels = *reinterpret_cast<unsigned int*>(&ddsheader[24]);
+        const unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
 
+        // Total size of the image including all mipmaps
+        unsigned int pixelsSize;
+        pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
+        m_pixels = (unsigned char*)malloc(pixelsSize * sizeof(unsigned char));
+        // Read in compressed pixels
+        f.read(m_pixels, pixelsSize);
+        f.close();
+        
+        //unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
+
+        // Get compressed image format (DXT1 / DXT3 / DXT5)
+        switch (fourCC)
+        {
+        case FOURCC_DXT1:
+            m_format = gl::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            break;
+        case FOURCC_DXT3:
+            m_format = gl::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            break;
+        case FOURCC_DXT5:
+            m_format = gl::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            break;
+        default:
+            JOP_DEBUG_ERROR("Unidentified DDS compression format.");
+            return 0;
+        }       
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const unsigned char* CompressedImage::getPixels() const
+    {
+        return m_pixels;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::uvec2 CompressedImage::getSize() const
+    {
+        return m_size;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int CompressedImage::getFormat() const
+    {
+        return m_format;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int CompressedImage::getMipMapCount() const
+    {
+        return m_mipMapLevels;
     }
 
 }

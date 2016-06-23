@@ -28,7 +28,6 @@
 #include <Jopnal/Graphics/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
-#include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/GenericDrawable.hpp>
 #include <Jopnal/Graphics/GlState.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
@@ -45,7 +44,6 @@
 #include <Jopnal/Graphics/SkyBox.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
 #include <Jopnal/Graphics/SphereMesh.hpp>
-#include <Jopnal/Graphics/Text.hpp>
 #include <Jopnal/Graphics/Texture2D.hpp>
 #include <Jopnal/Graphics/Texture2DDepth.hpp>
 #include <Jopnal/Graphics/TextureSampler.hpp>
@@ -53,6 +51,7 @@
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
 #include <Jopnal/Graphics/CompressedImage.hpp>
+#include <Jopnal/Graphics/CompressedTexture2D.hpp>
 
 //////////////////////////////////////////////
 

@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COMPRESSEDIMAGE_HPP
-#define JOP_COMPRESSEDIMAGE_HPP
+#ifndef JOP_COMPRESSEDTEXTURE2D_HPP
+#define JOP_COMPRESSEDTEXTURE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -30,45 +30,46 @@
 
 namespace jop
 {
-
-    class JOP_API CompressedImage
+    class JOP_API CompressedTexture2D : public Texture
     {
+    private:
+
+        friend class Texture;
+
     public:
 
         /// \brief Constructor
         ///
-        CompressedImage();
+        /// \param name Name
+        ///
+        CompressedTexture2D(const std::string& name);
 
         /// \brief Load from file
         ///
-        /// \param path Filepath to .dds compressed image
+        /// Creates CompressedImage object and calls its load from file method
         ///
         bool load(const std::string& path);
 
-        /// \brief Returns compressed data
+        /// \brief Load from compressed image
         ///
-        const unsigned char* getPixels() const;
+        /// \param image Compressed image
+        ///
+        /// Gets necessary data from image and calls load from memory method
+        ///
+        bool load(const CompressedImage& image);
 
-        /// brief Get size of the compressed image
+        /// \brief Load from memory
         ///
-        glm::uvec2 getSize() const;
-
-        /// Get internal compressed image format
+        /// /param size Size of the texture
+        /// /param format Internal compression format (DDS: DXT1 / DXT3 / DXT5)
+        /// /param pixels Compressed data (= pixels)
+        /// /param mipMapCount Amount of mipmap levels
         ///
-        /// (DXT1 / DXT3 / DXT5)
-        ///
-        unsigned int getFormat() const;
-
-        /// Get amount of mip map levels in image
-        ///
-        unsigned int getMipMapCount() const;
+        bool load(const glm::uvec2 size, const unsigned int format, const unsigned char* pixels, const unsigned int mipMapCount);
 
     private:
 
-        unsigned char*  m_pixels;       ///< Compressed pixel data
-        glm::uvec2      m_size;         ///< Size of the compressed image
-        unsigned int    m_format;       ///< Compressed image format
-        unsigned int    m_mipMapLevels; ///< Count of mipmap levels
+        glm::uvec2 m_size; ///< Size of the compressed texture
     };
 }
 

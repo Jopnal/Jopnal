@@ -46,14 +46,12 @@
     <ClInclude Include="..\include\Jopnal\Graphics\Camera.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Color.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\CompressedImage.hpp" />
+    <ClInclude Include="..\include\Jopnal\Graphics\CompressedTexture2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Cubemap.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\CubemapDepth.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\EnvironmentRecorder.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\GenericDrawable.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Drawable.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\Font.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\GlState.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\LightSource.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Material.hpp" />
@@ -68,9 +66,6 @@
     <ClInclude Include="..\include\Jopnal\Graphics\SkySphere.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\SphereMesh.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\RenderTexture.hpp" />
-    <ClInclude Include="..\include\Jopnal\Graphics\Text.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Graphics\Texture.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Shader.hpp" />
     <ClInclude Include="..\include\Jopnal\Graphics\Texture2D.hpp" />
@@ -155,14 +150,12 @@
     <ClCompile Include="..\src\Jopnal\Graphics\Camera.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Color.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\CompressedImage.cpp" />
+    <ClCompile Include="..\src\Jopnal\Graphics\CompressedTexture2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Cubemap.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\CubemapDepth.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\EnvironmentRecorder.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\GenericDrawable.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Drawable.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\Font.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\GlState.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\LightSource.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Material.cpp" />
@@ -177,9 +170,6 @@
     <ClCompile Include="..\src\Jopnal\Graphics\SkySphere.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\SphereMesh.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\RenderTexture.cpp" />
-    <ClCompile Include="..\src\Jopnal\Graphics\Text.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\src\Jopnal\Graphics\Texture.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Shader.cpp" />
     <ClCompile Include="..\src\Jopnal\Graphics\Texture2D.cpp" />
@@ -362,7 +352,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\extlibs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib;freetyped.lib</AdditionalDependencies>
+      <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;%(AdditionalDependencies);BulletCollisiond.lib;BulletDynamicsd.lib;BulletInverseDynamicsd.lib;BulletSoftBodyd.lib;LinearMathd.lib;flac.lib;ogg.lib;openal32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;winmm.lib;assimpd.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>ogld.lib;glfw3d.lib;physfsd.lib;opengl32.lib;openal32.lib;flac.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;winmm.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
