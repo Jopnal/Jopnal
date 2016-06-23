@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYBOX_HPP
-#define JOP_SKYBOX_HPP
+#ifndef JOP_SKYSPHERE_HPP
+#define JOP_SKYSPHERE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -71,7 +71,7 @@ namespace jop
         ///
         /// \param map Reference to the map
         ///
-        void setMap(const Texture2D& map);
+        void setMap(const Texture& map);
 
         /// \brief Get the bound map
         ///

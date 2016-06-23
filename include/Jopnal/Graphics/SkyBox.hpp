@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYSPHERE_HPP
-#define JOP_SKYSPHERE_HPP
+#ifndef JOP_SKYBOX_HPP
+#define JOP_SKYBOX_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>

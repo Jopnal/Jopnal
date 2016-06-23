@@ -45,7 +45,6 @@ namespace jop
         ///
         Texture2D(const std::string& name);
 
-
         /// \brief Method for using file loader to load new resource from file
         ///
         /// \param path The file path
@@ -78,7 +77,6 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb);
 
-
         /// \brief Set a subset of pixels
         ///
         /// The byte depth must be the same as this texture's!
@@ -88,7 +86,6 @@ namespace jop
         /// \param pixels Pointer to the pixels
         ///
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
-
 
         /// \brief Get the texture size
         ///
@@ -124,7 +121,6 @@ namespace jop
         /// \return True if the depth is supported
         ///
         static bool checkDepthValid(const unsigned int depth);
-
 
         /// \brief Get the error texture
         ///

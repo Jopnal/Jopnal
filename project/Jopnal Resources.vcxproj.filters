@@ -19,6 +19,12 @@
     <Image Include="Resources\Textures\error.png">
       <Filter>Textures</Filter>
     </Image>
+    <Image Include="Resources\Textures\checker.DDS">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\error.DDS">
+      <Filter>Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h" />

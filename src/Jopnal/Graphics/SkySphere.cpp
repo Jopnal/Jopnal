@@ -90,7 +90,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::setMap(const Texture2D& map)
+    void SkySphere::setMap(const Texture& map)
     {
         m_material.setMap(Material::Map::Diffuse, map);
     }

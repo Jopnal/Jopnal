@@ -53,6 +53,7 @@
 #include <Jopnal/Graphics/CompressedImage.hpp>
 #include <Jopnal/Graphics/CompressedTexture2D.hpp>
 
+
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics

@@ -28,28 +28,25 @@
 namespace jop
 {
     CompressedTexture2D::CompressedTexture2D(const std::string& name)
-        : Texture(name, gl::TEXTURE_2D)
+        : Texture   (name, gl::TEXTURE_2D),
+          m_size    (0)
     {}
 
     //////////////////////////////////////////////
 
     bool CompressedTexture2D::load(const std::string& path)
     {
-        CompressedImage compImage;
-        return compImage.load(path) && load(path);
+        CompressedImage compImage("");
+        return compImage.load(path) && load(compImage);
     }
 
     //////////////////////////////////////////////
 
     bool CompressedTexture2D::load(const CompressedImage& compImage)
-    {
-        return load(compImage.getSize(), compImage.getFormat(), compImage.getPixels(), compImage.getMipMapCount());
-    }
+    {   
 
-    //////////////////////////////////////////////
+        glm::uvec2 size = compImage.getSize();
 
-    bool CompressedTexture2D::load(const glm::uvec2 size, const unsigned int format, const unsigned char* pixels, const unsigned int mipMapCount)
-    {      
         if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             return false;
@@ -61,7 +58,9 @@ namespace jop
         m_size = size;
         setPixelStore(1);
 
-        const unsigned int blockSize = (format == gl::COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+        const unsigned int blockSize = (compImage.getFormat() == CompressedImage::Format::DXT1RGBA) ? 8 : 16;
+
+        const unsigned int mipMapCount = compImage.getMipMapCount();
         unsigned int offset = 0;
         unsigned int width = size.x;
         unsigned int height = size.y;
@@ -71,7 +70,14 @@ namespace jop
         {
             unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-            gl::CompressedTexImage2D(gl::TEXTURE_2D, level, format, width, height, 0, imageSize, pixels + offset);
+            static const GLenum formatEnum[] =
+            {
+                gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,                gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,                gl::COMPRESSED_RGBA_S3TC_DXT5_EXT
+            };
+
+            
+
+            gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
 
             offset += imageSize;
             width /= 2;
@@ -86,4 +92,10 @@ namespace jop
 
         return true;       
     }
+
+    glm::uvec2 CompressedTexture2D::getSize() const
+    {
+        return m_size;
+    }
+
 }

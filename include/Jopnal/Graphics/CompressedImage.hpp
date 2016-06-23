@@ -31,13 +31,20 @@
 namespace jop
 {
 
-    class JOP_API CompressedImage
+    class JOP_API CompressedImage : public Resource
     {
     public:
 
+        enum class Format
+        {
+            DXT1RGBA,
+            DXT3RGBA,
+            DXT5RGBA,
+        };
+
         /// \brief Constructor
         ///
-        CompressedImage();
+        CompressedImage(const std::string& name);
 
         /// \brief Load from file
         ///
@@ -47,7 +54,7 @@ namespace jop
 
         /// \brief Returns compressed data
         ///
-        const unsigned char* getPixels() const;
+        const uint8* getPixels() const;
 
         /// brief Get size of the compressed image
         ///
@@ -57,7 +64,7 @@ namespace jop
         ///
         /// (DXT1 / DXT3 / DXT5)
         ///
-        unsigned int getFormat() const;
+        Format getFormat() const;
 
         /// Get amount of mip map levels in image
         ///
@@ -65,10 +72,10 @@ namespace jop
 
     private:
 
-        unsigned char*  m_pixels;       ///< Compressed pixel data
-        glm::uvec2      m_size;         ///< Size of the compressed image
-        unsigned int    m_format;       ///< Compressed image format
-        unsigned int    m_mipMapLevels; ///< Count of mipmap levels
+        std::vector<uint8>  m_pixels;       ///< Compressed pixel data
+        glm::uvec2          m_size;         ///< Size of the compressed image
+        Format              m_format;       ///< Compressed image format
+        unsigned int        m_mipMapLevels; ///< Count of mipmap levels
     };
 }
 

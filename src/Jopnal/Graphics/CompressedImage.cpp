@@ -30,11 +30,12 @@
 
 namespace jop
 {
-    CompressedImage::CompressedImage() 
-        : m_pixels  (),
-          m_size    (0),
-          m_format  (0),
-          m_mipMapLevels (0)
+    CompressedImage::CompressedImage(const std::string& name) 
+        : Resource          (name),
+          m_pixels          (),
+          m_size            (0),
+          m_format          (),
+          m_mipMapLevels    (0)
     {}
 
     //////////////////////////////////////////////
@@ -53,51 +54,50 @@ namespace jop
         unsigned char ddsheader[124];
 
         // Read in ddsheader
+        f.seek(4); // "DDS "
         f.read(ddsheader, sizeof(ddsheader));
 
         // DDS Header data       
         unsigned int height = *reinterpret_cast<unsigned int*>(&ddsheader[8]);
         unsigned int width = *reinterpret_cast<unsigned int*>(&ddsheader[12]);
-        const unsigned int linearSize = *reinterpret_cast<unsigned int*>(&ddsheader[16]);
+        unsigned int linearSize = *reinterpret_cast<unsigned int*>(&ddsheader[16]);
         m_size = glm::uvec2(width, height);
         m_mipMapLevels = *reinterpret_cast<unsigned int*>(&ddsheader[24]);
-        const unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
+        unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
 
         // Total size of the image including all mipmaps
-        unsigned int pixelsSize;
+        unsigned int pixelsSize = 0;
         pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
-        m_pixels = (unsigned char*)malloc(pixelsSize * sizeof(unsigned char));
+        m_pixels.resize(pixelsSize * sizeof(unsigned char));
         // Read in compressed pixels
-        f.read(m_pixels, pixelsSize);
+        f.read(m_pixels.data(), pixelsSize);
         f.close();
-        
-        //unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
 
         // Get compressed image format (DXT1 / DXT3 / DXT5)
         switch (fourCC)
         {
         case FOURCC_DXT1:
-            m_format = gl::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            m_format = Format::DXT1RGBA;
             break;
         case FOURCC_DXT3:
-            m_format = gl::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            m_format = Format::DXT3RGBA;
             break;
         case FOURCC_DXT5:
-            m_format = gl::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            m_format = Format::DXT5RGBA;
             break;
         default:
             JOP_DEBUG_ERROR("Unidentified DDS compression format.");
             return 0;
         }       
-
+        
         return true;
     }
 
     //////////////////////////////////////////////
 
-    const unsigned char* CompressedImage::getPixels() const
+    const uint8* CompressedImage::getPixels() const
     {
-        return m_pixels;
+        return m_pixels.data();
     }
 
     //////////////////////////////////////////////
@@ -109,7 +109,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int CompressedImage::getFormat() const
+    CompressedImage::Format CompressedImage::getFormat() const
     {
         return m_format;
     }

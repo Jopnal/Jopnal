@@ -82,7 +82,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Image Include="Resources\Textures\checker.DDS" />
     <Image Include="Resources\Textures\checker.png" />
+    <Image Include="Resources\Textures\error.DDS" />
     <Image Include="Resources\Textures\error.png" />
   </ItemGroup>
   <ItemGroup>

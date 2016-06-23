@@ -30,7 +30,7 @@
 
 namespace jop
 {
-    class JOP_API CompressedTexture2D : public Texture
+    class JOP_API CompressedTexture2D final : public Texture
     {
     private:
 
@@ -58,14 +58,11 @@ namespace jop
         ///
         bool load(const CompressedImage& image);
 
-        /// \brief Load from memory
+        /// \brief Get the texture size
         ///
-        /// /param size Size of the texture
-        /// /param format Internal compression format (DDS: DXT1 / DXT3 / DXT5)
-        /// /param pixels Compressed data (= pixels)
-        /// /param mipMapCount Amount of mipmap levels
+        /// \return The size
         ///
-        bool load(const glm::uvec2 size, const unsigned int format, const unsigned char* pixels, const unsigned int mipMapCount);
+        glm::uvec2 getSize() const override;
 
     private:
 
