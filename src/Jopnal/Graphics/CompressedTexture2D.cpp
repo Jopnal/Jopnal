@@ -22,13 +22,16 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+#include <Jopnal/Graphics/STB/stb_image_aug.h>
+
+
 //////////////////////////////////////////////
 
 
 namespace jop
 {
     CompressedTexture2D::CompressedTexture2D(const std::string& name)
-        : Texture   (name, gl::TEXTURE_2D),
+        : Texture2D   (name),
           m_size    (0)
     {}
 
@@ -37,14 +40,19 @@ namespace jop
     bool CompressedTexture2D::load(const std::string& path)
     {
         CompressedImage compImage("");
-        return compImage.load(path) && load(compImage);
+
+        if (!gl::exts::var_EXT_texture_compression_s3tc || !compImage.load(path))
+        {
+            //Image image;
+            //return Image.load(path) && Texture2D::load(image);
+        }
+        return load(compImage);
     }
 
     //////////////////////////////////////////////
 
     bool CompressedTexture2D::load(const CompressedImage& compImage)
     {   
-
         glm::uvec2 size = compImage.getSize();
 
         if (size.x > getMaximumSize() || size.y > getMaximumSize())
@@ -65,32 +73,34 @@ namespace jop
         unsigned int width = size.x;
         unsigned int height = size.y;
         
-        // Go through mipmap levels
-        for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
-        {
-            unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
-
-            static const GLenum formatEnum[] =
+        
+            for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
             {
-                gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,                gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,                gl::COMPRESSED_RGBA_S3TC_DXT5_EXT
-            };
+                unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-            
+                static const GLenum formatEnum[] =
+                {
+                    gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,                    gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,                    gl::COMPRESSED_RGBA_S3TC_DXT5_EXT
+                };
 
-            gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
+                gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
 
-            offset += imageSize;
-            width /= 2;
-            height /= 2;
+                //gl::CompressedTexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + n, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
 
-            // For non-power-of-two sized textures
-            if (width < 1)
-                width = 1;
-            if (height < 1)
-                height = 1;
-        }
+                offset += imageSize;
+                width /= 2;
+                height /= 2;
 
-        return true;       
+                // For non-power-of-two sized textures
+                if (width < 1)
+                    width = 1;
+                if (height < 1)
+                    height = 1;
+            }
+
+        
+        return true;
+        
     }
 
     //////////////////////////////////////////////
@@ -98,6 +108,11 @@ namespace jop
     glm::uvec2 CompressedTexture2D::getSize() const
     {
         return m_size;
+    }
+
+    void CompressedTexture2D::checkOpenGlExtensions()
+    {
+        //if(glfwExtensionSupported(/*GL_EXTENSION_HERE*/))
     }
 
     //////////////////////////////////////////////
@@ -118,7 +133,7 @@ namespace jop
     //    return *errTex;
     //}
 
-    ////////////////////////////////////////////////
+    //////////////////////////////////////////////////
 
     //CompressedTexture2D& CompressedTexture2D::getDefault()
     //{

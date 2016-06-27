@@ -52,6 +52,10 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        /// \brief For internal use
+        ///
+        bool load(const int id);
+
         /// \brief Returns compressed data
         ///
         const uint8* getPixels() const;
@@ -70,12 +74,16 @@ namespace jop
         ///
         unsigned int getMipMapCount() const;
 
+        bool isCubemap;
+
     private:
 
         std::vector<uint8>  m_pixels;       ///< Compressed pixel data
         glm::uvec2          m_size;         ///< Size of the compressed image
         Format              m_format;       ///< Compressed image format
         unsigned int        m_mipMapLevels; ///< Count of mipmap levels
+        
+
     };
 }
 

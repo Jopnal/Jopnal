@@ -35,7 +35,8 @@ namespace jop
           m_pixels          (),
           m_size            (0),
           m_format          (),
-          m_mipMapLevels    (0)
+          m_mipMapLevels    (0),
+          isCubemap         (false)
     {}
 
     //////////////////////////////////////////////
@@ -44,16 +45,16 @@ namespace jop
     {
         if (path.empty())
             return false;
-
+            
         FileLoader f;
 
         if (!f.open(path))
             return false;
-
+        
         // DDS Header
         unsigned char ddsheader[124];
 
-        // Read in ddsheader
+        // Read in - ddsheader
         f.seek(4); // "DDS "
         f.read(ddsheader, sizeof(ddsheader));
 
@@ -64,16 +65,21 @@ namespace jop
         m_size = glm::uvec2(width, height);
         m_mipMapLevels = *reinterpret_cast<unsigned int*>(&ddsheader[24]);
         unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
+        unsigned int dwCaps2 = *reinterpret_cast<unsigned int*>(&ddsheader[108]);
+        
+        // Check if loaded image is cubemap
+        if (dwCaps2 & 0x200)
+            isCubemap = true;
 
         // Total size of the image including all mipmaps
         unsigned int pixelsSize = 0;
         pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
         m_pixels.resize(pixelsSize * sizeof(unsigned char));
-        // Read in compressed pixels
+        // Read in - compressed pixels
         f.read(m_pixels.data(), pixelsSize);
         f.close();
 
-        // Get compressed image format (DXT1 / DXT3 / DXT5)
+        // Check compressed image format (DXT1 / DXT3 / DXT5)
         switch (fourCC)
         {
         case FOURCC_DXT1:
@@ -92,6 +98,7 @@ namespace jop
         
         return true;
     }
+
 
     //////////////////////////////////////////////
 

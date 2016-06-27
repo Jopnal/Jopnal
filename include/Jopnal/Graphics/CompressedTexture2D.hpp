@@ -24,17 +24,16 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Texture2D.hpp>
+
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API CompressedTexture2D final : public Texture
+    class JOP_API CompressedTexture2D : public Texture2D
     {
-    private:
-
-        friend class Texture;
 
     public:
 
@@ -64,6 +63,9 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+
+        void checkOpenGlExtensions();
+
         ///// \brief Get the error texture
         /////
         ///// \return Reference to the texture
@@ -77,6 +79,10 @@ namespace jop
         //static CompressedTexture2D& getDefault();
 
     private:
+
+        /// For internal use
+        ///
+        bool load(const int id);
 
         glm::uvec2 m_size; ///< Size of the compressed texture
     };

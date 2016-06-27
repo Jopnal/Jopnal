@@ -21,7 +21,7 @@
 
 // Headers
 #include <Jopnal/Precompiled.hpp>
-#include <Jopnal/Graphics/stb/stb_image.h>
+#include <Jopnal/Graphics/stb/stb_image_aug.h>
 
 //////////////////////////////////////////////
 

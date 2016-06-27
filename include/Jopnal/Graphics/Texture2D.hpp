@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    class JOP_API Texture2D final : public Texture
+    class JOP_API Texture2D : public Texture
     {
     private:
 

@@ -23,10 +23,11 @@
 #include <Jopnal/Precompiled.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_NO_STDIO
 #pragma warning(push)
 #pragma warning(disable: 4189)
 #pragma warning(disable: 4244)
-#include <Jopnal/Graphics/stb/stb_image.h>
+#include <Jopnal/Graphics/stb/stb_image_aug.h>
 #pragma warning(pop)
 
 //////////////////////////////////////////////
