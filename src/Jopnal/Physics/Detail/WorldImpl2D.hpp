@@ -44,7 +44,7 @@ namespace jop { namespace detail
         //std::unique_ptr<btCollisionDispatcher>                   dispatcher;
         //std::unique_ptr<btBroadphaseInterface>                   overlappingPairCache;
         //std::unique_ptr<btSequentialImpulseConstraintSolver>     solver;
-        std::unique_ptr<b2World>                 world;
+        std::unique_ptr<b2World>                 world2D;
 
     };
 }}

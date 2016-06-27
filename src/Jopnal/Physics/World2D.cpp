@@ -22,191 +22,22 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+
 //////////////////////////////////////////////
 
 
-namespace jop
-{
-//    JOP_REGISTER_COMMAND_HANDLER(World2D)
-
-//      JOP_BIND_MEMBER_COMMAND(&World2D::setDebugMode, "setWorldDebugMode");
-
-//   JOP_END_COMMAND_HANDLER(World2D)
-}
-
-#ifdef JOP_DEBUG_MODE
-namespace detail
-{
-    class DebugDrawer final : public btIDebugDraw
-    {
-    private:
-
-        friend class jop::World;
-
-        typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
-
-        jop::VertexBuffer m_buffer;
-        LineVec m_lines;
-        LineVec m_points;
-        int m_mode;
-        const jop::Camera* m_cam;
-
-    public:
-
-        DebugDrawer()
-            : m_buffer  (jop::Buffer::Type::ArrayBuffer, jop::Buffer::DynamicDraw),
-              m_lines   (),
-              m_points  (),
-              m_mode    (0),
-              m_cam     (nullptr)
-        {}
-
-        void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
-        {
-            m_lines.emplace_back(from, color);
-            m_lines.emplace_back(to, color);
-        }
-
-        virtual void draw3dText(const btVector3&, const char*) override
-        {}
-
-        void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar, int, const btVector3& color) override
-        {
-            m_points.emplace_back(PointOnB, color);
-            drawLine(PointOnB, PointOnB + normalOnB, color);
-        }
-
-        void reportErrorWarning(const char* warningString) override
-        {
-        #ifndef JOP_DEBUG_MODE
-            warningString;
-        #endif
-            JOP_DEBUG_WARNING(warningString);
-        }
-
-        void setDebugMode(int debugMode) override
-        {
-            m_mode = debugMode;
-        }
-
-        int getDebugMode() const override
-        {
-            return m_mode;
-        }
-
-        void flushLines() override
-        {
-            using namespace jop;
-
-            if ((m_lines.empty() && m_points.empty()) || !m_cam)
-                return;
-
-            static WeakReference<Shader> shdr;
-
-            if (shdr.expired())
-            {
-                std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
-
-                shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
-
-                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                    "",
-                    std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                    "Failed to compile physics debug shader!");
-            }
-
-            // Draw lines
-            if (!m_lines.empty())
-            {
-                GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-
-                m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
-
-                shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
-
-                shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
-
-                glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
-
-                m_lines.clear();
-            }
-
-            // Draw points
-            if (m_points.empty())
-            {
-                glCheck(gl::PointSize(3));
-                GlState::setDepthTest(true, GlState::DepthFunc::Always);
-
-                m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
-
-                glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
-
-                m_points.clear();
-            }
-
-            GlState::setDepthTest(true);
-        }
-    };
-}
-
-#endif
-
-namespace detail
-{
-    struct GhostCallback : btGhostPairCallback
-    {
-        btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
-
-                p0->beginOverlap(*p1);
-                p1->beginOverlap(*p0);
-            }
-
-            return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
-        }
-
-        void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
-
-                p0->endOverlap(*p1);
-                p1->endOverlap(*p0);
-            }
-
-            return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
-        }
-    };
-}
-
-#ifdef JOP_DEBUG_MODE
-    #define CREATE_DRAWER new ::detail::DebugDrawer
-#else
-    #define CREATE_DRAWER nullptr
-#endif
 
 namespace jop
 {
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable          (obj, renderer, 0),
-          m_worldData       (std::make_unique<detail::WorldImpl2D>(CREATE_DRAWER)),
-          m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
+        m_worldData2D       (std::make_unique<b2World>(b2Vec2(0.f, 0.0f)))
     {
-        static const float gravity = 9.81f;  //SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
+        static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
-        m_worldData->world->SetGravity(b2Vec2(0.f, gravity));
+        m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
+
+        
         //m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         //m_worldData->world->setWorldUserInfo(this);
         
@@ -244,7 +75,7 @@ namespace jop
             {*val = 1.f / static_cast<float>(value);}
         } cb(&timeStep, str);
 
-        m_worldData->world->Step(timeStep, 1, 1); // 1 velocity and 1 position check done for each timeStep      // stepSimulation(deltaTime, 10, timeStep);
+        m_worldData2D->world2D->Step(timeStep, 1, 1); // 1 velocity and 1 position check done for each timeStep      // stepSimulation(deltaTime, 10, timeStep);
     }
 
     //////////////////////////////////////////////
@@ -296,11 +127,15 @@ namespace jop
         const b2Vec2 rayFromWorld2D(start.x, start.y);
         const b2Vec2 rayToWorld2D(fromTo.x, fromTo.y);
 
-        b2RayCastCallback::ReportFixture()
+        //b2RayCastCallback::ReportFixture()
 
-        btCollisionWorld2D::ClosestRayResultCallback2D cb(rayFromWorld2D, rayToWorld2D);
+        //btCollisionWorld2D::ClosestRayResultCallback2D cb(rayFromWorld2D, rayToWorld2D);
+        
+        b2RayCastCallback::
+        auto cb = b2RayCastCallback::ReportFixture;
 
-        m_worldData->world->rayTest(rayFromWorld2D, rayToWorld2D, cb);
+
+        m_worldData2D->world2D->RayCast(cb, rayFromWorld2D, rayToWorld2D);
         cb.m_collisionFilterGroup = group;
         cb.m_collisionFilterMask = mask;
 

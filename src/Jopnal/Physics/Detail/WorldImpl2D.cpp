@@ -35,7 +35,7 @@ namespace jop { namespace detail
         //dispatcher            (std::make_unique<btCollisionDispatcher>(config.get())),
         //overlappingPairCache  (std::make_unique<btDbvtBroadphase>()),
         //solver                (std::make_unique<btSequentialImpulseConstraintSolver>()),
-        world                   (std::make_unique<b2World>(Gravity2D))                   //SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f))
+        world2D                   (std::make_unique<b2World>(Gravity2D))                   //SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f))
     {
     #ifdef JOP_DEBUG_MODE
         //world->setDebugDrawer(debugDraw);
@@ -48,7 +48,7 @@ namespace jop { namespace detail
 
     WorldImpl2D::~WorldImpl2D()
     {
-        delete &world;
+        delete &world2D;
 
     #ifdef JOP_DEBUG_MODE
         //delete world->getDebugDrawer();

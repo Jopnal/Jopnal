@@ -92,6 +92,7 @@
     <ClInclude Include="..\include\Jopnal\Physics\PhantomBody.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\RayInfo.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\RigidBody.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\RigidBody2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CapsuleShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CompoundShape.hpp" />
@@ -127,7 +128,6 @@
     <ClInclude Include="..\include\Jopnal\Window\WindowEventHandler.hpp" />
     <ClInclude Include="..\include\Jopnal\Window\WindowHandle.hpp" />
     <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl.hpp" />
-    <ClInclude Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.hpp" />
     <ClInclude Include="..\src\Jopnal\Precompiled.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\DirectoryWatcherImpl.hpp" />
     <ClInclude Include="..\src\Jopnal\Utility\Win32\ThreadImpl.hpp" />
@@ -198,10 +198,10 @@
     <ClCompile Include="..\src\Jopnal\Physics\Collider2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\ContactInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl.cpp" />
-    <ClCompile Include="..\src\Jopnal\Physics\Detail\WorldImpl2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\PhantomBody.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RayInfo.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\RigidBody2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CapsuleShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CompoundShape.cpp" />

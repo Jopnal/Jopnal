@@ -25,6 +25,7 @@
 #include <Jopnal/Physics/PhantomBody.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>
+#include <Jopnal/Physics/RigidBody2D.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
 #include <Jopnal/Physics/Shape/CapsuleShape.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>

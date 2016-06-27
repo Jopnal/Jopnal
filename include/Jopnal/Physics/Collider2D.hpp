@@ -28,29 +28,25 @@
 #include <Jopnal/Physics/ContactInfo.hpp>
 #include <memory>
 
-#include <Box2D/Box2D.h>
+
 
 //////////////////////////////////////////////
 
 
-class btMotionState;
-class btCollisionObject;
-namespace detail
-{
-    struct GhostCallback;
-}
+class b2Body;
 
 namespace jop
 {
-    class World;
+    class World2D;
 
     class JOP_API Collider2D : public Component
     {
+
+
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
 
-        friend struct ::detail::GhostCallback;
 
     protected:
 
@@ -60,7 +56,7 @@ namespace jop
         /// \param world Reference to the physics world
         /// \param ID Id of this component
         ///
-        Collider2D(Object& object, World& world, const uint32 ID);
+        Collider2D(Object& object, World2D& world, const uint32 ID);
 
         /// \brief Copy constructor
         ///
@@ -135,9 +131,13 @@ namespace jop
 
     protected:
 
-        std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
-        std::unique_ptr<btCollisionObject> m_body;      ///< Body data
-        World& m_worldRef;                              ///< Reference to the world
+
+
+        
+        b2Body* m_body;      ///< Body data
+        World2D& m_worldRef2D;                              ///< Reference to the world
+
+        
     };
 }
 

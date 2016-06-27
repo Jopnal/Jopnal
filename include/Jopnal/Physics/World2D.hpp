@@ -28,22 +28,13 @@
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <memory>
 
-#include <Box2D/Box2D.h>
 
 //////////////////////////////////////////////
 
-
-namespace detail
-{
-    struct GhostCallback;
-}
+class b2World;
 
 namespace jop
 {
-    namespace detail
-    {
-        struct WorldImpl2D;
-    }
     class Camera;
 
     class JOP_API World2D : public Drawable
@@ -54,12 +45,14 @@ namespace jop
 
         friend class Scene;
         friend class Renderer;
-        friend class RigidBody;
+        friend class RigidBody2D;
         friend class Collider2D;
 
         World2D* clone(Object&) const override;
 
     public:
+
+
 
         /// \brief Constructor
         ///
@@ -119,8 +112,6 @@ namespace jop
         ///
         std::vector<Collider2D*> checkOverlapAll(const b2Vec2& aabbStart, const b2Vec2& aabbEnd, const short group = 1, const short mask = 32767) const;
 
-    public:
-
         /// \brief Enable/disable debug drawing
         ///
         /// \comm setWorldDebugMode
@@ -135,13 +126,14 @@ namespace jop
         ///
         bool debugMode() const;
 
+        
+
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
 
-
-        std::unique_ptr<detail::WorldImpl2D> m_worldData;             ///< The world data
-        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback
+        std::unique_ptr<b2World> m_worldData2D;             ///< The world data
+        
     };
 }
 
