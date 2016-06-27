@@ -19,29 +19,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COMPRESSEDTEXTURE2D_HPP
-#define JOP_COMPRESSEDTEXTURE2D_HPP
+#ifndef JOP_COMPRESSEDCUBEMAP_HPP
+#define JOP_COMPRESSEDCUBEMAP_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
-
+#include <Jopnal/Graphics/Texture.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API CompressedTexture2D : public Texture2D
+    class JOP_API CompressedCubemap : public Texture
     {
-
     public:
 
         /// \brief Constructor
         ///
-        /// \param name Name
-        ///
-        CompressedTexture2D(const std::string& name);
+        CompressedCubemap(const std::string& name);
 
         /// \brief Load from file
         ///
@@ -49,40 +45,18 @@ namespace jop
         ///
         bool load(const std::string& path, bool srgb);
 
-        /// \brief Load from compressed image
-        ///
-        /// \param image Compressed image
-        ///
-        /// Gets necessary data from image and calls load from memory method
+        /// \brief Load cubemap from compressed image containing a cubemap
         ///
         bool load(const CompressedImage& image, bool srgb);
 
-        /// \brief Get the texture size
-        ///
-        /// \return The size
-        ///
         glm::uvec2 getSize() const override;
 
-        ///// \brief Get the error texture
-        /////
-        ///// \return Reference to the texture
-        /////
-        //static CompressedTexture2D& getError();
-
-        ///// \brief Get the default texture
-        /////
-        ///// \return Reference to the texture
-        /////
-        //static CompressedTexture2D& getDefault();
 
     private:
-
-        /// For internal use
-        ///
-        bool load(const int id);
-
-        glm::uvec2 m_size; ///< Size of the compressed texture
+        glm::uvec2 m_size;
     };
+
+
 }
 
 #endif

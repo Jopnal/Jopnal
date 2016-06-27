@@ -74,7 +74,9 @@ namespace jop
         ///
         unsigned int getMipMapCount() const;
 
-        bool isCubemap;
+        /// \brief Does image contain a cube map?
+        ///
+        bool isCubemap() const;
 
     private:
 
@@ -82,7 +84,7 @@ namespace jop
         glm::uvec2          m_size;         ///< Size of the compressed image
         Format              m_format;       ///< Compressed image format
         unsigned int        m_mipMapLevels; ///< Count of mipmap levels
-        
+        bool                m_isCubemap;
 
     };
 }

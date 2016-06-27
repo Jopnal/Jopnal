@@ -37,21 +37,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool CompressedTexture2D::load(const std::string& path)
+    bool CompressedTexture2D::load(const std::string& path, bool srgb)
     {
         CompressedImage compImage("");
 
         if (!gl::exts::var_EXT_texture_compression_s3tc || !compImage.load(path))
         {
-            //Image image;
-            //return Image.load(path) && Texture2D::load(image);
+            Image image;
+            return image.load(path) && Texture2D::load(image, srgb);
         }
-        return load(compImage);
+        return load(compImage, srgb);
     }
 
     //////////////////////////////////////////////
 
-    bool CompressedTexture2D::load(const CompressedImage& compImage)
+    bool CompressedTexture2D::load(const CompressedImage& compImage, bool srgb)
     {   
         glm::uvec2 size = compImage.getSize();
 
@@ -87,7 +87,7 @@ namespace jop
 
                 gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
 
-                //gl::CompressedTexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + n, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
+
 
                 offset += imageSize;
                 width /= 2;
@@ -110,11 +110,6 @@ namespace jop
     glm::uvec2 CompressedTexture2D::getSize() const
     {
         return m_size;
-    }
-
-    void CompressedTexture2D::checkOpenGlExtensions()
-    {
-        //if(glfwExtensionSupported(/*GL_EXTENSION_HERE*/))
     }
 
     //////////////////////////////////////////////

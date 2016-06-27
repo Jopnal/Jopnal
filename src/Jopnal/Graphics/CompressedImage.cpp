@@ -36,7 +36,7 @@ namespace jop
           m_size            (0),
           m_format          (),
           m_mipMapLevels    (0),
-          isCubemap         (false)
+          m_isCubemap       (false)
     {}
 
     //////////////////////////////////////////////
@@ -67,9 +67,6 @@ namespace jop
         unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
         unsigned int dwCaps2 = *reinterpret_cast<unsigned int*>(&ddsheader[108]);
         
-        // Check if loaded image is cubemap
-        if (dwCaps2 & 0x200)
-            isCubemap = true;
 
         // Total size of the image including all mipmaps
         unsigned int pixelsSize = 0;
@@ -96,6 +93,10 @@ namespace jop
             return 0;
         }       
         
+        // Check if loaded image contains a cubemap
+        if (dwCaps2 & 0x200)
+            m_isCubemap = true;
+
         return true;
     }
 
@@ -126,6 +127,13 @@ namespace jop
     unsigned int CompressedImage::getMipMapCount() const
     {
         return m_mipMapLevels;
+    }
+
+    //////////////////////////////////////////////
+
+    bool CompressedImage::isCubemap() const
+    {
+        return m_isCubemap;
     }
 
 }
