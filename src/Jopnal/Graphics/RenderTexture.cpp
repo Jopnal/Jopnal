@@ -573,7 +573,12 @@ namespace jop
 
                 if (!hasColor)
                 {
+                #ifdef JOP_OPENGL_ES
                     glCheck(glDrawBuffers(1, GL_NONE));
+                #else
+                    glCheck(glDrawBuffer(GL_NONE));
+                #endif
+
                     glCheck(glReadBuffer(GL_NONE));
                 }
             }

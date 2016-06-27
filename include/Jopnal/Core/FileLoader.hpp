@@ -32,6 +32,7 @@
 
 
 struct PHYSFS_File;
+struct AAsset;
 
 namespace jop
 {
@@ -223,7 +224,7 @@ namespace jop
         ///
         /// \return True if file was deleted
         ///
-        static bool deleteFile(const std::string& file);
+        static bool deleteFile(const Directory dir, const std::string& file);
 
         /// \brief Read a text file
         ///
@@ -305,7 +306,12 @@ namespace jop
 
     private:
 
-        PHYSFS_File* m_file;    ///< File handle
+        union
+        {
+            PHYSFS_File* m_file;    ///< File handle
+            AAsset* m_asset;
+        };
+        bool m_isAsset;
     };
 }
 

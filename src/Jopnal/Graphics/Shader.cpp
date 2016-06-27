@@ -456,14 +456,14 @@ namespace jop
 
             versionString += std::to_string(ogl_GetMajorVersion());
             versionString += std::to_string(ogl_GetMinorVersion());
-            versionString += " core";
+            versionString += "0 core\n";
 
         #else
 
             const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
             versionString += *(esVersion.end() - 3);
             versionString += *(esVersion.end() - 1);
-            versionString += " es\n#define JOP_OPENGL_ES";
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
 
         #endif
         }

@@ -53,7 +53,8 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
-
+#include <Jopnal/Graphics/Glyph.hpp>
+#include <Jopnal/Graphics/Image.hpp>
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics

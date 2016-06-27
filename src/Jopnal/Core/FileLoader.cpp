@@ -31,6 +31,7 @@
     #include <PhysFS/physfs.h>
 
     #ifdef JOP_OS_ANDROID
+        #include <Jopnal/Core/Android/ActivityState.hpp>
         #include <android/asset_manager.h>
     #endif
 
@@ -116,31 +117,38 @@ namespace jop
 
 
     FileLoader::FileLoader()
-        : m_file(nullptr)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {}
 
     FileLoader::FileLoader(const std::string& path)
-        : m_file(nullptr)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {
         open(path);
     }
 
     FileLoader::FileLoader(const Directory dir, const std::string& path, const bool append)
-        : m_file(nullptr)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {
         open(dir, path, append);
     }
 
     FileLoader::FileLoader(FileLoader&& other)
-        : m_file(other.m_file)
+        : m_file    (other.m_file),
+          m_isAsset (other.m_isAsset)
     {
         other.m_file = nullptr;
+        other.m_isAsset = false;
     }
 
     FileLoader& FileLoader::operator =(FileLoader&& other)
     {
         m_file = other.m_file;
+        m_isAsset = other.m_isAsset;
         other.m_file = nullptr;
+        other.m_isAsset = false;
 
         return *this;
     }
@@ -163,8 +171,18 @@ namespace jop
 
         if (!isValid())
         {
+        #ifdef JOP_OS_ANDROID
+
+            m_asset = AAssetManager_open(detail::ActivityState::get()->nativeActivity->assetManager, path.c_str(), AASSET_MODE_STREAMING);
+
+            return (m_isAsset = (m_asset != nullptr)) == true;
+
+        #else
+
             checkError(path);
             return false;
+
+        #endif
         }
 
         return true;
@@ -215,6 +233,18 @@ namespace jop
     {
         if (isValid())
         {
+        #ifdef JOP_OS_ANDROID
+
+            if (m_isAsset)
+            {
+                AAsset_close(m_asset);
+                m_isAsset = false;
+
+                return;
+            }
+
+        #endif
+
             if (PHYSFS_close(m_file) == 0)
                 checkError("File close");
             else
@@ -234,7 +264,16 @@ namespace jop
     int64 FileLoader::read(void* data, const uint64 size)
     {
         if (isValid() && size)
+        {
+        #ifdef JOP_OS_ANDROID
+
+            if (m_isAsset)
+                return static_cast<int64>(AAsset_read(m_asset, data, static_cast<size_t>(size)));
+
+        #endif
+
             return PHYSFS_readBytes(m_file, data, size);
+        }
 
         return -1;
     }
@@ -254,7 +293,16 @@ namespace jop
     bool FileLoader::seek(const uint64 position)
     {
         if (isValid())
+        {
+        #ifdef JOP_OS_ANDROID
+
+            if (m_isAsset)
+                return AAsset_seek64(m_asset, position, SEEK_SET) != -1;
+
+        #endif
+
             return PHYSFS_seek(m_file, position) != 0;
+        }
 
         return false;
     }
@@ -264,7 +312,16 @@ namespace jop
     int64 FileLoader::tell()
     {
         if (isValid())
+        {
+        #ifdef JOP_OS_ANDROID
+
+            if (m_isAsset)
+                return AAsset_getLength64(m_asset) - AAsset_getRemainingLength64(m_asset);
+
+        #endif
+
             return PHYSFS_tell(m_file);
+        }
 
         return -1;
     }
@@ -274,7 +331,16 @@ namespace jop
     int64 FileLoader::getSize()
     {
         if (isValid())
+        {
+        #ifdef JOP_OS_ANDROID
+
+            if (m_isAsset)
+                return AAsset_getLength64(m_asset);
+
+        #endif
+
             return PHYSFS_fileLength(m_file);
+        }
 
         return -1;
     }
@@ -290,6 +356,17 @@ namespace jop
 
     bool FileLoader::fileExists(const std::string& path)
     {
+    #ifdef JOP_OS_ANDROID
+
+        if (AAsset* asset = AAssetManager_open(detail::ActivityState::get()->nativeActivity->assetManager, path.c_str(), AASSET_MODE_STREAMING))
+        {
+            AAsset_close(asset);
+            return true;
+        }
+        else
+
+    #endif
+
         return PHYSFS_exists(path.c_str()) != 0;
     }
 
@@ -308,6 +385,30 @@ namespace jop
                 static_cast<std::vector<std::string>*>(list)->emplace_back(std::move(fileString));
 
         }, &list);
+
+    #ifdef JOP_OS_ANDROID
+
+        AAssetManager* am = detail::ActivityState::get()->nativeActivity->assetManager;
+        AAssetDir* dir = AAssetManager_openDir(am, path.c_str());
+
+        if (dir)
+        {
+            while (const char* fileName = AAssetDir_getNextFileName(dir))
+            {
+                if (AAssetDir* inner = AAssetManager_openDir(am, fileName))
+                {
+                    // Current file is a directory, do not append
+                    AAssetDir_close(inner);
+                    continue;
+                }
+
+                list.emplace_back(fileName);
+            }
+
+            AAssetDir_close(dir);
+        }
+
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -327,13 +428,38 @@ namespace jop
                 listFilesRecursive(fileString, *static_cast<std::vector<std::string>*>(list));
 
         }, &list);
+
+    #ifdef JOP_OS_ANDROID
+
+        AAssetManager* am = detail::ActivityState::get()->nativeActivity->assetManager;
+        AAssetDir* dir = AAssetManager_openDir(am, path.c_str());
+
+        if (dir)
+        {
+            while (const char* fileName = AAssetDir_getNextFileName(dir))
+            {
+                if (AAssetDir* inner = AAssetManager_openDir(am, fileName))
+                {
+                    AAssetDir_close(inner);
+                    listFilesRecursive(fileName, list);
+
+                    continue;
+                }
+
+                list.emplace_back(fileName);
+            }
+
+            AAssetDir_close(dir);
+        }
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
-    bool FileLoader::deleteFile(const std::string& file)
+    bool FileLoader::deleteFile(const Directory dir, const std::string& file)
     {
-        if (PHYSFS_delete(file.c_str()) == 0)
+        if (!PHYSFS_setWriteDir(getDirectory(dir).c_str()) || PHYSFS_delete(file.c_str()) == 0)
         {
             checkError(file);
             return false;

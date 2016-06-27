@@ -46,6 +46,9 @@ if (JOP_OS_WINDOWS)
     )
     source_group("Textures" FILES ${__SRC_TEXTURES})
     list(APPEND RES ${__SRC_TEXTURES})
+
+	# Descriptor
+	list(APPEND RES ${PROJECT_SOURCE_DIR}/tools/Jopresource/desc.json)
     
     add_custom_target(jopnal-resources
                       SOURCES ${RES})

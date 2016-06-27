@@ -103,7 +103,7 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            //JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
+            JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 

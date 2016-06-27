@@ -56,7 +56,6 @@ namespace jop
 
 namespace jop
 {
-
     Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
         : Component                 (object, 0),
           m_renderTexture           (),

@@ -114,7 +114,8 @@ namespace jop
     //////////////////////////////////////////////
 
     float SoundStream::getOffset() const
-    {return 0.f;
+    {
+        return 0.f;
     }
 
     //////////////////////////////////////////////

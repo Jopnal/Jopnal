@@ -60,7 +60,7 @@
         },
         {
             "name": "depthRecordShaderPointVert",
-            "path": "res/Shaders/depthRecordPoint.frag"
+            "path": "res/Shaders/depthRecordPoint.vert"
         },
         
         {
