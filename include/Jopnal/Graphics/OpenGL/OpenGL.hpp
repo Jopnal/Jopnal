@@ -31,6 +31,7 @@
 #ifdef JOP_OPENGL_ES
 
     #include <GLES3/gl3.h>
+    #define __gl2_h_ // Workaround for broken gl headers
     #include <GLES2/gl2ext.h>
     #include <GLES3/gl3platform.h>
 

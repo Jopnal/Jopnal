@@ -41,7 +41,8 @@
 #ifdef JOP_OPENGL_ES
 
     #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
-    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX8
+    #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
+    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX
 
     #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
 

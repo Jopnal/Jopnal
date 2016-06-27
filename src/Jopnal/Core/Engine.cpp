@@ -37,6 +37,7 @@
     #include <Jopnal/Window/Window.hpp>
     #include <Jopnal/STL.hpp>
     #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
 
     #ifndef JOP_OS_WINDOWS
         #include <unistd.h>
@@ -102,7 +103,7 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
+            //JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
@@ -117,7 +118,13 @@ namespace jop
     void Engine::loadDefaultConfiguration()
     {
         // File system
-        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+        createSubsystem<FileSystemInitializer>(
+        #ifdef JOP_OS_ANDROID
+            detail::ActivityState::get()->nativeActivity->internalDataPath
+        #else
+            ns_argv[0]
+        #endif
+        );
 
         // Setting manager
         createSubsystem<SettingManager>();

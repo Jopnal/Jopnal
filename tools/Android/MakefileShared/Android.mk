@@ -19,6 +19,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := jopnal-main
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libjopnal-main.a
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SHARED_LIBRARIES := jopnal
 
 prebuilt_path := $(call local-prebuilt-path,$(LOCAL_SRC_FILES))
 prebuilt := $(strip $(wildcard $(prebuilt_path)))
@@ -60,6 +61,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := jopnal-maind
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libjopnal-maind.a
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SHARED_LIBRARIES := jopnald
 
 prebuilt_path := $(call local-prebuilt-path,$(LOCAL_SRC_FILES))
 prebuilt := $(strip $(wildcard $(prebuilt_path)))

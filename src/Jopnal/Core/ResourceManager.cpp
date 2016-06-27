@@ -74,7 +74,7 @@ namespace jop
                 {
                     if (itr->second->getPersistence() != 0)
                     {
-                        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
+                        //JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                         inst.m_resources.erase(itr);
                     }
                     
@@ -102,7 +102,7 @@ namespace jop
                     ++itr;
                 else
                 {
-                    JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
+                    //JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                     itr = res.erase(itr);
                 }
             }
