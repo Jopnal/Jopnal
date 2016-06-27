@@ -80,7 +80,9 @@ namespace jop
 
                 static const GLenum formatEnum[] =
                 {
-                    gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,                    gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,                    gl::COMPRESSED_RGBA_S3TC_DXT5_EXT
+                    gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,
+                    gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,
+                    gl::COMPRESSED_RGBA_S3TC_DXT5_EXT
                 };
 
                 gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);

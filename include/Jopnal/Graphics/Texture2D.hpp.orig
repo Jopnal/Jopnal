@@ -25,15 +25,19 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Texture.hpp>
-#include <Jopnal/Graphics/Image.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+<<<<<<< HEAD
     class JOP_API Texture2D : public Texture
+=======
+    class Image;
 
+    class JOP_API Texture2D final : public Texture
+>>>>>>> truetype
     {
     private:
 
@@ -81,6 +85,8 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb);
 
+<<<<<<< HEAD
+=======
         /// \brief Load texture from image
         ///
         /// Uses images data and calls load function that creates texture from array of pixels
@@ -89,6 +95,8 @@ namespace jop
         /// \param srgb Use SRGB color space?
         ///
         bool load(const Image& image, const bool srgb);
+
+>>>>>>> truetype
         /// \brief Set a subset of pixels
         ///
         /// The byte depth must be the same as this texture's!
@@ -130,6 +138,17 @@ namespace jop
         ///
         static unsigned int getInternalFormatEnum(const unsigned int formatEnum, const bool srgb);
 
+<<<<<<< HEAD
+        /// \brief Check if the pixel depth value is supported
+        ///
+        /// \param depth The pixel depth in bytes
+        ///
+        /// \return True if the depth is supported
+        ///
+        static bool checkDepthValid(const unsigned int depth);
+
+=======
+>>>>>>> truetype
         /// \brief Get the error texture
         ///
         /// \return Reference to the texture
