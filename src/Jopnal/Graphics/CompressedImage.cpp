@@ -67,14 +67,29 @@ namespace jop
         unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
         unsigned int dwCaps2 = *reinterpret_cast<unsigned int*>(&ddsheader[108]);
         
+        // Check if loaded image contains a cubemap - check if all in there DDS_CUBEMAP_ALLFACES ?
+        if (dwCaps2 & 0x200)
+            m_isCubemap = true;
 
-        // Total size of the image including all mipmaps
         unsigned int pixelsSize = 0;
         pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
-        m_pixels.resize(pixelsSize * sizeof(unsigned char));
-        // Read in - compressed pixels
-        f.read(m_pixels.data(), pixelsSize);
-        f.close();
+        // Total size of the image including all mipmaps
+        if (!m_isCubemap)
+        { 
+            m_pixels.resize(pixelsSize * sizeof(unsigned char));
+            // Read in - compressed pixels
+            f.read(m_pixels.data(), pixelsSize);
+            f.close();
+        }
+        else
+        {
+            pixelsSize *= 6; // Need enough room for 6 images
+            m_pixels.resize(pixelsSize * sizeof(unsigned char));
+            // Read in - compressed pixels
+            f.read(m_pixels.data(), pixelsSize);
+            f.close();
+        }
+
 
         // Check compressed image format (DXT1 / DXT3 / DXT5)
         switch (fourCC)
@@ -93,9 +108,7 @@ namespace jop
             return 0;
         }       
         
-        // Check if loaded image contains a cubemap
-        if (dwCaps2 & 0x200)
-            m_isCubemap = true;
+        
 
         return true;
     }

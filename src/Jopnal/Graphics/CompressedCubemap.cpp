@@ -31,7 +31,7 @@ namespace jop
         : Texture(name, gl::TEXTURE_CUBE_MAP),
         m_size(0)
     {
-
+        getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
     }
 
     bool CompressedCubemap::load(const CompressedImage& image, bool srgb)
@@ -47,12 +47,11 @@ namespace jop
         const unsigned int mipMapCount = image.getMipMapCount();
         unsigned int offset = 0;
         glm::uvec2 size = image.getSize();
-        unsigned int width = size.x;
-        unsigned int height = size.y;
-
+        
         const unsigned int blockSize = (image.getFormat() == CompressedImage::Format::DXT1RGBA) ? 8 : 16;
 
-        unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+        
+
 
         static const GLenum formatEnum[] =
         {
@@ -62,22 +61,29 @@ namespace jop
         };
 
 
+
+
         for (size_t i = 0; i < 6; ++i)
         {
+            unsigned int width = size.x;
+            unsigned int height = size.y;
+
             for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
             {
-                gl::CompressedTexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, level, formatEnum[static_cast<int>(image.getFormat())], size.x, size.y, 0, imageSize, image.getPixels() + offset);
-
-                offset += imageSize;
-                width /= 2;
-                height /= 2;
-                imageSize /= 2;
-
                 // For non-power-of-two sized textures
                 if (width < 1)
                     width = 1;
                 if (height < 1)
                     height = 1;
+                
+                unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+
+                gl::CompressedTexImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i, level, formatEnum[static_cast<int>(image.getFormat())], width, height, 0, imageSize, image.getPixels() + offset);
+
+                offset += imageSize;
+                width /= 2;
+                height /= 2;
+                    
             }
 
         }

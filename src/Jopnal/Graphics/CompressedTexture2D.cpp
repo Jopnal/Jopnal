@@ -32,7 +32,7 @@ namespace jop
 {
     CompressedTexture2D::CompressedTexture2D(const std::string& name)
         : Texture2D   (name),
-          m_size    (0)
+          m_size      (0)
     {}
 
     //////////////////////////////////////////////
@@ -86,8 +86,6 @@ namespace jop
                 };
 
                 gl::CompressedTexImage2D(gl::TEXTURE_2D, level, formatEnum[static_cast<int>(compImage.getFormat())], width, height, 0, imageSize, compImage.getPixels() + offset);
-
-
 
                 offset += imageSize;
                 width /= 2;
