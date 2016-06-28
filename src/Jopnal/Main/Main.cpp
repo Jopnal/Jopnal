@@ -21,6 +21,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
 
 
 extern int main(int argc, char* argv[]);
@@ -39,10 +40,6 @@ extern int main(int argc, char* argv[]);
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Utility/Thread.hpp>
-    #include <Jopnal/STL.hpp>
-    #include <thread>
-    #include <atomic>
-    #include <memory>
 
     namespace jop { namespace detail
     {
@@ -80,13 +77,15 @@ extern int main(int argc, char* argv[]);
 
     void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_t savedStateSize)
     {
+        JOP_DEBUG_INFO("Entered Android entry point");
+
         auto state = new jop::detail::ActivityState(activity, savedState, savedStateSize);
 
-        jop::Thread mainThread(&jop::detail::main, state);
+        jop::Thread mainThread(jop::detail::main, state);
         mainThread.setPriority(jop::Thread::Priority::Highest);
         mainThread.detach();
 
-        while (!state->init)
+        while (!state->init.load())
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         activity->instance = state;

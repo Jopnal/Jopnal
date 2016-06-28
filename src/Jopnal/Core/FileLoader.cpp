@@ -73,15 +73,25 @@ namespace
             return false;
         }
 
+    #ifndef JOP_OS_ANDROID
+
         if (!PHYSFS_setWriteDir(PHYSFS_getBaseDir()) || !PHYSFS_mkdir(ns_resourceDir))
         {
             checkError("Create resource dir");
             return false;
         }
 
-        if (!PHYSFS_mount(ns_resourceDir, NULL, true) || !PHYSFS_mount(jop::FileLoader::getDirectory(jop::FileLoader::Directory::User).c_str(), NULL, true))
+        if (!PHYSFS_mount(ns_resourceDir, NULL, true))
         {
-            checkError("Mount directories");
+            checkError("Mount resource directory");
+            return false;
+        }
+
+    #endif
+
+        if (!PHYSFS_mount(jop::FileLoader::getDirectory(jop::FileLoader::Directory::User).c_str(), NULL, true))
+        {
+            checkError("Mount user directory");
             return false;
         }
 
@@ -564,9 +574,19 @@ namespace jop
     {
         static const std::string dirArr[] =
         {
+        #ifdef JOP_OS_ANDROID
+
+            std::string(detail::ActivityState::get()->nativeActivity->internalDataPath) + "/",
+            std::string(detail::ActivityState::get()->nativeActivity->externalDataPath) + "/",
+            std::string(detail::ActivityState::get()->nativeActivity->internalDataPath) + "/"
+
+        #else
+
             std::string(PHYSFS_getBaseDir()),
             std::string(std::string(PHYSFS_getBaseDir()) + ns_resourceDir),
             std::string(PHYSFS_getPrefDir("Jopnal", getProjectName().c_str()))
+
+        #endif
         };
 
         return dirArr[static_cast<int>(dir)];

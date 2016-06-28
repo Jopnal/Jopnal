@@ -460,10 +460,10 @@ namespace jop
 
         #else
 
-            const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-            versionString += *(esVersion.end() - 3);
-            versionString += *(esVersion.end() - 1);
-            versionString += "0 es\n#define JOP_OPENGL_ES\n";
+            //const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+            //versionString += *(esVersion.end() - 3);
+            //versionString += *(esVersion.end() - 1);
+            versionString += "#version 300 es\n#define JOP_OPENGL_ES\n";
 
         #endif
         }

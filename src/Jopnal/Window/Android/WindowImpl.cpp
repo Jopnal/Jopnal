@@ -28,10 +28,10 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Core/Android/ActivityState.hpp>
-#include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
-#include <android/looper.h>
-#include <unordered_map>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+    #include <android/looper.h>
+    #include <unordered_map>
 
 #endif
 
@@ -40,8 +40,9 @@
 
 namespace
 {
-    std::unordered_map<jop::WindowHandle, jop::Window*> ns_windows;
+    std::unordered_map<EGLContext, jop::Window*> ns_windows;
     jop::detail::WindowImpl* ns_instance = nullptr;
+    EGLContext ns_shared = EGL_NO_CONTEXT;
 
     void createSurface(EGLSurface* surface, EGLDisplay display, EGLConfig config, EGLNativeWindowType window)
     {
@@ -53,26 +54,99 @@ namespace
         eglCheck(eglDestroySurface(display, *surface));
         *surface = EGL_NO_SURFACE;
     }
+
+    EGLDisplay getDisplay()
+    {
+        auto state = jop::detail::ActivityState::get();
+        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+        return state->display;
+    }
+
+    void initialize(EGLConfig config, const EGLint* version)
+    {
+        if (!ns_shared)
+        {
+            ns_shared = eglCheck(eglCreateContext(getDisplay(), config, EGL_NO_CONTEXT, version));
+        }
+    }
+
+    void deInitialize()
+    {
+        if (ns_windows.empty())
+        {
+            eglCheck(eglDestroyContext(getDisplay(), ns_shared));
+            ns_shared = EGL_NO_CONTEXT;
+        }
+    }
 }
 
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
+        : m_display         (getDisplay()),
+          m_context         (EGL_NO_CONTEXT),
+          m_surface         (EGL_NO_SURFACE),
+          m_config          (getConfig(settings)),
+          m_size            (0),
+          m_focusRestored   (false),
+          m_focusLost       (false)
     {
-        if (ns_instance)
+        const EGLint version[] =
         {
+            EGL_CONTEXT_CLIENT_VERSION, 3,
+            EGL_NONE
+        };
+
+        initialize(m_config, version);
+
+        m_context = eglCheck(eglCreateContext(m_display, m_config, ns_shared, version));
+
+        JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
+
+        if (!ns_instance)
+        {
+            auto state = detail::ActivityState::get();
+            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+            eglCheck(eglSwapInterval(m_display, settings.vSync));
+
+            state->fullscreen = settings.displayMode == Window::DisplayMode::Fullscreen;
 
             ns_instance = this;
+
+            state->init.store(true);
         }
+
+        EGLBoolean success = eglCheck(eglMakeCurrent(m_display, m_surface, m_surface, m_context));
+        JOP_ASSERT(success == EGL_TRUE, "Failed to set context current!");
 
         ns_windows[m_context] = &windowPtr;
     }
 
     WindowImpl::~WindowImpl()
     {
+        if (eglGetCurrentContext() == m_context)
+        {
+            eglCheck(eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+        }
 
+        if (m_context != EGL_NO_CONTEXT)
+        {
+            ns_windows.erase(m_context);
 
-        ns_instance = nullptr;
+            eglCheck(eglDestroyContext(m_display, m_context));
+        }
+
+        if (m_surface != EGL_NO_SURFACE)
+        {
+            eglCheck(eglDestroySurface(m_display, m_surface));
+        }
+
+        if (ns_instance == this)
+            ns_instance = nullptr;
+
+        deInitialize();
     }
 
     //////////////////////////////////////////////
@@ -97,7 +171,6 @@ namespace jop { namespace detail
     WindowHandle WindowImpl::getNativeHandle()
     {
         auto state = ActivityState::get();
-
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
         return state->nativeWindow;
@@ -174,7 +247,22 @@ namespace jop { namespace detail
 
     int WindowImpl::handleEvent(int fd, int events, void* data)
     {
+        auto state = detail::ActivityState::get();
+        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
+        AInputEvent* _event = NULL;
+
+        if (AInputQueue_getEvent(state->inputQueue, &_event) >= 0)
+        {
+            if (AInputQueue_preDispatchEvent(state->inputQueue, _event))
+                return 1;
+
+            int handled = 0;
+
+            AInputQueue_finishEvent(state->inputQueue, _event, handled);
+        }
+
+        return 1;
     }
 
     //////////////////////////////////////////////
@@ -194,6 +282,35 @@ namespace jop { namespace detail
             ns_instance->m_focusLost = true;
         }
     }
+
+    //////////////////////////////////////////////
+
+    EGLConfig WindowImpl::getConfig(const Window::Settings& settings)
+    {
+        const EGLint attribs[] =
+        {
+            EGL_RED_SIZE,       8,
+            EGL_GREEN_SIZE,     8,
+            EGL_BLUE_SIZE,      8,
+            EGL_ALPHA_SIZE,     0,
+
+            EGL_DEPTH_SIZE,     0,
+            EGL_STENCIL_SIZE,   0,
+
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+            EGL_SAMPLE_BUFFERS, static_cast<EGLint>(settings.samples),
+
+            EGL_NONE
+        };
+
+        EGLint count;
+        EGLConfig configs[1];
+
+        eglCheck(eglChooseConfig(m_display, attribs, configs, sizeof(configs) / sizeof(EGLConfig), &count));
+
+        return configs[0];
+    }
+
 }}
 
 #endif

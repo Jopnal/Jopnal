@@ -454,6 +454,8 @@ namespace jop
 
         m_defaultRoot = get<std::string>("sDefaultSettingRoot", "root");
 
+    #ifdef JOP_OS_WINDOWS
+
         if (get<bool>("engine@Settings|bAutoUpdate", true))
         {
             if (!m_watcher.start(FileLoader::getDirectory(FileLoader::Directory::User) + FileLoader::getDirectorySeparator() + "Config", [this](DirectoryWatcher::Info info)
@@ -466,6 +468,8 @@ namespace jop
             }))
                 JOP_DEBUG_ERROR("Failed to start setting file watcher, settings won't be automatically refreshed");
         }
+
+    #endif
 
         // Load some settings for external systems. They cannot fetch these themselves as they might be
         // initialized before SettingManager.
@@ -491,7 +495,7 @@ namespace jop
                 ns_callbacks.emplace_back(std::make_unique<Callback>());
                 registerCallback(str,  *ns_callbacks.back());
             }{
-            #ifndef JOP_DISABLE_CONSOLE
+            #if JOP_CONSOLE_VERBOSITY >= 0
 
                 const char* const str = "engine@Debug|Console|uVerbosity";
                 using S = DebugHandler::Severity;

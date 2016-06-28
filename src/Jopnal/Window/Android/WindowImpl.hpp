@@ -75,13 +75,14 @@ namespace jop { namespace detail
 
     private:
 
+        EGLConfig getConfig(const Window::Settings& settings);
+
         EGLDisplay m_display;
         EGLContext m_context;
         EGLSurface m_surface;
         EGLConfig m_config;
 
         glm::uvec2 m_size;
-        unsigned int m_vao;
         bool m_focusRestored;
         bool m_focusLost;
     };

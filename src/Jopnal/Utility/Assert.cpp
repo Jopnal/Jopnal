@@ -25,9 +25,13 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 	#include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Win32/Win32.hpp>
-    #include <cassert>
     #include <cstdlib>
+
+    #ifdef JOP_OS_ANDROID
+        #include <android/log.h>
+    #endif
 
 #endif
 
@@ -40,19 +44,19 @@ namespace jop
     {
         if (!expression)
         {
-        #if defined(JOP_OS_WINDOWS)
-
             auto slashPos = file.find_last_of("/\\");
 
             std::string newStr = "File: " + file.substr(slashPos == std::string::npos ? 0 : slashPos + 1);
             newStr += "\nLine: " + std::to_string(line);
             newStr += "\n\n" + message;
 
+        #if defined(JOP_OS_WINDOWS)
+
             MessageBoxA(GetDesktopWindow(), newStr.c_str(), "Assertion failed!", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 
         #elif defined(JOP_OS_ANDROID)
 
-            assert(false);
+            __android_log_assert(0, "jopnal", newStr.c_str());
 
         #endif
 

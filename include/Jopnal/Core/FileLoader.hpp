@@ -64,8 +64,8 @@ namespace jop
         enum class Directory
         {
             Executable, ///< Executable directory
-            Resource,   ///< Resource folder
-            User        ///< User folder
+            Resource,   ///< Resource folder. On Android this is the memory card directory
+            User        ///< User folder. On Android this is the same directory as Executable
         };
 
     public:

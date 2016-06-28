@@ -29,6 +29,8 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/RenderTexture.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
@@ -125,13 +127,15 @@ namespace jop
     Window::Window()
         : RenderTarget      (0),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_vertexArray     (0)
     {}
 
     Window::Window(const Settings& settings)
         : RenderTarget      (0),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_vertexArray     (0)
     {
         open(settings);
         setDefaultEventHandler();
@@ -227,6 +231,17 @@ namespace jop
 
         static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "000000FF"));
         setClearColor(defColor);
+
+        glCheck(glGenVertexArrays(1, &m_vertexArray));
+        glCheck(glBindVertexArray(m_vertexArray));
+
+        GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
+        GlState::setSeamlessCubemap(true);
+        GlState::setBlendFunc(true);
+        GlState::setFramebufferSrgb(true);
+
+        glCheck(glDisable(GL_DITHER));
     }
 
     //////////////////////////////////////////////
@@ -234,6 +249,9 @@ namespace jop
     void Window::close()
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+        glCheck(glBindVertexArray(0));
+        glCheck(glDeleteVertexArrays(1, &m_vertexArray));
 
         m_impl.reset();
     }

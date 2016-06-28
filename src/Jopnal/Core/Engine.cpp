@@ -120,7 +120,7 @@ namespace jop
         // File system
         createSubsystem<FileSystemInitializer>(
         #ifdef JOP_OS_ANDROID
-            detail::ActivityState::get()->nativeActivity->internalDataPath
+            ""
         #else
             ns_argv[0]
         #endif
@@ -169,11 +169,12 @@ namespace jop
 
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
-    #if defined(JOP_OS_WINDOWS)
+
+        #if defined(JOP_OS_WINDOWS)
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-    #else
+        #else
             nice(-10);
-    #endif
+        #endif
 
         JOP_DEBUG_INFO("Default engine sub system configuration loaded");
     }

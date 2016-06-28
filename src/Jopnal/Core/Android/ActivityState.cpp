@@ -218,6 +218,8 @@ namespace jop { namespace detail
     {
         JOP_ASSERT(ns_instance == nullptr, "There may only be one ActivityState!");
 
+        ns_instance = this;
+
         if (saved)
         {
             savedState = malloc(savedSize);
