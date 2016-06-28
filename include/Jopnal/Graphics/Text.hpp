@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/GenericDrawable.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
+#include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 

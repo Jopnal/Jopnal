@@ -20,13 +20,14 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 #define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
 #define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
+
 
 namespace jop
 {
@@ -73,23 +74,21 @@ namespace jop
 
         unsigned int pixelsSize = 0;
         pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
-        // Total size of the image including all mipmaps
-        if (!m_isCubemap)
+
+        if (m_isCubemap)
         { 
-            m_pixels.resize(pixelsSize * sizeof(unsigned char));
-            // Read in - compressed pixels
-            f.read(m_pixels.data(), pixelsSize);
-            f.close();
-        }
-        else
-        {
             pixelsSize *= 6; // Need enough room for 6 images
             m_pixels.resize(pixelsSize * sizeof(unsigned char));
             // Read in - compressed pixels
             f.read(m_pixels.data(), pixelsSize);
-            f.close();
         }
-
+        else
+        {
+            m_pixels.resize(pixelsSize * sizeof(unsigned char));
+            // Read in - compressed pixels
+            f.read(m_pixels.data(), pixelsSize);
+        }
+        f.close();
 
         // Check compressed image format (DXT1 / DXT3 / DXT5)
         switch (fourCC)
@@ -113,6 +112,26 @@ namespace jop
         return true;
     }
 
+    //////////////////////////////////////////////
+
+    bool CompressedImage::load(const void* ptr, const uint32 size)
+    {
+        if (ptr && size)
+        {
+            m_pixels.clear();
+
+            m_pixels.resize(size);
+            std::memcpy(&m_pixels[0], ptr, size);
+
+            // width/height/format ?
+
+
+
+            return true;
+        }
+
+        return false;
+    }
 
     //////////////////////////////////////////////
 

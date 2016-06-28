@@ -20,6 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
+#include <Jopnal/Window/Controller.hpp>
 #include <Jopnal/Window/Keyboard.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 #include <Jopnal/Window/Window.hpp>

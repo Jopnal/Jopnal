@@ -244,6 +244,10 @@ namespace jop
         ///
         RigidBody& clearForces();
 
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         /// \brief Called when the bound object is set active/inactive
@@ -253,6 +257,7 @@ namespace jop
         /// \param active Was the object set active?
         ///
         void setActive(const bool active) final override;
+
 
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass

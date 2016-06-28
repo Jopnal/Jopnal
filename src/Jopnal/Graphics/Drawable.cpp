@@ -20,35 +20,62 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Drawable.hpp>
+
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/Model.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, Drawable)
+    JOP_REGISTER_COMMAND_HANDLER(Drawable)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setModel, "setModel");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setShader, "setShader");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveLights, "setReceiveLights");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReceiveShadows, "setReceiveShadows");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setCastShadows, "setCastShadows");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setReflected, "setReflected");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Drawable::setRenderGroup, "setRenderGroup");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveLights, "setReceiveLights");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveShadows, "setReceiveShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setCastShadows, "setCastShadows");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setReflected, "setReflected");
+        JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
         JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Drawable)
+
+    bool jop__baseDrawableLoadFunc(JOP_COMPONENT_LOAD_ARGS)
+    {
+        // mesh & material
+
+        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Load>(Serializer::getSerializeID<Component>(), comp, val);
+    }
+    bool jop__baseDrawableSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        // mesh & material
+
+        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Save>(Serializer::getSerializeID<Component>(), comp, val, alloc);
+    }
+
+    JOP_REGISTER_SERIALIZER_NO_FACTORY(jop, Drawable, jop__baseDrawableLoadFunc, jop__baseDrawableSaveFunc);
 }
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, Renderer& renderer, const std::string& ID)
+    Drawable::Drawable(Object& object, Renderer& renderer, const uint32 ID)
         : Component     (object, ID),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (renderer),
+          m_alphaMult   (1.f),
           m_renderGroup (0),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
@@ -60,6 +87,7 @@ namespace jop
           m_model       (other.m_model),
           m_shader      (other.m_shader),
           m_rendererRef (other.m_rendererRef),
+          m_alphaMult   (other.m_alphaMult),
           m_renderGroup (other.m_renderGroup),
           m_flags       (other.m_flags)
     {
@@ -225,57 +253,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Drawable::loadStateBase(Drawable& drawable, const Scene&, const json::Value& val)
+    void Drawable::setAlphaMultiplier(const float mult)
     {
-        drawable.setID(val.HasMember("id") && val["id"].IsString() ? val["id"].GetString() : "");
-
-        if (val.HasMember("shader") && val["shader"].IsString())
-        {
-            const std::string shstr = val["shader"].GetString();
-
-            if (ResourceManager::resourceExists<Shader>(shstr))
-                drawable.setShader(ResourceManager::getExistingResource<Shader>(shstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find shader named \"" << shstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-        if (val.HasMember("mesh") && val["mesh"].IsString())
-        {
-            const std::string mshstr = val["mesh"].GetString();
-
-            if (ResourceManager::resourceExists<Mesh>(mshstr))
-                drawable.m_model.setMesh(ResourceManager::getExistingResource<Mesh>(mshstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find mesh named \"" << mshstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-
-        if (val.HasMember("material") && val["material"].IsString())
-        {
-            const std::string matstr = val["material"].GetString();
-
-            if (ResourceManager::resourceExists<Material>(matstr))
-                drawable.m_model.setMaterial(ResourceManager::getExistingResource<Material>(matstr));
-            else
-                JOP_DEBUG_WARNING("Couldn't find material named \"" << matstr << "\" while loading drawable \"" << drawable.getID() << "\". Resorting to default");
-        }
-
-        return true;
+        m_alphaMult = mult;
     }
 
     //////////////////////////////////////////////
 
-    bool Drawable::saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc)
+    float Drawable::getAlphaMultiplier() const
     {
-        val.AddMember(json::StringRef("id"), json::StringRef(drawable.getID().c_str()), alloc);
+        return m_alphaMult;
+    }
 
-        if (!drawable.m_shader.expired())
-            val.AddMember(json::StringRef("shader"), json::StringRef(drawable.m_shader->getName().c_str()), alloc);
+    //////////////////////////////////////////////
 
-        if (drawable.m_model.getMesh())
-            val.AddMember(json::StringRef("mesh"), json::StringRef(drawable.m_model.getMesh()->getName().c_str()), alloc);
+    Message::Result Drawable::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Drawable, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
 
-        if (drawable.getModel().getMaterial())
-            val.AddMember(json::StringRef("material"), json::StringRef(drawable.getModel().getMaterial()->getName().c_str()), alloc);
-
-        return true;
+        return Component::receiveMessage(message);
     }
 }

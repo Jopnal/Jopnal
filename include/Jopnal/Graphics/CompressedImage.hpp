@@ -52,11 +52,14 @@ namespace jop
         ///
         bool load(const std::string& path);
 
-        /// \brief For internal use
+        /// \brief Load from memory
         ///
-        bool load(const int id);
+        /// \param ptr Pointer to data (buffer of pixels)
+        /// \param size Size of ptr
+        ///
+        bool load(const void* ptr, const uint32 size);
 
-        /// \brief Returns compressed data
+        /// \brief Returns compressed data (pixels)
         ///
         const uint8* getPixels() const;
 
@@ -70,7 +73,7 @@ namespace jop
         ///
         Format getFormat() const;
 
-        /// Get amount of mip map levels in image
+        /// Get amount of mipmap levels in image
         ///
         unsigned int getMipMapCount() const;
 

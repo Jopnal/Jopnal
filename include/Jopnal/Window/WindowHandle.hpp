@@ -33,6 +33,10 @@
     struct GLFWwindow;
     typedef GLFWwindow* WindowLibHandle;
 
+#else
+
+    typedef void* WindowLibHandle;
+
 #endif
 
 #ifdef JOP_OS_WINDOWS
@@ -42,6 +46,13 @@
     namespace jop
     {
         typedef HWND__* WindowHandle;
+    }
+
+#else
+
+    namespace jop
+    {
+        typedef void* WindowHandle;
     }
 
 #endif

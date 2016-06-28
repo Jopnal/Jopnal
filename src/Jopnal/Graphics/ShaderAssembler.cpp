@@ -20,47 +20,27 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/ShaderAssembler.hpp>
+
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+
+#endif
+
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, ShaderAssembler)[](const json::Value& val)
-    {
-        const char* const shdrField = "shaders";
-        if (val.HasMember(shdrField) && val[shdrField].IsArray())
-        {
-            const json::Value& arr = val[shdrField];
-
-            for (auto& i : arr)
-                ShaderAssembler::getShader(i.GetUint());
-        }
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(ShaderAssembler)
-
-    JOP_REGISTER_SAVEABLE(jop, ShaderAssembler)[](const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        auto& map = ShaderAssembler::getShaderMap();
-
-        json::Value& arr = val.AddMember(json::StringRef("shaders"), json::kArrayType, alloc)["shaders"];
-        arr.Reserve(map.size(), alloc);
-
-        for (auto& i : map)
-            arr.PushBack(i.first, alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(ShaderAssembler)
-}
-
-namespace jop
-{
     ShaderAssembler::ShaderAssembler()
-        : Subsystem ("Shader Manager"),
+        : Subsystem (0),
           m_shaders (),
           m_uber    (),
           m_mutex   ()
@@ -68,16 +48,9 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one ShaderAssembler instance!");
         m_instance = this;
 
-        std::vector<unsigned char> buf;
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_VERT, buf), "Failed to read default vertex uber shader source!");
-        m_uber[0].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_DEPTH_RECORD_SHADER_POINT_GEOM, buf), "Failed to read default geometry uber shader source!");
-        m_uber[1].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
-
-        JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_UBER_SHADER_FRAG, buf), "Failed to read default fragment uber shader source!");
-        m_uber[2].assign(reinterpret_cast<const char*>(buf.data()), buf.size());
+        m_uber[0].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderVert), sizeof(jopr::defaultUberShaderVert));
+        m_uber[1].assign(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom));
+        m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -112,7 +85,7 @@ namespace jop
 
         if (&s != &Shader::getError())
         {
-            s.setManaged(true);
+            s.setShouldSerialize(false);
 
             cont[attributes] = static_ref_cast<Shader>(s.getReference());
 
@@ -139,18 +112,7 @@ namespace jop
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-        str += "#version 330 core\n";
-
-        // Ambient constant
-        if ((attrib & m::AmbientConstant) != 0)
-        {
-            static const auto colors = Color(SettingManager::get<std::string>("engine/Graphics|Shading|uAmbientConstant", "010101FF")).asRGBFloatVector();
-            static const std::string ambConst = "#define JMAT_AMBIENT vec3("
-                                              + std::to_string(colors.r) + ","
-                                              + std::to_string(colors.g) + ","
-                                              + std::to_string(colors.b) + ")\n";
-            str += ambConst;
-        }
+        str += Shader::getVersionString();
 
         // Material
         if ((attrib & m::__Lighting) != 0)

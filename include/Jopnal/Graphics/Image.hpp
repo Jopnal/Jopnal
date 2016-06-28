@@ -24,6 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
+#include <string>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -49,6 +52,8 @@ namespace jop
         /// \return True if loading was successful
         ///
         bool load(const std::string& path);
+
+        bool load(const void* ptr, const uint32 size);
 
         /// \brief Load the image from memory
         ///
@@ -81,12 +86,6 @@ namespace jop
         static bool checkDepthValid(const uint32 depth);
 
     private:
-
-        /// \brief Load from resource
-        ///
-        /// \param id Resource id
-        ///
-        bool load(const int id);
 
         glm::uvec2          m_size;             ///< Size of the image
         std::vector<uint8>  m_pixels;           ///< Pixels in image

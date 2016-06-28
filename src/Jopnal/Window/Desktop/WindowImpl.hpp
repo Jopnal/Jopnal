@@ -24,9 +24,11 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#ifdef JOP_OS_DESKTOP
+
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
-#include <GLFW/glfw3.h>
 
 //////////////////////////////////////////////
 
@@ -41,14 +43,14 @@ namespace jop { namespace detail
     
     public:
 
-        explicit WindowImpl(const Window::Settings& settings);
+        explicit WindowImpl(const Window::Settings& settings, Window& windowPtr);
 
         ~WindowImpl();
 
 
         void swapBuffers();
 
-        GLFWwindow* getLibraryHandle();
+        WindowLibHandle getLibraryHandle();
 
         WindowHandle getNativeHandle();
 
@@ -64,12 +66,15 @@ namespace jop { namespace detail
 
         glm::ivec2 getSize() const;
 
+        static Window* getCurrentContextWindow();
+
     private:
 
-        GLFWwindow* m_window;
+        WindowLibHandle m_window;
         unsigned int m_vertexArray;
 
     };
 }}
 
+#endif
 #endif

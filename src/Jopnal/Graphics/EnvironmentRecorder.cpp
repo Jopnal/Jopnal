@@ -20,62 +20,51 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+    #include <glm/gtc/type_ptr.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
+    JOP_REGISTER_COMMAND_HANDLER(EnvironmentRecorder)
 
         JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
 
     JOP_END_COMMAND_HANDLER(EnvironmentRecorder)
-
-    JOP_REGISTER_LOADABLE(jop, EnvironmentRecorder)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
-    {
-        auto& rec = obj.createComponent<EnvironmentRecorder>(scene.getRenderer());
-
-        const char* const idField = "id";
-        if (val.HasMember(idField) && val[idField].IsString())
-            rec.setID(val[idField].GetString());
-
-        const char* const maskField = "mask";
-        if (val.HasMember(maskField) && val[maskField].IsUint())
-            rec.setRenderMask(val[maskField].GetUint());
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(EnvironmentRecorder)
-
-    JOP_REGISTER_SAVEABLE(jop, EnvironmentRecorder)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
-    {
-        auto& rec = static_cast<const EnvironmentRecorder&>(comp);
-
-        val.AddMember(json::StringRef("id"), json::StringRef(rec.getID().c_str()), alloc);
-        val.AddMember(json::StringRef("mask"), rec.getRenderMask(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(EnvironmentRecorder)
 }
 
 namespace jop
 {
     EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
-        : Component     (obj, "environmentrecorder"),
+        : Component     (obj, 0),
           m_matrices    (6),
           m_fbo         (),
           m_mask        (1),
           m_rendererRef (renderer)
     {
-        static const int mapResolution = SettingManager::get<unsigned int>("engine/Graphics|Shading|uEnvironmentMapSize", 128);
+        static const int mapResolution = SettingManager::get<unsigned int>("engine@Graphics|Shading|uEnvironmentMapSize", 128);
 
-        using ca = RenderTexture::ColorAttachment;
-        using da = RenderTexture::DepthAttachment;
+        using CA = RenderTexture::ColorAttachment;
+        using DA = RenderTexture::DepthAttachment;
 
-        m_fbo.create(glm::uvec2(mapResolution), ca::RGBACube, da::Texture16);
+        m_fbo.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, CA::RGBACubeFloat16, glm::uvec2(mapResolution));
+        m_fbo.addDepthAttachment(DA::TextureCube16, glm::uvec2(mapResolution));
+
+        m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
 
         m_rendererRef.bind(*this);
     }
@@ -106,10 +95,10 @@ namespace jop
             glm::mat4 proj;
             void updateProj()
             {
-                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
+                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.1f, farPlane);
             }
             Callback()
-                : str("engine/Graphics|Shading|fEnvironmentRecordFarPlane"),
+                : str("engine@Graphics|Shading|fEnvironmentRecordFarPlane"),
                   farPlane(SettingManager::get<float>(str, 1000.f)),
                   proj()
             {
@@ -147,13 +136,23 @@ namespace jop
 
             if (lastShader != shdr)
             {
-                shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
+                if (drawable->getModel().getMaterial()->hasAttribute(Material::Attribute::__SkyBox | Material::Attribute::__SkySphere))
+                {
+                    std::vector<glm::mat4> tempMat(6);
+
+                    LightSource::makeCubemapMatrices(cb.proj, glm::vec3(0.f), tempMat);
+
+                    shdr->setUniform("u_PVMatrices", glm::value_ptr(tempMat[0]), 6);
+                }
+                else
+                    shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
 
                 lastShader = shdr;
             }
 
             LightContainer lights;
-            rend.chooseLights(*drawable, lights);
+            if (drawable->receiveLights())
+                rend.chooseLights(*drawable, lights);
 
             drawable->draw(nullptr, lights, *shdr);
         }
@@ -177,6 +176,16 @@ namespace jop
 
     const Texture* EnvironmentRecorder::getTexture() const
     {
-        return m_fbo.getTexture();
+        return m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1);
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result EnvironmentRecorder::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(EnvironmentRecorder, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

@@ -20,14 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Precompiled/Precompiled.hpp>
+
+#include <Jopnal/Resources/Resources.hpp>
+
 #pragma warning(push)
 #pragma warning(disable: 4100)
 // NOTE: stb_rect_pack HAS to be included before stb_truetype to avoid errors
 #define STB_RECT_PACK_IMPLEMENTATION
-#include <Jopnal/Graphics/stb/stb_rect_pack.h>
+#include <STB/stb_rect_pack.h>
 #define STB_TRUETYPE_IMPLEMENTATION
-#include <Jopnal/Graphics/STB/stb_truetype.h>
+#include <STB/stb_truetype.h>
 #pragma warning(pop)
 #pragma warning(disable: 4505)
 
@@ -54,13 +57,13 @@ namespace jop
     //////////////////////////////////////////////
 
     Font::Font(const std::string& name)
-        : Resource(name),
-        m_texture(""),
-        m_glyphs(),
-        m_buffer(0),
-        m_data(std::make_unique<detail::FontImpl>()),      
-        m_fontSize(0),
-        m_packerIndex(0)
+        : Resource      (name),
+          m_texture     (""),
+          m_glyphs      (),
+          m_buffer      (0),
+          m_data        (std::make_unique<detail::FontImpl>()),      
+          m_fontSize    (0),
+          m_packerIndex (0)
     {}
 
     Font::~Font()
@@ -89,9 +92,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Font::load(const int id, const int fontSize)
+    bool Font::load(const void* ptr, const uint32 size, const int fontSize)
     {
-        return FileLoader::readResource(id, m_buffer) && load(fontSize);
+        if (ptr && size)
+        {
+            m_buffer.resize(size);
+            std::memcpy(&m_buffer[0], ptr, size);
+
+            return load(fontSize);
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -104,7 +115,7 @@ namespace jop
             static const unsigned int initialSize = std::max(64u, SettingManager::get<unsigned int>("engine@Graphics|Font|uTextureInitialSize", 256));
 
             // Create texture and context for glyph atlas;
-            m_texture.load(glm::uvec2(initialSize, initialSize), 1, false);
+            m_texture.load(glm::uvec2(initialSize, initialSize), 1, false, false);
 
             m_data->packers.emplace_back();
             m_data->packers.back().nodes.resize(initialSize);
@@ -113,14 +124,14 @@ namespace jop
             stbrp_init_target(&m_data->packers.back().context, initialSize, initialSize, m_data->packers.back().nodes.data(), m_data->packers.back().nodes.size());
 
             // Create default glyph
-            const unsigned char data[4] = { 255, 255, 255, 255 };
+            const unsigned char data[4] = {255, 255, 255, 255};
 
             m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
 
-            Rect bounds{ 0, 0, 2, 2 };
+            Rect bounds{0, 0, 2, 2};
 
             // Create rectangle
-            stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(bounds.right + 1), static_cast<stbrp_coord>(bounds.top + 1) };
+            stbrp_rect rectangle = {0, static_cast<stbrp_coord>(bounds.right + 1), static_cast<stbrp_coord>(bounds.top + 1)};
             // Pack rectangle - was_packed is non-zero if packing succeeded
             stbrp_pack_rects(&m_data->packers.back().context, &rectangle, 1);
 
@@ -179,24 +190,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Font& Font::getError()
-    {
-        static WeakReference<Font> errFont;
-
-        if (errFont.expired())
-        {
-            errFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_error_font").getReference());
-
-            JOP_ASSERT_EVAL(errFont->load(JOP_RES_ERROR_FONT, 32), "Failed to load error font!");
-
-            errFont->setPersistence(0);
-        }
-
-        return *errFont;
-    }
-
-    //////////////////////////////////////////////
-
     Font& Font::getDefault()
     {
         static WeakReference<Font> defFont;
@@ -205,7 +198,7 @@ namespace jop
         {
             defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
 
-            JOP_ASSERT_EVAL(defFont->load(JOP_RES_DEFAULT_FONT, 32), "Failed to load default font!");
+            JOP_ASSERT_EVAL(defFont->load(jopr::defaultFont, sizeof(jopr::defaultFont), 32), "Failed to load default font!");
 
             defFont->setPersistence(0);
         }
@@ -304,7 +297,7 @@ namespace jop
             // Get size and increase it
             glm::uvec2 size(image.getSize() * 2u);
             // Load texture with new size
-            m_texture.load(size, 1, false);
+            m_texture.load(size, 1, false, false);
             // Copy images pixels to new texture
             m_texture.setPixels(glm::uvec2(0, 0), size / 2u, image.getPixels());
         }

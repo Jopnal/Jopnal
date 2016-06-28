@@ -20,7 +20,14 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Image.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+
+#endif
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <Jopnal/Graphics/stb/stb_image_aug.h>
@@ -44,18 +51,7 @@ namespace jop
             return false;
 
         std::vector<uint8> buf;
-        if (!FileLoader::readBinaryfile(path, buf))
-            return false;
-
-        glm::ivec2 size(0,0);
-        int bpp = 0;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bpp, 0);
-
-        const bool success = colorData != nullptr && checkDepthValid(bpp) && load(size, bpp, colorData);
-
-        stbi_image_free(colorData);
-
-        return success;
+        return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());
     }
 
     //////////////////////////////////////////////
@@ -83,20 +79,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Image::load(const int id)
+    bool Image::load(const void* ptr, const uint32 size)
     {
-        std::vector<unsigned char> buf;
-        if (!FileLoader::readResource(id, buf))
-            return false;
-
-        int x = 0;
-        int y = 0;
+        glm::ivec2 imageSize(0, 0);
         int bpp = 0;
-        unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &x, &y, &bpp, 0);
+        unsigned char* colorData = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(ptr), size, &imageSize.x, &imageSize.y, &bpp, 0);
 
-        bool success = pix != nullptr && checkDepthValid(bpp) && load(glm::uvec2(x, y), bpp, pix);
+        const bool success = colorData != nullptr && checkDepthValid(bpp) && load(imageSize, bpp, colorData);
 
-        stbi_image_free(pix);
+        stbi_image_free(colorData);
 
         return success;
     }
@@ -126,6 +117,6 @@ namespace jop
 
     bool Image::checkDepthValid(const uint32 depth)
     {
-        return depth >= 1 && depth <= 4;
+        return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
     }
 }

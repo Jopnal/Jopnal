@@ -20,7 +20,23 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/WindowEventHandler.hpp>
+
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
+    #include <Jopnal/Window/Window.hpp>
+    #include <array>
+    #include <vector>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h>
+    #endif
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -34,6 +50,7 @@ namespace
 namespace
 {
 #ifdef JOP_OS_DESKTOP
+
     int getJopKey(const int glfwKey)
     {
         using k = jop::Keyboard::Key;
@@ -309,6 +326,7 @@ namespace
 
         return GLFW_MOUSE_BUTTON_1;
     }
+
 #endif
 }
 namespace jop
@@ -497,7 +515,11 @@ namespace jop
 
     bool WindowEventHandler::keyDown(const int key) const
     {
+    #if defined(JOP_OS_DESKTOP)
         return glfwGetKey(m_windowRef.getLibraryHandle(), getGlfwKey(key)) == GLFW_PRESS;
+    #else
+        return false;
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -515,7 +537,10 @@ namespace jop
     glm::vec2 WindowEventHandler::getCursorPosition() const
     {
         double x = 0.0, y = 0.0;
+        
+    #if defined(JOP_OS_DESKTOP)
         glfwGetCursorPos(m_windowRef.getLibraryHandle(), &x, &y);
+    #endif
 
         return glm::vec2(x, y);
     }
@@ -534,7 +559,11 @@ namespace jop
 
     bool WindowEventHandler::mouseButtonDown(const int button) const
     {
+    #if defined(JOP_OS_DESKTOP)
         return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlfwButton(button)) == GLFW_PRESS;
+    #else
+        return false;
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -583,8 +612,8 @@ namespace jop
     {
     #ifdef JOP_OS_DESKTOP
 
-        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine/Input|Controller|uMaxControllers", 1)));
-        static const float deadzone = SettingManager::get<float>("engine/Input|Controller|fDeadzone", 0.1f);
+        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
+        static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
         static unsigned int counter = 99;
 
         // Query the presence of controllers and update states.
@@ -592,7 +621,7 @@ namespace jop
         // so we can do a little optimization using a counter.
         for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
         {
-            bool present = glfwJoystickPresent(i) == gl::TRUE_;
+            bool present = glfwJoystickPresent(i) == GL_TRUE;
 
             if (present != ns_controllersPresent[i])
             {

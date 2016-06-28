@@ -23,11 +23,9 @@
 namespace detail
 {
     template<typename Str, typename ... Rest>
-    std::string getStringArg(const Str& str, Rest&...)
+    std::string getStringArg(const Str& str, Rest&&...)
     {
-        static_assert(std::is_convertible<Str, std::string>::value, "First argument passed to getResource must be convertible to \"std::string\". If the resource's load() function you're trying to use doesn't take a string as its first argument, you should use getNamedResource()");
-        
-        return str;
+        return std::string(str);
     }
 
     //////////////////////////////////////////////
@@ -60,11 +58,27 @@ namespace detail
             JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
             name; // Remove warning when not using assertions
 
+            int dummy = 0;
+
+        #if defined(JOP_COMPILER_MSVC)
+
             #pragma warning(push)
             #pragma warning(disable: 4172)
-            int dummy;
+
             return reinterpret_cast<T&>(dummy);
+
             #pragma warning(pop)
+
+        #elif defined(JOP_COMPILER_GNU)
+
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wreturn-local-addr"
+
+            return reinterpret_cast<T&>(dummy);
+
+            #pragma GCC diagnostic pop
+
+        #endif
         }
     };
     template<typename T>
@@ -131,7 +145,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 
     else
     {
-    #if JOP_CONSOLE_VERBOSITY >= 2
+    #if JOP_CONSOLE_VERBOSITY >= 3
         Clock clk;
     #endif
 
@@ -142,7 +156,10 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
             T& ptr = *res;
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
+            if (m_instance->m_loadPhase.load())
+                m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+
+            JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
 
             return ptr;
         }
@@ -154,7 +171,7 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-static T& ResourceManager::getEmptyResource(Args&&... args)
+T& ResourceManager::getEmptyResource(Args&&... args)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -179,7 +196,12 @@ T& ResourceManager::getExistingResource(const std::string& name)
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
     if (resourceExists<T>(name))
+    {
+        if (m_instance->m_loadPhase.load())
+            m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+
         return static_cast<T&>(*m_instance->m_resources.find(std::make_pair(name, std::type_index(typeid(T))))->second);
+    }
 
     return detail::LoadFallback<T>::load(name);
 }
@@ -205,7 +227,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 
     if (resourceExists<T>(name))
     {
-    #if JOP_CONSOLE_VERBOSITY >= 2
+    #if JOP_CONSOLE_VERBOSITY >= 3
         Clock clk;
     #endif
 
@@ -214,9 +236,9 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
         auto res = std::make_unique<T>(oldRes, newName);
         T& ptr = *res;
 
-        m_instance->m_resources[newName] = std::move(res);
+        m_instance->m_resources[std::make_pair(newName, std::type_index(typeid(T)))] = std::move(res);
 
-        JOP_DEBUG_INFO("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
+        JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
 
         return ptr;
     }
@@ -241,7 +263,7 @@ void ResourceManager::unloadResource(const std::string& name)
 
     if (itr != res.end() && itr->second->getPersistence())
     {
-        JOP_DEBUG_INFO("\"" << itr->first << "\" (" << typeid(T).name() << ") unloaded");
+        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
         res.erase(itr);
     }
 }

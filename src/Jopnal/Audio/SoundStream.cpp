@@ -20,20 +20,28 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Audio/SoundStream.hpp>
+
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, SoundStream)
+    JOP_REGISTER_COMMAND_HANDLER(SoundStream)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::pause, "pauseStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::stop, "stopStream");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setOffset, "setStreamOffset");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&SoundStream::setLoop, "setStreamLoop");
+        JOP_BIND_MEMBER_COMMAND((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::pause, "pauseStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::stop, "stopStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setOffset, "setStreamOffset");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setLoop, "setStreamLoop");
 
     JOP_END_COMMAND_HANDLER(SoundStream)
 }
@@ -41,37 +49,27 @@ namespace jop
 namespace jop
 {
     SoundStream::SoundStream(Object& object)
-        : SoundSource   (object, "soundstream"),
+        : SoundSource   (object, 0),
           m_path        ()
     {
-        m_sound = std::make_unique<sf::Music>();
     }
 
     SoundStream::SoundStream(const SoundStream& other, Object& newObj)
         : SoundSource   (other, newObj),
-          m_path        (other.m_path)
+          m_path        ()
     {
-        m_sound = std::make_unique<sf::Music>();
-       
-        auto& s = static_cast<sf::Music&>(*m_sound);
-        auto& o = static_cast<const sf::Music&>(*other.m_sound);
         
-        s.setPitch              (o.getPitch());
-        s.setVolume             (o.getVolume());
-        s.setRelativeToListener (o.isRelativeToListener());
-        s.setMinDistance        (o.getMinDistance());
-        s.setAttenuation        (o.getAttenuation());
-        s.setLoop               (o.getLoop());       
-        s.openFromFile          (other.m_path);
+    }
+
+    SoundStream::~SoundStream()
+    {
     }
 
     //////////////////////////////////////////////
 
     bool SoundStream::setPath(const std::string& path)
     {
-        m_path = "Resources/" + path;
-
-        return static_cast<sf::Music*>(m_sound.get())->openFromFile(m_path);
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -88,7 +86,6 @@ namespace jop
 
     SoundStream& SoundStream::play()
     {
-        static_cast<sf::Music*>(m_sound.get())->play();
         return *this;
     }
 
@@ -96,7 +93,6 @@ namespace jop
 
     SoundStream& SoundStream::stop()
     {
-        static_cast<sf::Music*>(m_sound.get())->stop();
         return *this;
     }
 
@@ -104,7 +100,6 @@ namespace jop
 
     SoundStream& SoundStream::pause()
     {
-        static_cast<sf::Music*>(m_sound.get())->pause();
         return *this;
     }
 
@@ -112,8 +107,6 @@ namespace jop
 
     SoundStream& SoundStream::setOffset(const float time)
     {
-        sf::Time t(sf::seconds(time));
-        static_cast<sf::Music*>(m_sound.get())->setPlayingOffset(t);
 
         return *this;
     }
@@ -122,21 +115,30 @@ namespace jop
 
     float SoundStream::getOffset() const
     {
-        return static_cast<sf::Music*>(m_sound.get())->getPlayingOffset().asSeconds();
+        return 0.f;
     }
 
     //////////////////////////////////////////////
 
     SoundSource::Status SoundStream::getStatus() const
     {
-        return static_cast<Status>(static_cast<sf::Music*>(m_sound.get())->getStatus());
+        return Status::Stopped;
     }
 
     //////////////////////////////////////////////
 
     SoundStream& SoundStream::setLoop(const bool loop)
     {
-        static_cast<sf::Music*>(m_sound.get())->setLoop(loop);
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result SoundStream::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(SoundStream, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return SoundSource::receiveMessage(message);
     }
 }

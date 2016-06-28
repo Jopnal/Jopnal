@@ -29,13 +29,10 @@
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class Sound;
-}
-
 namespace jop
 {
+    class SoundBuffer;
+
     class JOP_API SoundEffect : public SoundSource
     {
     private:
@@ -220,6 +217,8 @@ namespace jop
         /// \param deltaTime The delta time
         ///
         void allowSound(const float deltaTime);
+
+        Message::Result receiveMessage(const Message& message) override;
 
 
         float m_speedCounter;   ///< Counter for speed of sound

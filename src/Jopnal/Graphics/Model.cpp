@@ -20,7 +20,16 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Model.hpp>
+
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -35,19 +44,27 @@ namespace jop
         setMesh(Mesh::getDefault());
     }
 
-    Model::Model(const Mesh& mesh, const Material& material)
-        : m_material    (),
-          m_mesh        ()
-    {
-        setMaterial(material);
-        setMesh(mesh);
-    }
-
     Model::Model(const Mesh& mesh)
         : m_material    (),
           m_mesh        ()
     {
         setMaterial(Material::getDefault());
+        setMesh(mesh);
+    }
+
+    Model::Model(const Material& material)
+        : m_material    (),
+          m_mesh        ()
+    {
+        setMaterial(material);
+        setMesh(Mesh::getDefault());
+    }
+
+    Model::Model(const Mesh& mesh, const Material& material)
+        : m_material    (),
+          m_mesh        ()
+    {
+        setMaterial(material);
         setMesh(mesh);
     }
 
@@ -60,15 +77,29 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Mesh* Model::getMesh()
+    {
+        return m_mesh.get();
+    }
+
+    //////////////////////////////////////////////
+
     Model& Model::setMesh(const Mesh& mesh)
     {
-        m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
+        m_mesh = static_ref_cast<Mesh>(mesh.getReference());
         return *this;
     }
 
     //////////////////////////////////////////////
 
     const Material* Model::getMaterial() const
+    {
+        return m_material.get();
+    }
+
+    //////////////////////////////////////////////
+
+    Material* Model::getMaterial()
     {
         return m_material.get();
     }

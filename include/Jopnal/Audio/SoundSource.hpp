@@ -31,11 +31,6 @@
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class SoundSource;
-}
-
 namespace jop
 {
     class JOP_API SoundSource : public Component
@@ -69,7 +64,7 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Component identifier
         ///
-        SoundSource(Object& object, const std::string& ID);
+        SoundSource(Object& object, const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -121,21 +116,21 @@ namespace jop
         ///
         float getPitch() const;
 
-        /// \brief Toggle listener on/off
+        /// \brief Toggle spatialization on/off
         ///
-        /// \comm setListener
+        /// \comm setSpatialized
         ///
-        /// \param toggle True plays sound at listener's position and false enables spatialization in 3d space
+        /// \param toggle False plays sound at listener's position and true enables spatialization in 3d space
         ///
         /// \return Reference to self
         ///
-        SoundSource& setListener(const bool toggle);
+        SoundSource& setSpatialized(const bool set);
 
-        /// \brief Returns relativity to listener
+        /// \brief Check if this sound is spatialized
         ///
-        /// \return True if relative to listener
+        /// \return True if spatialized
         ///
-        bool getListener() const;
+        bool isSpatialized() const;
 
         /// \brief Change sound's fade-out distance
         ///
@@ -173,7 +168,8 @@ namespace jop
 
     protected:
 
-        std::unique_ptr<sf::SoundSource> m_sound;   ///< Sound source
+        virtual Message::Result receiveMessage(const Message& message) override;
+
     };
 }
 

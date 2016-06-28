@@ -26,8 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -66,6 +65,16 @@ namespace jop
         ///
         bool load(const std::string& path, const int fontSize);
 
+        /// \brief Loads a font from memory
+        ///
+        /// The memory will be copied.
+        ///
+        /// \param ptr Pointer to memory
+        /// \param size Amount of bytes to read
+        /// \param pixelSize Glyph size in texture
+        ///
+        bool load(const void* ptr, const uint32 size, const int fontSize);
+
         /// \brief Returns the necessary kerning advancement between two characters
         ///
         /// \param left Codepoint value pointing to the desired character
@@ -95,12 +104,6 @@ namespace jop
         ///
         int getSize() const;
 
-        /// \brief Get the error font
-        ///
-        /// \return Reference to the font
-        ///
-        static Font& getError();
-
         /// \brief Get the default font
         ///
         /// \return Reference to the font
@@ -108,13 +111,6 @@ namespace jop
         static Font& getDefault();
 
     private:
-
-        /// \brief Loads a font from DLL file
-        ///
-        /// \param id ID
-        /// \param pixelSize Glyph size in texture
-        ///
-        bool load(const int id, const int fontSize);
 
         /// \brief Loads a font from internal buffer
         ///

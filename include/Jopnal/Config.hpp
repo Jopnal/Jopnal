@@ -26,10 +26,6 @@
 
 // This file contains the configuration options for the engine compilation
 
-// OpenGL
-#define JOP_OPENGL_VERSION_MAJOR 3
-#define JOP_OPENGL_VERSION_MINOR 3
-
 // Define to enable gl error checks
 #define JOP_OPENGL_ERROR_CHECKS
 
@@ -37,18 +33,18 @@
 #define JOP_DEBUG_MODE
 
 // Console
-#ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 3
-#else
-    #define JOP_CONSOLE_VERBOSITY 0
-#endif
+//
+// -1 = Disable
+//  3 = Verbose
+//
+#define JOP_CONSOLE_VERBOSITY 3
 
 // Asserts
 #define JOP_ENABLE_ASSERTS
 
 // Version
 #define JOP_VERSION_MAJOR 0
-#define JOP_VERSION_MINOR 2
-#define JOP_VERSION_STRING "indev 0.2"
+#define JOP_VERSION_MINOR 3
+#define JOP_VERSION_STRING "indev 0.3"
 
 #endif

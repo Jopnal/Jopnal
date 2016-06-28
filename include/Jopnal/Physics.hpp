@@ -21,6 +21,7 @@
 
 // Headers
 #include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Physics/PhantomBody.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
@@ -30,6 +31,7 @@
 #include <Jopnal/Physics/Shape/ConeShape.hpp>
 #include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
 #include <Jopnal/Physics/Shape/CylinderShape.hpp>
+#include <Jopnal/Physics/Shape/FrustumShape.hpp>
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
 #include <Jopnal/Physics/Shape/RectangleShape.hpp>
 #include <Jopnal/Physics/Shape/SphereShape.hpp>

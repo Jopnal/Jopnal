@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/VertexBuffer.hpp>
+
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -46,9 +56,9 @@ namespace jop
             bind();
 
             setData(NULL, m_bytesAllocated);
-            gl::BindBuffer(gl::COPY_READ_BUFFER, other.m_buffer);
-            gl::BindBuffer(gl::COPY_WRITE_BUFFER, m_buffer);
-            gl::CopyBufferSubData(gl::COPY_READ_BUFFER, gl::COPY_WRITE_BUFFER, 0, 0, m_bytesAllocated);
+            glBindBuffer(GL_COPY_READ_BUFFER, other.m_buffer);
+            glBindBuffer(GL_COPY_WRITE_BUFFER, m_buffer);
+            glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, m_bytesAllocated);
 
             Buffer::operator=(other);
         }
@@ -77,7 +87,7 @@ namespace jop
 
         if (m_buffer && bytes > 0 && data)
         {
-            glCheck(gl::BufferData(m_bufferType, bytes, NULL, m_usage));
+            glCheck(glBufferData(m_bufferType, bytes, NULL, m_usage));
             m_bytesAllocated = bytes;
             setSubData(data, 0, bytes);
             return;
@@ -89,6 +99,6 @@ namespace jop
     void VertexBuffer::setSubData(const void* data, const std::size_t offset, const std::size_t size)
     {
         if (m_buffer && data && size)
-            glCheck(gl::BufferSubData(m_bufferType, offset, size, data));
+            glCheck(glBufferSubData(m_bufferType, offset, size, data));
     }
 }
