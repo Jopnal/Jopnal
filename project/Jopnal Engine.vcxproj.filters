@@ -100,6 +100,12 @@
     <Filter Include="Utility\Source\Win32">
       <UniqueIdentifier>{ecc86e12-f3f3-428f-99b4-e361d75ac36b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics\Source\Shape2D">
+      <UniqueIdentifier>{aec7f585-08a1-4967-93bc-e0fce49a2c4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Headers\Shape2D">
+      <UniqueIdentifier>{c348d766-08ce-4bc4-ac1b-ced2bb33b4b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Jopnal\Core\SettingManager.hpp">
@@ -435,6 +441,12 @@
     <ClInclude Include="..\include\Jopnal\Physics\RigidBody2D.hpp">
       <Filter>Physics\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\RectangleShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -715,6 +727,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody2D.cpp">
       <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\RectangleShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

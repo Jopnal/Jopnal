@@ -31,7 +31,8 @@ namespace jop
 {
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable          (obj, renderer, 0),
-        m_worldData2D       (std::make_unique<b2World>(b2Vec2(0.f, 0.0f)))
+        m_worldData2D       (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+        m_step              (0.f)
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
@@ -49,6 +50,7 @@ namespace jop
     World2D::~World2D()
     {
         // Need to define destructor because of forward declarations
+        delete &m_worldData2D; //?
     }
 
     //////////////////////////////////////////////
@@ -63,8 +65,9 @@ namespace jop
 
     void World2D::update(const float deltaTime)
     {
-        static const char* const str = "engine@Physics|uUpdateFrequency";
-        static float timeStep = 1.f / 60.f;     //static_cast<float>(SettingManager::get<unsigned int>(str, 50));
+
+        static const char* const str = "engine@Physics2D|uUpdateFrequency";
+        static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
 
         static struct Callback : SettingCallback<unsigned int>
         {
@@ -75,7 +78,17 @@ namespace jop
             {*val = 1.f / static_cast<float>(value);}
         } cb(&timeStep, str);
 
-        m_worldData2D->world2D->Step(timeStep, 1, 1); // 1 velocity and 1 position check done for each timeStep      // stepSimulation(deltaTime, 10, timeStep);
+        
+        m_step = std::min(0.1f, m_step + deltaTime);
+        while (m_step >= timeStep)
+        {
+            m_worldData2D->Step(timeStep, 1, 1); // 1 velocity and 1 position check done for each timeStep
+            m_step -= timeStep;
+            m_worldData2D->ClearForces(); //to clear or not to clear?
+        }
+
+        
+        
     }
 
     //////////////////////////////////////////////

@@ -49,12 +49,11 @@
 
 namespace jop
 {
-    RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape& shape, const Type type, const float mass)
+    RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
         :
         group(1),
         mask(1),
         friction(0.5f),
-        rollingFriction(0.f),
         restitution(0.f),
         enableContactCallback(false),
         m_shape(shape),
@@ -73,9 +72,11 @@ namespace jop
         b2FixtureDef fdf;
 
         auto& pos = getObject()->getGlobalPosition();
+
+        bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
         bd.position = b2Vec2(pos.x, pos.y);
         bd.userData = this;
-        bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
+
 
         b2BodyType Types[3] = { b2BodyType::b2_staticBody, b2BodyType::b2_dynamicBody, b2BodyType::b2_kinematicBody };
 
@@ -95,243 +96,155 @@ namespace jop
             bd.type = Types[static_cast<int>(info.m_type)];
         }
 
-        m_rigidBody2D = world.m_worldData2D->CreateBody(&bd);
+        bd.allowSleep = bd.type != b2_kinematicBody;
+
+        m_body = world.m_worldData2D->CreateBody(&bd);
+
+        fdf.filter.groupIndex = info.group;
+        fdf.filter.maskBits = info.mask;
+        //fdf.friction = info.friction;
+        //fdf.restitution = info.restitution;
+
+        fdf.shape = info.m_shape.m_shape.get();
+        fdf.density = info.m_mass / fdf.shape->m_radius;
+
+        m_body->CreateFixture(&fdf);
 
 
 
-        m_rigidBody2D->CreateFixture(&fdf);
 
-
-
-
-
-
-        btVector3 inertia(0.f, 0.f, 0.f);
-        if (m_type == Type::Dynamic)
-            info.m_shape.m_shape->calculateLocalInertia(m_mass, inertia);
-
-        btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), info.m_shape.m_shape.get(), inertia);
-        constInfo.m_friction = info.friction;
-        constInfo.m_rollingFriction = info.rollingFriction;
-        constInfo.m_restitution = info.restitution;
-        info.bodyDefinition.
-
-            auto rb = std::make_unique<btRigidBody>(constInfo);
-
-        if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-        else
-            object.setIgnoreParent(true);
-
-        rb->setCollisionFlags(rb->getCollisionFlags() | (info.enableContactCallback * btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK));
-
-        // Remove contact response if body is a sensor
-        if (m_type > Type::Kinematic)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-
-        m_worldRef.m_worldData->world->addRigidBody(rb.get(), info.group, info.mask);
-
-        m_rigidBody = rb.get();
-        rb->setUserPointer(this);
-        m_body = std::move(rb);
-
-        setActive(isActive());
     }
 
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
-        : Collider(other, newObj),
-        m_type(other.m_type),
-        m_mass(other.m_mass),
-        m_rigidBody2D(nullptr)
+        : Collider2D(other, newObj)
     {
-        btRigidBody2D::btRigidBody2DConstructionInfo constInfo(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), other.m_rigidBody2D->getLocalInertia());
-        constInfo.m_friction = other.m_body->getFriction();
-        constInfo.m_rollingFriction = other.m_body->getRollingFriction();
-        constInfo.m_restitution = other.m_body->getRestitution();
 
-        auto rb = std::make_unique<btRigidBody2D>(constInfo);
-        rb->setCollisionFlags(other.m_body->getCollisionFlags());
+        b2Body* body = other.m_body; //check if fixtures are copied too
 
-        auto bpHandle = other.m_body->getBroadphaseHandle();
-        m_worldRef.m_worldData->world->addRigidBody2D(rb.get(), bpHandle->m_collisionFilterGroup, bpHandle->m_collisionFilterMask);
-
-        m_rigidBody2D = rb.get();
-        rb->setUserPointer(this);
-        m_body = std::move(rb);
-
-        newObj.setIgnoreParent(other.getObject()->ignoresParent());
-        setActive(isActive());
     }
 
     RigidBody2D::~RigidBody2D()
     {
-        m_worldRef.m_worldData->world->removeRigidBody2D(btRigidBody2D::upcast(m_body.get()));
+        m_worldRef2D.m_worldData2D->DestroyBody(m_body);
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::setGravity(const glm::vec3& acceleration)
+    RigidBody2D& RigidBody2D::setGravityScale(const float scale)
     {
-        b2BodyDef deff;
-        deff.;
-        b2Body bod(;
-        bod.;
-        b2FixtureDef fdef;
-        fdef.;
-
-        b2Fixture* fixt = bod.CreateFixture(&fdef);
-
-        fixt->;
-
-
-
-
-
-        m_rigidBody2D->setGravity(btVector3(acceleration.x, acceleration.y, acceleration.z));
+        m_body->SetGravityScale(scale);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    glm::vec3 RigidBody2D::getGravity()const
+    float RigidBody2D::getGravityScale()const
     {
-        auto& gg = m_rigidBody2D->getGravity();
-        return glm::vec3(gg.x(), gg.y(), gg.z());
+        return m_body->GetGravityScale();
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::setLinearFactor(const glm::vec3& linearFactor)
+    RigidBody2D& RigidBody2D::setLinearVelocity(const glm::vec2& linearVelocity)
     {
-        m_rigidBody2D->setLinearFactor(btVector3(linearFactor.x, linearFactor.y, linearFactor.z));
+        m_body->SetLinearVelocity(b2Vec2(linearVelocity.x, linearVelocity.y));
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    glm::vec3 RigidBody2D::getLinearFactor()const
+    glm::vec2 RigidBody2D::getLinearVelocity()const
     {
-        auto& glf = m_rigidBody2D->getLinearFactor();
-        return glm::vec3(glf.x(), glf.y(), glf.z());
+        return glm::vec2(m_body->GetLinearVelocity().x, m_body->GetLinearVelocity().y);
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::setAngularFactor(const glm::vec3& angularFactor)
+    RigidBody2D& RigidBody2D::setAngularVelocity(const float angularVelocity)
     {
-        m_rigidBody2D->setAngularFactor(btVector3(angularFactor.x, angularFactor.y, angularFactor.z));
+        m_body->SetAngularVelocity(angularVelocity);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    glm::vec3 RigidBody2D::getAngularFactor()const
+    float RigidBody2D::getAngularVelocity()const
     {
-        auto& gaf = m_rigidBody2D->getAngularFactor();
-        return glm::vec3(gaf.x(), gaf.y(), gaf.z());
+
+        return m_body->GetAngularVelocity();
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyForce(const glm::vec3& force, const glm::vec3& rel_pos)
+    RigidBody2D& RigidBody2D::applyForce(const glm::vec2& force, const glm::vec2& worldPoint)
     {
-        m_rigidBody2D->SetActive(true);
-        m_rigidBody2D->applyForce(btVector3(force.x, force.y, force.z), btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
-
+        m_body->ApplyForce(b2Vec2(force.x, force.y), b2Vec2(worldPoint.x, worldPoint.y), true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos)
+    RigidBody2D& RigidBody2D::applyCentralForce(const glm::vec2& force)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->applyImpulse(btVector3(impulse.x, impulse.y, impulse.z), btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
-
+        m_body->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyTorque(const glm::vec3& torque)
+    RigidBody2D& RigidBody2D::applyAngularImpulse(const float& impulse)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->applyTorque(btVector3(torque.x, torque.y, torque.z));
-
+        m_body->ApplyAngularImpulse(impulse, true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyTorqueImpulse(const glm::vec3& torque)
+    RigidBody2D& RigidBody2D::applyLinearImpulse(const glm::vec2& impulse, const glm::vec2& point)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->applyTorqueImpulse(btVector3(torque.x, torque.y, torque.z));
-
+        m_body->ApplyLinearImpulse(b2Vec2(impulse.x, impulse.y), b2Vec2(point.x, point.y), true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::setLinearVelocity(const glm::vec3& linearVelocity)
+    RigidBody2D& RigidBody2D::applyCentralImpulse(const glm::vec2& impulse)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->setLinearVelocity(btVector3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
-
+        m_body->ApplyLinearImpulseToCenter(b2Vec2(impulse.x, impulse.y), true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::setAngularVelocity(const glm::vec3& angularVelocity)
+    RigidBody2D& RigidBody2D::applyTorque(const float torque)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->setAngularVelocity(btVector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-
+        m_body->ApplyTorque(torque, true);
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyCentralForce(const glm::vec3& force)
+    RigidBody2D& RigidBody2D::setFixedRotation(const bool rot)
     {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->applyCentralForce(btVector3(force.x, force.y, force.z));
-
+        m_body->SetFixedRotation(rot);
         return *this;
     }
 
-    //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyCentralImpulse(const glm::vec3& impulse)
-    {
-        m_rigidBody2D->activate();
-        m_rigidBody2D->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    RigidBody2D& RigidBody2D::clearForces()
-    {
-        m_rigidBody2D->clearForces();
-        return *this;
-    }
 
     //////////////////////////////////////////////
 
     void RigidBody2D::setActive(const bool active)
     {
-        m_body->SetActive(active); //forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
+        m_body->SetActive(active);
     }
 
     //////////////////////////////////////////////
 
     Message::Result RigidBody2D::receiveMessage(const Message& message)
     {
-        if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
-            return Message::Result::Escape;
+       // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
+       //     return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

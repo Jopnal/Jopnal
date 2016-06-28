@@ -125,7 +125,7 @@
 // Implementation classes
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
 
-//Box2D
+// Box2D
 #include <Box2D/Box2D.h>
 
 #endif

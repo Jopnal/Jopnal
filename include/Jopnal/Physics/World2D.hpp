@@ -134,6 +134,8 @@ namespace jop
 
         std::unique_ptr<b2World> m_worldData2D;             ///< The world data
         
+        float m_step;
+
     };
 }
 

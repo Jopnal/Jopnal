@@ -69,6 +69,10 @@ namespace jop
         ///
         virtual ~Collider2D() override = 0;
 
+        /// \brief Update inherited from Component
+        ///
+        void update();
+
     public:
 
         /// \brief Check if this collider overlaps with another
@@ -132,13 +136,25 @@ namespace jop
     protected:
 
 
+        class maikuerycoolpak : public b2QueryCallback
+        {
+        public:
+            std::vector<b2Body*> found;
+
+            bool reportFix(b2Fixture* fix)
+            {
+                found.push_back(fix->GetBody());
+                return true;
+            }
+        };
+
+
+        b2Body* m_body;         ///< pointer to a body in m_worldRef2D - Collider2D
+        
+        World2D& m_worldRef2D;  ///< Reference to the world
 
         
-        b2Body* m_body;      ///< Body data
-        World2D& m_worldRef2D;                              ///< Reference to the world
-
         
     };
 }
-
 #endif

@@ -19,54 +19,42 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    RectangleShape2D::RectangleShape2D(const std::string& name)
+        : CollisionShape2D(name)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool RectangleShape2D::load(const float size)
     {
-    private:
+        return load(float(size));
+    }
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
+    //////////////////////////////////////////////
 
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
+    bool RectangleShape2D::load(const b2Vec2& extents)
+    {
+        const b2Vec2 half = b2Vec2(extents.x * 0.5f, extents.y * 0.5f);
 
-    protected:
+        const b2Vec2 points[] =
+        {
+            b2Vec2( -half.x, -half.y),
+            b2Vec2(  half.x, -half.y),
+            b2Vec2(  half.x,  half.y),
+            b2Vec2( -half.x,  half.x)
+        };
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CollisionShape(const std::string& name);
+        m_shape = std::make_unique<b2PolygonShape>(points[0]);
+        m_shape->setUserPointer(this);
 
-        
-    public:
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~CollisionShape() override = 0;
-
-
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
-    };
+        return true;
+    }
 }
-
-#endif

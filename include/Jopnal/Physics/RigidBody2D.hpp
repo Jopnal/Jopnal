@@ -34,7 +34,7 @@ class World2D;
 
 namespace jop
 {
-    class CollisionShape;
+    class CollisionShape2D;
 
 
     class JOP_API RigidBody2D : public Collider2D
@@ -61,14 +61,6 @@ namespace jop
             KinematicSensor ///< User-animated
         };
 
-        enum Shapes2D : unsigned int
-        {
-            circle = 0,
-            edge,
-            polygon,
-            chain
-        };
-
 
         /// Rigid body construction info
         ///
@@ -89,22 +81,21 @@ namespace jop
             /// \param type Body type
             /// \param mass Mass, will default to 0 when type is static or kinematic
             ///
-            ConstructInfo2D(const CollisionShape& shape, const Type type = Type::Static, const float mass = 0.f);
+            ConstructInfo2D(const CollisionShape2D& shape, const Type type = Type::Static, const float mass = 0.f);
 
             int16 group;            ///< Collision filter group
             int16 mask;             ///< Collision filter mask
 
             float friction;         ///< Friction
-            float rollingFriction;  ///< Rolling friction
             float restitution;      ///< Restitution
 
             /// Set this true to enable contact callbacks.
             /// This is false by default due to performance concerns.
-            bool enableContactCallback;
+            bool enableContactCallback;         //needed?
 
         private:
 
-            const CollisionShape& m_shape;  ///< Collision shape
+            const CollisionShape2D& m_shape;  ///< Collision shape
             const Type m_type;              ///< Body type
             const float m_mass;             ///< Mass
         };
@@ -123,110 +114,58 @@ namespace jop
         ///
         virtual ~RigidBody2D() override;
 
-
-        /// \brief Set gravity to the rigid body object
+        /// \brief Set gravity scaling to the rigid body object
         ///
-        /// \comm setBodyGravity
+        /// \comm setGravityScale
         ///
-        /// \param acceleration Amount of the gravity to be applied as vector
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& setGravity(const b2Vec2& acceleration);
-
-        /// \brief Get the gravity
-        ///
-        b2Vec2 getGravity() const;
-
-        /// \brief Sets the linear factor for rigid body
-        ///
-        /// \comm setLinearFactor
-        ///
-        /// \param linearFactor Unique vector for linear factor
+        /// \param scale Scale of the gravity to be applied as float
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& setLinearFactor(const b2Vec2& linearFactor);
+        RigidBody2D& setGravityScale(const float scale);
 
-        /// \brief Gets the linear factor as glm::vec3 
+        /// \brief Get the gravity scale
         ///
-        b2Vec2 getLinearFactor() const;
+        float getGravityScale() const;
 
-        /// \brief Sets the angular factor for rigid body
+        /// \brief Sets the linear velocity for rigid body
         ///
-        /// \comm setAngularFactor
+        /// \comm setLinearVelocity
         ///
-        /// \param angularFactor Unique vector for angular factor
+        /// \param linearVelocity Unique vector for linear velocity
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& setAngularFactor(const b2Vec2& angularFactor);
+        RigidBody2D& setLinearVelocity(const glm::vec2& linearVelocity);
 
-        /// \brief Gets the angular factor as glm::vec3 
+        /// \brief Gets the linear velocity as glm::vec2
         ///
-        b2Vec2 getAngularFactor() const;
+        glm::vec2 getLinearVelocity() const;
+
+        /// \brief Sets the angular velocity for rigid body
+        ///
+        /// \comm setAngularVelocity
+        ///
+        /// \param angularVelocity Unique float for angular velocity
+        ///
+        /// \return Reference to self
+        ///
+        RigidBody2D& setAngularVelocity(const float angularVelocity);
+
+        /// \brief Gets the angular velocity as float
+        ///
+        float getAngularVelocity() const;
 
         /// \brief Applies constant force to rigid bodies relative position
         ///
         /// \comm applyForce
         ///
         /// \param force Amount and direction of the force 
-        /// \param rel_pos Vector for the relative position on rigid body that the force applies on
+        /// \param worldPoint Vector for a point in the world that the force is applied to relative to the rigid body
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
-
-        /// \brief Applies an impulse to rigid bodies relative position
-        ///
-        /// \comm applyImpulse
-        ///
-        /// \param impulse Amount and direction of the impulse
-        /// \param rel_pos Vector for the relative position on rigid body that the impulse applies on
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos);
-
-        /// \brief Applies torque to the rigid body
-        ///
-        /// \comm applyTorque
-        ///
-        /// \param torque Amount and direction as vector of the applied torque
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& applyTorque(const glm::vec3& torque);
-
-        /// \brief Applies torque impulse to the rigid body
-        ///
-        /// \comm applyTorqueImpulse
-        ///
-        /// \param torque Amount and direction as vector of the applied torque
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& applyTorqueImpulse(const glm::vec3& torque);
-
-        /// \brief Sets linear velocity to the rigid body
-        ///
-        /// \comm setLinearVelocity
-        ///
-        /// \param linearVelocity Amount and direction of the linear velocity 
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& setLinearVelocity(const glm::vec3& linearVelocity);
-
-        /// \brief Sets angular velocity to the rigid body
-        ///
-        /// \comm setAngularVelocity
-        ///
-        /// \param angularVelocity Amount and direction of the angular velocity
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody2D& setAngularVelocity(const glm::vec3& angularVelocity);
+        RigidBody2D& applyForce(const glm::vec2& force, const glm::vec2& worldPoint);
 
         /// \brief Applies force to the rigid body's center 
         ///
@@ -236,25 +175,59 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& applyCentralForce(const glm::vec3& force);
+        RigidBody2D& applyCentralForce(const glm::vec2& force);
+
+        /// \brief Applies an impulse to rigid bodies relative position
+        ///
+        /// \comm applyImpulse
+        ///
+        /// \param impulse Amount of the impulse
+        ///
+        /// \return Reference to self
+        ///
+        RigidBody2D& applyAngularImpulse(const float& impulse);
+
+        /// \brief Applies an impulse to rigid bodies relative position
+        ///
+        /// \comm applyImpulse
+        ///
+        /// \param impulse Amount and direction of the impulse
+        /// \param point Vector for a point in world that the impulse is applied to relative to the rigid body
+        ///
+        /// \return Reference to self
+        ///
+        RigidBody2D& applyLinearImpulse(const glm::vec2& impulse, const glm::vec2& point);
 
         /// \brief Applies impulse to the rigid body's center
         ///
         /// \comm applyCentralImpulse
         ///
-        /// \param impulse Amount and direction of the applies impulse
+        /// \param impulse Amount and direction of the impulse
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& applyCentralImpulse(const glm::vec3& impulse);
+        RigidBody2D& applyCentralImpulse(const glm::vec2& impulse);
 
-        /// \brief Clear all the forces affecting this body
+        /// \brief Applies torque to the rigid body
         ///
-        /// \comm clearForces
+        /// \comm applyTorque
+        ///
+        /// \param torque Amount and direction as vector of the applied torque
         ///
         /// \return Reference to self
         ///
-        RigidBody2D& clearForces();
+        RigidBody2D& applyTorque(const float torque);
+
+        /// \brief Sets/unsets the body to constantly rotate
+        ///
+        /// \comm setFixedRotation
+        ///
+        /// \param rot Boolean for setting the body to constantly rotate. Resets the mass of the body.
+        ///
+        /// \return Reference to self
+        ///
+        RigidBody2D& setFixedRotation(const bool rot);
+
 
     protected:
 
@@ -271,7 +244,7 @@ namespace jop
         void setActive(const bool active) final override;
 
 
-        b2Body* m_rigidBody2D;   
+        
         
     };
 }
