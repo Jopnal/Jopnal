@@ -447,6 +447,18 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape2D.hpp">
       <Filter>Physics\Headers\Shape2D</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\RayInfo2D.hpp">
+      <Filter>Physics\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\CircleShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -732,6 +744,18 @@
       <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\RayInfo2D.cpp">
+      <Filter>Physics\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\CircleShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape2D.cpp">
       <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
   </ItemGroup>

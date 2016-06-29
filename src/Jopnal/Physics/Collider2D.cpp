@@ -48,20 +48,23 @@ namespace jop
 
     void Collider2D::update()
     {
-        if (m_body->GetType() == b2BodyType::b2_dynamicBody)
+        switch (m_body->GetType())
+        {
+        case b2BodyType::b2_dynamicBody:
         {
             auto& pos = m_body->GetPosition();
             getObject()->setPosition(pos.x, pos.y, 0.f);
             getObject()->setRotation(0.f, 0.f, m_body->GetAngle());
+            break;
         }
-        else if (m_body->GetType() == b2BodyType::b2_kinematicBody)
+        case b2BodyType::b2_kinematicBody:
         {
             auto& pos = getObject()->getGlobalPosition();
-
             m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
+            break;
+        }
         }
     }
-
 
     //////////////////////////////////////////////
 
@@ -82,16 +85,15 @@ namespace jop
 
         cb.bod = other.m_body;
 
-
-
-        auto fixList = m_body->GetFixtureList();
+        auto fixList = this->m_body->GetFixtureList();
         b2AABB totalaabb(fixList->GetAABB(0));
 
-        while (fixList = fixList->GetNext())
+        while (fixList)
         {
             totalaabb.Combine(fixList->GetAABB(0));
+            fixList->GetNext();
         }
-        m_worldRef2D.m_worldData2D->QueryAABB(&cb, totalaabb);
+        this->m_worldRef2D.m_worldData2D->QueryAABB(&cb, totalaabb);
 
         return cb.overlapping;
     }
@@ -100,30 +102,23 @@ namespace jop
 
     bool Collider2D::checkContact(const Collider2D& other) const
     {
-        struct Callback : b2QueryCallback
-        {
-            bool contact = false;
-            const b2Body* bod = nullptr;
+        return other.m_body->GetContactList()->other == m_body->GetContactList()->other;
+    }
 
-            bool ReportFixture(b2Fixture* fix) override
+
+    bool Collider2D::checkRay(const glm::vec2& start, const glm::vec2& ray) const
+    {
+        struct Callback : b2RayCastCallback
+        {
+            bool hit = false;
+            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float fraction)
             {
-                contact = bod == fix->GetBody()->GetContactList()->other;
-                return !contact;
+                hit = true;
+                return 0.f;
             }
         } cb;
 
-        cb.bod = other.m_body->GetContactList()->other;
-
-        auto fixList = m_body->GetFixtureList();
-        b2AABB totalaabb(fixList->GetAABB(0));
-
-        while (fixList = fixList->GetNext())
-        {
-            totalaabb.Combine(fixList->GetAABB(0));
-        }
-        m_worldRef2D.m_worldData2D->QueryAABB(&cb, totalaabb);
-
-        return cb.contact;
+        this->m_worldRef2D.m_worldData2D->RayCast(&cb, b2Vec2(start.x, start.y), b2Vec2(start.x + ray.x, start.y + ray.y));
+        return cb.hit;
     }
-
 }

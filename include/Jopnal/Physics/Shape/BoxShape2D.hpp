@@ -19,12 +19,12 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
+#ifndef JOP_BOXSHAPE2D_HPP
+#define JOP_BOXSHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/Physics/Shape/CollisionShape2D.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
+    class JOP_API BoxShape2D final : public CollisionShape2D
     {
     public:
 
@@ -40,20 +40,20 @@ namespace jop
         ///
         /// \param name Name of the resource
         ///
-        RectangleShape2D(const std::string& name);
+        BoxShape2D(const std::string& name);
 
 
         /// \brief Load this shape
         ///
-        /// \param size Size of the rectangle
+        /// \param size Size of the box
         ///
         /// \return True if successful
         ///
-        bool load(const float sizeX, const float sizeY);
+        bool load(const float size);
 
         /// \brief Load this shape using different extents
         ///
-        /// \param extents Extents of the rectangle
+        /// \param extents Extents of the box
         ///
         /// \return True if successful
         ///

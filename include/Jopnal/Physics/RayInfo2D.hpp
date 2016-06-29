@@ -19,12 +19,11 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
+#ifndef JOP_RAYINFO2D_HPP
+#define JOP_RAYINFO2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
 #include <Jopnal/MathInclude.hpp>
 
 //////////////////////////////////////////////
@@ -32,32 +31,26 @@
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
+    class Collider2D;
+
+    struct JOP_API RayInfo2D
     {
-    public:
+        /// \brief Default constructor
+        ///
+        RayInfo2D();
 
         /// \brief Constructor
         ///
-        /// \param name Name of the resource
+        /// \param coll Pointer to the collider
+        /// \param pnt Hit point
+        /// \param norm Hit normal
         ///
-        RectangleShape2D(const std::string& name);
+        RayInfo2D(Collider2D* coll, const glm::vec2& pnt, const glm::vec2& norm);
 
 
-        /// \brief Load this shape
-        ///
-        /// \param size Size of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float sizeX, const float sizeY);
-
-        /// \brief Load this shape using different extents
-        ///
-        /// \param extents Extents of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec2& extents);
+        Collider2D* collider; ///< Collider component, can be nullptr
+        glm::vec2 point;    ///< Ray hit point in world coordinates
+        glm::vec2 normal;   ///< Local ray hit normal
     };
 }
 

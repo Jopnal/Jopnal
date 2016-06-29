@@ -33,27 +33,36 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RectangleShape2D::load(const float size)
+    bool RectangleShape2D::load(const float sizeX, const float sizeY)
     {
-        return load(float(size));
+        return load(glm::vec2(sizeX, sizeY));
     }
 
     //////////////////////////////////////////////
 
-    bool RectangleShape2D::load(const b2Vec2& extents)
+    bool RectangleShape2D::load(const glm::vec2& extents)
     {
         const b2Vec2 half = b2Vec2(extents.x * 0.5f, extents.y * 0.5f);
 
         const b2Vec2 points[] =
         {
-            b2Vec2( -half.x, -half.y),
-            b2Vec2(  half.x, -half.y),
-            b2Vec2(  half.x,  half.y),
-            b2Vec2( -half.x,  half.x)
+            b2Vec2(-half.x, -half.y),
+            b2Vec2(half.x, -half.y),
+            b2Vec2(half.x, half.y),
+            b2Vec2(-half.x, half.x)
         };
 
-        m_shape = std::make_unique<b2PolygonShape>(points[0]);
-        m_shape->setUserPointer(this);
+        
+
+        b2PolygonShape ps;
+
+        //all shape members must be set here by hand??
+
+        ps.Set(points, 4); //too hardcode? //a rectangle has four corners[citation needed]
+
+        m_shape = std::make_unique<b2PolygonShape>(ps);
+
+        //m_shape->setUserPointer(this); //do we need something like this? //from bullet
 
         return true;
     }

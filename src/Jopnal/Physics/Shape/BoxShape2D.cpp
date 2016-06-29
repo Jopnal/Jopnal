@@ -19,46 +19,35 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
+    BoxShape2D::BoxShape2D(const std::string& name)
+        : CollisionShape2D(name)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool BoxShape2D::load(const float size)
     {
-    public:
+        return load(glm::vec2(size));
+    }
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        RectangleShape2D(const std::string& name);
+    //////////////////////////////////////////////
 
+    bool BoxShape2D::load(const glm::vec2& extents)
+    {
+        b2PolygonShape ps;
+        ps.SetAsBox(extents.x, extents.y);
+        m_shape = std::make_unique<b2PolygonShape>(ps);
 
-        /// \brief Load this shape
-        ///
-        /// \param size Size of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float sizeX, const float sizeY);
+       // m_shape->setUserPointer(this);
 
-        /// \brief Load this shape using different extents
-        ///
-        /// \param extents Extents of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec2& extents);
-    };
+        return true;
+    }
 }
-
-#endif

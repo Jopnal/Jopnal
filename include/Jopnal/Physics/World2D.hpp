@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
+#include <Jopnal/Physics/RayInfo2D.hpp>
 #include <memory>
 
 
@@ -88,7 +88,7 @@ namespace jop
         ///
         /// \return Ray hit info
         ///
-        RayInfo checkRayClosest(const b2Vec2 start, const b2Vec2 ray, const short group = 1, const short mask = 32767) const;
+        RayInfo2D checkRayClosest(const glm::vec2 start, const glm::vec2 ray, const short group = 1, const short mask = 32767) const;
 
         /// \brief Check if a ray hits a collider and return all hits
         ///
@@ -99,7 +99,7 @@ namespace jop
         ///
         /// \return Vector of ray infos, empty if none were hit
         ///
-        std::vector<RayInfo> checkRayAllHits(const b2Vec2& start, const b2Vec2& ray, const short group = 1, const short mask = 32767) const;
+        std::vector<RayInfo2D> checkRayAllHits(const glm::vec2& start, const glm::vec2& ray, const short group = 1, const short mask = 32767) const;
 
         /// \brief Get all the colliders that overlap with the bounding box
         ///
@@ -110,7 +110,7 @@ namespace jop
         ///
         /// \return Vector of colliders, empty if none were overlapping
         ///
-        std::vector<Collider2D*> checkOverlapAll(const b2Vec2& aabbStart, const b2Vec2& aabbEnd, const short group = 1, const short mask = 32767) const;
+        std::vector<Collider2D*> checkOverlapAll(const glm::vec2& aabbStart, const glm::vec2& aabbEnd, const short group = 1, const short mask = 32767) const;
 
         /// \brief Enable/disable debug drawing
         ///
@@ -127,13 +127,14 @@ namespace jop
         bool debugMode() const;
 
         
-
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
 
         std::unique_ptr<b2World> m_worldData2D;             ///< The world data
-        
+
+    private:
+
         float m_step;
 
     };

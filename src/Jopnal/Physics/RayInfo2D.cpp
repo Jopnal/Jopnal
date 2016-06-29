@@ -19,46 +19,23 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
-    {
-    public:
+    RayInfo2D::RayInfo2D()
+        : collider  (nullptr),
+          point     (),
+          normal    ()
+    {}
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        RectangleShape2D(const std::string& name);
-
-
-        /// \brief Load this shape
-        ///
-        /// \param size Size of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float sizeX, const float sizeY);
-
-        /// \brief Load this shape using different extents
-        ///
-        /// \param extents Extents of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec2& extents);
-    };
+    RayInfo2D::RayInfo2D(Collider2D* coll, const glm::vec2& pnt, const glm::vec2& norm)
+        : collider  (coll),
+          point     (pnt),
+          normal    (norm)
+    {}
 }
-
-#endif

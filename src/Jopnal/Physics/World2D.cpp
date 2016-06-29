@@ -30,27 +30,23 @@
 namespace jop
 {
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, 0),
-        m_worldData2D       (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-        m_step              (0.f)
+        : Drawable(obj, renderer, 0),
+        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+        m_step(0.f)
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
         m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
 
-        
-        //m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
-        //m_worldData->world->setWorldUserInfo(this);
-        
-        setDebugMode(false);
-
-        setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
+        //setDebugMode(false);
+        //setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
     }
 
     World2D::~World2D()
     {
         // Need to define destructor because of forward declarations
-        delete &m_worldData2D; //?
+
+        delete &m_worldData2D; //Is this correct?
     }
 
     //////////////////////////////////////////////
@@ -73,12 +69,16 @@ namespace jop
         {
             float* val;
             Callback(float* _val, const char* str) : val(_val)
-            {SettingManager::registerCallback(str, *this);}
+            {
+                SettingManager::registerCallback(str, *this);
+            }
             void valueChanged(const unsigned int& value) override
-            {*val = 1.f / static_cast<float>(value);}
+            {
+                *val = 1.f / static_cast<float>(value);
+            }
         } cb(&timeStep, str);
 
-        
+
         m_step = std::min(0.1f, m_step + deltaTime);
         while (m_step >= timeStep)
         {
@@ -87,141 +87,163 @@ namespace jop
             m_worldData2D->ClearForces(); //to clear or not to clear?
         }
 
-        
-        
+
+
     }
 
     //////////////////////////////////////////////
 
     void World2D::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
-    #ifdef JOP_DEBUG_MODE
-      // if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
-      // {
-      //     static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
-      //     m_worldData->world->debugDrawWorld2D();
-      // }
-    #else
+#ifdef JOP_DEBUG_MODE
+        // if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
+        // {
+        //     static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
+        //     m_worldData->world->debugDrawWorld2D();
+        // }
+#else
         camera;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
 
     void World2D::setDebugMode(const bool enable)
     {
-    #ifdef JOP_DEBUG_MODE
+#ifdef JOP_DEBUG_MODE
         static const int debugField = btIDebugDraw::DBG_DrawAabb
-                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
+            | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
 
         //m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
-    #else
+#else
         enable;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
 
     bool World2D::debugMode() const
     {
-    #ifdef JOP_DEBUG_MODE
+        return false; //temp
+#ifdef JOP_DEBUG_MODE
         //return m_worldData->world->getDebugDrawer()->getDebugMode() != btIDebugDraw::DBG_NoDebug;
-    #else
+#else
         return false;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
 
-    RayInfo World2D::checkRayClosest(const b2Vec2 start, const b2Vec2 ray, const short group, const short mask) const
+    RayInfo2D World2D::checkRayClosest(const glm::vec2 start, const glm::vec2 ray, const short group, const short mask) const
     {
-        const b2Vec2 fromTo(start + ray);
-
-        const b2Vec2 rayFromWorld2D(start.x, start.y);
-        const b2Vec2 rayToWorld2D(fromTo.x, fromTo.y);
-
-        //b2RayCastCallback::ReportFixture()
-
-        //btCollisionWorld2D::ClosestRayResultCallback2D cb(rayFromWorld2D, rayToWorld2D);
-        
-        b2RayCastCallback::
-        auto cb = b2RayCastCallback::ReportFixture;
-
-
-        m_worldData2D->world2D->RayCast(cb, rayFromWorld2D, rayToWorld2D);
-        cb.m_collisionFilterGroup = group;
-        cb.m_collisionFilterMask = mask;
-
-        if (cb.hasHit() && cb.m_collisionObject != nullptr)
-            return RayInfo(static_cast<Collider*>(cb.m_collisionObject->getUserPointer()),
-                           glm::vec3(cb.m_hitPointWorld2D.x(), cb.m_hitPointWorld2D.y(), cb.m_hitPointWorld2D.z()),
-                           glm::vec3(cb.m_hitNormalWorld2D.x(), cb.m_hitNormalWorld2D.y(), cb.m_hitNormalWorld2D.z()));
-        
-        return RayInfo();
-    }
-
-    //////////////////////////////////////////////
-
-    std::vector<RayInfo> jop::World2D::checkRayAllHits(const b2Vec2& start, const b2Vec2& ray, const short group, const short mask) const
-    {
-        const glm::vec3 fromTo(start + ray);
-
-        const btVector3 rayFromWorld2D(start.x, start.y, start.z);
-        const btVector3 rayToWorld2D(fromTo.x, fromTo.y, fromTo.z);
-
-        btCollisionWorld2D::AllHitsRayResultCallback cb(rayFromWorld2D, rayToWorld2D);
-        cb.m_collisionFilterGroup = group;
-        cb.m_collisionFilterMask = mask;
-        
-        std::vector<RayInfo> objContainer;
-        m_worldData->world->rayTest(rayFromWorld2D, rayToWorld2D, cb);
-
-        for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
+        struct Callback : b2RayCastCallback
         {
-            const auto& point = cb.m_hitPointWorld2D[i];
-            const auto& normal = cb.m_hitNormalWorld2D[i];
+            RayInfo2D rayData;
+            int group;
+            unsigned int mask;
+            float currentFraction;
 
-            objContainer.push_back(RayInfo(static_cast<Collider*>(cb.m_collisionObjects[i]->getUserPointer()),
-                                           glm::vec3(point.x(), point.y(), point.z()),
-                                           glm::vec3(normal.x(), normal.y(), normal.z())));
-        }
-        
-        return objContainer;
-    }
-
-    //////////////////////////////////////////////
-
-    std::vector<Collider2D*> World2D::checkOverlapAll(const b2Vec2& aabbStart, const b2Vec2& aabbEnd, const short group, const short mask) const
-    {
-        struct Callback : b2QueryCallback //btBroadphaseAabbCallback
-        {
-            std::vector<Collider2D*> vec;
-            short group;
-            short mask;
-
-            bool process(const btBroadphaseProxy* proxy) override
+            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float fraction)
             {
-                if (proxy->m_clientObject && (proxy->m_collisionFilterMask & group) != 0 && (mask & proxy->m_collisionFilterGroup) != 0)
-                    vec.push_back(static_cast<Collider2D*>(static_cast<btCollisionObject*>(proxy->m_clientObject)->getUserPointer()));
-
-                return false;
+                if (fraction < currentFraction && (fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
+                {
+                    currentFraction = fraction;
+                    rayData.collider = static_cast<Collider2D*>(fix->GetBody()->GetUserData());
+                    rayData.normal = glm::vec2(normal.x, normal.y);
+                    rayData.point = glm::vec2(point.x, point.y);
+                }
+                return 1.f;
             }
-
         } cb;
+
+        cb.currentFraction = glm::length(ray);
         cb.group = group;
         cb.mask = mask;
-        
-        m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 
-        return cb.vec;
+        m_worldData2D->RayCast(&cb, b2Vec2(start.x, start.y), b2Vec2(start.x + ray.x, start.y + ray.y));
+
+        return cb.rayData;
+    }
+
+
+    //////////////////////////////////////////////
+
+    std::vector<RayInfo2D> jop::World2D::checkRayAllHits(const glm::vec2& start, const glm::vec2& ray, const short group, const short mask) const
+    {
+        struct Callback : b2RayCastCallback
+        {
+            std::vector<RayInfo2D> hits;
+            int group;
+            unsigned int mask;
+
+
+            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float fraction)
+            {
+                if ((fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
+                {
+                    hits.emplace_back(RayInfo2D(static_cast<Collider2D*>(fix->GetBody()->GetUserData()), glm::vec2(normal.x, normal.y), glm::vec2(point.x, point.y)));
+                }
+                return 1.f;
+            }
+        } cb;
+
+        cb.group = group;
+        cb.mask = mask;
+
+        m_worldData2D->RayCast(&cb, b2Vec2(start.x, start.y), b2Vec2(start.x + ray.x, start.y + ray.y));
+
+        return cb.hits;
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<Collider2D*> World2D::checkOverlapAll(const glm::vec2& aabbStart, const glm::vec2& aabbEnd, const short group, const short mask) const
+    {
+        struct Callback : b2QueryCallback
+        {
+            std::vector<Collider2D*> overlaps;
+            bool overlapping = false;
+            int group;
+            unsigned int mask;
+
+            bool ReportFixture(b2Fixture* fix) override
+            {
+                if ((fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
+                {
+                    overlaps.push_back(static_cast<Collider2D*>(fix->GetUserData()));
+                }
+                return !overlapping;
+            }
+        } cb;
+
+        cb.group = group;
+        cb.mask = mask;
+
+        auto bodList = this->m_worldData2D->GetBodyList();
+        auto fixList = bodList->GetFixtureList();
+        b2AABB totalaabb(fixList->GetAABB(0));
+
+        while (bodList)
+        {
+            while (fixList)
+            {
+                totalaabb.Combine(fixList->GetAABB(0));
+                fixList->GetNext();
+            }
+            bodList->GetNext();
+        }
+
+        this->m_worldData2D->QueryAABB(&cb, totalaabb);
+
+        return cb.overlaps;
     }
 
     //////////////////////////////////////////////
 
     Message::Result World2D::receiveMessage(const Message& message)
     {
-        if (JOP_EXECUTE_COMMAND(World2D, message.getString(), this) == Message::Result::Escape)
-            return Message::Result::Escape;
+        // if (JOP_EXECUTE_COMMAND(World2D, message.getString(), this) == Message::Result::Escape)
+        //    return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

@@ -109,10 +109,6 @@ namespace jop
         fdf.density = info.m_mass / fdf.shape->m_radius;
 
         m_body->CreateFixture(&fdf);
-
-
-
-
     }
 
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)

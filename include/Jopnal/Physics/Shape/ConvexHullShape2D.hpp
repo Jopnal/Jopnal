@@ -19,20 +19,21 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
+#ifndef JOP_STATICMESHSHAPE2D_HPP
+#define JOP_STATICMESHSHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/Physics/Shape/CollisionShape2D.hpp>
 #include <Jopnal/MathInclude.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
+    class JOP_API ConvexHullShape2D final : public CollisionShape2D
     {
     public:
 
@@ -40,24 +41,35 @@ namespace jop
         ///
         /// \param name Name of the resource
         ///
-        RectangleShape2D(const std::string& name);
+        ConvexHullShape2D(const std::string& name);
 
 
         /// \brief Load this shape
         ///
-        /// \param size Size of the rectangle
+        /// \param points Unindexed vertices (triangles)
         ///
         /// \return True if successful
-        ///
-        bool load(const float sizeX, const float sizeY);
+        /// 
+        bool load(const std::vector<glm::vec2>& points);
 
-        /// \brief Load this shape using different extents
+        /// \brief Load this shape using indexed points
         ///
-        /// \param extents Extents of the rectangle
+        /// Make sure that the indices are within the bounds of the vertex array. This function
+        /// will not check for overflows.
+        ///
+        /// \param points Indexed vertices (triangles)
+        /// \param indices Indices
         ///
         /// \return True if successful
         ///
-        bool load(const glm::vec2& extents);
+        bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
+
+
+        /// \brief Get the default mesh shape
+        ///
+        /// \return Reference to the shape
+        ///
+        static ConvexHullShape2D& getDefault();
     };
 }
 

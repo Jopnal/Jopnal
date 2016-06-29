@@ -19,20 +19,19 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLESHAPE2D_HPP
-#define JOP_RECTANGLESHAPE2D_HPP
+#ifndef JOP_CIRCLESHAPE2D_HPP
+#define JOP_CIRCLESHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Physics/Shape/CollisionShape2D.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleShape2D final : public CollisionShape2D
+    class JOP_API CircleShape2D final : public CollisionShape2D
     {
     public:
 
@@ -40,24 +39,16 @@ namespace jop
         ///
         /// \param name Name of the resource
         ///
-        RectangleShape2D(const std::string& name);
+        CircleShape2D(const std::string& name);
 
-
-        /// \brief Load this shape
-        ///
-        /// \param size Size of the rectangle
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float sizeX, const float sizeY);
 
         /// \brief Load this shape using different extents
         ///
-        /// \param extents Extents of the rectangle
+        /// \param radius Radius of the circle
         ///
         /// \return True if successful
         ///
-        bool load(const glm::vec2& extents);
+        bool load(const float radius);
     };
 }
 

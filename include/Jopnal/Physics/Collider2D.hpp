@@ -101,7 +101,7 @@ namespace jop
         ///
         /// \return True if the ray pierces this collider
         ///
-        bool checkRay(const b2Vec2& start, const b2Vec2& ray) const;
+        bool checkRay(const glm::vec2& start, const glm::vec2& ray) const;
 
         /// \brief Get the world this collider belongs to
         ///
@@ -119,42 +119,24 @@ namespace jop
         ///
         /// \param other The other collider that was overlapped
         ///
-        virtual void beginOverlap(const Collider2D& other);
+        //virtual void beginOverlap(const Collider2D& other);
 
         /// \brief Overlap end callback
         ///
         /// \param other The other collider that was overlapping
         ///
-        virtual void endOverlap(const Collider2D& other);
+        //virtual void endOverlap(const Collider2D& other);
 
         /// \brief Activity setter
         ///
         /// For internal use
         ///
-        virtual void setActive(const bool) override = 0;
+        //virtual void setActive(const bool) override = 0;
 
     protected:
 
-
-        class maikuerycoolpak : public b2QueryCallback
-        {
-        public:
-            std::vector<b2Body*> found;
-
-            bool reportFix(b2Fixture* fix)
-            {
-                found.push_back(fix->GetBody());
-                return true;
-            }
-        };
-
-
-        b2Body* m_body;         ///< pointer to a body in m_worldRef2D - Collider2D
-        
+        b2Body* m_body;         ///< A RigidBody2D
         World2D& m_worldRef2D;  ///< Reference to the world
-
-        
-        
     };
 }
 #endif

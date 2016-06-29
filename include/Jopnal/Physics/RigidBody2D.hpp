@@ -239,13 +239,9 @@ namespace jop
         ///
         /// Sets the physics body activity
         ///
-        /// \param active Was the object set active?
+        /// \param active Activate / deactivate the body
         ///
         void setActive(const bool active) final override;
-
-
-        
-        
     };
 }
 
