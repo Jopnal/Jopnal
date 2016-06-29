@@ -36,7 +36,7 @@
 
 #endif
 
-
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ namespace jop
 
     bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps)
     {
-        Image image;
+        Image image("");
         return image.load(path) && load(image, srgb, genMipmaps);
     }
 
@@ -102,14 +102,60 @@ namespace jop
 
     bool Texture2D::load(const Image& image, const bool srgb, const bool genMipmaps)
     {
-        return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
+        if (!image.isCompressed())
+            return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
+        else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
+        {
+            destroy();
+            bind();
+
+            m_size = image.getSize();
+            setPixelStore(1);
+
+            const unsigned int blockSize = (image.getFormat() == Image::Format::DXT1RGBA) ? 8 : 16;
+
+            const unsigned int mipMapCount = image.getMipMapCount();
+            unsigned int offset = 0;
+            unsigned int width = m_size.x;
+            unsigned int height = m_size.y;
+
+
+            for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
+            {
+                unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+
+                static const GLenum formatEnum[] =
+                {
+                    GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+                    GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+                    GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+                };
+
+                glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 3], width, height, 0, imageSize, image.getPixels() + offset);
+
+                offset += imageSize;
+                width /= 2;
+                height /= 2;
+
+                // For non-power-of-two sized textures
+                if (width < 1)
+                    width = 1;
+                if (height < 1)
+                    height = 1;
+            }
+
+            return true;
+        }
     }
 
     //////////////////////////////////////////////
 
     bool Texture2D::load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps)
     {
-        Image image;
+        Image image("");
         return image.load(ptr, size) && load(image, srgb, genMipmaps);
     }
 
@@ -153,7 +199,7 @@ namespace jop
     {
         // If empty texture
         if (!getHandle())
-            return Image();
+            return Image("");
         std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
 
     #ifdef JOP_OPENGL_ES   
@@ -181,7 +227,7 @@ namespace jop
         
     #endif
 
-        Image image;
+        Image image("");
         image.load(m_size, m_bytesPerPixel, &pixels[0]);
         return image;
     }
@@ -241,16 +287,37 @@ namespace jop
 
     //////////////////////////////////////////////
 
-        
     Texture2D& Texture2D::getError()
     {
-        return CompressedTexture2D::getError();
+        static WeakReference<Texture2D> errTex;
+
+        if (errTex.expired())
+        {
+            errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
+
+            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, false), "Failed to load error 2D texture!");
+
+            errTex->setPersistence(0);
+        }
+
+        return *errTex;
     }
 
     //////////////////////////////////////////////
 
     Texture2D& Texture2D::getDefault()
     {
-        return CompressedTexture2D::getDefault();
+        static WeakReference<Texture2D> defTex;
+
+        if (defTex.expired())
+        {
+            defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
+
+            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, false), "Failed to load default texture!");
+
+            defTex->setPersistence(0);
+        }
+
+        return *defTex;
     }
 }

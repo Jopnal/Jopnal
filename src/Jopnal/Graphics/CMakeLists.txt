@@ -8,7 +8,6 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/Buffer.hpp
     ${__INCDIR_GRAPHICS}/Camera.hpp
     ${__INCDIR_GRAPHICS}/Color.hpp
-	${__INCDIR_GRAPHICS}/CompressedImage.hpp
     ${__INCDIR_GRAPHICS}/Drawable.hpp
     ${__INCDIR_GRAPHICS}/EnvironmentRecorder.hpp
     ${__INCDIR_GRAPHICS}/Font.hpp
@@ -46,9 +45,7 @@ source_group("Graphics\\Headers\\Mesh" FILES ${__INC_GRAPHICS_MESH})
 list(APPEND SRC ${__INC_GRAPHICS_MESH})
 
 # Include - Texture
-set(__INC_GRAPHICS_TEXTURE
-	${__INCDIR_GRAPHICS}/Texture/CompressedCubemap.hpp	
-	${__INCDIR_GRAPHICS}/Texture/CompressedTexture2D.hpp
+set(__INC_GRAPHICS_TEXTURE	
     ${__INCDIR_GRAPHICS}/Texture/Cubemap.hpp
     ${__INCDIR_GRAPHICS}/Texture/CubemapDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp
@@ -72,7 +69,6 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/Buffer.cpp
     ${__SRCDIR_GRAPHICS}/Camera.cpp
     ${__SRCDIR_GRAPHICS}/Color.cpp
-	${__SRCDIR_GRAPHICS}/CompressedImage.cpp
     ${__SRCDIR_GRAPHICS}/Drawable.cpp
     ${__SRCDIR_GRAPHICS}/EnvironmentRecorder.cpp
     ${__SRCDIR_GRAPHICS}/Font.cpp
@@ -111,8 +107,6 @@ list(APPEND SRC ${__SRC_GRAPHICS_MESH})
 
 # Source - Texture
 set(__SRC_GRAPHICS_TEXTURE
-	${__SRCDIR_GRAPHICS}/Texture/CompressedCubemap.cpp
-	${__SRCDIR_GRAPHICS}/Texture/CompressedTexture2D.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Cubemap.cpp
     ${__SRCDIR_GRAPHICS}/Texture/CubemapDepth.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Texture.cpp

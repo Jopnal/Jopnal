@@ -51,13 +51,10 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/CompressedImage.hpp>
-#include <Jopnal/Graphics/Texture/CompressedTexture2D.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/Image.hpp>
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Text.hpp>
-#include <Jopnal/Graphics/Texture/CompressedCubemap.hpp>
 
 //////////////////////////////////////////////
 

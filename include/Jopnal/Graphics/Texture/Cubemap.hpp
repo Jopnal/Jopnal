@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Texture/Texture.hpp>
+#include <Jopnal/Graphics/Image.hpp>
 
 //////////////////////////////////////////////
 
@@ -40,7 +41,6 @@ namespace jop
         /// \param name Name of this resource
         ///
         Cubemap(const std::string& name);
-
 
         /// \brief Load a cube map from files
         ///
@@ -69,12 +69,30 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const unsigned int bpp, const bool srgb, const bool genMipmaps);
 
+        /// \brief Load from .dds file
+        ///
+        /// Creates Image object and calls its load from file method
+        /// NOTE: Only use this with compressed .dds images that contain a full cubemap (6 faces)
+        ///
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const std::string& path, bool srgb);
+
+        /// \brief Load cubemap from compressed image containing a cubemap (.dds format)
+        ///
+        /// Gets 6 faces from the compressed image and goes through them and their mipmaps
+        /// NOTE: Only use this with compressed .dds images that contain a full cubemap (6 faces)
+        ///
+        /// \param image Compressed image containing a cubemap (.dds)
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const Image& compressedImage, bool srgb);
+
         /// \brief Get the texture size
         ///
         /// \return The size
         ///
         glm::uvec2 getSize() const override;
-
 
         /// \brief Get the error texture
         ///
