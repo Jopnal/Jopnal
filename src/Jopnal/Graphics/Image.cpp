@@ -29,6 +29,10 @@
 
 #endif
 
+#define IMAGE_DXT_IMPLEMENTATION
+#include <Jopnal/Graphics/SOIL/image_DXT.h>
+
+#define STBI_NO_DDS
 #define STB_IMAGE_IMPLEMENTATION
 #include <Jopnal/Graphics/stb/stb_image_aug.h>
 
@@ -64,12 +68,19 @@ namespace jop
         if (!f.open(path))
             return false;
 
+        
         // DDS Header
         unsigned char ddsheader[124];
 
         // Read in - ddsheader
         f.seek(4); // "DDS "
         f.read(ddsheader, sizeof(ddsheader));
+
+        //// Check if file is DDS
+        //if (stbi_dds_test_memory(ddsheader, sizeof(ddsheader)) == 0)
+        //{
+        //    
+        //}
 
         // DDS Header data       
         unsigned int height = *reinterpret_cast<unsigned int*>(&ddsheader[8]);
@@ -95,9 +106,12 @@ namespace jop
             m_format = Format::DXT5RGBA;
             m_isCompressed = true;
             break;
-        default:
-            std::vector<uint8> buf;
-            return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());   
+        default:        
+                std::vector<uint8> buf;
+                FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());
+                return compress();
+                break;
+            
         }
 
         // Check if loaded image contains a cubemap - check if all in there DDS_CUBEMAP_ALLFACES ?
@@ -217,6 +231,38 @@ namespace jop
     bool Image::isCompressed() const
     {
         return m_isCompressed;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Image::compress()
+    {
+        int size = 0;
+        unsigned char* buf;
+
+        if (m_bytesPerPixel <= 3)
+        {
+
+            buf = convert_image_to_DXT1(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
+
+            m_pixels.resize(size);
+            std::memcpy(&m_pixels[0], buf, size);
+            m_isCompressed = true;
+
+            return true;
+        }
+        else if (m_bytesPerPixel >= 4)
+        {            
+            buf = convert_image_to_DXT5(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
+
+            m_pixels.resize(size);
+            std::memcpy(&m_pixels[0], buf, size);
+            m_isCompressed = true;
+
+            return true;
+        }
+
+        return false;
     }
 
 }

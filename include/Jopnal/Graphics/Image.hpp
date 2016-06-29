@@ -114,6 +114,10 @@ namespace jop
 
     private:
 
+        /// \brief Compress non-compressed image
+        ///
+        bool compress();
+
         std::vector<uint8>  m_pixels;           ///< Pixels in image
         uint32              m_bytesPerPixel;    ///< Image depth
         glm::uvec2          m_size;             ///< Size of the image

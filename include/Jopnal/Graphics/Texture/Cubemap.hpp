@@ -74,6 +74,7 @@ namespace jop
         /// Creates Image object and calls its load from file method
         /// NOTE: Only use this with compressed .dds images that contain a full cubemap (6 faces)
         ///
+        /// \param path Path to file
         /// \param srgb Use SRGB color space?
         ///
         bool load(const std::string& path, bool srgb);
