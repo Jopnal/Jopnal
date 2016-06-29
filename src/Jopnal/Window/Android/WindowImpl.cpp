@@ -29,6 +29,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <android/looper.h>
     #include <unordered_map>
@@ -42,17 +43,22 @@ namespace
 {
     std::unordered_map<EGLContext, jop::Window*> ns_windows;
     jop::detail::WindowImpl* ns_instance = nullptr;
+    EGLSurface ns_sharedSurface = EGL_NO_SURFACE;
     EGLContext ns_shared = EGL_NO_CONTEXT;
 
     void createSurface(EGLSurface* surface, EGLDisplay display, EGLConfig config, EGLNativeWindowType window)
     {
         *surface = eglCheck(eglCreateWindowSurface(display, config, window, NULL));
+
+        JOP_DEBUG_INFO("Window surface created");
     }
 
     void destroySurface(EGLSurface* surface, EGLDisplay display)
     {
         eglCheck(eglDestroySurface(display, *surface));
         *surface = EGL_NO_SURFACE;
+
+        JOP_DEBUG_INFO("Window surface destroyed");
     }
 
     EGLDisplay getDisplay()
@@ -63,11 +69,15 @@ namespace
         return state->display;
     }
 
-    void initialize(EGLConfig config, const EGLint* version)
+    void initialize(EGLConfig config, const EGLint* version, const EGLint* attribs)
     {
         if (!ns_shared)
         {
+            ns_sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
+            JOP_ASSERT(ns_sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
+
             ns_shared = eglCheck(eglCreateContext(getDisplay(), config, EGL_NO_CONTEXT, version));
+            JOP_ASSERT(ns_shared != EGL_NO_CONTEXT, "Failed to create shared context!");
         }
     }
 
@@ -77,6 +87,9 @@ namespace
         {
             eglCheck(eglDestroyContext(getDisplay(), ns_shared));
             ns_shared = EGL_NO_CONTEXT;
+
+            eglCheck(eglDestroySurface(getDisplay(), ns_sharedSurface));
+            ns_sharedSurface = EGL_NO_SURFACE;
         }
     }
 }
@@ -97,29 +110,41 @@ namespace jop { namespace detail
             EGL_CONTEXT_CLIENT_VERSION, 3,
             EGL_NONE
         };
+        const EGLint attribs[] =
+        {
+            EGL_WIDTH,  1,
+            EGL_HEIGHT, 1,
+            EGL_NONE
+        };
 
-        initialize(m_config, version);
-
-        m_context = eglCheck(eglCreateContext(m_display, m_config, ns_shared, version));
-
-        JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
+        initialize(m_config, version, attribs);
 
         if (!ns_instance)
         {
             auto state = detail::ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-            eglCheck(eglSwapInterval(m_display, settings.vSync));
-
             state->fullscreen = settings.displayMode == Window::DisplayMode::Fullscreen;
 
-            ns_instance = this;
 
-            state->init.store(true);
+            //JOP_DEBUG_INFO("Creating surface");
+            //createSurface(&m_surface, m_display, m_config, reinterpret_cast<EGLNativeWindowType>(getNativeHandle()));
+
+            
+
+            ns_instance = this;
+        }
+        else
+        {
+            m_surface = eglCheck(eglCreatePbufferSurface(m_display, m_config, attribs));
+            JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create context surface!");
         }
 
-        EGLBoolean success = eglCheck(eglMakeCurrent(m_display, m_surface, m_surface, m_context));
-        JOP_ASSERT(success == EGL_TRUE, "Failed to set context current!");
+        m_context = eglCheck(eglCreateContext(m_display, m_config, ns_shared, version));
+        JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
+
+        //EGLBoolean success = eglCheck(eglMakeCurrent(m_display, m_surface, m_surface, m_context));
+        //JOP_ASSERT(success == EGL_TRUE, "Failed to set context current!");
 
         ns_windows[m_context] = &windowPtr;
     }
@@ -190,6 +215,7 @@ namespace jop { namespace detail
         {
             createSurface(&inst.m_surface, inst.m_display, inst.m_config, state->nativeWindow);
             eglCheck(eglMakeCurrent(inst.m_display, inst.m_surface, inst.m_surface, inst.m_context));
+
             inst.m_focusRestored = false;
         }
         if (inst.m_focusLost)
@@ -278,9 +304,7 @@ namespace jop { namespace detail
             ns_instance->m_focusRestored = true;
         }
         else
-        {
             ns_instance->m_focusLost = true;
-        }
     }
 
     //////////////////////////////////////////////
@@ -289,16 +313,17 @@ namespace jop { namespace detail
     {
         const EGLint attribs[] =
         {
-            EGL_RED_SIZE,       8,
-            EGL_GREEN_SIZE,     8,
-            EGL_BLUE_SIZE,      8,
-            EGL_ALPHA_SIZE,     0,
+            EGL_RED_SIZE,           8,
+            EGL_GREEN_SIZE,         8,
+            EGL_BLUE_SIZE,          8,
+            EGL_ALPHA_SIZE,         0,
 
-            EGL_DEPTH_SIZE,     0,
-            EGL_STENCIL_SIZE,   0,
+            EGL_DEPTH_SIZE,         0,
+            EGL_STENCIL_SIZE,       0,
 
-            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-            EGL_SAMPLE_BUFFERS, static_cast<EGLint>(settings.samples),
+            EGL_RENDERABLE_TYPE,    EGL_OPENGL_ES2_BIT,
+            EGL_SURFACE_TYPE,       EGL_WINDOW_BIT | EGL_PBUFFER_BIT,
+            EGL_SAMPLE_BUFFERS,     static_cast<EGLint>(settings.samples),
 
             EGL_NONE
         };

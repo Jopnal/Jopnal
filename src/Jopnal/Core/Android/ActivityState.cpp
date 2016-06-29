@@ -25,6 +25,8 @@
 #ifdef JOP_OS_ANDROID
 
 #include <Jopnal/Utility/Assert.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
 #include <Jopnal/Window/Android/WindowImpl.hpp>
 
 //////////////////////////////////////////////
@@ -71,6 +73,7 @@ namespace
 
     void onResume(ANativeActivity* activity)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -83,6 +86,7 @@ namespace
 
     void onPause(ANativeActivity* activity)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -95,6 +99,7 @@ namespace
 
     void onDestroy(ANativeActivity* activity)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         {
@@ -114,6 +119,7 @@ namespace
 
     void onNativeWindowCreated(ANativeActivity* activity, ANativeWindow* window)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -130,6 +136,7 @@ namespace
 
     void onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* window)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -152,6 +159,8 @@ namespace
 
     void onInputQueueCreated(ANativeActivity* activity, AInputQueue* queue)
     {
+        JOP_DEBUG_INFO(__func__);
+
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -162,6 +171,7 @@ namespace
 
     void onInputQueueDestroyed(ANativeActivity* activity, AInputQueue* queue)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -175,6 +185,7 @@ namespace
 
     void onContentRectChanged(ANativeActivity* activity, const ARect* rect)
     {
+        JOP_DEBUG_INFO(__func__);
         auto state = getState(activity);
 
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
@@ -252,7 +263,8 @@ namespace jop { namespace detail
 
         ANativeActivity_setWindowFlags(act, AWINDOW_FLAG_KEEP_SCREEN_ON, AWINDOW_FLAG_KEEP_SCREEN_ON);
 
-        eglInitialize(display, NULL, NULL);
+        EGLBoolean success = eglCheck(eglInitialize(display, NULL, NULL));
+        JOP_ASSERT(success == EGL_TRUE, "Failed to initialize EGL");
 
         // Get the screen size
         {

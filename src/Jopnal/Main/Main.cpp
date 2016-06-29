@@ -77,7 +77,7 @@ extern int main(int argc, char* argv[]);
 
     void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_t savedStateSize)
     {
-        JOP_DEBUG_INFO("Entered Android entry point");
+        JOP_DEBUG_INFO("Entered jopnal-main");
 
         auto state = new jop::detail::ActivityState(activity, savedState, savedStateSize);
 
