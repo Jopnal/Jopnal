@@ -35,12 +35,9 @@ namespace jop
 
     bool CircleShape2D::load(const float radius)
     {
-        b2CircleShape cs;
-        cs.m_radius = radius;
-        m_shape = std::make_unique<b2CircleShape>(cs);
-
-        //m_shape->setUserPointer(this);
-
+        auto temp = std::make_unique<b2CircleShape>();
+        temp->m_radius = radius;
+        m_shape = std::move(temp);
         return true;
     }
 }

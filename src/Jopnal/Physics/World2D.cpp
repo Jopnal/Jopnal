@@ -29,6 +29,24 @@
 
 namespace jop
 {
+
+    namespace detail
+    {
+        class DebugDraw : public b2Draw
+        {
+        public:
+            void DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) {}
+            void DrawPoint(const b2Vec2& p1, float size, const b2Color& color){}
+            void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {}
+            void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {}
+            void DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {}
+            void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {}
+            void DrawTransform(const b2Transform& xf) {}
+            
+        };
+    }
+
+
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable(obj, renderer, 0),
         m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
@@ -38,15 +56,13 @@ namespace jop
 
         m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
 
-        //setDebugMode(false);
-        //setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
+        setDebugMode(true);
+        setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
     }
 
     World2D::~World2D()
     {
         // Need to define destructor because of forward declarations
-
-        delete &m_worldData2D; //Is this correct?
     }
 
     //////////////////////////////////////////////
@@ -96,11 +112,9 @@ namespace jop
     void World2D::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
 #ifdef JOP_DEBUG_MODE
-        // if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
-        // {
-        //     static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
-        //     m_worldData->world->debugDrawWorld2D();
-        // }
+       
+        m_worldData2D->DrawDebugData();
+
 #else
         camera;
 #endif
@@ -111,10 +125,13 @@ namespace jop
     void World2D::setDebugMode(const bool enable)
     {
 #ifdef JOP_DEBUG_MODE
-        static const int debugField = btIDebugDraw::DBG_DrawAabb
-            | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
 
-        //m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
+        detail::DebugDraw dd;
+
+        m_worldData2D->SetDebugDraw(&dd);
+
+        dd.SetFlags(b2Draw::e_shapeBit & b2Draw::e_aabbBit);
+
 #else
         enable;
 #endif
@@ -124,9 +141,9 @@ namespace jop
 
     bool World2D::debugMode() const
     {
-        return false; //temp
 #ifdef JOP_DEBUG_MODE
-        //return m_worldData->world->getDebugDrawer()->getDebugMode() != btIDebugDraw::DBG_NoDebug;
+
+        return true;
 #else
         return false;
 #endif

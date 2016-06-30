@@ -46,7 +46,7 @@ namespace jop
     Collider2D::~Collider2D()
     {}
 
-    void Collider2D::update()
+    void Collider2D::update(const float deltaTime)
     {
         switch (m_body->GetType())
         {
@@ -102,7 +102,14 @@ namespace jop
 
     bool Collider2D::checkContact(const Collider2D& other) const
     {
-        return other.m_body->GetContactList()->other == m_body->GetContactList()->other;
+        for (b2ContactEdge* ce = m_body->GetContactList(); ce; ce = ce->next)
+        {
+            if (ce->other == other.m_body)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

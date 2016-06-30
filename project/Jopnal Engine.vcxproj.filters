@@ -453,9 +453,6 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CircleShape2D.hpp">
       <Filter>Physics\Headers\Shape2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape2D.hpp">
-      <Filter>Physics\Headers\Shape2D</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape2D.hpp">
       <Filter>Physics\Headers\Shape2D</Filter>
     </ClInclude>
@@ -750,9 +747,6 @@
       <Filter>Physics\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CircleShape2D.cpp">
-      <Filter>Physics\Source\Shape2D</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape2D.cpp">
       <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape2D.cpp">

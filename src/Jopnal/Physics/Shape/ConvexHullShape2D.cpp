@@ -44,28 +44,24 @@ namespace jop
     {
 
         //maxpolygonvertices = 8 by default
+        //3 to 8 ok
 
-        if (8 >= points.size() >= 3)
+        if (points.size() <= 2 || points.size() >= 9)
             return false;
 
         else if (indices.empty())
         {
-            b2PolygonShape ps;
-            for (int i = 0; i < points.size(); ++i)
-                ps.m_vertices[i] = b2Vec2(points[i].x, points[i].y);
-
-            m_shape = std::make_unique<b2PolygonShape>(ps);
+            auto temp = std::make_unique<b2PolygonShape>();
+            temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size());
+            m_shape = std::move(temp);
         }
 
         else
         {
-            b2PolygonShape ps;
-            for (auto i : indices)
-                ps.m_vertices[i] = b2Vec2(points[i].x, points[i].y);
-
-            m_shape = std::make_unique<b2PolygonShape>(ps);
+            auto temp = std::make_unique<b2PolygonShape>();
+            temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), indices.size());
+            m_shape = std::move(temp);
         }
-        //m_shape->setUserPointer(this);
         return true;
     }
 
@@ -77,12 +73,19 @@ namespace jop
 
         if (defShape.expired())
         {
-            defShape = static_ref_cast<ConvexHullShape>(ResourceManager::getEmptyResource<ConvexHullShape>("jop_default_staticmeshshape").getReference());
-            defShape->m_shape = std::make_unique<btCapsuleShape>(0.5f, 2.f);
+            defShape = static_ref_cast<ConvexHullShape2D>(ResourceManager::getEmptyResource<ConvexHullShape2D>("jop_default_staticmeshshape2D").getReference());
+            
+            static const std::vector<glm::vec2> points =
+            {
+                glm::vec2(-0.5f, -0.5f),
+                glm::vec2(0.5f, -0.5f),
+                glm::vec2(0.5f, 0.5f),
+                glm::vec2(-0.5f, 0.5f)
+            };
 
+            defShape->load(points);
             defShape->setPersistence(0);
         }
-
         return *defShape;
     }
 }

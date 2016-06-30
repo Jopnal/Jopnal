@@ -28,7 +28,6 @@
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/RigidBody2D.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/BoxShape2D.hpp>
 #include <Jopnal/Physics/Shape/CapsuleShape.hpp>
 #include <Jopnal/Physics/Shape/CircleShape2D.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>

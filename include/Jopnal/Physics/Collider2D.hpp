@@ -71,7 +71,7 @@ namespace jop
 
         /// \brief Update inherited from Component
         ///
-        void update();
+        void update(const float deltaTime) override;
 
     public:
 

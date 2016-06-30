@@ -95,7 +95,6 @@
     <ClInclude Include="..\include\Jopnal\Physics\RigidBody.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\RigidBody2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape.hpp" />
-    <ClInclude Include="..\include\Jopnal\Physics\Shape\BoxShape2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CapsuleShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CircleShape2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape2D.hpp" />
@@ -210,7 +209,6 @@
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\RigidBody2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape.cpp" />
-    <ClCompile Include="..\src\Jopnal\Physics\Shape\BoxShape2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CapsuleShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CircleShape2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape2D.cpp" />
