@@ -45,7 +45,7 @@ source_group("Graphics\\Headers\\Mesh" FILES ${__INC_GRAPHICS_MESH})
 list(APPEND SRC ${__INC_GRAPHICS_MESH})
 
 # Include - Texture
-set(__INC_GRAPHICS_TEXTURE
+set(__INC_GRAPHICS_TEXTURE	
     ${__INCDIR_GRAPHICS}/Texture/Cubemap.hpp
     ${__INCDIR_GRAPHICS}/Texture/CubemapDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp

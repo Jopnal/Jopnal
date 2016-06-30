@@ -41,9 +41,18 @@ namespace jop
 
     public:
 
+        enum class Format
+        {
+            DXT1RGB,
+            DXT1RGBA,
+            DXT3RGBA,
+            DXT5RGBA,
+        }; ///< Compressed image formats
+
+
         /// \brief Default constructor
         ///
-        Image();
+        Image(const std::string& name);
 
         /// \brief Method for using file loader to load new resource from file
         ///
@@ -53,6 +62,11 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        /// \brief Load the image from memory
+        ///
+        /// \param ptr Pointer to data
+        /// \param size Size of the data
+        ///
         bool load(const void* ptr, const uint32 size);
 
         /// \brief Load the image from memory
@@ -85,11 +99,40 @@ namespace jop
         ///
         static bool checkDepthValid(const uint32 depth);
 
+        /// Get internal compressed image format
+        ///
+        /// (DXT1 / DXT3 / DXT5)
+        ///
+        Format getFormat() const;
+
+        /// Get amount of mipmap levels in compressed image
+        ///
+        unsigned int getMipMapCount() const;
+
+        /// \brief Does image contain a cube map?
+        ///
+        bool isCubemap() const;
+
+        /// \brief Is image compressed (DDS)
+        ///
+        bool isCompressed() const;
+
     private:
 
-        glm::uvec2          m_size;             ///< Size of the image
+        /// \brief Compress uncompressed image
+        ///
+        /// Compresses image to DXT1 format if RGB color space
+        /// or DXT5 format if RGBA color space
+        ///
+        bool compress();
+
         std::vector<uint8>  m_pixels;           ///< Pixels in image
         uint32              m_bytesPerPixel;    ///< Image depth
+        glm::uvec2          m_size;             ///< Size of the image
+        Format              m_format;           ///< Compressed image format (DDS)
+        unsigned int        m_mipMapLevels;     ///< Count of mipmap levels (DDS)
+        bool                m_isCubemap;        ///< true if compressed image contains cubemap (DDS)
+        bool                m_isCompressed;     ///< Is image compressed?
     };
 }
 

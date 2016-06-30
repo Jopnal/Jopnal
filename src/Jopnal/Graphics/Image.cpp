@@ -29,22 +29,30 @@
 
 #endif
 
+#define IMAGE_DXT_IMPLEMENTATION
+#include <Jopnal/Graphics/SOIL/image_DXT.h>
+
+#define STBI_NO_DDS
 #define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push)
-#pragma warning(disable: 4189)
-#pragma warning(disable: 4244)
-#include <STB/stb_image.h>
-#pragma warning(pop)
+#include <Jopnal/Graphics/stb/stb_image_aug.h>
 
 //////////////////////////////////////////////
 
+#define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
+#define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
+#define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
 
 namespace jop
 {
-    Image::Image() 
-        : m_size            (0),
+    Image::Image(const std::string& name) 
+        : 
           m_pixels          (),
-          m_bytesPerPixel   (0)
+          m_bytesPerPixel   (0),
+          m_size            (0),
+          m_format          (),
+          m_mipMapLevels    (0),
+          m_isCubemap       (false),
+          m_isCompressed    (false)
     {}
 
     //////////////////////////////////////////////
@@ -54,8 +62,75 @@ namespace jop
         if (path.empty())
             return false;
 
-        std::vector<uint8> buf;
-        return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());
+        FileLoader f;
+
+        if (!f.open(path))
+            return false;
+        
+        // DDS Header
+        unsigned char ddsheader[124];
+
+        // Read in - ddsheader
+        f.seek(4); // "DDS "
+        f.read(ddsheader, sizeof(ddsheader));
+
+        // DDS Header data - DDS_HEADER for reference      
+        unsigned int height = *reinterpret_cast<unsigned int*>(&ddsheader[8]);
+        unsigned int width = *reinterpret_cast<unsigned int*>(&ddsheader[12]);
+        unsigned int linearSize = *reinterpret_cast<unsigned int*>(&ddsheader[16]);
+        m_size = glm::uvec2(width, height);
+        m_mipMapLevels = *reinterpret_cast<unsigned int*>(&ddsheader[24]);
+        unsigned int flags = *reinterpret_cast<unsigned int*>(&ddsheader[76]);
+        unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
+        unsigned int dwCaps2 = *reinterpret_cast<unsigned int*>(&ddsheader[108]);
+
+        // Check compressed image format (DXT1 / DXT3 / DXT5)
+        switch (fourCC)
+        {
+        case FOURCC_DXT1:
+
+            m_format = (flags & 0x1) != 0 ? Format::DXT1RGBA : Format::DXT1RGB;
+            m_isCompressed = true;
+            break;
+        case FOURCC_DXT3:
+            m_format = Format::DXT3RGBA;
+            m_isCompressed = true;
+            break;
+        case FOURCC_DXT5:
+            m_format = Format::DXT5RGBA;
+            m_isCompressed = true;
+            break;
+        default:        
+                std::vector<uint8> buf;
+                if(FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()))
+                    return compress();
+                break;
+            
+        }
+
+        // Check if loaded image contains a cubemap - check if all faces in there DDS_CUBEMAP_ALLFACES ?
+        if (dwCaps2 & 0x200)
+            m_isCubemap = true;
+
+        unsigned int pixelsSize = 0;
+        pixelsSize = m_mipMapLevels > 1 ? linearSize * 2 : linearSize;
+
+        if (m_isCubemap)
+        {
+            pixelsSize *= 6; // Need enough room for 6 images
+            m_pixels.resize(pixelsSize * sizeof(unsigned char));
+            // Read in - compressed pixels
+            f.read(m_pixels.data(), pixelsSize);
+        }
+        else
+        {
+            m_pixels.resize(pixelsSize * sizeof(unsigned char));
+            // Read in - compressed pixels
+            f.read(m_pixels.data(), pixelsSize);
+        }
+        f.close();
+      
+        return true;      
     }
 
     //////////////////////////////////////////////
@@ -66,6 +141,7 @@ namespace jop
         {
             // Clear array
             m_pixels.clear();
+
             m_bytesPerPixel = bytesPerPixel;
             m_size = size;
 
@@ -123,4 +199,76 @@ namespace jop
     {
         return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
     }
+
+    //////////////////////////////////////////////
+
+    Image::Format Image::getFormat() const
+    {
+        return m_format;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Image::getMipMapCount() const
+    {
+        return m_mipMapLevels;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Image::isCubemap() const
+    {
+        return m_isCubemap;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Image::isCompressed() const
+    {
+        return m_isCompressed;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Image::compress()
+    {
+        int size = 0;
+        unsigned char* buf;
+
+        if (m_bytesPerPixel <= 3) // RGB
+        {
+            // Converts image - returns compressed pixels and size of the data
+            buf = convert_image_to_DXT1(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
+
+            if (!buf)
+                return false;
+
+            m_pixels.resize(size);
+            std::memcpy(&m_pixels[0], buf, size);
+            m_isCompressed = true;
+            m_mipMapLevels = 1;
+            m_format = Format::DXT1RGB;
+
+            return true;
+        }
+        else if (m_bytesPerPixel == 4) // RGBA
+        {   
+            // Converts image - returns compressed pixels and size of the data
+            buf = convert_image_to_DXT5(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
+
+            if (!buf)
+                return false;
+
+            m_pixels.resize(size);
+            std::memcpy(&m_pixels[0], buf, size);
+            m_isCompressed = true;
+            m_mipMapLevels = 1;
+            m_format = Format::DXT5RGBA;
+
+            return true;
+        }
+        else
+            return false;
+    }
+
 }

@@ -44,17 +44,28 @@
 #include <Jopnal/Graphics/ShaderAssembler.hpp>
 #include <Jopnal/Graphics/SkyBox.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
+<<<<<<< HEAD
+#include <Jopnal/Graphics/SphereMesh.hpp>
+#include <Jopnal/Graphics/Texture2D.hpp>
+#include <Jopnal/Graphics/Texture2DDepth.hpp>
+#include <Jopnal/Graphics/TextureSampler.hpp>
+=======
 #include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
+#include <Jopnal/Graphics/Text.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
 #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
+>>>>>>> build_system
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/CompressedImage.hpp>
+#include <Jopnal/Graphics/CompressedTexture2D.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/Image.hpp>
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Text.hpp>
+#include <Jopnal/Graphics/CompressedCubemap.hpp>
 
 //////////////////////////////////////////////
 
