@@ -367,8 +367,11 @@ namespace jop
         }
         updateGeometry(); // Update geometry before drawing if necessary
 
+        GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
+
         GlState::setFaceCull(false);
         GenericDrawable::draw(camera, lights, shader);
         GlState::setFaceCull(true);
+        GlState::setDepthTest(true);
     }
 }

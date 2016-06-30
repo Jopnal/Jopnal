@@ -43,10 +43,12 @@ namespace jop
 
         enum class Format
         {
+            DXT1RGB,
             DXT1RGBA,
             DXT3RGBA,
             DXT5RGBA,
-        };
+        }; ///< Compressed image formats
+
 
         /// \brief Default constructor
         ///
@@ -61,6 +63,9 @@ namespace jop
         bool load(const std::string& path);
 
         /// \brief Load the image from memory
+        ///
+        /// \param ptr Pointer to data
+        /// \param size Size of the data
         ///
         bool load(const void* ptr, const uint32 size);
 
@@ -114,7 +119,10 @@ namespace jop
 
     private:
 
-        /// \brief Compress non-compressed image
+        /// \brief Compress uncompressed image
+        ///
+        /// Compresses image to DXT1 format if RGB color space
+        /// or DXT5 format if RGBA color space
         ///
         bool compress();
 
@@ -125,7 +133,6 @@ namespace jop
         unsigned int        m_mipMapLevels;     ///< Count of mipmap levels (DDS)
         bool                m_isCubemap;        ///< true if compressed image contains cubemap (DDS)
         bool                m_isCompressed;     ///< Is image compressed?
-
     };
 }
 

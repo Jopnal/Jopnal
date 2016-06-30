@@ -149,18 +149,22 @@ namespace jop
         unsigned int offset = 0;
         glm::uvec2 size = compressedImage.getSize();
 
-        const unsigned int blockSize = (compressedImage.getFormat() == Image::Format::DXT1RGBA) ? 8 : 16;
+        // 8 bytes for DXT1 and 16 bytes for DXT3/5
+        const unsigned int blockSize = (compressedImage.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
 
         static const GLenum formatEnum[] =
         {
+            GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
             GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
             GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
             GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+            GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
             GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
             GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
             GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
         };
 
+        // Go through 6 faces of the cube map and their mipmaps
         for (size_t i = 0; i < 6; ++i)
         {
             unsigned int width = size.x;
@@ -176,7 +180,7 @@ namespace jop
 
                 unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-                glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, formatEnum[static_cast<int>(compressedImage.getFormat()) + srgb * 3], width, height, 0, imageSize, compressedImage.getPixels() + offset);
+                glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, formatEnum[static_cast<int>(compressedImage.getFormat()) + srgb * 4], width, height, 0, imageSize, compressedImage.getPixels() + offset);
 
                 // Calculate values for next mipmap level
                 offset += imageSize;

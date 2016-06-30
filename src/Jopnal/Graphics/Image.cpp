@@ -42,7 +42,6 @@
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
 #define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
 
-
 namespace jop
 {
     Image::Image(const std::string& name) 
@@ -67,7 +66,6 @@ namespace jop
 
         if (!f.open(path))
             return false;
-
         
         // DDS Header
         unsigned char ddsheader[124];
@@ -76,18 +74,13 @@ namespace jop
         f.seek(4); // "DDS "
         f.read(ddsheader, sizeof(ddsheader));
 
-        //// Check if file is DDS
-        //if (stbi_dds_test_memory(ddsheader, sizeof(ddsheader)) == 0)
-        //{
-        //    
-        //}
-
-        // DDS Header data       
+        // DDS Header data - DDS_HEADER for reference      
         unsigned int height = *reinterpret_cast<unsigned int*>(&ddsheader[8]);
         unsigned int width = *reinterpret_cast<unsigned int*>(&ddsheader[12]);
         unsigned int linearSize = *reinterpret_cast<unsigned int*>(&ddsheader[16]);
         m_size = glm::uvec2(width, height);
         m_mipMapLevels = *reinterpret_cast<unsigned int*>(&ddsheader[24]);
+        unsigned int flags = *reinterpret_cast<unsigned int*>(&ddsheader[76]);
         unsigned int fourCC = *reinterpret_cast<unsigned int*>(&ddsheader[80]);
         unsigned int dwCaps2 = *reinterpret_cast<unsigned int*>(&ddsheader[108]);
 
@@ -95,7 +88,8 @@ namespace jop
         switch (fourCC)
         {
         case FOURCC_DXT1:
-            m_format = Format::DXT1RGBA;
+
+            m_format = (flags & 0x1) != 0 ? Format::DXT1RGBA : Format::DXT1RGB;
             m_isCompressed = true;
             break;
         case FOURCC_DXT3:
@@ -108,13 +102,13 @@ namespace jop
             break;
         default:        
                 std::vector<uint8> buf;
-                FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());
-                return compress();
+                if(FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()))
+                    return compress();
                 break;
             
         }
 
-        // Check if loaded image contains a cubemap - check if all in there DDS_CUBEMAP_ALLFACES ?
+        // Check if loaded image contains a cubemap - check if all faces in there DDS_CUBEMAP_ALLFACES ?
         if (dwCaps2 & 0x200)
             m_isCubemap = true;
 
@@ -147,6 +141,7 @@ namespace jop
         {
             // Clear array
             m_pixels.clear();
+
             m_bytesPerPixel = bytesPerPixel;
             m_size = size;
 
@@ -240,29 +235,40 @@ namespace jop
         int size = 0;
         unsigned char* buf;
 
-        if (m_bytesPerPixel <= 3)
+        if (m_bytesPerPixel <= 3) // RGB
         {
-
+            // Converts image - returns compressed pixels and size of the data
             buf = convert_image_to_DXT1(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
 
+            if (!buf)
+                return false;
+
             m_pixels.resize(size);
             std::memcpy(&m_pixels[0], buf, size);
             m_isCompressed = true;
+            m_mipMapLevels = 1;
+            m_format = Format::DXT1RGB;
 
             return true;
         }
-        else if (m_bytesPerPixel >= 4)
-        {            
+        else if (m_bytesPerPixel == 4) // RGBA
+        {   
+            // Converts image - returns compressed pixels and size of the data
             buf = convert_image_to_DXT5(m_pixels.data(), m_size.x, m_size.y, m_bytesPerPixel, &size);
 
+            if (!buf)
+                return false;
+
             m_pixels.resize(size);
             std::memcpy(&m_pixels[0], buf, size);
             m_isCompressed = true;
+            m_mipMapLevels = 1;
+            m_format = Format::DXT5RGBA;
 
             return true;
         }
-
-        return false;
+        else
+            return false;
     }
 
 }

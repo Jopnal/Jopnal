@@ -112,13 +112,13 @@ namespace jop
             m_size = image.getSize();
             setPixelStore(1);
 
-            const unsigned int blockSize = (image.getFormat() == Image::Format::DXT1RGBA) ? 8 : 16;
+            // 8 bytes for DXT1 and 16 bytes for DXT3/5
+            const unsigned int blockSize = (image.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
 
             const unsigned int mipMapCount = image.getMipMapCount();
             unsigned int offset = 0;
             unsigned int width = m_size.x;
             unsigned int height = m_size.y;
-
 
             for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
             {
@@ -126,15 +126,17 @@ namespace jop
 
                 static const GLenum formatEnum[] =
                 {
+                    GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
                     GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
                     GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
                     GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+                    GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
                     GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
                     GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
                     GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
                 };
 
-                glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 3], width, height, 0, imageSize, image.getPixels() + offset);
+                glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 4], width, height, 0, imageSize, image.getPixels() + offset);
 
                 offset += imageSize;
                 width /= 2;

@@ -79,12 +79,12 @@ namespace jop
         ///
         bool load(const std::string& path, bool srgb);
 
-        /// \brief Load cubemap from compressed image containing a cubemap (.dds format)
+        /// \brief Load cubemap from compressed image containing a cubemap (DXT1/3/5)
         ///
         /// Gets 6 faces from the compressed image and goes through them and their mipmaps
-        /// NOTE: Only use this with compressed .dds images that contain a full cubemap (6 faces)
+        /// NOTE: Only works with compressed images that contain a full cubemap (6 faces)
         ///
-        /// \param image Compressed image containing a cubemap (.dds)
+        /// \param image Compressed image containing a cubemap
         /// \param srgb Use SRGB color space?
         ///
         bool load(const Image& compressedImage, bool srgb);

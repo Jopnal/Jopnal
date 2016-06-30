@@ -33,7 +33,6 @@
 namespace jop
 {
     class JOP_API Texture2D : public Texture
-
     {
     private:
 
@@ -58,6 +57,12 @@ namespace jop
         ///
         bool load(const std::string& path, const bool srgb, const bool genMipmaps);
 
+        /// \brief Load from memory
+        ///
+        /// \param ptr Pointer to data (pixels)
+        /// \param size Size of the data to be loaded
+        /// \param srgb Use SRGB color space?
+        ///
         bool load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps);
 
         /// \brief Creates flat/empty texture
@@ -83,14 +88,13 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps);
 
-        /// \brief Load texture from image
-        ///
-        /// Uses images data and calls load function that creates texture from array of pixels
+        /// \brief Load texture from compressed image
         ///
         /// \param image Image to load into the texture
         /// \param srgb Use SRGB color space?
         ///
         bool load(const Image& image, const bool srgb, const bool genMipmaps);
+
         /// \brief Set a subset of pixels
         ///
         /// The byte depth must be the same as this texture's!
