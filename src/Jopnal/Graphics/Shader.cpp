@@ -34,7 +34,6 @@ namespace
         GL_FRAGMENT_SHADER
     };
 
-    unsigned int ns_boundProgram = 0;
 }
 
 namespace jop
@@ -49,13 +48,17 @@ namespace jop
     Shader::~Shader()
     {
         //destroy();
+        // glDeleteShader(shader)
     }
 
     //////////////////////////////////////////////
 
     void Shader::addSource(const char* source)
     {
-        //m_sources 
+        // add source to m_sources
+        // make sure that order of sources is correct
+
+        // glShaderSource -> replace old source code in shader
     }
 
     //////////////////////////////////////////////
@@ -75,6 +78,10 @@ namespace jop
     {
         // Check type
 
+
+        // Load from string
+
+        // Load from file
 
         // File loader error checks need to be disabled here to avoid console spam
         const bool previouslyEnabled = FileLoader::errorChecksEnabled();

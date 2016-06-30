@@ -32,6 +32,7 @@ namespace jop
 {
     class JOP_API ShaderProgram : public Resource
     {
+    public:
         /// \brief Constructor
         ///
         ShaderProgram(const std::string& name);
@@ -39,6 +40,8 @@ namespace jop
         ~ShaderProgram();
 
         /// \brief Load shaders
+        ///
+        /// attaches a variable number of shaders to shader program
         ///
         template<typename ... Args>
         bool load(const Args&&... shaders);
@@ -54,6 +57,10 @@ namespace jop
         /// \brief Unlink shader program
         ///
         void unlink();
+
+    private:
+
+        GLuint m_programID;
 
     };
 

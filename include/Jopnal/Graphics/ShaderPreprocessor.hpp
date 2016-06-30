@@ -36,7 +36,7 @@ namespace jop
         ///
         /// Load all plugin files from resource.hpp 
         ///
-        ShaderPreprocessor(const std::string& name);
+        ShaderPreprocessor(const std::string& id);
 
         /// \brief Add plugin to shader
         ///

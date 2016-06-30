@@ -27,8 +27,8 @@
 
 namespace jop
 {
-    ShaderPreprocessor::ShaderPreprocessor(const std::string& name) 
-        : Subsystem(name)
+    ShaderPreprocessor::ShaderPreprocessor(const std::string& id) 
+        : Subsystem(id)
     {
         // Load plugins from resource.hpp
     }

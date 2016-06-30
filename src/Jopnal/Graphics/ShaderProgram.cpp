@@ -30,7 +30,7 @@ namespace jop
     ShaderProgram::ShaderProgram(const std::string& name)
         : Resource(name)
     {
-        //programID = glCheck(gl::CreateProgram());
+        //m_programID = glCheck(glCreateProgram()); 
     }
 
     ShaderProgram::~ShaderProgram()
@@ -43,9 +43,8 @@ namespace jop
     bool ShaderProgram::attachShader(const Shader&)
     {
 
-        //gl::AttachShader(programID, shaderHandle)
+        //gl::AttachShader(programID, shader)
 
-        return true;
     }
 
     //////////////////////////////////////////////
@@ -53,7 +52,6 @@ namespace jop
     bool ShaderProgram::link()
     {
         //glCheck(gl::UseProgram(programID));
-        return true;
     }
 
     //////////////////////////////////////////////
