@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Utility/Thread.hpp>
+    #include <Jopnal/Utility/Thread.hpp>
 
 #endif
 

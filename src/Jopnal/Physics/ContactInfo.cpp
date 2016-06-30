@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/ContactInfo.hpp>
+    #include <Jopnal/Physics/ContactInfo.hpp>
 
 #endif
 

@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
@@ -129,7 +129,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                    if (std::strlen(log) > 25)
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -164,7 +164,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                    if (std::strlen(log) > 25)
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }
@@ -461,8 +461,12 @@ namespace jop
         #else
 
             const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-            versionString += *(esVersion.begin());
-            versionString += *(esVersion.begin() + 2);
+
+            const std::size_t numPos = esVersion.find_first_of("0123456789");
+
+            versionString += esVersion[numPos];
+            versionString += esVersion[numPos + 2];
+            versionString += "0 es\n";
 
         #endif
         }

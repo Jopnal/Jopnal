@@ -99,7 +99,8 @@ extern int main(int argc, char* argv[]);
                 }
             }
 
-            app->onAppCmd = onAppCmdRunning;
+            app->onAppCmd       = onAppCmdRunning;
+            app->onInputEvent   = onInputEvent;
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 
@@ -112,7 +113,6 @@ extern int main(int argc, char* argv[]);
         JOP_DEBUG_INFO("Entered jopnal-main");
 
         app->onAppCmd       = jop::detail::onAppCmd;
-        app->onInputEvent   = jop::detail::onInputEvent;
 
         app->userData = jop::detail::ActivityState::create(app->activity);
 

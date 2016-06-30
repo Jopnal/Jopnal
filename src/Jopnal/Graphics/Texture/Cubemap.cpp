@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Cubemap.hpp>
+    #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
@@ -36,7 +36,7 @@
 #endif
 
 #include <Jopnal/Resources/Resources.hpp>
-#include <STB/stb_image.h>
+#include <STB/stb_image_aug.h>
 
 //////////////////////////////////////////////
 
@@ -128,16 +128,16 @@ namespace jop
 
     bool Cubemap::load(const std::string& path, bool srgb)
     {
-        Image compressedImage("");
-        return compressedImage.load(path) && load(compressedImage, srgb);
+        Image image;
+        return image.load(path) && load(image, srgb);
     }
 
     //////////////////////////////////////////////
 
-    bool Cubemap::load(const Image& compressedImage, bool srgb)
+    bool Cubemap::load(const Image& image, bool srgb)
     {
         // Check if image is cubemap and that extensions are valid
-        if (!compressedImage.isCubemap() || !JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
+        if (!image.isCubemap() || !JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
             return false;
 
         destroy();
@@ -145,24 +145,12 @@ namespace jop
 
         setPixelStore(1);
 
-        const unsigned int mipMapCount = compressedImage.getMipMapCount();
+        const unsigned int mipMapCount = image.getMipMapCount();
         unsigned int offset = 0;
-        glm::uvec2 size = compressedImage.getSize();
+        glm::uvec2 size = image.getSize();
 
         // 8 bytes for DXT1 and 16 bytes for DXT3/5
-        const unsigned int blockSize = (compressedImage.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
-
-        static const GLenum formatEnum[] =
-        {
-            GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
-            GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-            GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-            GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
-            GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
-            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
-        };
+        const unsigned int blockSize = (image.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
 
         // Go through 6 faces of the cube map and their mipmaps
         for (size_t i = 0; i < 6; ++i)
@@ -173,21 +161,18 @@ namespace jop
             for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
             {
                 // For non-power-of-two sized textures
-                if (width < 1)
-                    width = 1;
-                if (height < 1)
-                    height = 1;
+                width  = std::max(width, 1u);
+                height = std::max(height, 1u);
 
                 unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-                glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, formatEnum[static_cast<int>(compressedImage.getFormat()) + srgb * 4], width, height, 0, imageSize, compressedImage.getPixels() + offset);
+                glCheck(glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, Texture2D::getCompressedInternalFormatEnum(image.getFormat(), srgb), width, height, 0, imageSize, image.getPixels() + offset));
 
                 // Calculate values for next mipmap level
                 offset += imageSize;
                 width /= 2;
                 height /= 2;
             }
-
         }
 
         return true;

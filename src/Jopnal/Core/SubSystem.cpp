@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/Subsystem.hpp>
+    #include <Jopnal/Core/Subsystem.hpp>
 
     #include <Jopnal/Utility/CommandHandler.hpp>
 

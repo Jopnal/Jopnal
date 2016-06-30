@@ -32,7 +32,7 @@ extern const unsigned char depthRecordShaderPointGeom[1691];
 
 extern const unsigned char depthRecordShaderPointVert[298];
 
-extern const unsigned char gaussianBlurShaderFrag[1109];
+extern const unsigned char gaussianBlurShaderFrag[1141];
 
 extern const unsigned char physicsDebugShaderFrag[297];
 

@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/RenderTexture.hpp>
+    #include <Jopnal/Graphics/RenderTexture.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Engine.hpp>

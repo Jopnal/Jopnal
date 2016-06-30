@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Shape/BoxShape.hpp>
+    #include <Jopnal/Physics/Shape/BoxShape.hpp>
 
     #include <Jopnal/STL.hpp>
     #include <btBulletCollisionCommon.h>

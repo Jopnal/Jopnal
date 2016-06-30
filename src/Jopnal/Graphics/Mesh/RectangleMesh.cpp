@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
+    #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 #endif
 

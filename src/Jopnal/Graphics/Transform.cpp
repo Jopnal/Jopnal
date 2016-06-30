@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Transform.hpp>
+    #include <Jopnal/Graphics/Transform.hpp>
 
     #include <glm/gtc/matrix_transform.hpp>
 

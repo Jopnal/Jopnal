@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
@@ -53,7 +53,7 @@ namespace jop
 
     bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps)
     {
-        Image image("");
+        Image image;
         return image.load(path) && load(image, srgb, genMipmaps);
     }
 
@@ -102,8 +102,9 @@ namespace jop
 
     bool Texture2D::load(const Image& image, const bool srgb, const bool genMipmaps)
     {
-        if (!image.isCompressed())
+        if (/*!image.isCompressed()*/true)
             return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
+
         else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
         {
             destroy();
@@ -124,40 +125,33 @@ namespace jop
             {
                 unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-                static const GLenum formatEnum[] =
-                {
-                    GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
-                    GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-                    GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-                    GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
-                    GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
-                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-                    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
-                };
-
-                glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 4], width, height, 0, imageSize, image.getPixels() + offset);
+                glCheck(glCompressedTexImage2D(GL_TEXTURE_2D, level, getCompressedInternalFormatEnum(image.getFormat(), srgb), width, height, 0, imageSize, image.getPixels() + offset));
 
                 offset += imageSize;
                 width /= 2;
                 height /= 2;
 
                 // For non-power-of-two sized textures
-                if (width < 1)
-                    width = 1;
-                if (height < 1)
-                    height = 1;
+                width  = std::max(width, 1u);
+                height = std::max(height, 1u);
+            }
+
+            if (genMipmaps && image.getMipMapCount() > 1)
+            {
+                glCheck(glGenerateMipmap(GL_TEXTURE_2D));
             }
 
             return true;
         }
+
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool Texture2D::load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps)
     {
-        Image image("");
+        Image image;
         return image.load(ptr, size) && load(image, srgb, genMipmaps);
     }
 
@@ -201,7 +195,8 @@ namespace jop
     {
         // If empty texture
         if (!getHandle())
-            return Image("");
+            return Image();
+
         std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
 
     #ifdef JOP_OPENGL_ES   
@@ -229,7 +224,7 @@ namespace jop
         
     #endif
 
-        Image image("");
+        Image image;
         image.load(m_size, m_bytesPerPixel, &pixels[0]);
         return image;
     }
@@ -285,6 +280,36 @@ namespace jop
             default:
                 return GL_R8;
         }
+    }
+
+    //////////////////////////////////////////////
+
+    #ifdef JOP_OPENGL_ES
+
+        #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+
+    #endif
+
+    unsigned int Texture2D::getCompressedInternalFormatEnum(const Image::Format format, const bool srgb)
+    {
+        static const GLenum formatEnum[] =
+        {
+            GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+            GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+        };
+
+        return formatEnum[static_cast<int>(format) + srgb * 4];
     }
 
     //////////////////////////////////////////////

@@ -71,6 +71,9 @@ namespace jop { namespace detail
 
     private:
 
+        EGLSurface m_surface;
+        EGLContext m_context;
+
         glm::uvec2 m_size;
     };
 }}

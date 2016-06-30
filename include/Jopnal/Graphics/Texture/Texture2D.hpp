@@ -34,10 +34,6 @@ namespace jop
 {
     class JOP_API Texture2D : public Texture
     {
-    private:
-
-        friend class Texture;
-
     public:
 
         /// \brief Constructor
@@ -135,6 +131,8 @@ namespace jop
         /// \return The OpenGL internal format enum
         ///
         static unsigned int getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
+
+        static unsigned int getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
 
         /// \brief Get the error texture
         ///

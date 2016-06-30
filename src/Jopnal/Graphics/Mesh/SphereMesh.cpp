@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
+    #include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 
     #include <glm/gtc/constants.hpp>
     #include <cmath>

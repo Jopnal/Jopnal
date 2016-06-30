@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
 
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/Shader.hpp>

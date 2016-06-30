@@ -30,7 +30,7 @@ if (JOP_OS_ANDROID)
     set(WAS_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
     set(BUILD_SHARED_LIBS TRUE)
-	jopAddLibrary(jopnal-activity SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Activity.cpp)
+    jopAddLibrary(jopnal-activity SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Activity.cpp)
     
     set(BUILD_SHARED_LIBS ${WAS_SHARED_LIBS})
     
