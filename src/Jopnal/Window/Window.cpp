@@ -294,16 +294,10 @@ namespace jop
 
     WindowLibHandle Window::getLibraryHandle()
     {
-
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (isOpen())
-
-        #ifdef JOP_OS_DESKTOP
             return m_impl->getLibraryHandle();
-        #else
-            return m_impl->getNativeHandle();
-        #endif
 
         return nullptr;
     }

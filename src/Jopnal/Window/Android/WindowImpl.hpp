@@ -69,22 +69,9 @@ namespace jop { namespace detail
 
         static Window* getCurrentContextWindow();
 
-        static int handleEvent(int fd, int events, void* data);
-
-        static void updateFocus(const bool focus);
-
     private:
 
-        EGLConfig getConfig(const Window::Settings& settings);
-
-        EGLDisplay m_display;
-        EGLContext m_context;
-        EGLSurface m_surface;
-        EGLConfig m_config;
-
         glm::uvec2 m_size;
-        bool m_focusRestored;
-        bool m_focusLost;
     };
 }}
 

@@ -30,13 +30,7 @@
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <glm/vec2.hpp>
 #include <android/native_activity.h>
-#include <android/native_window.h>
-#include <android/configuration.h>
-#include <android/window.h>
-#include <EGL/egl.h>
-#include <thread>
 #include <mutex>
-#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -45,36 +39,21 @@ namespace jop { namespace detail
 {
     struct JOP_API ActivityState
     {
-        ActivityState(ANativeActivity* act, void* saved, const size_t savedSize);
+        ActivityState() = default;
 
-        ~ActivityState();
+        static ActivityState* create(ANativeActivity* activity);
 
         static ActivityState* get();
 
-        void reset();
+        static void reset();
 
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-        ALooper* looper;
-        AInputQueue* inputQueue;
-        AConfiguration* configuration;
-        
-        EGLDisplay display;
-
-        void* savedState;
-        size_t savedStateSize;
 
         std::mutex mutex;
 
-        WindowEventHandler* eventHandler;
+        ANativeActivity* nativeActivity;
+        ANativeWindow* nativeWindow;
 
-        bool fullscreen;
-        bool mainDone;
-        std::atomic<bool> terminated;
-        std::atomic<bool> init;
-        std::atomic<bool> updated;
-
+        glm::uvec2 windowSize;
         glm::uvec2 screenSize;
     };
 }}
