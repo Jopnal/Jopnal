@@ -93,36 +93,13 @@ namespace jop
     {
         using VC = VertexComponent;
 
-        static const unsigned int sizes[] =
-        {
-            sizeof(glm::vec3),
-            sizeof(glm::vec2),
-            sizeof(glm::vec3),
-            sizeof(glm::vec3) * 2,
-            sizeof(Color)
-        };
-
-    #if defined(JOP_COMPILER_MSVC)
-
-        DWORD index;
-        _BitScanForward(&index, component);
-
-    #elif defined(JOP_COMPILER_GNU)
-
-        int index = __builtin_ffs(component);
-
-    #endif
-
         return reinterpret_cast<void*>
-        ((
-            ((m_vertexComponents & VC::Position)   != 0 && Position  <= component) * sizeof(glm::vec3)     +    // Position
-            ((m_vertexComponents & VC::TexCoords)  != 0 && TexCoords <= component) * sizeof(glm::vec2)     +    // Texture coordinates
-            ((m_vertexComponents & VC::Normal)     != 0 && Normal    <= component) * sizeof(glm::vec3)     +    // Normal
-            ((m_vertexComponents & VC::Tangents)   != 0 && Tangents  <= component) * sizeof(glm::vec3) * 2 +    // Tangents
-            ((m_vertexComponents & VC::Color)      != 0)                           * sizeof(Color)              // Color
-
-          // Subtract the last component offset
-        ) - sizes[index]);
+        (
+            ((m_vertexComponents & VC::Position)   != 0 && Position  < component) * sizeof(glm::vec3) +     // Position
+            ((m_vertexComponents & VC::TexCoords)  != 0 && TexCoords < component) * sizeof(glm::vec2) +     // Texture coordinates
+            ((m_vertexComponents & VC::Normal)     != 0 && Normal    < component) * sizeof(glm::vec3) +     // Normal
+            ((m_vertexComponents & VC::Tangents)   != 0 && Tangents  < component) * sizeof(glm::vec3) * 2   // Tangents
+        );
     }
 
     //////////////////////////////////////////////
