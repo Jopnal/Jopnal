@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Collider.hpp>
+    #include <Jopnal/Physics/Collider.hpp>
 
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/World.hpp>

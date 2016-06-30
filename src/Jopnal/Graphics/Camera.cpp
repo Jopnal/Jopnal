@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
 
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/SettingManager.hpp>

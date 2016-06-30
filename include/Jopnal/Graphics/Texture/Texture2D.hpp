@@ -34,10 +34,6 @@ namespace jop
 {
     class JOP_API Texture2D : public Texture
     {
-    private:
-
-        friend class Texture;
-
     public:
 
         /// \brief Constructor

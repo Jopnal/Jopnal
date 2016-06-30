@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/ModelLoader.hpp>
+    #include <Jopnal/Graphics/ModelLoader.hpp>
 
 #endif
 

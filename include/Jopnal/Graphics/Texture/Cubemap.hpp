@@ -84,10 +84,10 @@ namespace jop
         /// Gets 6 faces from the compressed image and goes through them and their mipmaps
         /// NOTE: Only works with compressed images that contain a full cubemap (6 faces)
         ///
-        /// \param image Compressed image containing a cubemap
+        /// \param image Image containing a cubemap
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const Image& compressedImage, bool srgb);
+        bool load(const Image& image, bool srgb);
 
         /// \brief Get the texture size
         ///

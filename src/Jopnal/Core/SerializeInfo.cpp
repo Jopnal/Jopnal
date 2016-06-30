@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/SerializeInfo.hpp>
+    #include <Jopnal/Core/SerializeInfo.hpp>
 
 #endif
 

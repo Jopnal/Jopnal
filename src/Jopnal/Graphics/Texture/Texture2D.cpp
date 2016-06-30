@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
@@ -53,7 +53,7 @@ namespace jop
 
     bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps)
     {
-        Image image("");
+        Image image;
         return image.load(path) && load(image, srgb, genMipmaps);
     }
 
@@ -104,6 +104,7 @@ namespace jop
     {
         if (!image.isCompressed())
             return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
+
         else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
         {
             destroy();
@@ -136,28 +137,33 @@ namespace jop
                     GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
                 };
 
-                glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 4], width, height, 0, imageSize, image.getPixels() + offset);
+                glCheck(glCompressedTexImage2D(GL_TEXTURE_2D, level, formatEnum[static_cast<int>(image.getFormat()) + srgb * 4], width, height, 0, imageSize, image.getPixels() + offset));
 
                 offset += imageSize;
                 width /= 2;
                 height /= 2;
 
                 // For non-power-of-two sized textures
-                if (width < 1)
-                    width = 1;
-                if (height < 1)
-                    height = 1;
+                width  = std::max(width, 1u);
+                height = std::max(height, 1u);
+            }
+
+            if (genMipmaps && image.getMipMapCount() > 1)
+            {
+                glCheck(glGenerateMipmap(GL_TEXTURE_2D));
             }
 
             return true;
         }
+
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool Texture2D::load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps)
     {
-        Image image("");
+        Image image;
         return image.load(ptr, size) && load(image, srgb, genMipmaps);
     }
 
@@ -201,7 +207,8 @@ namespace jop
     {
         // If empty texture
         if (!getHandle())
-            return Image("");
+            return Image();
+
         std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
 
     #ifdef JOP_OPENGL_ES   
@@ -229,7 +236,7 @@ namespace jop
         
     #endif
 
-        Image image("");
+        Image image;
         image.load(m_size, m_bytesPerPixel, &pixels[0]);
         return image;
     }

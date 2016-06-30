@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
 
 #endif
 

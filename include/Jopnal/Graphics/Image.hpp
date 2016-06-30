@@ -35,24 +35,23 @@ namespace jop
 {
     class JOP_API Image
     {
-    private:
-
-        friend class Texture2D;
-
     public:
 
+        /// Compressed image formats
+        ///
         enum class Format
         {
             DXT1RGB,
             DXT1RGBA,
             DXT3RGBA,
             DXT5RGBA,
-        }; ///< Compressed image formats
+        }; 
 
+    public:
 
         /// \brief Default constructor
         ///
-        Image(const std::string& name);
+        Image();
 
         /// \brief Method for using file loader to load new resource from file
         ///
@@ -91,14 +90,6 @@ namespace jop
         ///
         const uint8* getPixels() const;
 
-        /// \brief Check if the pixel depth value is supported
-        ///
-        /// \param depth The pixel depth in bytes
-        ///
-        /// \return True if the depth is supported
-        ///
-        static bool checkDepthValid(const uint32 depth);
-
         /// Get internal compressed image format
         ///
         /// (DXT1 / DXT3 / DXT5)
@@ -116,6 +107,14 @@ namespace jop
         /// \brief Is image compressed (DDS)
         ///
         bool isCompressed() const;
+
+        /// \brief Check if the pixel depth value is supported
+        ///
+        /// \param depth The pixel depth in bytes
+        ///
+        /// \return True if the depth is supported
+        ///
+        static bool checkDepthValid(const uint32 depth);
 
     private:
 

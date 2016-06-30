@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+    #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/Renderer.hpp>

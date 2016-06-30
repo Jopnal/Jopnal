@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/SkyBox.hpp>
+    #include <Jopnal/Graphics/SkyBox.hpp>
 
     #include <Jopnal/Core/Serializer.hpp>
     #include <Jopnal/Graphics/Camera.hpp>

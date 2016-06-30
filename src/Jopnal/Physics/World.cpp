@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Physics/World.hpp>
 
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/Camera.hpp>

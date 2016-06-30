@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/PhantomBody.hpp>
+    #include <Jopnal/Physics/PhantomBody.hpp>
 
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>

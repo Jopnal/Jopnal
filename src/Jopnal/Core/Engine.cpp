@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/Engine.hpp>
 
     #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Core/FileLoader.hpp>

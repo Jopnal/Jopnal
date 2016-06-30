@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
 
     #include <Jopnal/Core/SettingCallback.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>

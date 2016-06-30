@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Shape/FrustumShape.hpp>
+    #include <Jopnal/Physics/Shape/FrustumShape.hpp>
 
 #endif
 
