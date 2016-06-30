@@ -102,7 +102,7 @@ namespace jop
 
     bool Texture2D::load(const Image& image, const bool srgb, const bool genMipmaps)
     {
-        if (/*!image.isCompressed()*/true)
+        if (!image.isCompressed())
             return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
 
         else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))

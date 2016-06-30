@@ -115,9 +115,7 @@ namespace jop
             default:
             {
                 std::vector<uint8> buf;
-                if (FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()))
-                    //return compress();
-                    return true;
+                return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()) && compress();
             }   
         }
 
