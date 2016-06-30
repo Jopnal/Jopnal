@@ -19,66 +19,48 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SHADER_HPP
-#define JOP_SHADER_HPP
-
 // Headers
-#include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <unordered_map>
-#include <array>
+#include <Jopnal/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    ShaderProgram::ShaderProgram(const std::string& name)
+        : Resource(name)
+    {
+        //programID = glCheck(gl::CreateProgram());
+    }
 
-    class JOP_API Shader : public Resource
+    ShaderProgram::~ShaderProgram()
+    {
+        //unlink
+    }
+
+    //////////////////////////////////////////////
+
+    bool ShaderProgram::attachShader(const Shader&)
     {
 
-    public:
+        //gl::AttachShader(programID, shaderHandle)
 
-        /// The shader type
-        ///
-        enum class Type
-        {
-            Vertex,
-            Geometry,
-            Fragment
-        };
+        return true;
+    }
 
-    public:
+    //////////////////////////////////////////////
 
-        /// \brief default constructor
-        ///
-        Shader(const std::string& name);
+    bool ShaderProgram::link()
+    {
+        //glCheck(gl::UseProgram(programID));
+        return true;
+    }
 
-        /// \brief default destructor
-        ///
-        ~Shader() override;
+    //////////////////////////////////////////////
 
-        /// \brief Add source
-        ///
-        void addSource(const char* source);
+    void ShaderProgram::unlink()
+    {
+        //glCheck(gl::DeleteProgram(programID));
+    }
 
-        /// \brief Compile shader
-        ///
-        bool compile(const Type type);
-
-        /// \brief Load shader
-        ///
-        bool load(const std::string& path);
-
-    private:
-        Type            m_shaderType;
-        const char*[]   m_sources;
-    };
 }
-
-#endif
-
-/// \class Shader
-/// \ingroup Graphics
-///
-/// 

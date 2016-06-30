@@ -19,66 +19,55 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SHADER_HPP
-#define JOP_SHADER_HPP
+#ifndef JOP_SHADERPROGRAM_HPP
+#define JOP_SHADERPROGRAM_HPP
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <unordered_map>
-#include <array>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-
-    class JOP_API Shader : public Resource
+    class JOP_API ShaderProgram : public Resource
     {
-
-    public:
-
-        /// The shader type
+        /// \brief Constructor
         ///
-        enum class Type
-        {
-            Vertex,
-            Geometry,
-            Fragment
-        };
+        ShaderProgram(const std::string& name);
 
-    public:
+        ~ShaderProgram();
 
-        /// \brief default constructor
+        /// \brief Load shaders
         ///
-        Shader(const std::string& name);
+        template<typename ... Args>
+        bool load(const Args&&... shaders);
 
-        /// \brief default destructor
+        /// \brief Attach shader to program
         ///
-        ~Shader() override;
+        bool attachShader(const Shader&);
 
-        /// \brief Add source
+        /// \brief Link shader program
         ///
-        void addSource(const char* source);
+        bool link();
 
-        /// \brief Compile shader
+        /// \brief Unlink shader program
         ///
-        bool compile(const Type type);
+        void unlink();
 
-        /// \brief Load shader
-        ///
-        bool load(const std::string& path);
-
-    private:
-        Type            m_shaderType;
-        const char*[]   m_sources;
     };
+
+    /*
+    template<typename ... Args>
+    bool jop::ShaderProgram::load(const Args&&... shaders)
+    {
+        const unsigned int shaderAmount = sizeof...(Args);
+
+        attachShader(shaders...);
+
+        link();
+    }
+    */
 }
 
 #endif
-
-/// \class Shader
-/// \ingroup Graphics
-///
-/// 

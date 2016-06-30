@@ -25,72 +25,36 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    static const int ns_shaderTypes[] =
-    {
-        GL_VERTEX_SHADER,
-        GL_GEOMETRY_SHADER,
-        GL_FRAGMENT_SHADER
-    };
-
-    unsigned int ns_boundProgram = 0;
-}
-
 namespace jop
 {
-    Shader::Shader(const std::string& name)
-        : Resource          (name),
-        Type                m_shaderType,
-        m_sources           ()
-
-    {}
-
-    Shader::~Shader()
+    ShaderPreprocessor::ShaderPreprocessor(const std::string& name) 
+        : Subsystem(name)
     {
-        //destroy();
+        // Load plugins from resource.hpp
     }
 
     //////////////////////////////////////////////
 
-    void Shader::addSource(const char* source)
+    void ShaderPreprocessor::addPlugin(const std::string&, const std::string&)
     {
-        //m_sources 
+
     }
 
     //////////////////////////////////////////////
 
-    bool Shader::compile(const Type type)
+    void ShaderPreprocessor::removePlugin(const std::string&)
     {
-        
-        //shader = glCreateShader(ns_shaderTypes[type])
-        //glShaderSource(shader, 1, m_source, NULL);
-        //glCompileShader(shader);
-        //delete m_source
+
     }
 
     //////////////////////////////////////////////
 
-    bool Shader::load(const std::string& path)
+    void ShaderPreprocessor::preprocess(const std::string&, const std::string&)
     {
-        // Check type
 
-
-        // File loader error checks need to be disabled here to avoid console spam
-        const bool previouslyEnabled = FileLoader::errorChecksEnabled();
-        FileLoader::enableErrorChecks(false);
-
-        std::string fileReadBuffer;
-        const char* sources[] = { FileLoader::readTextfile(path, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : path.c_str() };
-
-        FileLoader::enableErrorChecks(previouslyEnabled);
-
-        
-        //addsource(sources)
-        //compile
     }
 
     //////////////////////////////////////////////
 
- 
+
 }

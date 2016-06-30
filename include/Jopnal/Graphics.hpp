@@ -52,6 +52,8 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/ShaderPreprocessor.hpp>
+#include <Jopnal/Graphics/ShaderProgram.hpp>
 
 //////////////////////////////////////////////
 

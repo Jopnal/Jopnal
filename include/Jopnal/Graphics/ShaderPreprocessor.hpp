@@ -19,66 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SHADER_HPP
-#define JOP_SHADER_HPP
+#ifndef JOP_SHADERPREPROCESSOR_HPP
+#define JOP_SHADERPREPROCESSOR_HPP
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <unordered_map>
-#include <array>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-
-    class JOP_API Shader : public Resource
+    class JOP_API ShaderPreprocessor : public Subsystem
     {
-
-    public:
-
-        /// The shader type
+        /// \brief Constructor
         ///
-        enum class Type
-        {
-            Vertex,
-            Geometry,
-            Fragment
-        };
-
-    public:
-
-        /// \brief default constructor
+        /// Load all plugin files from resource.hpp 
         ///
-        Shader(const std::string& name);
+        ShaderPreprocessor(const std::string& name);
 
-        /// \brief default destructor
+        /// \brief Add plugin to shader
         ///
-        ~Shader() override;
+        void addPlugin(const std::string&, const std::string&);
 
-        /// \brief Add source
+        /// \brief Remove plugin from shader
         ///
-        void addSource(const char* source);
+        void removePlugin(const std::string&);
 
-        /// \brief Compile shader
+        /// \brief Preprocess shader
         ///
-        bool compile(const Type type);
+        void preprocess(const std::string&,const std::string&);
 
-        /// \brief Load shader
-        ///
-        bool load(const std::string& path);
-
-    private:
-        Type            m_shaderType;
-        const char*[]   m_sources;
     };
+
 }
 
 #endif
-
-/// \class Shader
-/// \ingroup Graphics
-///
-/// 
