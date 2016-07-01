@@ -22,7 +22,6 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
-
 //////////////////////////////////////////////
 
 
@@ -32,31 +31,151 @@ namespace jop
 
     namespace detail
     {
-        class DebugDraw : public b2Draw
+        struct DebugDraw : b2Draw
         {
+            WeakReference<Shader> shdr;
+
+            typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
+
+            jop::VertexBuffer m_buffer;
+            LineVec m_lines;
+            LineVec m_points;
+
+            const jop::Camera* m_cam;
+
         public:
-            void DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) {}
-            void DrawPoint(const b2Vec2& p1, float size, const b2Color& color){}
-            void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {}
-            void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {}
-            void DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {}
-            void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {}
-            void DrawTransform(const b2Transform& xf) {}
-            
+
+            DebugDraw() : m_buffer(VertexBuffer::Type::ArrayBuffer, Buffer::Usage::DynamicDraw)
+            {
+                if (shdr.expired())
+                {
+                    std::vector<unsigned char> vert, frag;
+                    JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
+
+                    shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
+
+                    JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
+                        "",
+                        std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
+                        "Failed to compile physics debug shader!");
+                }
+            }
+
+            void DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color)
+            {
+                const int pointCount = 15;
+                const float radians = glm::two_pi<float>() / pointCount;
+                float totalRadians = 0;
+
+                b2Vec2 lastPoint(radius, 0.f);
+
+                DrawSegment(center, lastPoint + center, color);
+
+                for (int i = 1; i <= pointCount; ++i)
+                {
+                    const b2Vec2 currentPoint(glm::cos(totalRadians) * radius, glm::sin(totalRadians) * radius);
+                    DrawSegment(lastPoint + center, currentPoint + center, color);
+                    lastPoint = currentPoint;
+                    totalRadians += radians;
+                }
+                DrawSegment(lastPoint + center, b2Vec2(radius, 0.f) + center, color);
+            }
+
+
+            void DrawPoint(const b2Vec2& p1, float size, const b2Color& color)
+            {
+                m_points.emplace_back(btVector3(p1.x, p1.y, 0.f), btVector3(color.r, color.g, color.b));
+            }
+
+            void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
+            {
+                for (int i = 1; i < vertexCount; ++i)
+                {
+                    DrawSegment(vertices[i - 1], vertices[i], color);
+                }
+                DrawSegment(vertices[vertexCount-1], vertices[0], color);
+            }
+
+            void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
+            {
+                m_lines.emplace_back(btVector3(p1.x, p1.y, 0.f), btVector3(color.r, color.g, color.b));
+                m_lines.emplace_back(btVector3(p2.x, p2.y, 0.f), btVector3(color.r, color.g, color.b));
+            }
+
+            void DrawTransform(const b2Transform& xf)
+            {
+                b2Vec2 up(-1.f * xf.q.c, 1.f * xf.q.s);
+                b2Vec2 right(-1.f * xf.q.s, 1.f * xf.q.c);
+
+                DrawSegment(xf.p, xf.p + up, b2Color(1.f, 0.f, 0.f, 1.f));
+                DrawSegment(xf.p, xf.p + right, b2Color(1.f, 0.f, 0.f, 1.f));
+            }
+
+            void DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color)
+            {
+                DrawCircle(center, radius, color);
+            }
+
+            void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
+            {
+                DrawPolygon(vertices, vertexCount, color);
+            }
+
+            void flushLines()
+            {
+                using namespace jop;
+
+                if ((m_lines.empty() && m_points.empty()) || !m_cam)
+                    return;
+
+                // Draw lines
+                if (!m_lines.empty())
+                {
+                    GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
+
+                    m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
+
+                    shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
+
+                    shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
+                    shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+
+                    glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+
+                    m_lines.clear();
+                }
+
+                // Draw points
+                if (m_points.empty())
+                {
+                    glCheck(gl::PointSize(3));
+                    GlState::setDepthTest(true, GlState::DepthFunc::Always);
+
+                    m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
+
+                    glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+
+                    m_points.clear();
+                }
+
+                GlState::setDepthTest(true);
+            }
         };
     }
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable(obj, renderer, 0),
-        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-        m_step(0.f)
+        m_worldData2D   (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+        m_step          (0.f),
+        m_dd            (std::make_unique<detail::DebugDraw>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
         m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
+        m_worldData2D->SetAllowSleeping(false);
 
-        setDebugMode(true);
+        setDebugMode(false);
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
     }
 
@@ -98,7 +217,7 @@ namespace jop
         m_step = std::min(0.1f, m_step + deltaTime);
         while (m_step >= timeStep)
         {
-            m_worldData2D->Step(timeStep, 1, 1); // 1 velocity and 1 position check done for each timeStep
+            m_worldData2D->Step(timeStep, 8, 3); // 1 velocity and 1 position check done for each timeStep
             m_step -= timeStep;
             m_worldData2D->ClearForces(); //to clear or not to clear?
         }
@@ -112,8 +231,13 @@ namespace jop
     void World2D::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
 #ifdef JOP_DEBUG_MODE
-       
-        m_worldData2D->DrawDebugData();
+        if (camera && debugMode())
+        {
+            m_dd->m_cam = camera;
+            m_worldData2D->DrawDebugData();
+            m_dd->flushLines();
+        }
+
 
 #else
         camera;
@@ -126,11 +250,8 @@ namespace jop
     {
 #ifdef JOP_DEBUG_MODE
 
-        detail::DebugDraw dd;
-
-        m_worldData2D->SetDebugDraw(&dd);
-
-        dd.SetFlags(b2Draw::e_shapeBit & b2Draw::e_aabbBit);
+        m_dd->SetFlags(b2Draw::e_shapeBit | b2Draw::e_aabbBit);
+        m_worldData2D->SetDebugDraw(m_dd.get());
 
 #else
         enable;
@@ -142,8 +263,8 @@ namespace jop
     bool World2D::debugMode() const
     {
 #ifdef JOP_DEBUG_MODE
+        return m_dd->GetFlags() != 0;
 
-        return true;
 #else
         return false;
 #endif

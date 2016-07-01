@@ -71,6 +71,9 @@ namespace jop
 
     bool Collider2D::checkOverlap(const Collider2D& other) const
     {
+        if (this == &other)
+            return false;
+
         struct Callback : b2QueryCallback
         {
             bool overlapping = false;
@@ -91,7 +94,7 @@ namespace jop
         while (fixList)
         {
             totalaabb.Combine(fixList->GetAABB(0));
-            fixList->GetNext();
+            fixList = fixList->GetNext();
         }
         this->m_worldRef2D.m_worldData2D->QueryAABB(&cb, totalaabb);
 

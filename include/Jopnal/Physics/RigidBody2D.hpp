@@ -89,10 +89,6 @@ namespace jop
             float friction;         ///< Friction
             float restitution;      ///< Restitution
 
-            /// Set this true to enable contact callbacks.
-            /// This is false by default due to performance concerns.
-            bool enableContactCallback;         //needed?
-
         private:
 
             const CollisionShape2D& m_shape;  ///< Collision shape

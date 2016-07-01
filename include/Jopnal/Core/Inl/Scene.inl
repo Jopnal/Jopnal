@@ -33,7 +33,7 @@ template<int D>
 typename detail::WorldType<D>::type& Scene::getWorld()
 {
     if (!worldEnabled<D>())
-        return createComponent<typename detail::WorldType<D>::type>(getRenderer());
+        std::get<D - 2>(m_worlds) = &createComponent<typename detail::WorldType<D>::type>(getRenderer());
     
     return *std::get<D - 2>(m_worlds);
 }

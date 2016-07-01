@@ -43,7 +43,7 @@ namespace jop
     bool RectangleShape2D::load(const glm::vec2& extents)
     {
         auto temp = std::make_unique<b2PolygonShape>();
-        temp->SetAsBox(extents.x, extents.y);
+        temp->SetAsBox(extents.x*0.5f, extents.y*0.5f);
         m_shape = std::move(temp);
         return true;
     }

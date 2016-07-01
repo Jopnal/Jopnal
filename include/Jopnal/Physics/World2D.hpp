@@ -33,9 +33,15 @@
 
 class b2World;
 
+
 namespace jop
 {
     class Camera;
+    namespace detail
+    {
+        class DebugDraw;
+        
+    }
 
     class JOP_API World2D : public Drawable
     {
@@ -132,6 +138,7 @@ namespace jop
         Message::Result receiveMessage(const Message& message) override;
 
         std::unique_ptr<b2World> m_worldData2D;             ///< The world data
+        std::unique_ptr<detail::DebugDraw> m_dd;
 
     private:
 
