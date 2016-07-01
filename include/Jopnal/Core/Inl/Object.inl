@@ -29,8 +29,8 @@ namespace detail
 
         for (auto& i : comps)
         {
-            if (ID == nullptr || i->getID() == *ID)
-                return dynamic_cast<T*>(i.get());
+            if ((ID == nullptr || i->getID() == *ID) && dynamic_cast<T*>(i.get()) != nullptr)
+                return static_cast<T*>(i.get());
         }
 
         return nullptr;
