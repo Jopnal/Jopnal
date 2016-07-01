@@ -71,6 +71,7 @@ namespace jop
         bool load(const std::string& path);
 
     private:
+
         Type            m_shaderType;
         const char*[]   m_sources;
     };

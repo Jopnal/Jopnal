@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Core/Resource.hpp>
 
 //////////////////////////////////////////////
 
@@ -37,6 +38,8 @@ namespace jop
         ///
         ShaderProgram(const std::string& name);
 
+        /// \brief Deconstructor
+        ///
         ~ShaderProgram();
 
         /// \brief Load shaders
@@ -60,7 +63,7 @@ namespace jop
 
     private:
 
-        GLuint m_programID;
+        unsigned int m_programID;
 
     };
 
@@ -70,7 +73,7 @@ namespace jop
     {
         const unsigned int shaderAmount = sizeof...(Args);
 
-        attachShader(shaders...);
+        load(shaders...);
 
         link();
     }

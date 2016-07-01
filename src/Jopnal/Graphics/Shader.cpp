@@ -27,7 +27,7 @@
 
 namespace
 {
-    static const int ns_shaderTypes[] =
+    static const int shaderTypes[] =
     {
         GL_VERTEX_SHADER,
         GL_GEOMETRY_SHADER,
@@ -48,7 +48,7 @@ namespace jop
     Shader::~Shader()
     {
         //destroy();
-        // glDeleteShader(shader)
+        // glCheck(glDeleteShader(shader));
     }
 
     //////////////////////////////////////////////
@@ -58,18 +58,36 @@ namespace jop
         // add source to m_sources
         // make sure that order of sources is correct
 
-        // glShaderSource -> replace old source code in shader
+        // vert - geom - frag  
+
+        // if sources change - compile again?
     }
 
     //////////////////////////////////////////////
 
     bool Shader::compile(const Type type)
-    {
+    {      
+        // Compile shader of given type
         
-        //shader = glCreateShader(ns_shaderTypes[type])
-        //glShaderSource(shader, 1, m_source, NULL);
-        //glCompileShader(shader);
-        //delete m_source
+        GLuint shader = glCheck(glCreateShader(shaderTypes[type]))
+        glCheck(glShaderSource(shader, 1, m_source[type], NULL));
+        glCheck(glCompileShader(shader));
+
+         GLint compiled;
+         glCheck(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
+
+         if (compiled != GL_TRUE)
+         {
+             GLsizei log_length = 0;
+             GLchar message(1024);
+             glCheck(glGetShaderInfoLog(shader, 1024, &log_length, message));
+             // Write error to log
+             JOP_DEBUG_ERROR("Failed to compile " << (shaderTypes == 0 ? "vertex" : (shaderTypes == 1 ? "geometry" : "fragment")) << " shader:\n" << message);
+
+             return false;
+         }
+        
+         return true;
     }
 
     //////////////////////////////////////////////
@@ -78,10 +96,6 @@ namespace jop
     {
         // Check type
 
-
-        // Load from string
-
-        // Load from file
 
         // File loader error checks need to be disabled here to avoid console spam
         const bool previouslyEnabled = FileLoader::errorChecksEnabled();
@@ -94,10 +108,12 @@ namespace jop
 
         
         //addsource(sources)
-        //compile
+
+        // for each type compile
+
+        // clear m_sources after done
     }
 
-    //////////////////////////////////////////////
 
  
 }

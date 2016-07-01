@@ -22,6 +22,7 @@
 // Headers
 #include <Jopnal/Precompiled.hpp>
 
+
 //////////////////////////////////////////////
 
 
@@ -35,15 +36,20 @@ namespace jop
 
     ShaderProgram::~ShaderProgram()
     {
-        //unlink
+        unlink();
     }
 
     //////////////////////////////////////////////
 
     bool ShaderProgram::attachShader(const Shader&)
     {
+        // Check if a shader of this type already exists
+        // if so - replace it
 
-        //gl::AttachShader(programID, shader)
+
+
+        //glCheck(glAttachShader(programID, shader));
+
 
     }
 
@@ -51,14 +57,34 @@ namespace jop
 
     bool ShaderProgram::link()
     {
-        //glCheck(gl::UseProgram(programID));
+        glCheck(glUseProgram(programID));
+
+        Glint linked;
+        glCheck(glGetProgramiv(programID, GL_LINK_STATUS, &linked));
+        if (linked != GL_TRUE)
+        {
+            GLsizei log_length = 0;
+            GLchar message(1024);
+            glCheck(glGetProgramInfoLog(programID, 1024, &log_length, message));
+            // Write error to log
+            JOP_DEBUG_ERROR("Failed to link shader program:"<< "\n" << message);
+
+            return false;
+        }
     }
 
     //////////////////////////////////////////////
 
     void ShaderProgram::unlink()
     {
-        //glCheck(gl::DeleteProgram(programID));
+        //glCheck(glDeleteProgram(programID));
+
+        GLint deleted;
+        glCheck(glGetProgramInfoLog(programID, GL_DELETE_STATUS, &deleted));
+        if (deleted != GL_TRUE)
+        {
+
+        }
     }
 
 }
