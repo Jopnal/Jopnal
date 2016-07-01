@@ -73,7 +73,8 @@ extern int main(int argc, char* argv[]);
 
             switch (cmd)
             {
-                default:
+                case APP_CMD_DESTROY:
+                    ANativeActivity_finish(app->activity);
                     break;
             }
         }

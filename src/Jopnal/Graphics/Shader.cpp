@@ -129,7 +129,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strlen(log) > 25)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -164,7 +164,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strlen(log) > 25)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }
@@ -466,7 +466,7 @@ namespace jop
 
             versionString += esVersion[numPos];
             versionString += esVersion[numPos + 2];
-            versionString += "0 es\n";
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
 
         #endif
         }
