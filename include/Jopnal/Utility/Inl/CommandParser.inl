@@ -209,75 +209,56 @@ struct ApplyConverter<T, true>
 
 namespace ArgumentApplier
 {
-    template<typename Ret, std::size_t N>
+    template<std::size_t N>
     struct Helper
     {
         template<typename Func, typename Tuple, typename ... Args>
-        static Ret apply(const Func& func, const Tuple& tuple, const Args&... args)
+        static void apply(const Func& func, const Tuple& tuple, const Args&... args)
         {
-            return Helper<Ret, N - 1>::apply(func, tuple, std::get<N - 1>(tuple), args...);
+            Helper<N - 1>::apply(func, tuple, std::get<N - 1>(tuple), args...);
         }
     };
-    template<typename Ret>
-    struct Helper<Ret, 0>
+    template<>
+    struct Helper<0>
     {
         template<typename Func, typename Tuple, typename... Args>
-        static Ret apply(const Func& func, const Tuple&, const Args&... args)
+        static void apply(const Func& func, const Tuple&, const Args&... args)
         {
-            return func(ApplyConverter<Args>::convert(args)...);
+            func(ApplyConverter<Args>::convert(args)...);
         }
     };
 
-
-    template<typename Ret, typename Func, typename ... Args>
-    Ret apply(const Func& func, const std::tuple<Args...>& args)
+    template<typename Func, typename ... Args>
+    void apply(const Func& func, const std::tuple<Args...>& args)
     {
-        return Helper<Ret, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, args);
+        Helper<std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, args);
     }
 
     //////////////////////////////////////////////
 
-    template<typename Ret, typename T, std::size_t N>
+    template<typename T, std::size_t N>
     struct MemberHelper
     {
         template<typename Func, typename Tuple, typename ... Args>
-        static Ret apply(const Func& func, T& instance, const Tuple& tuple, const Args&... args)
+        static void apply(const Func& func, T& instance, const Tuple& tuple, const Args&... args)
         {
-            return MemberHelper<Ret, T, N - 1>::apply(func, instance, tuple, std::get<N - 1>(tuple), args...);
+            MemberHelper<T, N - 1>::apply(func, instance, tuple, std::get<N - 1>(tuple), args...);
         }
     };
-    template<typename Ret, typename T>
-    struct MemberHelper<Ret, T, 0>
+    template<typename T>
+    struct MemberHelper<T, 0>
     {
         template<typename Func, typename Tuple, typename... Args>
-        static Ret apply(const Func& func, T& instance, const Tuple&, const Args&... args)
+        static void apply(const Func& func, T& instance, const Tuple&, const Args&... args)
         {
-            return func(instance, ApplyConverter<Args>::convert(args)...);
+            func(instance, ApplyConverter<Args>::convert(args)...);
         }
     };
 
-    template<typename Ret, typename Func, typename T, typename ... Args>
-    Ret applyMember(const Func& func, T& instance, const std::tuple<Args...>& args)
+    template<typename Func, typename T, typename ... Args>
+    void applyMember(const Func& func, T& instance, const std::tuple<Args...>& args)
     {
-        return MemberHelper<Ret, T, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, instance, args);
-    }
-}
-
-//////////////////////////////////////////////
-
-namespace ArgumentSplitter
-{
-    template<typename Left, typename Right, typename ... Rest>
-    std::tuple<Left, Right, Rest...> split(const std::string& args)
-    {
-        std::tuple<std::string, std::string> parsedArgs = splitFirstArguments(args);
-        return std::tuple_cat(std::make_tuple(ArgumentConverter<Left>::convert(std::get<0>(parsedArgs))), split<Right, Rest...>(std::get<1>(parsedArgs)));
-    }
-
-    template<typename Last>
-    std::tuple<Last> split(const std::string& arg)
-    {
-        return std::make_tuple(ArgumentConverter<Last>::convert(arg));
+        MemberHelper<T, std::tuple_size<std::tuple<Func, Args...>>::value - 1>::apply(func, instance, args);
     }
 }
 
@@ -285,138 +266,72 @@ namespace ArgumentSplitter
 
 namespace DefaultParser
 {
-    template<typename Discard, typename Ret, typename ... Args>
-    void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
+    template<typename Left, typename ... Rest>
+    struct Splitter
     {
-        Helper<Discard, Ret, Args...>::parse(func, args, returnWrap);
-    }
-
-    template<typename Discard, typename Ret, typename ... Args>
-    struct Helper
-    {
-        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any& returnWrap)
+        static std::tuple<Left, Rest...> split(const std::string& args)
         {
-            if (returnWrap)
-                returnWrap = ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
-            else
-                ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            std::tuple<std::string, std::string> parsedArgs = splitFirstArguments(args);
+            return std::tuple_cat(std::make_tuple(ArgumentConverter<Left>::convert(std::get<0>(parsedArgs))), Splitter<Rest...>::split(std::get<1>(parsedArgs)));
         }
     };
-
-    template<typename Discard, typename ... Args>
-    struct Helper<Discard, void, Args...>
+    template<typename Rest>
+    struct Splitter<Rest>
     {
-        static void parse(const std::function<void(Args...)>& func, const std::string& args, Any&)
+        static std::tuple<Rest> split(const std::string& arg)
         {
-            ArgumentApplier::apply<void, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
-        }
-    };
-
-    template<typename Discard, typename Ret>
-    struct Helper<Discard, Ret>
-    {
-        static void parse(const std::function<Ret()>& func, const std::string&, Any& returnWrap)
-        {
-            if (returnWrap)
-                returnWrap = func();
-            else
-                func();
+            return std::make_tuple(ArgumentConverter<Rest>::convert(arg));
         }
     };
 
     template<typename Ret, typename ... Args>
-    struct Helper<std::true_type, Ret, Args...>
+    struct Helper
     {
-        static void parse(const std::function<Ret(Args...)>& func, const std::string& args, Any&)
+        static void parse(const std::function<Ret(Args...)>& func, const std::string& args)
         {
-            ArgumentApplier::apply<Ret, decltype(func), typename RealType<Args>::type...>(func, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::apply<decltype(func), typename RealType<Args>::type...>(func, Splitter<typename RealType<Args>::type...>::split(args));
         }
     };
     template<typename Ret>
-    struct Helper<std::true_type, Ret>
+    struct Helper<Ret>
     {
-        static void parse(const std::function<Ret()>& func, const std::string&, Any&)
+        static void parse(const std::function<Ret()>& func, const std::string&)
         {
             func();
         }
     };
 
-    template<typename Discard>
-    struct Helper<Discard, void>
+    template<typename Ret, typename ... Args>
+    void parse(const std::function<Ret(Args...)>& func, const std::string& args)
     {
-        static void parse(const std::function<void(void)>& func, const std::string&, jop::Any&)
-        {
-            func();
-        }
-    };
+        Helper<Ret, Args...>::parse(func, args);
+    }
 
     //////////////////////////////////////////////
 
-    template<typename Discard, typename Ret, typename T, typename ... Args>
-    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, Any& instance)
-    {
-        T* instPtr = instance.dynamicCast<T*>();
-
-        if (instPtr)
-            MemberHelper<Discard, Ret, T, Args...>::parse(func, args, returnWrap, *instPtr);
-    }
-
-    template<typename Discard, typename Ret, typename T, typename ... Args>
+    template<typename Ret, typename T, typename ... Args>
     struct MemberHelper
     {
-        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any& returnWrap, T& instance)
+        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, T& instance)
         {
-            if (returnWrap)
-                returnWrap = ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
-            else
-                ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            ArgumentApplier::applyMember<decltype(func), T, typename RealType<Args>::type...>(func, instance, Splitter<typename RealType<Args>::type...>::split(args));
         }
     };
-
-    template<typename Discard, typename T, typename ... Args>
-    struct MemberHelper<Discard, void, T, Args...>
+    template<typename Ret, typename T>
+    struct MemberHelper<Ret, T>
     {
-        static void parse(const std::function<void(T&, Args...)>& func, const std::string& args, Any&, T& instance)
+        static void parse(const std::function<Ret(T&)>& func, const std::string&, T& instance)
         {
-            ArgumentApplier::applyMember<void, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
-        }
-    };
-
-    template<typename Discard, typename Ret, typename T>
-    struct MemberHelper<Discard, Ret, T>
-    {
-        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any& returnWrap, T& instance)
-        {
-            if (returnWrap)
-                returnWrap = func(instance);
-            else
-                func(instance);
+            func(instance);
         }
     };
 
     template<typename Ret, typename T, typename ... Args>
-    struct MemberHelper<std::true_type, Ret, T, Args...>
+    void parseMember(const std::function<Ret(T&, Args...)>& func, const std::string& args, void* instance)
     {
-        static void parse(const std::function<Ret(T&, Args...)>& func, const std::string& args, Any&, T& instance)
+        if (instance)
         {
-            ArgumentApplier::applyMember<Ret, decltype(func), T, typename RealType<Args>::type...>(func, instance, ArgumentSplitter::split<typename RealType<Args>::type...>(args));
+            MemberHelper<Ret, T, Args...>::parse(func, args, *static_cast<T*>(instance));
         }
-    };
-    template<typename Ret, typename T>
-    struct MemberHelper<std::true_type, Ret, T>
-    {
-        static void parse(const std::function<Ret(T&)>& func, const std::string&, Any&, T& instance)
-        {
-            func(instance);
-        }
-    };
-
-    template<typename Discard, typename T>
-    struct MemberHelper<Discard, void, T>
-    {
-        static void parse(const std::function<void(T&)>& func, const std::string&, Any&, T& instance)
-        {
-            func(instance);
-        }
-    };
+    }
 }

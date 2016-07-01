@@ -25,15 +25,19 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
-#include <Jopnal/Graphics/Texture.hpp>
+#include <Jopnal/Graphics/Texture/Texture.hpp>
 #include <glm/vec2.hpp>
 #include <string>
+#include <array>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Window;
+
     class JOP_API RenderTexture final : public RenderTarget
     {
     private:
@@ -46,6 +50,8 @@ namespace jop
         ///
         enum class ColorAttachment
         {
+            None,           ///< No color attachment
+
             RGB2D,          ///< 24 bit 2D texture
             RGBA2D,         ///< 32 bit 2D texture
 
@@ -53,9 +59,14 @@ namespace jop
             RGBACube,       ///< 32 bit cube map texture
             
             RGB2DFloat16,   ///< 48 bit 2D texture
-            RGBA2DFloat16,  ///< 64 but 2D texture
+            RGBA2DFloat16,  ///< 64 bit 2D texture
             RGB2DFloat32,   ///< 96 bit 2D texture
             RGBA2DFloat32,  ///< 128 bit 2D texture
+
+            RGBCubeFloat16,   ///< 48 bit 2D texture
+            RGBACubeFloat16,  ///< 64 bit 2D texture
+            RGBCubeFloat32,   ///< 96 bit 2D texture
+            RGBACubeFloat32,  ///< 128 bit 2D texture
 
             // Keep depth enums last
 
@@ -66,6 +77,16 @@ namespace jop
             DepthCube16,    ///< 16 bit cube map depth texture
             DepthCube24,    ///< 24 bit cube map depth texture
             DepthCube32     ///< 32 bit cube map depth texture
+        };
+
+        /// Color attachment slot
+        ///
+        enum class ColorAttachmentSlot
+        {
+            _1 = 2,
+            _2,
+            _3,
+            _4
         };
 
         /// Depth attachment type
@@ -82,7 +103,11 @@ namespace jop
 
             Texture16,      ///< 16 bit depth texture
             Texture24,      ///< 24 bit depth texture
-            Texture32       ///< 32 bit depth texture
+            Texture32,      ///< 32 bit depth texture
+
+            TextureCube16,  ///< 16 bit depth cube map
+            TextureCube24,  ///< 24 bit depth cube map
+            TextureCube32,  ///< 32 bit depth cube map
         };
         
         /// Stencil attachment type
@@ -93,8 +118,22 @@ namespace jop
         {
             None,   ///< No stencil attachment
 
-            Int8,   ///< 8 bit stencil render buffer
-            Int16   ///< 16 bit stencil render buffer
+            Renderbuffer8,  ///< 8 bit stencil render buffer
+            Renderbuffer16, ///< 16 bit stencil render buffer
+
+            Texture8,
+            Texture16
+        };
+
+        enum class DepthStencilAttachment
+        {
+            None,
+
+            Renderbuffer24_8,
+            Renderbuffer32_8,
+
+            Texture24_8,
+            Texture32_8
         };
 
     public:
@@ -105,39 +144,33 @@ namespace jop
         ///
         RenderTexture();
 
+        RenderTexture(const uint32 ID);
+
         /// \brief Destructor
         ///
         ~RenderTexture() override;
 
 
-        /// \brief Initialize the frame buffer
-        ///
-        /// This will create the textures and the render buffers, but the frame
-        /// buffer will only actually be completed once bind() is first called.
-        /// This is due to the possibility that this is called within a different
-        /// thread and fbo's cannot be shared between contexts.
-        ///
-        /// \param color The color attachment type
-        /// \param size Size of the color attachment texture
-        /// \param depth The depth attachment
-        /// \param stencil The stencil attachment
-        ///
-        /// \return True if successful
-        ///
-        bool create(const glm::uvec2& size,
-                    const ColorAttachment color = ColorAttachment::RGBA2D,
-                    const DepthAttachment depth = DepthAttachment::None,
-                    const StencilAttachment stencil = StencilAttachment::None);
+        bool addColorAttachment(const ColorAttachmentSlot slot, const ColorAttachment attachment, const glm::uvec2& size);
+
+        bool addDepthAttachment(const DepthAttachment attachment, const glm::uvec2& size);
+
+        bool addStencilAttachment(const StencilAttachment attachment, const glm::uvec2& size);
+
+        bool addDepthStencilAttachment(const DepthStencilAttachment attachment, const glm::uvec2& size);
 
         /// \brief Destroy this frame buffer
         ///
-        void destroy();
+        void destroy(const bool framebuffer, const bool attachments);
+
 
         /// \brief Bind this frame buffer for drawing
         ///
         /// \return True if successful
         ///
-        bool bind() const;
+        bool bind() const override;
+
+        bool bind(const bool read) const;
 
         /// \brief Unbind the currently bound frame buffer
         ///
@@ -161,7 +194,9 @@ namespace jop
         ///
         /// \return Const pointer to the internal texture, nullptr if no texture exists
         ///
-        const Texture* getTexture() const;
+        Texture* getColorTexture(const ColorAttachmentSlot slot);
+
+        const Texture* getColorTexture(const ColorAttachmentSlot slot) const;
 
         /// \brief Get the depth texture
         ///
@@ -169,22 +204,20 @@ namespace jop
         ///
         const Texture* getDepthTexture() const;
 
-        /// \brief Get the OpenGL frame buffer handle
-        ///
-        /// \return The OpenGL frame buffer handle
-        ///
-        unsigned int getFramebufferHandle() const;
+        const Texture* getStencilTexture() const;
 
     private:
 
-        void destroy() const;
+        bool attach() const;
 
-        mutable std::unique_ptr<Texture> m_texture;         ///< The attached texture
-        mutable std::unique_ptr<Texture> m_depthTexture;    ///< The possibly attached depth texture
-        mutable unsigned int m_frameBuffer;                 ///< Handle for the frame buffer
+        void destroy(const bool framebuffer, const bool attachments) const;
+
+
         mutable unsigned int m_depthBuffer;                 ///< Handle for the depth buffer
         mutable unsigned int m_stencilBuffer;               ///< Handle for the stencil buffer
-        mutable ColorAttachment m_colorAttachment;          ///< Color attachment enum
+        mutable unsigned int m_depthStencilBuffer;
+        mutable std::pair<unsigned int, Window*> m_frameBuffer;
+        mutable std::array<std::unique_ptr<Texture>, 6> m_colorAttachments;
     };
 }
 

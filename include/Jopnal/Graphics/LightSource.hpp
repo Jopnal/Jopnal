@@ -26,7 +26,9 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 #include <array>
 #include <set>
 
@@ -39,6 +41,7 @@ namespace jop
     class Shader;
     class Renderer;
     class RenderTexture;
+    class Drawable;
 
     class JOP_API LightSource final : public Component
     {
@@ -217,7 +220,7 @@ namespace jop
         ///
         /// \return The intensity color
         ///
-        Color getIntensity(const Intensity intensity) const;
+        const Color& getIntensity(const Intensity intensity) const;
 
 
         /// \brief Set a single attenuation value
@@ -332,6 +335,10 @@ namespace jop
         ///
         static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
         
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         mutable RenderTexture m_shadowMap;                      ///< The shadow map
@@ -348,7 +355,7 @@ namespace jop
     ///
     /// Meant to be passed to drawable
     ///
-    class LightContainer
+    class JOP_API LightContainer
     {
     public:
 

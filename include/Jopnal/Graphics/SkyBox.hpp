@@ -19,13 +19,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYSPHERE_HPP
-#define JOP_SKYSPHERE_HPP
+#ifndef JOP_SKYBOX_HPP
+#define JOP_SKYBOX_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/BoxMesh.hpp>
+#include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
@@ -33,6 +33,8 @@
 
 namespace jop
 {
+    class Cubemap;
+
     class JOP_API SkyBox : public Drawable
     {
     private:

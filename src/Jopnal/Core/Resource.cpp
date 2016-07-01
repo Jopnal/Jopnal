@@ -20,7 +20,13 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Resource.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -30,15 +36,13 @@ namespace jop
     Resource::Resource(const std::string& name)
         : SafeReferenceable<Resource>   (this),
           m_name                        (name),
-          m_persistence                 (USHRT_MAX),
-          m_managed                     (false)
+          m_persistence                 (USHRT_MAX)
     {}
 
     Resource::Resource(const Resource& other, const std::string& newName)
         : SafeReferenceable<Resource>   (this),
           m_name                        (newName),
-          m_persistence                 (other.m_persistence),
-          m_managed                     (other.m_managed)
+          m_persistence                 (other.m_persistence)
     {}
 
     Resource::~Resource()
@@ -63,19 +67,5 @@ namespace jop
     unsigned short Resource::getPersistence() const
     {
         return m_persistence;
-    }
-
-    //////////////////////////////////////////////
-
-    void Resource::setManaged(const bool managed)
-    {
-        m_managed = managed;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Resource::isManaged() const
-    {
-        return m_managed;
     }
 }

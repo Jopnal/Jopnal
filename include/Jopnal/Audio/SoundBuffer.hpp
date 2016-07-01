@@ -90,8 +90,6 @@ namespace jop
 
         bool load(const int id);
 
-
-        std::unique_ptr<sf::SoundBuffer> m_soundBuf;    ///< Sound buffer
     };
 }
 #endif

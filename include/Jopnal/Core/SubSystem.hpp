@@ -47,7 +47,7 @@ namespace jop
         ///
         /// \param ID Identifier of this subsystem
         ///
-        Subsystem(const std::string& ID);
+        Subsystem(const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -80,23 +80,6 @@ namespace jop
 
         /// \brief Function to handle messages
         ///
-        /// \param message String holding the message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Function to handle messages
-        ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
-        /// \brief Function to handle messages
-        ///
         /// \param message The message
         ///
         /// \return The message result
@@ -121,7 +104,7 @@ namespace jop
         ///
         /// \return Reference to the ID string
         ///
-        const std::string& getID() const;
+        uint32 getID() const;
 
     protected:
 
@@ -131,11 +114,11 @@ namespace jop
         ///
         /// \return The message result
         ///
-        virtual Message::Result sendMessageImpl(const Message& message);
+        virtual Message::Result receiveMessage(const Message& message);
 
     private:
 
-        const std::string m_ID;     ///< This subsystem's name
+        const uint32 m_ID;          ///< This subsystem's name
         std::atomic<bool> m_active; ///< Sets activity 
     };
 }

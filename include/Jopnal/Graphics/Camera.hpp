@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace jop
     class Renderer;
     class RenderTarget;
 
-    class JOP_API Camera final : public Component
+    class JOP_API Camera : public Component
     {
     private:
 
@@ -258,31 +258,13 @@ namespace jop
         void applyViewport(const RenderTarget& mainTarget) const;
 
 
-        /// \brief Set this camera to use a render texture
-        ///
-        /// This will effectively cause whatever is drawn using this camera to render into the frame buffer.
-        ///
-        /// \param enable Enable the render texture? If this is false and a render texture already exists,
-        ///               it will be destroyed and the rest of the arguments are ignored
-        /// \param color The desired color attachment type
-        /// \param size Size of the render texture
-        /// \param depth The desired depth attachment type
-        /// \param stencil The desired stencil attachment
-        ///
-        /// \return True if set/unset successfully
-        ///
-        bool enableRenderTexture(const bool enable,
-                                 const glm::uvec2& size = glm::uvec2(0),
-                                 const RenderTexture::ColorAttachment color = RenderTexture::ColorAttachment::RGBA2D,
-                                 const RenderTexture::DepthAttachment depth = RenderTexture::DepthAttachment::None,
-                                 const RenderTexture::StencilAttachment stencil = RenderTexture::StencilAttachment::None);
-
         /// \brief Get the internal render texture
         ///
-        /// The returned RenderTexture will not be valid if it wasn't set before
-        /// by using enableRenderTexture().
-        ///
         /// \return Reference to the render texture
+        ///
+        RenderTexture& getRenderTexture();
+
+        /// \copydoc getRenderTexture()
         ///
         const RenderTexture& getRenderTexture() const;
 
@@ -297,6 +279,10 @@ namespace jop
         /// \return Normalized ray pointing from camera to the pointed position
         ///
         glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
+
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
 
     private:
 

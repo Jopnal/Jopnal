@@ -32,10 +32,7 @@
 
 
 struct PHYSFS_File;
-namespace Assimp
-{
-    class Importer;
-}
+struct AAsset;
 
 namespace jop
 {
@@ -46,8 +43,6 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
         friend class ModelLoader;
-
-        static Assimp::Importer& getImporter();
 
     public:
 
@@ -69,8 +64,8 @@ namespace jop
         enum class Directory
         {
             Executable, ///< Executable directory
-            Resource,   ///< Resource folder
-            User        ///< User folder
+            Resource,   ///< Resource folder. On Android this is the memory card directory
+            User        ///< User folder. On Android this is the same directory as Executable
         };
 
     public:
@@ -229,7 +224,7 @@ namespace jop
         ///
         /// \return True if file was deleted
         ///
-        static bool deleteFile(const std::string& file);
+        static bool deleteFile(const Directory dir, const std::string& file);
 
         /// \brief Read a text file
         ///
@@ -276,11 +271,12 @@ namespace jop
         ///
         /// If the directory already exists, this has no effect.
         ///
+        /// \param dir The base write directory
         /// \param path The directory to create
         ///
         /// \return True if successful
         ///
-        static bool makeDirectory(const std::string& path);
+        static bool makeDirectory(const Directory dir, const std::string& path);
 
         /// \brief Get a base directory as string
         ///
@@ -296,17 +292,6 @@ namespace jop
         ///
         static char getDirectorySeparator();
 
-        /// \brief Read a resource file
-        ///
-        /// This is mostly used internally.
-        ///
-        /// \param id Identifier of the resource
-        /// \param buffer The data buffer
-        ///
-        /// \return True if successful
-        /// 
-        static bool readResource(const int id, std::vector<uint8>& buffer);
-
         /// \brief Enable/disable file system error checks
         ///
         /// \param enable True to enable
@@ -321,7 +306,12 @@ namespace jop
 
     private:
 
-        PHYSFS_File* m_file;    ///< File handle
+        union
+        {
+            PHYSFS_File* m_file;    ///< File handle
+            AAsset* m_asset;
+        };
+        bool m_isAsset;
     };
 }
 

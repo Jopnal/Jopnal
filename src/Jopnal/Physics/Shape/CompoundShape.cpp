@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/Shape/CompoundShape.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <btBulletCollisionCommon.h>
+
+#endif
 
 //////////////////////////////////////////////
 

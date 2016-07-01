@@ -64,16 +64,35 @@ namespace jop
 
         /// \brief Compile shader
         ///
+        /// \param type Shader Type:: (Vertex / Geometry / Fragment)
+        ///
         bool compile(const Type type);
 
         /// \brief Load shader
         ///
-        bool load(const std::string& path);
+        bool load(const std::string& path, Type type);
+
+        /// \brief Get shader type (Vertex / Geometry / Fragment)
+        ///
+        GLuint getType() const;
+
+        /// \brief Get shader handle
+        ///
+        GLuint getHandle() const;
 
     private:
 
-        Type            m_shaderType;
-        const char*[]   m_sources;
+        /// \brief Check shader status
+        ///
+        /// \param pname Object parameter: GL_SHADER_TYPE, GL_DELETE_STATUS, GL_COMPILE_STATUS
+        /// \return Returns message used for error messages
+        ///
+        GLchar checkStatus(GLenum pname);
+
+        Type                        m_shaderType;
+        std::vector<const char*>    m_sources;
+        GLuint                      m_handle;
+
     };
 }
 

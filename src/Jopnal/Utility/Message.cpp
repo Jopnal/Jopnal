@@ -20,18 +20,25 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Utility/Message.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    Message::Message(const std::string& message, Any& ptr)
+    Message::Message(const std::string& message)
         : m_command         (),
           m_commandStr      (),
           m_idPattern       (),
-          m_ptr             (ptr),
           m_filterBits      (Filter::Global),
           m_idMatchMethod   (nullptr),
           m_tagMatchMethod  (nullptr)
@@ -195,16 +202,6 @@ namespace jop
             m_idPattern = filter.substr(fBegin + 1, endPos - fBegin - 1);
         }
 
-        // Built-in/overridden filtering
-        fBegin = filter.find_last_of('-', endPos);
-        if (fBegin != std::string::npos && (endPos - fBegin) > 1)
-        {
-            if (filter[fBegin + 1] == 'c')
-                m_filterBits &= ~(Filter::Custom);
-            else if (filter[fBegin + 1] == 'm')
-                m_filterBits &= ~(Filter::Command);
-        }
-
         // System filters
         fBegin = fBegin == std::string::npos ? endPos - 1 : fBegin - 1;
         if (filter[fBegin] != '[' && filter.find_last_of("-*=(<", 1) == std::string::npos)
@@ -230,13 +227,6 @@ namespace jop
         }
 
         return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    Any& Message::getReturnWrapper() const
-    {
-        return m_ptr;
     }
 
     //////////////////////////////////////////////

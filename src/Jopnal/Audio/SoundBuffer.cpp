@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Audio/SoundBuffer.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <vector>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -28,13 +38,11 @@
 namespace jop
 {
     SoundBuffer::SoundBuffer(const std::string& name)
-        : Resource      (name),
-          m_soundBuf    (std::make_unique<sf::SoundBuffer>())
+        : Resource      (name)
     {}
 
     SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
-        : Resource      (newName),
-          m_soundBuf    (std::make_unique<sf::SoundBuffer>(*other.m_soundBuf))
+        : Resource      (other, newName)
     {}
 
     SoundBuffer::~SoundBuffer()
@@ -44,22 +52,15 @@ namespace jop
 
     bool SoundBuffer::load(const std::string& path)
     {
-        std::vector<uint8> buf;
-        FileLoader::readBinaryfile(path, buf);
-        
-        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+        return false;
     }
 
     //////////////////////////////////////////////
 
     bool SoundBuffer::load(const int id)
     {
-        std::vector<uint8> buf;
 
-        if (!FileLoader::readResource(id, buf))
-            return false;
-
-        return m_soundBuf->loadFromMemory(buf.data(), buf.size());
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -72,7 +73,7 @@ namespace jop
         {
             defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
 
-            JOP_ASSERT_EVAL(defBuf->load(JOP_RES_DEFAULT_SOUND), "Failed to load default Sound!");
+            //JOP_ASSERT_EVAL(defBuf->load(jopr::defaultSound, sizeof(jopr::defaultSound)), "Failed to load default Sound!");
 
             defBuf->setPersistence(0);
         }

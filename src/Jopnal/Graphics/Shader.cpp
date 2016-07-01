@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
@@ -33,22 +33,24 @@ namespace
         GL_GEOMETRY_SHADER,
         GL_FRAGMENT_SHADER
     };
-
 }
 
 namespace jop
 {
     Shader::Shader(const std::string& name)
         : Resource          (name),
-        Type                m_shaderType,
-        m_sources           ()
+        m_shaderType        (),
+        m_sources           (0),
+        m_handle            (0)
 
     {}
 
     Shader::~Shader()
     {
-        //destroy();
-        // glCheck(glDeleteShader(shader));
+        glCheck(glDeleteShader(m_handle));
+
+        if(checkStatus(GL_DELETE_STATUS) != 0)
+            JOP_DEBUG_ERROR("Failed to delete shader " << checkStatus(GL_DELETE_STATUS));
     }
 
     //////////////////////////////////////////////
@@ -57,45 +59,54 @@ namespace jop
     {
         // add source to m_sources
         // make sure that order of sources is correct
-
-        // vert - geom - frag  
-
-        // if sources change - compile again?
+        m_sources.emplace_back(source);
     }
 
     //////////////////////////////////////////////
 
     bool Shader::compile(const Type type)
     {      
-        // Compile shader of given type
-        
-        GLuint shader = glCheck(glCreateShader(shaderTypes[type]))
-        glCheck(glShaderSource(shader, 1, m_source[type], NULL));
-        glCheck(glCompileShader(shader));
+        if (type > Type::Fragment)
+            return false;
 
-         GLint compiled;
-         glCheck(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
+        // Create shader & set handle
+        m_handle = glCheck(glCreateShader(shaderTypes[static_cast<int>(type)]));
+        // Set source
+        glCheck(glShaderSource(m_handle, 1, m_sources.data(), NULL));
+        // Compile
+        glCheck(glCompileShader(m_handle));
 
-         if (compiled != GL_TRUE)
-         {
-             GLsizei log_length = 0;
-             GLchar message(1024);
-             glCheck(glGetShaderInfoLog(shader, 1024, &log_length, message));
-             // Write error to log
-             JOP_DEBUG_ERROR("Failed to compile " << (shaderTypes == 0 ? "vertex" : (shaderTypes == 1 ? "geometry" : "fragment")) << " shader:\n" << message);
+        // Check status
+        if(checkStatus(GL_COMPILE_STATUS) != 0)
+        {
+            JOP_DEBUG_ERROR("Failed to compile " << (type == 0 ? "vertex" : (type == 1 ? "geometry" : "fragment")) << " shader:\n" << checkStatus(GL_COMPILE_STATUS));
+            
+            // Compile failed - delete shader
+            glCheck(glDeleteShader(m_handle));
 
-             return false;
-         }
-        
-         return true;
+            if (checkStatus(GL_DELETE_STATUS) != 0)
+                JOP_DEBUG_ERROR("Failed to delete shader " << checkStatus(GL_DELETE_STATUS));
+
+            return false;
+        }
+       
+#ifdef JOP_DEBUG_MODE
+
+        else if (checkStatus(GL_INFO_LOG_LENGTH) != 0)
+        {
+            if (std::strcmp(reinterpret_cast<const char*>(checkStatus(GL_INFO_LOG_LENGTH)), "No errors.") != 0)
+                JOP_DEBUG_WARNING((type == 0 ? "Vertex" : (type == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << checkStatus(GL_INFO_LOG_LENGTH));
+        }
+
+#endif
+
+        return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Shader::load(const std::string& path)
+    bool Shader::load(const std::string& path, Type type)
     {
-        // Check type
-
 
         // File loader error checks need to be disabled here to avoid console spam
         const bool previouslyEnabled = FileLoader::errorChecksEnabled();
@@ -105,15 +116,45 @@ namespace jop
         const char* sources[] = { FileLoader::readTextfile(path, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : path.c_str() };
 
         FileLoader::enableErrorChecks(previouslyEnabled);
-
         
-        //addsource(sources)
-
+        // Add sources
+        addSource(*sources);
         // for each type compile
-
-        // clear m_sources after done
+        compile(type);
+        // clear sources after compiled
+        m_sources.clear();
     }
 
-
+    //////////////////////////////////////////////
  
+    GLuint Shader::getType() const
+    {
+        return shaderTypes[static_cast<int>(m_shaderType)];
+    }
+
+    //////////////////////////////////////////////
+
+    GLuint Shader::getHandle() const
+    {
+        return m_handle;
+    }
+
+    //////////////////////////////////////////////
+
+    GLchar Shader::checkStatus(GLenum pname)
+    {
+        GLint status;
+        glCheck(glGetShaderiv(m_handle, pname, &status));
+
+        if (status != GL_TRUE)
+        {
+            GLsizei log_length = 0;
+            GLchar message(1024);
+            glCheck(glGetShaderInfoLog(m_handle, 1024, &log_length, &message));
+            return message;
+        }
+
+        return 0;
+    }
+
 }

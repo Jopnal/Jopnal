@@ -20,16 +20,25 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Audio/Listener.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, Listener)
+    JOP_REGISTER_COMMAND_HANDLER(Listener)
 
-        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+        JOP_BIND_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
 
     JOP_END_COMMAND_HANDLER(Listener)
 }
@@ -37,7 +46,7 @@ namespace jop
 namespace jop
 {
     Listener::Listener(Object& object)
-        : Component(object, "listener")
+        : Component(object, 0)
     {}
 
     Listener::Listener(const Listener& other, Object& newObj)
@@ -50,24 +59,28 @@ namespace jop
 
     void Listener::update(const float)
     {
-        glm::vec3 var = getObject()->getGlobalPosition();
-        sf::Listener::setPosition(var.x, var.y, var.z);
-
-        var = getObject()->getGlobalFront();
-        sf::Listener::setDirection(var.x, var.y, var.z);
     }
 
     ///////////////////////////////////////
 
     void Listener::setGlobalVolume(const float volume)
     {
-        sf::Listener::setGlobalVolume(glm::clamp(volume, 0.f, 100.f));
     }
 
     ///////////////////////////////////////
 
-    float Listener::getGlobalVolume() const
+    float Listener::getGlobalVolume()
     {
-        return sf::Listener::getGlobalVolume();
+        return 0.f;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Listener::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Listener, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

@@ -20,125 +20,44 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Camera.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, Camera)
+    JOP_REGISTER_COMMAND_HANDLER(Camera)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setProjectionMode, "setProjectionMode");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setClippingPlanes, "setClippingPlanes");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setAspectRatio, "setAspectRatio");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setFieldOfView, "setFieldOfView");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Camera::setViewport, "setViewport");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setProjectionMode, "setProjectionMode");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setClippingPlanes, "setClippingPlanes");
+        JOP_BIND_MEMBER_COMMAND((Camera& (Camera::*)(const float, const float))&Camera::setSize, "setSize");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setAspectRatio, "setAspectRatio");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setFieldOfView, "setFieldOfView");
+        JOP_BIND_MEMBER_COMMAND(&Camera::setViewport, "setViewport");
 
     JOP_END_COMMAND_HANDLER(Camera)
-
-    JOP_REGISTER_LOADABLE(jop, Camera)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
-    {
-        const Camera::Projection proj = val.HasMember("projection") && val["projection"].IsUint() ?
-                                        static_cast<Camera::Projection>(std::max(1u, val["projection"].GetUint())) :
-                                        Camera::Projection::Perspective;
-
-        auto& cam = obj.createComponent<Camera>(scene.getRenderer(), proj);
-
-        const char* const idField = "id";
-        if (val.HasMember(idField) && val[idField].IsString())
-            cam.setID(val[idField].GetString());
-
-        const char* const maskField = "mask";
-        if (val.HasMember(maskField) && val[maskField].IsUint())
-            cam.setRenderMask(val[maskField].GetUint());
-
-        if (val.HasMember("clipping") && val["clipping"].IsArray() && val["clipping"].Size() >= 2)
-        {
-            auto& clip = val["clipping"];
-
-            if (clip[0u].IsDouble() && clip[1u].IsDouble())
-                cam.setClippingPlanes(static_cast<float>(clip[0u].GetDouble()), static_cast<float>(clip[1u].GetDouble()));
-            else
-                JOP_DEBUG_WARNING("Incorrect clipping values specified for camera component, while loading object \"" << obj.getID() << "\"");
-        }
-
-        if (val.HasMember("projdata") && val["projdata"].IsArray() && val["projdata"].Size() >= 2)
-        {
-            auto& pd = val["projdata"];
-
-            if (pd[0u].IsDouble() && pd[1u].IsDouble())
-            {
-                if (proj == Camera::Projection::Perspective)
-                {
-                    cam.setFieldOfView(static_cast<float>(pd[0u].GetDouble()));
-                    cam.setAspectRatio(static_cast<float>(pd[1u].GetDouble()));
-                }
-                else
-                    cam.setSize(static_cast<float>(pd[0u].GetDouble()), static_cast<float>(pd[1u].GetDouble()));
-            }
-            else
-                JOP_DEBUG_WARNING("Incorrect projection data values specified for camera component, while loading object \"" << obj.getID() << "\"");
-        }
-
-        const char* const vpField = "viewport";
-        if (val.HasMember(vpField) && val[vpField].IsArray() && val[vpField].Size() >= 4)
-        {
-            auto& vp = val[vpField];
-
-            if (vp[0u].IsDouble() && vp[1u].IsDouble() && vp[2u].IsDouble() && vp[3u].IsDouble())
-                cam.setViewport(glm::vec2(vp[0u].GetDouble(), vp[1u].GetDouble()), glm::vec2(vp[2u].GetDouble(), vp[3u].GetDouble()));
-            else
-                JOP_DEBUG_WARNING("Incorrect viewport values specified for camera component, while loading object \"" << obj.getID() << "\"");
-        }
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Camera)
-
-    JOP_REGISTER_SAVEABLE(jop, Camera)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
-    {
-        auto& cam = static_cast<const Camera&>(comp);
-
-        val.AddMember(json::StringRef("projection"), static_cast<unsigned int>(cam.getProjectionMode()), alloc);
-
-        val.AddMember(json::StringRef("id"), json::StringRef(cam.getID().c_str()), alloc);
-        val.AddMember(json::StringRef("mask"), cam.getRenderMask(), alloc);
-
-        auto& clip = val.AddMember(json::StringRef("clipping"), json::kArrayType, alloc)["clipping"];
-        clip.PushBack(cam.getClippingPlanes().first, alloc)
-            .PushBack(cam.getClippingPlanes().second, alloc);
-
-        auto& pd = val.AddMember(json::StringRef("projdata"), json::kArrayType, alloc);
-
-        if (cam.getProjectionMode() == Camera::Projection::Perspective)
-        {
-            auto size = cam.getSize();
-            pd.PushBack(size.x, alloc)
-              .PushBack(size.y, alloc);
-        }
-        else
-        {
-            pd.PushBack(cam.getFieldOfView(), alloc)
-              .PushBack(cam.getAspectRatio(), alloc);
-        }
-
-        auto& vp = cam.getViewport();
-        val.AddMember(json::StringRef("viewport"), json::kArrayType, alloc)["viewport"]
-           .PushBack(vp.first.x, alloc).PushBack(vp.first.y, alloc)
-           .PushBack(vp.second.x, alloc).PushBack(vp.second.y, alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Camera)
 }
 
 namespace jop
 {
-
     Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
-        : Component                 (object, "camera"),
+        : Component                 (object, 0),
           m_renderTexture           (),
           m_projectionMatrix        (),
           m_viewPort                (glm::vec2(0.f), glm::vec2(1.f)),
@@ -153,13 +72,13 @@ namespace jop
 
         if (mode == Projection::Orthographic)
         {
-            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine/Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
-            setSize(Engine::getMainRenderTarget().getSize());
+            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
+            setSize(Engine::getMainWindow().getSize());
         }
         else
         {
-            setClippingPlanes(SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine/Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
-            setFieldOfView(SettingManager::get<float>("engine/Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
+            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
+            setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
             setSize(Engine::getMainRenderTarget().getSize());
         }
 
@@ -348,34 +267,19 @@ namespace jop
 
     void Camera::applyViewport(const RenderTarget& mainTarget) const
     {
-        glm::uvec2 mainSize = mainTarget.getSize();
-
-        if (m_renderTexture.isValid())
-            mainSize = m_renderTexture.getSize();
+        const glm::uvec2 mainSize = m_renderTexture.isValid() ? m_renderTexture.getSize() : mainTarget.getSize();
 
         const auto p = glm::ivec2(m_viewPort.first * glm::vec2(mainSize));
         const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;
 
-        glCheck(gl::Viewport(p.x, p.y, s.x, s.y));
+        glCheck(glViewport(p.x, p.y, s.x, s.y));
     }
 
     //////////////////////////////////////////////
 
-    bool Camera::enableRenderTexture(const bool enable,
-                                     const glm::uvec2& size,
-                                     const RenderTexture::ColorAttachment color,
-                                     const RenderTexture::DepthAttachment depth,
-                                     const RenderTexture::StencilAttachment stencil)
+    RenderTexture& Camera::getRenderTexture()
     {
-        if (enable != m_renderTexture.isValid())
-        {
-            if (enable)
-                return m_renderTexture.create(size, color, depth, stencil);
-            else
-                m_renderTexture.destroy();
-        }
-
-        return true;
+        return m_renderTexture;
     }
 
     //////////////////////////////////////////////
@@ -396,5 +300,15 @@ namespace jop
                    getProjectionMatrix(),
                    glm::vec4(glm::vec2(0.f), glm::vec2(target.getSize()))
                ));
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Camera::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Camera, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message); 
     }
 }

@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 //Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Object.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -30,42 +40,42 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Object)
 
         // Transform
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
-
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
-
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
-        JOP_BIND_MEMBER_COMMAND_NORETURN((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
-
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+       
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
+       
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
+        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
+       
         // Object
-
+       
+        // Tags
+        JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
+       
         // Component
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearComponents, "clearComponents");
-
+        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
+       
         // Activity
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setActive, "setActive");
-
+        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
+       
         // Children
         JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
         JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
         JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeChildren, "removeChildren");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearChildren, "clearChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
         JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
-
-        // Tags
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::addTag, "addTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::removeTag, "removeTag");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::clearTags, "clearTags");
-
+       
         // Other
         JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Object::setIgnoreParent, "setIgnoreParent");
+        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -81,10 +91,12 @@ namespace jop
           m_children                (),
           m_components              (),
           m_tags                    (),
-          m_ID                      (ID),
+          m_ID                      (),
           m_parent                  (),
           m_flags                   (ActiveFlag | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
+        setID(ID);
+
         m_locals.position = glm::vec3(0.f);
         m_locals.scale = glm::vec3(1.f);
         m_locals.rotation = glm::quat(1.f, 0.f, 0.f, 0.f);
@@ -99,13 +111,20 @@ namespace jop
           m_children                (),
           m_components              (),
           m_tags                    (other.m_tags),
-          m_ID                      (newID),
+          m_ID                      (),
           m_parent                  (other.m_parent),
           m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
+        setID(newID);
+
         m_components.reserve(other.m_components.size());
         for (auto& i : other.m_components)
-            m_components.emplace_back(std::unique_ptr<Component>(i->clone(*this)));
+        {
+            auto ptr = std::unique_ptr<Component>(i->clone(*this));
+
+            if (ptr)
+                m_components.emplace_back(std::move(ptr));
+        }
 
         m_children.reserve(other.m_children.size());
         for (auto& i : other.m_children)
@@ -153,60 +172,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Component* Object::getComponent(const std::string& ID)
-    {
-        for (auto& i : m_components)
-        {
-            if (i->getID() == ID)
-                return i.get();
-        }
-
-        return nullptr;
-    }
-
-    const Component* Object::getComponent(const std::string& ID) const
-    {
-        for (auto& i : m_components)
-        {
-            if (i->getID() == ID)
-                return i.get();
-        }
-
-        return nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    Component* Object::cloneComponent(Object& object, const std::string& ID) const
-    {
-        auto i = getComponent(ID);
-
-        if (i)
-        {
-            object.m_components.emplace_back(i->clone(object));
-            return object.m_components.back().get();
-        }
-
-        return nullptr;
-    }
-
-    /////////////////////////////////////////////
-
-    Component* Object::cloneComponent(const std::string& ID, const std::string& newID)
-    {
-        auto i = getComponent(ID);
-
-        if (i)
-        {
-            m_components.emplace_back(i->clone(*this));
-            m_components.back()->setID(newID);
-        }
-
-        return i;
-    }
-
-    //////////////////////////////////////////////
-
     const std::vector<std::unique_ptr<Component>>& Object::getComponents() const
     {
         return m_components;
@@ -214,7 +179,7 @@ namespace jop
 
     /////////////////////////////////////////////
 
-    Object& Object::removeComponents(const std::string& ID)
+    Object& Object::removeComponents(const uint32 ID)
     {
         m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [&ID](const std::unique_ptr<Component>& comp)
         {
@@ -262,12 +227,26 @@ namespace jop
         if (m_children.size() == m_children.capacity())
             m_children.reserve(m_children.size() + 1);
 
+        const bool thisActive = isActive();
+        const bool activityStateChanged = child.getParent()->isActive() != thisActive;
+
         m_children.emplace_back(std::move(child));
         m_children.back().m_parent = *this;
+        m_children.back().propagateFlags(TransformDirty);
+
+        if (activityStateChanged)
+            m_children.back().propagateActiveComponents(thisActive);
 
         child.removeSelf();
 
         return m_children.back().getReference();
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<Object>& Object::getChildren()
+    {
+        return m_children;
     }
 
     //////////////////////////////////////////////
@@ -412,21 +391,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Object& Object::setIgnoreParent(const bool ignore)
-    {
-        ignore ? setFlags(IgnoreParent) : clearFlags(IgnoreParent);
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Object::ignoresParent() const
-    {
-        return flagSet(IgnoreParent);
-    }
-
-    //////////////////////////////////////////////
-
     WeakReference<Object> Object::getParent() const
     {
         return m_parent;
@@ -453,30 +417,13 @@ namespace jop
         return getParent().expired() ? static_cast<const Scene&>(*this) : getParent()->getScene();
     }
 
-    //////////////////////////////////////////////
-
-    Message::Result Object::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    /////////////////////////////////////////////
-
-    Message::Result Object::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
     /////////////////////////////////////////////
 
     Message::Result Object::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags) && message.passFilter(Message::Command))
+        if (message.passFilter(Message::Object) && message.passFilter(getID()) && message.passFilter(m_tags))
         {
-            Any instance(this);
-            if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+            if (JOP_EXECUTE_COMMAND(Object, message.getString(), this) == Message::Result::Escape)
                 return Message::Result::Escape;
         }
 
@@ -629,15 +576,18 @@ namespace jop
 
     Object& Object::setActive(const bool active)
     {
-        if (isActive() != active)
+        const bool wasActive = isActive();
+
+        if (((m_flags & ActiveFlag) != 0) != active)
         {
-            active ? setFlags(ActiveFlag) : clearFlags(ActiveFlag);
+            setFlagsIf(ActiveFlag, active);
 
-            for (auto& i : m_components)
-                i->setActive(active);
-
-            for (auto& i : m_children)
-                i.setActive(active);
+            const bool active = isActive();
+            if (wasActive != active)
+            {
+                for (auto& i : m_children)
+                    i.propagateActiveComponents(active);
+            }
         }
 
         return *this;
@@ -647,7 +597,7 @@ namespace jop
 
     bool Object::isActive() const
     {
-        return (m_flags & ActiveFlag) != 0 && !isRemoved();
+        return ((m_flags & ActiveFlag) != 0) && !isRemoved() && (m_parent.expired() || m_parent->isActive());
     }
 
     /////////////////////////////////////////////
@@ -669,6 +619,82 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
+    void Object::printDebugTree() const
+    {
+        printDebugTreeImpl(std::vector<uint32>(), false);
+    }
+
+    //////////////////////////////////////////////
+
+    void Object::printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const
+    {
+    #if JOP_CONSOLE_VERBOSITY >= 2
+
+        auto& deb = DebugHandler::getInstance();
+
+        std::lock_guard<std::recursive_mutex> lock(deb.getMutex());
+
+        static const unsigned char codes[] =
+        {
+            196, // 0: Horizontal line
+            194, // 1: Right & down
+            195, // 2: Down & right
+            192, // 3: Right from up
+            179, // 4: Vertical line
+            191, // 5: Down from left
+            218, // 6: Down from right
+            217, // 7: Left from up
+        };
+
+        if (spacing.empty())
+        {
+            const auto n = childCountRecursive() + 1; // +1 for scene
+            deb << DebugHandler::Severity::Info << Color::White <<  "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
+
+            for (uint32 i = 0; i < 45 + std::ceil(std::log10(n + 1)); ++i)
+                deb << codes[0];
+
+            deb << codes[7] << "\n" << codes[3];
+        }
+
+        deb << " " << (getID().empty() ? "<unnamed>" : getID()) << "\n";
+        spacing.emplace_back(getID().length() / 2 + 1 + spacing.empty());
+
+        auto& c = getChildren();
+        for (auto itr = c.begin(); itr != c.end(); ++itr)
+        {
+            for (uint32 sp = 0; sp < spacing[0]; ++sp)
+                deb << " ";
+
+            for (uint32 sp = 1; sp < spacing.size(); ++sp)
+            {
+                if (sp + 1 < spacing.size() || !isLast) 
+                    deb << codes[4];
+                else
+                    deb << " ";
+
+                for (uint32 i = 0; i < spacing[sp]; ++i)
+                    deb << " ";
+            }
+
+            deb << codes[2 + (itr == c.end() - 1)];
+
+            itr->printDebugTreeImpl(spacing, itr == c.end() - 1);
+        }
+
+        if (spacing.size() == 1)
+            deb << std::endl;
+
+    #else
+
+        spacing;
+        isLast;
+
+    #endif
+    }
+
     /////////////////////////////////////////////
 
     const std::string& Object::getID() const
@@ -681,6 +707,7 @@ namespace jop
     Object& Object::setID(const std::string& ID)
     {
         m_ID = ID;
+        std::replace(m_ID.begin(), m_ID.end(), '>', '-');
         return *this;
     }
 
@@ -721,9 +748,17 @@ namespace jop
     {
         if (flagSet(ChildrenRemovedFlag))
         {
-            m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](const Object& obj)
+            m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [](Object& obj)
             {
-                return obj.isRemoved();
+                if (obj.isRemoved())
+                {
+                    obj.clearChildren();
+                    obj.clearComponents();
+                    return true;
+                }
+
+                return false;
+
             }), m_children.end());
 
             clearFlags(ChildrenRemovedFlag);
@@ -742,7 +777,55 @@ namespace jop
             m_transform.scale(getLocalScale());
 
             if (!m_parent.expired() && !ignoresParent())
-                m_transform = m_parent->getTransform() * m_transform;
+            {
+                Transform globalTrans = m_parent->getTransform();
+                glm::mat4& globalMat = globalTrans.getMatrix();
+
+                if (flagSet(ScaleX)) globalMat[0] = glm::normalize(globalMat[0]);
+                if (flagSet(ScaleY)) globalMat[1] = glm::normalize(globalMat[1]);
+                if (flagSet(ScaleZ)) globalMat[2] = glm::normalize(globalMat[2]);
+                
+                if (flagSet(Rotation))
+                {
+                    const glm::vec3 scl
+                    (
+                        glm::length(globalMat[0]),
+                        glm::length(globalMat[1]),
+                        glm::length(globalMat[2])
+                    );
+
+                    m_transform.getMatrix()[3] = glm::quat(globalMat) * m_transform.getMatrix()[3];
+
+                    globalMat[0] = glm::mat4::col_type(scl.x, 0.f, 0.f, 0.f);
+                    globalMat[1] = glm::mat4::col_type(0.f, scl.y, 0.f, 0.f);
+                    globalMat[2] = glm::mat4::col_type(0.f, 0.f, scl.z, 0.f);
+                }
+
+                if (flagSet(Translation))
+                {
+                    glm::mat4& localMat = m_transform.getMatrix();
+
+                    if (flagSet(TranslationX))
+                    {
+                        globalMat[3][0] = 0.f;
+                        localMat[3][0] = getLocalPosition().x;
+                    }
+                    
+                    if (flagSet(TranslationY))
+                    {
+                        globalMat[3][1] = 0.f;
+                        localMat[3][1] = getLocalPosition().y;
+                    }
+
+                    if (flagSet(TranslationZ))
+                    {
+                        globalMat[3][2] = 0.f;
+                        localMat[3][2] = getLocalPosition().z;
+                    }
+                }
+
+                m_transform = globalTrans * m_transform;
+            }
 
             clearFlags(MatrixDirty);
         }
@@ -823,10 +906,7 @@ namespace jop
     {
         if (flagSet(GlobalRotationDirty))
         {
-            if (m_parent.expired() || ignoresParent())
-                m_globals.rotation = getLocalRotation();
-            else
-                m_globals.rotation = m_parent->getGlobalRotation() * getLocalRotation();
+            m_globals.rotation = glm::quat(getTransform().getMatrix());
 
             clearFlags(GlobalRotationDirty);
         }
@@ -913,10 +993,14 @@ namespace jop
     {
         if (flagSet(GlobalScaleDirty))
         {
-            if (m_parent.expired() || ignoresParent())
-                m_globals.scale = getLocalScale();
-            else
-                m_globals.scale = m_parent->getGlobalScale() * getLocalScale();
+            const auto& mat = getTransform().getMatrix();
+
+            m_globals.scale = glm::vec3
+            (
+                glm::length(mat[0]),
+                glm::length(mat[1]),
+                glm::length(mat[2])
+            );
 
             clearFlags(GlobalScaleDirty);
         }
@@ -954,7 +1038,7 @@ namespace jop
     {
         if (flagSet(GlobalPositionDirty))
         {
-            auto& mat = getTransform().getMatrix();
+            const auto& mat = getTransform().getMatrix();
             m_globals.position = glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
 
             clearFlags(GlobalPositionDirty);
@@ -981,7 +1065,10 @@ namespace jop
 
     Object& Object::lookAt(const glm::vec3& point, const glm::vec3& up)
     {
-        return setRotation(glm::quat(glm::inverse(glm::lookAt(getGlobalPosition(), point, up))));
+        const glm::vec3 direction = glm::normalize(point - getGlobalPosition());
+        const glm::quat rot = glm::rotation(Transform::Front, direction);
+
+        return setRotation(glm::rotation(rot * Transform::Up, glm::cross(glm::cross(direction, up), direction)) * rot);
     }
 
     //////////////////////////////////////////////
@@ -1049,26 +1136,78 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Object::flagSet(const uint16 flag) const
+    Object& Object::setIgnoreParent(const bool ignore)
+    {
+        ignore ? setFlags(IgnoreParent) : clearFlags(IgnoreParent);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::ignoresParent() const
+    {
+        return (m_flags & IgnoreParent) == IgnoreParent;
+    }
+
+    //////////////////////////////////////////////
+
+    Object& Object::setIgnoreTransform(const uint32 flags)
+    {
+        setFlags((flags & IgnoreParent) | TransformDirty);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::ignoresTransform(const uint32 flag)
+    {
+        return flagSet(flag);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Object::flagSet(const uint32 flag) const
     {
         return (m_flags & flag) != 0;
     }
 
-    void Object::setFlags(const uint16 flags) const
+    void Object::setFlags(const uint32 flags) const
     {
         m_flags |= flags;
     }
 
-    void Object::clearFlags(const uint16 flags) const
+    void Object::clearFlags(const uint32 flags) const
     {
         m_flags &= ~flags;
     }
 
-    void Object::propagateFlags(const uint16 flags)
+    void Object::setFlagsIf(const uint32 flags, const bool cond) const
+    {
+        (m_flags &= ~flags) |= (flags * cond);
+    }
+
+    void Object::propagateFlags(const uint32 flags)
     {
         setFlags(flags);
 
         for (auto& i : m_children)
             i.propagateFlags(flags);
+    }
+
+    void Object::propagateClearFlags(const uint32 flags)
+    {
+        clearFlags(flags);
+
+        for (auto& i : m_children)
+            i.propagateClearFlags(flags);
+    }
+
+    void Object::propagateActiveComponents(const bool active)
+    {
+        for (auto& i : m_components)
+            i->setActive(active);
+
+        for (auto& i : m_children)
+            i.propagateActiveComponents(active);
     }
 }

@@ -20,7 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include <Jopnal/Precompiled/Precompiled.hpp>
 
 
 //////////////////////////////////////////////
@@ -29,9 +29,15 @@
 namespace jop
 {
     ShaderProgram::ShaderProgram(const std::string& name)
-        : Resource(name)
+        : Resource      (name),
+          m_programID   (0),
+          m_shaders     ()
+
     {
-        //m_programID = glCheck(glCreateProgram()); 
+        m_programID = glCheck(glCreateProgram()); 
+
+        if (m_programID == 0)
+            JOP_DEBUG_ERROR("Failed to create shader program!");
     }
 
     ShaderProgram::~ShaderProgram()
@@ -41,50 +47,95 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool ShaderProgram::attachShader(const Shader&)
+    bool ShaderProgram::attachShader(const Shader& shader)
     {
-        // Check if a shader of this type already exists
-        // if so - replace it
+        // Is shader valid?
+        if (glIsShader(shader.getHandle()) != GL_TRUE)
+            return false;
+        
+        m_shaders.emplace(shader.getType(), shader);
 
-
-
-        //glCheck(glAttachShader(programID, shader));
-
-
+        // Check if a shader of this type already exists & remove it if so
+        for (auto i : m_shaders)
+        {
+            if (i.first == shader.getType())
+            {
+                glCheck(glDetachShader(m_programID, i.second->getHandle()));
+                //glDeleteShader(i.second->getHandle());
+            }
+        }
+     
+        // Attach new shader to program
+        glCheck(glAttachShader(m_programID, shader.getHandle()));
+        return true;
     }
 
     //////////////////////////////////////////////
 
     bool ShaderProgram::link()
     {
-        glCheck(glUseProgram(programID));
+        // Link program
+        glCheck(glUseProgram(m_programID));
 
-        Glint linked;
-        glCheck(glGetProgramiv(programID, GL_LINK_STATUS, &linked));
-        if (linked != GL_TRUE)
+        // Check status
+        if (checkStatus(GL_LINK_STATUS) != 0)
         {
-            GLsizei log_length = 0;
-            GLchar message(1024);
-            glCheck(glGetProgramInfoLog(programID, 1024, &log_length, message));
-            // Write error to log
-            JOP_DEBUG_ERROR("Failed to link shader program:"<< "\n" << message);
+            JOP_DEBUG_ERROR("Failed to link shader program:\n" << checkStatus(GL_LINK_STATUS));
+
+            //We don't need the program anymore.
+            glCheck(glDeleteProgram(m_programID));
+            
+            //Don't leak shaders either.
+            for (auto& i : m_shaders)
+                glCheck(glDeleteShader(i.second->getHandle()));
 
             return false;
         }
+
+#ifdef JOP_DEBUG_MODE
+
+        else if (checkStatus(GL_INFO_LOG_LENGTH) != 0)
+        {
+            if (std::strcmp(reinterpret_cast<const char*>(checkStatus(GL_INFO_LOG_LENGTH)), "No errors.") != 0)
+                JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << checkStatus(GL_INFO_LOG_LENGTH));
+        }
+
+#endif
+
+        // Detach shaders from program after linking
+        for(auto& i : m_shaders)
+            glCheck(glDetachShader(m_programID, i.second->getHandle()));
+
+        return true;
     }
 
     //////////////////////////////////////////////
 
     void ShaderProgram::unlink()
     {
-        //glCheck(glDeleteProgram(programID));
+        glCheck(glDeleteProgram(m_programID));
 
-        GLint deleted;
-        glCheck(glGetProgramInfoLog(programID, GL_DELETE_STATUS, &deleted));
-        if (deleted != GL_TRUE)
+        // Check status
+        if(checkStatus(GL_DELETE_STATUS) != 0)
+            JOP_DEBUG_ERROR("Failed to delete shader program:" << "\n" << checkStatus(GL_DELETE_STATUS));
+    }
+
+    //////////////////////////////////////////////
+
+    GLchar ShaderProgram::checkStatus(GLenum pname)
+    {
+        GLint status;
+        glCheck(glGetProgramiv(m_programID, pname, &status));
+
+        if (status != GL_TRUE)
         {
-
+            GLsizei log_length = 0;
+            GLchar message(1024);
+            glCheck(glGetProgramInfoLog(m_programID, 1024, &log_length, &message));
+            return message;
         }
+
+        return 0;
     }
 
 }

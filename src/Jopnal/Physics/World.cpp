@@ -20,14 +20,34 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/World.hpp>
+
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <Bullet/btBulletDynamicsCommon.h>
+    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
+#endif
+
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, World)
+    JOP_REGISTER_COMMAND_HANDLER(World)
 
         JOP_BIND_MEMBER_COMMAND(&World::setDebugMode, "setWorldDebugMode");
 
@@ -78,9 +98,9 @@ namespace detail
 
         void reportErrorWarning(const char* warningString) override
         {
-#ifndef JOP_DEBUG_MODE
+        #ifndef JOP_DEBUG_MODE
             warningString;
-#endif
+        #endif
             JOP_DEBUG_WARNING(warningString);
         }
 
@@ -105,15 +125,13 @@ namespace detail
 
             if (shdr.expired())
             {
-                std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
-
                 shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
 
-                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                    "",
-                    std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                    "Failed to compile physics debug shader!");
+                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)),
+                                           "",
+                                           std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag, sizeof(jopr::physicsDebugShaderFrag))),
+                                           Shader::getVersionString()),
+                                           "Failed to compile physics debug shader!");
             }
 
             // Draw lines
@@ -125,10 +143,10 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
+                shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
 
-                glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+                glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
                 m_lines.clear();
             }
@@ -136,12 +154,15 @@ namespace detail
             // Draw points
             if (m_points.empty())
             {
-                glCheck(gl::PointSize(3));
+            #ifndef JOP_OPENGL_ES
+                glCheck(glPointSize(3));
+            #endif
+
                 GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
                 m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
-                glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+                glCheck(glDrawArrays(GL_POINTS, 0, m_points.size()));
 
                 m_points.clear();
             }
@@ -200,23 +221,19 @@ namespace detail
 namespace jop
 {
     World::World(Object& obj, Renderer& renderer)
-        : Component         (obj, "world"),
+        : Drawable          (obj, renderer, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
     {
-    #ifdef JOP_DEBUG_MODE
-        renderer.m_physicsWorld = this;
-    #else
-        renderer;
-    #endif
-        
-        static const float gravity = SettingManager::get<float>("engine/Physics|DefaultWorld|fGravity", -9.81f);
+        static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         m_worldData->world->setWorldUserInfo(this);
         
         setDebugMode(false);
+
+        setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
     }
 
     World::~World()
@@ -236,7 +253,7 @@ namespace jop
 
     void World::update(const float deltaTime)
     {
-        static const char* const str = "engine/Physics|uUpdateFrequency";
+        static const char* const str = "engine@Physics|uUpdateFrequency";
         static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
 
         static struct Callback : SettingCallback<unsigned int>
@@ -253,15 +270,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World::draw(const Camera& camera)
+    void World::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
     #ifdef JOP_DEBUG_MODE
-        if (!m_worldData->world->getDebugDrawer()->getDebugMode())
-            return;
-
-        static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = &camera;
-
-        m_worldData->world->debugDrawWorld();
+        if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
+        {
+            static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
+            m_worldData->world->debugDrawWorld();
+        }
     #else
         camera;
     #endif
@@ -369,5 +385,15 @@ namespace jop
         m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 
         return cb.vec;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result World::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(World, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

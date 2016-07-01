@@ -19,13 +19,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYBOX_HPP
-#define JOP_SKYBOX_HPP
+#ifndef JOP_SKYSPHERE_HPP
+#define JOP_SKYSPHERE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/SphereMesh.hpp>
+#include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
@@ -33,6 +33,8 @@
 
 namespace jop
 {
+    class Texture2D;
+
     class JOP_API SkySphere : public Drawable
     {
     private:
@@ -71,7 +73,7 @@ namespace jop
         ///
         /// \param map Reference to the map
         ///
-        void setMap(const Texture2D& map);
+        SkySphere& setMap(const Texture2D& map);
 
         /// \brief Get the bound map
         ///

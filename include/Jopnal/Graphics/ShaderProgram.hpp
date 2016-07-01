@@ -38,7 +38,7 @@ namespace jop
         ///
         ShaderProgram(const std::string& name);
 
-        /// \brief Deconstructor
+        /// \brief Destructor
         ///
         ~ShaderProgram();
 
@@ -47,11 +47,11 @@ namespace jop
         /// attaches a variable number of shaders to shader program
         ///
         template<typename ... Args>
-        bool load(const Args&&... shaders);
+        bool load(const Args&&... args);
 
         /// \brief Attach shader to program
         ///
-        bool attachShader(const Shader&);
+        bool attachShader(const Shader& shader);
 
         /// \brief Link shader program
         ///
@@ -63,21 +63,18 @@ namespace jop
 
     private:
 
+        /// \brief Check program status
+        ///
+        /// \param pname Object parameter: GL_LINK_STATUS, GL_DELETE_STATUS, GL_VALIDATE_STATUS, GL_ATTACHED_SHADERS
+        /// \return Returns message used for error messages
+        ///
+        GLchar checkStatus(GLenum pname);
+
         unsigned int m_programID;
+        std::unordered_map<GLuint, WeakReference<const Shader>> m_shaders;
 
     };
-
-    /*
-    template<typename ... Args>
-    bool jop::ShaderProgram::load(const Args&&... shaders)
-    {
-        const unsigned int shaderAmount = sizeof...(Args);
-
-        load(shaders...);
-
-        link();
-    }
-    */
+#include <Jopnal/Graphics/Inl/ShaderProgram.inl>
 }
 
 #endif

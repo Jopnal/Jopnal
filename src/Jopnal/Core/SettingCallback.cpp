@@ -20,7 +20,15 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/SettingCallback.hpp>
+
+    #include <Jopnal/Core/SettingManager.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -65,7 +73,7 @@ namespace jop
         {
             return val.IsString();
         }
-#pragma endregion VariableQueries
+    #pragma endregion VariableQueries
 
         #pragma region VariableFetchers
         template<>

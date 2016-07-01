@@ -24,38 +24,67 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/STL.hpp>
 #include <unordered_set>
+#include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Object : public SafeReferenceable<Object>
+    class Scene;
+
+    class JOP_API Object : public SafeReferenceable<Object>, public SerializeInfo
     {
     private:
 
         JOP_DISALLOW_COPY(Object);
 
-        friend class StateLoader;
+        friend class SceneLoader;
         friend class Component;
 
-        enum : uint16
+        enum : uint32
         {
             ActiveFlag          = 1,
-            RemoveFlag          = 1 << 1,
-            ChildrenRemovedFlag = 1 << 2,
+            RemoveFlag          = 1 << 2,
+            ChildrenRemovedFlag = 1 << 3,
 
             // Transformations
-            IgnoreParent        = 1 << 3,
             MatrixDirty         = 1 << 4,
             InverseMatrixDirty  = 1 << 5,
 
             GlobalRotationDirty = 1 << 6,
             GlobalScaleDirty    = 1 << 7,
-            GlobalPositionDirty = 1 << 8
+            GlobalPositionDirty = 1 << 8,
+
+            TransformDirty      = MatrixDirty | InverseMatrixDirty | GlobalRotationDirty | GlobalScaleDirty | GlobalPositionDirty
+        };
+
+    public:
+
+        /// Transformation restrictions
+        ///
+        enum TransformRestriction : uint32
+        {
+            TranslationX = 1 << 10,
+            TranslationY = 1 << 11,
+            TranslationZ = 1 << 12,
+            Translation = TranslationX | TranslationY | TranslationZ,
+
+            ScaleX = 1 << 13,
+            ScaleY = 1 << 14,
+            ScaleZ = 1 << 15,
+            Scale = ScaleX | ScaleY | ScaleZ,
+
+            Rotation = 1 << 16,
+
+            IgnoreParent = Translation | Scale | Rotation
         };
 
     public:
@@ -92,19 +121,6 @@ namespace jop
         ///
         ~Object();
 
-
-        /// \brief Get a component with the given id
-        ///
-        /// \param ID Component identifier to search with
-        ///
-        /// \return Pointer to the component, nullptr if the component wasn't found
-        ///
-        Component* getComponent(const std::string& ID);
-
-        /// \copydoc getComponent()
-        ///
-        const Component* getComponent(const std::string& ID) const;
-
         
         /// \brief Get all components
         ///
@@ -129,12 +145,12 @@ namespace jop
         /// \return Pointer to the component. Nullptr if not found
         ///
         template<typename T>
-        T* getComponent(const std::string& ID);
+        T* getComponent(const uint32 ID);
 
         /// \copydoc getComponent()
         ///
         template<typename T>
-        const T* getComponent(const std::string& ID) const;
+        const T* getComponent(const uint32 ID) const;
 
         /// \brief Template function to create components
         ///
@@ -150,18 +166,8 @@ namespace jop
         ///
         /// \return Pointer to the cloned component. Nullptr if not found
         ///
-        Component* cloneComponent(Object& object, const std::string& ID) const;
-
-        /// \brief Template function to duplicates component
-        ///
-        /// The same object will be used.
-        ///
-        /// \param ID Identifier of the component
-        /// \param newID Identifier of the cloned component
-        ///
-        /// \return Pointer to the cloned component. Nullptr if not found
-        ///
-        Component* cloneComponent(const std::string& ID, const std::string& newID);
+        template<typename T>
+        T* cloneComponent(Object& object, const uint32 ID = 0) const;
 
         /// \brief Remove components
         ///
@@ -173,7 +179,7 @@ namespace jop
         ///
         /// \return Reference to self
         /// 
-        Object& removeComponents(const std::string& ID);
+        Object& removeComponents(const uint32 ID);
 
         /// \brief Remove all components
         ///
@@ -212,6 +218,8 @@ namespace jop
         /// \return Reference to the adopted child. The old reference will become invalid
         ///
         WeakReference<Object> adoptChild(Object& child);
+
+        std::vector<Object>& getChildren();
 
         /// \brief Get all children
         ///
@@ -364,28 +372,6 @@ namespace jop
         ///
         const Scene& getScene() const;
 
-
-        /// \brief Method to send messages
-        ///
-        /// Forwards messages to this object's components
-        ///
-        /// \param message String holding the message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Method to send messages
-        ///
-        /// Forwards messages to this object's components
-        ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
         /// \brief Function to handle messages
         ///
         /// \param message The message
@@ -462,9 +448,13 @@ namespace jop
         ///
         const std::string& getID() const;
 
-        /// \brief method for setting the ID
+        /// \brief Set the identifier
         ///
-        /// \param ID unique object identifier
+        /// The character '>' in an object identifier is
+        /// forbidden. These characters, if found, will be replaced
+        /// with '-'.
+        ///
+        /// \param ID Object identifier
         ///
         /// \return Reference to self
         ///
@@ -510,12 +500,20 @@ namespace jop
         bool hasTag(const std::string& tag) const;
 
 
-        /// \brief Update method for object - forwarded for its components
+        /// \brief Update method for object
         ///
-        /// \param deltaTime Double holding delta time
+        /// This is for internal use.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime);
 
+
+        /// \brief Print the tree of objects into the console, this as root
+        ///
+        /// \param spacing For internal use, leave this as the default
+        ///
+        void printDebugTree() const;
 
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -713,7 +711,11 @@ namespace jop
 
         /// \brief Set this transform to look at a certain point
         ///
-        /// The rotation is applied locally.
+        /// The rotation is applied locally. If you want to set the rotation
+        /// to point at an absolute world position, use setIgnoreTransform() to
+        /// restrict the rotation.
+        ///
+        /// This overload will use Transform::Up as the up vector.
         ///
         /// \param point The point to look at
         ///
@@ -728,6 +730,8 @@ namespace jop
         Object& lookAt(const glm::vec3& point, const glm::vec3& up);
 
         /// \brief Set this transform to look at a certain point
+        ///
+        /// \copydetails lookAt(const glm::vec3)
         ///
         /// \param x The X point
         /// \param y The Y point
@@ -835,17 +839,49 @@ namespace jop
         ///
         bool ignoresParent() const;
 
+
+        /// \brief Set transform restriction flags
+        ///
+        /// Use this function to ignore certain global transformations. The
+        /// local transformation values remain unaffected.
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see TransformRestriction
+        ///
+        Object& setIgnoreTransform(const uint32 flags);
+
+        /// \brief Check if a transform restriction has been set
+        ///
+        /// You should only check a single flag at a time.
+        ///
+        /// \param flag The flag to check
+        ///
+        /// \return True if the flag is set
+        ///
+        bool ignoresTransform(const uint32 flag);
+
     private:
+
+        void printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const;
 
         void sweepRemoved();
 
-        bool flagSet(const uint16 flag) const;
+        bool flagSet(const uint32 flag) const;
 
-        void setFlags(const uint16 flags) const;
+        void setFlags(const uint32 flags) const;
 
-        void clearFlags(const uint16 flags) const;
+        void clearFlags(const uint32 flags) const;
 
-        void propagateFlags(const uint16 flags);
+        void setFlagsIf(const uint32 flags, const bool cond) const;
+
+        void propagateFlags(const uint32 flags);
+
+        void propagateClearFlags(const uint32 flags);
+
+        void propagateActiveComponents(const bool active);
 
 
         // Transformation
@@ -860,7 +896,7 @@ namespace jop
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
-        mutable uint16 m_flags;                                 ///< Flags
+        mutable uint32 m_flags;                                 ///< Flags
     };
 
     // Include the template implementation file

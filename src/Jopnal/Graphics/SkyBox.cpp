@@ -20,38 +20,55 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/SkyBox.hpp>
+
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, SkyBox)[](Object& obj, const Scene& scene, const json::Value& val)
+    SkyBox& jop__skyBoxFactoryFunc(JOP_COMPONENT_FACTORY_ARGS)
     {
-        const float size = val.HasMember("size") && val["size"].IsDouble() ? static_cast<float>(val["size"].GetDouble()) : 2.f;
-
-        auto& box = obj.createComponent<SkyBox>(scene.getRenderer(), size);
-
+        float size = 2.f;
         
+        if (val.HasMember("size") && val["size"].IsDouble())
+            size = static_cast<float>(val["size"].GetDouble());
 
-        return Drawable::loadStateBase(box, scene, val);
+        return obj.createComponent<SkyBox>(scene.getRenderer(), size);
     }
-    JOP_END_LOADABLE_REGISTRATION(SkyBox)
-
-    JOP_REGISTER_SAVEABLE(jop, SkyBox)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc)
+    bool jop__skyBoxLoadFunc(JOP_COMPONENT_LOAD_ARGS)
     {
-        auto& box = static_cast<const SkyBox&>(comp);
+        // map
 
-        return Drawable::saveStateBase(box, val , alloc);
+        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Load>(Serializer::getSerializeID<Drawable>(), comp, val);
     }
-    JOP_END_SAVEABLE_REGISTRATION(SkyBox)
+    bool jop__skyBoxSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        // map
+
+        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Save>(Serializer::getSerializeID<Drawable>(), comp, val, alloc);
+    }
+
+    JOP_REGISTER_SERIALIZER(jop, SkyBox, jop__skyBoxFactoryFunc, jop__skyBoxLoadFunc, jop__skyBoxSaveFunc);
 }
 
 namespace jop
 {
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, "skybox"),
+        : Drawable      (obj, renderer, 0),
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
     {
@@ -89,20 +106,20 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
 
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
 
         if (msh.getElementAmount())
         {
             msh.getIndexBuffer().bind();
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
 
         GlState::setDepthTest(true);

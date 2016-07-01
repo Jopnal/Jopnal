@@ -20,10 +20,33 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Utility/DirectoryWatcher.hpp>
+
+    #include <Jopnal/STL.hpp>
+
+#endif
 
 #ifdef JOP_OS_WINDOWS
+
     #include <Jopnal/Utility/Win32/DirectoryWatcherImpl.hpp>
+
+#else
+
+    namespace jop { namespace detail
+    {
+        class DirectoryWatcherImpl
+        {
+        public:
+    
+            DirectoryWatcherImpl(const std::string&, DirectoryWatcher::EventCallback)
+            {}
+        };
+    }}
+
 #endif
 
 //////////////////////////////////////////////
@@ -64,22 +87,33 @@ namespace jop
 
     void DirectoryWatcher::setActive(const bool active)
     {
+    #ifdef JOP_OS_WINDOWS
+
         if (m_impl)
             m_impl->setActive(active);
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     bool DirectoryWatcher::isActive() const
     {
+    #ifdef JOP_OS_WINDOWS
         return m_impl && m_impl->isActive();
+    #else
+        return false;
+    #endif
     }
 
     //////////////////////////////////////////////
 
     bool DirectoryWatcher::hasError() const
     {
+    #ifdef JOP_OS_WINDOWS
         return !m_impl || m_impl->hasError();
+    #else
+        return true;
+    #endif
     }
-
 }

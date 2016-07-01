@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <cstddef>
 
 //////////////////////////////////////////////
 
@@ -40,8 +41,6 @@ namespace jop
         {
             ArrayBuffer,
             ElementArrayBuffer,
-            TextureBuffer,
-            TransformFeedBackBuffer,
             UniformBuffer
         };
 

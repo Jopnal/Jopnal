@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
 
 //////////////////////////////////////////////
@@ -32,7 +32,7 @@
 
 namespace jop { namespace detail
 {
-    class VideoInfoImpl
+    class JOP_API VideoInfoImpl
     {
     public:
 

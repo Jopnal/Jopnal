@@ -20,7 +20,18 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/Collider.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Bullet/btBulletCollisionCommon.h>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -61,7 +72,7 @@ namespace detail
 
 namespace jop
 {
-    Collider::Collider(Object& object, World& world, const std::string& ID)
+    Collider::Collider(Object& object, World& world, const uint32 ID)
         : Component     (object, ID),
           m_motionState (std::make_unique<::detail::MotionState>(object)),
           m_body        (),

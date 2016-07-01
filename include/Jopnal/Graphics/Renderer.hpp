@@ -32,9 +32,11 @@
 
 namespace jop
 {
-    class World;
-    class Window;
-    class RenderTarget;
+    class LightSource;
+    class Camera;
+    class Drawable;
+    class EnvironmentRecorder;
+    class LightContainer;
 
     class JOP_API Renderer
     {
@@ -109,10 +111,6 @@ namespace jop
         std::set<EnvironmentRecorder*> m_envRecorders;  ///< The bound environment recorders
         uint32 m_mask;                                  ///< The rendering mask
         const RenderTarget& m_mainTarget;
-
-    #ifdef JOP_DEBUG_MODE
-        World* m_physicsWorld;                          ///< Pointer to the physics world, used for debug drawing
-    #endif
     };
 }
 

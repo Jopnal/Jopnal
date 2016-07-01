@@ -20,30 +20,27 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/GenericDrawable.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, GenericDrawable)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
-    {
-        return Drawable::loadStateBase(obj.createComponent<GenericDrawable>(scene.getRenderer()), scene, val);
-    }
-    JOP_END_LOADABLE_REGISTRATION(GenericDrawable)
-
-    JOP_REGISTER_SAVEABLE(jop, GenericDrawable)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
-    {
-        return Drawable::saveStateBase(static_cast<const GenericDrawable&>(comp), val, alloc);
-    }
-    JOP_END_SAVEABLE_REGISTRATION(GenericDrawable)
-}
-
-namespace jop
-{
     GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
-        : Drawable(object, renderer, "genericdrawable")
+        : Drawable(object, renderer, 0)
     {}
 
     GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)
@@ -76,16 +73,16 @@ namespace jop
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
         if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-            s.setAttribute(5, gl::UNSIGNED_BYTE, 4, stride, true, msh.getVertexOffset(Mesh::Color));
+            s.setAttribute(5, GL_FLOAT, 4, stride, false, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
+            s.setAttribute(2, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::__Lighting))
@@ -93,7 +90,7 @@ namespace jop
         }
 
         // Set material
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
     #ifdef JOP_DEBUG_MODE
 
@@ -102,7 +99,7 @@ namespace jop
             const char* const str;
             bool validate;
             Callback()
-                : str("engine/Debug|bValidateShaders"),
+                : str("engine@Debug|bValidateShaders"),
                   validate(SettingManager::get<bool>(str, false))
             {
                 SettingManager::registerCallback(str, *this);
@@ -125,11 +122,11 @@ namespace jop
             msh.getIndexBuffer().bind();
 
             // Finally draw
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
     }
 }

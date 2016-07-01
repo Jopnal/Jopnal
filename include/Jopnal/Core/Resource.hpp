@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <string>
 #include <memory>
@@ -33,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Resource : public SafeReferenceable<Resource>
+    class JOP_API Resource : public SafeReferenceable<Resource>, public SerializeInfo
     {
     private:
 
@@ -82,25 +83,10 @@ namespace jop
         ///
         unsigned short getPersistence() const;
 
-        /// \brief Set the managed flag
-        ///
-        /// Managed resources will be ignored in serialization.
-        ///
-        /// \param managed The flag to set
-        ///
-        void setManaged(const bool managed);
-
-        /// \brief Get the managed flag
-        ///
-        /// \return The managed flag
-        ///
-        bool isManaged() const;
-
     private:
 
         const std::string m_name;       ///< Name of this resource
         unsigned short m_persistence;   ///< Persistence level
-        bool m_managed;                 ///< Is this resource managed?
     };
 }
 

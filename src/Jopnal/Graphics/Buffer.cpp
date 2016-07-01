@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Buffer.hpp>
+
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -29,18 +39,16 @@ namespace
 {
     static const int ns_bufferType[] =
     {
-        gl::ARRAY_BUFFER,
-        gl::ELEMENT_ARRAY_BUFFER,
-        gl::TEXTURE_BUFFER,
-        gl::TRANSFORM_FEEDBACK_BUFFER,
-        gl::UNIFORM_BUFFER
+        GL_ARRAY_BUFFER,
+        GL_ELEMENT_ARRAY_BUFFER,
+        GL_UNIFORM_BUFFER
     };
 
     static const int ns_usageType[] =
     {
-        gl::STATIC_DRAW,
-        gl::DYNAMIC_DRAW,
-        gl::STREAM_DRAW
+        GL_STATIC_DRAW,
+        GL_DYNAMIC_DRAW,
+        GL_STREAM_DRAW
     };
 }
 
@@ -99,16 +107,18 @@ namespace jop
     void Buffer::bind() const
     {
         if (!m_buffer)
-            glCheck(gl::GenBuffers(1, &m_buffer));
+        {
+            glCheck(glGenBuffers(1, &m_buffer));
+        }
 
-        glCheck(gl::BindBuffer(m_bufferType, m_buffer));
+        glCheck(glBindBuffer(m_bufferType, m_buffer));
     }
 
     //////////////////////////////////////////////
 
     void Buffer::unbind(const Type type)
     {
-        glCheck(gl::BindBuffer(ns_bufferType[static_cast<const unsigned int>(type)], 0));
+        glCheck(glBindBuffer(ns_bufferType[static_cast<const unsigned int>(type)], 0));
     }
 
     //////////////////////////////////////////////
@@ -119,7 +129,7 @@ namespace jop
         {
             bind();
 
-            glCheck(gl::BufferData(m_bufferType, 0, NULL, m_usage));
+            glCheck(glBufferData(m_bufferType, 0, NULL, m_usage));
 
             m_bytesAllocated = 0;
         }
@@ -131,8 +141,8 @@ namespace jop
     {
         if (m_buffer)
         {
-            glCheck(gl::BindBuffer(m_bufferType, m_buffer));
-            glCheck(gl::DeleteBuffers(1, &m_buffer));
+            glCheck(glBindBuffer(m_bufferType, m_buffer));
+            glCheck(glDeleteBuffers(1, &m_buffer));
             m_bytesAllocated = 0;
             m_buffer = 0;
         }

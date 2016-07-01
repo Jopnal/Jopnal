@@ -20,20 +20,28 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/RenderTarget.hpp>
+
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    RenderTarget::RenderTarget(const std::string& ID)
+    RenderTarget::RenderTarget(const uint32 ID)
         : Subsystem             (ID),
           m_mutex               (),
           m_clearColor          (Color::Black),
           m_clearDepth          (1.f),
-          m_clearStencil        (0),
-          m_clearAttribsChanged (true)
+          m_clearStencil        (0)
     {}
 
     RenderTarget::~RenderTarget()
@@ -54,35 +62,31 @@ namespace jop
 
         if (bind())
         {
-            if (m_clearAttribsChanged)
-            {
-                auto vec = m_clearColor.asRGBAFloatVector();
+            glCheck(glClearColor(m_clearColor.colors.r, m_clearColor.colors.g, m_clearColor.colors.b, m_clearColor.alpha));
 
-                glCheck(gl::ClearColor(vec.r, vec.g, vec.b, vec.a));
-                glCheck(gl::ClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
-                glCheck(gl::ClearStencil(m_clearStencil.load()));
+        #ifndef JOP_OPENGL_ES
+            glCheck(glClearDepth(static_cast<GLdouble>(m_clearDepth.load())));
+        #else
+            glCheck(glClearDepthf(m_clearDepth.load()));
+        #endif
+            glCheck(glClearStencil(m_clearStencil.load()));
 
-                m_clearAttribsChanged = false;
-            }
-
-            glCheck(gl::Clear
+            glCheck(glClear
             (
-                ((bits & ColorBit) != 0)   * gl::COLOR_BUFFER_BIT |
-                ((bits & DepthBit) != 0)   * gl::DEPTH_BUFFER_BIT |
-                ((bits & StencilBit) != 0) * gl::STENCIL_BUFFER_BIT
+                ((bits & ColorBit) != 0)   * GL_COLOR_BUFFER_BIT |
+                ((bits & DepthBit) != 0)   * GL_DEPTH_BUFFER_BIT |
+                ((bits & StencilBit) != 0) * GL_STENCIL_BUFFER_BIT
             ));
         }
     }
 
     //////////////////////////////////////////////
 
-    RenderTarget& RenderTarget::setClearColor(const Color color)
+    RenderTarget& RenderTarget::setClearColor(const Color& color)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         m_clearColor = color;
-        m_clearAttribsChanged = true;
-
         return *this;
     }
 
@@ -91,7 +95,6 @@ namespace jop
     Color RenderTarget::getClearColor() const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
         return m_clearColor;
     }
 
@@ -100,8 +103,6 @@ namespace jop
     RenderTarget& RenderTarget::setClearDepth(const float depth)
     {
         m_clearDepth.store(depth);
-        m_clearAttribsChanged.store(true);
-
         return *this;
     }
 
@@ -117,8 +118,6 @@ namespace jop
     RenderTarget& RenderTarget::setClearStencil(const int stencil)
     {
         m_clearStencil.store(stencil);
-        m_clearAttribsChanged.store(true);
-
         return *this;
     }
 
