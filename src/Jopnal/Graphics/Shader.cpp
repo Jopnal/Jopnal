@@ -35,11 +35,15 @@
 
     #ifdef JOP_OPENGL_ES
 
-    #ifdef GL_GEOMETRY_SHADER_EXT
-        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-    #else
-        #define GL_GEOMETRY_SHADER 0
-    #endif
+        #ifndef GL_GEOMETRY_SHADER
+
+            #ifdef GL_EXT_geometry_shader
+                #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+            #else
+                #define GL_GEOMETRY_SHADER 0
+            #endif
+
+        #endif
 
     #endif
 

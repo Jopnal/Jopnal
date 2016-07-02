@@ -35,6 +35,16 @@
     #include <GLES2/gl2ext.h>
     #include <GLES3/gl3platform.h>
 
+    #include <android/api-level.h>
+
+    #if __ANDROID_API__ >= 23
+        #include <GLES3/gl31.h>
+    #endif
+
+    #if __ANDROID_API__ >= 24
+        #include <GLES3/gl32.h>
+    #endif
+
     namespace jop { namespace detail
     {
         bool checkEGLExtension(const char* ext);
