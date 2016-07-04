@@ -109,6 +109,7 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\SphereShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\TerrainShape.hpp" />
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\TerrainShape2D.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\World.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\Shape\CollisionShape.hpp" />
     <ClInclude Include="..\include\Jopnal\Physics\World2D.hpp" />
@@ -223,6 +224,7 @@
     <ClCompile Include="..\src\Jopnal\Physics\Shape\SphereShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape.cpp" />
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape2D.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\World.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\Shape\CollisionShape.cpp" />
     <ClCompile Include="..\src\Jopnal\Physics\World2D.cpp" />

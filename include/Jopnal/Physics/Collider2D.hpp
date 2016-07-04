@@ -105,13 +105,13 @@ namespace jop
 
         /// \brief Get the world this collider belongs to
         ///
-        /// \return Reference to the world
+        /// \return Reference to the 2D world
         ///
-        World& getWorld();
+        World2D& getWorld();
 
         /// \copydoc getWorld()
         ///
-        const World& getWorld() const;
+        const World2D& getWorld() const;
 
     private:
 

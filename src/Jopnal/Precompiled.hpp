@@ -118,6 +118,7 @@
 #include <climits>
 #include <locale>
 #include <codecvt>
+#include <set>
 
 // Jopnal
 #include <Jopnal/Jopnal.hpp>

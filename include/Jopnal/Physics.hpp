@@ -43,6 +43,7 @@
 #include <Jopnal/Physics/Shape/RectangleShape2D.hpp>
 #include <Jopnal/Physics/Shape/SphereShape.hpp>
 #include <Jopnal/Physics/Shape/TerrainShape.hpp>
+#include <Jopnal/Physics/Shape/TerrainShape2D.hpp>
 #include <Jopnal/Physics/World.hpp>
 #include <Jopnal/Physics/World2D.hpp>
 

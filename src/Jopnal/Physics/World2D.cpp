@@ -63,22 +63,7 @@ namespace jop
 
             void DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color)
             {
-                const int pointCount = 15;
-                const float radians = glm::two_pi<float>() / pointCount;
-                float totalRadians = 0;
-
-                b2Vec2 lastPoint(radius, 0.f);
-
-                DrawSegment(center, lastPoint + center, color);
-
-                for (int i = 1; i <= pointCount; ++i)
-                {
-                    const b2Vec2 currentPoint(glm::cos(totalRadians) * radius, glm::sin(totalRadians) * radius);
-                    DrawSegment(lastPoint + center, currentPoint + center, color);
-                    lastPoint = currentPoint;
-                    totalRadians += radians;
-                }
-                DrawSegment(lastPoint + center, b2Vec2(radius, 0.f) + center, color);
+                DrawSolidCircle(center, radius, b2Vec2(1.f, 0.f), color);
             }
 
 
@@ -93,7 +78,7 @@ namespace jop
                 {
                     DrawSegment(vertices[i - 1], vertices[i], color);
                 }
-                DrawSegment(vertices[vertexCount-1], vertices[0], color);
+                DrawSegment(vertices[vertexCount - 1], vertices[0], color);
             }
 
             void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
@@ -113,7 +98,22 @@ namespace jop
 
             void DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color)
             {
-                DrawCircle(center, radius, color);
+                const int pointCount = 15;
+                const float radians = glm::two_pi<float>() / pointCount;
+                float totalRadians = std::atan2f(axis.y, axis.x);
+
+                b2Vec2 lastPoint(axis.x * radius, axis.y * radius);
+
+                DrawSegment(center, lastPoint + center, color);
+
+                for (int i = 1; i <= pointCount; ++i)
+                {
+                    const b2Vec2 currentPoint(glm::cos(totalRadians) * radius, glm::sin(totalRadians) * radius);
+                    DrawSegment(lastPoint + center, currentPoint + center, color);
+                    lastPoint = currentPoint;
+                    totalRadians += radians;
+                }
+                DrawSegment(lastPoint + center, b2Vec2(axis.x * radius, axis.y * radius) + center, color);
             }
 
             void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
@@ -166,9 +166,9 @@ namespace jop
 
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable(obj, renderer, 0),
-        m_worldData2D   (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-        m_step          (0.f),
-        m_dd            (std::make_unique<detail::DebugDraw>())
+        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+        m_step(0.f),
+        m_dd(std::make_unique<detail::DebugDraw>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
@@ -217,7 +217,7 @@ namespace jop
         m_step = std::min(0.1f, m_step + deltaTime);
         while (m_step >= timeStep)
         {
-            m_worldData2D->Step(timeStep, 8, 3); // 1 velocity and 1 position check done for each timeStep
+            m_worldData2D->Step(timeStep, 8, 3); // 8 velocity and 3 position check done for each timeStep
             m_step -= timeStep;
             m_worldData2D->ClearForces(); //to clear or not to clear?
         }
@@ -339,8 +339,7 @@ namespace jop
     {
         struct Callback : b2QueryCallback
         {
-            std::vector<Collider2D*> overlaps;
-            bool overlapping = false;
+            std::set<Collider2D*> overlaps;
             int group;
             unsigned int mask;
 
@@ -348,32 +347,26 @@ namespace jop
             {
                 if ((fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
                 {
-                    overlaps.push_back(static_cast<Collider2D*>(fix->GetUserData()));
+                    overlaps.emplace(static_cast<Collider2D*>(fix->GetBody()->GetUserData()));
                 }
-                return !overlapping;
+                return true;
             }
         } cb;
 
         cb.group = group;
         cb.mask = mask;
 
-        auto bodList = this->m_worldData2D->GetBodyList();
-        auto fixList = bodList->GetFixtureList();
-        b2AABB totalaabb(fixList->GetAABB(0));
 
-        while (bodList)
-        {
-            while (fixList)
-            {
-                totalaabb.Combine(fixList->GetAABB(0));
-                fixList->GetNext();
-            }
-            bodList->GetNext();
-        }
+
+        b2AABB totalaabb;
+        totalaabb.lowerBound = b2Vec2(aabbStart.x, aabbStart.y);
+        totalaabb.upperBound = b2Vec2(aabbEnd.x, aabbEnd.y);
+
+
 
         this->m_worldData2D->QueryAABB(&cb, totalaabb);
 
-        return cb.overlaps;
+        return std::vector<Collider2D*>(cb.overlaps.begin(), cb.overlaps.end());
     }
 
     //////////////////////////////////////////////

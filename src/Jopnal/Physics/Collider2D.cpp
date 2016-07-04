@@ -105,12 +105,14 @@ namespace jop
 
     bool Collider2D::checkContact(const Collider2D& other) const
     {
-        for (b2ContactEdge* ce = m_body->GetContactList(); ce; ce = ce->next)
+        auto ce = this->m_body->GetContactList();
+        while (ce)
         {
             if (ce->other == other.m_body)
             {
                 return true;
             }
+            ce = ce->next;
         }
         return false;
     }

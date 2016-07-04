@@ -27,51 +27,34 @@
 
 namespace jop
 {
-    ConvexHullShape2D::ConvexHullShape2D(const std::string& name)
+
+    TerrainShape2D::TerrainShape2D(const std::string& name)
         : CollisionShape2D(name)
+    {}
+
+    TerrainShape2D::~TerrainShape2D()
     {}
 
     //////////////////////////////////////////////
 
-    bool ConvexHullShape2D::load(const std::vector<glm::vec2>& points)
+    bool TerrainShape2D::load(const std::vector<glm::vec2>& points)
     {
         return load(points, std::vector<unsigned int>());
     }
 
     //////////////////////////////////////////////
 
-    bool ConvexHullShape2D::load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices)
+    bool TerrainShape2D::load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices)
     {
-        if (points.size() <= 2 || points.size() >= 9)
+        if (points.size() < 2)
             return false;
 
-        auto temp = std::make_unique<b2PolygonShape>();
-        indices.size() < 3 ? temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size()) : temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), indices.size());
+        auto temp = std::make_unique<b2ChainShape>();
+
+        indices.size() < 2 ? temp->CreateChain(reinterpret_cast<const b2Vec2*>(points.data()), points.size()) : temp->CreateChain(reinterpret_cast<const b2Vec2*>(points.data()), indices.size());
         m_shape = std::move(temp);
+
         return true;
     }
 
-    //////////////////////////////////////////////
-
-    ConvexHullShape2D& ConvexHullShape2D::getDefault()
-    {
-        static WeakReference<ConvexHullShape2D> defShape;
-
-        if (defShape.expired())
-        {
-            defShape = static_ref_cast<ConvexHullShape2D>(ResourceManager::getEmptyResource<ConvexHullShape2D>("jop_default_staticmeshshape2D").getReference());
-
-            static const std::vector<glm::vec2> points =
-            {
-                glm::vec2(-0.5f, -0.5f),
-                glm::vec2(0.5f, -0.5f),
-                glm::vec2(0.5f, 0.5f),
-                glm::vec2(-0.5f, 0.5f)
-            };
-
-            defShape->load(points);
-            defShape->setPersistence(0);
-        }
-        return *defShape;
-    }
 }

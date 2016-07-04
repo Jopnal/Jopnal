@@ -456,6 +456,9 @@
     <ClInclude Include="..\include\Jopnal\Physics\Shape\ConvexHullShape2D.hpp">
       <Filter>Physics\Headers\Shape2D</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Jopnal\Physics\Shape\TerrainShape2D.hpp">
+      <Filter>Physics\Headers\Shape2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jopnal\Core\DebugHandler.cpp">
@@ -750,6 +753,9 @@
       <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jopnal\Physics\Shape\ConvexHullShape2D.cpp">
+      <Filter>Physics\Source\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jopnal\Physics\Shape\TerrainShape2D.cpp">
       <Filter>Physics\Source\Shape2D</Filter>
     </ClCompile>
   </ItemGroup>
