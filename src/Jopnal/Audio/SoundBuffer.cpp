@@ -42,7 +42,7 @@ namespace jop
     {}
 
     SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
-        : Resource      (newName)
+        : Resource      (other, newName)
     {}
 
     SoundBuffer::~SoundBuffer()
@@ -52,9 +52,6 @@ namespace jop
 
     bool SoundBuffer::load(const std::string& path)
     {
-        std::vector<uint8> buf;
-        FileLoader::readBinaryfile(path, buf);
-        
         return false;
     }
 

@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Model.hpp>
+    #include <Jopnal/Graphics/Model.hpp>
 
     #include <Jopnal/Graphics/Material.hpp>
     #include <Jopnal/Graphics/Mesh/Mesh.hpp>

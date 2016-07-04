@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
+    #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>

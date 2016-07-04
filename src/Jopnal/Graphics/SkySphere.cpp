@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/SkySphere.hpp>
+    #include <Jopnal/Graphics/SkySphere.hpp>
 
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/Shader.hpp>

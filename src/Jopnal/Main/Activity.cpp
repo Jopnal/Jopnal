@@ -20,7 +20,6 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Header.hpp>
 #include <android/native_activity.h>
 #include <android/log.h>
 #include <jni.h>

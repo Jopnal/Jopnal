@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/Engine.hpp>
 
     #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
@@ -37,6 +37,7 @@
     #include <Jopnal/Window/Window.hpp>
     #include <Jopnal/STL.hpp>
     #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
 
     #ifndef JOP_OS_WINDOWS
         #include <unistd.h>
@@ -117,7 +118,13 @@ namespace jop
     void Engine::loadDefaultConfiguration()
     {
         // File system
-        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+        createSubsystem<FileSystemInitializer>(
+        #ifdef JOP_OS_ANDROID
+            ""
+        #else
+            ns_argv[0]
+        #endif
+        );
 
         // Setting manager
         createSubsystem<SettingManager>();
@@ -162,11 +169,12 @@ namespace jop
 
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
-    #if defined(JOP_OS_WINDOWS)
+
+        #if defined(JOP_OS_WINDOWS)
             SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-    #else
+        #else
             nice(-10);
-    #endif
+        #endif
 
         JOP_DEBUG_INFO("Default engine sub system configuration loaded");
     }

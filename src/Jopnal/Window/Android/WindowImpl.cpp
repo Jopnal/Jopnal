@@ -28,10 +28,11 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Core/Android/ActivityState.hpp>
-#include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
-#include <android/looper.h>
-#include <unordered_map>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+    #include <android/native_window.h>
+    #include <EGL/eglext.h>
+    #include <unordered_map>
 
 #endif
 
@@ -40,39 +41,155 @@
 
 namespace
 {
-    std::unordered_map<jop::WindowHandle, jop::Window*> ns_windows;
-    jop::detail::WindowImpl* ns_instance = nullptr;
+    std::unordered_map<EGLContext, jop::Window*> ns_windowRefs;
+    EGLContext ns_shared;
+    EGLSurface ns_sharedSurface;
 
-    void createSurface(EGLSurface* surface, EGLDisplay display, EGLConfig config, EGLNativeWindowType window)
+    EGLDisplay getDisplay()
     {
-        *surface = eglCheck(eglCreateWindowSurface(display, config, window, NULL));
+        static EGLDisplay display = EGL_NO_DISPLAY;
+
+        if (display == EGL_NO_DISPLAY)
+        {
+            display = eglCheck(eglGetDisplay(EGL_DEFAULT_DISPLAY));
+        }
+
+        return display;
     }
 
-    void destroySurface(EGLSurface* surface, EGLDisplay display)
+    void initialize()
     {
-        eglCheck(eglDestroySurface(display, *surface));
-        *surface = EGL_NO_SURFACE;
+        if (ns_windowRefs.empty())
+        {
+            const EGLint attribs[] =
+            {
+                EGL_WIDTH,  1,
+                EGL_HEIGHT, 1,
+                EGL_NONE
+            };
+
+            const EGLint configAttribs[] =
+            {
+                //EGL_RENDERABLE_TYPE,    EGL_OPENGL_ES3_BIT,
+                EGL_SURFACE_TYPE,       EGL_PBUFFER_BIT,
+                EGL_NONE
+            };
+
+            const EGLint version[] =
+            {
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
+            };
+
+            eglCheck(eglInitialize(getDisplay(), NULL, NULL));
+
+
+            EGLConfig config;
+            EGLint numConfigs = 0;
+
+            eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
+
+
+            ns_sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
+            JOP_ASSERT(ns_sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
+
+            ns_shared = eglCheck(eglCreateContext(getDisplay(), config, nullptr, version));
+            JOP_ASSERT(ns_shared != EGL_NO_CONTEXT, "Failed to create shared context!");
+        }
+    }
+
+    void deInitialize()
+    {
+        if (ns_windowRefs.empty())
+        {
+            eglCheck(eglDestroyContext(getDisplay(), ns_shared));
+            eglCheck(eglDestroySurface(getDisplay(), ns_sharedSurface));
+
+            eglCheck(eglTerminate(getDisplay()));
+        }
     }
 }
 
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
+        : m_surface (EGL_NO_SURFACE),
+          m_context (EGL_NO_CONTEXT),
+          m_size    (0)
     {
-        if (ns_instance)
+        initialize();
+
+        const EGLint configAttribs[] =
         {
+            //EGL_RENDERABLE_TYPE,    EGL_OPENGL_ES3_BIT,
+            EGL_SURFACE_TYPE,       EGL_WINDOW_BIT,
 
-            ns_instance = this;
-        }
+            EGL_RED_SIZE,           8,
+            EGL_GREEN_SIZE,         8,
+            EGL_BLUE_SIZE,          8,
 
-        ns_windows[m_context] = &windowPtr;
+            EGL_NONE
+        };
+
+        const EGLint surfaceAttribs[] =
+        {
+            //EGL_VG_COLORSPACE, EGL_VG_COLORSPACE_sRGB,
+            EGL_NONE
+        };
+
+        const EGLint version[] =
+        {
+            EGL_CONTEXT_CLIENT_VERSION, 3,
+            EGL_NONE
+        };
+
+        EGLConfig config;
+        EGLint numConfigs = 0;
+
+        eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
+
+
+        auto win = jop::detail::ActivityState::get()->nativeWindow;
+
+        EGLint format;
+        eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
+
+        ANativeWindow_setBuffersGeometry(win, 0, 0, format);
+
+
+        m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, win, surfaceAttribs));
+        JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
+
+        m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+        JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
+
+        EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
+        JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+
+
+        eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
+        eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+
+        ns_windowRefs[m_context] = &windowPtr;
     }
 
     WindowImpl::~WindowImpl()
     {
+        ns_windowRefs.erase(m_context);
 
+        eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
 
-        ns_instance = nullptr;
+        if (m_context != EGL_NO_CONTEXT)
+        {
+            eglCheck(eglDestroyContext(getDisplay(), m_context));
+        }
+
+        if (m_surface != EGL_NO_SURFACE)
+        {
+            eglCheck(eglDestroySurface(getDisplay(), m_surface));
+        }
+
+        deInitialize();
     }
 
     //////////////////////////////////////////////
@@ -81,7 +198,7 @@ namespace jop { namespace detail
     {
         if (m_surface != EGL_NO_SURFACE)
         {
-            eglCheck(eglSwapBuffers(m_display, m_surface));
+            eglCheck(eglSwapBuffers(getDisplay(), m_surface));
         }
     }
 
@@ -97,7 +214,6 @@ namespace jop { namespace detail
     WindowHandle WindowImpl::getNativeHandle()
     {
         auto state = ActivityState::get();
-
         std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
         return state->nativeWindow;
@@ -108,25 +224,6 @@ namespace jop { namespace detail
     void WindowImpl::pollEvents()
     {
         ALooper_pollAll(0, NULL, NULL, NULL);
-
-        auto state = ActivityState::get();
-
-        auto& inst = *ns_instance;
-
-        if (inst.m_focusRestored)
-        {
-            createSurface(&inst.m_surface, inst.m_display, inst.m_config, state->nativeWindow);
-            eglCheck(eglMakeCurrent(inst.m_display, inst.m_surface, inst.m_surface, inst.m_context));
-            inst.m_focusRestored = false;
-        }
-        if (inst.m_focusLost)
-        {
-            destroySurface(&inst.m_surface, inst.m_display);
-            eglCheck(eglMakeCurrent(inst.m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
-            inst.m_focusLost = false;
-        }
-
-        state->updated.store(true);
     }
 
     //////////////////////////////////////////////
@@ -162,37 +259,7 @@ namespace jop { namespace detail
 
     Window* WindowImpl::getCurrentContextWindow()
     {
-        auto itr = ns_windows.find(eglGetCurrentContext());
-
-        if (itr != ns_windows.end())
-            return itr->second;
-
         return nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    int WindowImpl::handleEvent(int fd, int events, void* data)
-    {
-
-    }
-
-    //////////////////////////////////////////////
-
-    void WindowImpl::updateFocus(const bool focus)
-    {
-        auto state = ActivityState::get();
-
-        if (focus)
-        {
-            ns_instance->m_size.x = ANativeWindow_getWidth(state->nativeWindow);
-            ns_instance->m_size.y = ANativeWindow_getHeight(state->nativeWindow);
-            ns_instance->m_focusRestored = true;
-        }
-        else
-        {
-            ns_instance->m_focusLost = true;
-        }
     }
 }}
 

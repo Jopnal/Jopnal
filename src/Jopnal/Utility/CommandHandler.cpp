@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <cctype>

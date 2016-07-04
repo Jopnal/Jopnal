@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/RenderTexture.hpp>
+    #include <Jopnal/Graphics/RenderTexture.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Engine.hpp>
@@ -41,7 +41,8 @@
 #ifdef JOP_OPENGL_ES
 
     #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
-    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX8
+    #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
+    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX
 
     #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
 
@@ -572,7 +573,12 @@ namespace jop
 
                 if (!hasColor)
                 {
+                #ifdef JOP_OPENGL_ES
                     glCheck(glDrawBuffers(1, GL_NONE));
+                #else
+                    glCheck(glDrawBuffer(GL_NONE));
+                #endif
+
                     glCheck(glReadBuffer(GL_NONE));
                 }
             }

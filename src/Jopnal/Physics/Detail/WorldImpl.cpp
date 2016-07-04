@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
 
     #include <Jopnal/STL.hpp>
     #include <Bullet/btBulletCollisionCommon.h>

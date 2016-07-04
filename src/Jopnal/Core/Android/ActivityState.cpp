@@ -25,261 +25,52 @@
 #ifdef JOP_OS_ANDROID
 
 #include <Jopnal/Utility/Assert.hpp>
-#include <Jopnal/Window/Android/WindowImpl.hpp>
+#include <Jopnal/STL.hpp>
+#include <android/window.h>
 
 //////////////////////////////////////////////
 
 
 namespace
 {
-    jop::detail::ActivityState* ns_instance = nullptr;
-
-    jop::detail::ActivityState* getState(ANativeActivity* activity)
-    {
-        return static_cast<jop::detail::ActivityState*>(activity->instance);
-    }
-
-    void goFullscreen(ANativeActivity* activity)
-    {
-        int apiLevel = 0;
-
-        {
-            jclass versionClass = activity->env->FindClass("android/os/Build$VERSION");
-
-            if (versionClass)
-            {
-                jfieldID sdkIntFieldID = activity->env->GetStaticFieldID(versionClass, "SDK_INT", "I");
-
-                if (sdkIntFieldID)
-                    apiLevel = activity->env->GetStaticIntField(versionClass, sdkIntFieldID);
-            }
-        }
-
-        jclass viewClass = activity->env->FindClass("android/view/View");
-
-        jint flags = 0;
-
-        if (apiLevel >= 19)
-            flags |= activity->env->GetStaticIntField(viewClass, activity->env->GetStaticFieldID(viewClass, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I"));
-
-        activity->env->CallVoidMethod(activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity->clazz), "getWindow", "()Landroid/view/Window;")), activity->env->GetMethodID(activity->env->FindClass("android/view/Window"), "getDecorView", "()Landroid/view/View;")), activity->env->GetMethodID(viewClass, "setSystemUiVisibility", "(I)V"), flags);
-    }
-
-    // Callbacks
-    void onStart(ANativeActivity*)
-    {}
-
-    void onResume(ANativeActivity* activity)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        if (state->fullscreen)
-            goFullscreen(activity);
-
-        state->eventHandler->mouseEntered();
-    }
-
-    void onPause(ANativeActivity* activity)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        state->eventHandler->mouseLeft();
-    }
-
-    void onStop(ANativeActivity*)
-    {}
-
-    void onDestroy(ANativeActivity* activity)
-    {
-        auto state = getState(activity);
-
-        {
-            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-            if (!state->mainDone)
-                state->eventHandler->closed();
-        }
-
-        while (!state->terminated.load())
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        eglTerminate(state->display);
-
-        state->reset();
-    }
-
-    void onNativeWindowCreated(ANativeActivity* activity, ANativeWindow* window)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        state->nativeWindow = window;
-
-        jop::detail::WindowImpl::updateFocus(true);
-        state->eventHandler->gainedFocus();
-
-        state->updated.store(false);
-        while (!state->updated.load())
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-
-    void onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* window)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        state->nativeWindow = nullptr;
-
-        jop::detail::WindowImpl::updateFocus(false);
-        state->eventHandler->lostFocus();
-
-        state->updated.store(false);
-        while (!state->updated.load())
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-
-    void onNativeWindowRedrawNeeded(ANativeActivity*, ANativeWindow*)
-    {}
-
-    void onNativeWindowResized(ANativeActivity*, ANativeWindow*)
-    {}
-
-    void onInputQueueCreated(ANativeActivity* activity, AInputQueue* queue)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        AInputQueue_attachLooper(queue, state->looper, 1, &jop::detail::WindowImpl::handleEvent, nullptr);
-        state->inputQueue = queue;
-    }
-
-    void onInputQueueDestroyed(ANativeActivity* activity, AInputQueue* queue)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        state->inputQueue = nullptr;
-        AInputQueue_detachLooper(queue);
-    }
-
-    void onWindowFocusChanged(ANativeActivity*, int)
-    {}
-
-    void onContentRectChanged(ANativeActivity* activity, const ARect* rect)
-    {
-        auto state = getState(activity);
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        if (state->nativeWindow)
-            state->eventHandler->resized(static_cast<unsigned int>(ANativeWindow_getWidth(state->nativeWindow)),
-                                         static_cast<unsigned int>(ANativeWindow_getHeight(state->nativeWindow)));
-    }
-
-    void onConfigurationChanged(ANativeActivity*)
-    {}
-
-    void* onSaveInstanceState(ANativeActivity*, size_t* outLen)
-    {
-        return (void*)(*outLen = 0);
-    }
-
-    void onLowMemory(ANativeActivity*)
-    {}
+    std::unique_ptr<jop::detail::ActivityState> ns_instance(nullptr);
 }
 
 namespace jop { namespace detail
 {
-    ActivityState::ActivityState(ANativeActivity* act, void* saved, const size_t savedSize)
-        : nativeActivity    (act),
-          nativeWindow      (nullptr),
-          looper            (nullptr),
-          inputQueue        (nullptr),
-          configuration     (nullptr),
-          display           (eglGetDisplay(EGL_DEFAULT_DISPLAY)),
-          savedState        (nullptr),
-          savedStateSize    (savedSize),
-          mutex             (),
-          eventHandler      (nullptr),
-          fullscreen        (false),
-          mainDone          (false),
-          terminated        (false),
-          init              (false),
-          updated           (false),
-          screenSize        ()
+    ActivityState* ActivityState::create(ANativeActivity* activity)
     {
         JOP_ASSERT(ns_instance == nullptr, "There may only be one ActivityState!");
 
-        if (saved)
-        {
-            savedState = malloc(savedSize);
-            memcpy(savedState, saved, savedSize);
-        }
+        ns_instance = std::make_unique<ActivityState>();
+        ns_instance->nativeActivity = activity;
 
-        auto cb = nativeActivity->callbacks;
-
-        cb->onStart     = onStart;
-        cb->onResume    = onResume;
-        cb->onPause     = onPause;
-        cb->onStop      = onStop;
-        cb->onDestroy   = onDestroy;
-
-        cb->onNativeWindowCreated       = onNativeWindowCreated;
-        cb->onNativeWindowDestroyed     = onNativeWindowDestroyed;
-
-        cb->onNativeWindowRedrawNeeded  = onNativeWindowRedrawNeeded;
-        cb->onNativeWindowResized       = onNativeWindowResized;
-
-        cb->onInputQueueCreated         = onInputQueueCreated;
-        cb->onInputQueueDestroyed       = onInputQueueDestroyed;
-
-        cb->onWindowFocusChanged        = onWindowFocusChanged;
-        cb->onContentRectChanged        = onContentRectChanged;
-
-        cb->onConfigurationChanged      = onConfigurationChanged;
-        cb->onSaveInstanceState         = onSaveInstanceState;
-        cb->onLowMemory                 = onLowMemory;
-
-        ANativeActivity_setWindowFlags(act, AWINDOW_FLAG_KEEP_SCREEN_ON, AWINDOW_FLAG_KEEP_SCREEN_ON);
-
-        eglInitialize(display, NULL, NULL);
+        ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, AWINDOW_FLAG_KEEP_SCREEN_ON);
 
         // Get the screen size
         {
-            jclass displayMetricsClass = act->env->FindClass("android/util/DisplayMetrics");
-
-            jobject displayMetricsObject = act->env->NewObject(displayMetricsClass, act->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
-            jobject displayObject = act->env->CallObjectMethod(act->env->CallObjectMethod(act->clazz, act->env->GetMethodID(act->env->GetObjectClass(act->clazz), "getWindowManager", "()Landroid/view/WindowManager;")), act->env->GetMethodID(act->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view/Display;"));
-
-            act->env->CallVoidMethod(displayObject, act->env->GetMethodID(act->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), displayMetricsObject);
-
-            screenSize.x = static_cast<unsigned int>(act->env->GetIntField(displayMetricsObject, act->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
-            screenSize.y = static_cast<unsigned int>(act->env->GetIntField(displayMetricsObject, act->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
+            //jclass displayMetricsClass = activity->env->FindClass("android/util/DisplayMetrics");
+            //
+            //jobject displayMetricsObject = activity->env->NewObject(displayMetricsClass, activity->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
+            //jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity-///>clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view////Display;"));
+            //
+            //activity->env->CallVoidMethod(displayObject, activity->env->GetMethodID(activity->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), //displayMetricsObject);
+            //
+            //ns_instance->screenSize.x = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
+            //ns_instance->screenSize.y = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
         }
     }
 
-    ActivityState::~ActivityState()
-    {
-        reset();
-    }
+    //////////////////////////////////////////////
 
     ActivityState* ActivityState::get()
     {
-        return ns_instance;
+        return ns_instance.get();
     }
 
     void ActivityState::reset()
     {
-        delete ns_instance;
-        ns_instance = nullptr;
+        ns_instance.reset();
     }
 }}
 

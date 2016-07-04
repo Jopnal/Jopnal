@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/RayInfo.hpp>
+    #include <Jopnal/Physics/RayInfo.hpp>
 
 #endif
 

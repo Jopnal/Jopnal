@@ -22,6 +22,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 
+//////////////////////////////////////////////
+
 
 extern int main(int argc, char* argv[]);
 
@@ -38,58 +40,84 @@ extern int main(int argc, char* argv[]);
 #elif defined(JOP_OS_ANDROID)
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
-    #include <Jopnal/Utility/Thread.hpp>
-    #include <Jopnal/STL.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Main/Android/android_native_app_glue.c>
     #include <thread>
     #include <atomic>
-    #include <memory>
 
     namespace jop { namespace detail
     {
-        void startMain(ActivityState* state)
+        std::atomic<bool> ns_ready(false);
+
+        void onAppCmd(struct android_app* app, int32_t cmd)
         {
+            auto state = ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-            state->looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+            switch (cmd)
+            {
+                case APP_CMD_INIT_WINDOW:
+                {
+                    state->nativeWindow = app->window;
+                    state->windowSize.x = ANativeWindow_getWidth(app->window);
+                    state->windowSize.y = ANativeWindow_getHeight(app->window);
 
-            state->configuration = AConfiguration_new();
-            AConfiguration_fromAssetManager(state->configuration, state->nativeActivity->assetManager);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    ns_ready.store(true);
+                }
+            }
         }
 
-        void endMain(ActivityState* state)
+        void onAppCmdRunning(struct android_app* app, int32_t cmd)
         {
-            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-            state->mainDone = true;
-            ANativeActivity_finish(state->nativeActivity);
+
+            switch (cmd)
+            {
+                case APP_CMD_DESTROY:
+                    ANativeActivity_finish(app->activity);
+                    break;
+            }
         }
 
-        void main(ActivityState* state)
+        int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
-            startMain(state);
+            return 0;
+        }
+
+        void main(struct android_app* app)
+        {
+            JOP_DEBUG_INFO("Android activity started, waiting for window...");
+
+            while (!ns_ready.load())
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+                android_poll_source* event = nullptr;
+                while (ALooper_pollAll(0, NULL, NULL, reinterpret_cast<void**>(&event)) >= 0)
+                {
+                    if (event)
+                        event->process(app, event);
+                }
+            }
+
+            app->onAppCmd       = onAppCmdRunning;
+            app->onInputEvent   = onInputEvent;
+
+            JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 
             ::main(0, NULL);
-
-            endMain(state);
-
-            state->terminated = true;
         }
     }}
 
-    void ANativeActivity_onCreate(ANativeActivity* activity, void* savedState, size_t savedStateSize)
+    void android_main(struct android_app* app)
     {
-        auto state = new jop::detail::ActivityState(activity, savedState, savedStateSize);
+        JOP_DEBUG_INFO("Entered jopnal-main");
 
-        jop::Thread mainThread(&jop::detail::main, state);
-        mainThread.setPriority(jop::Thread::Priority::Highest);
-        mainThread.detach();
+        app->onAppCmd       = jop::detail::onAppCmd;
 
-        while (!state->init)
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        app->userData = jop::detail::ActivityState::create(app->activity);
 
-        activity->instance = state;
+        jop::detail::main(app);
     }
 
 #endif

@@ -24,11 +24,12 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/Image.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Utility/Assert.hpp>
@@ -37,63 +38,42 @@
 
 #include <Jopnal/Resources/Resources.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-
-#pragma warning(push)
-#pragma warning(disable: 4189)
-#pragma warning(disable: 4244)
-#include <STB/stb_image.h>
-#pragma warning(pop)
-
 //////////////////////////////////////////////
 
 
 namespace jop
 {
     Texture2D::Texture2D(const std::string& name)
-        : Texture(name, GL_TEXTURE_2D)
+        : Texture           (name, GL_TEXTURE_2D),
+          m_size            (0),
+          m_bytesPerPixel   (0)
     {}
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmap)
+    bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps)
     {
-        if (path.empty())
-            return false;
-
-        std::vector<uint8> buf;
-        FileLoader::readBinaryfile(path, buf);
-
-        glm::ivec2 size;
-        int bpp;
-        unsigned char* colorData = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bpp, 0);
-
-        bool success = false;
-        if (colorData && checkDepthValid(bpp))
-            success = load(size, bpp, colorData, srgb, genMipmap);
-
-        stbi_image_free(colorData);
-
-        return success;
+        Image image;
+        return image.load(path) && load(image, srgb, genMipmaps);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb, const bool genMipmap)
+    bool Texture2D::load(const glm::uvec2& size, const uint32 bytesPerPixel, const bool srgb, const bool genMipmaps)
     {
-        return load(size, bytesPerPixel, nullptr, srgb, genMipmap);
+        return load(size, bytesPerPixel, nullptr, srgb, genMipmaps);
     }
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmap)
+    bool Texture2D::load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps)
     {
         if (size.x > getMaximumSize() || size.y > getMaximumSize())
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
             return false;
         }
-        else if (!checkDepthValid(bytesPerPixel))
+        else if (!Image::checkDepthValid(bytesPerPixel))
         {
             JOP_DEBUG_ERROR("Couldn't load texture. Pixel depth (" << bytesPerPixel << ") is invalid. Must be between 1 and 4");
             return false;
@@ -110,12 +90,69 @@ namespace jop
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
         glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, pixels));
 
-        if (genMipmap)
+        if (genMipmaps)
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture2D::load(const Image& image, const bool srgb, const bool genMipmaps)
+    {
+        if (!image.isCompressed())
+            return load(image.getSize(), image.getDepth(), image.getPixels(), srgb, genMipmaps);
+
+        else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
+        {
+            destroy();
+            bind();
+
+            m_size = image.getSize();
+            setPixelStore(1);
+
+            // 8 bytes for DXT1 and 16 bytes for DXT3/5
+            const unsigned int blockSize = (image.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
+
+            const unsigned int mipMapCount = image.getMipMapCount();
+            unsigned int offset = 0;
+            unsigned int width = m_size.x;
+            unsigned int height = m_size.y;
+
+            for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
+            {
+                unsigned int imageSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+
+                glCheck(glCompressedTexImage2D(GL_TEXTURE_2D, level, getCompressedInternalFormatEnum(image.getFormat(), srgb), width, height, 0, imageSize, image.getPixels() + offset));
+
+                offset += imageSize;
+                width /= 2;
+                height /= 2;
+
+                // For non-power-of-two sized textures
+                width  = std::max(width, 1u);
+                height = std::max(height, 1u);
+            }
+
+            if (genMipmaps && image.getMipMapCount() > 1)
+            {
+                glCheck(glGenerateMipmap(GL_TEXTURE_2D));
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture2D::load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps)
+    {
+        Image image;
+        return image.load(ptr, size) && load(image, srgb, genMipmaps);
     }
 
     //////////////////////////////////////////////
@@ -154,18 +191,42 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const unsigned char* data, const unsigned int dataSize, const bool srgb, const bool genMipmap)
+    Image Texture2D::getImage() const
     {
-        int x, y, bpp;
-        unsigned char* pix = stbi_load_from_memory(data, dataSize, &x, &y, &bpp, 0);
+        // If empty texture
+        if (!getHandle())
+            return Image();
 
-        bool success = false;
-        if (pix && checkDepthValid(bpp))
-            success = load(glm::uvec2(x, y), bpp, pix, srgb, genMipmap);
+        std::vector<uint8> pixels(m_size.x * m_size.y * m_bytesPerPixel);
 
-        stbi_image_free(pix);
+    #ifdef JOP_OPENGL_ES   
 
-        return success;
+        GLuint frameBuffer = 0;
+        glCheck(glGenFramebuffers(1, &frameBuffer));
+
+        if (frameBuffer)
+        {
+            GLint previousFrameBuffer;
+            glCheck(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFrameBuffer));
+
+            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer));
+            glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getHandle(), 0));
+            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, &pixels[0]));
+            glCheck(glDeleteFramebuffers(1, &frameBuffer));
+
+            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer));
+        }
+
+    #else        
+
+        bind();
+        glCheck(glGetTexImage(GL_TEXTURE_2D, 0, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, &pixels[0]));
+        
+    #endif
+
+        Image image;
+        image.load(m_size, m_bytesPerPixel, &pixels[0]);
+        return image;
     }
 
     //////////////////////////////////////////////
@@ -223,9 +284,32 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::checkDepthValid(const unsigned int depth)
+    #ifdef JOP_OPENGL_ES
+
+        #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+
+    #endif
+
+    unsigned int Texture2D::getCompressedInternalFormatEnum(const Image::Format format, const bool srgb)
     {
-        return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
+        static const GLenum formatEnum[] =
+        {
+            GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+            GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+            GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+            GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+        };
+
+        return formatEnum[static_cast<int>(format) + srgb * 4];
     }
 
     //////////////////////////////////////////////
@@ -238,7 +322,7 @@ namespace jop
         {
             errTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_error_texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, true), "Failed to load error 2D texture!");
+            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, false), "Failed to load error 2D texture!");
 
             errTex->setPersistence(0);
         }
@@ -256,7 +340,7 @@ namespace jop
         {
             defTex = static_ref_cast<Texture2D>(ResourceManager::getEmptyResource<Texture2D>("jop_default_texture").getReference());
 
-            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, true), "Failed to load default 2D texture!");
+            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, false), "Failed to load default texture!");
 
             defTex->setPersistence(0);
         }

@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
 
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Drawable.hpp>

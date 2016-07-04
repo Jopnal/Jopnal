@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Physics/Shape/CompoundShape.hpp>
+    #include <Jopnal/Physics/Shape/CompoundShape.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/STL.hpp>

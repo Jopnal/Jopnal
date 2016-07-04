@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Color.hpp>
+    #include <Jopnal/Graphics/Color.hpp>
     
     #include <algorithm>
     #include <sstream>

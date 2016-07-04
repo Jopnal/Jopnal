@@ -71,8 +71,6 @@ namespace jop { namespace detail
     private:
 
         WindowLibHandle m_window;
-        unsigned int m_vertexArray;
-
     };
 }}
 

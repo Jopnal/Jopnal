@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Utility/Clock.hpp>
+    #include <Jopnal/Utility/Clock.hpp>
 
 #endif
 

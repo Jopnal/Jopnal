@@ -31,8 +31,6 @@
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
-    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
-    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <GLFW/glfw3.h>
 
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -147,8 +145,7 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
-        : m_window      (nullptr),
-          m_vertexArray (0)
+        : m_window      (nullptr)
     {
         initialize();
 
@@ -191,27 +188,14 @@ namespace jop { namespace detail
 
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
-        
-        glCheck(glGenVertexArrays(1, &m_vertexArray));
-        glCheck(glBindVertexArray(m_vertexArray));
-
-        GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
-        GlState::setSeamlessCubemap(true);
-        GlState::setBlendFunc(true);
-        GlState::setFramebufferSrgb(true);
-
-        glCheck(glDisable(GL_DITHER));
     }
 
     WindowImpl::~WindowImpl()
     {
-        glCheck(glBindVertexArray(0));
-        glCheck(glDeleteVertexArrays(1, &m_vertexArray));
-
         // There should always be a valid window
         ns_windowRefs.erase(m_window);
         glfwDestroyWindow(m_window);
+
         deInitialize();
     }
 

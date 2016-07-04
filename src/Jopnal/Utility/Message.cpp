@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Utility/Message.hpp>
+    #include <Jopnal/Utility/Message.hpp>
 
     #include <Jopnal/Core/DebugHandler.hpp>
 

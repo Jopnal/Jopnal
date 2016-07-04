@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/Win32/Win32.hpp>
@@ -377,12 +377,12 @@ namespace jop
                 {
                 #ifdef JOP_OS_ANDROID
 
-                    static const int androidSeverity[] =
+                    static const android_LogPriority androidSeverity[] =
                     {
                         ANDROID_LOG_ERROR,
                         ANDROID_LOG_WARN,
                         ANDROID_LOG_INFO,
-                        ANDROID_LOG_DEBUG
+                        ANDROID_LOG_VERBOSE
                     };
 
                     __android_log_write(androidSeverity[severity], "jopnal", newStr.c_str());
@@ -395,7 +395,7 @@ namespace jop
                 #endif
                 }
 
-                if (fileLoggingEnabled() && m_fileHandles[severity])
+                if (fileLoggingEnabled() && m_fileHandles[severity].is_open())
                 {
                     m_fileHandles[severity] << finalString;
                     m_fileHandles[severity].flush();
@@ -432,6 +432,8 @@ namespace jop
 
     void DebugHandler::openFileHandles()
     {
+    #ifndef JOP_OS_ANDROID
+
         for (std::size_t i = 0; i < m_fileHandles.size(); ++i)
         {
             static const char* const filepath[] =
@@ -449,11 +451,17 @@ namespace jop
             if (!m_fileHandles[i].good())
                 JOP_DEBUG_ERROR("Failed to open log file \"" << filepath[i] << "\" for writing");
         }
+
+    #endif
     }
 
     void DebugHandler::closeFileHandles()
     {
+    #ifndef JOP_OS_ANDROID
+
         for (auto& i : m_fileHandles)
             i.close();
+
+    #endif
     }
 }

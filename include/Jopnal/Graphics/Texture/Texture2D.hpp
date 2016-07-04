@@ -25,18 +25,15 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Texture/Texture.hpp>
+#include <Jopnal/Graphics/Image.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Texture2D final : public Texture
+    class JOP_API Texture2D : public Texture
     {
-    private:
-
-        friend class Texture;
-
     public:
 
         /// \brief Constructor
@@ -45,8 +42,9 @@ namespace jop
         ///
         Texture2D(const std::string& name);
 
-
         /// \brief Method for using file loader to load new resource from file
+        ///
+        /// Creates an image and calls images load method and load(image, srgb)
         ///
         /// \param path The file path
         /// \param srgb Use SRGB color space?
@@ -54,6 +52,14 @@ namespace jop
         /// \return True if loading was successful
         ///
         bool load(const std::string& path, const bool srgb, const bool genMipmaps);
+
+        /// \brief Load from memory
+        ///
+        /// \param ptr Pointer to data (pixels)
+        /// \param size Size of the data to be loaded
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps);
 
         /// \brief Creates flat/empty texture
         ///
@@ -63,7 +69,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const bool srgb, const bool genMipmaps);
+        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const bool srgb, const bool genMipmaps);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -76,8 +82,14 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps);
+        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps);
 
+        /// \brief Load texture from compressed image
+        ///
+        /// \param image Image to load into the texture
+        /// \param srgb Use SRGB color space?
+        ///
+        bool load(const Image& image, const bool srgb, const bool genMipmaps);
 
         /// \brief Set a subset of pixels
         ///
@@ -89,16 +101,19 @@ namespace jop
         ///
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
 
-
         /// \brief Get the texture size
         ///
         /// \return The size
         ///
         glm::uvec2 getSize() const override;
 
-        /// \brief Returns image's bytes per pixel value
+        /// \brief Returns textures bytes per pixel value
         ///
         unsigned int getDepth() const;
+
+        /// \brief Copies the texture into an image and returns it
+        ///
+        Image getImage() const;
 
         /// \brief Get the OpenGL format enum
         ///
@@ -117,14 +132,7 @@ namespace jop
         ///
         static unsigned int getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
 
-        /// \brief Check if the pixel depth value is supported
-        ///
-        /// \param depth The pixel depth in bytes
-        ///
-        /// \return True if the depth is supported
-        ///
-        static bool checkDepthValid(const unsigned int depth);
-
+        static unsigned int getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
 
         /// \brief Get the error texture
         ///
@@ -140,13 +148,8 @@ namespace jop
 
     private:
 
-        /// For internal use
-        ///
-        bool load(const unsigned char* data, const unsigned int dataSize, const bool srgb, const bool genMipmaps);
-
-
-        glm::uvec2 m_size;              ///< Size
-        unsigned int m_bytesPerPixel;   ///< Byte depth of the texture
+        glm::uvec2  m_size;             ///< Size
+        uint32      m_bytesPerPixel;    ///< Byte depth of the texture
     };
 }
 

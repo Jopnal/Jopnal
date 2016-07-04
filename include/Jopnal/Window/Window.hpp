@@ -269,6 +269,7 @@ namespace jop
 
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler
+        unsigned int m_vertexArray;                         ///< Vertex array object
     };
 
     // Include the template implementation file

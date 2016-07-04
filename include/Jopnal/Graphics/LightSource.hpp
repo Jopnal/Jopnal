@@ -355,7 +355,7 @@ namespace jop
     ///
     /// Meant to be passed to drawable
     ///
-    class LightContainer
+    class JOP_API LightContainer
     {
     public:
 

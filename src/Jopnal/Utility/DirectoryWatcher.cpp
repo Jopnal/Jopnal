@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Utility/DirectoryWatcher.hpp>
+    #include <Jopnal/Utility/DirectoryWatcher.hpp>
 
     #include <Jopnal/STL.hpp>
 

@@ -27,6 +27,9 @@ jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or
 # Setup version value for the toolchain
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 
+# Set toolchain to use
+jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
+
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
 
@@ -61,6 +64,7 @@ mark_as_advanced(PHYSFS_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 mark_as_advanced(BULLET_INCLUDE_DIR)
+mark_as_advanced(ANDROID_NATIVE_API_LEVEL)
 
 
 # Cotire for precompiled headers
@@ -81,14 +85,20 @@ endif()
    
 jopSetOption(USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
 
-# Extract extlibs.7z
-if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/include)
+if (USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
+    message(WARNING "Using precompiled header may crash GCC. Keep this in mind")
+endif()
+
+# Extract extlibs.7z        
+if ((NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/bin) OR
+    (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/include) OR
+    (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/lib))
 
     execute_process(COMMAND 7z x -y extlibs.7z
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlibs
-                    ERROR_VARIABLE DECOMPRESS_ERROR)
+                    RESULT_VARIABLE DECOMPRESS_RESULT)
 
-    if (NOT ${DECOMPRESS_ERROR} STREQUAL "")
+    if (${DECOMPRESS_RESULT} GREATER 0)
         message(WARNING "Received errors during extlibs.7z extraction. Manual extraction might be necessary")
     endif()
 

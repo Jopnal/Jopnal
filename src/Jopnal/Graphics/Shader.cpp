@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-	#include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
@@ -35,11 +35,15 @@
 
     #ifdef JOP_OPENGL_ES
 
-    #ifdef GL_GEOMETRY_SHADER_EXT
-        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-    #else
-        #define GL_GEOMETRY_SHADER 0
-    #endif
+        #ifndef GL_GEOMETRY_SHADER
+
+            #ifdef GL_EXT_geometry_shader
+                #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+            #else
+                #define GL_GEOMETRY_SHADER 0
+            #endif
+
+        #endif
 
     #endif
 
@@ -129,7 +133,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -164,7 +168,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }
@@ -456,14 +460,17 @@ namespace jop
 
             versionString += std::to_string(ogl_GetMajorVersion());
             versionString += std::to_string(ogl_GetMinorVersion());
-            versionString += " core";
+            versionString += "0 core\n";
 
         #else
 
             const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-            versionString += *(esVersion.end() - 3);
-            versionString += *(esVersion.end() - 1);
-            versionString += " es\n#define JOP_OPENGL_ES";
+
+            const std::size_t numPos = esVersion.find_first_of("0123456789");
+
+            versionString += esVersion[numPos];
+            versionString += esVersion[numPos + 2];
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
 
         #endif
         }
