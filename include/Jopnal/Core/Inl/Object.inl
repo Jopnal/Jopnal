@@ -29,7 +29,7 @@ namespace detail
 
         for (auto& i : comps)
         {
-            if ((ID == nullptr || i->getID() == *ID) && (typeid(T) == typeid(::jop::Component) || typeid(*i) == typeid(T)))
+            if ((ID == nullptr || i->getID() == *ID) && dynamic_cast<T*>(i.get()) != nullptr)
                 return static_cast<T*>(i.get());
         }
 
