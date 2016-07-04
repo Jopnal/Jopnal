@@ -27,6 +27,7 @@
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
+#include <Jopnal/STL.hpp>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <string>
@@ -35,23 +36,40 @@
 //////////////////////////////////////////////
 
 
-struct GLFWwindow;
-
 namespace jop
 {
     class WindowEventHandler;
-    class SettingCallbackBase;
+    class Window;
 
     namespace detail
     {
         class WindowImpl;
     }
 
+    class JOP_API BufferSwapper final : public Subsystem
+    {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(BufferSwapper);
+
+    public:
+
+        BufferSwapper(Window& window);
+
+        void draw() override;
+
+    private:
+
+        Window& m_windowRef;
+    };
+
     class JOP_API Window : public RenderTarget
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(Window);
+
+        friend class BufferSwapper;
 
     public:
 
@@ -241,7 +259,13 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+
+        static Window* getCurrentContextWindow();
+
     private:
+
+        Message::Result receiveMessage(const Message& message) override;
+
 
         std::unique_ptr<detail::WindowImpl> m_impl;         ///< The implementation object
         std::unique_ptr<WindowEventHandler> m_eventHandler; ///< The event handler

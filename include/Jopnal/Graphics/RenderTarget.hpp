@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <mutex>
 #include <atomic>
 
@@ -60,7 +60,7 @@ namespace jop
         ///
         /// \param ID Identifier of this render target
         ///
-        RenderTarget(const std::string& ID);
+        RenderTarget(const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -102,7 +102,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        RenderTarget& setClearColor(const Color color);
+        RenderTarget& setClearColor(const Color& color);
 
         /// \brief Get the clear color
         ///
@@ -144,10 +144,9 @@ namespace jop
 
     private:
 
-        Color m_clearColor;         ///< The clear color
-        std::atomic<float> m_clearDepth;         ///< The clear depth
-        std::atomic<int> m_clearStencil;         ///< The clear stencil
-        std::atomic<bool> m_clearAttribsChanged; ///< Have any of the clear values been changed?
+        Color m_clearColor;                         ///< The clear color
+        std::atomic<float> m_clearDepth;            ///< The clear depth
+        std::atomic<int> m_clearStencil;            ///< The clear stencil
     };
 }
 

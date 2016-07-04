@@ -24,6 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
 #include <Jopnal/Window/Window.hpp>
@@ -45,19 +47,11 @@ namespace jop
     {
         template<typename, bool, bool>
         struct SceneCreator;
-
-        template<typename T, bool Threaded>
-        struct SceneTypeSelector{typedef T& type;};
-        template<typename T>
-        struct SceneTypeSelector<T, true>
-        {typedef ::jop::Scene& type;};
     }
 
     class JOP_API Engine final
     {
     private:
-
-        friend class StateLoader;
 
         template<typename, bool, bool>
         friend struct detail::SceneCreator;
@@ -143,7 +137,7 @@ namespace jop
         /// \see newSceneReady
         ///
         template<typename T, bool Threaded = false, bool WaitSignal = false, typename ... Args>
-        static typename detail::SceneTypeSelector<T, Threaded>::type createScene(Args&&... args);
+        static void createScene(Args&&... args);
 
         /// \brief Check if there's a current scene
         ///
@@ -159,7 +153,7 @@ namespace jop
         ///
         static Scene& getCurrentScene();
 
-        /// \brief Signal a new scene loaded in a threaded manner to set itself current
+        /// \brief Signal a new scene (loaded in a threaded manner) to set itself current
         ///
         /// If a scene wasn't previously loaded with a thread, this function has no effect.
         ///
@@ -197,15 +191,7 @@ namespace jop
         /// \return Pointer to the subsystem. Nullptr if not found
         ///
         template<typename T>
-        static T* getSubsystem(const std::string& ID);
-
-        /// \brief Get a subsystem
-        ///
-        /// \param ID Identifier of the subsystem
-        ///
-        /// \return Pointer to the subsystem. Nullptr if not found
-        ///
-        static Subsystem* getSubsystem(const std::string& ID);
+        static T* getSubsystem(const uint32 ID);
 
         /// \brief Remove a subsystem
         ///
@@ -213,7 +199,8 @@ namespace jop
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        static bool removeSubsystem(const std::string& ID);
+        template<typename T>
+        static bool removeSubsystem(const uint32 ID);
 
 
         /// \brief Check if the engine is signaled to exit
@@ -248,24 +235,6 @@ namespace jop
         static State getState();
 
 
-        /// \brief Set the global delta time scalar
-        ///
-        /// This makes it possible to create fast-forward or slow-down
-        /// effects.
-        ///
-        /// \comm setDeltaScale
-        ///
-        /// \param scale The scalar to set
-        ///
-        static void setDeltaScale(const float scale);
-
-        /// \brief Get the global delta time scalar
-        ///
-        /// \return The global delta time scalar
-        ///
-        static float getDeltaScale();
-
-
         /// \brief Get the main render target
         ///
         /// This could either return the main window or a HDR render texture.
@@ -275,22 +244,8 @@ namespace jop
         static const RenderTarget& getMainRenderTarget();
 
 
-        /// \brief Send a message to the whole engine
-        ///
-        /// \param message String holding message
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message);
+        static const Window& getMainWindow();
 
-        /// \brief Send a message to the whole engine
-        ///
-        /// \param message String holding message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -353,9 +308,9 @@ namespace jop
         std::unique_ptr<Scene> m_sharedScene;                   ///< The shared scene
         std::atomic<bool> m_exit;                               ///< Should the engine exit?
         std::atomic<State> m_state;                             ///< Current state
-        std::atomic<float> m_deltaScale;                        ///< The global delta scale
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
         RenderTarget* m_mainTarget;
+        Window* m_mainWindow;
     };
 
     /// \brief Get the project name
@@ -363,27 +318,6 @@ namespace jop
     /// \return A reference to the internal string containing the project name
     ///
     JOP_API const std::string& getProjectName();
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message);
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    /// \param returnWrap Pointer to hold extra data
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message, Any& returnWrap);
 
     /// \brief Broadcast a message to the whole engine
     ///

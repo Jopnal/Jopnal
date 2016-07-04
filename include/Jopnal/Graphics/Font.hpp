@@ -25,18 +25,13 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/Texture/Texture2D.hpp>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <unordered_map>
 
 //////////////////////////////////////////////
 
-
-namespace detail
-{
-    struct FontImpl;
-}
 
 namespace jop
 {
@@ -98,12 +93,6 @@ namespace jop
         float getPixelSize() const;
 
 
-        /// \brief Get the error font
-        ///
-        /// \return Reference to the font
-        ///
-        static Font& getError();
-
         /// \brief Get the default font
         ///
         /// \return Reference to the font
@@ -126,7 +115,6 @@ namespace jop
         bool load(const int pixelSize);
 
 
-        std::unique_ptr<::detail::FontImpl> m_data;
         int m_pixelSize;
     };
 }

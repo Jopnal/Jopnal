@@ -20,19 +20,27 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Core/FileLoader.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <PhysFS/physfs.h>
+
+    #ifdef JOP_OS_ANDROID
+        #include <android/asset_manager.h>
+    #endif
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace
 {
-#ifdef JOP_OS_WINDOWS
-
-    HINSTANCE ns_resourceDll = nullptr;
-
-#endif
-
     const char* const ns_resourceDir = "Resources";
     bool ns_errorChecksEnabled = true;
     std::mutex ns_mutex;
@@ -47,6 +55,10 @@ namespace
 
             if (error)
                 JOP_DEBUG_ERROR("Filesystem error: " << error << " (" << info << ")");
+
+        #if JOP_CONSOLE_VERBOSITY < 0
+            info;
+        #endif
         }
     }
 
@@ -54,7 +66,7 @@ namespace
     {
         const std::string prefDir = jop::FileLoader::getDirectory(jop::FileLoader::Directory::User);
 
-        if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log"))
+        if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log") || !PHYSFS_mkdir("Config"))
         {
             checkError("Create user dir");
             return false;
@@ -78,12 +90,8 @@ namespace
 
 namespace jop
 {
-    std::unique_ptr<Assimp::Importer> ns_importer;
-
-    //////////////////////////////////////////////
-
     FileSystemInitializer::FileSystemInitializer(const char* arg)
-        : Subsystem("filesysteminitializer")
+        : Subsystem(0)
     {
         JOP_ASSERT(!PHYSFS_isInit(), "You can only have a single jop::FileSystemInitializer sub system instance!");
 
@@ -91,134 +99,18 @@ namespace jop
         JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
 
         checkError("Init");
-        
-        struct Logger : Assimp::Logger
-        {
-            Logger()
-                : Assimp::Logger(Assimp::Logger::LogSeverity::NORMAL)
-            {}
 
-            bool attachStream(Assimp::LogStream*, unsigned int)
-            {
-                return true;
-            }
-            bool detatchStream(Assimp::LogStream*, unsigned int)
-            {
-                return true;
-            }
-            void OnDebug(const char* message) override
-            {
-                message;
-                JOP_DEBUG_DIAG(message);
-            }
-            void OnInfo(const char* message) override
-            {
-                message;
-                JOP_DEBUG_INFO(message);
-            }
-            void OnWarn(const char* message) override
-            {
-                message;
-                JOP_DEBUG_WARNING(message);
-            }
-            void OnError(const char* message) override
-            {
-                message;
-                JOP_DEBUG_ERROR(message);
-            }
-        };
-        Assimp::DefaultLogger::set(new Logger);
+        DebugHandler::getInstance().openFileHandles();
     }
 
     FileSystemInitializer::~FileSystemInitializer()
     {
-        ns_importer.reset();
-        Assimp::DefaultLogger::kill();
+        DebugHandler::getInstance().closeFileHandles();
 
         if (!PHYSFS_deinit())
             checkError("Filesystem deinit");
     }
-
-    Assimp::Importer& FileSystemInitializer::getImporter()
-    {
-        if (!ns_importer)
-        {
-            ns_importer = std::make_unique<Assimp::Importer>();
-
-            struct Streamer : Assimp::IOSystem
-            {
-                struct Stream : Assimp::IOStream
-                {
-                private:
-
-                    FileLoader* m_loader;
-
-                public:
-
-                    explicit Stream(FileLoader& loader)
-                        : m_loader(&loader)
-                    {}
-
-                    size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override
-                    {
-                        return static_cast<size_t>(m_loader->read(pvBuffer, pSize * pCount));
-                    }
-                    size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override
-                    {
-                        return static_cast<size_t>(m_loader->write(pvBuffer, pSize * pCount));
-                    }
-                    aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override
-                    {
-                        return static_cast<aiReturn>(aiReturn_FAILURE - m_loader->seek(pOrigin + pOffset));
-                    }
-                    size_t Tell() const override
-                    {
-                        return static_cast<size_t>(m_loader->tell());
-                    }
-                    size_t FileSize() const override
-                    {
-                        return static_cast<size_t>(m_loader->getSize());
-                    }
-                    void Flush() override
-                    {
-                        m_loader->flush();
-                    }
-                };
-
-                FileLoader m_loader;
-
-                bool Exists(const char* pFile) const override
-                {
-                    return FileLoader::fileExists(pFile);
-                }
-                char getOsSeparator() const override
-                {
-                    return FileLoader::getDirectorySeparator();
-                }
-
-                Assimp::IOStream* Open(const char* pFile, const char* pMode) override
-                {
-                    if (std::string(pMode).find('r') != std::string::npos)
-                        m_loader.open(pFile);
-
-                    else if (std::string(pMode).find('w') != std::string::npos)
-                        m_loader.open(FileLoader::Directory::Resource, pFile, false);
-
-                    return new Stream(m_loader);
-                }
-
-                void Close(Assimp::IOStream* stream) override
-                {
-                    delete stream;
-                    m_loader.close();
-                }
-            };
-
-            ns_importer->SetIOHandler(new Streamer);
-        }
-
-        return *ns_importer;
-    }
+    
 
     //////////////////////////////////////////////
 
@@ -409,7 +301,10 @@ namespace jop
         {
             std::string fileString((std::string(dir).empty() ? "" : (std::string(dir) + "/")) + std::string(file));
 
-            if (!PHYSFS_isDirectory(fileString.c_str()))
+            PHYSFS_Stat stat;
+            PHYSFS_stat(fileString.c_str(), &stat);
+
+            if (stat.filetype != PHYSFS_FILETYPE_DIRECTORY)
                 static_cast<std::vector<std::string>*>(list)->emplace_back(std::move(fileString));
 
         }, &list);
@@ -423,7 +318,10 @@ namespace jop
         {
             std::string fileString(std::string(dir) + "/" + std::string(file));
 
-            if (!PHYSFS_isDirectory(fileString.c_str()))
+            PHYSFS_Stat stat;
+            PHYSFS_stat(fileString.c_str(), &stat);
+
+            if (stat.filetype != PHYSFS_FILETYPE_DIRECTORY)
                 static_cast<std::vector<std::string>*>(list)->emplace_back(std::move(fileString));
             else
                 listFilesRecursive(fileString, *static_cast<std::vector<std::string>*>(list));
@@ -523,9 +421,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool FileLoader::makeDirectory(const std::string& path)
+    bool FileLoader::makeDirectory(const Directory dir, const std::string& path)
     {
-        if (PHYSFS_mkdir(path.c_str()) == 0)
+        if (!PHYSFS_setWriteDir(getDirectory(dir).c_str()) || !PHYSFS_mkdir(path.c_str()))
         {
             checkError(path);
             return false;
@@ -553,50 +451,6 @@ namespace jop
     char FileLoader::getDirectorySeparator()
     {
         return PHYSFS_getDirSeparator()[0];
-    }
-
-    //////////////////////////////////////////////
-
-    bool FileLoader::readResource(const int id, std::vector<uint8>& buffer)
-    {
-        static std::mutex mutex;
-        std::lock_guard<std::mutex> lock(mutex);
-
-        if (!ns_resourceDll)
-        {
-            ns_resourceDll = LoadLibrary("Jopnal Resources.dll");
-            JOP_ASSERT(ns_resourceDll != nullptr, "Failed to load the Jopnal resource dll!");
-        }
-
-        bool success = false;
-
-        auto handle = FindResource(ns_resourceDll, MAKEINTRESOURCE(id), RT_RCDATA);
-
-        if (handle)
-        {
-            auto res = LoadResource(ns_resourceDll, handle);
-
-            if (res)
-            {
-                buffer.clear();
-
-                auto size = SizeofResource(ns_resourceDll, handle);
-                auto locked = LockResource(res);
-
-                if (locked && size)
-                {
-                    buffer.resize(size);
-                    std::memcpy(buffer.data(), locked, size);
-                    success = true;
-                }
-
-                UnlockResource(locked);
-
-                FreeResource(res);
-            }
-        }
-
-        return success;
     }
 
     //////////////////////////////////////////////

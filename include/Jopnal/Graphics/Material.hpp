@@ -36,6 +36,7 @@ namespace jop
 {
     class Shader;
     class Texture;
+    class Camera;
 
     class JOP_API Material final : public Resource
     {
@@ -57,13 +58,15 @@ namespace jop
         {
             enum : AttribType
             {
+                None            = 0,
+
                 // Misc
-                AmbientConstant = 1,
-                DiffuseAlpha    = AmbientConstant   << 1,
-                VertexColor     = DiffuseAlpha      << 1, 
+                DiffuseAlpha    = 1,
+                VertexColor     = DiffuseAlpha      << 1,
+                Alpha           = VertexColor       << 1,
 
                 // Maps
-                DiffuseMap      = 1                 << 4,
+                DiffuseMap      = 1                 << 3,
                 SpecularMap     = DiffuseMap        << 1,
                 EmissionMap     = SpecularMap       << 1,
                 EnvironmentMap  = EmissionMap       << 1,
@@ -83,7 +86,7 @@ namespace jop
 
                 // Bundles
                 Default         = DiffuseMap,
-                DefaultLighting = AmbientConstant | BlinnPhong,
+                DefaultLighting = BlinnPhong,
 
                 // For internal functionality, do not use
                 __SkySphere     = 1  << 29,
@@ -176,7 +179,7 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         /// \param camera The camera to use
         ///
-        void sendToShader(Shader& shader, const Camera* camera) const;
+        void sendToShader(Shader& shader, const Camera* camera, const float alphaMult) const;
 
         /// \brief Get the shader
         ///
@@ -203,7 +206,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
+        Material& setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission);
 
         /// \brief Set the reflection values using a preset
         ///
@@ -219,7 +222,7 @@ namespace jop
         ///
         /// \return The reflection value
         ///
-        Color getReflection(const Reflection reflection) const;
+        const Color& getReflection(const Reflection reflection) const;
 
         /// \brief Set the shininess value
         ///

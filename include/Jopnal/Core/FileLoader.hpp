@@ -32,10 +32,6 @@
 
 
 struct PHYSFS_File;
-namespace Assimp
-{
-    class Importer;
-}
 
 namespace jop
 {
@@ -46,8 +42,6 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
         friend class ModelLoader;
-
-        static Assimp::Importer& getImporter();
 
     public:
 
@@ -276,11 +270,12 @@ namespace jop
         ///
         /// If the directory already exists, this has no effect.
         ///
+        /// \param dir The base write directory
         /// \param path The directory to create
         ///
         /// \return True if successful
         ///
-        static bool makeDirectory(const std::string& path);
+        static bool makeDirectory(const Directory dir, const std::string& path);
 
         /// \brief Get a base directory as string
         ///
@@ -295,17 +290,6 @@ namespace jop
         /// \return The directory separator
         ///
         static char getDirectorySeparator();
-
-        /// \brief Read a resource file
-        ///
-        /// This is mostly used internally.
-        ///
-        /// \param id Identifier of the resource
-        /// \param buffer The data buffer
-        ///
-        /// \return True if successful
-        /// 
-        static bool readResource(const int id, std::vector<uint8>& buffer);
 
         /// \brief Enable/disable file system error checks
         ///

@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <memory>
+#include <vector>
 #include <set>
 
 //////////////////////////////////////////////
@@ -90,6 +91,10 @@ namespace jop
         /// \return Const pointer to the texture, nullptr the creation of one failed
         ///
         const Texture* getTexture() const;
+
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
 
     private:
 

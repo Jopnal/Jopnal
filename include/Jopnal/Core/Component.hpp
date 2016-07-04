@@ -26,7 +26,6 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Message.hpp>
-#include <string>
 
 //////////////////////////////////////////////
 
@@ -49,9 +48,16 @@ namespace jop
         ///
         /// \return Pointer to the cloned component
         /// 
-        virtual Component* clone(Object& newObj) const = 0;
+        virtual Component* clone(Object& newObj) const;
 
     protected:
+
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object this component will be bound to
+        /// \param ID Component identifier
+        ///
+        Component(Object& object, const uint32 ID);
 
         /// \brief Copy constructor
         ///
@@ -59,13 +65,6 @@ namespace jop
         /// \param newObj The new object
         ///
         Component(const Component& other, Object& newObj);
-
-        /// \brief Constructor
-        ///
-        /// \param object Reference to the object this component will be bound to
-        /// \param ID Component identifier
-        ///
-        Component(Object& object, const std::string& ID);
 
     public:
 
@@ -81,15 +80,6 @@ namespace jop
         /// \return Message result
         ///
         Message::Result sendMessage(const std::string& message);
-
-        /// \brief Function to handle messages
-        ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return Message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -109,7 +99,7 @@ namespace jop
         ///
         /// \return Reference to the identifier
         ///
-        const std::string& getID() const;
+        uint32 getID() const;
 
         /// \brief Set the identifier
         ///
@@ -117,7 +107,7 @@ namespace jop
         ///
         /// \comm setID
         ///
-        void setID(const std::string& ID);
+        void setID(const uint32 ID);
 
         /// \brief Get the object this component is bound to
         ///
@@ -142,6 +132,12 @@ namespace jop
         /// The component will be removed immediately.
         ///
         void removeSelf();
+
+    protected:
+
+        /// \brief Receive message
+        ///
+        virtual Message::Result receiveMessage(const Message& message);
         
     private:
 
@@ -153,12 +149,8 @@ namespace jop
         ///
         virtual void setActive(const bool active);
 
-        /// \brief Virtual sendMessage
-        ///
-        virtual Message::Result sendMessageImpl(const Message& message);
 
-
-        std::string m_ID;                   ///< Identifier
+        uint32 m_ID;                        ///< Identifier
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
     };
 }

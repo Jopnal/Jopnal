@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Utility/Json.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 

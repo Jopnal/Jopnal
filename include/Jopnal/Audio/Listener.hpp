@@ -77,13 +77,17 @@ namespace jop
         ///
         /// \see getGlobalVolume
         ///
-        void setGlobalVolume(const float volume);
+        static void setGlobalVolume(const float volume);
 
         /// \brief Get the current value of the global volume
         ///
         /// \return The global volume
         ///
-        float getGlobalVolume() const;
+        static float getGlobalVolume();
+
+    private:
+
+        Message::Result receiveMessage(const Message& message) override;
     };
 }
 #endif

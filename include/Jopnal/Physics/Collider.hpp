@@ -58,7 +58,7 @@ namespace jop
         /// \param world Reference to the physics world
         /// \param ID Id of this component
         ///
-        Collider(Object& object, World& world, const std::string& ID);
+        Collider(Object& object, World& world, const uint32 ID);
 
         /// \brief Copy constructor
         ///

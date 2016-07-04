@@ -20,13 +20,68 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Renderer.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+    #include <Jopnal/Graphics/RenderTarget.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <glm/gtx/norm.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    namespace detail
+    {
+        class DrawableSorterOpaque
+        {
+            const glm::vec3& m_camPos;
+
+        public:
+
+            DrawableSorterOpaque(const Camera& cam)
+                : m_camPos(cam.getObject()->getGlobalPosition())
+            {}
+
+            bool operator ()(const Drawable* first, const Drawable* second) const
+            {
+                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) <
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
+            }
+        };
+
+        class DrawableSorterTranslucent
+        {
+            const glm::vec3& m_camPos;
+
+        public:
+
+            DrawableSorterTranslucent(const Camera& cam)
+                : m_camPos(cam.getObject()->getGlobalPosition())
+            {}
+
+            bool operator ()(const Drawable* first, const Drawable* second) const
+            {
+                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) >
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
@@ -34,16 +89,7 @@ namespace jop
           m_envRecorders    (),
           m_mask            (1),
           m_mainTarget      (mainTarget)
-
-        #ifdef JOP_DEBUG_MODE
-        , m_physicsWorld   (nullptr)
-        #endif
-    {
-        GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
-        GlState::setSeamlessCubemap(true);
-        GlState::setBlendFunc(true);
-    }
+    {}
 
     Renderer::~Renderer()
     {}
@@ -156,27 +202,54 @@ namespace jop
                 cam->getRenderTexture().bind();
                 cam->applyViewport(m_mainTarget);
 
+                // 0 - Opaque
+                // 1 - Translucent
+                // 2 - Sky box/sphere
+                std::array<std::vector<const Drawable*>, 3> sorted;
+                sorted[0].reserve(m_drawables.size());
+                sorted[1].reserve(m_drawables.size() / 4);
+                
                 for (auto drawable : m_drawables)
                 {
                     const uint32 groupBit = 1 << drawable->getRenderGroup();
-                    if (!drawable->isActive() || (i & groupBit) == 0 || (camMask & groupBit) == 0)
-                        continue;
-
-                    if (drawable->receiveLights())
+                    if (drawable->isActive() && drawable->getModel().isValid() && (i & groupBit) > 0 && (camMask & groupBit) > 0)
                     {
-                        // Select lights
-                        LightContainer lights;
-                        chooseLights(*drawable, lights);
-                        drawable->draw(*cam, lights);
+                        using M = Material::Attribute;
+                        auto& mat = *drawable->getModel().getMaterial();
+
+                        sorted[std::min(2, mat.hasAttributes(M::Alpha | M::DiffuseAlpha) + (mat.hasAttribute(M::__SkyBox | M::__SkySphere) * 2))].push_back(drawable);
                     }
-                    else
-                        drawable->draw(*cam, dummyLightCont);
                 }
 
-            #ifdef JOP_DEBUG_MODE
-                if (m_physicsWorld)
-                    m_physicsWorld->draw(*cam);
-            #endif
+                std::sort(sorted[0].begin(), sorted[0].end(), detail::DrawableSorterOpaque(*cam));
+                std::sort(sorted[1].begin(), sorted[1].end(), detail::DrawableSorterTranslucent(*cam));
+
+                auto drawSet = [this](const std::vector<const Drawable*>& drawables, const Camera& cam)
+                {
+                    for (auto drawable : drawables)
+                    {
+                        if (drawable->receiveLights())
+                        {
+                            // Select lights
+                            LightContainer lights;
+                            chooseLights(*drawable, lights);
+                            drawable->draw(cam, lights);
+                        }
+                        else
+                            drawable->draw(cam, dummyLightCont);
+                    }
+                };
+
+                // Opaque
+                drawSet(sorted[0], *cam);
+
+                // Sky boxes/spheres
+                drawSet(sorted[2], *cam);
+
+                // Translucent
+                GlState::setDepthWrite(false);
+                drawSet(sorted[1], *cam);
+                GlState::setDepthWrite(true);
             }
         }
     }

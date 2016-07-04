@@ -23,6 +23,7 @@
 #define JOP_JSON_HPP
 
 // Headers
+#include <Jopnal/Header.hpp>
 #pragma warning(push)
 #pragma warning(disable: 4244)
 #include <rapidjson/rapidjson.h>

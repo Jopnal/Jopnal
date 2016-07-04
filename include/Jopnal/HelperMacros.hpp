@@ -26,10 +26,10 @@
 
 
 // Copy/move constructor deletion
-#define JOP_DISALLOW_COPY(className) className##(const className &) = delete; \
+#define JOP_DISALLOW_COPY(className) className(const className &) = delete; \
                                      void operator =(const className &) = delete;
 
-#define JOP_DISALLOW_MOVE(className) className##(className &&) = delete; \
+#define JOP_DISALLOW_MOVE(className) className(className &&) = delete; \
                                      void operator =(className &&) = delete;
 
 #define JOP_DISALLOW_COPY_MOVE(className) JOP_DISALLOW_COPY(className) \

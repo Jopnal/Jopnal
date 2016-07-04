@@ -20,10 +20,7 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
-#include <fstream>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/reader.h>
+#include <Jopnal/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
@@ -39,7 +36,7 @@ namespace jop
 	//////////////////////////////////////////////
 
 	ModelLoader::ModelLoader(Object& obj)
-		: Component(obj, "modelloader"),
+		: Component(obj, 0),
 		m_path()
 	{}
 
@@ -100,7 +97,7 @@ namespace jop
 		{
 			namespace rj = rapidjson;
 
-			auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true).setAttributeField(Material::Attribute::AmbientConstant);
+            auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true);
 
 			jop::FileLoader fl;
 			if (!fl.open(path))
@@ -178,7 +175,7 @@ namespace jop
 								//Diffuse
 								if (itr->value.HasMember("type"))
 								{
-									auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(), true);
+									auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(), true, true);
 									m.setMap(static_cast<Material::Map>(itr->value["type"].GetInt()), tex);
 
 									//wrapping

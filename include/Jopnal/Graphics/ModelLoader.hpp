@@ -88,7 +88,9 @@ namespace jop
         ///
         /// \param obj The object this loader is bound to
         ///
-        ModelLoader(Object& obj);
+        explicit ModelLoader(Object& obj);
+
+        ModelLoader(Object& obj, const std::string& path, const Options& options = Options());
 
 
         /// \brief Load a model from file

@@ -20,7 +20,18 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/SkySphere.hpp>
+
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -28,9 +39,9 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable(obj, renderer, "skysphere"),
-          m_mesh(""),
-          m_material("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
+        : Drawable      (obj, renderer, 0),
+          m_mesh        (""),
+          m_material    ("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
     {
         m_mesh.load(radius, 20, 20, true);
 
@@ -66,10 +77,10 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
 
-        mat.sendToShader(s, camera);
+        mat.sendToShader(s, camera, getAlphaMultiplier());
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
@@ -77,11 +88,11 @@ namespace jop
         if (msh.getElementAmount())
         {
             msh.getIndexBuffer().bind();
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
         }
         else
         {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
 
         GlState::setDepthTest(true);
@@ -90,9 +101,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::setMap(const Texture2D& map)
+    SkySphere& SkySphere::setMap(const Texture2D& map)
     {
         m_material.setMap(Material::Map::Diffuse, map);
+
+        return *this;
     }
 
     //////////////////////////////////////////////

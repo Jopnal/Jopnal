@@ -26,7 +26,9 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <sstream>
+#include <fstream>
 #include <mutex>
+#include <array>
 
 //////////////////////////////////////////////
 
@@ -64,6 +66,8 @@ namespace jop
     class JOP_API DebugHandler
     {
     private:
+
+        friend class FileSystemInitializer;
 
         /// Private constructor since this is a singleton class
         ///
@@ -126,6 +130,21 @@ namespace jop
         ///
         void setDebuggerOutput(const bool set);
 
+        /// \brief Enable/disable file logging
+        ///
+        /// \param set True to enable
+        ///
+        void setFileLogging(const bool set);
+
+        /// \brief Check if file logging is enabled
+        ///
+        /// \return True if enabled
+        ///
+        bool fileLoggingEnabled() const;
+
+
+        std::recursive_mutex& getMutex();
+
 
         /// \brief Operator for setting the severity level for the next text object
         ///
@@ -147,7 +166,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        DebugHandler& operator <<(const jop::Color& color);
+        DebugHandler& operator <<(const Color& color);
 
         /// \brief An operator for inputting data into the stream
         ///
@@ -160,14 +179,20 @@ namespace jop
 
     private:
 
-        std::stringstream m_stream;     ///< The stream object
-        Severity m_displaySeverity;     ///< The current severity
-        Severity m_lastSeverity;        ///< The last set severity
-        std::string m_last;             ///< Last string entered. Used for culling repeating messages
-        bool m_consoleEnabled;          ///< Is the console enabled?
-        bool m_noSpam;                  ///< Is the no spam mode set?
-        bool m_debuggerOutput;          ///< Use debugger output?
-        std::recursive_mutex m_mutex;   ///< Mutex
+        void openFileHandles();
+
+        void closeFileHandles();
+
+        std::stringstream m_stream;                 ///< The stream object
+        Severity m_displaySeverity;                 ///< The current severity
+        Severity m_lastSeverity;                    ///< The last set severity
+        std::string m_last;                         ///< Last string entered. Used for culling repeating messages
+        bool m_consoleEnabled;                      ///< Is the console enabled?
+        bool m_noSpam;                              ///< Is the no spam mode set?
+        bool m_debuggerOutput;                      ///< Use debugger output?
+        bool m_fileLogging;                         ///< Is file logging enabled?
+        std::recursive_mutex m_mutex;               ///< Mutex
+        std::array<std::ofstream, 4> m_fileHandles; ///< Log file handles
     };
 
     // Include the template implementation file

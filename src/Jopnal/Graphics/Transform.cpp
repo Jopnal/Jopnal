@@ -20,7 +20,15 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+	#include <Jopnal/Graphics/Transform.hpp>
+
+    #include <glm/gtc/matrix_transform.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 

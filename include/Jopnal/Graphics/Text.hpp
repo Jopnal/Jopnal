@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/GenericDrawable.hpp>
-#include <Jopnal/Graphics/Mesh.hpp>
+#include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 
@@ -83,13 +83,13 @@ namespace jop
         ///
         /// \param color Color
         ///
-        Text& setColor(const Color color);
+        Text& setColor(const Color& color);
 
         /// \brief Get the color
         ///
         /// \return The color
         ///
-        Color getColor() const;
+        const Color& getColor() const;
 
         void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
 

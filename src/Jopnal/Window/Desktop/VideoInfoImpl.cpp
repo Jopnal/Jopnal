@@ -20,11 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#include <Jopnal/Window/Desktop/VideoInfoImpl.hpp>
 
 #ifdef JOP_OS_DESKTOP
 
-#include <Jopnal/Window/Desktop/VideoInfoImpl.hpp>
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <GLFW/glfw3.h>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -37,6 +43,8 @@ namespace jop { namespace detail
 
         if (vec.empty())
         {
+            glfwInit();
+
             int count;
             auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
 
@@ -69,6 +77,8 @@ namespace jop { namespace detail
 
     glm::uvec2 VideoInfoImpl::getDesktopResolution()
     {
+        glfwInit();
+
         auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         return glm::uvec2(mode->width, mode->height);
     }

@@ -29,7 +29,7 @@
 #include <Jopnal/Core/ResourceManager.hpp>
 #include <Jopnal/Core/Scene.hpp>
 #include <Jopnal/Core/SettingManager.hpp>
-#include <Jopnal/Core/StateLoader.hpp>
+#include <Jopnal/Core/Serializer.hpp>
 #include <Jopnal/Core/Subsystem.hpp>
 
 //////////////////////////////////////////////

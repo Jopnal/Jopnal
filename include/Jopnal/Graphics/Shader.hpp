@@ -77,7 +77,7 @@ namespace jop
         ///
         /// \return True if the shader was loaded, compiled and linked successfully
         ///
-        bool load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp = "#version 330 core");
+        bool load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp);
 
         /// \brief Destroy this shader
         ///
@@ -235,6 +235,9 @@ namespace jop
         /// \return True if validation passed
         ///
         bool validate() const;
+
+
+        static const std::string& getVersionString();
 
         
         /// \brief Get the default shader
