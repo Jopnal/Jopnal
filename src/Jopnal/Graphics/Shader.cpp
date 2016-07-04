@@ -526,7 +526,7 @@ namespace jop
             bool err;
             Callback()
                 : str("engine@Debug|bPrintShaderUniformLocationErrors"),
-                  err(SettingManager::get<bool>(str, true))
+                  err(SettingManager::get<bool>(str, false))
             {
                 SettingManager::registerCallback(str, *this);
             }

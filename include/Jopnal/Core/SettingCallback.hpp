@@ -71,7 +71,7 @@ namespace jop
     ///
     /// This is for internal use only
     ///
-    class SettingCallbackBase
+    class JOP_API SettingCallbackBase
     {
         friend class SettingManager;
         std::string m_path;
@@ -89,6 +89,8 @@ namespace jop
     template<typename T>
     class SettingCallback : public SettingCallbackBase
     {
+    private:
+
         void valueChangedBase(const json::Value& val) final override;
 
     protected:

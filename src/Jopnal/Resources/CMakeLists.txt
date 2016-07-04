@@ -1,7 +1,7 @@
 # Jopnal Resources CMakeLists
 
 # Add resource files & build step
-if (JOP_OS_WINDOWS)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
     set(__SRCDIR_RESOURCES ${PROJECT_SOURCE_DIR}/tools/Jopresource/res)
 

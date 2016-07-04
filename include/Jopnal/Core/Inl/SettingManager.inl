@@ -19,44 +19,18 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVITYSTATE_HPP
-#define JOP_ACTIVITYSTATE_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-
-#ifdef JOP_OS_ANDROID
-
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <glm/vec2.hpp>
-#include <android/native_activity.h>
-#include <mutex>
+template<typename T>
+DynamicSetting<T>::DynamicSetting(const std::string& path, const T& defaultValue)
+    : value(SettingManager::get<T>(path, defaultValue))
+{
+    SettingManager::registerCallback(path, *this);
+}
 
 //////////////////////////////////////////////
 
-
-namespace jop { namespace detail
+template<typename T>
+void DynamicSetting<T>::valueChanged(const T& val)
 {
-    struct JOP_API ActivityState
-    {
-        ActivityState() = default;
-
-        static ActivityState* create(ANativeActivity* activity);
-
-        static ActivityState* get();
-
-        static void reset();
-
-
-        std::mutex mutex;
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-
-        Window* window;
-        glm::uvec2 screenSize;
-    };
-}}
-
-#endif
-#endif
+    value = val;
+}

@@ -118,19 +118,35 @@ namespace jop
     void Engine::loadDefaultConfiguration()
     {
         // File system
-        createSubsystem<FileSystemInitializer>(
-        #ifdef JOP_OS_ANDROID
-            ""
-        #else
-            ns_argv[0]
-        #endif
-        );
+        createSubsystem<FileSystemInitializer>(ns_argv[0]);
 
         // Setting manager
         createSubsystem<SettingManager>();
 
+        const bool openGLES =
+        #ifdef JOP_OPENGL_ES
+            true
+        #else
+            false
+        #endif
+        ;
+
+        const bool useWindowRendertarget = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", openGLES);
+
         // Main window
-        m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
+        {
+            Window::Settings settings(true);
+
+            if (useWindowRendertarget)
+            {
+                settings.colorBits.a = 8;
+                settings.depthBits = 24;
+                settings.stencilBits = 8;
+            }
+
+            m_mainWindow = &createSubsystem<Window>(settings);
+            m_mainTarget = m_mainWindow;
+        }
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -138,11 +154,12 @@ namespace jop
         // Shader manager
         createSubsystem<ShaderAssembler>();
 
-        // Main render target
-        typedef RenderTexture RT;
-        auto& rtex = createSubsystem<RT>(UINT_MAX);
-
+        if (!useWindowRendertarget)
         {
+            // Main render target
+            typedef RenderTexture RT;
+            auto& rtex = createSubsystem<RT>(UINT_MAX);
+
             m_mainTarget = &rtex;
 
             const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(m_mainWindow->getSize()));
@@ -150,16 +167,17 @@ namespace jop
             using Slot = RT::ColorAttachmentSlot;
             using CA = RT::ColorAttachment;
 
-            rtex.addColorAttachment(Slot::_1, CA::RGBA2DFloat16, scaledRes);
-            rtex.addColorAttachment(Slot::_2, CA::RGB2DFloat16, scaledRes);
+            rtex.addColorAttachment(Slot::_1, openGLES ? CA::RGBA2D : CA::RGBA2DFloat16, scaledRes);
             rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
 
             rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
-            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
-        }
 
-        // Post processor
-        createSubsystem<PostProcessor>(rtex);
+            // Post processor
+            rtex.addColorAttachment(Slot::_2, openGLES ? CA::RGB2D : CA::RGB2DFloat16, scaledRes);
+            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+
+            createSubsystem<PostProcessor>(rtex);
+        }
 
         // Buffer swapper
         createSubsystem<BufferSwapper>(*m_mainWindow);

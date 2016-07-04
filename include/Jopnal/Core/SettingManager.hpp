@@ -169,6 +169,10 @@ namespace jop
         ///
         static void save();
 
+        static void setDefaultDirectory(const std::string& directory);
+
+        static void setOverrideWithDefaults();
+
     private:
 
         static void unregisterCallback(SettingCallbackBase& callback);
@@ -190,6 +194,22 @@ namespace jop
 
         json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot);
     }
+
+    template<typename T>
+    struct DynamicSetting : SettingCallback<T>
+    {
+        DynamicSetting(const std::string& path, const T& defaultValue);
+
+    private:
+
+        void valueChanged(const T& val) override;
+
+    public:
+
+        T value;
+    };
+
+    #include <Jopnal/Core/Inl/SettingManager.inl>
 }
 
 #endif

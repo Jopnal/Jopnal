@@ -37,6 +37,12 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    std::string ns_defaultDir;
+    bool ns_override = false;
+}
+
 namespace jop
 {
     namespace detail
@@ -360,14 +366,15 @@ namespace jop
             }
         }
 
+        auto removeFiles = [](const std::string& str)
+        {
+            return str.find(".json") == std::string::npos;
+        };
+
         std::vector<std::string> files;
         FileLoader::listFilesRecursive("Config", files);
 
-        files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& str)
-        {
-            return str.find(".json") == std::string::npos;
-
-        }), files.end());
+        files.erase(std::remove_if(files.begin(), files.end(), removeFiles), files.end());
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -392,6 +399,47 @@ namespace jop
             }
         }
 
+        // Load defaults is actual files were not found
+        if (ns_defaultDir.empty())
+            return;
+
+        files.clear();
+        FileLoader::listFilesRecursive(ns_defaultDir, files);
+
+        files.erase(std::remove_if(files.begin(), files.end(), removeFiles), files.end());
+
+        if (ns_override && !files.empty())
+            JOP_DEBUG_WARNING("jop::SettingManager::setOverrideWithDefaults() has been called. Existing setting files will be replaced with defaults");
+
+        for (auto& i : files)
+        {
+            const auto cutPos = i.find_first_of('/') + 1;
+            const std::string name = i.substr(cutPos, i.find_last_of('.') - cutPos);
+
+            auto itr = m_instance->m_settings.find(name);
+            std::string text;
+
+            if ((itr == m_instance->m_settings.end() || ns_override) && FileLoader::readTextfile(i, text))
+            {
+                json::Document doc;
+                doc.Parse<0>(text.c_str());
+
+                if (json::checkParseError(doc))
+                {
+                    auto& newDoc = m_instance->m_settings[name];
+                    newDoc.second = false;
+
+                    newDoc.first = std::move(doc);
+
+                    JOP_DEBUG_INFO("Default setting file \"" << i << "\" loaded successfully");
+                }
+                else
+                    JOP_DEBUG_ERROR("Default setting file \"" << i << "\" was found and loaded but had a parse error");
+            }
+        }
+
+        // Only override upon start-up
+        ns_override = false;
         m_instance->m_filesUpdated.store(false);
     }
 
@@ -673,7 +721,21 @@ namespace jop
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    void SettingManager::setDefaultDirectory(const std::string& directory)
+    {
+        ns_defaultDir = directory;
+    }
+
+    //////////////////////////////////////////////
+
+    void SettingManager::setOverrideWithDefaults()
+    {
+        ns_override = true;
+    }
+
+    //////////////////////////////////////////////
 
     SettingManager* SettingManager::m_instance = nullptr;
 }

@@ -40,6 +40,7 @@ extern int main(int argc, char* argv[]);
 #elif defined(JOP_OS_ANDROID)
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
     #include <thread>
@@ -59,8 +60,8 @@ extern int main(int argc, char* argv[]);
                 case APP_CMD_INIT_WINDOW:
                 {
                     state->nativeWindow = app->window;
-                    state->windowSize.x = ANativeWindow_getWidth(app->window);
-                    state->windowSize.y = ANativeWindow_getHeight(app->window);
+                    //state->windowSize.x = ANativeWindow_getWidth(app->window);
+                    //state->windowSize.y = ANativeWindow_getHeight(app->window);
 
                     ns_ready.store(true);
                 }
@@ -73,9 +74,26 @@ extern int main(int argc, char* argv[]);
 
             switch (cmd)
             {
+                case APP_CMD_INIT_WINDOW:
+                {
+
+                }
+
+                case APP_CMD_TERM_WINDOW:
+                {
+
+                }
+
+                case APP_CMD_WINDOW_RESIZED:
+                {
+
+                }
+
                 case APP_CMD_DESTROY:
+                {
                     ANativeActivity_finish(app->activity);
-                    break;
+                    Engine::exit();
+                }
             }
         }
 
@@ -105,7 +123,9 @@ extern int main(int argc, char* argv[]);
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 
-            ::main(0, NULL);
+            char v = '\0';
+            char* argv[] = {&v};
+            ::main(1, argv);
         }
     }}
 

@@ -32,6 +32,7 @@ set(__INL_CORE
     ${__INCDIR_CORE}/Inl/Scene.inl
     ${__INCDIR_CORE}/Inl/Serializer.inl
     ${__INCDIR_CORE}/Inl/SettingCallback.inl
+    ${__INCDIR_CORE}/Inl/SettingManager.inl
 )
 source_group("Core\\Inl" FILES ${__INL_CORE})
 list(APPEND SRC ${__INL_CORE})
