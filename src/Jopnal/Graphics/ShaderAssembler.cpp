@@ -41,6 +41,7 @@ namespace jop
 {
     ShaderAssembler::ShaderAssembler()
         : Subsystem (0),
+          m_plugins (),
           m_shaders (),
           m_uber    (),
           m_mutex   ()
@@ -51,6 +52,16 @@ namespace jop
         m_uber[0].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderVert), sizeof(jopr::defaultUberShaderVert));
         m_uber[1].assign(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom));
         m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
+
+        // Load plugins
+        //std::vector<unsigned char> source;
+        //FileLoader::readBinaryfile(jopr::plugin, source);
+        //m_plugins.emplace(/*name*/, source);
+
+        //source.clear();
+        //FileLoader::readBinaryfile(jopr::plugin, source);
+        //m_plugins.emplace(/*name*/, source);
+
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -179,6 +190,51 @@ namespace jop
     const ShaderAssembler::ShaderMap& ShaderAssembler::getShaderMap()
     {
         return m_instance->m_shaders;
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::addPlugin(const std::string& name, const std::string& source)
+    {
+        // Add a plugin
+        m_plugins.emplace(name, source);
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::removePlugin(const std::string& name)
+    {
+        m_plugins.erase(name);
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::preprocess(const std::vector<const char*>& input, std::string& output)
+    {
+        if (!m_instance)
+            return;
+        
+        for (auto i : input)
+        {
+            const char* current = strstr(i, "#include");
+            const char* next = i;
+
+            while (current != NULL)
+            {
+                output.append(current, current - i);
+
+                const char* opener = strchr(current, '<');
+                const char* closer = strchr(opener, '>');
+                auto itr = m_instance->m_plugins.find(std::string(opener + 1, closer - 1));
+                if (itr != m_instance->m_plugins.end())
+                    output.append(itr->second);
+
+                next = closer + 1;
+                current = strstr(next, "#include");
+            }
+
+            output.append(next);
+        }
     }
 
     //////////////////////////////////////////////

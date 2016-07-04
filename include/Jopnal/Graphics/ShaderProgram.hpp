@@ -33,6 +33,10 @@ namespace jop
 {
     class JOP_API ShaderProgram : public Resource
     {
+    private:
+
+        typedef std::unordered_map<std::string, int> LocationMap;
+
     public:
         /// \brief Constructor
         ///
@@ -47,7 +51,7 @@ namespace jop
         /// attaches a variable number of shaders to shader program
         ///
         template<typename ... Args>
-        bool load(const Args&&... args);
+        bool load(const Args&... args);
 
         /// \brief Attach shader to program
         ///
@@ -61,18 +65,165 @@ namespace jop
         ///
         void unlink();
 
+        /// \brief Bind this shader for use
+        ///
+        /// \return True if successful
+        ///
+        bool bind() const;
+
+        /// \brief Bind this shader for use
+        ///
+        /// \return True if successful
+        ///
+        void unbind() const;
+
+        /// \brief Validate program status
+        ///
+        bool validate();
+
+        /// \brief method setting matrix 4x4
+        ///
+        /// \param name unique name
+        /// \param matrix 4x4 matrix
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::mat4& matrix);
+
+        /// \brief Set an array of matrices
+        ///
+        /// This is for 4x4 matrices (glm::mat4).
+        ///
+        /// \param name The uniform name
+        /// \param matrices Pointer to the first element of the first matrix
+        /// \param amount Amount of the matrices
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
+
+        /// \brief method setting 3x3 matrix with unique name
+        ///
+        /// \param name unique name
+        /// \param matrix 3x3 matrix
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::mat3& matrix);
+
+        /// \brief Set a two-dimensional float vector uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param vector The vector to set
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::vec2& vector);
+
+        /// \brief method setting vector with 3 dimensions and unique name
+        ///
+        /// \param name unique name
+        /// \param vector 3 dimensional vector
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::vec3& vector);
+
+        /// \brief method setting vector with 4 dimensions and unique name
+        ///
+        /// \param name unique name
+        /// \param vector 4 dimensional vector
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const glm::vec4& vector);
+
+        /// \brief method setting texture with unique name and Uint
+        ///
+        /// \param name unique name
+        /// \param texture The texture
+        /// \param unit The texture unit
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit);
+
+        /// \brief Set a float uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The float value
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const float value);
+
+        /// \brief Set an integer uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The integer to set
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const int value);
+
+        /// \brief Set a boolean uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The boolean to set
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const bool value);
+
+        /// \brief Set an unsigned integer uniform
+        ///
+        /// \param name Name of the uniform
+        /// \param value The unsigned integer to set
+        ///
+        /// \return True if set successfully
+        ///
+        bool setUniform(const std::string& name, const unsigned int value);
+
+        /// \brief Set an attribute using the location
+        ///
+        /// \param loc Attribute location
+        /// \param type Data type, Use the appropriate OpenGL enum
+        /// \param amount Amount of variables per element
+        /// \param stride The stride. Refer to OpenGL documentation on what this is
+        /// \param pointer Pointer to the data or the offset in the buffer
+        ///
+        void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const void* pointer);
+
+        /// \brief Get the default shader
+        ///
+        /// \return Reference to the default shader
+        ///
+        static ShaderProgram& getDefault();
+
+        /// \brief Get the error shader
+        ///
+        /// This shader will paint any drawn object bright red.
+        ///
+        /// \return Reference to the error shader
+        ///
+        static ShaderProgram& getError();
+
     private:
+
+        /// \brief Get location of uniform by name
+        ///
+        int getUniformLocation(const std::string& name);
 
         /// \brief Check program status
         ///
-        /// \param pname Object parameter: GL_LINK_STATUS, GL_DELETE_STATUS, GL_VALIDATE_STATUS, GL_ATTACHED_SHADERS
+        /// \param glStatus Object parameter: GL_LINK_STATUS, GL_DELETE_STATUS, GL_VALIDATE_STATUS, GL_ATTACHED_SHADERS
         /// \return Returns message used for error messages
         ///
-        GLchar checkStatus(GLenum pname);
+        GLchar checkStatus(GLenum glSatus);
 
-        unsigned int m_programID;
-        std::unordered_map<GLuint, WeakReference<const Shader>> m_shaders;
-
+        std::unordered_map<GLuint, WeakReference<const Shader>> m_shaders;      ///< Map with shaders
+        LocationMap m_unifMap;                                                  ///< Map with uniform locations
+        unsigned int m_programID;                                               ///< OpenGL program handle
     };
 #include <Jopnal/Graphics/Inl/ShaderProgram.inl>
 }

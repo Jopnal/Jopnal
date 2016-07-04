@@ -57,29 +57,34 @@ namespace jop
 
     void Shader::addSource(const char* source)
     {
-        // add source to m_sources
-        // make sure that order of sources is correct
         m_sources.emplace_back(source);
     }
 
     //////////////////////////////////////////////
 
-    bool Shader::compile(const Type type)
+    bool Shader::compile(const Type type, bool preprocess)
     {      
-        if (type > Type::Fragment)
-            return false;
-
         // Create shader & set handle
         m_handle = glCheck(glCreateShader(shaderTypes[static_cast<int>(type)]));
-        // Set source
-        glCheck(glShaderSource(m_handle, 1, m_sources.data(), NULL));
+
+        if (preprocess)
+        {
+            std::string finalSource;
+            ShaderAssembler::preprocess(m_sources, finalSource);
+            glCheck(glShaderSource(m_handle, 1, reinterpret_cast<const char* const*>(finalSource.c_str()), NULL));
+        }
+        else
+        {
+            // Set source
+            glCheck(glShaderSource(m_handle, m_sources.size(), m_sources.data(), NULL));
+        }
         // Compile
         glCheck(glCompileShader(m_handle));
 
         // Check status
         if(checkStatus(GL_COMPILE_STATUS) != 0)
         {
-            JOP_DEBUG_ERROR("Failed to compile " << (type == 0 ? "vertex" : (type == 1 ? "geometry" : "fragment")) << " shader:\n" << checkStatus(GL_COMPILE_STATUS));
+            JOP_DEBUG_ERROR("Failed to compile " << (type == Type::Vertex ? "vertex" : (type == Type::Geometry ? "geometry" : "fragment")) << " shader:\n" << checkStatus(GL_COMPILE_STATUS));
             
             // Compile failed - delete shader
             glCheck(glDeleteShader(m_handle));
@@ -90,22 +95,22 @@ namespace jop
             return false;
         }
        
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
 
         else if (checkStatus(GL_INFO_LOG_LENGTH) != 0)
         {
             if (std::strcmp(reinterpret_cast<const char*>(checkStatus(GL_INFO_LOG_LENGTH)), "No errors.") != 0)
-                JOP_DEBUG_WARNING((type == 0 ? "Vertex" : (type == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << checkStatus(GL_INFO_LOG_LENGTH));
+                JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << checkStatus(GL_INFO_LOG_LENGTH));
         }
 
-#endif
+    #endif
 
         return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Shader::load(const std::string& path, Type type)
+    bool Shader::load(const std::string& path, Type type, bool preprocess)
     {
 
         // File loader error checks need to be disabled here to avoid console spam
@@ -120,9 +125,11 @@ namespace jop
         // Add sources
         addSource(*sources);
         // for each type compile
-        compile(type);
+        bool success = compile(type, preprocess);
         // clear sources after compiled
         m_sources.clear();
+
+        return success;
     }
 
     //////////////////////////////////////////////
@@ -137,6 +144,36 @@ namespace jop
     GLuint Shader::getHandle() const
     {
         return m_handle;
+    }
+
+    const std::string& Shader::getVersionString()
+    {
+        static std::string versionString;
+
+        if (versionString.empty())
+        {
+            versionString += "#version ";
+
+        #ifndef JOP_OPENGL_ES
+
+            versionString += std::to_string(ogl_GetMajorVersion());
+            versionString += std::to_string(ogl_GetMinorVersion());
+            versionString += "0 core\n";
+
+        #else
+
+            const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+
+            const std::size_t numPos = esVersion.find_first_of("0123456789");
+
+            versionString += esVersion[numPos];
+            versionString += esVersion[numPos + 2];
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
+
+        #endif
+        }
+
+        return versionString;
     }
 
     //////////////////////////////////////////////

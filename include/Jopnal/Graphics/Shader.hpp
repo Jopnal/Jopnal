@@ -66,11 +66,11 @@ namespace jop
         ///
         /// \param type Shader Type:: (Vertex / Geometry / Fragment)
         ///
-        bool compile(const Type type);
+        bool compile(const Type type, bool preprocess = true);
 
         /// \brief Load shader
         ///
-        bool load(const std::string& path, Type type);
+        bool load(const std::string& path, Type type, bool preprocess = true);
 
         /// \brief Get shader type (Vertex / Geometry / Fragment)
         ///
@@ -79,6 +79,10 @@ namespace jop
         /// \brief Get shader handle
         ///
         GLuint getHandle() const;
+
+        /// \brief Get OpenGL version number
+        ///
+        static const std::string& getVersionString();
 
     private:
 

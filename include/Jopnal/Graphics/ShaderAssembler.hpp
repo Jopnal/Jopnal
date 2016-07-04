@@ -40,6 +40,7 @@ namespace jop
     {
     private:
 
+        typedef std::unordered_map<std::string,std::string> PluginMap;
         typedef std::unordered_map<Material::AttribType, WeakReference<Shader>> ShaderMap;
 
     public:
@@ -54,6 +55,23 @@ namespace jop
         ///
         ~ShaderAssembler() override;
 
+        /// \brief Add a plugin
+        ///
+        /// \param name Name of the plugin
+        /// \param data The source code for the plugin
+        ///
+        void addPlugin(const std::string& name, const std::string& source);
+
+        /// \brief Removes plugin with given name from memory
+        ///
+        void removePlugin(const std::string& name);
+
+        /// \brief Preprocesses shaders source code and adds necessary plugins
+        ///
+        /// \pram input Shaders source code
+        /// \param output Preprocessed source code
+        ///
+        static void preprocess(const std::vector<const char*>& input, std::string& output);
 
         /// \brief Get a shader with the given attribute combination
         ///
@@ -63,7 +81,7 @@ namespace jop
         ///
         static Shader& getShader(const Material::AttribType attributes);
 
-        /// \brief Get a pre-processor shader string
+        /// \brief Get a preprocessor shader string
         ///
         /// \param attrib Material attributes
         /// \param str The string to put the definitions into
@@ -78,8 +96,9 @@ namespace jop
 
     private:
 
-        static ShaderAssembler* m_instance;   ///< The single instance
+        static ShaderAssembler* m_instance; ///< The single instance
 
+        PluginMap m_plugins;                ///< Map with the plugins
         ShaderMap m_shaders;                ///< Map with the shaders
         std::array<std::string, 3> m_uber;  ///< The uber shader sources
         std::recursive_mutex m_mutex;       ///< Mutex                                        
