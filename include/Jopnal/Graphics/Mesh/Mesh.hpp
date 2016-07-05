@@ -90,6 +90,8 @@ namespace jop
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
 
+        void destroy();
+
         /// \brief Get the vertex amount
         ///
         /// \return The vertex amount
