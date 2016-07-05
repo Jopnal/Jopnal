@@ -25,7 +25,10 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/Keyboard.hpp>
-    #include <GLFW/glfw3.h>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h>
+    #endif
 
 #endif
 

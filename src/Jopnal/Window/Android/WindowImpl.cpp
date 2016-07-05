@@ -118,59 +118,93 @@ namespace jop { namespace detail
     {
         initialize();
 
-        const EGLint configAttribs[] =
+        auto state = detail::ActivityState::get();
+        std::lock_guard<std::mutex> lock(state->mutex);
+
+        if (!state->window)
         {
-            EGL_SURFACE_TYPE,       EGL_WINDOW_BIT,
+            const EGLint configAttribs[] =
+            {
+                EGL_SURFACE_TYPE,       EGL_WINDOW_BIT,
 
-            EGL_RED_SIZE,           8,
-            EGL_GREEN_SIZE,         8,
-            EGL_BLUE_SIZE,          8,
-            EGL_ALPHA_SIZE,         8,
+                EGL_RED_SIZE,           8,
+                EGL_GREEN_SIZE,         8,
+                EGL_BLUE_SIZE,          8,
+                EGL_ALPHA_SIZE,         8,
 
-            EGL_DEPTH_SIZE,         16,
-            EGL_STENCIL_SIZE,       8,
+                EGL_DEPTH_SIZE,         16,
+                EGL_STENCIL_SIZE,       8,
 
-            EGL_NONE
-        };
+                EGL_NONE
+            };
 
-        const EGLint surfaceAttribs[] =
+            const EGLint version[] =
+            {
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
+            };
+
+            EGLConfig config;
+            EGLint numConfigs = 0;
+
+            eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
+
+
+            auto win = jop::detail::ActivityState::get()->nativeWindow;
+
+            EGLint format;
+            eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
+
+            ANativeWindow_setBuffersGeometry(win, 0, 0, format);
+
+
+            m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, win, NULL));
+            JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
+
+            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
+
+            EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
+            JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+
+            eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
+            eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+        }
+        else
         {
-            //EGL_VG_COLORSPACE, EGL_VG_COLORSPACE_sRGB,
-            EGL_NONE
-        };
+            const EGLint configAttribs[] =
+            {
+                EGL_SURFACE_TYPE,       EGL_PBUFFER_BIT,
+                EGL_NONE
+            };
 
-        const EGLint version[] =
-        {
-            EGL_CONTEXT_CLIENT_VERSION, 3,
-            EGL_NONE
-        };
+            const EGLint version[] =
+            {
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
+            };
 
-        EGLConfig config;
-        EGLint numConfigs = 0;
+            const EGLint surfaceAttribs[] =
+            {
+                EGL_WIDTH,  1,
+                EGL_HEIGHT, 1,
+                EGL_NONE
+            };
 
-        eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
+            EGLConfig config;
+            EGLint numConfigs = 0;
 
+            eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
 
-        auto win = jop::detail::ActivityState::get()->nativeWindow;
+            m_surface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, surfaceAttribs));
+            JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create pbuffer surface!");
 
-        EGLint format;
-        eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
+            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
-        ANativeWindow_setBuffersGeometry(win, 0, 0, format);
-
-
-        m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, win, surfaceAttribs));
-        JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
-
-        m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
-        JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
-
-        EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
-        JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
-
-
-        eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
-        eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+            EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
+            JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+        }
 
         ns_windowRefs[m_context] = &windowPtr;
     }
