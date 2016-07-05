@@ -173,7 +173,7 @@ namespace jop
         ///
         /// \return Size of the element in bytes
         ///
-        static uint16 getElementSize(const uint32 amount);
+        //static uint16 getElementSize(const uint32 amount);
 
         /// \brief Get the default mesh
         ///
@@ -188,6 +188,7 @@ namespace jop
         uint32 m_vertexComponents;      ///< Vertex components this mesh has
         uint16 m_elementSize;           ///< Element size
         uint16 m_vertexSize;            ///< Vertex size
+
     };
 }
 
