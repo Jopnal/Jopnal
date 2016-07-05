@@ -32,10 +32,53 @@ namespace detail
     {      
         return attach(program, first) && attach(program, rest...);
     }
+
+    bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source);
+
+    template<typename ...Rest>
+    bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source, const Rest& ...rest)
+    {
+        return attachSingle(program, pp, shaders, type, source) && attachSingle(program, pp, shaders, rest...);
+    }
+
+    template<typename ...Rest>
+    bool attacher(ShaderProgram& program, const std::string&, const Shader& shader, const Rest&... rest)
+    {
+        return attach(program, shader, rest...) && program.link();
+    }
+
+    template<typename ...Rest>
+    bool attacher(ShaderProgram& program, const std::string& pp, const Shader::Type& type, const Rest&... rest)
+    {
+        std::vector<std::unique_ptr<Shader>> shaders;
+        return attachSingle(program, pp, shaders, type, rest...) && program.link();
+    }
+    
+
+    //template<typename First, typename ...Rest>
+    //struct ShaderAttacher
+    //{
+    //    static bool attach(ShaderProgram& program, const Rest&... rest)
+    //    {
+    //        return attach(program, rest...);
+    //    }
+    //};
+
+    //template<typename ...Rest>
+    //struct ShaderAttacher<Shader::Type, Rest...>
+    //{
+    //    static bool attach(ShaderProgram& program,const Shader::Type& type, const Rest&... rest)
+    //    {
+    //        std::vector<Shader> shaders;
+    //        return attachSingle(program, shaders, type, rest...);
+    //    }
+    //};
 }
 
-template<typename ... Args>
-bool jop::ShaderProgram::load(const Args&... shaders)
+template<typename... Args>
+bool jop::ShaderProgram::load(const std::string& pp,const Args&... shaders)
 {
-    return  detail::attach(*this, shaders...) && link();
+    return detail::attacher(*this, pp, shaders...);
 }
+
+

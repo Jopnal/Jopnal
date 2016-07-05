@@ -34,7 +34,7 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
     class LightSource;
     class LightContainer;
     class Renderer;
@@ -93,7 +93,7 @@ namespace jop
         /// The camera pointer can be null some times. In these cases it means that the view & perspective
         /// matrices have already been taken care of and you shouldn't try to set them.
         ///
-        virtual void draw(const Camera*, const LightContainer&, Shader&) const = 0;
+        virtual void draw(const Camera*, const LightContainer&, ShaderProgram&) const = 0;
 
 
         /// \brief Get the renderer this drawable is bound to
@@ -155,7 +155,7 @@ namespace jop
         ///
         /// \comm setShader
         ///
-        Drawable& setShader(Shader& shader);
+        Drawable& setShader(ShaderProgram& shader);
 
         /// \brief Remove the shader
         ///
@@ -172,7 +172,7 @@ namespace jop
         ///
         /// \return Pointer to the shader. Empty if none bound
         ///
-        Shader* getShader() const;
+        ShaderProgram* getShader() const;
 
 
         /// \brief Set whether or not this drawable receives lights
@@ -252,12 +252,12 @@ namespace jop
 
     private:
 
-        mutable Model m_model;                  ///< The bound model
-        mutable WeakReference<Shader> m_shader; ///< The bound shader
-        Renderer& m_rendererRef;                ///< Reference to the renderer
+        mutable Model m_model;                          ///< The bound model
+        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
+        Renderer& m_rendererRef;                        ///< Reference to the renderer
         float m_alphaMult;
-        uint8 m_renderGroup;                    ///< The render group
-        unsigned char m_flags;                  ///< Property flags
+        uint8 m_renderGroup;                            ///< The render group
+        unsigned char m_flags;                          ///< Property flags
     };
 }
 

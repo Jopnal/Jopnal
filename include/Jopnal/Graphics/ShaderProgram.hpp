@@ -23,8 +23,9 @@
 #define JOP_SHADERPROGRAM_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/Shader.hpp>
 
 //////////////////////////////////////////////
 
@@ -51,7 +52,7 @@ namespace jop
         /// attaches a variable number of shaders to shader program
         ///
         template<typename ... Args>
-        bool load(const Args&... args);
+        bool load(const std::string& pp, const Args&... args);
 
         /// \brief Attach shader to program
         ///
@@ -214,16 +215,9 @@ namespace jop
         ///
         int getUniformLocation(const std::string& name);
 
-        /// \brief Check program status
-        ///
-        /// \param glStatus Object parameter: GL_LINK_STATUS, GL_DELETE_STATUS, GL_VALIDATE_STATUS, GL_ATTACHED_SHADERS
-        /// \return Returns message used for error messages
-        ///
-        GLchar checkStatus(GLenum glSatus);
-
-        std::unordered_map<GLuint, WeakReference<const Shader>> m_shaders;      ///< Map with shaders
-        LocationMap m_unifMap;                                                  ///< Map with uniform locations
-        unsigned int m_programID;                                               ///< OpenGL program handle
+        std::unordered_map<unsigned int, WeakReference<const Shader>> m_shaders;    ///< Map with shaders
+        LocationMap m_unifMap;                                                      ///< Map with uniform locations
+        unsigned int m_programID;                                                   ///< OpenGL program handle
     };
 #include <Jopnal/Graphics/Inl/ShaderProgram.inl>
 }

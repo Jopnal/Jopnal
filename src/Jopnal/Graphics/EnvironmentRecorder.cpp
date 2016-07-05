@@ -118,7 +118,7 @@ namespace jop
 
         m_fbo.clear(RenderTarget::ColorBit | RenderTarget::DepthBit);
 
-        Shader* lastShader = nullptr;
+        ShaderProgram* lastShader = nullptr;
 
         for (auto drawable : rend.m_drawables)
         {
@@ -128,7 +128,7 @@ namespace jop
 
             auto shdr = &ShaderAssembler::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::__RecordEnv);
 
-            if (shdr == &Shader::getDefault())
+            if (shdr == &ShaderProgram::getDefault())
             {
                 JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
                 continue;

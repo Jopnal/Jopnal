@@ -34,14 +34,14 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
 
     class JOP_API ShaderAssembler final : public Subsystem
     {
     private:
 
         typedef std::unordered_map<std::string,std::string> PluginMap;
-        typedef std::unordered_map<Material::AttribType, WeakReference<Shader>> ShaderMap;
+        typedef std::unordered_map<Material::AttribType, WeakReference<ShaderProgram>> ShaderMap;
 
     public:
 
@@ -60,13 +60,17 @@ namespace jop
         /// \param name Name of the plugin
         /// \param data The source code for the plugin
         ///
-        void addPlugin(const std::string& name, const std::string& source);
+        static void addPlugin(const std::string& name, const std::string& source);
+
+        /// \brief Add multiple plugins from string
+        ///
+        static void addPlugins(const std::string& source);
 
         /// \brief Removes plugin with given name from memory
         ///
-        void removePlugin(const std::string& name);
+        static void removePlugin(const std::string& name);
 
-        /// \brief Preprocesses shaders source code and adds necessary plugins
+        /// \brief Preprocesses shaders source code and adds necessary plugins before compilation
         ///
         /// \pram input Shaders source code
         /// \param output Preprocessed source code
@@ -79,7 +83,7 @@ namespace jop
         ///
         /// \return Reference to the shader
         ///
-        static Shader& getShader(const Material::AttribType attributes);
+        static ShaderProgram& getShader(const Material::AttribType attributes);
 
         /// \brief Get a preprocessor shader string
         ///

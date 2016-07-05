@@ -23,7 +23,7 @@
 #define JOP_SHADER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <unordered_map>
 #include <array>
@@ -52,7 +52,7 @@ namespace jop
 
         /// \brief default constructor
         ///
-        Shader(const std::string& name);
+        explicit Shader(const std::string& name);
 
         /// \brief default destructor
         ///
@@ -74,11 +74,11 @@ namespace jop
 
         /// \brief Get shader type (Vertex / Geometry / Fragment)
         ///
-        GLuint getType() const;
+        unsigned int getType() const;
 
         /// \brief Get shader handle
         ///
-        GLuint getHandle() const;
+        unsigned int getHandle() const;
 
         /// \brief Get OpenGL version number
         ///
@@ -86,16 +86,9 @@ namespace jop
 
     private:
 
-        /// \brief Check shader status
-        ///
-        /// \param pname Object parameter: GL_SHADER_TYPE, GL_DELETE_STATUS, GL_COMPILE_STATUS
-        /// \return Returns message used for error messages
-        ///
-        GLchar checkStatus(GLenum pname);
-
         Type                        m_shaderType;
         std::vector<const char*>    m_sources;
-        GLuint                      m_handle;
+        unsigned int                m_handle;
 
     };
 }

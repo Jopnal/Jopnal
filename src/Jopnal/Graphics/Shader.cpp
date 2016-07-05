@@ -48,9 +48,6 @@ namespace jop
     Shader::~Shader()
     {
         glCheck(glDeleteShader(m_handle));
-
-        if(checkStatus(GL_DELETE_STATUS) != 0)
-            JOP_DEBUG_ERROR("Failed to delete shader " << checkStatus(GL_DELETE_STATUS));
     }
 
     //////////////////////////////////////////////
@@ -66,41 +63,54 @@ namespace jop
     {      
         // Create shader & set handle
         m_handle = glCheck(glCreateShader(shaderTypes[static_cast<int>(type)]));
+        m_shaderType = type;
 
         if (preprocess)
         {
             std::string finalSource;
             ShaderAssembler::preprocess(m_sources, finalSource);
-            glCheck(glShaderSource(m_handle, 1, reinterpret_cast<const char* const*>(finalSource.c_str()), NULL));
+
+            const char* strs[] = {finalSource.c_str()};
+
+            glCheck(glShaderSource(m_handle, 1, strs, NULL));
         }
         else
         {
-            // Set source
+            // Set source without preprocessing
             glCheck(glShaderSource(m_handle, m_sources.size(), m_sources.data(), NULL));
         }
+
         // Compile
         glCheck(glCompileShader(m_handle));
 
         // Check status
-        if(checkStatus(GL_COMPILE_STATUS) != 0)
+        GLint status;
+        glCheck(glGetShaderiv(m_handle, GL_COMPILE_STATUS, &status));
+
+        if (status != GL_TRUE)
         {
-            JOP_DEBUG_ERROR("Failed to compile " << (type == Type::Vertex ? "vertex" : (type == Type::Geometry ? "geometry" : "fragment")) << " shader:\n" << checkStatus(GL_COMPILE_STATUS));
-            
-            // Compile failed - delete shader
-            glCheck(glDeleteShader(m_handle));
-
-            if (checkStatus(GL_DELETE_STATUS) != 0)
-                JOP_DEBUG_ERROR("Failed to delete shader " << checkStatus(GL_DELETE_STATUS));
-
+            GLchar message[1024];
+            glCheck(glGetShaderInfoLog(m_handle, sizeof(message), NULL, message));
+            JOP_DEBUG_ERROR("Failed to compile shader:\n\n" << message);
             return false;
         }
        
+       
     #ifdef JOP_DEBUG_MODE
 
-        else if (checkStatus(GL_INFO_LOG_LENGTH) != 0)
+        else
         {
-            if (std::strcmp(reinterpret_cast<const char*>(checkStatus(GL_INFO_LOG_LENGTH)), "No errors.") != 0)
-                JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << checkStatus(GL_INFO_LOG_LENGTH));
+            GLint len;
+            glCheck(glGetShaderiv(m_handle, GL_INFO_LOG_LENGTH, &len));
+
+            if (len > 0)
+            {
+                char log[1024];
+                glCheck(glGetShaderInfoLog(m_handle, sizeof(log), NULL, log));
+
+                if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                    JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
+            }
         }
 
     #endif
@@ -134,17 +144,19 @@ namespace jop
 
     //////////////////////////////////////////////
  
-    GLuint Shader::getType() const
+    unsigned int Shader::getType() const
     {
         return shaderTypes[static_cast<int>(m_shaderType)];
     }
 
     //////////////////////////////////////////////
 
-    GLuint Shader::getHandle() const
+    unsigned int Shader::getHandle() const
     {
         return m_handle;
     }
+
+    //////////////////////////////////////////////
 
     const std::string& Shader::getVersionString()
     {
@@ -174,24 +186,6 @@ namespace jop
         }
 
         return versionString;
-    }
-
-    //////////////////////////////////////////////
-
-    GLchar Shader::checkStatus(GLenum pname)
-    {
-        GLint status;
-        glCheck(glGetShaderiv(m_handle, pname, &status));
-
-        if (status != GL_TRUE)
-        {
-            GLsizei log_length = 0;
-            GLchar message(1024);
-            glCheck(glGetShaderInfoLog(m_handle, 1024, &log_length, &message));
-            return message;
-        }
-
-        return 0;
     }
 
 }

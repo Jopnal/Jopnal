@@ -121,17 +121,18 @@ namespace detail
             if ((m_lines.empty() && m_points.empty()) || !m_cam)
                 return;
 
-            static WeakReference<Shader> shdr;
+            static WeakReference<ShaderProgram> shdr;
 
             if (shdr.expired())
             {
-                shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
+                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_physics_debug_shader").getReference());
 
-                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)),
-                                           "",
-                                           std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag, sizeof(jopr::physicsDebugShaderFrag))),
-                                           Shader::getVersionString()),
-                                           "Failed to compile physics debug shader!");
+                Shader vertex("");
+                vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex, true);
+                Shader frag("");
+                frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment, true);
+
+                JOP_ASSERT_EVAL(shdr->load("",vertex, frag),"Failed to compile physics debug shader!");
             }
 
             // Draw lines
@@ -143,8 +144,8 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
+                shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -270,7 +271,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World::draw(const Camera* camera, const LightContainer&, Shader&) const
+    void World::draw(const Camera* camera, const LightContainer&, ShaderProgram&) const
     {
     #ifdef JOP_DEBUG_MODE
         if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
