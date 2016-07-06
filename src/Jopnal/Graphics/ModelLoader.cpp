@@ -139,10 +139,15 @@ namespace jop
                             auto& texObject = mat["textures"];
                             for (auto itr = texObject.MemberBegin(); itr != texObject.MemberEnd(); ++itr)
                             {
-                                //Diffuse
+
                                 if (itr->value.HasMember("type"))
                                 {
-                                    auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(), true, true);
+                                    auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(),
+                                        itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
+                                        itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
+                                        );
+
+
                                     m.setMap(static_cast<Material::Map>(itr->value["type"].GetInt()), tex);
 
                                     //wrapping
@@ -324,22 +329,22 @@ namespace jop
         //doc.SetObject();
         if (doc.HasParseError())
         {
-            printf("MESH PARSE ERROR"); //fix
+            JOP_DEBUG_ERROR("Model loader parse error");
         }
-
 
         auto materials = detail::getMaterials(doc);
 
         char currentChar = 0;
         do{
             fl.read(&currentChar, 1);
-        } while (std::isspace(currentChar));
+        } while (currentChar == ' ' || currentChar == '\n');
         fl.seek(fl.tell() - 1);
         auto meshes = detail::getMeshes(doc, fl);
 
 
         if (!doc.HasMember("rootnode"))
         {
+            JOP_DEBUG_ERROR("Model has no rootnode");
             return false;
         }
         detail::makeNodes(getObject(), getObject()->getScene().getRenderer(), meshes, materials, doc["rootnode"]);
