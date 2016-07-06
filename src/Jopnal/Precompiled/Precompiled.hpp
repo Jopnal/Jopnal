@@ -66,6 +66,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
+// OpenAlSoft
+#include <OpenAlSoft/AL/al.h>
+#include <OpenAlSoft/AL/alc.h>
+#include <OpenAlSoft/AL/alext.h>
+
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)

@@ -22,23 +22,34 @@
 #ifndef JOP_SOUNDSTREAM_HPP
 #define JOP_SOUNDSTREAM_HPP
 
+#define STREAMING_BUFFER_SIZE 1000000
+
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Audio/SoundSource.hpp>
+#include <mutex>
+#include <Jopnal/Utility/Thread.hpp>
+#include <Jopnal/Core/FileLoader.hpp>
 
 //////////////////////////////////////////////
 
 
+
 namespace jop
 {
-    namespace detail
-    {
-        class AudioStream;
-    }
 
     class JOP_API SoundStream : public SoundSource
     {
-    private:
+	private:
+
+	struct parsedStreamingInfo
+	{
+		uint64 sampleCount = NULL;				///< Total number of samples
+		uint64 currentPos = NULL;           	///< Current point in audiodata
+		uint64 firstSample = NULL;				///< First audio sample for looping
+		float offset[2];						///< Track offset of current buffer
+		int channelCount = NULL;		        ///< Number of channels
+		int sampleRate = NULL;			        ///< Samples per second
+	};
 
         JOP_DISALLOW_COPY_MOVE(SoundStream);
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
@@ -58,10 +69,18 @@ namespace jop
         ///
         SoundStream(const SoundStream& other, Object& newObj);
 
-        /// \brief Destructor
-        ///
-        ~SoundStream() override;
 
+		/// \brief destructor
+		///
+		~SoundStream();
+
+		/// \brief Update
+		///
+		/// Keeps tabs on offset and handling buffers.
+		///
+		/// \param deltaTime The delta time
+		///
+		void update(const float deltaTime) override;
 
         /// \brief Stream audio from file
         ///
@@ -71,15 +90,15 @@ namespace jop
         ///
         /// \return True if loaded successfully
         ///
-        bool setPath(const std::string& path);
+		SoundStream& setPath(const std::string& path);
 
         /// \copydoc SoundEffect::play(const bool)
         ///
-        SoundStream& play(const bool reset);
+        SoundStream& play();
 
         /// \copydoc SoundEffect::play
         ///
-        SoundStream& play();
+        SoundStream& playReset();
 
         /// \copydoc SoundEffect::stop
         ///
@@ -97,20 +116,53 @@ namespace jop
         ///
         float getOffset() const;
 
-        /// \copydoc SoundEffect::getStatus
-        ///
-        Status getStatus() const;
-
         /// \copydoc SoundEffect::setLoop
         ///
         SoundStream& setLoop(const bool loop);
 
+		/// \copydoc SoundEffect::isLooping
+		///
+		bool isLooping();
+
     private:
 
-        Message::Result receiveMessage(const Message& message) override;
+		/// \brief Private method handling updating buffers
+		///
+		void updateBackBuffer();
 
+		/// \brief Private method handling openAlQueue
+		///
+		void updateOpenAl();
 
-        std::string m_path; ///< Remembers streaming path for cloning
+		/// \brief Private method to start song from beginning
+		///
+		void fromBegin();
+
+		/// \brief Private method to read samples into free buffer
+		///
+		void readBuffer();
+
+		/// \brief Private method for opening file
+		///
+		bool openFile();
+
+		/// \brief Private method for closing file
+		///
+		void closeFile();
+
+		std::mutex m_mutex;  
+        std::string m_path;										///< Remembers streaming path for cloning
+		bool m_isFileOpen;										///< Opens file if it's closed
+		bool m_loop;											///< If true song start from beginning when finished
+		bool m_playing;											///< For maintaining buffer updates
+		bool m_lastBuffer;										///< True when chunk of data is in use
+		std::atomic<bool> m_updatebuffer;						///< Check to able reader thread to update audio data
+		std::atomic<bool> m_updateBoth;					        ///< Check reader thread will update audio data for both buffers
+		std::atomic<bool> m_keepThread;							///< While true keeps thread alive
+		std::vector<jop::SoundBuffer*> m_bufferQueue;			///< SoundBuffer stack for streaming
+		parsedStreamingInfo m_info;								///< Critical information for passing between buffers
+		FileLoader m_fileInstance;								///< FileLoader instance for this stream
+		Thread m_thread;										///< Own thread for reading files to buffer
     };
 }
 #endif

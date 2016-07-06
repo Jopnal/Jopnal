@@ -28,17 +28,16 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
-    class SoundBuffer;
+	class SoundBuffer;
 
     class JOP_API SoundEffect : public SoundSource
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(SoundEffect);
-        JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
+		JOP_DISALLOW_COPY_MOVE(SoundEffect);
+		JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
 
     public:
 
@@ -54,6 +53,10 @@ namespace jop
         /// \param newObj The new object
         ///
         SoundEffect(const SoundEffect& other, Object& newObj);
+
+		/// \brief Destructor
+		///
+		~SoundEffect();
 
 
         /// \brief Update
@@ -83,7 +86,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        SoundEffect& play(const bool reset);
+        SoundEffect& play();
 
         /// \brief Play sound from start
         ///
@@ -94,7 +97,7 @@ namespace jop
         /// \see stop
         /// \see pause
         ///
-        SoundEffect& play();
+        SoundEffect& playReset();
 
         /// \brief Stop playing sound
         ///
@@ -140,12 +143,6 @@ namespace jop
         ///
         float getOffset() const;
 
-        /// \brief Get the status
-        ///
-        /// \return The playing status
-        ///
-        Status getStatus() const;
-
         /// \brief Enable/disable looping
         ///
         /// If looping is enabled, the sound will loop indefinitely until stopped.
@@ -157,54 +154,6 @@ namespace jop
         /// \return Reference to self
         ///
         SoundEffect& setLoop(const bool loop);
-
-
-        /// \brief Use speed of sound
-        ///
-        /// When speed of sound is enabled, the sound simulates the time it takes the sound wave to travel.
-        /// This means that when a sound is far away, it will only be played when it actually reaches the listener.
-        ///
-        /// (default = 343.0f * global * personal)
-        ///
-        /// \comm speedOfSound
-        ///
-        /// \param use True to enable
-        ///
-        /// \return Reference to self
-        ///
-        /// \see setGlobalSpeedOfSound
-        /// \see setPersonalSpeed
-        ///
-        SoundEffect& speedOfSound(const bool use);
-
-        /// \brief Change global speed multiplier for sounds
-        ///
-        /// \param speed Speed multiplier
-        ///
-        static void setGlobalSpeedOfSound(const float speed);
-
-        /// \brief Returns global speed multiplier for sounds
-        ///
-        /// \return The global speed multiplier
-        ///
-        static float getGlobalSpeedOfSound();
-
-
-        /// \brief Change sound's personal speed multiplier
-        ///
-        /// \comm setPersonalSpeed
-        ///
-        /// \param speed Speed multiplier
-        ///
-        /// \return Reference to self
-        ///
-        SoundEffect& setPersonalSpeed(const float speed);
-
-        /// \brief Returns sound's personal speed multiplier
-        ///
-        /// \return The personal speed multiplier
-        ///
-        float getPersonalSpeed() const;
 
     private:
 
@@ -218,14 +167,9 @@ namespace jop
         ///
         void allowSound(const float deltaTime);
 
-        Message::Result receiveMessage(const Message& message) override;
+		WeakReference<const SoundBuffer> m_buffer;  ///< SoundBuffer linked to owned source
 
-
-        float m_speedCounter;   ///< Counter for speed of sound
-        bool m_playWithSpeed;   ///< Calculate when sound is allowed to play
-        bool m_playOnce;        ///< Breaks link from update to calculate sound()
-        bool m_resetSound;      ///< When using speed of sound saves value from play(bool)
-        float m_personalSpeed;  ///< Sound's own personal speed of sound multiplier
+		bool m_resetSound;							///< Check for not breaking ongoing sound
     };
 }
 #endif
