@@ -110,9 +110,9 @@ namespace jop
 	bool SoundBuffer::load(const void* ptr, const uint32 size)
     {
 
-		if (ptr&&size&&jop::AudioReader::read(ptr, *this))
+		if (ptr&&size&&jop::AudioReader::read(ptr, *this,size))
 		{
-			alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), m_info.sampleCount, m_info.sampleRate));
+			alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), static_cast<ALsizei>(m_info.sampleCount), m_info.sampleRate));
 			return true;
 		}
 		return false;
@@ -132,7 +132,7 @@ namespace jop
 
             defBuf->setPersistence(0);
         }
-		alTry(alBufferData(defBuf->m_bufferId, ns_format[defBuf->m_info.channelCount - 1], &defBuf->m_samples.front(), defBuf->m_info.sampleCount, defBuf->m_info.sampleRate));
+		alTry(alBufferData(defBuf->m_bufferId, ns_format[defBuf->m_info.channelCount - 1], &defBuf->m_samples.front(), static_cast<ALsizei>(defBuf->m_info.sampleCount), defBuf->m_info.sampleRate));
 
         return *defBuf;
     }
@@ -155,7 +155,7 @@ namespace jop
 
 	SoundBuffer& SoundBuffer::refresh()
 	{
-		alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), m_info.sampleCount, m_info.sampleRate));
+		alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), static_cast<ALsizei>(m_info.sampleCount), m_info.sampleRate));
 
 		return *this;
 	}

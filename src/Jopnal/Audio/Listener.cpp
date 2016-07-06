@@ -33,6 +33,8 @@
 
 #include <Jopnal/Audio/AlTry.hpp>
 
+#pragma warning(disable: 4127)
+
 //////////////////////////////////////////////
 
 
@@ -40,7 +42,7 @@ namespace jop
 {
 	JOP_REGISTER_COMMAND_HANDLER(Listener)
 
-		//JOP_BIND_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+		JOP_BIND_MEMBER_COMMAND((Listener& (Listener::*)(float))&Listener::setGlobalVolume, "setGlobalVolume");
 
 	JOP_END_COMMAND_HANDLER(Listener)
 }
@@ -64,7 +66,7 @@ namespace jop
 
 		glm::vec3 vec = object.getGlobalUp();
 		ALfloat direction[] = { pos.x, pos.y, pos.z, vec.x, vec.y, vec.z };
-		alTry(alListenerfv(AL_ORIENTATION, var));
+		alTry(alListenerfv(AL_ORIENTATION, direction));
 
 		jop::AudioDevice::checkError();
 	}
@@ -120,10 +122,10 @@ namespace jop
 		return volume* 100.f;
     }
 
+	///////////////////////////////////////
 
 	Listener& Listener::setDopplerEffect(float dop)
 	{
-		jop::SoundSource::calculateDopplerEffect(dop);
 		m_doppler = std::min(0.f, dop);
 		alTry(alDopplerFactor(m_doppler));
 
@@ -170,6 +172,7 @@ namespace jop
 	Listener& Listener::useDopplerEffect(bool use)
 	{
 		m_dopplerEffect = use;
+		jop::SoundSource::calculateDopplerEffect(use);
 
 		return *this;
 	}

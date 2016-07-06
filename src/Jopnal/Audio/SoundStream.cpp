@@ -32,6 +32,8 @@
 
 #include <Jopnal/Audio/AlTry.hpp>
 
+#define STREAMING_BUFFER_SIZE 1000000
+
 ////////////////////////////////////////////
 
 namespace jop
@@ -159,15 +161,23 @@ namespace jop
 	{
 		while (!this->m_mutex.try_lock());
 		
-		m_path = path;
-		openFile();
+		m_bufferQueue.clear();
 
+		m_path = path;
+		if (!openFile())
+		{
+			m_bufferQueue.push_back(&SoundBuffer::getDefault());
+
+			return *this;
+		}
 		std::vector<uint8> buf;
 		buf.resize(STREAMING_BUFFER_SIZE);
 
+		
 		m_fileInstance.read(buf.data(), STREAMING_BUFFER_SIZE);
+
 		m_bufferQueue.push_back(new SoundBuffer("Stream" + path));
-		jop::AudioReader::read(buf.data(), *m_bufferQueue.front());
+		jop::AudioReader::read(buf.data(), *m_bufferQueue.front(), buf.size());
 
 		m_info.firstSample =  buf.size() - m_bufferQueue.front()->m_samples.size();
 		m_info.currentPos = m_info.firstSample;
@@ -176,7 +186,7 @@ namespace jop
 		m_info.sampleCount = (m_fileInstance.getSize() - m_info.firstSample)*sizeof(int16)*m_info.channelCount;
 
 		m_info.sampleRate = m_bufferQueue.front()->m_info.sampleRate;
-		m_bufferQueue.front()->m_duration = m_bufferQueue.front()->m_info.sampleCount / m_bufferQueue.front()->m_info.sampleRate / m_bufferQueue.front()->m_info.channelCount;
+		m_bufferQueue.front()->m_duration = static_cast<float>((m_bufferQueue.front()->m_info.sampleCount / m_bufferQueue.front()->m_info.sampleRate / m_bufferQueue.front()->m_info.channelCount));
 		
 		m_keepThread = true;
 		m_thread = Thread(&SoundStream::readBuffer, this);
@@ -264,7 +274,7 @@ namespace jop
 		alTry(alSourceStop(m_source));
 		alTry(alSourceUnqueueBuffers(m_source, 1, &m_bufferQueue.front()->m_bufferId));
 
-        m_info.offset[0] = m_info.currentPos - m_info.firstSample;
+		m_info.offset[0] = static_cast<float>(m_info.currentPos - m_info.firstSample);
 		m_info.offset[1] = 0.f;
 		m_info.currentPos = glm::clamp(static_cast<uint64>(m_info.firstSample + (time * m_info.sampleRate * m_info.channelCount)), m_info.firstSample, m_info.sampleCount);
 		m_updateBoth = true;
@@ -380,7 +390,7 @@ namespace jop
 									m_lastBuffer = true;
 
 								if (m_info.sampleCount < STREAMING_BUFFER_SIZE)
-									m_bufferQueue.back()->m_samples.reserve(m_info.sampleCount);
+									m_bufferQueue.back()->m_samples.reserve(static_cast<unsigned int>(m_info.sampleCount));
 								else
 									m_bufferQueue.back()->m_samples.reserve(STREAMING_BUFFER_SIZE);
 
@@ -390,7 +400,7 @@ namespace jop
 							else
 					    	{
 								if (m_info.sampleCount < STREAMING_BUFFER_SIZE)
-									m_bufferQueue.back()->m_samples.resize(m_info.sampleCount, NULL);
+									m_bufferQueue.back()->m_samples.resize(static_cast<unsigned int>(m_info.sampleCount), NULL);
 								else
 									m_bufferQueue.back()->m_samples.resize(STREAMING_BUFFER_SIZE, NULL);
 
@@ -432,7 +442,7 @@ namespace jop
 		{
 			m_isFileOpen = m_fileInstance.open(m_path);
 
-			return true;
+			return m_isFileOpen;
 		}
 		JOP_DEBUG_ERROR(getID() << " has no path");
 

@@ -67,9 +67,9 @@
 #include <glm/gtx/norm.hpp>
 
 // OpenAlSoft
-#include <OpenAlSoft/AL/al.h>
-#include <OpenAlSoft/AL/alc.h>
-#include <OpenAlSoft/AL/alext.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 
 // Bullet
 #pragma warning(push)

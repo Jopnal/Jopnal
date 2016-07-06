@@ -35,7 +35,7 @@ namespace jop
 	class inputStream
 	{
 	public:
-		inputStream(void* buffer, int64 size);
+		inputStream(const void* buffer, int64 size);
 		inputStream(FileLoader& fileInstance);
 		~inputStream();
 
@@ -57,7 +57,7 @@ namespace jop
 	public:
 		/// \brief Check if data can be decoded and decode it if possible
 		///
-		static bool read(const void* ptr, SoundBuffer& soundBuf);
+		static bool read(const void* ptr, SoundBuffer& soundBuf,uint64 size);
 
 		/// \brief Decode streamed data
 		///
@@ -66,11 +66,11 @@ namespace jop
 	private:
 		/// \brief Decodes wav file
 		///
-		static bool readWav(const void* ptr, SoundBuffer& soundBuf);
+		static bool readWav(const void* ptr, SoundBuffer& soundBuf, uint64 size);
 
 		/// \brief Decodes ogg file
 		///
-		static bool readVorbis(const void* ptr, SoundBuffer& soundBuf);
+		static bool readVorbis(const void* ptr, SoundBuffer& soundBuf, uint64 size);
 
 		/// \brief Decode streamed vorbis data
 		///

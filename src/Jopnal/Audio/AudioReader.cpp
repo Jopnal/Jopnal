@@ -32,8 +32,8 @@
 
 #define DR_WAV_IMPLEMENTATION
 #include <Mackron/dr_wav.hpp>
-#include <Xiph/vorbis/codec.h>
-#include <Xiph/vorbis/vorbisfile.h>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
 
 //////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ namespace
 
 namespace jop
 {
-	inputStream::inputStream(void* buffer, int64 size):
+	inputStream::inputStream(const void* buffer, int64 size):
 	m_fileInstance(NULL),
 	m_data (static_cast<const char*>(buffer)),
 	m_size (size),
@@ -107,7 +107,7 @@ namespace jop
 		if (m_fileInstance)
 		{
 			std::vector<char>buf;
-			buf.reserve(size);
+			buf.reserve(static_cast<unsigned int>(size));
 			m_fileInstance->read(buf.data(), size);
 			m_data = buf.data();
 
@@ -173,14 +173,14 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	bool AudioReader::read(const void* ptr, SoundBuffer& soundBuf)
+	bool AudioReader::read(const void* ptr, SoundBuffer& soundBuf, uint64 size)
 	{
 		if (ptr)
 		{
 			if (checkWav(ptr))
-				readWav(ptr, soundBuf);
+			    return readWav(ptr, soundBuf,size);
 			else if (checkVorbis(ptr))
-				readVorbis(ptr, soundBuf);
+				return readVorbis(ptr, soundBuf, size);
 			else
 			{
 				JOP_DEBUG_ERROR("Tried to read unsupported audio file");
@@ -208,10 +208,10 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	bool AudioReader::readWav(const void* ptr, SoundBuffer& soundBuf)
+	bool AudioReader::readWav(const void* ptr, SoundBuffer& soundBuf,uint64 size)
 	{
 		drwav wavData;
-		drwav_init_memory(&wavData, ptr, sizeof(ptr));
+		drwav_init_memory(&wavData, ptr, static_cast<size_t>(size));
 		if (&wavData == NULL)
 			return false;
 
@@ -219,14 +219,14 @@ namespace jop
 		soundBuf.m_info.channelCount = wavData.channels;
 		soundBuf.m_info.sampleCount = wavData.memoryStream.dataSize - wavData.memoryStream.currentReadPos;
 		soundBuf.m_info.sampleRate = wavData.sampleRate;
-		soundBuf.m_duration = soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount;
+		soundBuf.m_duration = static_cast<float>(soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount);
 		if (soundBuf.m_duration < 0.01f)
 		{
 			--soundBuf.m_info.channelCount;
-			soundBuf.m_duration = soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount;
+			soundBuf.m_duration = static_cast<float>(soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount);
 		}
 		soundBuf.m_samples.reserve(wavData.memoryStream.dataSize - wavData.memoryStream.currentReadPos);
-		for (int it = wavData.memoryStream.currentReadPos; it < wavData.memoryStream.dataSize; ++it)
+		for (size_t it = wavData.memoryStream.currentReadPos; it < wavData.memoryStream.dataSize; ++it)
 		{
 			soundBuf.m_samples.push_back(wavData.memoryStream.data[it]);
 		}
@@ -236,14 +236,14 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	bool AudioReader::readVorbis(const void* ptr, SoundBuffer& soundBuf)
+	bool AudioReader::readVorbis(const void* ptr, SoundBuffer& soundBuf, uint64 size)
 	{
 		soundBuf.m_info.format = SoundBuffer::AudioFormat::ogg;
-
-		inputStream input(&ptr,sizeof(ptr));
+	
+		inputStream input(ptr,size);
 		OggVorbis_File oggData = {NULL};
 
-		if (!ov_open_callbacks(&input, &oggData, NULL, 0, callbacks) < 0)
+		if (ov_open_callbacks(&input, &oggData, NULL, 0, callbacks)<0)
 		{
 			ov_clear(&oggData);
 			JOP_DEBUG_ERROR("Vorbis file " << soundBuf.getName() << " could not be parsed")
@@ -254,16 +254,16 @@ namespace jop
 			soundBuf.m_info.channelCount = oggInfo->channels;
 			soundBuf.m_info.sampleRate = oggInfo->rate;
 			soundBuf.m_info.sampleCount = static_cast<std::size_t>(ov_pcm_total(&oggData, -1) * oggInfo->channels);
-			soundBuf.m_duration = soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount;
+			soundBuf.m_duration = static_cast<float>(soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount);
 
 			std::string streamTest = soundBuf.getName();
 			if (streamTest[0] == 'S' &&streamTest[1] == 't' && streamTest[2] == 'r' && streamTest[3] == 'e')
 			{
-				soundBuf.m_samples.resize(STREAMING_BUFFER_SIZE - oggData.offset);
+				soundBuf.m_samples.resize(STREAMING_BUFFER_SIZE - static_cast<unsigned int>(oggData.offset));
 				return true;
 			}
 
-			soundBuf.m_samples.reserve(soundBuf.m_info.sampleCount);
+			soundBuf.m_samples.reserve(static_cast<unsigned int>(soundBuf.m_info.sampleCount));
 
 			uint64 count = 0;
 			std::vector<char> samplesReaded;
@@ -294,7 +294,7 @@ namespace jop
 		
 		OggVorbis_File oggData = { NULL };
 
-		if (!ov_open_callbacks(&input, &oggData, NULL, 0, callbacks) < 0)
+		if (ov_open_callbacks(&input, &oggData, NULL, 0, callbacks) < 0)
 		{
 			ov_clear(&oggData);
 			JOP_DEBUG_ERROR("Vorbis file " << soundBuf.getName() << " could not be parsed")

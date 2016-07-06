@@ -175,6 +175,20 @@ if (JOP_OS_ANDROID)
     list(APPEND EXT_LIBS z android log EGL GLESv3 OpenSLES)
 endif()
 
+#Vorbis
+if(NOT JOP_OS_ANDROID)
+    find_package(OggVorbis REQUIRED)
+else()
+    find_host_package(OggVorbis REQUIRED)
+endif()
+
+if(NOT OGGVORBIS_FOUND)
+  message(FATAL_ERROR "Couldn't find Vorbis")
+endif()
+
+include_directories(${OGGVORBIS_INCLUDE_DIR})
+list(APPEND EXT_LIBS ${OGGVORBIS_LIBRARIES})
+
 # OpenAL
 if (NOT JOP_OS_ANDROID)
     find_package(OpenAL REQUIRED)

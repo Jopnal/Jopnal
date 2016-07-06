@@ -5,6 +5,8 @@ set(__SRCDIR_AUDIO ${PROJECT_SOURCE_DIR}/src/Jopnal/Audio)
 
 # Include
 set(__INC_AUDIO
+    ${__INCDIR_AUDIO}/AudioDevice.hpp
+    ${__INCDIR_AUDIO}/AudioReader.hpp
     ${__INCDIR_AUDIO}/Listener.hpp
     ${__INCDIR_AUDIO}/SoundBuffer.hpp
     ${__INCDIR_AUDIO}/SoundEffect.hpp
@@ -16,6 +18,8 @@ list(APPEND SRC ${__INC_AUDIO})
 
 # Source
 set(__SRC_AUDIO
+    ${__SRCDIR_AUDIO}/AudioDevice.cpp
+    ${__SRCDIR_AUDIO}/AudioReader.cpp
     ${__SRCDIR_AUDIO}/Listener.cpp
     ${__SRCDIR_AUDIO}/SoundBuffer.cpp
     ${__SRCDIR_AUDIO}/SoundEffect.cpp
