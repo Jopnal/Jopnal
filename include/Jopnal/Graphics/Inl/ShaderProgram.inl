@@ -53,26 +53,6 @@ namespace detail
         std::vector<std::unique_ptr<Shader>> shaders;
         return attachSingle(program, pp, shaders, type, rest...) && program.link();
     }
-    
-
-    //template<typename First, typename ...Rest>
-    //struct ShaderAttacher
-    //{
-    //    static bool attach(ShaderProgram& program, const Rest&... rest)
-    //    {
-    //        return attach(program, rest...);
-    //    }
-    //};
-
-    //template<typename ...Rest>
-    //struct ShaderAttacher<Shader::Type, Rest...>
-    //{
-    //    static bool attach(ShaderProgram& program,const Shader::Type& type, const Rest&... rest)
-    //    {
-    //        std::vector<Shader> shaders;
-    //        return attachSingle(program, shaders, type, rest...);
-    //    }
-    //};
 }
 
 template<typename... Args>

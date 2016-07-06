@@ -70,9 +70,11 @@ namespace jop
     bool ShaderProgram::link()
     {
         unlink();
-        // Link program
+
+        // Create program
         m_programID = glCheck(glCreateProgram());
 
+        // Attach shaders
         for (auto& i : m_shaders)
         {
             if (!i.second.expired())
@@ -81,10 +83,10 @@ namespace jop
             }
         }
         
-
+        // Link program
         glLinkProgram(m_programID);
 
-        // Check status
+        // Check linking status
         GLint status;
         glCheck(glGetProgramiv(m_programID, GL_LINK_STATUS, &status));
 
@@ -93,6 +95,8 @@ namespace jop
             GLchar message[1024];
             glCheck(glGetProgramInfoLog(m_programID, sizeof(message), NULL, message));
             JOP_DEBUG_ERROR("Failed to link shader program:\n" << message);
+
+            return false;
         }
 
 #ifdef JOP_DEBUG_MODE
@@ -125,8 +129,13 @@ namespace jop
 
     void ShaderProgram::unlink()
     {
-        unbind();
-        glCheck(glDeleteProgram(m_programID));
+        if (m_programID)
+        {
+            unbind();
+            glCheck(glDeleteProgram(m_programID));
+        }
+
+        m_unifMap.clear();
         m_programID = 0;
     }
 
@@ -150,6 +159,8 @@ namespace jop
         glCheck(glUseProgram(0));
     }
 
+    //////////////////////////////////////////////
+
     bool ShaderProgram::validate()
     {
         glCheck(glValidateProgram(m_programID));
@@ -165,7 +176,7 @@ namespace jop
             std::string log(size, '0');
             glCheck(glGetProgramInfoLog(m_programID, size, &size, &log[0]));
 
-            JOP_DEBUG_ERROR("Shader validation failed: " << log);
+            JOP_DEBUG_ERROR("Shader validation failed:\n" << log);
             return false;
         }
 

@@ -48,6 +48,8 @@ namespace jop
     Shader::~Shader()
     {
         glCheck(glDeleteShader(m_handle));
+        m_sources.clear();
+        m_handle = 0;
     }
 
     //////////////////////////////////////////////
@@ -128,15 +130,17 @@ namespace jop
         FileLoader::enableErrorChecks(false);
 
         std::string fileReadBuffer;
+
+        // Source from file or straight from string
         const char* sources[] = { FileLoader::readTextfile(path, fileReadBuffer) ? reinterpret_cast<const char*>(fileReadBuffer.data()) : path.c_str() };
 
         FileLoader::enableErrorChecks(previouslyEnabled);
         
         // Add sources
         addSource(*sources);
-        // for each type compile
+        // For each type compile
         bool success = compile(type, preprocess);
-        // clear sources after compiled
+        // Clear sources after shader is compiled
         m_sources.clear();
 
         return success;

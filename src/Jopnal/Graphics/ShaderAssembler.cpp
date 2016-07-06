@@ -54,18 +54,8 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
 
         // Load plugins
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::defaultPlugins), sizeof(jopr::defaultPlugins)));
 
-        // Parse from - #pluginsstart
-
-        //std::vector<unsigned char> source;
-        //FileLoader::readBinaryfile(jopr::plugin, source);
-        //m_plugins.emplace(/*name*/, source);
-
-        //source.clear();
-        //FileLoader::readBinaryfile(jopr::plugin, source);
-        //m_plugins.emplace(/*name*/, source);
-
-        // To #pluginsend
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -97,8 +87,6 @@ namespace jop
         std::string pp;
         getPreprocessDef(attributes, pp);
         ShaderProgram* s = nullptr;
-
-
 
         if ((attributes & Material::Attribute::__RecordEnv))
         {
@@ -211,7 +199,14 @@ namespace jop
     {
         if (!m_instance)
             return;
+#ifdef JOP_DEBUG_MODE
 
+        if (m_instance->m_plugins.find(name) != m_instance->m_plugins.end())
+        {
+            JOP_DEBUG_WARNING("Shader plugin \"" << name << "\" overwritten")
+        }
+
+#endif
         m_instance->m_plugins.emplace(name, source);
     }
 
@@ -224,14 +219,15 @@ namespace jop
 
         // Parse string
         const char* const src = source.c_str();
-
         const char* first = strstr(src, "#plugin");
         const char* next = src;
 
         while (first)
         {
-            // Move to the end of first #include
+            // Move to the end of first #plugin
             first += 7;
+
+            // Handle whitespace
             std::size_t whitespace = 0;
             while (std::isspace(first[0]))
             {
@@ -249,7 +245,10 @@ namespace jop
                 std::string temp(opener + 1, closer);
                 const char* pluginEnd = strstr(first, "#pluginend");
                 if (!pluginEnd)
+                {
+                    JOP_DEBUG_WARNING("Shader plugins not found or invalid formatting!");
                     return;
+                }
 
                 addPlugin(temp, std::string(closer + 1, pluginEnd));
 
@@ -272,11 +271,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void ShaderAssembler::clearPlugins()
+    {
+        if (!m_instance)
+            return;
+
+        m_instance->m_plugins.clear();
+    }
+
+    //////////////////////////////////////////////
+
     void ShaderAssembler::preprocess(const std::vector<const char*>& input, std::string& output)
     {
         if (!m_instance)
             return;
         
+        // Add version string to the start of the output code
         output += Shader::getVersionString();
 
         for (auto i : input)
@@ -310,6 +320,8 @@ namespace jop
                     auto itr = m_instance->m_plugins.find(temp);
                     if (itr != m_instance->m_plugins.end())
                         output.append(itr->second);
+                    else
+                        JOP_DEBUG_WARNING("Shader plugin: \"" << temp << "\" not found, or invalid formatting!");
 
                     next = closer + 1;
                 }

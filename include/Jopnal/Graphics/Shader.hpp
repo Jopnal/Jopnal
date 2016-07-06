@@ -33,13 +33,12 @@
 
 namespace jop
 {
-
     class JOP_API Shader : public Resource
     {
 
     public:
 
-        /// The shader type
+        /// The shader type enum
         ///
         enum class Type
         {
@@ -65,10 +64,15 @@ namespace jop
         /// \brief Compile shader
         ///
         /// \param type Shader Type:: (Vertex / Geometry / Fragment)
+        /// \param preprocess Should shader be preprocessed? (True by default)
         ///
         bool compile(const Type type, bool preprocess = true);
 
         /// \brief Load shader
+        ///
+        /// \param path Path to file containing shader or shaders source code
+        /// \param type Shader Type:: (Vertex / Geometry / Fragment)
+        /// \param preprocess Should shader be preprocessed? (True by default)
         ///
         bool load(const std::string& path, Type type, bool preprocess = true);
 
@@ -86,9 +90,9 @@ namespace jop
 
     private:
 
-        Type                        m_shaderType;
-        std::vector<const char*>    m_sources;
-        unsigned int                m_handle;
+        Type                        m_shaderType;   ///< Shaders type (Vertex / Geometry / Fragment)
+        std::vector<const char*>    m_sources;      ///< Container holding shaders sources
+        unsigned int                m_handle;       ///< OpenGL handle for the shader
 
     };
 }

@@ -36,9 +36,10 @@ namespace jop
     {
     private:
 
-        typedef std::unordered_map<std::string, int> LocationMap;
+        typedef std::unordered_map<std::string, int> LocationMap; ///< Map containing uniform locations
 
     public:
+
         /// \brief Constructor
         ///
         ShaderProgram(const std::string& name);
@@ -49,12 +50,18 @@ namespace jop
 
         /// \brief Load shaders
         ///
-        /// attaches a variable number of shaders to shader program
+        /// Attaches a variable number of shaders to shader program
+        /// NOTE: Can load some shaders as objects and others as source codes simultaneously
+        /// 
+        /// \param pp Preprocessor string
+        /// \param args Variable amount of shaders objects or shader sources
         ///
         template<typename ... Args>
         bool load(const std::string& pp, const Args&... args);
 
         /// \brief Attach shader to program
+        ///
+        /// \param shader Reference to shader object
         ///
         bool attachShader(const Shader& shader);
 
@@ -64,15 +71,17 @@ namespace jop
 
         /// \brief Unlink shader program
         ///
+        /// Unbinds shader program and destroys it
+        ///
         void unlink();
 
-        /// \brief Bind this shader for use
+        /// \brief Bind this shader program for use
         ///
         /// \return True if successful
         ///
         bool bind() const;
 
-        /// \brief Bind this shader for use
+        /// \brief Unbind this shader program
         ///
         /// \return True if successful
         ///

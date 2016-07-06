@@ -62,13 +62,19 @@ namespace jop
         ///
         static void addPlugin(const std::string& name, const std::string& source);
 
-        /// \brief Add multiple plugins from string
+        /// \brief Add multiple plugins from single string
+        ///
+        /// Parses through the string and searches for plugins and adds them to memory
         ///
         static void addPlugins(const std::string& source);
 
         /// \brief Removes plugin with given name from memory
         ///
         static void removePlugin(const std::string& name);
+
+        /// \brief Clears all plugins from memory
+        ///
+        static void clearPlugins();
 
         /// \brief Preprocesses shaders source code and adds necessary plugins before compilation
         ///

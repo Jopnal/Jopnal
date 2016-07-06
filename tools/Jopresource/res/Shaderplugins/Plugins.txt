@@ -1,0 +1,5 @@
+#plugin <name>
+
+// this is default plugin
+
+#pluginend
