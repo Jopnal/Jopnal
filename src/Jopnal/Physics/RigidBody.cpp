@@ -32,8 +32,8 @@
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
-    #include <Bullet/btBulletDynamicsCommon.h>
+    #include <btBulletCollisionCommon.h>
+    #include <btBulletDynamicsCommon.h>
 
 #endif
 

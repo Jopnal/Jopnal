@@ -53,7 +53,7 @@ namespace jop { namespace detail
         ANativeActivity* nativeActivity;
         ANativeWindow* nativeWindow;
 
-        glm::uvec2 windowSize;
+        Window* window;
         glm::uvec2 screenSize;
     };
 }}

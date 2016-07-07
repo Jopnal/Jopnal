@@ -3,6 +3,11 @@
 set(__INCDIR_PHYSICS ${PROJECT_SOURCE_DIR}/include/Jopnal/Physics)
 set(__SRCDIR_PHYSICS ${PROJECT_SOURCE_DIR}/src/Jopnal/Physics)
 
+# CMakeLists
+set(__LISTS_PHYSICS ${__SRCDIR_PHYSICS}/CMakeLists.txt)
+source_group("Physics" FILES ${__LISTS_PHYSICS})
+list(APPEND SRC ${__LISTS_PHYSICS})
+
 # Include
 set(__INC_PHYSICS
     ${__INCDIR_PHYSICS}/Collider.hpp

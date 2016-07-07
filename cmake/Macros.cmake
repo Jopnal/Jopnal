@@ -4,7 +4,7 @@ include(CMakeParseArguments)
 macro(jopAddLibrary target)
 
     # parse the arguments
-    cmake_parse_arguments(THIS "" "" "SOURCES;EXTERNAL_LIBS" ${ARGN})
+    cmake_parse_arguments(THIS "" "" "SOURCES" ${ARGN})
 
     # create the target
     add_library(${target} ${THIS_SOURCES})
@@ -101,11 +101,6 @@ macro(jopAddLibrary target)
 
     endif()
 
-    # link the target to its external dependencies
-    if (THIS_EXTERNAL_LIBS)
-        target_link_libraries(${target} ${THIS_EXTERNAL_LIBS})
-    endif()
-
     # add the install rule
     install(TARGETS ${target}
             RUNTIME DESTINATION bin COMPONENT bin
@@ -116,9 +111,8 @@ macro(jopAddLibrary target)
 endmacro()
 
 
-# macro to find packages on the host OS
-# this is the same as in the toolchain file, which is here for Nsight Tegra VS
-# since it won't use the Android toolchain file
+# Macro to find packages on the host OS
+# This is the same as in the toolchain file, here for Nsight Tegra VS
 if(CMAKE_VS_PLATFORM_NAME STREQUAL "Tegra-Android")
 
     macro(find_host_package)

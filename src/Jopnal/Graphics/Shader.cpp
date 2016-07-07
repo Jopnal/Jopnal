@@ -35,11 +35,15 @@
 
     #ifdef JOP_OPENGL_ES
 
-    #ifdef GL_GEOMETRY_SHADER_EXT
-        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-    #else
-        #define GL_GEOMETRY_SHADER 0
-    #endif
+        #ifndef GL_GEOMETRY_SHADER
+
+            #ifdef GL_EXT_geometry_shader
+                #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+            #else
+                #define GL_GEOMETRY_SHADER 0
+            #endif
+
+        #endif
 
     #endif
 
@@ -129,7 +133,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetShaderInfoLog(handle, sizeof(log), NULL, log));
 
-                    if (std::strlen(log) > 25)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING((shaderType == 0 ? "Vertex" : (shaderType == 1 ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
                 }
             }
@@ -164,7 +168,7 @@ namespace jop
                     char log[1024];
                     glCheck(glGetProgramInfoLog(program, sizeof(log), NULL, log));
 
-                    if (std::strlen(log) > 25)
+                    if (std::strpbrk(log, "0123456789"))
                         JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
                 }
             }
@@ -466,7 +470,7 @@ namespace jop
 
             versionString += esVersion[numPos];
             versionString += esVersion[numPos + 2];
-            versionString += "0 es\n";
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
 
         #endif
         }
@@ -522,7 +526,7 @@ namespace jop
             bool err;
             Callback()
                 : str("engine@Debug|bPrintShaderUniformLocationErrors"),
-                  err(SettingManager::get<bool>(str, true))
+                  err(SettingManager::get<bool>(str, false))
             {
                 SettingManager::registerCallback(str, *this);
             }

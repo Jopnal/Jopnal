@@ -4,6 +4,11 @@ set(__INCDIR_WINDOW ${PROJECT_SOURCE_DIR}/include/Jopnal/Window)
 set(__INLDIR_WINDOW ${__INCDIR_WINDOW}/Inl)
 set(__SRCDIR_WINDOW ${PROJECT_SOURCE_DIR}/src/Jopnal/Window)
 
+# CMakeLists
+set(__LISTS_WINDOW ${__SRCDIR_WINDOW}/CMakeLists.txt)
+source_group("Window" FILES ${__LISTS_WINDOW})
+list(APPEND SRC ${__LISTS_WINDOW})
+
 # Include
 set(__INC_WINDOW
     ${__INCDIR_WINDOW}/Controller.hpp

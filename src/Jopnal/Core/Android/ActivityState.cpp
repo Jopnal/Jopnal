@@ -52,7 +52,7 @@ namespace jop { namespace detail
             //jclass displayMetricsClass = activity->env->FindClass("android/util/DisplayMetrics");
             //
             //jobject displayMetricsObject = activity->env->NewObject(displayMetricsClass, activity->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
-            //jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity-/>clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view//Display;"));
+            //jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity-///>clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view////Display;"));
             //
             //activity->env->CallVoidMethod(displayObject, activity->env->GetMethodID(activity->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), //displayMetricsObject);
             //

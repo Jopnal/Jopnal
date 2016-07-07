@@ -25,7 +25,10 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/Keyboard.hpp>
-    #include <Jopnal/Core/Win32/Win32.hpp>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h>
+    #endif
 
 #endif
 
@@ -36,12 +39,10 @@ namespace jop
 {
     std::string Keyboard::getKeyName(const int scanCode)
     {
-        char str[64] = "UNKNOWN";
-
-    #if defined(JOP_OS_WINDOWS)
-        GetKeyNameTextA(scanCode, str, sizeof(str) / sizeof(str[0]));
+    #if defined(JOP_OS_DESKTOP)
+        return std::string(glfwGetKeyName(GLFW_KEY_UNKNOWN, scanCode));
+    #else
+        return std::string("UNKNOWN");
     #endif
-
-        return std::string(str);
     }
 }

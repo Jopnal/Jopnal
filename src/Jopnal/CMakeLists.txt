@@ -3,67 +3,6 @@
 # Include macros
 include(${PROJECT_SOURCE_DIR}/cmake/Macros.cmake)
 
-# Let CMake know about additional library paths
-if (NOT JOP_OS_LINUX)
-
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${PROJECT_SOURCE_DIR}/extlibs/include"
-                                                 "${PROJECT_SOURCE_DIR}/extlibs/include/PhysFS"
-                                                 "${PROJECT_SOURCE_DIR}/extlibs/include/Bullet")
-
-    include_directories(${CMAKE_INCLUDE_PATH})
-
-endif()
-
-if (JOP_OS_WINDOWS)
-
-    if (JOP_COMPILER_GCC)
-
-        if (ARCH_32BITS)
-
-            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/mingw/x86")
-            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/bin/x86")
-
-        elseif (ARCH_64BITS)
-
-            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/mingw/x64")
-            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/bin/x64")
-
-        endif()
-
-    elseif (JOP_COMPILER_MSVC)
-
-        if (JOP_MSVC_VERSION LESS 14)
-
-            if (ARCH_32BITS)
-
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc/x86")
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc/x86/${JOP_MSVC_VERSION}")
-
-            elseif (ARCH_64BITS)
-
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc/x64")
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc/x64/${JOP_MSVC_VERSION}")
-
-            endif()
-
-        else ()
-
-            if (ARCH_32BITS)
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc-universal/x86")
-
-            elseif (ARCH_64BITS)
-                set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/msvc-universal/x64")
-
-            endif()
-
-        endif()
-
-    endif()
-
-elseif (JOP_OS_ANDROID)
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${PROJECT_SOURCE_DIR}/extlibs/lib/android/${ANDROID_ABI}")
-endif()
-
 # Add the sources path
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
@@ -103,47 +42,174 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Utility/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Window/CMakeLists.txt)
 
 
-# Setup dependencies
+# Preprocessor symbols
+add_definitions(-DSTBI_FAILURE_USERMSG)
+
+# Add target
+jopAddLibrary(jopnal SOURCES ${SRC})
+              
+# Add the resource target as a dependency
+if (TARGET jopnal-resources) 
+    add_dependencies(jopnal jopnal-resources)
+endif()
+
+# Precompiled header
+if (NOT JOP_COMPILER_GCC AND USE_PRECOMPILED_HEADER)
+
+    add_definitions(-DJOP_PRECOMPILED_HEADER)
+    add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)
+                                                                  
+    set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled/Precompiled.hpp")
+    cotire(jopnal)
+
+else()
+
+    add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/PrecompiledEmpty.hpp>)
+
+endif()
+
+######################################
+# External libraries
+######################################
+
+include(ExternalProject)
+include_directories(${PROJECT_SOURCE_DIR}/extlibs/headers)
+
+
+if (JOP_OS_ANDROID)
+
+    set(ANDROID_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+						-DANDROID_NATIVE_API_LEVEL=${ANDROID_API_MIN}
+						-DANDROID_TOOLCHAIN_MAKE=${ANDROID_TOOLCHAIN_MAKE}
+						-DANDROID_ABI=${ANDROID_ABI}
+						-DANDROID_STL=${ANDROID_STL}
+						-DANDROID_NDK=${ANDROID_NDK}
+	)
+
+endif()
+
+set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}${ANDROID_ABI}")
 
 # PhysFS
-if (NOT JOP_OS_ANDROID)
-    find_package(PhysFS REQUIRED)
-else ()
-    find_host_package(PhysFS REQUIRED)
-endif()
+ExternalProject_Add(PhysFS
+	
+					PREFIX ${PREFIX_DIR}
+	
+					GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
+					GIT_TAG "master"
+					
+					UPDATE_COMMAND ""
+					PATCH_COMMAND ""
+					INSTALL_COMMAND ""
+					
+					CMAKE_ARGS -DPHYSFS_BUILD_SHARED=OFF
+							   -DPHYSFS_ARCHIVE_7Z=OFF
+							   ${ANDROID_OPTIONS}
+							
+					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/PhysFS-build/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(jopnal PhysFS)
 
-if (NOT PHYSFS_FOUND)
-    message(FATAL_ERROR "Couldn't find PhysFS")
-endif()
+ExternalProject_Get_Property(PhysFS SOURCE_DIR)
+include_directories(${SOURCE_DIR}/src)
 
-include_directories(${PHYSFS_INCLUDE_DIR})
-list(APPEND EXT_LIBS ${PHYSFS_LIBRARY})
+ExternalProject_Get_Property(PhysFS BINARY_DIR)
+target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX})
+
 
 # Bullet
-if (NOT JOP_OS_ANDROID)
-    find_package(Bullet REQUIRED)
-else ()
-    find_host_package(Bullet REQUIRED)
+set(BULLET_LIB_COLLISION ${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(BULLET_LIB_DYNAMICS ${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(BULLET_LIB_SOFTBODY ${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(BULLET_LIB_LINEARMATH ${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+ExternalProject_Add(Bullet
+	
+					PREFIX ${PREFIX_DIR}
+	
+					GIT_REPOSITORY "https://github.com/bulletphysics/bullet3.git"
+					GIT_TAG "0cba24b637296b518be720818249b413833765b1"
+					
+					UPDATE_COMMAND ""
+					PATCH_COMMAND ""
+					INSTALL_COMMAND ""
+					
+					CMAKE_ARGS -DBUILD_BULLET2_DEMOS=OFF
+							   -DBUILD_BULLET3=OFF
+							   -DBUILD_CPU_DEMOS=OFF
+							   -DBUILD_EXTRAS=OFF
+							   -DBUILD_OPENGL3_DEMOS=OFF
+							   -DBUILD_UNIT_TESTS=OFF
+							   -DUSE_GLUT=OFF
+							   -DUSE_GRAPHICAL_BENCHMARK=OFF
+							   -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
+							   ${ANDROID_OPTIONS}
+							
+					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_DYNAMICS}
+									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_COLLISION}
+									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_SOFTBODY}
+									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_LINEARMATH}
+)
+add_dependencies(jopnal Bullet)
+
+ExternalProject_Get_Property(Bullet SOURCE_DIR)
+include_directories(${SOURCE_DIR}/src)
+
+ExternalProject_Get_Property(Bullet BINARY_DIR)
+set(BULLET_LIB_DIR ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR})
+
+target_link_libraries(jopnal debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath_Debug${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+target_link_libraries(jopnal optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
+							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+# Because Bullet seems to build the libs in inconsistent directories
+if (NOT JOP_OS_WINDOWS)
+
+	add_custom_command(TARGET Bullet POST_BUILD
+		
+		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletCollision/${BULLET_LIB_COLLISION} ${BINARY_DIR}/lib/${BULLET_LIB_COLLISION}
+		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletDynamics/${BULLET_LIB_DYNAMICS} ${BINARY_DIR}/lib/${BULLET_LIB_DYNAMICS}
+		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletSoftBody/${BULLET_LIB_SOFTBODY} ${BINARY_DIR}/lib/${BULLET_LIB_SOFTBODY}
+		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/LinearMath/${BULLET_LIB_LINEARMATH} ${BINARY_DIR}/lib/${BULLET_LIB_LINEARMATH}
+	)
+	
 endif()
 
-if (NOT BULLET_FOUND)
-    message(FATAL_ERROR "Couldn't find Bullet")
-endif()
-
-include_directories(${BULLET_INCLUDE_DIRS})
-list(APPEND EXT_LIBS ${BULLET_LIBRARIES})
 
 # GLFW
 if (NOT JOP_OS_ANDROID)
 
-    find_package(GLFW REQUIRED)
+	ExternalProject_Add(GLFW
+		
+						PREFIX ${PREFIX_DIR}
+		
+						GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+						GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
+						
+						UPDATE_COMMAND ""
+						PATCH_COMMAND ""
+						INSTALL_COMMAND ""
+						
+						CMAKE_ARGS -DGLFW_BUILD_DOCS=OFF
+								   -DGLFW_BUILD_EXAMPLES=OFF
+								   -DGLFW_BUILD_TESTS=OFF
+								   -DGLFW_INSTALL=OFF
+							
+						BUILD_BYPRODUCTS ${PREFIX_DIR}/src/GLFW-build/src/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX}
+	)
+	add_dependencies(jopnal GLFW)
 
-    if (NOT GLFW_FOUND)
-        message(FATAL_ERROR "Couldn't find GLFW")
-    endif()
+	ExternalProject_Get_Property(GLFW SOURCE_DIR)
+	include_directories(${SOURCE_DIR}/include)
 
-    include_directories(${GLFW_INCLUDE_DIR})
-    list(APPEND EXT_LIBS ${GLFW_glfw_LIBRARY})
+	ExternalProject_Get_Property(GLFW BINARY_DIR)
+	target_link_libraries(jopnal ${BINARY_DIR}/src/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 endif()
 
@@ -175,42 +241,40 @@ if (JOP_OS_ANDROID)
     list(APPEND EXT_LIBS z android log EGL GLESv3 OpenSLES)
 endif()
 
+target_link_libraries(jopnal ${EXT_LIBS})
+
+
 # OpenAL
-if (NOT JOP_OS_ANDROID)
-    find_package(OpenAL REQUIRED)
+if (JOP_OS_WINDOWS)
+	set(OPENAL_LIB_NAME OpenAL32)
 else ()
-    find_host_package(OpenAL REQUIRED)
+	set(OPENAL_LIB_NAME openal)
 endif()
 
-if (NOT OPENAL_FOUND)
-    message(FATAL_ERROR "Couldn't find OpenAL")
-endif()
+ExternalProject_Add(OpenAL
+	
+					PREFIX ${PREFIX_DIR}
+	
+					GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
+					GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
+					
+					UPDATE_COMMAND ""
+					PATCH_COMMAND ""
+					INSTALL_COMMAND ""
+					
+					CMAKE_ARGS -DALSOFT_INSTALL=OFF
+					           -DALSOFT_TESTS=OFF
+					           -DALSOFT_UTILS=ON
+							   ${ANDROID_OPTIONS}
+							
+					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+)
+add_dependencies(jopnal OpenAL)
 
-include_directories(${OPENAL_INCLUDE_DIR})
-list(APPEND EXT_LIBS ${OPENAL_LIBRARY})
+ExternalProject_Get_Property(OpenAL SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
 
-# Preprocessor symbols
-add_definitions(-DSTBI_FAILURE_USERMSG)
+ExternalProject_Get_Property(OpenAL BINARY_DIR)
+target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
-# Add target
-jopAddLibrary(jopnal SOURCES ${SRC} EXTERNAL_LIBS ${EXT_LIBS})
-              
-# Add the resource target as a dependency
-if (TARGET jopnal-resources) 
-    add_dependencies(jopnal jopnal-resources)
-endif()
-
-# Precompiled header
-if (NOT JOP_COMPILER_GCC AND USE_PRECOMPILED_HEADER)
-
-    add_definitions(-DJOP_PRECOMPILED_HEADER)
-    add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)
-                                                                  
-    set_target_properties(jopnal PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/Precompiled/Precompiled.hpp")
-    cotire(jopnal)
-
-else()
-
-    add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/PrecompiledEmpty.hpp>)
-
-endif()
+install(DIRECTORY ${BINARY_DIR}/${CMAKE_CFG_INTDIR} DESTINATION extlibs/lib)

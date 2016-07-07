@@ -29,7 +29,7 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+    #include <btBulletCollisionCommon.h>
 
 #endif
 

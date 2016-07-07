@@ -27,7 +27,7 @@
     #include <Jopnal/Physics/Shape/TerrainShape.hpp>
 
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+    #include <btBulletCollisionCommon.h>
 
 #endif
 

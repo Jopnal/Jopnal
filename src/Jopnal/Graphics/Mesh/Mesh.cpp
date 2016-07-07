@@ -44,7 +44,8 @@ namespace jop
           m_vertexbuffer        (Buffer::Type::ArrayBuffer),
           m_indexbuffer         (Buffer::Type::ElementArrayBuffer),
           m_vertexComponents    (0),
-          m_elementSize         (0)
+          m_elementSize         (0),
+          m_vertexSize          (0)
     {}
 
     //////////////////////////////////////////////
@@ -71,6 +72,18 @@ namespace jop
     bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
     {
         return load(vertexArray.data(), vertexArray.size() * sizeof(Vertex), Position | TexCoords | Normal, indexArray.data(), sizeof(unsigned int), indexArray.size());
+    }
+
+    //////////////////////////////////////////////
+
+    void Mesh::destroy()
+    {
+        m_vertexbuffer.destroy();
+        m_indexbuffer.destroy();
+
+        m_vertexComponents = 0;
+        m_elementSize = 0;
+        m_vertexSize = 0;
     }
 
     //////////////////////////////////////////////

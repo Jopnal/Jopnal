@@ -28,7 +28,7 @@
 
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+    #include <btBulletCollisionCommon.h>
 
 #endif
 

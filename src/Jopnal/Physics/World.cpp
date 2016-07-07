@@ -35,8 +35,8 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletDynamicsCommon.h>
-    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+    #include <btBulletDynamicsCommon.h>
+    #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #endif
 
@@ -254,7 +254,7 @@ namespace jop
     void World::update(const float deltaTime)
     {
         static const char* const str = "engine@Physics|uUpdateFrequency";
-        static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
+        static float timeStep = 1.f / SettingManager::get<unsigned int>(str, 50);
 
         static struct Callback : SettingCallback<unsigned int>
         {
@@ -262,7 +262,8 @@ namespace jop
             Callback(float* _val, const char* str) : val(_val)
             {SettingManager::registerCallback(str, *this);}
             void valueChanged(const unsigned int& value) override
-            {*val = 1.f / static_cast<float>(value);}
+            {*val = 1.f / value;}
+
         } cb(&timeStep, str);
 
         m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
@@ -273,11 +274,13 @@ namespace jop
     void World::draw(const Camera* camera, const LightContainer&, Shader&) const
     {
     #ifdef JOP_DEBUG_MODE
+
         if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
         {
             static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
             m_worldData->world->debugDrawWorld();
         }
+
     #else
         camera;
     #endif
@@ -288,10 +291,12 @@ namespace jop
     void World::setDebugMode(const bool enable)
     {
     #ifdef JOP_DEBUG_MODE
+
         static const int debugField = btIDebugDraw::DBG_DrawAabb
                                     | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
 
         m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
+
     #else
         enable;
     #endif

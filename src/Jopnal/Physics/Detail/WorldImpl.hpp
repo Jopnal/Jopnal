@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Bullet/btBulletDynamicsCommon.h>
+#include <btBulletDynamicsCommon.h>
 #include <memory>
 
 //////////////////////////////////////////////

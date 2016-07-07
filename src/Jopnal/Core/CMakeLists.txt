@@ -4,6 +4,11 @@ set(__INCDIR_CORE ${PROJECT_SOURCE_DIR}/include/Jopnal/Core)
 set(__INLDIR_CORE ${__INCDIR_CORE}/Inl)
 set(__SRCDIR_CORE ${PROJECT_SOURCE_DIR}/src/Jopnal/Core)
 
+# CMakeLists
+set(__LISTS_CORE ${__SRCDIR_CORE}/CMakeLists.txt)
+source_group("Core" FILES ${__LISTS_CORE})
+list(APPEND SRC ${__LISTS_CORE})
+
 # Include
 set(__INC_CORE
     ${__INCDIR_CORE}/Component.hpp
@@ -32,6 +37,7 @@ set(__INL_CORE
     ${__INCDIR_CORE}/Inl/Scene.inl
     ${__INCDIR_CORE}/Inl/Serializer.inl
     ${__INCDIR_CORE}/Inl/SettingCallback.inl
+    ${__INCDIR_CORE}/Inl/SettingManager.inl
 )
 source_group("Core\\Inl" FILES ${__INL_CORE})
 list(APPEND SRC ${__INL_CORE})

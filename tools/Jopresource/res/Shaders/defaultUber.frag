@@ -62,16 +62,37 @@
 #endif
 
 // Vertex attribute data
-in FragVertexData
-{
-    vec3 Position;
-    vec2 TexCoords;
-    vec3 Normal;
-    //vec3 Tangent;
-    //vec3 BiTangent;
-    vec4 Color;
+#ifdef JOP_OPENGL_ES
 
-} outVert;
+	in vec3 var_Position;
+	in vec2 var_TexCoords;
+	in vec3 var_Normal;
+	in vec4 var_Color;
+
+	#define OUT_POS var_Position
+	#define OUT_TC	var_TexCoords
+	#define OUT_NOR var_Normal
+	#define OUT_COL	var_Color
+
+#else
+
+	in FragVertexData
+	{
+	    vec3 Position;
+	    vec2 TexCoords;
+	    vec3 Normal;
+	    //vec3 Tangent;
+	    //vec3 BiTangent;
+	    vec4 Color;
+	
+	} outVert;
+
+	#define OUT_POS outVert.Position
+	#define OUT_TC	outVert.TexCoords
+	#define OUT_NOR outVert.Normal
+	#define OUT_COL	outVert.Color
+
+#endif
 
 // Surface material
 #ifdef JMAT_MATERIAL
@@ -195,12 +216,12 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
         // Normal vector
-        vec3 norm = normalize(outVert.Normal);
+        vec3 norm = normalize(OUT_NOR);
 
         // Direction from fragment to light
         vec3 lightDir = normalize(l.position - vgf_FragPosition);
@@ -212,7 +233,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -225,7 +246,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, outVert.TexCoords).r
+            * texture(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -247,7 +268,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, outVert.TexCoords))
+            * vec3(texture(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -312,13 +333,13 @@ uniform float u_AlphaMult;
         // Do percentage-closer filtering
         else
         {
-            vec2 texelSize = 1.0 / textureSize(samp, 0);
+            vec2 texelSize = vec2(1.0) / vec2(textureSize(samp, 0));
             for(int x = -1; x <= 1; ++x)
             {
                 for(int y = -1; y <= 1; ++y)
                 {
                     float pcfDepth = texture(samp, projCoords.xy + vec2(x, y) * texelSize).r; 
-                    shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+                    shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
                 }    
             }
             shadow /= 9.0;
@@ -338,12 +359,12 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
         // Normal vector
-        vec3 norm = normalize(outVert.Normal);
+        vec3 norm = normalize(OUT_NOR);
 
         // Direction from light to fragment.
         // Directional light shines infinitely in the same direction,
@@ -357,7 +378,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -370,7 +391,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, outVert.TexCoords).r
+            * texture(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -392,7 +413,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, outVert.TexCoords))
+            * vec3(texture(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -417,12 +438,12 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
         // Normal vector
-        vec3 norm = normalize(outVert.Normal);
+        vec3 norm = normalize(OUT_NOR);
 
         // Direction from fragment to light
         vec3 lightDir = normalize(l.position - vgf_FragPosition);
@@ -434,7 +455,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, outVert.TexCoords))
+            * vec3(texture(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -447,7 +468,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, outVert.TexCoords).r
+            * texture(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -469,7 +490,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, outVert.TexCoords))
+            * vec3(texture(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -507,7 +528,7 @@ void main()
 {
 #ifdef JMAT_SKYBOX
 
-    out_FinalColor = texture(u_EnvironmentMap, outVert.Position);
+    out_FinalColor = texture(u_EnvironmentMap, OUT_POS);
     out_FinalColor.a *= u_Emission.a;
 
 #else
@@ -516,14 +537,14 @@ void main()
     vec4 tempColor =
 
     #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
-        texture(u_DiffuseMap, outVert.TexCoords)
+        texture(u_DiffuseMap, OUT_TC)
 
         #ifdef JMAT_VERTEXCOLOR
-            * outVert.Color
+            * OUT_COL
         #endif
     #else
         #if defined(JMAT_VERTEXCOLOR)
-            outVert.Color
+            OUT_COL
         #else
             vec4(0.0, 0.0, 0.0, 1.0)
         #endif
@@ -532,13 +553,13 @@ void main()
 
     #ifdef JMAT_ENVIRONMENTMAP
 
-        vec3 I = normalize(outVert.Position - u_CameraPosition);
-        vec3 R = reflect(I, normalize(outVert.Normal));
+        vec3 I = normalize(OUT_POS - u_CameraPosition);
+        vec3 R = reflect(I, normalize(OUT_NOR));
 
         vec3 refl = vec3(0.0, 0.0, 0.0);
 
         #ifdef JMAT_REFLECTIONMAP
-            float reflIntensity = texture(u_ReflectionMap, outVert.TexCoords).r;
+            float reflIntensity = texture(u_ReflectionMap, OUT_TC).r;
             if (reflIntensity > 0.1)
                 refl = vec3(texture(u_EnvironmentMap, R)) * reflIntensity
         #else
@@ -576,9 +597,9 @@ void main()
     // Emission
     #ifdef JMAT_EMISSIONMAP
         #ifdef JMAT_MATERIAL
-            tempColor += u_Material.emission * vec3(texture(u_EmissionMap, outVert.TexCoords));
+            tempColor += u_Material.emission * vec3(texture(u_EmissionMap, OUT_TC));
         #else
-            tempColor += texture(u_EmissionMap, outVert.TexCoords);
+            tempColor += texture(u_EmissionMap, OUT_TC);
         #endif
     #else
         #ifdef JMAT_MATERIAL
@@ -591,9 +612,9 @@ void main()
     float alpha =
 
     #if defined(JMAT_OPACITYMAP)
-        (texture(u_OpacityMap, outVert.TexCoords).r + specularComponent)
+        (texture(u_OpacityMap, OUT_TC).r + specularComponent)
     #elif defined(JMAT_DIFFUSEALPHA)
-        texture(u_DiffuseMap, outVert.TexCoords).a
+        texture(u_DiffuseMap, OUT_TC).a
     #else
         1.0
     #endif
@@ -605,7 +626,7 @@ void main()
     #endif
 
     #ifdef JMAT_VERTEXCOLOR
-        * outVert.Color.a
+        * OUT_COL.a
     #endif
     ;
 

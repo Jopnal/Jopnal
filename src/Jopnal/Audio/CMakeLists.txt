@@ -3,6 +3,11 @@
 set(__INCDIR_AUDIO ${PROJECT_SOURCE_DIR}/include/Jopnal/Audio)
 set(__SRCDIR_AUDIO ${PROJECT_SOURCE_DIR}/src/Jopnal/Audio)
 
+# CMakeLists
+set(__LISTS_AUDIO ${__SRCDIR_AUDIO}/CMakeLists.txt)
+source_group("Audio" FILES ${__LISTS_AUDIO})
+list(APPEND SRC ${__LISTS_AUDIO})
+
 # Include
 set(__INC_AUDIO
     ${__INCDIR_AUDIO}/Listener.hpp

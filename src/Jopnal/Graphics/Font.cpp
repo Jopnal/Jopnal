@@ -246,7 +246,8 @@ namespace jop
             jop::Glyph glyph;
             glyph.advance = static_cast<int>(advance * scale);
             glyph.bounds = Rect{static_cast<int>(left * scale), static_cast<int>(right * scale), static_cast<int>(bottom * scale), static_cast<int>(top * scale)};
-            glyph.textCoord = Rect{rectangle.x + orig.x, rectangle.x + width + orig.x, rectangle.y + orig.y, rectangle.y + height + orig.y};
+            glyph.textCoord = Rect{static_cast<int>(rectangle.x) + static_cast<int>(orig.x), static_cast<int>(rectangle.x) + width + static_cast<int>(orig.x),
+                                   static_cast<int>(rectangle.y) + static_cast<int>(orig.y), static_cast<int>(rectangle.y) + height + static_cast<int>(orig.y)};
             m_glyphs[codepoint] = glyph;
 
             return true;

@@ -92,11 +92,14 @@ namespace jop
             ///
             Settings(const bool loadSettings);
 
+            glm::uvec4 colorBits;
             glm::uvec2 size;            ///< Window size (client area)
             std::string title;          ///< Window title
             DisplayMode displayMode;    ///< Display mode
             unsigned int samples;       ///< Sample count for multi sampling
             unsigned int maxFrameRate;  ///< Maximum frames per second
+            unsigned int depthBits;
+            unsigned int stencilBits;
             bool visible;               ///< Is the window initially visible?
             bool vSync;                 ///< Enable vertical sync?
             bool debug;                 ///< Ask for a debug context?
