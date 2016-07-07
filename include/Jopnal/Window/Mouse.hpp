@@ -30,7 +30,7 @@
 
 namespace jop
 {
-    class Mouse
+	class JOP_API Mouse
     {
     public:
 
@@ -57,6 +57,42 @@ namespace jop
             Hidden,     ///< Hidden makes cursor invisible when its not over the client area of the window, but does not restrict it from leaving.
             Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
         };
+
+		/// \brief Get boolean is button pressed
+		///
+		/// \param Button's code
+		///
+		/// \return True if pressed
+		///
+		static bool isPressed(Button button);
+
+		/// \brief Get boolean is button down
+		///
+		/// \param Button's code
+		///
+		/// \return True if down
+		///
+		static bool isDown(Button button);
+
+		/// \brief Get boolean is button released
+		///
+		/// \param Button's code
+		///
+		/// \return True if released
+		///
+		static bool isReleased(Button button);
+
+		/// \brief Get boolean was wheel scrolled up
+		///
+		/// \return True if scrolled up
+		///
+		static glm::vec2 scrollOffset();
+
+		/// \brief Get mouse position
+		///
+		/// \return Glm vector of mouse position
+		///
+		static glm::vec2 getPosition();
     };
 }
 

@@ -25,9 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/WindowEventHandler.hpp>
-
     #include <Jopnal/Core/SettingManager.hpp>
-    #include <Jopnal/Window/Keyboard.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <array>
     #include <vector>
@@ -335,6 +333,7 @@ namespace jop
         : m_windowRef(windowRef)
     {
         static bool init = false;
+		m_controllers.reserve(static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1))));
 
         if (!init)
         {
@@ -513,10 +512,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool WindowEventHandler::keyDown(const int key) const
+    int WindowEventHandler::keyDown(const int key) const
     {
     #if defined(JOP_OS_DESKTOP)
-        return glfwGetKey(m_windowRef.getLibraryHandle(), getGlfwKey(key)) == GLFW_PRESS;
+        return glfwGetKey(m_windowRef.getLibraryHandle(), getGlfwKey(key));
     #else
         return false;
     #endif
@@ -557,10 +556,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool WindowEventHandler::mouseButtonDown(const int button) const
+    int WindowEventHandler::mouseButtonDown(const int button) const
     {
     #if defined(JOP_OS_DESKTOP)
-        return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlfwButton(button)) == GLFW_PRESS;
+        return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlfwButton(button));
     #else
         return false;
     #endif
@@ -578,8 +577,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseScrolled(const float, const float)
-    {}
+	void WindowEventHandler::mouseScrolled(const float x, const float y)
+	{
+		m_scrollOffset = { x , y };
+	}
 
     //////////////////////////////////////////////
 

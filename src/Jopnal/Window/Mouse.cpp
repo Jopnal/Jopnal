@@ -24,11 +24,11 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Window/Keyboard.hpp>
+#include <Jopnal/Window/Mouse.hpp>
 
-    #ifdef JOP_OS_DESKTOP
-        #include <GLFW/glfw3.h>
-    #endif
+#ifdef JOP_OS_DESKTOP
+#include <GLFW/glfw3.h>
+#endif
 
 #endif
 
@@ -36,33 +36,38 @@
 
 namespace jop
 {
-    std::string Keyboard::getKeyName(const int scanCode)
-    {
-    #if defined(JOP_OS_DESKTOP)
-        return std::string(glfwGetKeyName(GLFW_KEY_UNKNOWN, scanCode));
-    #else
-        return std::string("UNKNOWN");
-    #endif
-    }
-
-	//////////////////////////////////////////////
-
-	bool Keyboard::isPressed(Key key)
+	bool Mouse::isPressed(Button button)
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_PRESS;
+		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_PRESS;
 	}
 
 	//////////////////////////////////////////////
 
-	bool Keyboard::isDown(Key key)
+	bool Mouse::isDown(Button button)
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_REPEAT;
+		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_REPEAT;
 	}
 
 	//////////////////////////////////////////////
 
-	bool Keyboard::isReleased(Key key)
+	bool Mouse::isReleased(Button button)
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_RELEASE;
+		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_RELEASE;
+	}
+
+	//////////////////////////////////////////////
+
+	glm::vec2 Mouse::scrollOffset()
+	{
+		auto result = jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset;
+		jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset = {NULL,NULL};
+		return result;
+	}
+
+	//////////////////////////////////////////////
+
+	glm::vec2 getPosition()
+	{
+		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->getCursorPosition();
 	}
 }

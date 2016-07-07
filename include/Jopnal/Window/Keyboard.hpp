@@ -125,7 +125,31 @@ namespace jop
         ///
         /// \return String with the name
         ///
-        static std::string getKeyName(const int scanCode);
+		static std::string getKeyName(const int scanCode);
+
+		/// \brief Get boolean is key pressed
+		///
+		/// \param Keycode
+		///
+		/// \return True if pressed
+		///
+		static bool isPressed(Key key);
+
+		/// \brief Get boolean is key down
+		///
+		/// \param Keycode
+		///
+		/// \return True if down
+		///
+		static bool isDown(Key key);
+
+		/// \brief Get boolean is key released
+		///
+		/// \param Keycode
+		///
+		/// \return True if released
+		///
+		static bool isReleased(Key key);
     };
 }
 

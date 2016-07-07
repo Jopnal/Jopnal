@@ -30,7 +30,7 @@
 
 namespace jop
 {
-    class Controller
+	class JOP_API Controller
     {
     public:
 
@@ -101,6 +101,88 @@ namespace jop
                 RightStickX
             };
         };
+
+		/// \brief Get boolean is button pressed
+		///
+		/// \param Button's code
+		///
+		/// \return True if pressed
+		///
+		bool isPressed(int controller, Playstation::Button button);
+
+		/// \brief Get boolean is button pressed
+		///
+		/// \param Button's code
+		///
+		/// \return True if pressed
+		///
+		bool isPressed(int controller, XBox::Button button);
+
+		/// \brief Get boolean is button released
+		///
+		/// \param Button's code
+		///
+		/// \return True if released
+		///
+		bool isReleased(int controller, Playstation::Button button);
+
+		/// \brief Get boolean is button released
+		///
+		/// \param Button's code
+		///
+		/// \return True if released
+		///
+		bool isReleased(int controller, XBox::Button button);
+
+		/// \brief Get Vector of right stick's offset
+		///
+		/// \return glm::vec2
+		///
+		glm::vec2 rightStickOffset(int controller);
+
+		/// \brief Get Vector of left stick's offset
+		///
+		/// \return glm::vec2
+		///
+		glm::vec2 leftStickOffset(int controller);
+
+
+		/// \brief Controller connected callback
+		///
+		/// This will be called when a controller or a joystick is connected.
+		///
+		/// \param index Index of the new controller
+		/// \param name Name of the controller
+		///
+		virtual void controllerConnected(const int index, const std::string& name);
+
+		/// \brief Controller disconnected callback
+		///
+		/// \param index Index of the controller
+		///
+		virtual void controllerDisconnected(const int index);
+
+		/// \brief Controller axis callback
+		///
+		/// \param index Index of the controller
+		/// \param axisIndex Index of the axis
+		/// \param shift Shift of the axis
+		///
+		virtual void controllerAxisShifted(const int index, const int axisIndex, const float shift);
+
+		/// \brief Controller button pressed callback
+		///
+		/// \param index Index of the controller
+		/// \param button The button that was pressed
+		///
+		virtual void controllerButtonPressed(const int index, const int button);
+
+		/// \brief Controller button released callback
+		///
+		/// \param index Index of the controller
+		/// \param button The button that was released
+		///
+		virtual void controllerButtonReleased(const int index, const int button);
     };
 }
 

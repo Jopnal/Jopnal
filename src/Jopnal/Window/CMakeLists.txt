@@ -27,7 +27,9 @@ list(APPEND SRC ${__INL_WINDOW})
 
 # Source
 set(__SRC_WINDOW
+    ${__SRCDIR_WINDOW}/Controller.cpp
     ${__SRCDIR_WINDOW}/Keyboard.cpp
+    ${__SRCDIR_WINDOW}/Mouse.cpp
     ${__SRCDIR_WINDOW}/VideoInfo.cpp
     ${__SRCDIR_WINDOW}/Window.cpp
     ${__SRCDIR_WINDOW}/WindowEventHandler.cpp

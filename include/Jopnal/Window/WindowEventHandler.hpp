@@ -33,6 +33,7 @@
 namespace jop
 {
     class Window;
+	class Controller;
 
     class JOP_API WindowEventHandler
     {
@@ -106,9 +107,9 @@ namespace jop
         ///
         /// \param key The virtual key code
         ///
-        /// \return True if the key is down
+        /// \return state of key
         ///
-        bool keyDown(const int key) const;
+        int keyDown(const int key) const;
 
         /// \brief Text entered callback
         ///
@@ -157,7 +158,7 @@ namespace jop
         ///
         /// \return True if the button is down
         ///
-        bool mouseButtonDown(const int button) const;
+        int mouseButtonDown(const int button) const;
 
         /// \brief Mouse left callback
         ///
@@ -171,14 +172,14 @@ namespace jop
         ///
         virtual void mouseEntered();
 
-        /// \brief Mouse scrolled callback
-        ///
-        /// This will be called when the mouse wheel is scrolled.
-        ///
-        /// \param x The vertical offset
-        /// \param y The horizontal offset
-        ///
-        virtual void mouseScrolled(const float x, const float y);
+		/// \brief Mouse scrolled callback
+		///
+		/// This will be called when the mouse wheel is scrolled.
+		///
+		/// \param x The vertical offset
+		/// \param y The horizontal offset
+		///
+	    virtual	void mouseScrolled(const float x, const float y);
 
         /// \brief Controller connected callback
         ///
@@ -224,13 +225,15 @@ namespace jop
         void handleControllerInput();
 
     protected:
+		std::vector<Controller> m_controllers;     ///< Handles controllers
 
-        Window& m_windowRef; ///< Reference to the window
-
+        Window& m_windowRef;                       ///< Reference to the window
+		
     public:
+		glm::vec2 m_scrollOffset;                  ///< Easy access to mouse's scroll's offset
 
-        float m_lastMouseX; ///< For internal use. Do not touch
-        float m_lastMouseY; ///< For internal use. Do not touch
+        float m_lastMouseX;                        ///< For internal use. Do not touch
+        float m_lastMouseY;                        ///< For internal use. Do not touch
     };
 }
 
