@@ -139,22 +139,18 @@ namespace jop
                             auto& texObject = mat["textures"];
                             for (auto itr = texObject.MemberBegin(); itr != texObject.MemberEnd(); ++itr)
                             {
+                                auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(),
+                                    itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
+                                    itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
+                                    );
 
                                 if (itr->value.HasMember("type"))
                                 {
-                                    auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(),
-                                        itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
-                                        itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
-                                        );
-
-
                                     m.setMap(static_cast<Material::Map>(itr->value["type"].GetInt()), tex);
-
-                                    //wrapping
-                                    if (itr->value.HasMember("wrapmode"))
-                                    {
-                                        tex.getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
-                                    }
+                                }
+                                if (itr->value.HasMember("wrapmode"))
+                                {
+                                    tex.getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
                                 }
                             }
                         }
