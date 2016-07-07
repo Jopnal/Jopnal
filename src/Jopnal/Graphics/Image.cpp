@@ -30,9 +30,13 @@
 #endif
 
 #pragma warning(push)
+#pragma GCC diagnostic push
+
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4100)
 #pragma warning(disable: 4127)
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wnarrowing"
 
 #define IMAGE_DXT_IMPLEMENTATION
 #include <SOIL/image_DXT.h>
@@ -42,6 +46,7 @@
 #include <STB/stb_image_aug.h>
 
 #pragma warning(pop)
+#pragma GCC diagnostic pop
 
 #define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII

@@ -60,25 +60,15 @@ namespace detail
 
             int dummy = 0;
 
-        #if defined(JOP_COMPILER_MSVC)
-
             #pragma warning(push)
             #pragma warning(disable: 4172)
-
-            return reinterpret_cast<T&>(dummy);
-
-            #pragma warning(pop)
-
-        #elif defined(JOP_COMPILER_GNU)
-
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 
             return reinterpret_cast<T&>(dummy);
 
+            #pragma warning(pop)
             #pragma GCC diagnostic pop
-
-        #endif
         }
     };
     template<typename T>

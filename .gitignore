@@ -1,5 +1,7 @@
 # Decompressed external libraries
-extlibs/*/
+extlibs/*
+!extlibs/headers
+!extlibs/Android.mk
 
 # Generated HTML documentation
 doc/html/

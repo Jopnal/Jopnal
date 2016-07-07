@@ -3,6 +3,11 @@
 set(__INCDIR_GRAPHICS ${PROJECT_SOURCE_DIR}/include/Jopnal/Graphics)
 set(__SRCDIR_GRAPHICS ${PROJECT_SOURCE_DIR}/src/Jopnal/Graphics)
 
+# CMakeLists
+set(__LISTS_GRAPHICS ${__SRCDIR_GRAPHICS}/CMakeLists.txt)
+source_group("Graphics" FILES ${__LISTS_GRAPHICS})
+list(APPEND SRC ${__LISTS_GRAPHICS})
+
 # Include
 set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/Buffer.hpp

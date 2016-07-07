@@ -69,9 +69,9 @@
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)
-#include <Bullet/btBulletCollisionCommon.h>
-#include <Bullet/btBulletDynamicsCommon.h>
-#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #pragma warning(pop)
 
 // RapidJSON
@@ -84,7 +84,7 @@
 #pragma warning(pop)
 
 // PhysFS
-#include <PhysFS/physfs.h>
+#include <physfs.h>
 
 // Standard headers
 #include <algorithm>

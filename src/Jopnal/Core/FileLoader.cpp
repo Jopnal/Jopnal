@@ -28,7 +28,7 @@
 
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
-    #include <PhysFS/physfs.h>
+    #include <physfs.h>
 
     #ifdef JOP_OS_ANDROID
         #include <Jopnal/Core/Android/ActivityState.hpp>

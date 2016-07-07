@@ -5,7 +5,7 @@ set(__SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Sources
 if (JOP_OS_WINDOWS OR JOP_OS_ANDROID)
-    list(APPEND SRC_MAIN ${__SRCDIR}/Main.cpp)
+    list(APPEND SRC_MAIN ${__SRCDIR}/Main.cpp ${__SRCDIR}/CMakeLists.txt)
 else()
     return()
 endif()

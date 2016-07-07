@@ -112,9 +112,10 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
-        : m_surface (EGL_NO_SURFACE),
-          m_context (EGL_NO_CONTEXT),
-          m_size    (0)
+        : m_surface     (EGL_NO_SURFACE),
+          m_context     (EGL_NO_CONTEXT),
+          m_size        (0),
+          m_windowPtr   (&windowPtr)
     {
         initialize();
 
@@ -149,16 +150,13 @@ namespace jop { namespace detail
 
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
 
-
-            auto win = jop::detail::ActivityState::get()->nativeWindow;
-
             EGLint format;
             eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
 
-            ANativeWindow_setBuffersGeometry(win, 0, 0, format);
+            ANativeWindow_setBuffersGeometry(state->nativeWindow, 0, 0, format);
 
 
-            m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, win, NULL));
+            m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, NULL));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
             m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
@@ -169,6 +167,8 @@ namespace jop { namespace detail
 
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+
+            state->window = &windowPtr;
         }
         else
         {
@@ -212,6 +212,14 @@ namespace jop { namespace detail
     WindowImpl::~WindowImpl()
     {
         ns_windowRefs.erase(m_context);
+
+        {
+            auto state = detail::ActivityState::get();
+            std::lock_guard<std::mutex> lock(state->mutex);
+
+            if (state->window == m_windowPtr)
+                state->window = nullptr;
+        }
 
         eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
 

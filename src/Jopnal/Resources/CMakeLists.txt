@@ -1,7 +1,7 @@
 # Jopnal Resources CMakeLists
 
 # Add resource files & build step
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (CMAKE_HOST_WIN32)
 
     set(__SRCDIR_RESOURCES ${PROJECT_SOURCE_DIR}/tools/Jopresource/res)
 
@@ -51,11 +51,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	list(APPEND RES ${PROJECT_SOURCE_DIR}/tools/Jopresource/desc.json)
     
     add_custom_target(jopnal-resources
-                      SOURCES ${RES})
+                      SOURCES ${RES}
+				      DEPENDS ${RES})
                       
     add_custom_command(TARGET jopnal-resources
                        PRE_BUILD
-                       COMMAND jopres desc.json
+                       COMMAND ${PROJECT_SOURCE_DIR}/tools/Jopresource/jopres desc.json
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools/Jopresource
                        DEPENDS ${RES})
                        
@@ -69,6 +70,7 @@ endif()
 set(__SRC_RESOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Resources.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Resources.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/CMakeLists.txt
 )
 source_group("Resources" FILES ${__SRC_RESOURCES})
 list(APPEND SRC ${__SRC_RESOURCES})

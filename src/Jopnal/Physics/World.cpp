@@ -35,8 +35,8 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletDynamicsCommon.h>
-    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+    #include <btBulletDynamicsCommon.h>
+    #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #endif
 
