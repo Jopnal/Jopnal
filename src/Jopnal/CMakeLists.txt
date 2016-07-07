@@ -42,9 +42,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Utility/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Window/CMakeLists.txt)
 
 
-# Preprocessor symbols
-add_definitions(-DSTBI_FAILURE_USERMSG)
-
 # Add target
 jopAddLibrary(jopnal SOURCES ${SRC})
               
@@ -54,7 +51,7 @@ if (TARGET jopnal-resources)
 endif()
 
 # Precompiled header
-if (NOT JOP_COMPILER_GCC AND USE_PRECOMPILED_HEADER)
+if (NOT JOP_COMPILER_GCC AND JOP_USE_PRECOMPILED_HEADER)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
     add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)
@@ -72,9 +69,21 @@ endif()
 # External libraries
 ######################################
 
+if (JOP_OS_ANDROID)
+
+	find_host_package(Git)
+
+	if (NOT GIT_FOUND)
+		message(FATAL_ERROR "Git was not found! Please specify the advanced option GIT_EXECUTABLE to point to git executable")
+	endif()
+
+endif()
+
 include(ExternalProject)
 include_directories(${PROJECT_SOURCE_DIR}/extlibs/headers)
 
+# Preprocessor symbols
+add_definitions(-DSTBI_FAILURE_USERMSG)
 
 if (JOP_OS_ANDROID)
 
@@ -88,7 +97,11 @@ if (JOP_OS_ANDROID)
 
 endif()
 
-set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}${ANDROID_ABI}")
+if (JOP_OS_ANDROID)
+	set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}")
+else ()
+	set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}")
+endif()
 
 # PhysFS
 ExternalProject_Add(PhysFS
@@ -246,9 +259,9 @@ target_link_libraries(jopnal ${EXT_LIBS})
 
 # OpenAL
 if (JOP_OS_WINDOWS)
-	set(OPENAL_LIB_NAME OpenAL32)
+	set(OPENAL_LIB_NAME OpenAL32.lib)
 else ()
-	set(OPENAL_LIB_NAME openal)
+	set(OPENAL_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}openal${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
 ExternalProject_Add(OpenAL
@@ -267,7 +280,7 @@ ExternalProject_Add(OpenAL
 					           -DALSOFT_UTILS=ON
 							   ${ANDROID_OPTIONS}
 							
-					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${OPENAL_LIB_NAME}
 )
 add_dependencies(jopnal OpenAL)
 
@@ -275,6 +288,14 @@ ExternalProject_Get_Property(OpenAL SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(OpenAL BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
+target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME})
 
-install(DIRECTORY ${BINARY_DIR}/${CMAKE_CFG_INTDIR} DESTINATION extlibs/lib)
+if (JOP_OS_ANDROID)
+	install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib)
+elseif(JOP_OS_WINDOWS)
+
+	add_custom_command(TARGET OpenAL POST_BUILD
+		
+		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/OpenAL32.dll ${PREFIX_DIR}/bin/OpenAL32.dll)
+	
+endif()

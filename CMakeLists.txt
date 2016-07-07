@@ -90,9 +90,9 @@ if (JOP_OS_ANDROID OR (JOP_OS_WINDOWS AND JOP_COMPILER_GCC))
     set(USE_PRECOMPILED_HEADER_DEFAULT FALSE)
 endif() 
    
-jopSetOption(USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
+jopSetOption(JOP_USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
 
-if (USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
+if (JOP_USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
     message(WARNING "Using precompiled header may crash GCC. Keep this in mind")
 endif()
 
@@ -152,6 +152,14 @@ else()
 
 endif()
 
+# Disable OpenGL ES on Windows
+if (JOP_OS_WINDOWS)
+
+	unset(JOP_OPENGL_ES CACHE)
+	set(JOP_OPENGL_ES FALSE)
+	
+endif()
+
 # Define JOP_STATIC to build static library
 if (NOT BUILD_SHARED_LIBS)
     add_definitions(-DJOP_STATIC)
@@ -202,41 +210,7 @@ install(FILES LICENSE DESTINATION ${INSTALL_MISC_DIR})
 install(FILES README.md DESTINATION ${INSTALL_MISC_DIR})
 
 # Install 3rd-party libraries and tools
-if (JOP_OS_WINDOWS)
-
-    if (ARCH_32BITS)
-
-        install(DIRECTORY extlibs/bin/x86/ DESTINATION bin)
-
-        if (JOP_COMPILER_MSVC AND JOP_MSVC_VERSION LESS 14)
-            install(DIRECTORY extlibs/lib/msvc/x86/ DESTINATION lib)
-
-        elseif (JOP_COMPILER_MSVC)
-            install(DIRECTORY extlibs/lib/msvc-universal/x86/ DESTINATION lib)
-
-        else ()
-            install(DIRECTORY extlibs/lib/mingw/x86/ DESTINATION lib)
-
-        endif()
-
-    elseif (ARCH_64BITS)
-
-        install(DIRECTORY extlibs/bin/x64/ DESTINATION bin)
-
-        if (JOP_COMPILER_MSVC AND JOP_MSVC_VERSION LESS 14)
-            install(DIRECTORY extlibs/lib/msvc/x64/ DESTINATION lib)
-
-        elseif (JOP_COMPILER_MSVC)
-            install(DIRECTORY extlibs/lib/msvc-universal/x64/ DESTINATION lib)
-
-        else ()
-            install(DIRECTORY extlibs/lib/mingw/x64/ DESTINATION lib)
-
-        endif()
-
-    endif()
-
-elseif (JOP_OS_ANDROID)
+if (JOP_OS_ANDROID)
 
     # Install extlibs
     install(FILES extlibs/Android.mk DESTINATION extlibs)
