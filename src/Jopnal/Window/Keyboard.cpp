@@ -32,6 +32,12 @@
 
 #endif
 
+#if defined(JOP_OS_DESKTOP)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#elif defined(JOP_OS_ANDROID)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#endif
+
 //////////////////////////////////////////////
 
 namespace
@@ -41,16 +47,9 @@ namespace
 	bool  validateWindowRef()
 	{
 		if (ns_windowRef == nullptr)
-		{
-			if (jop::Engine::hasCurrentWindow())
-			{
 				ns_windowRef = &jop::Engine::getCurrentWindow();
-				return true;
-			}
-			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
-				return false;
-		}
-		return true;
+
+				return ns_windowRef != nullptr;
 	}
 }
 
@@ -70,8 +69,15 @@ namespace jop
 	bool Keyboard::isKeyDown(Key key)
 	{
 		if (validateWindowRef())
-			return ns_windowRef->getEventHandler()->keyDown(key) == GLFW_PRESS;
-
+		{
+         #if defined(JOP_OS_DESKTOP)
+			return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
+         #elif defined(JOP_OS_ANDROID)
 			return false;
+         #else
+			return false;
+         #endif
+		}
+		return false;
 	}
 }

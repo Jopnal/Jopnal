@@ -32,6 +32,12 @@
 
 #endif
 
+#if defined(JOP_OS_DESKTOP)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#elif defined(JOP_OS_ANDROID)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#endif
+
 //////////////////////////////////////////////
 
 namespace
@@ -41,16 +47,9 @@ namespace
 	bool  validateWindowRef()
 	{
 		if (ns_windowRef == nullptr)
-		{
-			if (jop::Engine::hasCurrentWindow())
-			{
-				ns_windowRef = &jop::Engine::getCurrentWindow();
-				return true;
-			}
-			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
-				return false;
-		}
-		return true;
+			ns_windowRef = &jop::Engine::getCurrentWindow();
+
+		return ns_windowRef != nullptr;
 	}
 }
 
@@ -60,16 +59,25 @@ namespace jop
 	{
 		if (validateWindowRef())
 		{
-			int result = 0;
-			for (int i = 1; i < 17; ++i)
-			{
-				if (ns_windowRef->getEventHandler()->controllerContainer(i))
-					result += 1;
-			}
-			return result;
+		int count = 0;
+		static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
+		static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
+		static unsigned int counter = 99;
+      
+       #if defined(JOP_OS_DESKTOP)
+		for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
+		{
+			if (glfwJoystickPresent(i) == GL_TRUE)
+				count += 1;
 		}
-
-		return -1;
+		return count;
+        #elif defined(JOP_OS_ANDROID)
+		return NULL;
+        #else
+		return NULL;
+        #endif
+		}
+		return NULL;;
 	}
 
 	//////////////////////////////////////////////
@@ -77,8 +85,15 @@ namespace jop
 	bool Controller::iscontrollerPresent(const int index)
 	{
 		if (validateWindowRef())
-		return ns_windowRef->getEventHandler()->controllerContainer(index);
-
+		{
+        #if defined(JOP_OS_DESKTOP)
+			return glfwJoystickPresent(index) == GL_TRUE;
+        #elif defined(JOP_OS_ANDROID)
+			return false;
+        #else
+			return false;
+        #endif
+		}
 		return false;
 	}
 
@@ -87,9 +102,22 @@ namespace jop
 	bool Controller::isButtonDown(const int index, const int Button)
 	{
 		if (validateWindowRef())
-		return ns_windowRef->getEventHandler()->controllerButtonContainer(index, Button) == GLFW_PRESS;
+		{
+        #if defined(JOP_OS_DESKTOP)
+			int count = 0;
+			const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
+			if (Button < count)
+				return buttons[Button] == GLFW_PRESS;
 
-		return false;
+			JOP_DEBUG_WARNING("Controller " << index << " has only " << count << " buttons")
+				return false;
+        #elif defined(JOP_OS_ANDROID)
+			return false;
+        #else
+			return false;
+        #endif
+		}
+		 return false;
 	}
 
 	//////////////////////////////////////////////
@@ -97,8 +125,21 @@ namespace jop
 	glm::vec2 Controller::rightStickOffset(const int index)
 	{
 		if (validateWindowRef())
-		return glm::vec2(0, 0);
-
+		{
+        #if defined(JOP_OS_DESKTOP)
+			int count = 0;
+			const float* axes = glfwGetJoystickAxes(index, &count);
+			if (count = 4)
+				return glm::vec2(axes[2], axes[3]);
+			else
+				return glm::vec2(NULL);
+        #elif defined(JOP_OS_ANDROID)
+			return glm::vec2(NULL);
+        #else
+			return glm::vec2(NULL);
+        #endif
+			return glm::vec2(NULL);
+		}
 		return glm::vec2(NULL);
 	}
 
@@ -107,8 +148,21 @@ namespace jop
 	glm::vec2 Controller::leftStickOffset(const int index)
 	{
 		if (validateWindowRef())
-		return glm::vec2(0, 0);
-
+		{
+        #if defined(JOP_OS_DESKTOP)
+			int count = 0;
+			const float* axes = glfwGetJoystickAxes(index, &count);
+			if (count = 4)
+				return glm::vec2(axes[0], axes[1]);
+			else
+				return glm::vec2(NULL);
+        #elif defined(JOP_OS_ANDROID)
+			return glm::vec2(NULL);
+        #else
+			return glm::vec2(NULL);
+        #endif
+			return glm::vec2(NULL);
+		}
 		return glm::vec2(NULL);
 	}
 

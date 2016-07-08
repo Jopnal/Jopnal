@@ -32,6 +32,12 @@
 
 #endif
 
+#if defined(JOP_OS_DESKTOP)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#elif defined(JOP_OS_ANDROID)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#endif
+
 //////////////////////////////////////////////
 
 namespace
@@ -41,16 +47,9 @@ namespace
 	bool  validateWindowRef()
 	{
 		if (ns_windowRef == nullptr)
-		{
-			if (jop::Engine::hasCurrentWindow())
-			{
-				ns_windowRef = &jop::Engine::getCurrentWindow();
-				return true;
-			}
-			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
-				return false;
-		}
-		return true;
+			ns_windowRef = &jop::Engine::getCurrentWindow();
+
+		return ns_windowRef != nullptr;
 	}
 }
 
@@ -59,7 +58,16 @@ namespace jop
 	bool Mouse::isDown(Button button)
 	{
 		if (validateWindowRef())
-		return ns_windowRef->getEventHandler()->mouseButtonDown(button) == GLFW_PRESS;
+		{
+        #if defined(JOP_OS_DESKTOP)
+			return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlButton(button)) == GLFW_PRESS;
+        #elif defined(JOP_OS_ANDROID)
+			return false;
+        #else
+			return false;
+        #endif
+		}
+		return false;
 	}
 
 	//////////////////////////////////////////////
@@ -68,10 +76,17 @@ namespace jop
 	{
 		if (validateWindowRef())
 		{
+        #if defined(JOP_OS_DESKTOP)
 			auto result = ns_windowRef->getEventHandler()->m_scrollOffset;
 			jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset = { NULL, NULL };
 			return result;
+        #elif defined(JOP_OS_ANDROID)
+			return glm::vec2(NULL);
+        #else
+			return glm::vec2(NULL);
+        #endif
 		}
+		return glm::vec2(NULL);
 	}
 
 	//////////////////////////////////////////////
@@ -79,8 +94,17 @@ namespace jop
 	glm::vec2 getPosition()
 	{
 		if (validateWindowRef())
-		return ns_windowRef->getEventHandler()->getCursorPosition();
-
+		{
+         #if defined(JOP_OS_DESKTOP)
+			double x, y = NULL; 
+			glfwGetCursorPos(ns_windowRef->getLibraryHandle(),&x,&y);
+			return glm::vec2(x,y);
+        #elif defined(JOP_OS_ANDROID)
+			return glm::vec2(NULL);
+        #else
+			return glm::vec2(NULL);
+        #endif
+		}
 		return glm::vec2(NULL);
 	}
 }
