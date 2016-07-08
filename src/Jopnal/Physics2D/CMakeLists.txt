@@ -49,11 +49,3 @@ set(__SRC_PHYSICS2D_SHAPE
 )
 source_group("Physics2D\\Source\\Shape" FILES ${__SRC_PHYSICS2D_SHAPE})
 list(APPEND SRC ${__SRC_PHYSICS2D_SHAPE})
-
-# Source - Detail
-set(__SRC_PHYSICS2D_DETAIL
-    ${__SRCDIR_PHYSICS2D}/Detail/WorldImpl2D.cpp
-    ${__SRCDIR_PHYSICS2D}/Detail/WorldImpl2D.hpp
-)
-source_group("Physics2D\\Source\\Detail" FILES ${__SRC_PHYSICS2D_DETAIL})
-list(APPEND SRC ${__SRC_PHYSICS2D_DETAIL})

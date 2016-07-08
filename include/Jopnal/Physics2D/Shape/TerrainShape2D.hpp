@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -62,7 +64,6 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
-
     };
 }
 

@@ -22,6 +22,20 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/RigidBody2D.hpp>
+
+    #include <Jopnal/Core/Object.hpp>   
+    #include <Jopnal/Physics2D/World2D.hpp>
+    #include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+    #include <Box2D/Dynamics/b2Body.h>
+    #include <Box2D/Dynamics/b2Fixture.h>
+    #include <Box2D/Dynamics/b2World.h>
+    #include <glm/gtc/quaternion.hpp>
+
+#endif
+
 //////////////////////////////////////////////
 
 
@@ -48,23 +62,20 @@
 namespace jop
 {
     RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
-        :
-        group       (1),
-        mask        (1),
-        friction    (0.2f),
-        restitution (0.5f),
-        m_shape     (shape),
-        m_type      (type),
-        m_mass      ((type == Type::Dynamic) * mass)
-    {
-    }
+        : group       (1),
+          mask        (1),
+          friction    (0.2f),
+          restitution (0.5f),
+          m_shape     (shape),
+          m_type      (type),
+          m_mass      ((type == Type::Dynamic) * mass)
+    {}
 
     //////////////////////////////////////////////
 
     RigidBody2D::RigidBody2D(Object& object, World2D& world, const ConstructInfo2D& info)
         : Collider2D(object, world, 0)
     {
-
         b2BodyDef bd;
         b2FixtureDef fdf;
 
@@ -74,25 +85,30 @@ namespace jop
         bd.position = b2Vec2(pos.x, pos.y);
         bd.userData = this;
 
-
         b2BodyType Types[3] = { b2BodyType::b2_staticBody, b2BodyType::b2_dynamicBody, b2BodyType::b2_kinematicBody };
 
         switch (info.m_type)
         {
-        case Type::StaticSensor:
-            bd.type = b2BodyType::b2_staticBody;
-            object.setIgnoreParent(true);
-            fdf.isSensor = true;
-            break;
+            case Type::StaticSensor:
+            {
+                bd.type = b2BodyType::b2_staticBody;
+                object.setIgnoreParent(true);
+                fdf.isSensor = true;
+                break;
+            }
 
-        case Type::KinematicSensor:
-            bd.type = b2BodyType::b2_kinematicBody;
-            fdf.isSensor = true;
-            break;
+            case Type::KinematicSensor:
+            {
+                bd.type = b2BodyType::b2_kinematicBody;
+                fdf.isSensor = true;
+                break;
+            }
 
-        default:
-            bd.type = Types[static_cast<int>(info.m_type)];
-            object.setIgnoreParent(true);
+            default:
+            {
+                bd.type = Types[static_cast<int>(info.m_type)];
+                object.setIgnoreParent(true);
+            }
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
@@ -105,7 +121,7 @@ namespace jop
         fdf.restitution = info.restitution;
 
         fdf.shape = info.m_shape.m_shape.get();
-        fdf.density = 1;// info.m_mass / fdf.shape->m_radius;
+        fdf.density = 1;
 
         m_body->CreateFixture(&fdf);
         setActive(isActive());
@@ -114,7 +130,7 @@ namespace jop
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
         : Collider2D(other, newObj)
     {
-        b2Body* body = other.m_body; //check if fixtures are copied too
+        //b2Body* body = other.m_body; //check if fixtures are copied too
     }
 
     RigidBody2D::~RigidBody2D()

@@ -22,6 +22,15 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
+
+    #include <Jopnal/STL.hpp>
+    #include <Box2D/Collision/Shapes/b2PolygonShape.h>
+
+#endif
+
 //////////////////////////////////////////////
 
 
@@ -43,8 +52,9 @@ namespace jop
     bool RectangleShape2D::load(const glm::vec2& extents)
     {
         auto temp = std::make_unique<b2PolygonShape>();
-        temp->SetAsBox(extents.x*0.5f, extents.y*0.5f);
+        temp->SetAsBox(extents.x * 0.5f, extents.y * 0.5f);
         m_shape = std::move(temp);
+
         return true;
     }
 }

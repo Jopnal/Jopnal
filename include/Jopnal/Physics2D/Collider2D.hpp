@@ -25,10 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Physics/ContactInfo.hpp>
-#include <memory>
-
-
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
@@ -41,12 +38,9 @@ namespace jop
 
     class JOP_API Collider2D : public Component
     {
-
-
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
-
 
     protected:
 
@@ -115,23 +109,11 @@ namespace jop
 
     private:
 
-        /// \brief Overlap begin callback
-        ///
-        /// \param other The other collider that was overlapped
-        ///
-        //virtual void beginOverlap(const Collider2D& other);
-
-        /// \brief Overlap end callback
-        ///
-        /// \param other The other collider that was overlapping
-        ///
-        //virtual void endOverlap(const Collider2D& other);
-
         /// \brief Activity setter
         ///
         /// For internal use
         ///
-        //virtual void setActive(const bool) override = 0;
+        virtual void setActive(const bool) override = 0;
 
     protected:
 

@@ -40,8 +40,14 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
     #include <btBulletDynamicsCommon.h>
     #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+    #pragma warning(pop)    
 
 #endif
 
@@ -133,12 +139,15 @@ namespace detail
             {
                 shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_physics_debug_shader").getReference());
 
-                Shader vertex("");
-                vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex, true);
-                Shader frag("");
-                frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment, true);
+                if (!shdr->isValid())
+                {
+                    Shader vertex("");
+                    vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex, true);
+                    Shader frag("");
+                    frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment, true);
 
-                JOP_ASSERT_EVAL(shdr->load("",vertex, frag),"Failed to compile physics debug shader!");
+                    JOP_ASSERT_EVAL(shdr->load("", vertex, frag), "Failed to compile physics debug shader!");
+                }
             }
 
             // Draw lines

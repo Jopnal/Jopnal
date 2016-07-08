@@ -220,7 +220,6 @@ namespace jop
         ///
         RigidBody2D& setFixedRotation(const bool rot);
 
-
     protected:
 
         Message::Result receiveMessage(const Message& message) override;

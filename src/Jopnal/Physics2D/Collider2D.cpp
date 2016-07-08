@@ -22,52 +22,65 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/Collider2D.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics2D/World2D.hpp>
+    #include <Box2D/Dynamics/b2Body.h>
+    #include <Box2D/Dynamics/b2WorldCallbacks.h>
+    #include <Box2D/Dynamics/b2World.h>
+    #include <Box2D/Dynamics/b2Fixture.h>
+    #include <Box2D/Dynamics/Contacts/b2Contact.h>
+
+#endif
 
 //////////////////////////////////////////////
-
 
 
 namespace jop
 {
     Collider2D::Collider2D(Object& object, World2D& world, const uint32 ID)
-        : Component(object, ID),
-
-        m_body(nullptr),
-        m_worldRef2D(world)
-    {
-    }
+        : Component     (object, ID),
+          m_body        (nullptr),
+          m_worldRef2D  (world)
+    {}
 
     Collider2D::Collider2D(const Collider2D& other, Object& newObj)
-        : Component(other, newObj),
-        m_body(nullptr),
-        m_worldRef2D(other.m_worldRef2D)
+        : Component     (other, newObj),
+          m_body        (nullptr),
+          m_worldRef2D  (other.m_worldRef2D)
     {}
 
     Collider2D::~Collider2D()
     {}
 
-    void Collider2D::update(const float deltaTime)
+    //////////////////////////////////////////////
+
+    void Collider2D::update(const float)
     {
         switch (m_body->GetType())
         {
-        case b2BodyType::b2_dynamicBody:
-        {
-            auto& pos = m_body->GetPosition();
-            getObject()->setPosition(pos.x, pos.y, 0.f);
-            getObject()->setRotation(0.f, 0.f, m_body->GetAngle());
-            break;
-        }
-        case b2BodyType::b2_kinematicBody:
-        {
-            auto& pos = getObject()->getGlobalPosition();
-            m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
-            break;
-        }
+            case b2BodyType::b2_dynamicBody:
+            {
+                auto& pos = m_body->GetPosition();
+                getObject()->setPosition(pos.x, pos.y, 0.f);
+                getObject()->setRotation(0.f, 0.f, m_body->GetAngle());
+
+                break;
+            }
+            case b2BodyType::b2_kinematicBody:
+            {
+                auto& pos = getObject()->getGlobalPosition();
+                m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
+
+                break;
+            }
         }
     }
 
     //////////////////////////////////////////////
-
 
     bool Collider2D::checkOverlap(const Collider2D& other) const
     {
@@ -88,49 +101,61 @@ namespace jop
 
         cb.bod = other.m_body;
 
+        // Visual studio 2013 doesn't compile without this-> ???
         auto fixList = this->m_body->GetFixtureList();
         b2AABB totalaabb(fixList->GetAABB(0));
-
+        
         while (fixList)
         {
             totalaabb.Combine(fixList->GetAABB(0));
             fixList = fixList->GetNext();
         }
+        
         this->m_worldRef2D.m_worldData2D->QueryAABB(&cb, totalaabb);
 
         return cb.overlapping;
     }
 
-
+    //////////////////////////////////////////////
 
     bool Collider2D::checkContact(const Collider2D& other) const
     {
-        auto ce = this->m_body->GetContactList();
+        auto ce = m_body->GetContactList();
         while (ce)
         {
             if (ce->other == other.m_body)
-            {
                 return true;
-            }
+
             ce = ce->next;
         }
+
         return false;
     }
 
+    //////////////////////////////////////////////
 
     bool Collider2D::checkRay(const glm::vec2& start, const glm::vec2& ray) const
     {
         struct Callback : b2RayCastCallback
         {
+            const b2Body* body = nullptr;
             bool hit = false;
-            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float fraction)
+            float ReportFixture(b2Fixture* fix, const b2Vec2&, const b2Vec2&, float)
             {
-                hit = true;
-                return 0.f;
+                if (fix->GetBody() == body)
+                {
+                    hit = true;
+                    return 0.f;
+                }
+
+                return 1.f;
             }
         } cb;
 
+        cb.body = this->m_body;
+        
         this->m_worldRef2D.m_worldData2D->RayCast(&cb, b2Vec2(start.x, start.y), b2Vec2(start.x + ray.x, start.y + ray.y));
+
         return cb.hit;
     }
 }

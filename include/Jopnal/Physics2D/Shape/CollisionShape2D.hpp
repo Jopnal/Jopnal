@@ -41,7 +41,6 @@ namespace jop
         //JOP_DISALLOW_COPY_MOVE(CollisionShape2D);
 
         friend class RigidBody2D;
-        //friend class PhantomBody;
         friend class CompoundShape2D;
 
     protected:
@@ -52,15 +51,11 @@ namespace jop
         ///
         CollisionShape2D(const std::string& name);
 
-        
     public:
 
         /// \brief Virtual destructor
         ///
         virtual ~CollisionShape2D() override = 0;
-
-
-
 
     protected:
 

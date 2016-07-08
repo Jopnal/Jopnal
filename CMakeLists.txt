@@ -18,7 +18,9 @@ endmacro()
 
 
 # Configuration option
-jopSetOption(CMAKE_BUILD_TYPE Release STRING "Type of build (Debug or Release)")
+jopSetOption(CMAKE_BUILD_TYPE Release STRING "Type of build")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+             "Debug" "Release")
 
 # Android options, must be set in the beginning
 

@@ -51,5 +51,5 @@ bool Scene::worldEnabled()
 template<int D>
 void Scene::disableWorld()
 {
-    //TODO when other parts ready
+    removeComponent<typename detail::WorldType<D>::type>();
 }

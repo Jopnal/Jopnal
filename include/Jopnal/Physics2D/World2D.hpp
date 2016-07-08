@@ -27,6 +27,7 @@
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Physics2D/RayInfo2D.hpp>
 #include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -128,18 +129,13 @@ namespace jop
         ///
         bool debugMode() const;
 
-        
-    protected:
+    private:
 
         Message::Result receiveMessage(const Message& message) override;
 
-        std::unique_ptr<b2World> m_worldData2D;             ///< The world data
+        std::unique_ptr<b2World> m_worldData2D;     ///< The world data
         std::unique_ptr<detail::DebugDraw> m_dd;
-
-    private:
-
         float m_step;
-
     };
 }
 

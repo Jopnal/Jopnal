@@ -22,8 +22,31 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-//////////////////////////////////////////////
+#ifndef JOP_PRECOMPILED_HEADER
 
+    #include <Jopnal/Physics2D/World2D.hpp>
+    
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/VertexBuffer.hpp>
+    #include <Box2D/Collision/Shapes/b2PolygonShape.h>
+    #include <Box2D/Common/b2Draw.h>
+    #include <Box2D/Dynamics/b2World.h>
+    #include <Box2D/Dynamics/b2Fixture.h>
+    #include <LinearMath/btVector3.h>
+    #include <glm/gtc/constants.hpp>
+    #include <set>
+
+#endif
+
+#include <Jopnal/Resources/Resources.hpp>
+
+//////////////////////////////////////////////
 
 
 namespace jop
@@ -32,7 +55,7 @@ namespace jop
     {
         struct DebugDraw : b2Draw
         {
-            WeakReference<Shader> shdr;
+            WeakReference<ShaderProgram> shdr;
 
             typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
 
@@ -44,19 +67,22 @@ namespace jop
 
         public:
 
-            DebugDraw() : m_buffer(VertexBuffer::Type::ArrayBuffer, Buffer::Usage::DynamicDraw)
+            DebugDraw()
+                : m_buffer(VertexBuffer::Type::ArrayBuffer, Buffer::Usage::DynamicDraw)
             {
                 if (shdr.expired())
                 {
-                    std::vector<unsigned char> vert, frag;
-                    JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
+                    shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_physics_debug_shader").getReference());
 
-                    shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
+                    if (!shdr->isValid())
+                    {
+                        Shader vertex("");
+                        vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex, true);
+                        Shader frag("");
+                        frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment, true);
 
-                    JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                        "",
-                        std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                        "Failed to compile physics debug shader!");
+                        JOP_ASSERT_EVAL(shdr->load("", vertex, frag), "Failed to compile physics debug shader!");
+                    }
                 }
             }
 
@@ -65,8 +91,7 @@ namespace jop
                 DrawSolidCircle(center, radius, b2Vec2(1.f, 0.f), color);
             }
 
-
-            void DrawPoint(const b2Vec2& p1, float size, const b2Color& color)
+            void DrawPoint(const b2Vec2& p1, float, const b2Color& color)
             {
                 m_points.emplace_back(btVector3(p1.x, p1.y, 0.f), btVector3(color.r, color.g, color.b));
             }
@@ -136,10 +161,10 @@ namespace jop
 
                     shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                    shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                    shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                    shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
+                    shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
-                    glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+                    glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
                     m_lines.clear();
                 }
@@ -147,12 +172,15 @@ namespace jop
                 // Draw points
                 if (m_points.empty())
                 {
-                    glCheck(gl::PointSize(3));
+                #ifndef JOP_OPENGL_ES
+                    glCheck(glPointSize(3));
+                #endif
+
                     GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
                     m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
-                    glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+                    glCheck(glDrawArrays(GL_POINTS, 0, m_points.size()));
 
                     m_points.clear();
                 }
@@ -164,15 +192,16 @@ namespace jop
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable(obj, renderer, 0),
-        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-        m_step(0.f),
-        m_dd(std::make_unique<detail::DebugDraw>())
+        : Drawable      (obj, renderer, 0),
+          m_worldData2D (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+          m_step        (0.f),
+          m_dd          (std::make_unique<detail::DebugDraw>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
         m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
         m_worldData2D->SetAllowSleeping(false);
+        m_worldData2D->SetDebugDraw(m_dd.get());
 
         setDebugMode(false);
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
@@ -195,7 +224,6 @@ namespace jop
 
     void World2D::update(const float deltaTime)
     {
-
         static const char* const str = "engine@Physics2D|uUpdateFrequency";
         static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
 
@@ -212,24 +240,22 @@ namespace jop
             }
         } cb(&timeStep, str);
 
-
         m_step = std::min(0.1f, m_step + deltaTime);
+
         while (m_step >= timeStep)
         {
             m_worldData2D->Step(timeStep, 8, 3); // 8 velocity and 3 position check done for each timeStep
             m_step -= timeStep;
-            m_worldData2D->ClearForces(); //to clear or not to clear?
+            m_worldData2D->ClearForces();
         }
-
-
-
     }
 
     //////////////////////////////////////////////
 
-    void World2D::draw(const Camera* camera, const LightContainer&, Shader&) const
+    void World2D::draw(const Camera* camera, const LightContainer&, ShaderProgram&) const
     {
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
+
         if (camera && debugMode())
         {
             m_dd->m_cam = camera;
@@ -237,36 +263,37 @@ namespace jop
             m_dd->flushLines();
         }
 
+    #else
 
-#else
         camera;
-#endif
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void World2D::setDebugMode(const bool enable)
     {
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
 
-        m_dd->SetFlags(b2Draw::e_shapeBit | b2Draw::e_aabbBit);
-        m_worldData2D->SetDebugDraw(m_dd.get());
+        m_dd->SetFlags(enable * (b2Draw::e_shapeBit | b2Draw::e_aabbBit));
 
-#else
+    #else
+
         enable;
-#endif
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     bool World2D::debugMode() const
     {
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
         return m_dd->GetFlags() != 0;
-
-#else
+    #else
         return false;
-#endif
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -302,7 +329,6 @@ namespace jop
         return cb.rayData;
     }
 
-
     //////////////////////////////////////////////
 
     std::vector<RayInfo2D> jop::World2D::checkRayAllHits(const glm::vec2& start, const glm::vec2& ray, const short group, const short mask) const
@@ -313,13 +339,11 @@ namespace jop
             int group;
             unsigned int mask;
 
-
-            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float fraction)
+            float ReportFixture(b2Fixture* fix, const b2Vec2& point, const b2Vec2& normal, float)
             {
                 if ((fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
-                {
                     hits.emplace_back(RayInfo2D(static_cast<Collider2D*>(fix->GetBody()->GetUserData()), glm::vec2(normal.x, normal.y), glm::vec2(point.x, point.y)));
-                }
+
                 return 1.f;
             }
         } cb;
@@ -345,9 +369,8 @@ namespace jop
             bool ReportFixture(b2Fixture* fix) override
             {
                 if ((fix->GetFilterData().maskBits & group) && (mask & fix->GetFilterData().groupIndex))
-                {
                     overlaps.emplace(static_cast<Collider2D*>(fix->GetBody()->GetUserData()));
-                }
+
                 return true;
             }
         } cb;
@@ -355,15 +378,11 @@ namespace jop
         cb.group = group;
         cb.mask = mask;
 
-
-
         b2AABB totalaabb;
         totalaabb.lowerBound = b2Vec2(aabbStart.x, aabbStart.y);
         totalaabb.upperBound = b2Vec2(aabbEnd.x, aabbEnd.y);
 
-
-
-        this->m_worldData2D->QueryAABB(&cb, totalaabb);
+        m_worldData2D->QueryAABB(&cb, totalaabb);
 
         return std::vector<Collider2D*>(cb.overlaps.begin(), cb.overlaps.end());
     }

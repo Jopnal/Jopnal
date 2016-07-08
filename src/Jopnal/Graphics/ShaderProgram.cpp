@@ -161,7 +161,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool ShaderProgram::validate()
+    bool ShaderProgram::validate() const
     {
         glCheck(glValidateProgram(m_programID));
 
@@ -182,6 +182,13 @@ namespace jop
         }
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool ShaderProgram::isValid() const
+    {
+        return m_programID != 0;
     }
 
     //////////////////////////////////////////////

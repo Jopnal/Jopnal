@@ -69,6 +69,7 @@ namespace jop
         using Object::removeComponents;
         using Object::clearComponents;
         using Object::componentCount;
+        using Object::removeComponent;
 
         using Object::createChild;
         using Object::getChildren;

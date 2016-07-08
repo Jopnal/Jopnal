@@ -29,6 +29,7 @@
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
+    #include <cctype>
 
 #endif
 

@@ -22,12 +22,20 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
+
+    #include <Jopnal/STL.hpp>
+    #include <Box2D/Collision/Shapes/b2ChainShape.h>
+
+#endif
+
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-
     TerrainShape2D::TerrainShape2D(const std::string& name)
         : CollisionShape2D(name)
     {}

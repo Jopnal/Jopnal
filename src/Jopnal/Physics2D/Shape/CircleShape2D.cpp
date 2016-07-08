@@ -22,6 +22,15 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
+
+    #include <Jopnal/STL.hpp>
+    #include <Box2D/Collision/Shapes/b2CircleShape.h>
+
+#endif
+
 //////////////////////////////////////////////
 
 

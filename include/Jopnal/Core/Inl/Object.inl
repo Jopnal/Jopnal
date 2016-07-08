@@ -94,3 +94,20 @@ T* Object::cloneComponent(Object& object, const uint32 ID) const
 
     return nullptr;
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+Object& Object::removeComponent(const uint32 ID)
+{
+    for (auto itr = m_components.begin(); itr != m_components.end(); ++itr)
+    {
+        if (typeid(*(*itr)) == typeid(T) && itr->get()->getID() == ID)
+        {
+            m_components.erase(itr);
+            break;
+        }
+    }
+
+    return *this;
+}

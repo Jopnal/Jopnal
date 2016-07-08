@@ -21,31 +21,22 @@
 
 // Headers
 #include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics2D/Collider2D.hpp>
 #include <Jopnal/Physics/PhantomBody.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
 #include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
 #include <Jopnal/Physics/Shape/CompoundShape.hpp>
 #include <Jopnal/Physics/Shape/ConeShape.hpp>
 #include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
 #include <Jopnal/Physics/Shape/CylinderShape.hpp>
 #include <Jopnal/Physics/Shape/FrustumShape.hpp>
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
 #include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
 #include <Jopnal/Physics/Shape/SphereShape.hpp>
 #include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
 #include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
 
 
 //////////////////////////////////////////////

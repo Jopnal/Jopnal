@@ -89,7 +89,11 @@ namespace jop
 
         /// \brief Validate program status
         ///
-        bool validate();
+        bool validate() const;
+
+        /// \brief Check if this program is valid
+        ///
+        bool isValid() const;
 
         /// \brief method setting matrix 4x4
         ///

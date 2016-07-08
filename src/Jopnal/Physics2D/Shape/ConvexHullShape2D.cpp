@@ -22,6 +22,15 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
+
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Box2D/Collision/Shapes/b2PolygonShape.h>
+
+#endif
+
 //////////////////////////////////////////////
 
 
