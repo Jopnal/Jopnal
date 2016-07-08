@@ -34,13 +34,14 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
 
     class JOP_API ShaderAssembler final : public Subsystem
     {
     private:
 
-        typedef std::unordered_map<Material::AttribType, WeakReference<Shader>> ShaderMap;
+        typedef std::unordered_map<std::string,std::string> PluginMap;
+        typedef std::unordered_map<Material::AttribType, WeakReference<ShaderProgram>> ShaderMap;
 
     public:
 
@@ -54,6 +55,33 @@ namespace jop
         ///
         ~ShaderAssembler() override;
 
+        /// \brief Add a plugin
+        ///
+        /// \param name Name of the plugin
+        /// \param data The source code for the plugin
+        ///
+        static void addPlugin(const std::string& name, const std::string& source);
+
+        /// \brief Add multiple plugins from single string
+        ///
+        /// Parses through the string and searches for plugins and adds them to memory
+        ///
+        static void addPlugins(const std::string& source);
+
+        /// \brief Removes plugin with given name from memory
+        ///
+        static void removePlugin(const std::string& name);
+
+        /// \brief Clears all plugins from memory
+        ///
+        static void clearPlugins();
+
+        /// \brief Preprocesses shaders source code and adds necessary plugins before compilation
+        ///
+        /// \pram input Shaders source code
+        /// \param output Preprocessed source code
+        ///
+        static void preprocess(const std::vector<const char*>& input, std::string& output);
 
         /// \brief Get a shader with the given attribute combination
         ///
@@ -61,9 +89,9 @@ namespace jop
         ///
         /// \return Reference to the shader
         ///
-        static Shader& getShader(const Material::AttribType attributes);
+        static ShaderProgram& getShader(const Material::AttribType attributes);
 
-        /// \brief Get a pre-processor shader string
+        /// \brief Get a preprocessor shader string
         ///
         /// \param attrib Material attributes
         /// \param str The string to put the definitions into
@@ -78,8 +106,9 @@ namespace jop
 
     private:
 
-        static ShaderAssembler* m_instance;   ///< The single instance
+        static ShaderAssembler* m_instance; ///< The single instance
 
+        PluginMap m_plugins;                ///< Map with the plugins
         ShaderMap m_shaders;                ///< Map with the shaders
         std::array<std::string, 3> m_uber;  ///< The uber shader sources
         std::recursive_mutex m_mutex;       ///< Mutex                                        

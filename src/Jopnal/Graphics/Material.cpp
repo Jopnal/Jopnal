@@ -27,7 +27,7 @@
     #include <Jopnal/Graphics/Material.hpp>
 
     #include <Jopnal/Core/SettingManager.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
 
 #endif
 
@@ -106,7 +106,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(Shader& shader, const Camera* camera, const float alphaMult) const
+    void Material::sendToShader(ShaderProgram& shader, const Camera* camera, const float alphaMult) const
     {
         if (shader.bind())
         {
@@ -180,11 +180,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Shader* Material::getShader() const
+    ShaderProgram* Material::getShader() const
     {
         if (m_shader.expired() || m_attributesChanged)
         {
-            m_shader = static_ref_cast<Shader>(ShaderAssembler::getShader(m_attributes).getReference());
+            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(m_attributes).getReference());
             m_attributesChanged = false;
         }
 

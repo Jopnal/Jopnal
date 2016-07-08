@@ -42,5 +42,7 @@ extern const unsigned char postProcessFrag[899];
 
 extern const unsigned char postProcessVert[332];
 
+extern const unsigned char defaultPlugins[57];
+
 }
 #endif

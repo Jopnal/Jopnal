@@ -19,50 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_GENERICDRAWABLE_HPP
-#define JOP_GENERICDRAWABLE_HPP
+#ifndef JOP_SHADERPREPROCESSOR_HPP
+#define JOP_SHADERPREPROCESSOR_HPP
 
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Jopnal.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API GenericDrawable : public Drawable
+    class JOP_API ShaderPreprocessor : public Subsystem
     {
-    protected:
-
-        /// \brief Copy constructor
-        ///
-        /// \param other The other drawable to copy
-        /// \param newObj The new object
-        ///
-        GenericDrawable(const GenericDrawable& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(GenericDrawable);
-        JOP_GENERIC_COMPONENT_CLONE(GenericDrawable);
-
-    public:
-
         /// \brief Constructor
         ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param renderer Reference to the renderer
+        /// Load all plugin files from resource.hpp 
         ///
-        GenericDrawable(Object& object, Renderer& renderer);
+        ShaderPreprocessor(const std::string& id);
 
+        /// \brief Add plugin to shader
+        ///
+        void addPlugin(const std::string&, const std::string&);
 
-        /// \brief Draw function
+        /// \brief Remove plugin from shader
         ///
-        /// \param camera The camera, this can be null in some cases
-        /// \param lights Container with the lights. The lights have already been culled according to their visibility
-        /// \param shader The shader to use
+        void removePlugin(const std::string&);
+
+        /// \brief Preprocess shader
         ///
-        virtual void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shaderprog) const override;
+        void preprocess(const std::string&,const std::string&);
+
     };
+
 }
 
 #endif

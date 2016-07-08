@@ -145,7 +145,7 @@ namespace jop
 
         /// \brief Draws text from given string
         ///
-        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+        void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
 
 
         Material m_material;                    ///< Material to be used

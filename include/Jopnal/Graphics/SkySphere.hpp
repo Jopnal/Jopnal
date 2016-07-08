@@ -65,7 +65,7 @@ namespace jop
 
         /// \copydoc Drawable::draw(const Camera*,const LightContainer&,Shader&)
         ///
-        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+        void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
 
         /// \brief Set the map
         ///

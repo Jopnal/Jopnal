@@ -84,6 +84,11 @@
         {
             "name": "postProcessVert",
             "path": "res/Shaders/postProcess.vert"
+        },
+
+        {
+            "name": "defaultPlugins",
+            "path": "res/Shaderplugins/Plugins.txt"
         }
     ]
 }

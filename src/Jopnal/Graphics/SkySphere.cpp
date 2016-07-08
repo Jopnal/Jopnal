@@ -27,7 +27,7 @@
     #include <Jopnal/Graphics/SkySphere.hpp>
 
     #include <Jopnal/Graphics/Camera.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
@@ -60,7 +60,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::draw(const Camera* camera, const LightContainer&, Shader& shader) const
+    void SkySphere::draw(const Camera* camera, const LightContainer&, ShaderProgram& shader) const
     {
         if (!getModel().isValid())
             return;
@@ -77,8 +77,8 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
 
         mat.sendToShader(s, camera, getAlphaMultiplier());
 

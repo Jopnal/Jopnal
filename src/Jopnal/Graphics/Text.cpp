@@ -353,7 +353,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Text::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
+    void Text::draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const
     {
         if (m_font.expired())
             return;
