@@ -66,6 +66,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
+// OpenAlSoft
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)
@@ -107,5 +112,7 @@
 
 // Implementation classes
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+#include <Jopnal/Audio/AlTry.hpp>
+#include <Jopnal/Audio/AudioReader.hpp>
 
 #endif

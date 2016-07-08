@@ -20,15 +20,31 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Audio/AudioDevice.hpp>
-#include <Jopnal/Audio/Listener.hpp>
-#include <Jopnal/Audio/SoundBuffer.hpp>
-#include <Jopnal/Audio/SoundEffect.hpp>
-#include <Jopnal/Audio/SoundSource.hpp>
-#include <Jopnal/Audio/SoundStream.hpp>
+#include <Jopnal/Precompiled/Precompiled.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription
+
+namespace
+{
+    std::string ns_deviceErrors[] = ///< OpenAl errors as strings
+    {
+        "AL_NO_ERROR",
+        "AL_INVALID_NAME",
+        "AL_INVALID_ENUM",
+        "AL_INVALID_VALUE",
+        "AL_INVALID_OPERATION",
+        "AL_OUT_OF_MEMORY"
+    };
+}
+
+namespace jop { namespace detail
+{
+    void openAlCheck(const char* func, const char* file, const unsigned int line)
+    {
+        auto error = alcGetError(alcGetContextsDevice(alcGetCurrentContext()));
+        
+        if (error != ALC_NO_ERROR)
+            JOP_DEBUG_ERROR("Audio device error " << ns_deviceErrors[error] << " in function " << func << ", in file " << file << ", on line " << line);
+    }
+}}

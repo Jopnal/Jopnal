@@ -25,7 +25,7 @@ jopSetOption(CMAKE_BUILD_TYPE Release STRING "Type of build (Debug or Release)")
 # API level, must be at least 18 for GLES 3.0
 jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or equal to 18)")
 set_property(CACHE ANDROID_API_MIN PROPERTY STRINGS
-			 "18" "19" "21" "23" "24")
+             "18" "19" "21" "23" "24")
 
 # Setup version value for the toolchain
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
@@ -33,7 +33,7 @@ set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 # Set toolchain to use
 jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
-			 "arm-linux-androideabi-4.9")
+             "arm-linux-androideabi-4.9")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
@@ -112,7 +112,7 @@ jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "TRUE to use an OpenGL ES, FALSE to
 # Choose debug verbosity
 jopSetOption(JOP_CONSOLE_VERBOSITY "2" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
 set_property(CACHE JOP_CONSOLE_VERBOSITY PROPERTY STRINGS
-			 "-1" "0" "1" "2" "3")
+             "-1" "0" "1" "2" "3")
 add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
 
 # Option to enable/disable assertions
@@ -122,6 +122,10 @@ add_definitions("-DJOP_ENABLE_ASSERTS=${JOP_ASSERTS}")
 # Option to enable/disable OpenGL error checks
 jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away")
 add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
+
+# Option to enable/disable OpenAL error checks
+jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away")
+add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
 
 
 # Android options
@@ -163,16 +167,16 @@ else()
     unset(ANDROID_STL CACHE)
     unset(ANDROID_NATIVE_API_LEVEL CACHE)
     unset(ANDROID_NDK CACHE)
-	unset(ANDROID_TOOLCHAIN_MAKE CACHE)
+    unset(ANDROID_TOOLCHAIN_MAKE CACHE)
 
 endif()
 
 # Disable OpenGL ES on Windows
 if (JOP_OS_WINDOWS)
 
-	unset(JOP_OPENGL_ES CACHE)
-	set(JOP_OPENGL_ES FALSE)
-	
+    unset(JOP_OPENGL_ES CACHE)
+    set(JOP_OPENGL_ES FALSE)
+    
 endif()
 
 # Define JOP_STATIC to build static library
@@ -183,9 +187,9 @@ endif()
 if (JOP_COMPILER_MSVC)
 
     jopSetOption(JOP_GENERATE_PDB TRUE BOOL "True to generate PDB debug symbol files, FALSE otherwise")
-	
-	# - Disable deprecation warnings
-	# - Set warning level to 4
+    
+    # - Disable deprecation warnings
+    # - Set warning level to 4
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS /W4)
 
 endif()

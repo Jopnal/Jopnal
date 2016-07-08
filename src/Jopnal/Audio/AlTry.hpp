@@ -19,16 +19,34 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_ALTRY_HPP
+#define JOP_ALTRY_HPP
+
 // Headers
-#include <Jopnal/Audio/AudioDevice.hpp>
-#include <Jopnal/Audio/Listener.hpp>
-#include <Jopnal/Audio/SoundBuffer.hpp>
-#include <Jopnal/Audio/SoundEffect.hpp>
-#include <Jopnal/Audio/SoundSource.hpp>
-#include <Jopnal/Audio/SoundStream.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription
+
+namespace jop { namespace detail
+{
+#ifdef JOP_OPENAL_ERROR_CHECKS
+
+    #define alTry(alFunction) alFunction; ::jop::detail::openAlCheck(#alFunction, __FILE__, __LINE__)
+
+    /// \brief Check a gl function call for errors
+    ///
+    /// \param func The function signature
+    /// \param file The file in which the function was called
+    /// \param line The line number where the function was called
+    ///
+    void openAlCheck(const char* func, const char* file, const unsigned int line);
+
+#else
+
+    #define alTry(alFunction) alFunction
+
+#endif
+}}
+
+#endif

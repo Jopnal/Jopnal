@@ -38,7 +38,7 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Listener)
 
-        JOP_BIND_COMMAND_ESCAPE(&Listener::setGlobalVolume, "setGlobalVolume");
+        JOP_BIND_MEMBER_COMMAND((Listener& (Listener::*)(float))&Listener::setGlobalVolume, "setGlobalVolume");
 
     JOP_END_COMMAND_HANDLER(Listener)
 }
@@ -46,11 +46,28 @@ namespace jop
 namespace jop
 {
     Listener::Listener(Object& object)
-        : Component(object, 0)
-    {}
+        : Component         (object, 0),
+          m_dopplerEffect   (false),
+          m_doppler         (1.f),
+          m_lastPos         (NULL)
+    {
+        glm::vec3 pos = object.getGlobalPosition();
+        ALfloat var[] = { pos.x,pos.y,pos.z };
+        alTry(alListenerfv(AL_POSITION, var));
+
+        ALfloat speed[] = { 0.f, 0.f, 0.f };
+        alTry(alListenerfv(AL_VELOCITY, speed));
+
+        glm::vec3 vec = object.getGlobalUp();
+        ALfloat direction[] = { pos.x, pos.y, pos.z, vec.x, vec.y, vec.z };
+        alTry(alListenerfv(AL_ORIENTATION, direction));
+    }
 
     Listener::Listener(const Listener& other, Object& newObj)
-        : Component(other, newObj)
+        : Component         (other, newObj),
+          m_dopplerEffect   (other.m_dopplerEffect),
+          m_doppler         (other.m_doppler),
+          m_lastPos         (other.m_lastPos)
     {
         JOP_DEBUG_WARNING("jop::Listener component is not meant to be copied, sounds will likely not behave correctly");
     }
@@ -59,28 +76,128 @@ namespace jop
 
     void Listener::update(const float)
     {
+        glm::vec3 pos = getObject()->getGlobalPosition();
+        ALfloat var[] = { pos.x, pos.y, pos.z };
+        alTry(alListenerfv(AL_POSITION, var));
+
+        if (m_dopplerEffect)
+        {
+            m_lastPos -= glm::abs(pos);
+            ALfloat speed[] = { m_lastPos.x, m_lastPos.y, m_lastPos.z };
+            alTry(alListenerfv(AL_VELOCITY, speed));
+            m_lastPos = glm::abs(pos);
+        }
+        
+        pos = getObject()->getGlobalFront();
+        glm::vec3 up = getObject()->getGlobalUp();
+        ALfloat direction[] = { pos.x, pos.y, pos.z, up.x, up.y, up.z };
+        alTry(alListenerfv(AL_ORIENTATION, direction));
     }
 
     ///////////////////////////////////////
 
-    void Listener::setGlobalVolume(const float volume)
+    Listener& Listener::setGlobalVolume(const float volume)
     {
+        alTry(alListenerf(AL_GAIN, glm::clamp(volume, 0.f, 100.f) * 0.01f));
+
+        return *this;
     }
 
     ///////////////////////////////////////
 
-    float Listener::getGlobalVolume()
+    float Listener::getGlobalVolume() const
     {
-        return 0.f;
+        float volume;
+        alTry(alGetListenerf(AL_GAIN, &volume));
+
+        return volume* 100.f;
     }
 
-    //////////////////////////////////////////////
+    ///////////////////////////////////////
 
-    Message::Result Listener::receiveMessage(const Message& message)
+    Listener& Listener::setDopplerEffect(const float dop)
     {
-        if (JOP_EXECUTE_COMMAND(Listener, message.getString(), this) == Message::Result::Escape)
-            return Message::Result::Escape;
+        m_doppler = std::min(0.f, dop);
+        alTry(alDopplerFactor(m_doppler));
 
-        return Component::receiveMessage(message);
+        return *this;
+    }
+
+    ///////////////////////////////////////
+
+    float Listener::getDopplerEffect() const
+    {
+        return m_doppler;
+    }
+
+    ///////////////////////////////////////
+
+    Listener& Listener::setDopplerEffectToDefault()
+    {
+        m_doppler = 1.f;
+        alTry(alDopplerFactor(m_doppler));
+
+        return *this;
+    }
+
+    ///////////////////////////////////////
+
+    Listener& Listener::setSpeedOfSound(float speed)
+    {
+        float sos = std::max(0.f, speed);
+        SoundSource::setSpeedForSound(sos);
+        alTry(alSpeedOfSound(sos));
+
+        return *this;
+    }
+
+    ///////////////////////////////////////
+
+    float Listener::getSpeedOfSound() const
+    {
+        return SoundSource::getSpeedForSound();
+    }
+
+    ///////////////////////////////////////
+
+    Listener& Listener::useDopplerEffect(const bool use)
+    {
+        m_dopplerEffect = use;
+        SoundSource::calculateDopplerEffect(use);
+
+        return *this;
+    }
+
+    ///////////////////////////////////////
+
+    Listener& Listener::useSpeedOfSound(const bool use)
+    {
+        SoundSource::calculateSpeedOfSound(use);
+
+        return *this;
+    }
+
+    ///////////////////////////////////////
+
+    bool Listener::isSpeedOfSound() const
+    {
+        return SoundSource::isSpeedOfSound();
+    }
+
+    ///////////////////////////////////////
+
+    bool Listener::isDopplerEffect() const
+    {
+        return m_dopplerEffect;
+    }
+
+    ///////////////////////////////////////
+
+    Listener& Listener::setSpeedOfSoundToDefault()
+    {
+        SoundSource::setSpeedForSound(343.3f);
+        alTry(alSpeedOfSound(343.3f));
+
+        return *this;
     }
 }

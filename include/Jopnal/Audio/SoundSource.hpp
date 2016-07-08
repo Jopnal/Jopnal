@@ -30,11 +30,15 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
+
     class JOP_API SoundSource : public Component
     {
+    private:
+
+        friend class Listener;
+
     protected:
 
         /// \brief Copy constructor
@@ -116,19 +120,19 @@ namespace jop
         ///
         float getPitch() const;
 
-        /// \brief Toggle spatialization on/off
+        /// \brief Toggle listener on/off
         ///
-        /// \comm setSpatialized
+        /// \comm setListener
         ///
-        /// \param toggle False plays sound at listener's position and true enables spatialization in 3d space
+        /// \param toggle True enables spatialization(default) and makes sound relative to listener
         ///
         /// \return Reference to self
         ///
-        SoundSource& setSpatialized(const bool set);
+        SoundSource& setSpatialization(const bool toggle);
 
-        /// \brief Check if this sound is spatialized
+        /// \brief Returns relativity to listener
         ///
-        /// \return True if spatialized
+        /// \return True if spatialized false if relative to listener
         ///
         bool isSpatialized() const;
 
@@ -166,10 +170,69 @@ namespace jop
         ///
         float getMinDistance() const;
 
+        /// \brief Returns status of the sound (Stopped,Paused,Playing)
+        ///
+        /// \return enum
+        ///
+        Status getStatus() const;
+
+        /// \brief Use object's direction for sound
+        ///
+        /// \param Bool true will make sound to use direction
+        ///
+        SoundSource& useDirection(bool use);
+
+        /// \brief Check if sound has direction
+        ///
+        /// \return Is direction calculated for sound
+        ///
+        bool isDirection() const;
+
     protected:
 
-        virtual Message::Result receiveMessage(const Message& message) override;
+        /// \brief Private check is speed of sound calculated
+        ///
+        /// \return Boolean if true speed is calculated
+        ///
+        static bool isSpeedOfSound();
 
+        unsigned int m_source;   ///< Sound source
+        float m_delayCounter;    ///< Sound's propagation delay
+        bool m_calculateDelay;   ///< Check if delay should be calculated
+
+    private:
+
+        /// \brief Private handling for speed of sound for source
+        ///
+        /// \param Boolean if true speed of sound will be calculated
+        ///
+        static void calculateSpeedOfSound(const bool use);
+
+        /// \brief Private handling for doppler effect for source
+        ///
+        /// \param Boolean if true doppler effect will be calculated
+        ///
+        static void calculateDopplerEffect(const bool use);
+
+        /// \brief Private method to change speed of sound
+        ///
+        /// \return Param speed for sound
+        ///
+        static void setSpeedForSound(float speed);
+
+        /// \brief Private method to get speed of sound
+        ///
+        /// \return Speed of sound as float
+        ///
+        static float getSpeedForSound();
+
+        /// \brief Private calculation when sound must be played.
+        ///
+        void calculateSound();
+
+
+        bool m_isDirection;     ///< Does sound have direction
+        glm::vec3 m_lastPos;    ///< Used in calculating velocity
     };
 }
 

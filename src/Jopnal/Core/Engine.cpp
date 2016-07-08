@@ -123,6 +123,9 @@ namespace jop
         // Setting manager
         createSubsystem<SettingManager>();
 
+        // Audio output
+        createSubsystem<AudioDevice>();
+
         const bool openGLES =
         #ifdef JOP_OPENGL_ES
             true

@@ -19,7 +19,7 @@ set(__INC_ROOT
     ${__INCDIR_ROOT}/Window.hpp
     ${__INCDIR_ROOT}/STL.hpp
 
-	${PROJECT_SOURCE_DIR}/src/Jopnal/Root/CMakeLists.txt
+    ${PROJECT_SOURCE_DIR}/src/Jopnal/Root/CMakeLists.txt
 )
 source_group("Root" FILES ${__INC_ROOT})
 list(APPEND SRC ${__INC_ROOT})

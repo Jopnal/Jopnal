@@ -50,7 +50,7 @@ source_group("Graphics\\Headers\\Mesh" FILES ${__INC_GRAPHICS_MESH})
 list(APPEND SRC ${__INC_GRAPHICS_MESH})
 
 # Include - Texture
-set(__INC_GRAPHICS_TEXTURE	
+set(__INC_GRAPHICS_TEXTURE    
     ${__INCDIR_GRAPHICS}/Texture/Cubemap.hpp
     ${__INCDIR_GRAPHICS}/Texture/CubemapDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp
@@ -133,9 +133,9 @@ set(__SRC_GRAPHICS_OPENGL
 )
 if (NOT JOP_OS_ANDROID)
 
-	list(APPEND __SRC_GRAPHICS_OPENGL
-		${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.c
-		${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.h
+    list(APPEND __SRC_GRAPHICS_OPENGL
+        ${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.c
+        ${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.h
     )
 
 endif()

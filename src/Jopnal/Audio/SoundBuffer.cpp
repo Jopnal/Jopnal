@@ -26,39 +26,86 @@
 
     #include <Jopnal/Audio/SoundBuffer.hpp>
 
+    #include <Jopnal/Audio/AlTry.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <vector>
 
 #endif
 
+#include <Jopnal/Resources/Resources.hpp>
+
 //////////////////////////////////////////////
 
+
+namespace
+{
+    ALint ns_format[] =
+    {
+        AL_FORMAT_MONO16,
+        AL_FORMAT_STEREO16,
+        alGetEnumValue("AL_FORMAT_QUAD16"),
+        alGetEnumValue("AL_FORMAT_51CHN16"),
+        alGetEnumValue("AL_FORMAT_61CHN16"),
+        alGetEnumValue("AL_FORMAT_71CHN16")
+    };
+}
 
 namespace jop
 {
     SoundBuffer::SoundBuffer(const std::string& name)
-        : Resource      (name)
-    {}
+        : Resource      (name),
+          m_bufferId    (NULL),
+          m_duration    (NULL),
+          m_samples     (NULL),
+          m_sounds      (NULL)
+    {
+        alTry(alGenBuffers(1, &m_bufferId));
+    }
 
     SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
-        : Resource      (other, newName)
-    {}
+        : Resource      (newName),
+          m_bufferId    (NULL),
+          m_duration    (other.m_duration),
+          m_samples     (other.m_samples),
+          m_sounds      (other.m_sounds)
+    {
+        alTry(alGenBuffers(1, &m_bufferId));
+        
+        m_info.format = other.m_info.format;
+        m_info.channelCount = other.m_info.channelCount;
+        m_info.sampleCount = other.m_info.sampleCount;
+        m_info.sampleRate = other.m_info.sampleRate;
+    }
 
     SoundBuffer::~SoundBuffer()
-    {}
+    {
+        if (!m_sounds.empty())
+        {
+            for (unsigned int it = 0; it < m_sounds.size(); ++it)
+                static_cast<SoundEffect*>(m_sounds[it])->setBuffer(getDefault());
+        }
+
+        alTry(alDeleteBuffers(1, &m_bufferId));
+    }
 
     //////////////////////////////////////////////
 
     bool SoundBuffer::load(const std::string& path)
     {
-        return false;
+        std::vector<uint8> buf;
+        return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size());
     }
 
     //////////////////////////////////////////////
 
-    bool SoundBuffer::load(const int id)
+    bool SoundBuffer::load(const void* ptr, const uint32 size)
     {
+        if (ptr && size && AudioReader::read(ptr, *this, size))
+        {
+            alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), static_cast<ALsizei>(m_info.sampleCount), m_info.sampleRate));
+            return true;
+        }
 
         return false;
     }
@@ -73,11 +120,35 @@ namespace jop
         {
             defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
 
-            //JOP_ASSERT_EVAL(defBuf->load(jopr::defaultSound, sizeof(jopr::defaultSound)), "Failed to load default Sound!");
+            JOP_ASSERT_EVAL(defBuf->load(jopr::defaultSound, sizeof(jopr::defaultSound)), "Failed to load default soundbuffer!");
 
             defBuf->setPersistence(0);
         }
+        defBuf->refresh();
 
         return *defBuf;
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundBuffer::attachSound(SoundSource* sound) const
+    {
+        m_sounds.push_back(sound);
+    }
+
+    //////////////////////////////////////////////
+
+    void SoundBuffer::detachSound(SoundSource* sound) const
+    {
+        m_sounds.erase(find(m_sounds.begin(), m_sounds.end(), sound));
+    }
+
+    //////////////////////////////////////////////
+
+    SoundBuffer& SoundBuffer::refresh()
+    {
+        alTry(alBufferData(m_bufferId, ns_format[m_info.channelCount - 1], &m_samples.front(), static_cast<ALsizei>(m_info.sampleCount), m_info.sampleRate));
+
+        return *this;
     }
 }
