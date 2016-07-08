@@ -34,6 +34,26 @@
 
 //////////////////////////////////////////////
 
+namespace
+{
+	jop::Window* ns_windowRef=nullptr;
+
+	bool  validateWindowRef()
+	{
+		if (ns_windowRef == nullptr)
+		{
+			if (jop::Engine::hasCurrentWindow())
+			{
+				ns_windowRef = &jop::Engine::getCurrentWindow();
+				return true;
+			}
+			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
+				return false;
+		}
+		return true;
+	}
+}
+
 namespace jop
 {
     std::string Keyboard::getKeyName(const int scanCode)
@@ -47,22 +67,11 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	bool Keyboard::isPressed(Key key)
+	bool Keyboard::isKeyDown(Key key)
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_PRESS;
-	}
+		if (validateWindowRef())
+			return ns_windowRef->getEventHandler()->keyDown(key) == GLFW_PRESS;
 
-	//////////////////////////////////////////////
-
-	bool Keyboard::isDown(Key key)
-	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_REPEAT;
-	}
-
-	//////////////////////////////////////////////
-
-	bool Keyboard::isReleased(Key key)
-	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->keyDown(key) == GLFW_RELEASE;
+			return false;
 	}
 }

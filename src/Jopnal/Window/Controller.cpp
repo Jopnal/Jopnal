@@ -36,123 +36,80 @@
 
 namespace
 {
-	int getXBoxToPlaystation(const int XBoxButton)
+	jop::Window* ns_windowRef = nullptr;
+
+	bool  validateWindowRef()
 	{
-		using X = jop::Controller::XBox::Button;
-		using P = jop::Controller::Playstation::Button;
-
-		switch (XBoxButton)
+		if (ns_windowRef == nullptr)
 		{
-		case X::A:            return P::X;
-		case X::X:            return P::Square;
-		case X::Y:            return P::Triangle;
-		case X::B:            return P::O;
-		case X::LShoulder:    return P::LShoulder;
-		case X::RShoulder:    return P::RShoulder;
-		case X::Back:         return P::Select;
-		case X::Start:        return P::Start;
-		case X::LStick:       return P::LStick;
-		case X::RStick:       return P::RStick;
-		case X::PadUp:        return P::PadUp;
-		case X::PadRight:     return P::PadRight;
-		case X::PadDown:      return P::PadDown;
-		case X::PadLeft:      return P::PadLeft;
-		}		
-		return XBoxButton;
-	}
-
-	int getPlaystationToXBox(const int PlaystationButton)
-	{
-		using X = jop::Controller::XBox::Button;
-		using P = jop::Controller::Playstation::Button;
-
-		switch (PlaystationButton)
-		{
-		case P::X:            return X::A;
-		case P::Square:       return X::X;
-		case P::Triangle:     return X::Y;
-		case P::O:            return X::B;
-		case P::LShoulder:    return X::LShoulder;
-		case P::RShoulder:    return X::RShoulder;
-		case P::Select:       return X::Back;
-		case P::Start:        return X::Start;
-		case P::LStick:       return X::LStick;
-		case P::RStick:       return X::RStick;
-		case P::PadUp:        return X::PadUp;
-		case P::PadRight:     return X::PadRight;
-		case P::PadDown:      return X::PadDown;
-		case P::PadLeft:      return X::PadLeft;
+			if (jop::Engine::hasCurrentWindow())
+			{
+				ns_windowRef = &jop::Engine::getCurrentWindow();
+				return true;
+			}
+			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
+				return false;
 		}
-		return PlaystationButton;
+		return true;
 	}
 }
 
 namespace jop
 {
-
-	bool Controller::isPressed(int controller, Playstation::Button button)
+	int Controller::controllersPresent()
 	{
+		if (validateWindowRef())
+		{
+			int result = 0;
+			for (int i = 1; i < 17; ++i)
+			{
+				if (ns_windowRef->getEventHandler()->controllerContainer(i))
+					result += 1;
+			}
+			return result;
+		}
+
+		return -1;
+	}
+
+	//////////////////////////////////////////////
+
+	bool Controller::iscontrollerPresent(const int index)
+	{
+		if (validateWindowRef())
+		return ns_windowRef->getEventHandler()->controllerContainer(index);
+
 		return false;
 	}
 
 	//////////////////////////////////////////////
 
-	bool Controller::isPressed(int controller, XBox::Button button)
+	bool Controller::isButtonDown(const int index, const int Button)
 	{
+		if (validateWindowRef())
+		return ns_windowRef->getEventHandler()->controllerButtonContainer(index, Button) == GLFW_PRESS;
+
 		return false;
 	}
 
 	//////////////////////////////////////////////
 
-	bool Controller::isReleased(int controller, Playstation::Button button)
+	glm::vec2 Controller::rightStickOffset(const int index)
 	{
-		return false;
-	}
-
-	//////////////////////////////////////////////
-
-	bool Controller::isReleased(int controller, XBox::Button button)
-	{
-		return false;
-	}
-
-	//////////////////////////////////////////////
-
-	glm::vec2 Controller::rightStickOffset(int controller)
-	{
+		if (validateWindowRef())
 		return glm::vec2(0, 0);
+
+		return glm::vec2(NULL);
 	}
 
 	//////////////////////////////////////////////
 
-	glm::vec2 Controller::leftStickOffset(int controller)
+	glm::vec2 Controller::leftStickOffset(const int index)
 	{
+		if (validateWindowRef())
 		return glm::vec2(0, 0);
+
+		return glm::vec2(NULL);
 	}
-
-	//////////////////////////////////////////////
-
-	void Controller::controllerConnected(const int, const std::string&)
-	{}
-
-	//////////////////////////////////////////////
-
-	void Controller::controllerDisconnected(const int)
-	{}
-
-	//////////////////////////////////////////////
-
-	void Controller::controllerAxisShifted(const int, const int, const float)
-	{}
-
-	//////////////////////////////////////////////
-
-	void Controller::controllerButtonPressed(const int, const int)
-	{}
-
-	//////////////////////////////////////////////
-
-	void Controller::controllerButtonReleased(const int, const int)
-	{}
 
 }

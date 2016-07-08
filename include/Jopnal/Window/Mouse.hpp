@@ -58,14 +58,6 @@ namespace jop
             Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
         };
 
-		/// \brief Get boolean is button pressed
-		///
-		/// \param Button's code
-		///
-		/// \return True if pressed
-		///
-		static bool isPressed(Button button);
-
 		/// \brief Get boolean is button down
 		///
 		/// \param Button's code
@@ -73,14 +65,6 @@ namespace jop
 		/// \return True if down
 		///
 		static bool isDown(Button button);
-
-		/// \brief Get boolean is button released
-		///
-		/// \param Button's code
-		///
-		/// \return True if released
-		///
-		static bool isReleased(Button button);
 
 		/// \brief Get boolean was wheel scrolled up
 		///

@@ -218,6 +218,19 @@ namespace jop
         ///
         virtual void controllerButtonReleased(const int index, const int button);
 
+		/// \brief Check if controller is present
+		///
+		/// \param index Index of the controller
+		///
+		bool controllerContainer(const int index);
+
+		/// \brief get button state
+		///
+		/// \param index Index of the controller
+		/// \param button The button that was released
+		///
+		int controllerButtonContainer(const int index, const int button);
+
     private:
 
         /// \brief Internal function to invoke controller callbacks
@@ -225,7 +238,6 @@ namespace jop
         void handleControllerInput();
 
     protected:
-		std::vector<Controller> m_controllers;     ///< Handles controllers
 
         Window& m_windowRef;                       ///< Reference to the window
 		

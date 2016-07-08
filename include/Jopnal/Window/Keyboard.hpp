@@ -117,8 +117,6 @@ namespace jop
             };
         };
 
-    public:
-
         /// \brief Get the key name in the current locale
         ///
         /// \param scanCode The scan code
@@ -127,29 +125,13 @@ namespace jop
         ///
 		static std::string getKeyName(const int scanCode);
 
-		/// \brief Get boolean is key pressed
-		///
-		/// \param Keycode
-		///
-		/// \return True if pressed
-		///
-		static bool isPressed(Key key);
-
 		/// \brief Get boolean is key down
 		///
 		/// \param Keycode
 		///
 		/// \return True if down
 		///
-		static bool isDown(Key key);
-
-		/// \brief Get boolean is key released
-		///
-		/// \param Keycode
-		///
-		/// \return True if released
-		///
-		static bool isReleased(Key key);
+		static bool isKeyDown(Key key);
     };
 }
 

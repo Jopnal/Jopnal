@@ -34,40 +34,53 @@
 
 //////////////////////////////////////////////
 
+namespace
+{
+	jop::Window* ns_windowRef = nullptr;
+
+	bool  validateWindowRef()
+	{
+		if (ns_windowRef == nullptr)
+		{
+			if (jop::Engine::hasCurrentWindow())
+			{
+				ns_windowRef = &jop::Engine::getCurrentWindow();
+				return true;
+			}
+			JOP_DEBUG_ERROR("Couldn't retrieve window context for input")
+				return false;
+		}
+		return true;
+	}
+}
+
 namespace jop
 {
-	bool Mouse::isPressed(Button button)
-	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_PRESS;
-	}
-
-	//////////////////////////////////////////////
-
 	bool Mouse::isDown(Button button)
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_REPEAT;
-	}
-
-	//////////////////////////////////////////////
-
-	bool Mouse::isReleased(Button button)
-	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->mouseButtonDown(button) == GLFW_RELEASE;
+		if (validateWindowRef())
+		return ns_windowRef->getEventHandler()->mouseButtonDown(button) == GLFW_PRESS;
 	}
 
 	//////////////////////////////////////////////
 
 	glm::vec2 Mouse::scrollOffset()
 	{
-		auto result = jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset;
-		jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset = {NULL,NULL};
-		return result;
+		if (validateWindowRef())
+		{
+			auto result = ns_windowRef->getEventHandler()->m_scrollOffset;
+			jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset = { NULL, NULL };
+			return result;
+		}
 	}
 
 	//////////////////////////////////////////////
 
 	glm::vec2 getPosition()
 	{
-		return jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->getCursorPosition();
+		if (validateWindowRef())
+		return ns_windowRef->getEventHandler()->getCursorPosition();
+
+		return glm::vec2(NULL);
 	}
 }

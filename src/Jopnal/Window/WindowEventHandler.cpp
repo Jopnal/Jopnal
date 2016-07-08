@@ -333,7 +333,6 @@ namespace jop
         : m_windowRef(windowRef)
     {
         static bool init = false;
-		m_controllers.reserve(static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1))));
 
         if (!init)
         {
@@ -608,6 +607,26 @@ namespace jop
     {}
 
     //////////////////////////////////////////////
+
+	bool WindowEventHandler::controllerContainer(const int index)
+	{
+		if (17 > index > 0)
+		{
+		return	ns_controllersPresent[index - 1];
+		}
+	}
+
+	//////////////////////////////////////////////
+
+	int WindowEventHandler::controllerButtonContainer(const int index, const int button)
+	{
+		if (17 > index > 0)
+		{
+			return ns_controllerButtonStates[index - 1][button];
+		}
+	}
+
+	//////////////////////////////////////////////
 
     void WindowEventHandler::handleControllerInput()
     {
