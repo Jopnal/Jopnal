@@ -223,8 +223,6 @@ namespace jop
         Window& m_windowRef;                       ///< Reference to the window
 		
     public:
-		glm::vec2 m_scrollOffset;                  ///< Easy access to mouse's scroll's offset
-
         float m_lastMouseX;                        ///< For internal use. Do not touch
         float m_lastMouseY;                        ///< For internal use. Do not touch
     };

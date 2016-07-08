@@ -40,12 +40,6 @@
 
 //////////////////////////////////////////////
 
-
-namespace
-{
-    std::array<bool, 16> ns_controllersPresent;
-}
-
 namespace jop
 {
     WindowEventHandler::WindowEventHandler(Window& windowRef)
@@ -284,9 +278,7 @@ namespace jop
     //////////////////////////////////////////////
 
 	void WindowEventHandler::mouseScrolled(const float x, const float y)
-	{
-		m_scrollOffset = { x , y };
-	}
+	{}
 
     //////////////////////////////////////////////
 

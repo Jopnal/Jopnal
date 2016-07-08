@@ -72,25 +72,6 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	glm::vec2 Mouse::scrollOffset()
-	{
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
-			auto result = ns_windowRef->getEventHandler()->m_scrollOffset;
-			jop::Engine::getSubsystem<jop::Window>()->getEventHandler()->m_scrollOffset = { NULL, NULL };
-			return result;
-        #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(NULL);
-        #else
-			return glm::vec2(NULL);
-        #endif
-		}
-		return glm::vec2(NULL);
-	}
-
-	//////////////////////////////////////////////
-
 	glm::vec2 getPosition()
 	{
 		if (validateWindowRef())

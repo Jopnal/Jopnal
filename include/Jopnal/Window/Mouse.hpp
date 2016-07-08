@@ -66,12 +66,6 @@ namespace jop
 		///
 		static bool isButtonDown(Button button);
 
-		/// \brief Get boolean was wheel scrolled up
-		///
-		/// \return True if scrolled up
-		///
-		static glm::vec2 scrollOffset();
-
 		/// \brief Get mouse position
 		///
 		/// \return Glm vector of mouse position
