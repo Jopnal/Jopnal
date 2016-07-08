@@ -19,54 +19,39 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
 
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API CollisionShape : public Resource
+    const b2Vec2 Gravity2D = { 0.0f, 9.81f }; //b2World constructor wants gravity
+
+    WorldImpl2D::WorldImpl2D()
+        : //config                (std::make_unique<btDefaultCollisionConfiguration>()),
+        //dispatcher            (std::make_unique<btCollisionDispatcher>(config.get())),
+        //overlappingPairCache  (std::make_unique<btDbvtBroadphase>()),
+        //solver                (std::make_unique<btSequentialImpulseConstraintSolver>()),
+        world2D                   (std::make_unique<b2World>(Gravity2D))                   //SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f))
     {
-    private:
+    #ifdef JOP_DEBUG_MODE
+        //world->setDebugDrawer(debugDraw);
+    #else
+        debugDraw;
+    #endif
+    }
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
+    //////////////////////////////////////////////
 
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
+    WorldImpl2D::~WorldImpl2D()
+    {
+        delete &world2D;
 
-    protected:
-
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CollisionShape(const std::string& name);
-
-        
-    public:
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~CollisionShape() override = 0;
-
-
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
-    };
-}
-
-#endif
+    #ifdef JOP_DEBUG_MODE
+        //delete world->getDebugDrawer();
+    #endif
+    }
+}}

@@ -19,54 +19,34 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_WORLDIMPL2D_HPP
+#define JOP_WORLDIMPL2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
+//#include <Bullet/btBulletDynamicsCommon.h>
+#include <Box2D/Box2D.h>
 #include <memory>
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
-namespace jop
+namespace jop { namespace detail
 {
-    class JOP_API CollisionShape : public Resource
+    struct WorldImpl2D final
     {
-    private:
+        explicit WorldImpl2D();
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
-
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
-
-    protected:
-
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CollisionShape(const std::string& name);
-
-        
-    public:
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~CollisionShape() override = 0;
+        ~WorldImpl2D();
 
 
-        
+        //std::unique_ptr<btDefaultCollisionConfiguration>         config;
+        //std::unique_ptr<btCollisionDispatcher>                   dispatcher;
+        //std::unique_ptr<btBroadphaseInterface>                   overlappingPairCache;
+        //std::unique_ptr<btSequentialImpulseConstraintSolver>     solver;
+        std::unique_ptr<b2World>                 world2D;
 
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
     };
-}
+}}
 
 #endif

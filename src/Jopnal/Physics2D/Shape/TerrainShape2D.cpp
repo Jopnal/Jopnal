@@ -19,54 +19,42 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+
+    TerrainShape2D::TerrainShape2D(const std::string& name)
+        : CollisionShape2D(name)
+    {}
+
+    TerrainShape2D::~TerrainShape2D()
+    {}
+
+    //////////////////////////////////////////////
+
+    bool TerrainShape2D::load(const std::vector<glm::vec2>& points)
     {
-    private:
+        return load(points, std::vector<unsigned int>());
+    }
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
+    //////////////////////////////////////////////
 
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
+    bool TerrainShape2D::load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices)
+    {
+        if (points.size() < 2)
+            return false;
 
-    protected:
+        auto temp = std::make_unique<b2ChainShape>();
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CollisionShape(const std::string& name);
+        indices.size() < 2 ? temp->CreateChain(reinterpret_cast<const b2Vec2*>(points.data()), points.size()) : temp->CreateChain(reinterpret_cast<const b2Vec2*>(points.data()), indices.size());
+        m_shape = std::move(temp);
 
-        
-    public:
+        return true;
+    }
 
-        /// \brief Virtual destructor
-        ///
-        virtual ~CollisionShape() override = 0;
-
-
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
-    };
 }
-
-#endif

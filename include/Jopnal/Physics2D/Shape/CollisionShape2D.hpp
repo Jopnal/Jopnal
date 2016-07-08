@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_COLLISIONSHAPE2D_HPP
+#define JOP_COLLISIONSHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -30,19 +30,19 @@
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
+class b2Shape;
 
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    class JOP_API CollisionShape2D : public Resource
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
+        //JOP_DISALLOW_COPY_MOVE(CollisionShape2D);
 
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
+        friend class RigidBody2D;
+        //friend class PhantomBody;
+        friend class CompoundShape2D;
 
     protected:
 
@@ -50,22 +50,21 @@ namespace jop
         ///
         /// \param name Name of the resource
         ///
-        CollisionShape(const std::string& name);
+        CollisionShape2D(const std::string& name);
 
         
     public:
 
         /// \brief Virtual destructor
         ///
-        virtual ~CollisionShape() override = 0;
+        virtual ~CollisionShape2D() override = 0;
 
 
-        
 
 
     protected:
 
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
+        std::unique_ptr<b2Shape> m_shape;  ///< Shape data
     };
 }
 

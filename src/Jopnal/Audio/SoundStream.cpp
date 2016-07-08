@@ -382,7 +382,6 @@ namespace jop
             {
                 if (this->m_mutex.try_lock())
                 {
-
                     if (m_fileInstance != NULL)
                     {
                         m_bufferQueue.back()->m_samples.clear();
@@ -398,7 +397,6 @@ namespace jop
                                 m_bufferQueue.back()->m_samples.reserve(JOP_AUDIO_STREAMING_BUFFER_SIZE);
 
                             AudioReader::stream(m_fileInstance, *m_bufferQueue.back(), m_info.currentPos);
-
                         }
                         else
                         {
@@ -414,14 +412,14 @@ namespace jop
                             m_fileInstance.read(m_bufferQueue.back()->m_samples.data(), JOP_AUDIO_STREAMING_BUFFER_SIZE);
                             m_bufferQueue.back()->m_info.sampleCount = m_bufferQueue.back()->m_samples.size();
                             m_info.currentPos = m_fileInstance.tell();
-
-
                         }
+
                         m_bufferQueue.back()->refresh();
 
                         if (m_updateBoth)
                         {
                             std::reverse(m_bufferQueue.begin(), m_bufferQueue.end());
+
                             if (m_playing)
                                 playReset();
 

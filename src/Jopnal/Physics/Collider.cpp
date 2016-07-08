@@ -141,6 +141,7 @@ namespace jop
 
         m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
         
+        
         return cb.hit;
     }
 

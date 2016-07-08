@@ -26,6 +26,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Graphics/CMakeLists.txt)
 # Physics
 include(${CMAKE_CURRENT_SOURCE_DIR}/Physics/CMakeLists.txt)
 
+# Physics2D
+include(${CMAKE_CURRENT_SOURCE_DIR}/Physics2D/CMakeLists.txt)
+
 # Precompiled
 include(${CMAKE_CURRENT_SOURCE_DIR}/Precompiled/CMakeLists.txt)
 
@@ -360,3 +363,28 @@ target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATI
                              ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${OGG_LIBRARY}) # Apparently ogg has to be linked after vorbis to avoid linker errors
+
+# Box2D
+ExternalProject_Add(Box2D
+    
+                    PREFIX ${PREFIX_DIR}
+    
+                    GIT_REPOSITORY "https://github.com/Jopnal/Box2D.git"
+                    GIT_TAG "master"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+                    
+                    CMAKE_ARGS -DBOX2D_BUILD_EXAMPLES=OFF
+                               ${ANDROID_OPTIONS}
+                    
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Box2D-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(jopnal Box2D)
+
+ExternalProject_Get_Property(Box2D SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
+ExternalProject_Get_Property(Box2D BINARY_DIR)
+target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX})

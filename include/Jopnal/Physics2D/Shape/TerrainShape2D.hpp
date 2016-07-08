@@ -19,53 +19,50 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_TERRAINSHAPE2D_HPP
+#define JOP_TERRAINSHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
 
 //////////////////////////////////////////////
 
-
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    class JOP_API TerrainShape2D : public CollisionShape2D
     {
-    private:
 
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
-
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
-
-    protected:
+    public:
 
         /// \brief Constructor
         ///
         /// \param name Name of the resource
         ///
-        CollisionShape(const std::string& name);
+        TerrainShape2D(const std::string& name);
 
-        
-    public:
-
-        /// \brief Virtual destructor
+        /// \brief Destructor
         ///
-        virtual ~CollisionShape() override = 0;
+        ~TerrainShape2D() override;
 
 
-        
+        /// \brief Load this shape
+        ///
+        /// \param points Terrain points, must be more than one
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::vector<glm::vec2>& points);
 
+        /// \brief Load this shape
+        ///
+        /// \param points Terrain points
+        /// \param indices 
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
 
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
     };
 }
 

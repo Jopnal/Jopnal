@@ -329,6 +329,7 @@ namespace jop
         const btVector3 rayFromWorld(start.x, start.y, start.z);
         const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
 
+        
         btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
 
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);

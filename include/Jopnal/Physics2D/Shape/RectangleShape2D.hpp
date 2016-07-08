@@ -19,53 +19,45 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_RECTANGLESHAPE2D_HPP
+#define JOP_RECTANGLESHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    class JOP_API RectangleShape2D final : public CollisionShape2D
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
-
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
-
-    protected:
+    public:
 
         /// \brief Constructor
         ///
         /// \param name Name of the resource
         ///
-        CollisionShape(const std::string& name);
+        RectangleShape2D(const std::string& name);
 
-        
-    public:
 
-        /// \brief Virtual destructor
+        /// \brief Load this shape
         ///
-        virtual ~CollisionShape() override = 0;
+        /// \param size Size of the rectangle
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float sizeX, const float sizeY);
 
-
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
+        /// \brief Load this shape using different extents
+        ///
+        /// \param extents Extents of the rectangle
+        ///
+        /// \return True if successful
+        ///
+        bool load(const glm::vec2& extents);
     };
 }
 

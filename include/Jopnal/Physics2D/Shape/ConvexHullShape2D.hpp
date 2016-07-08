@@ -19,53 +19,57 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_STATICMESHSHAPE2D_HPP
+#define JOP_STATICMESHSHAPE2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    class JOP_API ConvexHullShape2D final : public CollisionShape2D
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
-
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
-
-    protected:
+    public:
 
         /// \brief Constructor
         ///
         /// \param name Name of the resource
         ///
-        CollisionShape(const std::string& name);
+        ConvexHullShape2D(const std::string& name);
 
-        
-    public:
 
-        /// \brief Virtual destructor
+        /// \brief Load this shape
         ///
-        virtual ~CollisionShape() override = 0;
+        /// \param points Unindexed vertices (triangles)
+        ///
+        /// \return True if successful
+        /// 
+        bool load(const std::vector<glm::vec2>& points);
+
+        /// \brief Load this shape using indexed points
+        ///
+        /// Make sure that the indices are within the bounds of the vertex array. This function
+        /// will not check for overflows.
+        ///
+        /// \param points Indexed vertices (triangles)
+        /// \param indices Indices
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
 
 
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
+        /// \brief Get the default mesh shape
+        ///
+        /// \return Reference to the shape
+        ///
+        static ConvexHullShape2D& getDefault();
     };
 }
 

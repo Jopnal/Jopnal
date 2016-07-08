@@ -88,6 +88,9 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
+// Box2D
+#include <Box2D/Box2D.h>
+
 // PhysFS
 #include <physfs.h>
 
@@ -103,6 +106,7 @@
 #include <locale>
 #include <codecvt>
 #include <cstring>
+#include <set>
 
 // Additional STL header
 #include <Jopnal/STL.hpp>

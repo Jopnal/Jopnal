@@ -19,53 +19,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COLLISIONSHAPE_HPP
-#define JOP_COLLISIONSHAPE_HPP
+#ifndef JOP_RAYINFO2D_HPP
+#define JOP_RAYINFO2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
-#include <memory>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
 
-class btCollisionShape;
-
 namespace jop
 {
-    class JOP_API CollisionShape : public Resource
+    class Collider2D;
+
+    struct JOP_API RayInfo2D
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(CollisionShape);
-
-        friend class RigidBody;
-        friend class PhantomBody;
-        friend class CompoundShape;
-
-    protected:
+        /// \brief Default constructor
+        ///
+        RayInfo2D();
 
         /// \brief Constructor
         ///
-        /// \param name Name of the resource
+        /// \param coll Pointer to the collider
+        /// \param pnt Hit point
+        /// \param norm Hit normal
         ///
-        CollisionShape(const std::string& name);
-
-        
-    public:
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~CollisionShape() override = 0;
+        RayInfo2D(Collider2D* coll, const glm::vec2& pnt, const glm::vec2& norm);
 
 
-        
-
-
-    protected:
-
-        std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
+        Collider2D* collider; ///< Collider component, can be nullptr
+        glm::vec2 point;    ///< Ray hit point in world coordinates
+        glm::vec2 normal;   ///< Local ray hit normal
     };
 }
 
