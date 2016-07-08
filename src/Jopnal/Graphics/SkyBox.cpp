@@ -30,8 +30,9 @@
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 
 #endif
 

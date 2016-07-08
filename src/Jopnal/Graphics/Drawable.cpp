@@ -27,8 +27,13 @@
     #include <Jopnal/Graphics/Drawable.hpp>
 
     #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
     #include <Jopnal/Graphics/Model.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif

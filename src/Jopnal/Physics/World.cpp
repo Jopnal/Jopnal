@@ -26,12 +26,17 @@
 
     #include <Jopnal/Physics/World.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/VertexBuffer.hpp>
+    #include <Jopnal/Physics/Collider.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
@@ -55,6 +60,7 @@ namespace jop
 }
 
 #ifdef JOP_DEBUG_MODE
+
 namespace detail
 {
     class DebugDrawer final : public btIDebugDraw

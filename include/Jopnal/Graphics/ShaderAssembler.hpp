@@ -28,6 +28,9 @@
 #include <Jopnal/Graphics/Material.hpp>
 #include <unordered_map>
 #include <mutex>
+#include <string>
+#include <array>
+#include <vector>
 
 //////////////////////////////////////////////
 

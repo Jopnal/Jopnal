@@ -27,8 +27,12 @@
     #include <Jopnal/Graphics/GenericDrawable.hpp>
 
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 

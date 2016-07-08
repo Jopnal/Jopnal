@@ -19,7 +19,7 @@
 
 //////////////////////////////////////////////
 
-//headers
+//Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER

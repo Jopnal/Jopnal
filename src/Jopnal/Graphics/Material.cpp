@@ -26,7 +26,12 @@
 
     #include <Jopnal/Graphics/Material.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
 
 #endif

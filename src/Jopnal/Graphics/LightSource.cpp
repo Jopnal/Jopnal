@@ -26,10 +26,17 @@
 
     #include <Jopnal/Graphics/LightSource.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/Texture/Texture.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>

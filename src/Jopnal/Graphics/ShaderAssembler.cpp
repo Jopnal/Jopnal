@@ -27,7 +27,7 @@
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
 
     #include <Jopnal/Core/ResourceManager.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
 
 #endif
@@ -199,14 +199,14 @@ namespace jop
     {
         if (!m_instance)
             return;
-#ifdef JOP_DEBUG_MODE
+
+    #ifdef JOP_DEBUG_MODE
 
         if (m_instance->m_plugins.find(name) != m_instance->m_plugins.end())
-        {
             JOP_DEBUG_WARNING("Shader plugin \"" << name << "\" overwritten")
-        }
 
-#endif
+    #endif
+
         m_instance->m_plugins.emplace(name, source);
     }
 
@@ -256,7 +256,6 @@ namespace jop
             }
             first = strstr(next, "#plugin");
         }
-
     }
 
     //////////////////////////////////////////////
