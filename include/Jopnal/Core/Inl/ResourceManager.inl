@@ -186,6 +186,8 @@ T& ResourceManager::getEmptyResource(Args&&... args)
         T& ptr = *res;
         m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
+        JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") created");
+
         return ptr;
     }
 }

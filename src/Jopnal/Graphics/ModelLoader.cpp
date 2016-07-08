@@ -95,7 +95,7 @@ namespace jop
 
         std::vector<const Material*> getMaterials(const rapidjson::Document& doc)
         {
-            auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true);
+            
 
             std::vector<const Material*> mats;
 
@@ -105,6 +105,8 @@ namespace jop
 
                 for (auto& mat : doc["materials"])
                 {
+                    auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true);
+
                     if (mat.HasMember("reflection"))
                     {
                         float r, g, b, a;
