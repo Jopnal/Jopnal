@@ -55,6 +55,54 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        bool checkFrameBufferStatus()
+        {
+            const GLenum status = glCheck(glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+            if (status != GL_FRAMEBUFFER_COMPLETE)
+            {
+                const char* errorS = "Unknown error";
+
+                switch (status)
+                {
+                    case GL_FRAMEBUFFER_UNDEFINED:
+                        errorS = "GL_FRAMEBUFFER_UNDEFINED";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHEMENT";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHEMENT";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+                        break;
+                    case GL_FRAMEBUFFER_UNSUPPORTED:
+                        errorS = "GL_FRAMEBUFFER_UNSUPPORTED";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+                }
+
+                JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer: " << errorS);
+
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    //////////////////////////////////////////////
+
     RenderTexture::RenderTexture()
         : RenderTarget          (0),
           m_depthBuffer         (0),
@@ -331,7 +379,7 @@ namespace jop
             }
             else
             {
-
+                // TODO
             }
         }
 
@@ -369,7 +417,7 @@ namespace jop
             }
             else
             {
-
+                // TODO
             }
         }
 
@@ -601,13 +649,7 @@ namespace jop
                 }
             }
 
-            auto status = glCheck(glCheckFramebufferStatus(GL_FRAMEBUFFER));
-            if (status != GL_FRAMEBUFFER_COMPLETE)
-            {
-                JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer");
-                destroy(true, false);
-                return false;
-            }
+            return detail::checkFrameBufferStatus();
         }
 
         return true;
