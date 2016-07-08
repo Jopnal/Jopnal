@@ -42,6 +42,7 @@ extern int main(int argc, char* argv[]);
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Window/SensorManager.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
     #include <thread>
     #include <atomic>
@@ -93,6 +94,14 @@ extern int main(int argc, char* argv[]);
                 {
                     ANativeActivity_finish(app->activity);
                     Engine::exit();
+                }
+                case APP_CMD_GAINED_FOCUS:
+                {
+                    SensorManager::getInstance().gainedFocus();
+                }
+                case APP_CMD_LOST_FOCUS:
+                {
+                    SensorManager::getInstance().lostFocus();
                 }
             }
         }

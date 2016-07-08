@@ -20,11 +20,15 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Window/Android/Sensor.hpp>
+#include <Jopnal/Window/Android/SensorImpl.hpp>
 #ifdef JOP_OS_ANDROID
-
+#include <android/looper.h>
+#include <Jopnal/Core/DebugHandler.hpp>
 //////////////////////////////////////////////
 
+#define ASENSOR_TYPE_GRAVITY             0x00000009
+#define ASENSOR_TYPE_LINEAR_ACCELERATION 0x0000000a
+#define ASENSOR_TYPE_ORIENTATION         0x00000003
 
 namespace jop
 {
@@ -34,10 +38,9 @@ namespace jop
         ALooper*            looper              = nullptr;
         ASensorManager*     sensorManager       = nullptr;
         ASensorEventQueue*  sensorEventQueue    = nullptr;
+        glm::vec3           m_data[Sensor::Type::Count];
     }
 
-    SensorImpl::SensorImpl()
-    {}
 
     //////////////////////////////////////////////
 
@@ -50,99 +53,97 @@ namespace jop
         sensorManager = ASensorManager_getInstance();
 
         // create sensor event queue & attach to looper
-        sensorEventQueue = ASensorManager_createEventQueue(sensorManager, looper, LOOPER_ID_USER, &getSensorEvents, nullptr);
+        sensorEventQueue = ASensorManager_createEventQueue(sensorManager, looper, 1, &getSensorEvents, nullptr);
     }
 
     //////////////////////////////////////////////
 
-    void SensorImpl::update()
+    void SensorImpl::uninit()
     {
-        for (auto& i : m_data)
-        {
-            // Only update available sensors
-            if(m_sensors[i])
-            {
-                ALooper_pollAll(0, NULL, NULL, NULL);   
-            }
-        }
+        ASensorManager_destroyEventQueue(sensorManager, sensorEventQueue);
     }
 
     //////////////////////////////////////////////
 
-    bool SensorImpl::use(SensorType sensorType)
+    bool SensorImpl::use(Sensor::Type sensorType)
     {
-        m_sensors[sensorType] = getDefault(sensorType);
+        m_sensor = getDefault(sensorType);
+
+        std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
 
         // Check if sensor is available
-        if(!m_sensors[sensorType])
+        if(!available(sensorType))
         {
-            JOP_DEBUG_ERROR("Sensor: (" <<  m_sensors[sensorType].ASensor_getName() << ") not available.");
+            JOP_DEBUG_ERROR("Sensor: (" <<  name << ") not available.");
             return false;
         }
+        
+        // Set rate (60 events / second) use ASensor_getMinDelay() instead?
+        int status = ASensorEventQueue_setEventRate(sensorEventQueue, m_sensor, (1000 / 60) * 1000);
 
-        // Enable it
-        enable(sensorType);
+        if (status < 0)
+            JOP_DEBUG_WARNING("Setting event rate on sensor: " << name << " failed.");
 
         return true;
     }
 
     //////////////////////////////////////////////
 
-    void SensorImpl::disable(SensorType sensorType)
+    bool SensorImpl::available(Sensor::Type sensorType)
     {
-        int status = ASensorEventQueue_disableSensor(sensorEventQueue, m_sensors[sensorType]);
-
-        if(status < 0)
-            JOP_DEBUG_WARNING("Disabling sensor: " << m_sensors[sensorType].ASensor_getName() << " failed.");
-    }
-
-    //////////////////////////////////////////////
-
-    static void SensorImpl::disableAll()
-    {
-        for (auto& i : m_sensors)
+        if (getDefault(sensorType) == nullptr)
         {
-            disable(i);
+            return false;
         }
+        else
+            return true;
     }
 
     //////////////////////////////////////////////
 
-    void SensorImpl::enable(SensorType sensorType)
+    void SensorImpl::disable(bool updateStatus)
     {
-        int status = ASensorEventQueue_enableSensor(sensorEventQueue, m_sensors[sensorType]);
+        int status = ASensorEventQueue_disableSensor(sensorEventQueue, m_sensor);
+
+        std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
 
         if(status < 0)
-            JOP_DEBUG_WARNING("Enabling sensor: " <<  m_sensors[sensorType].ASensor_getName() << " failed.");
+            JOP_DEBUG_WARNING("Disabling sensor: " << name << " failed.");
+        if(updateStatus)
+            m_enabled = false;
+    }
 
-        // Set rate (60 events / second) use ASensor_getMinDelay() instead?
-        status = ASensorEventQueue_setEventRate(sensorEventQueue, m_sensors[sensorType], (1000L / 60) * 1000);
+    //////////////////////////////////////////////
+
+    void SensorImpl::enable(bool updateStatus)
+    {
+        int status = ASensorEventQueue_enableSensor(sensorEventQueue, m_sensor);
+
+        std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
 
         if(status < 0)
-            JOP_DEBUG_WARNING("Setting event rate on sensor: " <<  m_sensors[sensorType].ASensor_getName() << " failed.");
+            JOP_DEBUG_WARNING("Enabling sensor: " << name << " failed.");
+        if(updateStatus)
+            m_enabled = true;
     }
 
     //////////////////////////////////////////////
 
-    static void SensorImpl::enableAll()
-    {
-        // enable sensors
-        for (auto& i : m_sensors)
-        {
-            enable(i);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    const glm::vec3 SensorImpl::getData(SensorType sensorType) const
+    glm::vec3 SensorImpl::getData(Sensor::Type sensorType) const
     {
         return m_data[sensorType];
     }
 
     //////////////////////////////////////////////
 
-    ASensor const* SensorImpl::getDefault(SensorType sensorType)
+    bool SensorImpl::getStatus() const
+    {
+        return m_enabled;
+    }
+
+    //////////////////////////////////////////////
+
+    ASensor const* SensorImpl::getDefault(Sensor::Type sensorType)
     {
         static int types[] = 
         {
@@ -166,14 +167,14 @@ namespace jop
 
         while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0)
         {
-            unsigned int type = SensorType::Count;
+            unsigned int type = Sensor::Type::Count;
             glm::vec3 data;
 
             switch (event.type)
             {
             case ASENSOR_TYPE_ACCELEROMETER:
             {
-                type = SensorType::Accelerometer;
+                type = Sensor::Accelerometer;
                 data.x = event.acceleration.x;
                 data.y = event.acceleration.y;
                 data.z = event.acceleration.z;
@@ -181,7 +182,7 @@ namespace jop
             }
             case ASENSOR_TYPE_GYROSCOPE:
             {
-                type = SensorType::Gyroscope;
+                type = Sensor::Gyroscope;
                 data.x = event.vector.x;
                 data.y = event.vector.y;
                 data.z = event.vector.z;
@@ -189,7 +190,7 @@ namespace jop
             }
             case ASENSOR_TYPE_MAGNETIC_FIELD:
             {
-                type = SensorType::Magnetometer;
+                type = Sensor::Magnetometer;
                 data.x = event.magnetic.x;
                 data.y = event.magnetic.y;
                 data.z = event.magnetic.z;
@@ -197,7 +198,7 @@ namespace jop
             }
             case ASENSOR_TYPE_GRAVITY:
             {
-                type = SensorType::Gravity;
+                type = Sensor::Gravity;
                 data.x = event.vector.x;
                 data.y = event.vector.y;
                 data.z = event.vector.z;
@@ -205,7 +206,7 @@ namespace jop
             }
             case ASENSOR_TYPE_LINEAR_ACCELERATION:
             {
-                type = SensorType::LinearAcceleration;
+                type = Sensor::LinearAcceleration;
                 data.x = event.acceleration.x;
                 data.y = event.acceleration.y;
                 data.z = event.acceleration.z;
@@ -213,7 +214,7 @@ namespace jop
             }
             case ASENSOR_TYPE_ORIENTATION:
             {
-                type = SensorType::Orientation;
+                type = Sensor::Orientation;
                 data.x = event.vector.x;
                 data.y = event.vector.y;
                 data.z = event.vector.z;
@@ -221,7 +222,7 @@ namespace jop
             }
             }
 
-            if (type == SensorType::Count)
+            if (type == Sensor::Count)
             {
                 JOP_DEBUG_ERROR("Unknown sensor event detected.");
                 continue;
@@ -231,7 +232,6 @@ namespace jop
         }
 
         return 1;
-
     }
 }
 
