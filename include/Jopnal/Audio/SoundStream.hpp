@@ -28,24 +28,27 @@
 #include <Jopnal/Core/FileLoader.hpp>
 #include <Jopnal/Utility/Thread.hpp>
 #include <mutex>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class SoundBuffer;
+
     class JOP_API SoundStream : public SoundSource
     {
     private:
 
-        struct parsedStreamingInfo
+        struct ParsedStreamingInfo
         {
-            uint64 sampleCount  = NULL; ///< Total number of samples
-            uint64 currentPos   = NULL; ///< Current point in audiodata
-            uint64 firstSample  = NULL; ///< First audio sample for looping
+            uint64 sampleCount  = 0; ///< Total number of samples
+            uint64 currentPos   = 0; ///< Current point in audio data
+            uint64 firstSample  = 0; ///< First audio sample for looping
             float offset[2];            ///< Track offset of current buffer
-            int channelCount    = NULL; ///< Number of channels
-            int sampleRate      = NULL; ///< Samples per second
+            int channelCount    = 0; ///< Number of channels
+            int sampleRate      = 0; ///< Samples per second
         };
 
         JOP_DISALLOW_COPY_MOVE(SoundStream);
@@ -148,18 +151,18 @@ namespace jop
         void closeFile();
 
         std::mutex m_mutex;  
-        std::string m_path;                             ///< Remembers streaming path for cloning
-        bool m_isFileOpen;                              ///< Opens file if it's closed
-        bool m_loop;                                    ///< If true song start from beginning when finished
-        bool m_playing;                                 ///< For maintaining buffer updates
-        bool m_lastBuffer;                              ///< True when chunk of data is in use
-        std::atomic<bool> m_updatebuffer;               ///< Check to able reader thread to update audio data
-        std::atomic<bool> m_updateBoth;                 ///< Check reader thread will update audio data for both buffers
-        std::atomic<bool> m_keepThread;                 ///< While true keeps thread alive
-        std::vector<jop::SoundBuffer*> m_bufferQueue;   ///< SoundBuffer stack for streaming
-        parsedStreamingInfo m_info;                     ///< Critical information for passing between buffers
-        FileLoader m_fileInstance;                      ///< FileLoader instance for this stream
-        Thread m_thread;                                ///< Own thread for reading files to buffer
+        std::string m_path;                         ///< Remembers streaming path for cloning
+        bool m_isFileOpen;                          ///< Opens file if it's closed
+        bool m_loop;                                ///< If true song start from beginning when finished
+        bool m_playing;                             ///< For maintaining buffer updates
+        bool m_lastBuffer;                          ///< True when chunk of data is in use
+        std::atomic<bool> m_updatebuffer;           ///< Check to able reader thread to update audio data
+        std::atomic<bool> m_updateBoth;             ///< Check reader thread will update audio data for both buffers
+        std::atomic<bool> m_keepThread;             ///< While true keeps thread alive
+        std::vector<SoundBuffer*> m_bufferQueue;    ///< SoundBuffer stack for streaming
+        ParsedStreamingInfo m_info;                 ///< Critical information for passing between buffers
+        FileLoader m_fileInstance;                  ///< FileLoader instance for this stream
+        Thread m_thread;                            ///< Own thread for reading files to buffer
     };
 }
 #endif

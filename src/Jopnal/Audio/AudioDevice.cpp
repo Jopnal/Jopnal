@@ -26,7 +26,11 @@
 
     #include <Jopnal/Audio/AudioDevice.hpp>
 
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
 
 #endif
 

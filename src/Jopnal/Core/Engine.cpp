@@ -26,6 +26,7 @@
 
     #include <Jopnal/Core/Engine.hpp>
 
+    #include <Jopnal/Audio/AudioDevice.hpp>
     #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>

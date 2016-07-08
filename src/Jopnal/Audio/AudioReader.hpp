@@ -35,7 +35,7 @@ namespace jop
 {
     class SoundBuffer;
 
-    class JOP_API AudioReader
+    class AudioReader
     {
     public:
 

@@ -26,8 +26,12 @@
 
     #include <Jopnal/Audio/Listener.hpp>
 
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Audio/SoundSource.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <AL/al.h>
 
 #endif
 

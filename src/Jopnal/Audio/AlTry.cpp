@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Audio/AlTry.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <AL/al.h>
+    #include <AL/alc.h>
+
+#endif
 
 //////////////////////////////////////////////
 

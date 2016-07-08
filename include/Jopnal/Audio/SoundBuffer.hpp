@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -32,6 +33,7 @@
 namespace jop
 {
     class SoundSource;
+    class SoundStream;
 
     class JOP_API SoundBuffer : public Resource
     {    
@@ -48,9 +50,9 @@ namespace jop
 
         struct parsedAudioInfo
         {
-            uint64 sampleCount = NULL;                      ///< Total number of samples
-            int channelCount   = NULL;                      ///< Number of channels
-            int sampleRate     = NULL;                      ///< Samples per second
+            uint64 sampleCount = 0;                      ///< Total number of samples
+            int channelCount   = 0;                      ///< Number of channels
+            int sampleRate     = 0;                      ///< Samples per second
             AudioFormat format = AudioFormat::undefined;    ///< Format of audio for decoding
         };
 

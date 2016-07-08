@@ -26,6 +26,8 @@
 
     #include <Jopnal/Audio/AudioReader.hpp>
 
+    #include <Jopnal/Audio/SoundBuffer.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif

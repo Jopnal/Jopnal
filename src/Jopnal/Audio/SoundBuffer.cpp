@@ -27,8 +27,11 @@
     #include <Jopnal/Audio/SoundBuffer.hpp>
 
     #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Audio/AudioReader.hpp>
+    #include <Jopnal/Audio/SoundEffect.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
+    #include <AL/al.h>
     #include <vector>
 
 #endif
@@ -55,17 +58,17 @@ namespace jop
 {
     SoundBuffer::SoundBuffer(const std::string& name)
         : Resource      (name),
-          m_bufferId    (NULL),
-          m_duration    (NULL),
-          m_samples     (NULL),
-          m_sounds      (NULL)
+          m_bufferId    (0),
+          m_duration    (0.f),
+          m_samples     (),
+          m_sounds      ()
     {
         alTry(alGenBuffers(1, &m_bufferId));
     }
 
     SoundBuffer::SoundBuffer(const SoundBuffer& other, const std::string& newName)
         : Resource      (newName),
-          m_bufferId    (NULL),
+          m_bufferId    (0),
           m_duration    (other.m_duration),
           m_samples     (other.m_samples),
           m_sounds      (other.m_sounds)

@@ -326,7 +326,7 @@ ExternalProject_Get_Property(Ogg SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(Ogg BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ogg${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(OGG_LIBRARY ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ogg${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # Vorbis
 ExternalProject_Add(Vorbis
@@ -341,10 +341,13 @@ ExternalProject_Add(Vorbis
                     INSTALL_COMMAND ""
 
                     CMAKE_ARGS -DOGG_INCLUDE_DIRS=${SOURCE_DIR}/include
+                               -DOGG_LIBRARIES=${BINARY_DIR}/${CMAKE_CFG_INTDIR}
                                ${ANDROID_OPTIONS}
                     
-                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${OPENAL_LIB_NAME}
-                    
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     
                     DEPENDS Ogg
 )
 add_dependencies(jopnal Vorbis)
@@ -353,6 +356,7 @@ ExternalProject_Get_Property(Vorbis SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(Vorbis BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
+target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX})
+                             ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             ${OGG_LIBRARY}) # Apparently ogg has to be linked after vorbis to avoid linker errors

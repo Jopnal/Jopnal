@@ -26,7 +26,13 @@
 
     #include <Jopnal/Audio/SoundStream.hpp>
 
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Audio/AudioReader.hpp>
+    #include <Jopnal/Audio/SoundBuffer.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <AL/al.h>
+    #include <algorithm>
 
 #endif
 

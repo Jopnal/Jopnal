@@ -76,20 +76,26 @@ namespace jop
                     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHEMENT";
                         break;
+
+                #ifndef JOP_OPENGL_ES
+
                     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
                         break;
                     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
                         break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+                        break;
+
+                #endif
+
                     case GL_FRAMEBUFFER_UNSUPPORTED:
                         errorS = "GL_FRAMEBUFFER_UNSUPPORTED";
                         break;
                     case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-                        break;
-                    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
                 }
 
                 JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer: " << errorS);

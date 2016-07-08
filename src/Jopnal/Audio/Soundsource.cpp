@@ -26,7 +26,11 @@
 
     #include <Jopnal/Audio/SoundSource.hpp>
 
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <glm/common.hpp>
+    #include <AL/al.h>
 
 #endif
 
