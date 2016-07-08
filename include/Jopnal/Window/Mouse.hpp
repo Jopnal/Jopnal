@@ -64,7 +64,7 @@ namespace jop
 		///
 		/// \return True if down
 		///
-		static bool isDown(Button button);
+		static bool isButtonDown(Button button);
 
 		/// \brief Get boolean was wheel scrolled up
 		///

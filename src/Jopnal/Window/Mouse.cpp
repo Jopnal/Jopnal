@@ -55,7 +55,7 @@ namespace
 
 namespace jop
 {
-	bool Mouse::isDown(Button button)
+	bool Mouse::isButtonDown(Button button)
 	{
 		if (validateWindowRef())
 		{
