@@ -75,7 +75,7 @@ namespace jop
         {
             static const struct EnabledCallback : SettingCallback<bool>
             {
-                const char* const str;
+                const char* str;
 
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
@@ -88,7 +88,7 @@ namespace jop
 
             static const struct ExposureCallback : SettingCallback<float>
             {
-                const char* const str;
+                const char* str;
 
                 ExposureCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|fExposure")
@@ -104,7 +104,7 @@ namespace jop
         {
             static const struct EnabledCallback : SettingCallback<bool>
             {
-                const char* const str;
+                const char* str;
 
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
@@ -117,7 +117,7 @@ namespace jop
 
             static const struct PassesCallback : SettingCallback<unsigned int>
             {
-                const char* const str;
+                const char* str;
 
                 PassesCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|uBlurPasses")

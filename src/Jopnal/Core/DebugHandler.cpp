@@ -164,7 +164,7 @@ namespace
         {
             {
                 auto consoleSize = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
-                consoleSize.X -= 7 /*- (IsWindows8OrGreater() * 3)*/;
+                consoleSize.X -= 7;
                 consoleSize.Y = 1000;
 
                 SetConsoleScreenBufferSize(consoleHandle, consoleSize);

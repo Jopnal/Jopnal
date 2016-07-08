@@ -33,20 +33,6 @@
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
-    #ifdef JOP_OPENGL_ES
-
-        #ifndef GL_GEOMETRY_SHADER
-
-            #ifdef GL_EXT_geometry_shader
-                #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-            #else
-                #define GL_GEOMETRY_SHADER 0
-            #endif
-
-        #endif
-
-    #endif
-
 #endif
 
 #include <Jopnal/Resources/Resources.hpp>
@@ -456,22 +442,13 @@ namespace jop
         {
             versionString += "#version ";
 
-        #ifndef JOP_OPENGL_ES
+            versionString += std::to_string(getOGLVersionMajor());
+            versionString += std::to_string(getOGLVersionMinor());
 
-            versionString += std::to_string(ogl_GetMajorVersion());
-            versionString += std::to_string(ogl_GetMinorVersion());
-            versionString += "0 core\n";
-
+        #ifdef JOP_OPENGL_ES
+            versionString += "0 es\n";
         #else
-
-            const std::string esVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-
-            const std::size_t numPos = esVersion.find_first_of("0123456789");
-
-            versionString += esVersion[numPos];
-            versionString += esVersion[numPos + 2];
-            versionString += "0 es\n#define JOP_OPENGL_ES\n";
-
+            versionString += "0 core\n#define JOP_OPENGL_ES\n";
         #endif
         }
 
@@ -522,7 +499,7 @@ namespace jop
     {
         static const struct Callback : SettingCallback<bool>
         {
-            const char* const str;
+            const char* str;
             bool err;
             Callback()
                 : str("engine@Debug|bPrintShaderUniformLocationErrors"),

@@ -28,11 +28,10 @@
 // Detect operating system
 #if defined(_WIN32)
 
-    #pragma warning(disable: 4251)
-    #pragma warning(disable: 4201)
-    #pragma warning(disable: 4503)
-    #pragma warning(disable: 4506)
-    #pragma warning(disable: 4512)
+    #pragma warning(disable: 4251) // Export warnings for standard classes
+    #pragma warning(disable: 4201) // Nameless struct/union
+    #pragma warning(disable: 4503) // Decorated name truncation
+    #pragma warning(disable: 4068) // Unrecognized pragma
         
     #define JOP_OS_WINDOWS
     #define JOP_OS_DESKTOP
@@ -56,7 +55,7 @@
 
 #else
 
-    #error Jopnal: unsupported OS
+    #error Jopnal: unsupported operating system
 
 #endif
 

@@ -135,6 +135,13 @@ namespace jop
         {
             if (castShadows)
             {
+            #ifndef JOP_GEOMETRY_SHADERS
+
+                if (m_type == Type::Point)
+                    return *this;
+
+            #endif
+
                 static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
                 
                 using CA = RenderTexture::ColorAttachment;
@@ -391,7 +398,7 @@ namespace jop
 
         static const struct Callback : SettingCallback<float>
         {
-            const char* const str;
+            const char* str;
             float bias;
             Callback()
                 : str("engine@Graphics|Shading|fLightCullThreshold"),

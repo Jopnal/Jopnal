@@ -47,6 +47,8 @@ namespace jop
     {
         class DrawableSorterOpaque
         {
+            void operator =(const DrawableSorterOpaque&) = delete;
+
             const glm::vec3& m_camPos;
 
         public:
@@ -64,6 +66,8 @@ namespace jop
 
         class DrawableSorterTranslucent
         {
+            void operator =(const DrawableSorterTranslucent&) = delete;
+
             const glm::vec3& m_camPos;
 
         public:

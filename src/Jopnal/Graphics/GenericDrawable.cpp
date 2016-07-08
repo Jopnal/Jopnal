@@ -96,7 +96,7 @@ namespace jop
 
         static const struct Callback : SettingCallback<bool>
         {
-            const char* const str;
+            const char* str;
             bool validate;
             Callback()
                 : str("engine@Debug|bValidateShaders"),

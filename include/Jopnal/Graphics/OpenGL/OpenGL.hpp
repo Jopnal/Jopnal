@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
@@ -43,6 +44,15 @@
 
     #if __ANDROID_API__ >= 24
         #include <GLES3/gl32.h>
+        #define JOP_GEOMETRY_SHADERS
+
+    #elif defined(GL_EXT_geometry_shader)
+        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+        #define JOP_GEOMETRY_SHADERS
+
+    #else
+        #define GL_GEOMETRY_SHADER 0
+
     #endif
 
     namespace jop { namespace detail
@@ -55,9 +65,17 @@
 #else
 
     #include <Jopnal/Graphics/OpenGL/gl_4.5.h>
+    #define JOP_GEOMETRY_SHADERS
 
     #define JOP_CHECK_GL_EXTENSION(extension) ((ogl_ext_##extension)  != ogl_LOAD_FAILED)
 
 #endif
+
+namespace jop
+{
+    JOP_API unsigned int getOGLVersionMajor();
+
+    JOP_API unsigned int getOGLVersionMinor();
+}
 
 #endif

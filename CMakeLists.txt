@@ -45,7 +45,7 @@ jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
 # Default to v7a for harware floating point
 if(NOT ANDROID_ABI)
-    set(ANDROID_ABI "armeabi-v7a with NEON")
+    set(ANDROID_ABI "armeabi-v7a")
 endif()
 
 # Project name
@@ -108,6 +108,21 @@ jopSetOption(BUILD_SHARED_LIBS TRUE BOOL "TRUE to build Jopnal as shared, FALSE 
 
 # Option for choosing the OpenGL implementation
 jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "TRUE to use an OpenGL ES, FALSE to use a desktop OpenGL")
+
+# Choose debug verbosity
+jopSetOption(JOP_CONSOLE_VERBOSITY "2" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
+set_property(CACHE JOP_CONSOLE_VERBOSITY PROPERTY STRINGS
+			 "-1" "0" "1" "2" "3")
+add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
+
+# Option to enable/disable assertions
+jopSetOption(JOP_ASSERTS TRUE BOOL "True to enable assertions, false to strip them away")
+add_definitions("-DJOP_ENABLE_ASSERTS=${JOP_ASSERTS}")
+
+# Option to enable/disable OpenGL error checks
+jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away")
+add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
+
 
 # Android options
 if (JOP_OS_ANDROID)

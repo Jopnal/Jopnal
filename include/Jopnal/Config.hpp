@@ -26,21 +26,8 @@
 
 // This file contains the configuration options for the engine compilation
 
-// Define to enable gl error checks
-#define JOP_OPENGL_ERROR_CHECKS
-
 // Debug
 #define JOP_DEBUG_MODE
-
-// Console
-//
-// -1 = Disable
-//  3 = Verbose
-//
-#define JOP_CONSOLE_VERBOSITY 3
-
-// Asserts
-#define JOP_ENABLE_ASSERTS
 
 // Version
 #define JOP_VERSION_MAJOR 0
