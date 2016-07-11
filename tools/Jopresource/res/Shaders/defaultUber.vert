@@ -23,39 +23,39 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 // Vertex attributes to fragment/geometry shader
 #ifdef JOP_OPENGL_ES
 
-	out vec3 var_Position;
-	out vec2 var_TexCoords;
-	out vec3 var_Normal;
-	out vec4 var_Color;
+    out vec3 var_Position;
+    out vec2 var_TexCoords;
+    out vec3 var_Normal;
+    out vec4 var_Color;
 
-	#define OUT_POS var_Position
-	#define OUT_TC	var_TexCoords
-	#define OUT_NOR var_Normal
-	#define OUT_COL	var_Color
+    #define OUT_POS var_Position
+    #define OUT_TC    var_TexCoords
+    #define OUT_NOR var_Normal
+    #define OUT_COL    var_Color
 
 #else
 
-	#ifdef JMAT_ENVIRONMENT_RECORD
-		#define OUTVERT_NAME inVert
-	    out VertexData
-	#else
-		#define OUTVERT_NAME outVert
-	    out FragVertexData
-	#endif
-	{
-	    vec3 Position;
-	    vec2 TexCoords;
-	    vec3 Normal;
-	    //vec3 Tangent;
-	    //vec3 BiTangent;
-	    vec4 Color;
-	
-	} OUTVERT_NAME;
+    #ifdef JMAT_ENVIRONMENT_RECORD
+        #define OUTVERT_NAME inVert
+        out VertexData
+    #else
+        #define OUTVERT_NAME outVert
+        out FragVertexData
+    #endif
+    {
+        vec3 Position;
+        vec2 TexCoords;
+        vec3 Normal;
+        //vec3 Tangent;
+        //vec3 BiTangent;
+        vec4 Color;
+    
+    } OUTVERT_NAME;
 
-	#define OUT_POS OUTVERT_NAME .Position
-	#define OUT_TC	OUTVERT_NAME .TexCoords
-	#define OUT_NOR OUTVERT_NAME .Normal
-	#define OUT_COL	OUTVERT_NAME .Color
+    #define OUT_POS OUTVERT_NAME .Position
+    #define OUT_TC    OUTVERT_NAME .TexCoords
+    #define OUT_NOR OUTVERT_NAME .Normal
+    #define OUT_COL    OUTVERT_NAME .Color
 
 #endif
 

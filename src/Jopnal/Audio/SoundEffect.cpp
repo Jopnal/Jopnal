@@ -24,89 +24,89 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Audio/SoundEffect.hpp>
+    #include <Jopnal/Audio/SoundEffect.hpp>
 
-#include <Jopnal/Audio/SoundBuffer.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Audio/SoundBuffer.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <glm/common.hpp>
+    #include <AL/al.h>
 
 #endif
-
-#include <Jopnal/Audio/AlTry.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-	namespace jop
-	{
-		JOP_REGISTER_COMMAND_HANDLER(SoundEffect)
+    JOP_REGISTER_COMMAND_HANDLER(SoundEffect)
 
-		JOP_BIND_MEMBER_COMMAND(&SoundEffect::play, "playEffect");
-		JOP_BIND_MEMBER_COMMAND(&SoundEffect::pause, "pauseEffect");
-		JOP_BIND_MEMBER_COMMAND(&SoundEffect::stop, "stopEffect");
-		JOP_BIND_MEMBER_COMMAND(&SoundEffect::setOffset, "setEffectOffset");
-		JOP_BIND_MEMBER_COMMAND(&SoundEffect::setLoop, "setEffectLoop");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::play, "playEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::pause, "pauseEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::stop, "stopEffect");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::setOffset, "setEffectOffset");
+        JOP_BIND_MEMBER_COMMAND(&SoundEffect::setLoop, "setEffectLoop");
 
-		JOP_END_COMMAND_HANDLER(SoundEffect)
-	}
+    JOP_END_COMMAND_HANDLER(SoundEffect)
 }
 
 namespace jop
 {
     SoundEffect::SoundEffect(Object& object)
-        : SoundSource       (object, 0),
-          m_resetSound      (false),
-		  m_buffer()
-	{
-		alTry(alGenSources(1, &m_source));
-		alTry(alSourcei(m_source, AL_BUFFER, 0));
+        : SoundSource   (object, 0),
+          m_resetSound  (false),
+          m_buffer      ()
+    {
+        alTry(alGenSources(1, &m_source));
+        alTry(alSourcei(m_source, AL_BUFFER, 0));
 
-		setBuffer(SoundBuffer::getDefault());
+        setBuffer(SoundBuffer::getDefault());
     }
 
     SoundEffect::SoundEffect(const SoundEffect& other, Object& newObj)
-        : SoundSource       (other, newObj),
-          m_resetSound      (false),
-		  m_buffer			(other.m_buffer)
+        : SoundSource   (other, newObj),
+          m_resetSound  (false),
+          m_buffer      (other.m_buffer)
     {
-		alTry(alGenSources(1, &m_source));
-		alTry(alSourcei(m_source, AL_BUFFER, 0));
-	}
+        alTry(alGenSources(1, &m_source));
+        alTry(alSourcei(m_source, AL_BUFFER, 0));
+    }
 
-	SoundEffect::~SoundEffect()
-	{
-		stop();
-		if (!m_buffer.expired())
-			m_buffer->detachSound(this);
-	}
+    SoundEffect::~SoundEffect()
+    {
+        stop();
+
+        if (!m_buffer.expired())
+            m_buffer->detachSound(this);
+    }
 
     //////////////////////////////////////////////
 
     void SoundEffect::update(const float deltaTime)
     {
         SoundSource::update(deltaTime);
-		
-		if (m_delayCounter<0.f&&m_delayCounter>-0.5f)
-		{
-			playReset();
-			m_delayCounter = -1.f;
-		}
+        
+        if (m_delayCounter < 0.f && m_delayCounter > -0.5f)
+        {
+            playReset();
+            m_delayCounter = -1.f;
+        }
     }
 
     //////////////////////////////////////////////
 
     SoundEffect& SoundEffect::setBuffer(const SoundBuffer& buffer)
     {
-		if (!m_buffer.expired())
-		{
-			stop();
-			m_buffer->detachSound(this);
-		}
-		 m_buffer = static_ref_cast<const SoundBuffer>(buffer.getReference());
-		 m_buffer->attachSound(this);
+        if (!m_buffer.expired())
+        {
+            stop();
+            m_buffer->detachSound(this);
+        }
 
-		 alTry(alSourcei(m_source, AL_BUFFER, m_buffer->m_bufferId));
+        m_buffer = static_ref_cast<const SoundBuffer>(buffer.getReference());
+        m_buffer->attachSound(this);
+
+        alTry(alSourcei(m_source, AL_BUFFER, m_buffer->m_bufferId));
 
         return *this;
     }
@@ -115,8 +115,8 @@ namespace jop
 
     SoundEffect& SoundEffect::play()
     {
-            if (getStatus() < Status::Playing)
-                playReset();
+        if (getStatus() < Status::Playing)
+            return playReset();
 
         return *this;
     }
@@ -125,17 +125,18 @@ namespace jop
 
     SoundEffect& SoundEffect::playReset()
     {
-		if (isSpeedOfSound()&&m_buffer->m_info.channelCount==1)
-		{
-			if (!m_calculateDelay)
-			{
-				m_calculateDelay = true;
-				return *this;
-			}
-			else
-				m_calculateDelay = false;
-		}
-			alTry(alSourcePlay(m_source));
+        if (isSpeedOfSound() && m_buffer->m_info.channelCount == 1)
+        {
+            if (!m_calculateDelay)
+            {
+                m_calculateDelay = true;
+                return *this;
+            }
+            else
+                m_calculateDelay = false;
+        }
+        
+        alTry(alSourcePlay(m_source));
 
         return *this;
     }
@@ -144,7 +145,7 @@ namespace jop
 
     SoundEffect& SoundEffect::stop()
     {
-		alTry(alSourceStop(m_source));
+        alTry(alSourceStop(m_source));
 
         return *this;
     }
@@ -153,7 +154,7 @@ namespace jop
 
     SoundEffect& SoundEffect::pause()
     {
-		alTry(alSourcePause(m_source));
+        alTry(alSourcePause(m_source));
 
         return *this;
     }
@@ -162,7 +163,7 @@ namespace jop
 
     SoundEffect& SoundEffect::setOffset(const float time)
     {
-		alTry(alSourcef(m_source, AL_SEC_OFFSET, glm::clamp(time, 0.f, m_buffer->m_duration)));
+        alTry(alSourcef(m_source, AL_SEC_OFFSET, glm::clamp(time, 0.f, m_buffer->m_duration)));
 
         return *this;
     }
@@ -171,19 +172,18 @@ namespace jop
 
     float SoundEffect::getOffset() const
     {
-		ALfloat secs = 0.f;
-		alTry(alGetSourcef(m_source, AL_SEC_OFFSET, &secs));
+        ALfloat secs = 0.f;
+        alTry(alGetSourcef(m_source, AL_SEC_OFFSET, &secs));
 
-		return secs;
+        return secs;
     }
 
     //////////////////////////////////////////////
 
     SoundEffect& SoundEffect::setLoop(const bool loop)
     {
-		alTry(alSourcei(m_source, AL_LOOPING, loop));
+        alTry(alSourcei(m_source, AL_LOOPING, loop));
 
         return *this;
     }
-
 }

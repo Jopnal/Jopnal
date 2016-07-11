@@ -29,8 +29,14 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
-    #include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+    #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+    #pragma warning(pop)
 
 #endif
 

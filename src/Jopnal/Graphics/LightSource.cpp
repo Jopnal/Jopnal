@@ -26,10 +26,17 @@
 
     #include <Jopnal/Graphics/LightSource.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/Texture/Texture.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
@@ -135,6 +142,13 @@ namespace jop
         {
             if (castShadows)
             {
+            #ifndef JOP_GEOMETRY_SHADERS
+
+                if (m_type == Type::Point)
+                    return *this;
+
+            #endif
+
                 static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
                 
                 using CA = RenderTexture::ColorAttachment;
@@ -180,32 +194,29 @@ namespace jop
         if (!castsShadows())
             return false;
 
-        static WeakReference<Shader> dirSpotShader, pointShader;
+        static WeakReference<ShaderProgram> dirSpotShader, pointShader;
 
         // Directional/spot light recorder
         if (dirSpotShader.expired())
         {
-            dirSpotShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader").getReference());
+            dirSpotShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_depth_record_shader").getReference());
             dirSpotShader->setPersistence(0);
 
-            JOP_ASSERT_EVAL(dirSpotShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
-                                                "",
-                                                std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag)),
-                                                Shader::getVersionString()),
-                                                "Failed to compile depth record shader!");
+            JOP_ASSERT_EVAL(dirSpotShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag))),
+                "Failed to compile depth record shader!");
         }
 
         // Point light recorder
         if (pointShader.expired())
         {
-            pointShader = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_depth_record_shader_point").getReference());
+            pointShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_depth_record_shader_point").getReference());
             pointShader->setPersistence(0);
 
-            JOP_ASSERT_EVAL(pointShader->load(std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
-                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
-                                              std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag)),
-                                              Shader::getVersionString()),
-                                              "Failed to compile point depth record shader!");
+            JOP_ASSERT_EVAL(pointShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
+                Shader::Type::Geometry, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag))),
+                "Failed to compile point depth record shader!");
         }
 
         auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;
@@ -266,7 +277,7 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), false, mesh.getVertexOffset(Mesh::Position));
+            shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(Mesh::Position));
             shdr.setUniform("u_MMatrix", d->getObject()->getTransform().getMatrix());
 
             if (mesh.getElementAmount())
@@ -391,7 +402,7 @@ namespace jop
 
         static const struct Callback : SettingCallback<float>
         {
-            const char* const str;
+            const char* str;
             float bias;
             Callback()
                 : str("engine@Graphics|Shading|fLightCullThreshold"),
@@ -495,7 +506,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(Shader& shader, const Drawable& drawable) const
+    void LightContainer::sendToShader(ShaderProgram& shader, const Drawable& drawable) const
     {
         shader.setUniform("u_ReceiveLights", drawable.receiveLights());
 

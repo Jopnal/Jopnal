@@ -34,7 +34,7 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
     class Texture;
     class Camera;
 
@@ -179,13 +179,13 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         /// \param camera The camera to use
         ///
-        void sendToShader(Shader& shader, const Camera* camera, const float alphaMult) const;
+        void sendToShader(ShaderProgram& shader, const Camera* camera, const float alphaMult) const;
 
         /// \brief Get the shader
         ///
         /// \return Pointer to the shader
         ///
-        Shader* getShader() const;
+        ShaderProgram* getShader() const;
 
 
         /// \brief Set a reflection value
@@ -324,18 +324,18 @@ namespace jop
 
     private:
 
-        std::array<Color, 4> m_reflection;  ///< The reflection values
-        float m_reflectivity;               ///< The reflectivity value
-        AttribType m_attributes;            ///< The attribute bit field
-        float m_shininess;                  ///< The shininess factor
+        std::array<Color, 4> m_reflection;              ///< The reflection values
+        float m_reflectivity;                           ///< The reflectivity value
+        AttribType m_attributes;                        ///< The attribute bit field
+        float m_shininess;                              ///< The shininess factor
         std::array
         <
             WeakReference<const Texture>,
             static_cast<int>(Map::Last) - 1
-        > m_maps;                               ///< An array with the bound maps
-        mutable WeakReference<Shader> m_shader; ///< Shader fitting the attributes
-        mutable bool m_attributesChanged;       ///< Have the attributes been changed?
-        bool m_autoAttribs;                     ///< Use automatic attributes?
+        > m_maps;                                       ///< An array with the bound maps
+        mutable WeakReference<ShaderProgram> m_shader;  ///< Shader fitting the attributes
+        mutable bool m_attributesChanged;               ///< Have the attributes been changed?
+        bool m_autoAttribs;                             ///< Use automatic attributes?
     };
 }
 

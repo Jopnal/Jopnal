@@ -74,6 +74,7 @@ namespace jop { namespace detail
         EGLSurface m_surface;
         EGLContext m_context;
 
+        Window* m_windowPtr;
         glm::uvec2 m_size;
     };
 }}

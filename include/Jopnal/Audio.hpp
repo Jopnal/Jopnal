@@ -21,7 +21,6 @@
 
 // Headers
 #include <Jopnal/Audio/AudioDevice.hpp>
-#include <Jopnal/Audio/AudioReader.hpp>
 #include <Jopnal/Audio/Listener.hpp>
 #include <Jopnal/Audio/SoundBuffer.hpp>
 #include <Jopnal/Audio/SoundEffect.hpp>

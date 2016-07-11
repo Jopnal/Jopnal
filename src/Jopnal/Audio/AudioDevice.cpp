@@ -24,127 +24,114 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Audio/AudioDevice.hpp>
+    #include <Jopnal/Audio/AudioDevice.hpp>
 
-#include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Audio/AlTry.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
 
 #endif
 
 //////////////////////////////////////////////
 
+
 namespace
 {
-	ALCdevice_struct* ns_device;            ///< Audio's output device
-	ALCcontext_struct* ns_context;		    ///< Audio's context
-	std::string ns_deviceErrors[] =			///< OpenAl errors as strings
-	{ "AL_NO_ERROR", "AL_INVALID_NAME", "AL_INVALID_ENUM",
-	"AL_INVALID_VALUE","AL_INVALID_OPERATION", "AL_OUT_OF_MEMORY" };
+    ALCdevice_struct* ns_device = nullptr;    ///< Audio's output device
+    ALCcontext_struct* ns_context = nullptr;  ///< Audio's context
 }
 
 namespace jop
 {
-	AudioDevice::AudioDevice()
-		: Subsystem(1001)
-	{
-		ns_device = alcOpenDevice(NULL);
-		if (ns_device)
-		{
-			ns_context = alcCreateContext(ns_device, NULL);
-		}
-		else
-			JOP_DEBUG_ERROR("Could not initialize context to audio device");
-		
-		if (!alcIsExtensionPresent(ns_device, "AL_EXT_BFORMAT"))
-		JOP_DEBUG_INFO("Missing AL_EXT_BFORMAT extension for openAl");
-		if (!alcIsExtensionPresent(ns_device, "AL_EXT_MULAW_BFORMAT"))
-			JOP_DEBUG_INFO("Missing AL_EXT_MULAW_BFORMAT extension for openAl");
-		if (!alcIsExtensionPresent(ns_device, "ALC_SOFT_HRTF"))
-			JOP_DEBUG_INFO("Missing AL_EXT_MULAW_BFORMAT extension for openAl");
+    AudioDevice::AudioDevice()
+        : Subsystem(0)
+    {
+        ns_device = alcOpenDevice(NULL);
 
-		if (!alcMakeContextCurrent(ns_context))
-			JOP_DEBUG_ERROR("Could not set audio's context active");
+        if (ns_device)
+            ns_context = alcCreateContext(ns_device, NULL);
+        else
+            JOP_DEBUG_ERROR("Could not initialize context to audio device");
+        
+        if (!alcIsExtensionPresent(ns_device, "AL_EXT_BFORMAT"))
+            JOP_DEBUG_INFO("Missing AL_EXT_BFORMAT extension for OpenAl");
 
-		if (!alIsExtensionPresent("AL_SOFT_source_length"))
-			JOP_DEBUG_ERROR("Audio's required AL_SOFT_source_length not present");
+        if (!alcIsExtensionPresent(ns_device, "AL_EXT_MULAW_BFORMAT"))
+            JOP_DEBUG_INFO("Missing AL_EXT_MULAW_BFORMAT extension for OpenAl");
 
-		if (!alIsExtensionPresent("AL_SOFT_source_latency"))
-			JOP_DEBUG_INFO("Audio's AL_SOFT_source_latency not present, audio may strutter");
-	}
+        if (!alcIsExtensionPresent(ns_device, "ALC_SOFT_HRTF"))
+            JOP_DEBUG_INFO("Missing AL_EXT_MULAW_BFORMAT extension for OpenAl");
 
-	AudioDevice::~AudioDevice()
-	{
-		ns_context = alcGetCurrentContext();
-		ns_device = alcGetContextsDevice(ns_context);
-		alcMakeContextCurrent(NULL);
-		alcDestroyContext(ns_context);
-		alcCloseDevice(ns_device);
-	}
+        if (!alcMakeContextCurrent(ns_context))
+            JOP_DEBUG_ERROR("Could not set audio's context active");
 
-	//////////////////////////////////////////////
+        if (!alIsExtensionPresent("AL_SOFT_source_length"))
+            JOP_DEBUG_ERROR("Audio's required AL_SOFT_source_length not present");
 
-	void AudioDevice::setDevice(const std::string& device)
-	{
-		ns_context = alcGetCurrentContext();
-		ns_device = alcGetContextsDevice(ns_context);
-		alcMakeContextCurrent(NULL);
-		alcDestroyContext(ns_context);
-		alcCloseDevice(ns_device);
+        if (!alIsExtensionPresent("AL_SOFT_source_latency"))
+            JOP_DEBUG_INFO("Audio's AL_SOFT_source_latency not present, audio may strutter");
+    }
 
-		ns_device = alcOpenDevice(device.c_str());
-		if (ns_device)
-		{
-			ns_context = alcCreateContext(ns_device, NULL);
-		}
-		else
-			JOP_DEBUG_ERROR("Could not initialize context to audio device");
-	}
+    AudioDevice::~AudioDevice()
+    {
+        ns_context = alcGetCurrentContext();
+        ns_device = alcGetContextsDevice(ns_context);
 
-	//////////////////////////////////////////////
-
-	std::string AudioDevice::getDeviceName()
-	{
-		return alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-	}
-
-	//////////////////////////////////////////////
-
-	std::string AudioDevice::getAllDeviceNames()
-	{
-		return alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-	}
-
-	//////////////////////////////////////////////
-
-	ALCdevice_struct&  AudioDevice::getDevice()
-	{
-		return *ns_device;
-	}
+        alcMakeContextCurrent(NULL);
+        alcDestroyContext(ns_context);
+        alcCloseDevice(ns_device);
+    }
 
     //////////////////////////////////////////////
 
-	ALCcontext_struct& AudioDevice::getContext()
-	{
-		return *ns_context;
-	}
+    void AudioDevice::setDevice(const std::string& device)
+    {
+        ns_context = alcGetCurrentContext();
+        ns_device = alcGetContextsDevice(ns_context);
 
-	//////////////////////////////////////////////
+        alcMakeContextCurrent(NULL);
+        alcDestroyContext(ns_context);
+        alcCloseDevice(ns_device);
 
-	bool AudioDevice::checkError()
-	{
-		auto error = alcGetError(ns_device);
-		if (error != ALC_NO_ERROR)
-		{
-			JOP_DEBUG_ERROR("Audio device error: " << ns_deviceErrors[error]);
-			return true;
-		}
-		else
-			return false;
-	}
+        ns_device = alcOpenDevice(device.c_str());
 
-	//////////////////////////////////////////////
+        if (ns_device)
+            ns_context = alcCreateContext(ns_device, NULL);
+        else
+            JOP_DEBUG_ERROR("Could not initialize context to audio device");
+    }
 
-	bool AudioDevice::checkError(const char* file, unsigned int line, const char* expression)
-	{
-		return checkError();
-	}
+    //////////////////////////////////////////////
+
+    std::string AudioDevice::getDeviceName()
+    {
+        auto str = alTry(alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER));
+
+        return std::string(str);
+    }
+
+    //////////////////////////////////////////////
+
+    std::string AudioDevice::getAllDeviceNames()
+    {
+        auto str = alTry(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+
+        return std::string(str);
+    }
+
+    //////////////////////////////////////////////
+
+    ALCdevice_struct& AudioDevice::getDevice()
+    {
+        return *ns_device;
+    }
+
+    //////////////////////////////////////////////
+
+    ALCcontext_struct& AudioDevice::getContext()
+    {
+        return *ns_context;
+    }
 }

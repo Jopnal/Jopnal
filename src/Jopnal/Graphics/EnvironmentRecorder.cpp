@@ -56,6 +56,8 @@ namespace jop
           m_mask        (1),
           m_rendererRef (renderer)
     {
+    #ifdef JOP_GEOMETRY_SHADERS
+
         static const int mapResolution = SettingManager::get<unsigned int>("engine@Graphics|Shading|uEnvironmentMapSize", 128);
 
         using CA = RenderTexture::ColorAttachment;
@@ -65,6 +67,8 @@ namespace jop
         m_fbo.addDepthAttachment(DA::TextureCube16, glm::uvec2(mapResolution));
 
         m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+
+    #endif
 
         m_rendererRef.bind(*this);
     }
@@ -88,9 +92,11 @@ namespace jop
 
     void EnvironmentRecorder::record()
     {
+    #ifdef JOP_GEOMETRY_SHADERS
+
         static const struct Callback : SettingCallback<float>
         {
-            const char* const str;
+            const char* str;
             float farPlane;
             glm::mat4 proj;
             void updateProj()
@@ -118,7 +124,7 @@ namespace jop
 
         m_fbo.clear(RenderTarget::ColorBit | RenderTarget::DepthBit);
 
-        Shader* lastShader = nullptr;
+        ShaderProgram* lastShader = nullptr;
 
         for (auto drawable : rend.m_drawables)
         {
@@ -128,7 +134,7 @@ namespace jop
 
             auto shdr = &ShaderAssembler::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::__RecordEnv);
 
-            if (shdr == &Shader::getDefault())
+            if (shdr == &ShaderProgram::getDefault())
             {
                 JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
                 continue;
@@ -156,6 +162,8 @@ namespace jop
 
             drawable->draw(nullptr, lights, *shdr);
         }
+
+    #endif
     }
 
     //////////////////////////////////////////////

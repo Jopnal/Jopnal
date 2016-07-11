@@ -28,16 +28,17 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
-	class SoundBuffer;
+    class SoundBuffer;
 
     class JOP_API SoundEffect : public SoundSource
     {
     private:
 
-		JOP_DISALLOW_COPY_MOVE(SoundEffect);
-		JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
+        JOP_DISALLOW_COPY_MOVE(SoundEffect);
+        JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
 
     public:
 
@@ -54,9 +55,9 @@ namespace jop
         ///
         SoundEffect(const SoundEffect& other, Object& newObj);
 
-		/// \brief Destructor
-		///
-		~SoundEffect();
+        /// \brief Destructor
+        ///
+        ~SoundEffect();
 
 
         /// \brief Update
@@ -167,9 +168,8 @@ namespace jop
         ///
         void allowSound(const float deltaTime);
 
-		WeakReference<const SoundBuffer> m_buffer;  ///< SoundBuffer linked to owned source
-
-		bool m_resetSound;							///< Check for not breaking ongoing sound
+        WeakReference<const SoundBuffer> m_buffer;  ///< SoundBuffer linked to owned source
+        bool m_resetSound;                          ///< Check for not breaking ongoing sound
     };
 }
 #endif

@@ -27,8 +27,12 @@
     #include <Jopnal/Graphics/GenericDrawable.hpp>
 
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
@@ -49,7 +53,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void GenericDrawable::draw(const Camera* camera, const LightContainer& lights, Shader& shader) const
+    void GenericDrawable::draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const
     {
         // Check that there's a mesh and a material
         if (!getModel().isValid())
@@ -73,16 +77,16 @@ namespace jop
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, GL_FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
 
         if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-            s.setAttribute(5, GL_FLOAT, 4, stride, false, msh.getVertexOffset(Mesh::Color));
+            s.setAttribute(5, GL_FLOAT, 4, stride, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Normal));
+            s.setAttribute(2, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Normal));
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::__Lighting))
@@ -96,7 +100,7 @@ namespace jop
 
         static const struct Callback : SettingCallback<bool>
         {
-            const char* const str;
+            const char* str;
             bool validate;
             Callback()
                 : str("engine@Debug|bValidateShaders"),

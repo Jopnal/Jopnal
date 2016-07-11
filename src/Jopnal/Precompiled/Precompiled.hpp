@@ -74,9 +74,9 @@
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)
-#include <Bullet/btBulletCollisionCommon.h>
-#include <Bullet/btBulletDynamicsCommon.h>
-#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #pragma warning(pop)
 
 // RapidJSON
@@ -88,8 +88,11 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
+// Box2D
+#include <Box2D/Box2D.h>
+
 // PhysFS
-#include <PhysFS/physfs.h>
+#include <physfs.h>
 
 // Standard headers
 #include <algorithm>
@@ -103,6 +106,7 @@
 #include <locale>
 #include <codecvt>
 #include <cstring>
+#include <set>
 
 // Additional STL header
 #include <Jopnal/STL.hpp>
@@ -112,5 +116,7 @@
 
 // Implementation classes
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+#include <Jopnal/Audio/AlTry.hpp>
+#include <Jopnal/Audio/AudioReader.hpp>
 
 #endif

@@ -29,7 +29,13 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 
@@ -140,6 +146,7 @@ namespace jop
         } cb;
 
         m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
+        
         
         return cb.hit;
     }

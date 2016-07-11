@@ -30,8 +30,9 @@
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 
 #endif
 
@@ -89,7 +90,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkyBox::draw(const Camera* camera, const LightContainer&, Shader& shader) const
+    void SkyBox::draw(const Camera* camera, const LightContainer&, ShaderProgram& shader) const
     {
         if (!getModel().isValid())
             return;
@@ -106,7 +107,7 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
 
         mat.sendToShader(s, camera, getAlphaMultiplier());
 

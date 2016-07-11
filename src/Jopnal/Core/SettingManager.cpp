@@ -566,7 +566,7 @@ namespace jop
             }{
                 const char* const str = "engine@Debug|Console|bReduceSpam";
 
-                DebugHandler::getInstance().setReduceSpam(get<bool>(str, true));
+                DebugHandler::getInstance().setReduceSpam(get<bool>(str, false));
 
                 struct Callback : SettingCallback<bool>
                 {

@@ -27,7 +27,13 @@
     #include <Jopnal/Physics/Shape/SphereShape.hpp>
 
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 

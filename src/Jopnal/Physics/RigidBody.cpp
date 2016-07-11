@@ -32,8 +32,14 @@
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
-    #include <Bullet/btBulletDynamicsCommon.h>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+    #include <btBulletDynamicsCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 
@@ -283,7 +289,7 @@ namespace jop
 
     void RigidBody::setActive(const bool active)
     {
-        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION : ACTIVE_TAG) : DISABLE_SIMULATION);
+        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION | ACTIVE_TAG : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
 
     //////////////////////////////////////////////

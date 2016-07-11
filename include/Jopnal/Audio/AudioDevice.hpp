@@ -29,60 +29,48 @@
 
 //////////////////////////////////////////////
 
-class ALCdevice_struct;
-class ALCcontext_struct;
+
+struct ALCdevice_struct;
+struct ALCcontext_struct;
 
 namespace jop
 {
-	class JOP_API AudioDevice final : public Subsystem
-	{
-	public:
+    class JOP_API AudioDevice final : public Subsystem
+    {
+    public:
 
-		/// \brief Default constructor
-		///
-		/// Initializes preferred device for output audio
-		///
-		AudioDevice();
+        /// \brief Default constructor
+        ///
+        /// Initializes preferred device for output audio
+        ///
+        AudioDevice();
 
-		/// \brief Destructor
-		///
-		~AudioDevice() override;
-		
-		/// \Set new device for audio output
-		///
-		/// param Audio device's name
-		///
-		static void setDevice(const std::string& device);
-		
-		/// \Returns default audio device's name
-		///
-		static std::string getDeviceName();
+        /// \brief Destructor
+        ///
+        ~AudioDevice() override;
+        
+        /// \Set new device for audio output
+        ///
+        /// param Audio device's name
+        ///
+        static void setDevice(const std::string& device);
+        
+        /// \Returns default audio device's name
+        ///
+        static std::string getDeviceName();
 
-		/// \Returns all audio device names
-		///
-		static std::string getAllDeviceNames();
+        /// \Returns all audio device names
+        ///
+        static std::string getAllDeviceNames();
 
-		/// \Returns audio device
-		///
-		static ALCdevice_struct& getDevice();
+        /// \Returns audio device
+        ///
+        static ALCdevice_struct& getDevice();
 
-		/// \Returns audio context
-		///
-		static ALCcontext_struct& getContext();
-
-		/// \Returns error enum as string
-		///
-		/// param Value of error enum
-		///
-		static bool checkError();
-
-		/// \Returns error enum as string
-		///
-		/// param Value of error enum
-		///
-		static bool checkError(const char* file, unsigned int line, const char* expression);
-
-	};
+        /// \Returns audio context
+        ///
+        static ALCcontext_struct& getContext();
+    };
 }
 #endif
 

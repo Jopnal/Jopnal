@@ -4,6 +4,11 @@ set(__INCDIR_UTILITY ${PROJECT_SOURCE_DIR}/include/Jopnal/Utility)
 set(__INLDIR_UTILITY ${__INCDIR_UTILITY}/Inl)
 set(__SRCDIR_UTILITY ${PROJECT_SOURCE_DIR}/src/Jopnal/Utility)
 
+# CMakeLists
+set(__LISTS_UTILITY ${__SRCDIR_UTILITY}/CMakeLists.txt)
+source_group("Utility" FILES ${__LISTS_UTILITY})
+list(APPEND SRC ${__LISTS_UTILITY})
+
 # Include
 set(__INC_UTILITY
     ${__INCDIR_UTILITY}/Assert.hpp

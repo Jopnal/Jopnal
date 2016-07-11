@@ -24,6 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#ifndef JOP_OS_WINDOWS
+
 #include <thread>
 
 //////////////////////////////////////////////
@@ -41,4 +44,5 @@ namespace jop { namespace detail
     };
 }}
 
+#endif
 #endif

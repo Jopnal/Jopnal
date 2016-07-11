@@ -25,9 +25,10 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
+
 
 namespace jop
 {
@@ -76,7 +77,7 @@ namespace jop
         ///
         /// \see getGlobalVolume
         ///
-		Listener& setGlobalVolume(const float volume);
+        Listener& setGlobalVolume(const float volume);
 
         /// \brief Get the current value of the global volume
         ///
@@ -84,67 +85,67 @@ namespace jop
         ///
         float getGlobalVolume() const;
 
-	 	/// \brief Set doppler effect
-		///
-		/// \param default is 1
-		///
-		Listener& setDopplerEffect(float dop);
+         /// \brief Set doppler effect
+        ///
+        /// \param default is 1
+        ///
+        Listener& setDopplerEffect(const float dop);
 
-		/// \brief Get doppler effect's value
-		///
-		/// \return Float multiplier of doppler effect
-		///
-		float getDopplerEffect();
+        /// \brief Get doppler effect's value
+        ///
+        /// \return Float multiplier of doppler effect
+        ///
+        float getDopplerEffect() const;
 
-		/// \brief Sets doppler effect to default
-		///
-		Listener& setDopplerEffectToDefault();
+        /// \brief Sets doppler effect to default
+        ///
+        Listener& setDopplerEffectToDefault();
 
-		/// \brief Set speed for sound
-		///
-		/// \param default is 343.3
-		///
-		Listener& setSpeedOfSound(float speed);
+        /// \brief Set speed for sound
+        ///
+        /// \param default is 343.3
+        ///
+        Listener& setSpeedOfSound(const float speed);
 
-		/// \brief Get speed of sound
-		///
-		/// \return Speed as meters per second
-		///
-		float getSpeedOfSound();
+        /// \brief Get speed of sound
+        ///
+        /// \return Speed as meters per second
+        ///
+        float getSpeedOfSound() const;
 
-		/// \brief Calculate doppler effect for sound
-		///
-		/// \param True to use doppler effect false to ignore
-		///
-		Listener& useDopplerEffect(bool use);
+        /// \brief Calculate doppler effect for sound
+        ///
+        /// \param True to use doppler effect false to ignore
+        ///
+        Listener& useDopplerEffect(const bool use);
 
-		/// \brief Calculate doppler speed for sounds
-		///
-		/// \param True to use speed false to ignore
-		///
-		Listener& useSpeedOfSound(bool use);
+        /// \brief Calculate doppler speed for sounds
+        ///
+        /// \param True to use speed false to ignore
+        ///
+        Listener& useSpeedOfSound(const bool use);
 
-		/// \brief Get boolean to know if speed of sound is in use
-		///
-		/// \param True if using speed of sound
-		///
-		bool isSpeedOfSound();
+        /// \brief Get boolean to know if speed of sound is in use
+        ///
+        /// \param True if using speed of sound
+        ///
+        bool isSpeedOfSound() const;
 
-		/// \brief Get boolean to know if doppler effect is in use
-		///
-		/// \param True if using doppler effect
-		///
-		bool isDopplerEffect();
+        /// \brief Get boolean to know if doppler effect is in use
+        ///
+        /// \param True if using doppler effect
+        ///
+        bool isDopplerEffect() const;
 
-		/// \brief Sets speed of sound to default
-		///
-		Listener& setSpeedOfSoundToDefault();
+        /// \brief Sets speed of sound to default
+        ///
+        Listener& setSpeedOfSoundToDefault();
 
-	private:
-		bool m_dopplerEffect;				///< Check if sound components need to calculate velocity
-		float m_doppler;					///< Multiplier for doppler effect
-		glm::vec3 m_lastPos;			    ///< Used to calculate velocity
+    private:
 
+        bool m_dopplerEffect;   ///< Check if sound components need to calculate velocity
+        float m_doppler;        ///< Multiplier for doppler effect
+        glm::vec3 m_lastPos;    ///< Used to calculate velocity
     };
 }
 #endif

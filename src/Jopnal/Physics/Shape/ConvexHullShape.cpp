@@ -28,7 +28,13 @@
 
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/STL.hpp>
-    #include <Bullet/btBulletCollisionCommon.h>
+    
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 

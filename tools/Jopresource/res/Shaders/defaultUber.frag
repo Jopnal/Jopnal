@@ -64,33 +64,33 @@
 // Vertex attribute data
 #ifdef JOP_OPENGL_ES
 
-	in vec3 var_Position;
-	in vec2 var_TexCoords;
-	in vec3 var_Normal;
-	in vec4 var_Color;
+    in vec3 var_Position;
+    in vec2 var_TexCoords;
+    in vec3 var_Normal;
+    in vec4 var_Color;
 
-	#define OUT_POS var_Position
-	#define OUT_TC	var_TexCoords
-	#define OUT_NOR var_Normal
-	#define OUT_COL	var_Color
+    #define OUT_POS var_Position
+    #define OUT_TC    var_TexCoords
+    #define OUT_NOR var_Normal
+    #define OUT_COL    var_Color
 
 #else
 
-	in FragVertexData
-	{
-	    vec3 Position;
-	    vec2 TexCoords;
-	    vec3 Normal;
-	    //vec3 Tangent;
-	    //vec3 BiTangent;
-	    vec4 Color;
-	
-	} outVert;
+    in FragVertexData
+    {
+        vec3 Position;
+        vec2 TexCoords;
+        vec3 Normal;
+        //vec3 Tangent;
+        //vec3 BiTangent;
+        vec4 Color;
+    
+    } outVert;
 
-	#define OUT_POS outVert.Position
-	#define OUT_TC	outVert.TexCoords
-	#define OUT_NOR outVert.Normal
-	#define OUT_COL	outVert.Color
+    #define OUT_POS outVert.Position
+    #define OUT_TC    outVert.TexCoords
+    #define OUT_NOR outVert.Normal
+    #define OUT_COL    outVert.Color
 
 #endif
 

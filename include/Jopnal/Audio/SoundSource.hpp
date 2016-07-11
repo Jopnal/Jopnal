@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 #include <string>
 
@@ -35,9 +36,9 @@ namespace jop
 
     class JOP_API SoundSource : public Component
     {
-	private:
+    private:
 
-		friend class Listener;
+        friend class Listener;
 
     protected:
 
@@ -68,7 +69,7 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Component identifier
         ///
-		SoundSource(Object& object, const uint32 ID);
+        SoundSource(Object& object, const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -128,13 +129,13 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-		SoundSource& setSpatialization(const bool toggle);
+        SoundSource& setSpatialization(const bool toggle);
 
         /// \brief Returns relativity to listener
         ///
         /// \return True if spatialized false if relative to listener
         ///
-		bool isSpatialized() const;
+        bool isSpatialized() const;
 
         /// \brief Change sound's fade-out distance
         ///
@@ -170,68 +171,69 @@ namespace jop
         ///
         float getMinDistance() const;
 
-		/// \brief Returns status of the sound (Stopped,Paused,Playing)
-		///
-		/// \return enum
-		///
-		Status getStatus() const;
+        /// \brief Returns status of the sound (Stopped,Paused,Playing)
+        ///
+        /// \return enum
+        ///
+        Status getStatus() const;
 
-		/// \brief Use object's direction for sound
-		///
-		/// \param Bool true will make sound to use direction
-		///
-		SoundSource& useDirection(bool use);
+        /// \brief Use object's direction for sound
+        ///
+        /// \param Bool true will make sound to use direction
+        ///
+        SoundSource& useDirection(bool use);
 
-		/// \brief Check if sound has direction
-		///
-		/// \return Is direction calculated for sound
-		///
-		bool isDirection();
+        /// \brief Check if sound has direction
+        ///
+        /// \return Is direction calculated for sound
+        ///
+        bool isDirection() const;
 
     protected:
 
-		/// \brief Private check is speed of sound calculated
-		///
-		/// \return Boolean if true speed is calculated
-		///
-		static bool isSpeedOfSound();
+        /// \brief Private check is speed of sound calculated
+        ///
+        /// \return Boolean if true speed is calculated
+        ///
+        static bool isSpeedOfSound();
 
         unsigned int m_source;   ///< Sound source
-		float m_delayCounter;	 ///< Sound's propagation delay
-		bool m_calculateDelay;	 ///< Check if delay should be calculated
+        float m_delayCounter;    ///< Sound's propagation delay
+        bool m_calculateDelay;   ///< Check if delay should be calculated
 
-	private:
+    private:
 
-		/// \brief Private handling for speed of sound for source
-		///
-		/// \param Boolean if true speed of sound will be calculated
-		///
-		static void calculateSpeedOfSound(const bool use);
+        /// \brief Private handling for speed of sound for source
+        ///
+        /// \param Boolean if true speed of sound will be calculated
+        ///
+        static void calculateSpeedOfSound(const bool use);
 
-		/// \brief Private handling for doppler effect for source
-		///
-		/// \param Boolean if true doppler effect will be calculated
-		///
-		static void calculateDopplerEffect(const bool use);
+        /// \brief Private handling for doppler effect for source
+        ///
+        /// \param Boolean if true doppler effect will be calculated
+        ///
+        static void calculateDopplerEffect(const bool use);
 
-		/// \brief Private method to change speed of sound
-		///
-		/// \return Param speed for sound
-		///
-		static void setSpeedForSound(float speed);
+        /// \brief Private method to change speed of sound
+        ///
+        /// \return Param speed for sound
+        ///
+        static void setSpeedForSound(float speed);
 
-		/// \brief Private method to get speed of sound
-		///
-		/// \return Speed of sound as float
-		///
-		static float getSpeedForSound();
+        /// \brief Private method to get speed of sound
+        ///
+        /// \return Speed of sound as float
+        ///
+        static float getSpeedForSound();
 
-		/// \brief Private calculation when sound must be played.
-		///
-		void calculateSound();
+        /// \brief Private calculation when sound must be played.
+        ///
+        void calculateSound();
 
-		bool m_isDirection;		 ///< Does sound have direction
-		glm::vec3 m_lastPos;	 ///< Used in calculating velocity
+
+        bool m_isDirection;     ///< Does sound have direction
+        glm::vec3 m_lastPos;    ///< Used in calculating velocity
     };
 }
 
