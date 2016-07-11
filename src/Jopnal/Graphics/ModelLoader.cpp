@@ -93,7 +93,7 @@ namespace jop
         }
         */
 
-        std::vector<const Material*> getMaterials(const rapidjson::Document& doc)
+        std::vector<const Material*> getMaterials(const rapidjson::Document& doc, const std::string& root)
         {
             
 
@@ -133,6 +133,19 @@ namespace jop
                         m.setReflectivity(mat["reflectivity"].GetDouble());
                     }
 
+                    if (mat.HasMember("embedTex"))
+                    {
+                        --- (mat["embedTex"].GetBool());
+                    }
+
+                    if (mat.HasMember("localBB"))
+                    {
+                        for (int i = 0; i < mat["localBB"].Size(); ++i)
+                        {
+                            m_vekki.push_back(mat["localBB"][i].GetDouble());
+                        }
+                    }
+
 
                     if (mat.HasMember("textures"))
                     {
@@ -141,7 +154,7 @@ namespace jop
                             auto& texObject = mat["textures"];
                             for (auto itr = texObject.MemberBegin(); itr != texObject.MemberEnd(); ++itr)
                             {
-                                auto& tex = ResourceManager::getResource<Texture2D>(itr->name.GetString(),
+                                auto& tex = ResourceManager::getResource<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(),
                                     itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
                                     itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
                                     );
@@ -330,7 +343,7 @@ namespace jop
             JOP_DEBUG_ERROR("Model loader parse error");
         }
 
-        auto materials = detail::getMaterials(doc);
+        auto materials = detail::getMaterials(doc, path);
 
         char currentChar = 0;
         do{
