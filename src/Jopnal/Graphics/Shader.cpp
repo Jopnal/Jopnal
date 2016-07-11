@@ -177,9 +177,9 @@ namespace jop
             versionString += std::to_string(getOGLVersionMinor());
 
         #ifdef JOP_OPENGL_ES
-            versionString += "0 es\n";
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
         #else
-            versionString += "0 core\n#define JOP_OPENGL_ES\n";
+            versionString += "0 core\n";
         #endif
         }
 
