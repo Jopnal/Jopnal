@@ -78,7 +78,7 @@ namespace jop
             return false;
         }
         
-        // Set rate (60 events / second) use ASensor_getMinDelay() instead?
+        // Set rate (60 events / second) use ASensor_getMinDelay() instead? - This affects precision & power usage
         int status = ASensorEventQueue_setEventRate(sensorEventQueue, m_sensor, (1000 / 60) * 1000);
 
         if (status < 0)
@@ -168,7 +168,7 @@ namespace jop
         while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0)
         {
             unsigned int type = Sensor::Type::Count;
-            glm::vec3 data;
+            glm::fvec3 data;
 
             switch (event.type)
             {

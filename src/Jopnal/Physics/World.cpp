@@ -26,6 +26,7 @@
 
     #include <Jopnal/Physics/World.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>

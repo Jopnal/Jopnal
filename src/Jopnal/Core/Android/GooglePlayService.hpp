@@ -19,17 +19,48 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_GOOGLEPLAYSERVICE_HPP
+#define JOP_GOOGLEPLAYSERVICE_HPP
+
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Sensor.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
+#include <Jopnal/Header.hpp>
 
-//////////////////////////////////////////////
+#ifdef JOP_OS_ANDROID
 
-/// \defgroup window Window
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class GooglePlayService
+    {
+    public:
+
+        static void init();
+
+        static void unlockAchievement(const char *achievementID);
+
+        static void submitHighScore(const char *leaderBoardID, uint64_t score);
+
+        static void showAchievements();
+
+        static void showLeaderboard();
+
+        static void getPlayerStats();
+
+    private:
+
+        // callback funcs for gpg
+        void onAuthActionStarted(gpg::AuthOperation op);
+
+        void onAuthActionFinished(gpg::AuthOperation op, gpg::AuthStatus status);
+
+        void fetchPlayerStats(gpg::StatsManager::FetchForPlayerResponse const &response);
+
+        // m_gameService // unique ptr gpg::GameServices
+        // m_androidApp // native activity app instance
+
+    };
+
+}
+
+#endif
+#endif

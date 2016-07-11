@@ -20,16 +20,49 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Sensor.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
-
+#include <Jopnal/Core/Android/GooglePlayService.hpp>
+#ifdef JOP_OS_ANDROID
 //////////////////////////////////////////////
 
-/// \defgroup window Window
-///
-/// #TODO Detailed decription
+
+namespace jop
+{ 
+
+    void GooglePlayService::init()
+    {
+        if(m_service != nullptr)
+            return; // service already exists!
+
+        gpg::AndroidInitialization::android_main(m_androidApp);
+
+        // Create new game services
+    }
+
+    void GooglePlayService::unlockAchievement(const char *achievementID)
+    {
+
+    }
+
+    void GooglePlayService::submitHighScore(const char *leaderBoardID, uint64_t score)
+    {
+
+    }
+
+    void GooglePlayService::showAchievements()
+    {
+
+    }
+
+    void GooglePlayService::showLeaderboard()
+    {
+
+    }
+
+    void GooglePlayService::getPlayerStats()
+    {
+
+    }
+
+}
+
+#endif

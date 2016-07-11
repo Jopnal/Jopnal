@@ -113,7 +113,7 @@ namespace jop
                 char log[1024];
                 glCheck(glGetShaderInfoLog(m_handle, sizeof(log), NULL, log));
 
-                if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                if (std::strpbrk(log, "0123456789"))
                     JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
             }
         }
@@ -177,9 +177,9 @@ namespace jop
             versionString += std::to_string(getOGLVersionMinor());
 
         #ifdef JOP_OPENGL_ES
-            versionString += "0 es\n";
+            versionString += "0 es\n#define JOP_OPENGL_ES\n";
         #else
-            versionString += "0 core\n#define JOP_OPENGL_ES\n";
+            versionString += "0 core\n";
         #endif
         }
 

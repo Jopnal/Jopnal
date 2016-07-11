@@ -40,7 +40,7 @@ namespace jop
 
     public:
 
-        /// \brief Initialize
+        /// \brief Initialize sensor implementation
         ///
         static void init();
             
@@ -48,9 +48,11 @@ namespace jop
         ///
         static void uninit();
 
-        /// \brief Start sensor
+        /// \brief Use this sensor
         ///
         /// Checks if its available and sets event ratio afterwards
+        ///
+        /// \return True if successfully taken use, false if it is not available!
         ///
         bool use(Sensor::Type sensorType);
 
@@ -58,11 +60,11 @@ namespace jop
         ///
         bool available(Sensor::Type sensorType);
 
-        /// \brief Disable a single sensor
+        /// \brief Disable sensor
         ///
         void disable(bool updateStatus = true);
 
-        /// \brief Enable single sensor
+        /// \brief Enable sensor
         ///
         /// Used to enable sensor if it has been disabled
         ///
@@ -78,16 +80,16 @@ namespace jop
 
     private:
 
-        /// \brief Get default sensor of type
+        /// \brief Get default sensor of a type
         ///
         static ASensor const* getDefault(Sensor::Type sensorType);
 
-        /// \brief Get events and save data
+        /// \brief Process events and save data
         ///
         static int getSensorEvents(int fd, int events, void* data);
 
-        bool m_enabled;
-        const ASensor* m_sensor;
+        bool m_enabled;             ///< Sensor status
+        const ASensor* m_sensor;    ///< Sensor
     };
 
 

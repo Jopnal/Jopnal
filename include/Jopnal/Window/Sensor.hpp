@@ -56,12 +56,20 @@ namespace jop
         ///
         static bool use(Type sensorType);
 
+        /// \brief Enable sensor of a type
+        ///
         static void enable(Type sensorType);
 
+        /// \brief Disable sensor of a type
+        ///
         static void disable(Type sensorType);
 
+        /// \brief Get data from sensor
+        ///
         static glm::vec3 getData(Type sensorType);
 
+        /// \brief Get sensor status (True = enabled, False = disabled)
+        ///
         static bool getStatus(Type sensorType);
 
     };

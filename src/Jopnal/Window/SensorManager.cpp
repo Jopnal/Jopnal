@@ -21,6 +21,7 @@
 
 // Headers
 #include <Jopnal/Window/SensorManager.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
 
 //////////////////////////////////////////////
 
@@ -29,9 +30,6 @@ namespace jop
 {
     SensorManager::SensorManager()
     {
-        // JOP_ASSERT(m_instance == nullptr, "Only one instance!");
-        //m_instance = this;
-
         // Sensor initialization
         SensorImpl::init();
 
@@ -41,7 +39,7 @@ namespace jop
             m_sensors[i].use(static_cast<Sensor::Type>(i));
         }
 
-        // By default disable all sensors
+        // Disable all after they are in memory
         disableAll();
     }
 
