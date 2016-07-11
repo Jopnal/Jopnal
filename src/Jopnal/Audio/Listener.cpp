@@ -53,17 +53,17 @@ namespace jop
         : Component         (object, 0),
           m_dopplerEffect   (false),
           m_doppler         (1.f),
-          m_lastPos         (NULL)
+          m_lastPos         (0.f)
     {
-        glm::vec3 pos = object.getGlobalPosition();
-        ALfloat var[] = { pos.x,pos.y,pos.z };
+        const glm::vec3 pos = object.getGlobalPosition();
+        const ALfloat var[] = {pos.x,pos.y,pos.z};
         alTry(alListenerfv(AL_POSITION, var));
 
-        ALfloat speed[] = { 0.f, 0.f, 0.f };
+        const ALfloat speed[] = {0.f, 0.f, 0.f};
         alTry(alListenerfv(AL_VELOCITY, speed));
 
-        glm::vec3 vec = object.getGlobalUp();
-        ALfloat direction[] = { pos.x, pos.y, pos.z, vec.x, vec.y, vec.z };
+        const glm::vec3 vec = object.getGlobalUp();
+        const ALfloat direction[] = {pos.x, pos.y, pos.z, vec.x, vec.y, vec.z};
         alTry(alListenerfv(AL_ORIENTATION, direction));
     }
 
@@ -81,20 +81,20 @@ namespace jop
     void Listener::update(const float)
     {
         glm::vec3 pos = getObject()->getGlobalPosition();
-        ALfloat var[] = { pos.x, pos.y, pos.z };
+        const ALfloat var[] = {pos.x, pos.y, pos.z};
         alTry(alListenerfv(AL_POSITION, var));
 
         if (m_dopplerEffect)
         {
             m_lastPos -= glm::abs(pos);
-            ALfloat speed[] = { m_lastPos.x, m_lastPos.y, m_lastPos.z };
+            const ALfloat speed[] = {m_lastPos.x, m_lastPos.y, m_lastPos.z};
             alTry(alListenerfv(AL_VELOCITY, speed));
             m_lastPos = glm::abs(pos);
         }
         
         pos = getObject()->getGlobalFront();
-        glm::vec3 up = getObject()->getGlobalUp();
-        ALfloat direction[] = { pos.x, pos.y, pos.z, up.x, up.y, up.z };
+        const glm::vec3 up = getObject()->getGlobalUp();
+        const ALfloat direction[] = {pos.x, pos.y, pos.z, up.x, up.y, up.z};
         alTry(alListenerfv(AL_ORIENTATION, direction));
     }
 
@@ -114,7 +114,7 @@ namespace jop
         float volume;
         alTry(alGetListenerf(AL_GAIN, &volume));
 
-        return volume* 100.f;
+        return volume * 100.f;
     }
 
     ///////////////////////////////////////
@@ -146,9 +146,9 @@ namespace jop
 
     ///////////////////////////////////////
 
-    Listener& Listener::setSpeedOfSound(float speed)
+    Listener& Listener::setSpeedOfSound(const float speed)
     {
-        float sos = std::max(0.f, speed);
+        const float sos = std::max(0.f, speed);
         SoundSource::setSpeedForSound(sos);
         alTry(alSpeedOfSound(sos));
 

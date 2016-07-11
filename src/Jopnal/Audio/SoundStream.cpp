@@ -31,6 +31,7 @@
     #include <Jopnal/Audio/SoundBuffer.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/STL.hpp>
     #include <AL/al.h>
     #include <algorithm>
 
@@ -78,7 +79,7 @@ namespace jop
         : SoundSource       (other, newObj),
           m_path            (other.m_path),
           m_loop            (other.m_loop),
-          m_bufferQueue     (other.m_bufferQueue),
+          m_bufferQueue     (),
           m_isFileOpen      (false),
           m_playing         (false),
           m_lastBuffer      (false),
@@ -99,8 +100,8 @@ namespace jop
         m_info.offset[0] = other.m_info.offset[0];
         m_info.offset[1] = other.m_info.offset[1];
 
-        m_bufferQueue.push_back(new SoundBuffer(*other.m_bufferQueue.front(), other.m_bufferQueue.front()->getName()));
-        m_bufferQueue.push_back(new SoundBuffer(*other.m_bufferQueue.back(), other.m_bufferQueue.front()->getName()));
+        m_bufferQueue.push_back(std::make_unique<SoundBuffer>(*other.m_bufferQueue.front(), other.m_bufferQueue.front()->getName()));
+        m_bufferQueue.push_back(std::make_unique<SoundBuffer>(*other.m_bufferQueue.back(), other.m_bufferQueue.front()->getName()));
     }
 
     SoundStream::~SoundStream()
@@ -109,9 +110,6 @@ namespace jop
         alTry(alSourceUnqueueBuffers(m_source, 1, &m_bufferQueue.front()->m_bufferId));
         alTry(alSourcei(m_source, AL_BUFFER, 0));
         alTry(alDeleteSources(1, &m_source));
-
-        for (unsigned int it = 0; it <m_bufferQueue.size(); ++it)
-            m_bufferQueue[it]->~SoundBuffer();
     }
 
     //////////////////////////////////////////////
@@ -131,7 +129,7 @@ namespace jop
 
         if (m_playing && getStatus() == Status::Stopped)
         {
-            if (this->m_mutex.try_lock())
+            if (m_mutex.try_lock())
             {
                 m_playing = false;
 
@@ -140,14 +138,14 @@ namespace jop
 
                 updateOpenAl();
                 playReset();
-                this->m_mutex.unlock();
+                m_mutex.unlock();
                 updateBackBuffer();
             }
         }
 
         if (!m_playing && getStatus() == Status::Stopped)
         {
-            if (this->m_mutex.try_lock())
+            if (m_mutex.try_lock())
             {
                 m_updateBoth = true;
                 m_lastBuffer = false;
@@ -161,33 +159,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundStream& SoundStream::setPath(const std::string& path)
+    bool SoundStream::setPath(const std::string& path)
     {
-        while (!this->m_mutex.try_lock());
+        while (!m_mutex.try_lock());
         
         m_bufferQueue.clear();
 
-        m_path = path;
-
         if (!openFile())
-        {
-            m_bufferQueue.push_back(&SoundBuffer::getDefault());
-            return *this;
-        }
+            return false;
+
+        m_path = path;
 
         std::vector<uint8> buf;
         buf.resize(JOP_AUDIO_STREAMING_BUFFER_SIZE);
 
         m_fileInstance.read(buf.data(), JOP_AUDIO_STREAMING_BUFFER_SIZE);
 
-        m_bufferQueue.push_back(new SoundBuffer("Stream" + path));
-        jop::AudioReader::read(buf.data(), *m_bufferQueue.front(), buf.size());
+        m_bufferQueue.push_back(std::make_unique<SoundBuffer>("Stream" + path));
+        AudioReader::read(buf.data(), *m_bufferQueue.front(), buf.size());
 
         m_info.firstSample =  buf.size() - m_bufferQueue.front()->m_samples.size();
         m_info.currentPos = m_info.firstSample;
 
         m_info.channelCount = m_bufferQueue.front()->m_info.channelCount;
-        m_info.sampleCount = (m_fileInstance.getSize() - m_info.firstSample)*sizeof(int16)*m_info.channelCount;
+        m_info.sampleCount = (m_fileInstance.getSize() - m_info.firstSample) * sizeof(int16) * m_info.channelCount;
 
         m_info.sampleRate = m_bufferQueue.front()->m_info.sampleRate;
         m_bufferQueue.front()->m_duration = static_cast<float>((m_bufferQueue.front()->m_info.sampleCount / m_bufferQueue.front()->m_info.sampleRate / m_bufferQueue.front()->m_info.channelCount));
@@ -196,7 +191,7 @@ namespace jop
         m_thread = Thread(&SoundStream::readBuffer, this);
         m_thread.setPriority(Thread::Priority::Lower);
 
-        m_bufferQueue.push_back(new SoundBuffer("Stream" + path));
+        m_bufferQueue.push_back(std::make_unique<SoundBuffer>("Stream" + path));
         m_bufferQueue.back()->m_info.format = m_bufferQueue.front()->m_info.format;
         m_bufferQueue.back()->m_info.channelCount = m_bufferQueue.front()->m_info.channelCount;
         m_bufferQueue.back()->m_info.sampleRate = m_info.sampleRate;
@@ -204,12 +199,13 @@ namespace jop
 
         m_updateBoth = true;
         m_updatebuffer = true;
-        this->m_mutex.unlock();
+        m_mutex.unlock();
+
         while (m_updatebuffer);
 
         closeFile();
 
-        return *this;
+        return true;
     }
 
     //////////////////////////////////////////////
@@ -274,7 +270,7 @@ namespace jop
 
     SoundStream& SoundStream::setOffset(const float time)
     {
-        while(!this->m_mutex.try_lock());
+        while(!m_mutex.try_lock());
 
         alTry(alSourceStop(m_source));
         alTry(alSourceUnqueueBuffers(m_source, 1, &m_bufferQueue.front()->m_bufferId));
@@ -284,7 +280,7 @@ namespace jop
         m_info.currentPos = glm::clamp(static_cast<uint64>(m_info.firstSample + (time * m_info.sampleRate * m_info.channelCount)), m_info.firstSample, m_info.sampleCount);
         m_updateBoth = true;
 
-        this->m_mutex.unlock();
+        m_mutex.unlock();
         updateBackBuffer();
 
         return *this;
@@ -320,7 +316,7 @@ namespace jop
 
     void SoundStream::updateBackBuffer()
     {
-        while (!this->m_mutex.try_lock());
+        while (!m_mutex.try_lock());
 
         if (!m_isFileOpen)
             openFile();
@@ -328,18 +324,18 @@ namespace jop
         if (!m_lastBuffer)
         {
             m_updatebuffer = true;
-            this->m_mutex.unlock();
+            m_mutex.unlock();
         }
         else if (m_loop)
             fromBegin();
 
         else if (m_bufferQueue.front()->m_duration <= m_info.offset[0]/m_bufferQueue.front()->m_info.sampleRate / m_bufferQueue.front()->m_info.channelCount)
         {
-            this->m_mutex.unlock();
+            m_mutex.unlock();
             stop();
         }
         else
-            this->m_mutex.unlock();
+            m_mutex.unlock();
     }
 
     //////////////////////////////////////////////
@@ -368,7 +364,7 @@ namespace jop
         m_info.offset[1] = 0.01f;
         m_info.currentPos = m_info.firstSample;
 
-        this->m_mutex.unlock();
+        m_mutex.unlock();
         updateBackBuffer();
     }
 
@@ -380,9 +376,9 @@ namespace jop
         {
             if (m_updatebuffer)
             {
-                if (this->m_mutex.try_lock())
+                if (m_mutex.try_lock())
                 {
-                    if (m_fileInstance != NULL)
+                    if (m_fileInstance.isValid())
                     {
                         m_bufferQueue.back()->m_samples.clear();
 
@@ -401,9 +397,9 @@ namespace jop
                         else
                         {
                             if (m_info.sampleCount < JOP_AUDIO_STREAMING_BUFFER_SIZE)
-                                m_bufferQueue.back()->m_samples.resize(static_cast<unsigned int>(m_info.sampleCount), NULL);
+                                m_bufferQueue.back()->m_samples.resize(static_cast<unsigned int>(m_info.sampleCount), 0);
                             else
-                                m_bufferQueue.back()->m_samples.resize(JOP_AUDIO_STREAMING_BUFFER_SIZE, NULL);
+                                m_bufferQueue.back()->m_samples.resize(JOP_AUDIO_STREAMING_BUFFER_SIZE, 0);
 
                             if (static_cast<int64>(m_info.currentPos) >= (m_fileInstance.getSize()) && m_playing)
                                 m_lastBuffer = true;
@@ -429,7 +425,7 @@ namespace jop
                             m_updatebuffer = false;
                     }
                 }
-                this->m_mutex.unlock();
+                m_mutex.unlock();
             }
         }
     }

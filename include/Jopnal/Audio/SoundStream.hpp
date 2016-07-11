@@ -90,7 +90,7 @@ namespace jop
         ///
         /// \return True if loaded successfully
         ///
-        SoundStream& setPath(const std::string& path);
+        bool setPath(const std::string& path);
 
         /// \copydoc SoundEffect::play(const bool)
         ///
@@ -159,7 +159,7 @@ namespace jop
         std::atomic<bool> m_updatebuffer;           ///< Check to able reader thread to update audio data
         std::atomic<bool> m_updateBoth;             ///< Check reader thread will update audio data for both buffers
         std::atomic<bool> m_keepThread;             ///< While true keeps thread alive
-        std::vector<SoundBuffer*> m_bufferQueue;    ///< SoundBuffer stack for streaming
+        std::vector<std::unique_ptr<SoundBuffer>> m_bufferQueue; ///< SoundBuffer stack for streaming
         ParsedStreamingInfo m_info;                 ///< Critical information for passing between buffers
         FileLoader m_fileInstance;                  ///< FileLoader instance for this stream
         Thread m_thread;                            ///< Own thread for reading files to buffer

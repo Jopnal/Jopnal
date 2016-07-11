@@ -45,6 +45,7 @@ namespace jop
     class InputStream
     {
     public:
+
         InputStream(const void* buffer, int64 size);
         InputStream(FileLoader& fileInstance);
 
@@ -99,7 +100,7 @@ namespace
 namespace jop
 {
     InputStream::InputStream(const void* buffer, int64 size)
-        : m_fileInstance    (NULL),
+        : m_fileInstance    (nullptr),
           m_data            (static_cast<const char*>(buffer)),
           m_size            (size),
           m_offset          (0)
@@ -107,7 +108,7 @@ namespace jop
 
     InputStream::InputStream(FileLoader& fileInstance)
         : m_fileInstance    (&fileInstance),
-          m_data            (NULL),
+          m_data            (nullptr),
           m_size            (fileInstance.getSize()),
           m_offset          (0)
     {}
