@@ -145,8 +145,8 @@ ExternalProject_Add(Bullet
     
                     PREFIX ${PREFIX_DIR}
     
-                    GIT_REPOSITORY "https://github.com/bulletphysics/bullet3.git"
-                    GIT_TAG "0cba24b637296b518be720818249b413833765b1"
+                    GIT_REPOSITORY "https://github.com/Jopnal/bullet3.git"
+                    GIT_TAG "master"
                     
                     UPDATE_COMMAND ""
                     PATCH_COMMAND ""
@@ -300,7 +300,7 @@ ExternalProject_Get_Property(OpenAL BINARY_DIR)
 target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME})
 
 if (JOP_OS_ANDROID)
-    install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib/${ANDROID_ABI})
+    install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib/${ANDROID_ABI_DIR})
 elseif(JOP_OS_WINDOWS)
 
     add_custom_command(TARGET OpenAL POST_BUILD

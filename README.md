@@ -31,3 +31,17 @@ All the included [3rd party libraries](https://github.com/DrJonki/Jopnal/wiki/Cr
 Copyright (c) 2016 Team Jopnal, All Rights Reserved  
 
 [Contributors & Third parties](https://github.com/DrJonki/Jopnal/wiki/Credits)
+
+Jopnal Engine uses the following external libraries:  
+  - [Box2D](http://box2d.org/) (zlib)
+  - [Bullet](http://bulletphysics.org) (zlib)
+  - [dr_wav](https://github.com/mackron/dr_libs) (Public domain)
+  - [GLFW](http://www.glfw.org/) (zlib)
+  - [GLM](http://glm.g-truc.net/0.9.7/index.html) (MIT)
+  - [Ogg](https://www.xiph.org/ogg/) (BSD)
+  - [OpenAL-soft](http://kcat.strangesoft.net/openal.html) (LGPL)
+  - [PhysicsFS](https://icculus.org/physfs/) (zlib)
+  - [RapidJSON](https://github.com/miloyip/rapidjson) (MIT)
+  - [SOIL](http://lonesock.net/soil.html) (Public domain)
+  - [STB](https://github.com/nothings/stb) (Public domain)
+  - [Vorbis](http://www.vorbis.com/) (BSD)

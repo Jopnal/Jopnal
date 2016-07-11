@@ -149,9 +149,12 @@ if (JOP_OS_ANDROID)
 
     # Install everything in $NDK/sources/
     set(CMAKE_INSTALL_PREFIX ${ANDROID_NDK}/sources/jopnal)
+    
+    string(FIND ${ANDROID_ABI} " " SPACE_POS)
+    string(SUBSTRING ${ANDROID_ABI} 0 ${SPACE_POS} ANDROID_ABI_DIR)
 
     # Install libs in a subdirectory named after the ABI
-    set(LIB_SUFFIX "/${ANDROID_ABI}")
+    set(LIB_SUFFIX "/${ANDROID_ABI_DIR}")
 
     # Pass shared STL configuration
     if (ANDROID_STL MATCHES "_shared")
@@ -238,9 +241,9 @@ if (JOP_OS_ANDROID)
 
     # Install Android.mk
     if (BUILD_SHARED_LIBS)
-        install(FILES tools/Android/MakefileShared/Android.mk DESTINATION .)
+        install(FILES tools/Android/shared/Android.mk DESTINATION .)
     else ()
-        install(FILES tools/Android/MakefileStatic/Android.mk DESTINATION .)
+        install(FILES tools/Android/static/Android.mk DESTINATION .)
     endif()
     
 endif()
