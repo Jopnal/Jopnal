@@ -32,11 +32,8 @@
 
 #endif
 
-#if defined(JOP_OS_DESKTOP)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#elif defined(JOP_OS_ANDROID)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#endif
+#include<Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Core/Engine.hpp>
 
 //////////////////////////////////////////////
 
@@ -68,6 +65,8 @@ namespace jop
 
 	bool Keyboard::isKeyDown(Key key)
 	{
+		using namespace input;
+
 		if (validateWindowRef())
 		{
          #if defined(JOP_OS_DESKTOP)

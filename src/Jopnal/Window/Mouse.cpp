@@ -32,11 +32,8 @@
 
 #endif
 
-#if defined(JOP_OS_DESKTOP)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#elif defined(JOP_OS_ANDROID)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#endif
+#include<Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Core/Engine.hpp>
 
 //////////////////////////////////////////////
 
@@ -57,6 +54,8 @@ namespace jop
 {
 	bool Mouse::isButtonDown(Button button)
 	{
+		using namespace input;
+
 		if (validateWindowRef())
 		{
         #if defined(JOP_OS_DESKTOP)
@@ -72,7 +71,7 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	glm::vec2 getPosition()
+    glm::vec2 Mouse::getPosition()
 	{
 		if (validateWindowRef())
 		{
@@ -81,11 +80,11 @@ namespace jop
 			glfwGetCursorPos(ns_windowRef->getLibraryHandle(),&x,&y);
 			return glm::vec2(x,y);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #else
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #endif
 		}
-		return glm::vec2(NULL);
+		return glm::vec2(0,0);
 	}
 }

@@ -41,9 +41,10 @@ extern int main(int argc, char* argv[]);
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
-    #include<Jopnal/Window/Android/InputEnumsImpl.cpp>
+    //#include<Jopnal/Window/InputEnumsImpl.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
-    #include <android/input.h>
+    //#include <android/input.h>
+    //#include<Jopnal/Window/Window.hpp>
     #include <thread>
     #include <atomic>
 
@@ -100,7 +101,7 @@ extern int main(int argc, char* argv[]);
 
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
-			int32_t type = AInputEvent_getType(event);
+/*			int32_t type = AInputEvent_getType(event);
 			int32_t action = AKeyEvent_getAction(event);
 			if (type == AINPUT_EVENT_TYPE_KEY)
 			{
@@ -150,6 +151,7 @@ extern int main(int argc, char* argv[]);
 			    default:
 				break;
 				}		
+			return 0;
 			}
 			else if (type == AINPUT_EVENT_TYPE_MOTION)
 			{
@@ -177,7 +179,7 @@ extern int main(int argc, char* argv[]);
 					}
 					return 1;
 				}
-			}
+			}*/
             return 0;
         }
 

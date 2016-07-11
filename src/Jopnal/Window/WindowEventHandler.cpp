@@ -25,7 +25,6 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/WindowEventHandler.hpp>
-    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <array>
     #include <vector>
@@ -36,7 +35,7 @@
 
 #endif
 
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#include<Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 
@@ -71,6 +70,7 @@ namespace jop
         glfwSetKeyCallback(handle, [](GLFWwindow* w, int key, int scancode, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
+			using namespace input;
 
             switch (action)
             {
@@ -124,6 +124,7 @@ namespace jop
         glfwSetMouseButtonCallback(handle, [](GLFWwindow* w, int button, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
+			using namespace input;
 
             switch (action)
             {
@@ -214,6 +215,8 @@ namespace jop
 
     int WindowEventHandler::keyDown(const int key) const
     {
+	using namespace input;
+
     #if defined(JOP_OS_DESKTOP)
         return glfwGetKey(m_windowRef.getLibraryHandle(), getGlKey(key));
     #else
@@ -257,7 +260,9 @@ namespace jop
     //////////////////////////////////////////////
 
     int WindowEventHandler::mouseButtonDown(const int button) const
-    {
+	{	
+	using namespace input;
+
     #if defined(JOP_OS_DESKTOP)
         return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlButton(button));
     #else

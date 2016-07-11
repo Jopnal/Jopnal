@@ -19,19 +19,23 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_INPUTENUMSIMPL_HPP
+#define JOP_INPUTENUMSIMPL_HPP
+
 // Headers
-#include JOP_PRECOMPILED_HEADER_FILE
-
-#ifndef JOP_PRECOMPILED_HEADER
-
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Window/Keyboard.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 
-#ifdef JOP_OS_DESKTOP
-#include <GLFW/glfw3.h>
-#endif
-
-#endif
-
-#include<Jopnal/Window/InputEnumsImpl.hpp>
-
 //////////////////////////////////////////////
+namespace jop
+{
+	namespace input
+	{
+		int getJopKey(const int glfwKey);
+		int getGlKey(const int jopKey);
+		int getJopMouseButton(const int glfwButton);
+		int getGlButton(const int jopButton);
+	}
+}
+#endif

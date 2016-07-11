@@ -32,19 +32,21 @@
 
 #endif
 
-#if defined(JOP_OS_DESKTOP)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#elif defined(JOP_OS_ANDROID)
-#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
-#endif
+#include<Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Core/Engine.hpp>
+#include <Jopnal/Core/SettingManager.hpp>
 
 //////////////////////////////////////////////
 
 namespace
 {
+    int ns_maxControllers = 0;
+    float ns_deadzone = 0.f;
+    unsigned int ns_counter = 0;
+
 	jop::Window* ns_windowRef = nullptr;
 
-	bool  validateWindowRef()
+	bool validateWindowRef()
 	{
 		if (ns_windowRef == nullptr)
 			ns_windowRef = &jop::Engine::getCurrentWindow();
@@ -59,25 +61,24 @@ namespace jop
 	{
 		if (validateWindowRef())
 		{
-		int count = 0;
-		static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
-		static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
-		static unsigned int counter = 99;
-      
+		int count = 0;  
        #if defined(JOP_OS_DESKTOP)
-		for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
+        ns_maxControllers = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
+        ns_deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
+        ns_counter = 99;
+		for (int i = 0; i < ns_maxControllers && (++ns_counter % 100) == 0; ++i)
 		{
 			if (glfwJoystickPresent(i) == GL_TRUE)
 				count += 1;
 		}
 		return count;
         #elif defined(JOP_OS_ANDROID)
-		return NULL;
+		return 0;
         #else
-		return NULL;
+		return 0;
         #endif
 		}
-		return NULL;;
+		return 0;;
 	}
 
 	//////////////////////////////////////////////
@@ -132,15 +133,15 @@ namespace jop
 			if (count = 4)
 				return glm::vec2(axes[2], axes[3]);
 			else
-				return glm::vec2(NULL);
+				return glm::vec2(0,0);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #else
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #endif
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
 		}
-		return glm::vec2(NULL);
+		return glm::vec2(0,0);
 	}
 
 	//////////////////////////////////////////////
@@ -155,15 +156,15 @@ namespace jop
 			if (count = 4)
 				return glm::vec2(axes[0], axes[1]);
 			else
-				return glm::vec2(NULL);
+				return glm::vec2(0,0);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #else
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
         #endif
-			return glm::vec2(NULL);
+			return glm::vec2(0,0);
 		}
-		return glm::vec2(NULL);
+		return glm::vec2(0,0);
 	}
 
 }

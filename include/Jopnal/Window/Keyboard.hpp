@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -99,7 +100,7 @@ namespace jop
             LSuper,
             RShift,
             RControl,
-            RAlth,
+            RAlt,
             RSuper,
             Menu
         };
