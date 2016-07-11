@@ -66,6 +66,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
+// OpenAlSoft
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+
 // Bullet
 #pragma warning(push)
 #pragma warning(disable: 4127)
@@ -83,6 +88,9 @@
 #include <rapidjson/stringbuffer.h>
 #pragma warning(pop)
 
+// Box2D
+#include <Box2D/Box2D.h>
+
 // PhysFS
 #include <physfs.h>
 
@@ -98,6 +106,7 @@
 #include <locale>
 #include <codecvt>
 #include <cstring>
+#include <set>
 
 // Additional STL header
 #include <Jopnal/STL.hpp>
@@ -107,5 +116,7 @@
 
 // Implementation classes
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+#include <Jopnal/Audio/AlTry.hpp>
+#include <Jopnal/Audio/AudioReader.hpp>
 
 #endif

@@ -18,14 +18,16 @@ endmacro()
 
 
 # Configuration option
-jopSetOption(CMAKE_BUILD_TYPE Release STRING "Type of build (Debug or Release)")
+jopSetOption(CMAKE_BUILD_TYPE Release STRING "Type of build")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+             "Debug" "Release")
 
 # Android options, must be set in the beginning
 
 # API level, must be at least 18 for GLES 3.0
 jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or equal to 18)")
 set_property(CACHE ANDROID_API_MIN PROPERTY STRINGS
-			 "18" "19" "21" "23" "24")
+             "18" "19" "21" "23" "24")
 
 # Setup version value for the toolchain
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
@@ -33,7 +35,7 @@ set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 # Set toolchain to use
 jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
-			 "arm-linux-androideabi-4.9")
+             "arm-linux-androideabi-4.9")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
@@ -45,7 +47,7 @@ jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
 # Default to v7a for harware floating point
 if(NOT ANDROID_ABI)
-    set(ANDROID_ABI "armeabi-v7a with NEON")
+    set(ANDROID_ABI "armeabi-v7a")
 endif()
 
 # Project name
@@ -90,9 +92,9 @@ if (JOP_OS_ANDROID OR (JOP_OS_WINDOWS AND JOP_COMPILER_GCC))
     set(USE_PRECOMPILED_HEADER_DEFAULT FALSE)
 endif() 
    
-jopSetOption(USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
+jopSetOption(JOP_USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
 
-if (USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
+if (JOP_USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
     message(WARNING "Using precompiled header may crash GCC. Keep this in mind")
 endif()
 
@@ -108,6 +110,25 @@ jopSetOption(BUILD_SHARED_LIBS TRUE BOOL "TRUE to build Jopnal as shared, FALSE 
 
 # Option for choosing the OpenGL implementation
 jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "TRUE to use an OpenGL ES, FALSE to use a desktop OpenGL")
+
+# Choose debug verbosity
+jopSetOption(JOP_CONSOLE_VERBOSITY "2" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
+set_property(CACHE JOP_CONSOLE_VERBOSITY PROPERTY STRINGS
+             "-1" "0" "1" "2" "3")
+add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
+
+# Option to enable/disable assertions
+jopSetOption(JOP_ASSERTS TRUE BOOL "True to enable assertions, false to strip them away")
+add_definitions("-DJOP_ENABLE_ASSERTS=${JOP_ASSERTS}")
+
+# Option to enable/disable OpenGL error checks
+jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away")
+add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
+
+# Option to enable/disable OpenAL error checks
+jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away")
+add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
+
 
 # Android options
 if (JOP_OS_ANDROID)
@@ -148,8 +169,16 @@ else()
     unset(ANDROID_STL CACHE)
     unset(ANDROID_NATIVE_API_LEVEL CACHE)
     unset(ANDROID_NDK CACHE)
-	unset(ANDROID_TOOLCHAIN_MAKE CACHE)
+    unset(ANDROID_TOOLCHAIN_MAKE CACHE)
 
+endif()
+
+# Disable OpenGL ES on Windows
+if (JOP_OS_WINDOWS)
+
+    unset(JOP_OPENGL_ES CACHE)
+    set(JOP_OPENGL_ES FALSE)
+    
 endif()
 
 # Define JOP_STATIC to build static library
@@ -160,9 +189,9 @@ endif()
 if (JOP_COMPILER_MSVC)
 
     jopSetOption(JOP_GENERATE_PDB TRUE BOOL "True to generate PDB debug symbol files, FALSE otherwise")
-	
-	# - Disable deprecation warnings
-	# - Set warning level to 4
+    
+    # - Disable deprecation warnings
+    # - Set warning level to 4
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS /W4)
 
 endif()
@@ -202,41 +231,7 @@ install(FILES LICENSE DESTINATION ${INSTALL_MISC_DIR})
 install(FILES README.md DESTINATION ${INSTALL_MISC_DIR})
 
 # Install 3rd-party libraries and tools
-if (JOP_OS_WINDOWS)
-
-    if (ARCH_32BITS)
-
-        install(DIRECTORY extlibs/bin/x86/ DESTINATION bin)
-
-        if (JOP_COMPILER_MSVC AND JOP_MSVC_VERSION LESS 14)
-            install(DIRECTORY extlibs/lib/msvc/x86/ DESTINATION lib)
-
-        elseif (JOP_COMPILER_MSVC)
-            install(DIRECTORY extlibs/lib/msvc-universal/x86/ DESTINATION lib)
-
-        else ()
-            install(DIRECTORY extlibs/lib/mingw/x86/ DESTINATION lib)
-
-        endif()
-
-    elseif (ARCH_64BITS)
-
-        install(DIRECTORY extlibs/bin/x64/ DESTINATION bin)
-
-        if (JOP_COMPILER_MSVC AND JOP_MSVC_VERSION LESS 14)
-            install(DIRECTORY extlibs/lib/msvc/x64/ DESTINATION lib)
-
-        elseif (JOP_COMPILER_MSVC)
-            install(DIRECTORY extlibs/lib/msvc-universal/x64/ DESTINATION lib)
-
-        else ()
-            install(DIRECTORY extlibs/lib/mingw/x64/ DESTINATION lib)
-
-        endif()
-
-    endif()
-
-elseif (JOP_OS_ANDROID)
+if (JOP_OS_ANDROID)
 
     # Install extlibs
     install(FILES extlibs/Android.mk DESTINATION extlibs)

@@ -26,7 +26,12 @@
 
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
 
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
     #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 

@@ -28,7 +28,13 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/STL.hpp>
+    
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
     #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
 
 #endif
 

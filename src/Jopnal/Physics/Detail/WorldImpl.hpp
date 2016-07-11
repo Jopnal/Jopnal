@@ -24,7 +24,13 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#pragma warning(pop)
+
 #include <memory>
 
 //////////////////////////////////////////////

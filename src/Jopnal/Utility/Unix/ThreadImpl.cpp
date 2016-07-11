@@ -22,6 +22,8 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
+#include <Jopnal/Utility/Unix/ThreadImpl.hpp>
+
 #ifndef JOP_OS_WINDOWS
 
 #include <Jopnal/Utility/Unix/ThreadImpl.hpp>

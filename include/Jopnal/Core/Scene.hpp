@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <vector>
+#include <tuple>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -36,8 +37,27 @@ namespace jop
 {
     class Renderer;
     class World;
+    class World2D;
     class Window;
     class RenderTarget;
+
+    namespace detail
+    {
+        template<int D>
+        struct WorldType{};
+
+        template<>
+        struct WorldType<2>
+        {
+            typedef World2D type;
+        };
+
+        template<>
+        struct WorldType<3>
+        {
+            typedef World type;
+        };
+    }
 
     class JOP_API Scene : private Object
     {
@@ -49,6 +69,7 @@ namespace jop
         using Object::removeComponents;
         using Object::clearComponents;
         using Object::componentCount;
+        using Object::removeComponent;
 
         using Object::createChild;
         using Object::getChildren;
@@ -104,19 +125,35 @@ namespace jop
         template<typename T, typename ... Args>
         T& setRenderer(Args&&... args);
 
+
+        /// \brief Get the physics world
+        ///
+        /// If a world hasn't been created yet, it will be created by the function
+        ///
+        /// \return Reference to the world
+        ///
+        template<int D>
+        typename detail::WorldType<D>::type& getWorld();
+
+
+        /// \brief Enable a world
+        ///
+        /// \return True if world has been enabled, false if not
+        ///
+        template <int D>
+        bool worldEnabled();
+
+        /// \brief Disable a world
+        ///
+        template<int D>
+        void disableWorld();
+        
+
         /// \brief Get the renderer
         ///
         /// \return Reference to the renderer
         ///
         Renderer& getRenderer() const;
-
-
-        /// \brief Get the physics world
-        ///
-        /// \return Reference to the world
-        ///
-        World& getWorld() const;
-
         
         /// \brief Set the delta time scalar
         ///
@@ -203,8 +240,8 @@ namespace jop
 
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
-        World& m_world;                         ///< The physics world
         float m_deltaScale;                     ///< Delta time scalar
+        std::tuple<World2D*, World*> m_worlds;
     };
 
     // Include the template implementation file

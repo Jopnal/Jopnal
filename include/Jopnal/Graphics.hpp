@@ -23,6 +23,7 @@
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/Mesh/CircleMesh.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
@@ -51,6 +52,8 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
+#include <Jopnal/Graphics/ShaderPreprocessor.hpp>
+#include <Jopnal/Graphics/ShaderProgram.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/Image.hpp>
 #include <Jopnal/Graphics/Font.hpp>

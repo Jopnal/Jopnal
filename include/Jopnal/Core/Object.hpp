@@ -181,6 +181,9 @@ namespace jop
         /// 
         Object& removeComponents(const uint32 ID);
 
+        template<typename T>
+        Object& removeComponent(const uint32 ID = 0);
+
         /// \brief Remove all components
         ///
         /// \comm clearComponents

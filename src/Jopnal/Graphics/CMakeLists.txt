@@ -1,6 +1,7 @@
 # Jopnal Graphics CMakeLists
 
 set(__INCDIR_GRAPHICS ${PROJECT_SOURCE_DIR}/include/Jopnal/Graphics)
+set(__INLDIR_GRAPHICS ${__INCDIR_GRAPHICS}/Inl)
 set(__SRCDIR_GRAPHICS ${PROJECT_SOURCE_DIR}/src/Jopnal/Graphics)
 
 # CMakeLists
@@ -29,6 +30,7 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/RenderTexture.hpp
     ${__INCDIR_GRAPHICS}/Shader.hpp
     ${__INCDIR_GRAPHICS}/ShaderAssembler.hpp
+    ${__INCDIR_GRAPHICS}/ShaderProgram.hpp
     ${__INCDIR_GRAPHICS}/SkyBox.hpp
     ${__INCDIR_GRAPHICS}/SkySphere.hpp
     ${__INCDIR_GRAPHICS}/Text.hpp
@@ -42,6 +44,7 @@ list(APPEND SRC ${__INC_GRAPHICS})
 # Include - Mesh
 set(__INC_GRAPHICS_MESH
     ${__INCDIR_GRAPHICS}/Mesh/BoxMesh.hpp
+    ${__INCDIR_GRAPHICS}/Mesh/CircleMesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/Mesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/RectangleMesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/SphereMesh.hpp
@@ -50,7 +53,7 @@ source_group("Graphics\\Headers\\Mesh" FILES ${__INC_GRAPHICS_MESH})
 list(APPEND SRC ${__INC_GRAPHICS_MESH})
 
 # Include - Texture
-set(__INC_GRAPHICS_TEXTURE	
+set(__INC_GRAPHICS_TEXTURE    
     ${__INCDIR_GRAPHICS}/Texture/Cubemap.hpp
     ${__INCDIR_GRAPHICS}/Texture/CubemapDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp
@@ -68,6 +71,13 @@ set(__INC_GRAPHICS_OPENGL
 )
 source_group("Graphics\\Headers\\OpenGL" FILES ${__INC_GRAPHICS_OPENGL})
 list(APPEND SRC ${__INC_GRAPHICS_OPENGL})
+
+# Inline - Graphics
+set(__INL_GRAPHICS
+    ${__INLDIR_GRAPHICS}/ShaderProgram.inl
+)
+source_group("Graphics\\Inl" FILES ${__INL_GRAPHICS})
+list(APPEND SRC ${__INL_GRAPHICS})
 
 # Source
 set(__SRC_GRAPHICS
@@ -90,6 +100,7 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/RenderTexture.cpp
     ${__SRCDIR_GRAPHICS}/Shader.cpp
     ${__SRCDIR_GRAPHICS}/ShaderAssembler.cpp
+    ${__SRCDIR_GRAPHICS}/ShaderProgram.cpp
     ${__SRCDIR_GRAPHICS}/SkyBox.cpp
     ${__SRCDIR_GRAPHICS}/SkySphere.cpp
     ${__SRCDIR_GRAPHICS}/Text.cpp
@@ -103,6 +114,7 @@ list(APPEND SRC ${__SRC_GRAPHICS})
 # Source - Mesh
 set(__SRC_GRAPHICS_MESH
     ${__SRCDIR_GRAPHICS}/Mesh/BoxMesh.cpp
+    ${__SRCDIR_GRAPHICS}/Mesh/CircleMesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/Mesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/RectangleMesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/SphereMesh.cpp
@@ -133,9 +145,9 @@ set(__SRC_GRAPHICS_OPENGL
 )
 if (NOT JOP_OS_ANDROID)
 
-	list(APPEND __SRC_GRAPHICS_OPENGL
-		${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.c
-		${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.h
+    list(APPEND __SRC_GRAPHICS_OPENGL
+        ${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.c
+        ${__SRCDIR_GRAPHICS}/OpenGL/gl_4.5.h
     )
 
 endif()

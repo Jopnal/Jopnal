@@ -35,7 +35,7 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
     class Renderer;
     class RectangleMesh;
 
@@ -90,8 +90,8 @@ namespace jop
 
         std::array<RenderTexture, 2> m_pingPong;
         std::array<std::string, 2> m_shaderSources;
-        std::unordered_map<uint32, WeakReference<Shader>> m_shaders;
-        WeakReference<Shader> m_blurShader;
+        std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
+        WeakReference<ShaderProgram> m_blurShader;
         WeakReference<RectangleMesh> m_quad;
         const RenderTexture& m_mainTarget;
         uint32 m_functions;

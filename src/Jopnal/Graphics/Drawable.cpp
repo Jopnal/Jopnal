@@ -27,8 +27,13 @@
     #include <Jopnal/Graphics/Drawable.hpp>
 
     #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
     #include <Jopnal/Graphics/Model.hpp>
-    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif
@@ -105,7 +110,7 @@ namespace jop
     {
         auto shdr = ((m_model.getMaterial() == nullptr || !m_model.getMaterial()->getShader()) && m_shader.expired()) ? m_shader.get() : m_model.getMaterial()->getShader();
 
-        draw(&camera, lights, shdr == nullptr ? Shader::getDefault() : *shdr);
+        draw(&camera, lights, shdr == nullptr ? ShaderProgram::getDefault() : *shdr);
     }
 
     //////////////////////////////////////////////
@@ -159,9 +164,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setShader(Shader& shader)
+    Drawable& Drawable::setShader(ShaderProgram& shader)
     {
-        m_shader = static_ref_cast<Shader>(shader.getReference());
+        m_shader = static_ref_cast<ShaderProgram>(shader.getReference());
         return *this;
     }
 
@@ -170,7 +175,7 @@ namespace jop
     Drawable& Drawable::removeShader(const bool loadMaterialShader)
     {
         if (loadMaterialShader && m_model.getMaterial())
-            m_shader = static_ref_cast<Shader>(ShaderAssembler::getShader(m_model.getMaterial()->getAttributeField()).getReference());
+            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(m_model.getMaterial()->getAttributeField()).getReference());
         else
             m_shader.reset();
 
@@ -179,7 +184,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Shader* Drawable::getShader() const
+    ShaderProgram* Drawable::getShader() const
     {
         return m_shader.get();
     }

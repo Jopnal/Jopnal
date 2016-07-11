@@ -26,6 +26,7 @@
 
     #include <Jopnal/Core/Engine.hpp>
 
+    #include <Jopnal/Audio/AudioDevice.hpp>
     #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
@@ -123,6 +124,9 @@ namespace jop
         // Setting manager
         createSubsystem<SettingManager>();
 
+        // Audio output
+        createSubsystem<AudioDevice>();
+
         const bool openGLES =
         #ifdef JOP_OPENGL_ES
             true
@@ -171,6 +175,8 @@ namespace jop
             rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
 
             rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+
+            rtex.setClearColor(Color(SettingManager::get<std::string>("engine@Graphics|MainRenderTarget|sClearColor", "000000FF")));
 
             // Post processor
             rtex.addColorAttachment(Slot::_2, openGLES ? CA::RGB2D : CA::RGB2DFloat16, scaledRes);

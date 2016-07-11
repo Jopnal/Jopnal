@@ -75,7 +75,7 @@ namespace jop
         {
             static const struct EnabledCallback : SettingCallback<bool>
             {
-                const char* const str;
+                const char* str;
 
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
@@ -88,7 +88,7 @@ namespace jop
 
             static const struct ExposureCallback : SettingCallback<float>
             {
-                const char* const str;
+                const char* str;
 
                 ExposureCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|fExposure")
@@ -104,7 +104,7 @@ namespace jop
         {
             static const struct EnabledCallback : SettingCallback<bool>
             {
-                const char* const str;
+                const char* str;
 
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
@@ -117,7 +117,7 @@ namespace jop
 
             static const struct PassesCallback : SettingCallback<unsigned int>
             {
-                const char* const str;
+                const char* str;
 
                 PassesCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|uBlurPasses")
@@ -142,10 +142,28 @@ namespace jop
             i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
         }
 
-        auto& blurShader = ResourceManager::getNamedResource<Shader>("jop_blur_shader", m_shaderSources[0], "", std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)), Shader::getVersionString());
-        JOP_ASSERT(&blurShader != &Shader::getError(), "Failed to compile gaussian blur shader!");
+        //static WeakReference<ShaderProgram> blurShader;
 
-        m_blurShader = static_ref_cast<Shader>(blurShader.getReference());
+        //Shader blurVert("");
+        //blurVert.load(m_shaderSources[0],Shader::Type::Vertex, true);
+
+        //Shader blurFrag("");
+        //blurFrag.load(std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)), Shader::Type::Fragment, true);
+        //if (blurShader.expired())
+        //{
+        //    blurShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_blur_shader").getReference());
+
+        //    JOP_ASSERT(blurShader->load(blurVert, blurFrag), "Failed to compile gaussian blur shader!");
+
+        //    m_blurShader = static_ref_cast<ShaderProgram>(blurShader);
+        //}
+
+        auto& blurShader = ResourceManager::getNamedResource<ShaderProgram>("jop_blur_shader","", Shader::Type::Vertex, m_shaderSources[0],Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)));
+
+        JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
+
+        m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
+        
     }
 
     //////////////////////////////////////////////
@@ -209,12 +227,12 @@ namespace jop
             std::string pp;
             getPreprocessorStr(m_functions, pp);
 
-            auto& shader = ResourceManager::getNamedResource<Shader>("jop_pp_shader_" + std::to_string(m_functions), m_shaderSources[0], "", m_shaderSources[1], pp);
+            auto& shader = ResourceManager::getNamedResource<ShaderProgram>("jop_pp_shader_" + std::to_string(m_functions), pp, Shader::Type::Vertex, m_shaderSources[0], Shader::Type::Fragment, m_shaderSources[1]);
 
-            JOP_ASSERT(&shader != &Shader::getError(), "Failed to compile post process shader!");
+            JOP_ASSERT(&shader != &ShaderProgram::getError(), "Failed to compile post process shader!");
 
             shader.setPersistence(1);
-            m_shaders[m_functions] = static_ref_cast<Shader>(shader.getReference());
+            m_shaders[m_functions] = static_ref_cast<ShaderProgram>(shader.getReference());
         }
 
         auto& shdr = *m_shaders[m_functions];
@@ -237,8 +255,8 @@ namespace jop
         RenderTexture::unbind();
         
         m_quad->getVertexBuffer().bind();
-        shdr.setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::Position));
-        shdr.setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::TexCoords));
+        shdr.setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::Position));
+        shdr.setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::TexCoords));
 
         shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
 
@@ -257,8 +275,6 @@ namespace jop
 
     void PostProcessor::getPreprocessorStr(const uint32 funcs, std::string& str) const
     {
-        str += Shader::getVersionString();
-
         if ((funcs & Function::ToneMap) != 0)
             str += "#define JPP_TONEMAP\n";
 
@@ -278,8 +294,8 @@ namespace jop
         m_blurShader->setUniform("u_Buffer", texture, 1);
 
         m_quad->getVertexBuffer().bind();
-        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::Position));
-        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), false, m_quad->getVertexOffset(Mesh::TexCoords));
+        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::Position));
+        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::TexCoords));
 
         m_quad->getIndexBuffer().bind();
 

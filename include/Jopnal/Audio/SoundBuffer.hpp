@@ -25,24 +25,40 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <memory>
-#include <string>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class SoundBuffer;
-}
-
 namespace jop
 {
+    class SoundSource;
+    class SoundStream;
+
     class JOP_API SoundBuffer : public Resource
-    {
+    {    
+    public:
+
+        enum class AudioFormat
+        {
+            undefined,
+            wav,
+            ogg
+        };
+
     private:
 
+        struct parsedAudioInfo
+        {
+            uint64 sampleCount = 0;                      ///< Total number of samples
+            int channelCount   = 0;                      ///< Number of channels
+            int sampleRate     = 0;                      ///< Samples per second
+            AudioFormat format = AudioFormat::undefined;    ///< Format of audio for decoding
+        };
+
+        friend class AudioReader;
         friend class SoundEffect;
+        friend class SoundStream;
 
         JOP_DISALLOW_COPY_MOVE(SoundBuffer);
 
@@ -79,6 +95,13 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        /// \brief Load a new buffer from memory
+        ///
+        /// \param Pointer to array and size
+        ///
+        /// \return True if successful
+        ///
+        bool load(const void* ptr, const uint32 size);
 
         /// \brief Get default sound buffer
         ///
@@ -88,8 +111,27 @@ namespace jop
 
     private:
 
-        bool load(const int id);
+        /// \brief Update OpenAl
+        ///
+        SoundBuffer& refresh();
 
+        /// \brief Private method to link SoundSource and SoundBuffer
+        ///
+        /// param SoundSource to get attached
+        ///
+        void attachSound(SoundSource* sound) const;
+
+        /// \brief Private method to unlink SoundSource and SoundBuffer
+        ///
+        /// param SoundSource to get detached
+        ///
+        void detachSound(SoundSource* sound) const;
+        
+        unsigned int m_bufferId;                    ///< Identifier for openAl buffer
+        float m_duration;                           ///< Duration as seconds
+        std::vector<uint8> m_samples;               ///< Samples
+        mutable std::vector<SoundSource*> m_sounds; ///< SoundSources that use this buffer
+        parsedAudioInfo m_info;                     ///< Info about sound's structure
     };
 }
 #endif

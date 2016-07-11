@@ -38,7 +38,7 @@
 namespace jop
 {
     class Object;
-    class Shader;
+    class ShaderProgram;
     class Renderer;
     class RenderTexture;
     class Drawable;
@@ -386,7 +386,7 @@ namespace jop
         /// \param shader The shader to send the lights to
         /// \param drawable The drawable
         ///
-        void sendToShader(Shader& shader, const Drawable& drawable) const;
+        void sendToShader(ShaderProgram& shader, const Drawable& drawable) const;
 
         /// \brief Access the individual containers for each light type
         ///

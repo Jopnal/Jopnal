@@ -22,8 +22,6 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifdef JOP_OPENGL_ES
-
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
@@ -35,19 +33,68 @@
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop 
 {
-    bool checkEGLExtension(const char* ext)
+#ifdef JOP_OPENGL_ES
+
+    namespace detail
     {
-        static std::unordered_map<const char*, bool> extMap;
+        bool checkEGLExtension(const char* ext)
+        {
+            static std::unordered_map<const char*, bool> extMap;
 
-        auto itr = extMap.find(ext);
+            auto itr = extMap.find(ext);
 
-        if (itr != extMap.end())
-            return itr->second;
+            if (itr != extMap.end())
+                return itr->second;
 
-        const bool available = strstr(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), ext) != NULL;
+            const bool available = strstr(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), ext) != NULL;
+
+            extMap[ext] = available;
+
+            return available;
+        }
+
+        const std::string& getVersionString()
+        {
+            static std::string version;
+
+            if (version.empty())
+            {
+                const std::string esVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+                const std::size_t numPos = esVersion.find_first_of("0123456789");
+
+                version += esVersion[numPos];
+                version += '.';
+                version += esVersion[numPos + 2];
+            }
+
+            return version;
+        }
     }
-}}
 
 #endif
+
+    //////////////////////////////////////////////
+
+    unsigned int getOGLVersionMajor()
+    {
+    #ifdef JOP_OPENGL_ES
+        return detail::getVersionString()[0] - '0';
+    #else
+        return ogl_GetMajorVersion();
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int getOGLVersionMinor()
+    {
+    #ifdef JOP_OPENGL_ES
+        return detail::getVersionString()[2] - '0';
+    #else
+        return ogl_GetMinorVersion();
+    #endif
+    }
+}

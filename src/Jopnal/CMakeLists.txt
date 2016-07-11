@@ -26,6 +26,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Graphics/CMakeLists.txt)
 # Physics
 include(${CMAKE_CURRENT_SOURCE_DIR}/Physics/CMakeLists.txt)
 
+# Physics2D
+include(${CMAKE_CURRENT_SOURCE_DIR}/Physics2D/CMakeLists.txt)
+
 # Precompiled
 include(${CMAKE_CURRENT_SOURCE_DIR}/Precompiled/CMakeLists.txt)
 
@@ -42,9 +45,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Utility/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Window/CMakeLists.txt)
 
 
-# Preprocessor symbols
-add_definitions(-DSTBI_FAILURE_USERMSG)
-
 # Add target
 jopAddLibrary(jopnal SOURCES ${SRC})
               
@@ -54,7 +54,7 @@ if (TARGET jopnal-resources)
 endif()
 
 # Precompiled header
-if (NOT JOP_COMPILER_GCC AND USE_PRECOMPILED_HEADER)
+if (NOT JOP_COMPILER_GCC AND JOP_USE_PRECOMPILED_HEADER)
 
     add_definitions(-DJOP_PRECOMPILED_HEADER)
     add_definitions(-DJOP_PRECOMPILED_HEADER_FILE=<Jopnal/Precompiled/Precompiled.hpp>)
@@ -72,41 +72,59 @@ endif()
 # External libraries
 ######################################
 
+if (JOP_OS_ANDROID)
+
+    find_host_package(Git)
+
+    if (NOT GIT_FOUND)
+        message(FATAL_ERROR "Git was not found! Please specify the advanced option GIT_EXECUTABLE to point to git executable")
+    endif()
+
+endif()
+
 include(ExternalProject)
 include_directories(${PROJECT_SOURCE_DIR}/extlibs/headers)
 
+# Preprocessor symbols
+add_definitions(-DSTBI_FAILURE_USERMSG)
 
 if (JOP_OS_ANDROID)
 
     set(ANDROID_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-						-DANDROID_NATIVE_API_LEVEL=${ANDROID_API_MIN}
-						-DANDROID_TOOLCHAIN_MAKE=${ANDROID_TOOLCHAIN_MAKE}
-						-DANDROID_ABI=${ANDROID_ABI}
-						-DANDROID_STL=${ANDROID_STL}
-						-DANDROID_NDK=${ANDROID_NDK}
-	)
+                        -DANDROID_NATIVE_API_LEVEL=${ANDROID_API_MIN}
+                        -DANDROID_TOOLCHAIN_MAKE=${ANDROID_TOOLCHAIN_MAKE}
+                        -DANDROID_ABI=${ANDROID_ABI}
+                        -DANDROID_STL=${ANDROID_STL}
+                        -DANDROID_NDK=${ANDROID_NDK}
+    )
 
 endif()
 
-set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}${ANDROID_ABI}")
+if (JOP_OS_ANDROID)
+    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}")
+else ()
+    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}")
+endif()
 
 # PhysFS
 ExternalProject_Add(PhysFS
-	
-					PREFIX ${PREFIX_DIR}
-	
-					GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
-					GIT_TAG "master"
-					
-					UPDATE_COMMAND ""
-					PATCH_COMMAND ""
-					INSTALL_COMMAND ""
-					
-					CMAKE_ARGS -DPHYSFS_BUILD_SHARED=OFF
-							   -DPHYSFS_ARCHIVE_7Z=OFF
-							   ${ANDROID_OPTIONS}
-							
-					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/PhysFS-build/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}
+    
+                    PREFIX ${PREFIX_DIR}
+    
+                    GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
+                    GIT_TAG "master"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+                    
+                    CMAKE_ARGS -DPHYSFS_BUILD_SHARED=OFF
+                               -DPHYSFS_ARCHIVE_7Z=OFF
+                               ${ANDROID_OPTIONS}
+                            
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/PhysFS-build/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}
+                    
+                    
 )
 add_dependencies(jopnal PhysFS)
 
@@ -124,31 +142,31 @@ set(BULLET_LIB_SOFTBODY ${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STAT
 set(BULLET_LIB_LINEARMATH ${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 ExternalProject_Add(Bullet
-	
-					PREFIX ${PREFIX_DIR}
-	
-					GIT_REPOSITORY "https://github.com/bulletphysics/bullet3.git"
-					GIT_TAG "0cba24b637296b518be720818249b413833765b1"
-					
-					UPDATE_COMMAND ""
-					PATCH_COMMAND ""
-					INSTALL_COMMAND ""
-					
-					CMAKE_ARGS -DBUILD_BULLET2_DEMOS=OFF
-							   -DBUILD_BULLET3=OFF
-							   -DBUILD_CPU_DEMOS=OFF
-							   -DBUILD_EXTRAS=OFF
-							   -DBUILD_OPENGL3_DEMOS=OFF
-							   -DBUILD_UNIT_TESTS=OFF
-							   -DUSE_GLUT=OFF
-							   -DUSE_GRAPHICAL_BENCHMARK=OFF
-							   -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
-							   ${ANDROID_OPTIONS}
-							
-					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_DYNAMICS}
-									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_COLLISION}
-									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_SOFTBODY}
-									 ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_LINEARMATH}
+    
+                    PREFIX ${PREFIX_DIR}
+    
+                    GIT_REPOSITORY "https://github.com/bulletphysics/bullet3.git"
+                    GIT_TAG "0cba24b637296b518be720818249b413833765b1"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+                    
+                    CMAKE_ARGS -DBUILD_BULLET2_DEMOS=OFF
+                               -DBUILD_BULLET3=OFF
+                               -DBUILD_CPU_DEMOS=OFF
+                               -DBUILD_EXTRAS=OFF
+                               -DBUILD_OPENGL3_DEMOS=OFF
+                               -DBUILD_UNIT_TESTS=OFF
+                               -DUSE_GLUT=OFF
+                               -DUSE_GRAPHICAL_BENCHMARK=OFF
+                               -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
+                               ${ANDROID_OPTIONS}
+                            
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_DYNAMICS}
+                                     ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_COLLISION}
+                                     ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_SOFTBODY}
+                                     ${PREFIX_DIR}/src/Bullet-build/lib/${BULLET_LIB_LINEARMATH}
 )
 add_dependencies(jopnal Bullet)
 
@@ -158,58 +176,62 @@ include_directories(${SOURCE_DIR}/src)
 ExternalProject_Get_Property(Bullet BINARY_DIR)
 set(BULLET_LIB_DIR ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR})
 
-target_link_libraries(jopnal debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody_Debug${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath_Debug${CMAKE_STATIC_LIBRARY_SUFFIX})
+if (NOT JOP_OS_ANDROID)
+    set(BULLET_LIB_SUFFIX _Debug)
+endif()
+
+target_link_libraries(jopnal debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 target_link_libraries(jopnal optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
-							 optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
+                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # Because Bullet seems to build the libs in inconsistent directories
 if (NOT JOP_OS_WINDOWS)
 
-	add_custom_command(TARGET Bullet POST_BUILD
-		
-		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletCollision/${BULLET_LIB_COLLISION} ${BINARY_DIR}/lib/${BULLET_LIB_COLLISION}
-		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletDynamics/${BULLET_LIB_DYNAMICS} ${BINARY_DIR}/lib/${BULLET_LIB_DYNAMICS}
-		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletSoftBody/${BULLET_LIB_SOFTBODY} ${BINARY_DIR}/lib/${BULLET_LIB_SOFTBODY}
-		COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/LinearMath/${BULLET_LIB_LINEARMATH} ${BINARY_DIR}/lib/${BULLET_LIB_LINEARMATH}
-	)
-	
+    add_custom_command(TARGET Bullet POST_BUILD
+        
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletCollision/${BULLET_LIB_COLLISION} ${BINARY_DIR}/lib/${BULLET_LIB_COLLISION}
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletDynamics/${BULLET_LIB_DYNAMICS} ${BINARY_DIR}/lib/${BULLET_LIB_DYNAMICS}
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletSoftBody/${BULLET_LIB_SOFTBODY} ${BINARY_DIR}/lib/${BULLET_LIB_SOFTBODY}
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/LinearMath/${BULLET_LIB_LINEARMATH} ${BINARY_DIR}/lib/${BULLET_LIB_LINEARMATH}
+    )
+    
 endif()
 
 
 # GLFW
 if (NOT JOP_OS_ANDROID)
 
-	ExternalProject_Add(GLFW
-		
-						PREFIX ${PREFIX_DIR}
-		
-						GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-						GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
-						
-						UPDATE_COMMAND ""
-						PATCH_COMMAND ""
-						INSTALL_COMMAND ""
-						
-						CMAKE_ARGS -DGLFW_BUILD_DOCS=OFF
-								   -DGLFW_BUILD_EXAMPLES=OFF
-								   -DGLFW_BUILD_TESTS=OFF
-								   -DGLFW_INSTALL=OFF
-							
-						BUILD_BYPRODUCTS ${PREFIX_DIR}/src/GLFW-build/src/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX}
-	)
-	add_dependencies(jopnal GLFW)
+    ExternalProject_Add(GLFW
+        
+                        PREFIX ${PREFIX_DIR}
+        
+                        GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+                        GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
+                        
+                        UPDATE_COMMAND ""
+                        PATCH_COMMAND ""
+                        INSTALL_COMMAND ""
+                        
+                        CMAKE_ARGS -DGLFW_BUILD_DOCS=OFF
+                                   -DGLFW_BUILD_EXAMPLES=OFF
+                                   -DGLFW_BUILD_TESTS=OFF
+                                   -DGLFW_INSTALL=OFF
+                            
+                        BUILD_BYPRODUCTS ${PREFIX_DIR}/src/GLFW-build/src/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+    add_dependencies(jopnal GLFW)
 
-	ExternalProject_Get_Property(GLFW SOURCE_DIR)
-	include_directories(${SOURCE_DIR}/include)
+    ExternalProject_Get_Property(GLFW SOURCE_DIR)
+    include_directories(${SOURCE_DIR}/include)
 
-	ExternalProject_Get_Property(GLFW BINARY_DIR)
-	target_link_libraries(jopnal ${BINARY_DIR}/src/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
+    ExternalProject_Get_Property(GLFW BINARY_DIR)
+    target_link_libraries(jopnal ${BINARY_DIR}/src/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 endif()
 
@@ -246,28 +268,28 @@ target_link_libraries(jopnal ${EXT_LIBS})
 
 # OpenAL
 if (JOP_OS_WINDOWS)
-	set(OPENAL_LIB_NAME OpenAL32)
+    set(OPENAL_LIB_NAME OpenAL32.lib)
 else ()
-	set(OPENAL_LIB_NAME openal)
+    set(OPENAL_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}openal${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
 ExternalProject_Add(OpenAL
-	
-					PREFIX ${PREFIX_DIR}
-	
-					GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
-					GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
-					
-					UPDATE_COMMAND ""
-					PATCH_COMMAND ""
-					INSTALL_COMMAND ""
-					
-					CMAKE_ARGS -DALSOFT_INSTALL=OFF
-					           -DALSOFT_TESTS=OFF
-					           -DALSOFT_UTILS=ON
-							   ${ANDROID_OPTIONS}
-							
-					BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+    
+                    PREFIX ${PREFIX_DIR}
+    
+                    GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
+                    GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+                    
+                    CMAKE_ARGS -DALSOFT_INSTALL=OFF
+                               -DALSOFT_TESTS=OFF
+                               -DALSOFT_UTILS=ON
+                               ${ANDROID_OPTIONS}
+                            
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/OpenAL-build/${OPENAL_LIB_NAME}
 )
 add_dependencies(jopnal OpenAL)
 
@@ -275,6 +297,94 @@ ExternalProject_Get_Property(OpenAL SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(OpenAL BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${OPENAL_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
+target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME})
 
-install(DIRECTORY ${BINARY_DIR}/${CMAKE_CFG_INTDIR} DESTINATION extlibs/lib)
+if (JOP_OS_ANDROID)
+    install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib/${ANDROID_ABI})
+elseif(JOP_OS_WINDOWS)
+
+    add_custom_command(TARGET OpenAL POST_BUILD
+        
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/OpenAL32.dll ${PREFIX_DIR}/bin/OpenAL32.dll)
+    
+endif()
+
+# Ogg
+ExternalProject_Add(Ogg
+                    
+                    PREFIX ${PREFIX_DIR}
+                    
+                    GIT_REPOSITORY "https://git.xiph.org/ogg.git"
+                    GIT_TAG "18c401c6bc8814d06f3ae53ebf5d4399f90871cc"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+
+                    CMAKE_ARGS ${ANDROID_OPTIONS}
+                    
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Ogg-build/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ogg${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+ExternalProject_Get_Property(Ogg SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
+ExternalProject_Get_Property(Ogg BINARY_DIR)
+set(OGG_LIBRARY ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ogg${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+# Vorbis
+ExternalProject_Add(Vorbis
+                    
+                    PREFIX ${PREFIX_DIR}
+                    
+                    GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
+                    GIT_TAG "d8ffc480787fcd8b5bb7203d6e0acf3bbfb2dd02"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+
+                    CMAKE_ARGS -DOGG_INCLUDE_DIRS=${SOURCE_DIR}/include
+                               -DOGG_LIBRARIES=${BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                               ${ANDROID_OPTIONS}
+                    
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     ${PREFIX_DIR}/src/Vorbis-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
+                                     
+                    DEPENDS Ogg
+)
+add_dependencies(jopnal Vorbis)
+
+ExternalProject_Get_Property(Vorbis SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
+ExternalProject_Get_Property(Vorbis BINARY_DIR)
+target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
+                             ${OGG_LIBRARY}) # Apparently ogg has to be linked after vorbis to avoid linker errors
+
+# Box2D
+ExternalProject_Add(Box2D
+    
+                    PREFIX ${PREFIX_DIR}
+    
+                    GIT_REPOSITORY "https://github.com/Jopnal/Box2D.git"
+                    GIT_TAG "master"
+                    
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
+                    INSTALL_COMMAND ""
+                    
+                    CMAKE_ARGS -DBOX2D_BUILD_EXAMPLES=OFF
+                               ${ANDROID_OPTIONS}
+                    
+                    BUILD_BYPRODUCTS ${PREFIX_DIR}/src/Box2D-build/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(jopnal Box2D)
+
+ExternalProject_Get_Property(Box2D SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
+ExternalProject_Get_Property(Box2D BINARY_DIR)
+target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX})
