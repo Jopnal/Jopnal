@@ -306,4 +306,7 @@ namespace jop
     {}
 
     //////////////////////////////////////////////
+
+	void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
+	{}
 }

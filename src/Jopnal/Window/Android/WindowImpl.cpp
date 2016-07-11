@@ -23,7 +23,6 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Android/WindowImpl.hpp>
-
 #ifdef JOP_OS_ANDROID
 
 #ifndef JOP_PRECOMPILED_HEADER

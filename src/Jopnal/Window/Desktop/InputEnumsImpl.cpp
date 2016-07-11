@@ -19,9 +19,6 @@
 
 /////////////////////////////////////////////
 
-#ifndef JOP_INPUTENUMIMPL_CPP
-#define JOP_INPUTENUMIMPL_CPP
-
 #include JOP_PRECOMPILED_HEADER_FILE
 #ifndef JOP_PRECOMPILED_HEADER
 #endif

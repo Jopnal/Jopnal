@@ -19,17 +19,27 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_TOUCH_HPP
+#define JOP_TOUCH_HPP
+
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Touch.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
+#include <Jopnal/Header.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup window Window
+
+namespace jop
+{
+	class JOP_API Touch
+	{
+	public:
+
+	};
+}
+
+#endif
+
+/// \class Touch
+/// \ingroup window
 ///
-/// #TODO Detailed decription
+/// #TODO Detailed description

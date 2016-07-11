@@ -218,6 +218,16 @@ namespace jop
         ///
         virtual void controllerButtonReleased(const int index, const int button);
 
+		/// \brief Touch event callback
+		///
+		/// This will be called when touch is received.
+		///
+		/// \param touchId Id for finger in case of multiple touches
+		/// \param x The vertical position/offset
+		/// \param y The horizontal position/offset
+		///
+		virtual void touchEvent(const int touchId, const float x, const float y);
+
     protected:
 
         Window& m_windowRef;                       ///< Reference to the window

@@ -20,16 +20,22 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
 #include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Touch.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
+
+#ifdef JOP_OS_DESKTOP
+#include <GLFW/glfw3.h>
+#endif
+
+#endif
+
+#if defined(JOP_OS_DESKTOP)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#elif defined(JOP_OS_ANDROID)
+#include<Jopnal\Window\Desktop\InputEnumsImpl.cpp>
+#endif
 
 //////////////////////////////////////////////
-
-/// \defgroup window Window
-///
-/// #TODO Detailed decription

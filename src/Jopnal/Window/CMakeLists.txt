@@ -9,6 +9,7 @@ set(__INC_WINDOW
     ${__INCDIR_WINDOW}/Controller.hpp
     ${__INCDIR_WINDOW}/Keyboard.hpp
     ${__INCDIR_WINDOW}/Mouse.hpp
+    ${__INCDIR_WINDOW}/Touch.hpp
     ${__INCDIR_WINDOW}/VideoInfo.hpp
     ${__INCDIR_WINDOW}/Window.hpp
     ${__INCDIR_WINDOW}/WindowEventHandler.hpp
@@ -30,6 +31,7 @@ set(__SRC_WINDOW
     ${__SRCDIR_WINDOW}/Controller.cpp
     ${__SRCDIR_WINDOW}/Keyboard.cpp
     ${__SRCDIR_WINDOW}/Mouse.cpp
+    ${__SRCDIR_WINDOW}/Touch.cpp
     ${__SRCDIR_WINDOW}/VideoInfo.cpp
     ${__SRCDIR_WINDOW}/Window.cpp
     ${__SRCDIR_WINDOW}/WindowEventHandler.cpp
