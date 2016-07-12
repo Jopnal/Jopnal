@@ -93,10 +93,56 @@ namespace jop
         }
         */
 
+        void getTextures(const rapidjson::Document& doc, const std::vector<uint8>& data, const std::string& root)
+        {
+            if (doc.HasMember("textures"))
+            {
+                if (!doc["textures"].IsNull())
+                {
+                    for (auto itr = doc["textures"].MemberBegin(); itr < doc["textures"].MemberEnd(); ++itr)
+                    {
+                        if (itr->value.HasMember("path"))
+                        {
+                            auto& tex = ResourceManager::getResource<Texture2D>(
+                                root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(),
+                                itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
+                                itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
+                                );
+
+                            if (itr->value.HasMember("wrapmode"))
+                            {
+                                tex.getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
+                            }
+                        }
+                        else if (itr->value.HasMember("start") && itr->value.HasMember("length"))
+                        {
+                            uint32 start = itr->value["start"].GetUint();
+                            uint32 length = itr->value["length"].GetUint();
+
+                            auto& tex = ResourceManager::getNamedResource<Texture2D>(
+                                root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), &data.at(start), length,
+                                itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
+                                itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
+                                );
+
+                            if (itr->value.HasMember("wrapmode"))
+                            {
+                                tex.getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
+                            }
+                        }
+                        else
+                        {
+                            JOP_DEBUG_ERROR("Failed to find path or start from texture array");
+                        }
+                    }
+                }
+            }
+            else
+                JOP_DEBUG_INFO("Material has 0 materials")
+        }
+
         std::vector<const Material*> getMaterials(const rapidjson::Document& doc, const std::string& root)
         {
-            
-
             std::vector<const Material*> mats;
 
             if (doc.HasMember("materials"))
@@ -133,20 +179,6 @@ namespace jop
                         m.setReflectivity(mat["reflectivity"].GetDouble());
                     }
 
-                    if (mat.HasMember("embedTex"))
-                    {
-                        --- (mat["embedTex"].GetBool());
-                    }
-
-                    if (mat.HasMember("localBB"))
-                    {
-                        for (int i = 0; i < mat["localBB"].Size(); ++i)
-                        {
-                            m_vekki.push_back(mat["localBB"][i].GetDouble());
-                        }
-                    }
-
-
                     if (mat.HasMember("textures"))
                     {
                         if (mat["textures"].IsObject())
@@ -154,19 +186,13 @@ namespace jop
                             auto& texObject = mat["textures"];
                             for (auto itr = texObject.MemberBegin(); itr != texObject.MemberEnd(); ++itr)
                             {
-                                auto& tex = ResourceManager::getResource<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(),
-                                    itr->value.HasMember("srgb") ? itr->value["srgb"].GetBool() : false,
-                                    itr->value.HasMember("genmipmaps") ? itr->value["genmipmaps"].GetBool() : true
-                                    );
+
 
                                 if (itr->value.HasMember("type"))
                                 {
-                                    m.setMap(static_cast<Material::Map>(itr->value["type"].GetInt()), tex);
+                                    m.setMap(static_cast<Material::Map>(itr->value["type"].GetInt()), ResourceManager::getExistingResource<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString()));
                                 }
-                                if (itr->value.HasMember("wrapmode"))
-                                {
-                                    tex.getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
-                                }
+
                             }
                         }
                     }
@@ -176,16 +202,13 @@ namespace jop
             return mats;
         }
 
-        std::vector<std::pair<const Mesh*, unsigned int>> getMeshes(const rapidjson::Document& doc, FileLoader& fl) //no scene intake
+        std::vector<std::pair<const Mesh*, unsigned int>> getMeshes(const rapidjson::Document& doc, const std::vector<uint8>& data)
         {
-
             if (doc.HasMember("meshes"))
             {
                 if (!doc["meshes"].IsNull())
                 {
                     std::vector<std::pair<const Mesh*, unsigned int>> meshes;
-                    std::vector<uint8> meshData(fl.getSize() - fl.tell());
-                    fl.read(&meshData.at(0), fl.getSize() - fl.tell());
 
                     meshes.reserve(doc["meshes"].Size());
 
@@ -241,9 +264,15 @@ namespace jop
                             elemSize = mes["sizeIndex"].GetInt();
                         }
 
+                        /*if (mes.HasMember("aabb"))
+                        {
+                        for (int i = 0; i < mes["aabb"].Size(); ++i)
+                        {
+                        (mes["aabb"][i].GetDouble());
+                        }
+                        }*/
 
-                        meshes.push_back(std::make_pair(&ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), &meshData.at(start), length, comps, &meshData.at(startIndex), elemSize, lengthIndex / elemSize), matIndex));
-                        //meshes.push_back(std::make_pair(&ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), vertBuf.data(), vertBuf.size(), comps, indBuf.data(), elemSize, mesh.mNumFaces * 3), mesh.mMaterialIndex));
+                        meshes.push_back(std::make_pair(&ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), &data.at(start), length, comps, &data.at(startIndex), elemSize, lengthIndex / elemSize), matIndex));
                     }
                     return meshes;
                 }
@@ -343,21 +372,29 @@ namespace jop
             JOP_DEBUG_ERROR("Model loader parse error");
         }
 
-        auto materials = detail::getMaterials(doc, path);
+
 
         char currentChar = 0;
         do{
             fl.read(&currentChar, 1);
         } while (currentChar == ' ' || currentChar == '\n');
         fl.seek(fl.tell() - 1);
-        auto meshes = detail::getMeshes(doc, fl);
 
+        std::vector<uint8> data(fl.getSize() - fl.tell());
+        fl.read(&data.at(0), fl.getSize() - fl.tell());
+
+        detail::getTextures(doc, data, path);
+
+        auto materials = detail::getMaterials(doc, path);
+
+        auto meshes = detail::getMeshes(doc, data);
 
         if (!doc.HasMember("rootnode"))
         {
             JOP_DEBUG_ERROR("Model has no rootnode");
             return false;
         }
+
         detail::makeNodes(getObject(), getObject()->getScene().getRenderer(), meshes, materials, doc["rootnode"]);
 
         return true;
