@@ -32,9 +32,9 @@
 
 #endif
 
-#include<Jopnal/Window/InputEnumsImpl.hpp>
-#include <Jopnal/Core/Engine.hpp>
 #include <Jopnal/Core/SettingManager.hpp>
+#include <Jopnal/Core/Engine.hpp>
+#include<Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 

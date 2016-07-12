@@ -35,16 +35,16 @@ extern int main(int argc, char* argv[]);
     {
         return main(__argc, __argv);
     }
-
+    
 #elif defined(JOP_OS_ANDROID)
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
-    //#include<Jopnal/Window/InputEnumsImpl.hpp>
+    #include<Jopnal/Window/InputEnumsImpl.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
-    //#include <android/input.h>
-    //#include<Jopnal/Window/Window.hpp>
+    #include <android/input.h>
+    #include<Jopnal/Window/Window.hpp>
     #include <thread>
     #include <atomic>
 
@@ -101,13 +101,13 @@ extern int main(int argc, char* argv[]);
 
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
-/*			int32_t type = AInputEvent_getType(event);
+			int32_t type = AInputEvent_getType(event);
 			int32_t action = AKeyEvent_getAction(event);
 			if (type == AINPUT_EVENT_TYPE_KEY)
 			{
 				int32_t metakey = AKeyEvent_getMetaState(event);
 				int32_t key = AKeyEvent_getKeyCode(event);
-				jop::Keyboard::Key jopKey = getJopKey(key);
+                int jopKey = input::getJopKey(key);
 
 				int mod = 0x0000;
 				if (metakey & AMETA_ALT_ON)
@@ -122,7 +122,7 @@ extern int main(int argc, char* argv[]);
 					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
 					if (windowRef != nullptr)
 					{
-						windowRef->getLibraryHandle()->keyPressed(jopKey, key, mod);
+                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
 						return 1;
 					}
 					return 0;
@@ -132,7 +132,7 @@ extern int main(int argc, char* argv[]);
 					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
 					if (windowRef != nullptr)
 					{
-						windowRef->getLibraryHandle()->keyReleased(jopKey, key, mod);
+                        windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
 						return 1;
 					}
 					return 0;
@@ -142,8 +142,8 @@ extern int main(int argc, char* argv[]);
 					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
 					if (windowRef != nullptr)
 					{
-						windowRef->getLibraryHandle()->keyPressed(jopKey, key, mod);
-						windowRef->getLibraryHandle()->keyReleased(jopKey, key, mod);
+                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
+                        windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
 						return 1;
 					}
 					return 0;
@@ -170,16 +170,16 @@ extern int main(int argc, char* argv[]);
 
 						if (device == AINPUT_SOURCE_MOUSE)
 						{
-							windowRef->getLibraryHandle()->mouseMoved(x, y);
+                            windowRef->getEventHandler()->mouseMoved(x, y);
 						}
 						else if (device & AINPUT_SOURCE_TOUCHSCREEN)
 						{
-							windowRef->getLibraryHandle()->touchEvent(id, x, y);
+                            windowRef->getEventHandler()->touchEvent(id, x, y);
 						}
 					}
 					return 1;
 				}
-			}*/
+			}
             return 0;
         }
 

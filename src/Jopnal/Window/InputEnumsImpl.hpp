@@ -32,10 +32,10 @@ namespace jop
 {
 	namespace input
 	{
-		int getJopKey(const int glfwKey);
-		int getGlKey(const int jopKey);
-		int getJopMouseButton(const int glfwButton);
-		int getGlButton(const int jopButton);
+		JOP_API int getJopKey(const int glfwKey);
+        JOP_API int getGlKey(const int jopKey);
+        JOP_API int getJopMouseButton(const int glfwButton);
+        JOP_API int getGlButton(const int jopButton);
 	}
 }
 #endif
