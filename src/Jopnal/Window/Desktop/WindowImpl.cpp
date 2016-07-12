@@ -84,7 +84,7 @@ namespace
             {
                 std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
 
-                jop::DebugHandler::getInstance() << jop::Color::Yellow << jop::DebugHandler::Severity::Warning << failed << " requested OpenGL extensions failed to load: \n\n";
+                jop::DebugHandler::getInstance() << jop::DebugHandler::Severity::Warning << failed << " requested OpenGL extensions failed to load: \n\n";
 
                 const int extsArr[] =
                 {

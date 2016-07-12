@@ -60,8 +60,8 @@ namespace jop
 {
     SoundSource::SoundSource(Object& object, const uint32 ID)
         : Component         (object, ID),
-          m_source          (NULL),
-          m_lastPos         (NULL),
+          m_source          (0),
+          m_lastPos         (0.f),
           m_isDirection     (false),
           m_calculateDelay  (false),
           m_delayCounter    (-1.f)
@@ -71,8 +71,8 @@ namespace jop
 
     SoundSource::SoundSource(const SoundSource& other, Object& newObj)
         : Component         (other, newObj),
-          m_source          (NULL),
-          m_lastPos         (NULL),
+          m_source          (0),
+          m_lastPos         (0.f),
           m_isDirection     (false),
           m_calculateDelay  (false),
           m_delayCounter    (-1.f)

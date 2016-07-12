@@ -3,13 +3,13 @@ include(CMakeParseArguments)
 # Add a new target
 macro(jopAddLibrary target)
 
-    # parse the arguments
+    # Parse the arguments
     cmake_parse_arguments(THIS "" "" "SOURCES" ${ARGN})
 
-    # create the target
+    # Create the target
     add_library(${target} ${THIS_SOURCES})
 
-    # define the export symbol of the module
+    # Define the export symbol of the module
     set_target_properties(${target} PROPERTIES DEFINE_SYMBOL JOP_EXPORT_API)
 
     # Adjust the output file prefix/suffix to match our conventions

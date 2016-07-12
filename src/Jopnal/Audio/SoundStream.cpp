@@ -32,6 +32,7 @@
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/STL.hpp>
+    #include <glm/common.hpp>
     #include <AL/al.h>
     #include <algorithm>
 

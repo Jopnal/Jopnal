@@ -24,7 +24,6 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Color.hpp>
 #include <sstream>
 #include <fstream>
 #include <mutex>
@@ -35,33 +34,51 @@
 
 namespace jop
 {
+    #define __JOP_DEBUG_BASE(sev, stream) \
+        {::jop::DebugHandler::getInstance() << ::jop::DebugHandler::Severity::sev << stream << std::endl;}
+
+    #define __JOP_DEBUG_BASE_EMPTY {}
+
     // Error verbosity
     #if JOP_CONSOLE_VERBOSITY >= 0
-        #define JOP_DEBUG_ERROR(stream)   {::jop::DebugHandler::getInstance() << ::jop::Color::Red << ::jop::DebugHandler::Severity::Error << stream << std::endl;}
+        #define JOP_DEBUG_ERROR(stream)   __JOP_DEBUG_BASE(Error, stream)
     #else
-        #define JOP_DEBUG_ERROR(stream)   {}
+        #define JOP_DEBUG_ERROR(stream)   __JOP_DEBUG_BASE_EMPTY
     #endif
 
     // Warning verbosity
     #if JOP_CONSOLE_VERBOSITY >= 1
-        #define JOP_DEBUG_WARNING(stream) {::jop::DebugHandler::getInstance() << ::jop::Color::Yellow << ::jop::DebugHandler::Severity::Warning << stream << std::endl;}
+        #define JOP_DEBUG_WARNING(stream) __JOP_DEBUG_BASE(Warning, stream)
     #else
-        #define JOP_DEBUG_WARNING(stream) {}
+        #define JOP_DEBUG_WARNING(stream) __JOP_DEBUG_BASE_EMPTY
     #endif
 
     // Info verbosity
     #if JOP_CONSOLE_VERBOSITY >= 2
-        #define JOP_DEBUG_INFO(stream)    {::jop::DebugHandler::getInstance() << ::jop::Color::White << ::jop::DebugHandler::Severity::Info << stream << std::endl;}
+        #define JOP_DEBUG_INFO(stream)    __JOP_DEBUG_BASE(Info, stream)
     #else
-        #define JOP_DEBUG_INFO(stream)    {}
+        #define JOP_DEBUG_INFO(stream)    __JOP_DEBUG_BASE_EMPTY
     #endif
 
     // Diagnostic verbosity
     #if JOP_CONSOLE_VERBOSITY >= 3
-        #define JOP_DEBUG_DIAG(stream)    {::jop::DebugHandler::getInstance() << ::jop::Color::Gray << ::jop::DebugHandler::Severity::Diagnostic << stream << std::endl;}
+        #define JOP_DEBUG_DIAG(stream)    __JOP_DEBUG_BASE(Diagnostic, stream)
     #else
-        #define JOP_DEBUG_DIAG(stream)    {}
+        #define JOP_DEBUG_DIAG(stream)    __JOP_DEBUG_BASE_EMPTY
     #endif
+
+    #define __JOP_DEBUG_ONCE_BASE(SEV, stream)      \
+        {                                           \
+            static bool __jop_debugonce = false;    \
+                                                    \
+            if (!__jop_debugonce)                   \
+                JOP_DEBUG_##SEV(stream);            \
+        }
+
+    #define JOP_DEBUG_ERROR_ONCE(stream)    __JOP_DEBUG_ONCE_BASE(ERROR, stream)
+    #define JOP_DEBUG_WARNING_ONCE(stream)  __JOP_DEBUG_ONCE_BASE(WARNING, stream)
+    #define JOP_DEBUG_INFO_ONCE(stream)     __JOP_DEBUG_ONCE_BASE(INFO, stream)
+    #define JOP_DEBUG_DIAG_ONCE(stream)     __JOP_DEBUG_ONCE_BASE(DIAG, stream)
 
     class JOP_API DebugHandler
     {
@@ -159,14 +176,6 @@ namespace jop
         /// \return Reference to self
         ///
         DebugHandler& operator <<(std::basic_ostream<char, std::char_traits<char>>& (*)(std::basic_ostream<char, std::char_traits<char>>&));
-
-        /// \brief Sets the color for the next text object
-        ///
-        /// \param color The color to set
-        ///
-        /// \return Reference to self
-        ///
-        DebugHandler& operator <<(const Color& color);
 
         /// \brief An operator for inputting data into the stream
         ///

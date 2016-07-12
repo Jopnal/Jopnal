@@ -30,15 +30,20 @@
     #include <Jopnal/Core/Win32/Win32.hpp>
 
     #ifdef JOP_OS_DESKTOP
+
         #include <GLFW/glfw3.h> 
         #include <iostream>
+
     #endif
 
     #if defined(JOP_OS_ANDROID)
         #include <android/log.h>
+
     #elif defined(JOP_OS_WINDOWS)
+
         #include <io.h>
         #include <fcntl.h>
+
     #endif
 
 #endif
@@ -92,23 +97,23 @@ namespace
         // Set custom color table
         COLORREF table[] =
         {
-            RGB(0x00, 0x00, 0x00), // 1. Black
-            RGB(0xFF, 0xFF, 0xFF), // 2. White
-            RGB(0xFF, 0x00, 0x00), // 3. Red
-            RGB(0x00, 0xFF, 0x00), // 4. Green
-            RGB(0x00, 0x00, 0xFF), // 5. Blue
-            RGB(0x00, 0xFF, 0xFF), // 6. Cyan
-            RGB(0xFF, 0xFF, 0x00), // 7. Yellow
-            RGB(0xFF, 0x00, 0xFF), // 8. Magenta
-            RGB(0x80, 0x00, 0xFF), // 9. Purple
-            RGB(0xFF, 0x80, 0x00), // 10. Orange
-            RGB(0x99, 0x99, 0x99), // 11. Gray
-            RGB(0x80, 0x64, 0x00), // 12. Brown
+            RGB(0xFF, 0x00, 0x00), // 1. Red
+            RGB(0xFF, 0xFF, 0x00), // 2. Yellow
+            RGB(0xFF, 0xFF, 0xFF), // 3. White
+            RGB(0x99, 0x99, 0x99), // 4. Gray
 
-            0x00FFFFFF, // 13. White
-            0x00FFFFFF, // 14. White
-            0x00FFFFFF, // 15. White
-            0x00FFFFFF, // 16. White
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF
         };
 
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -196,45 +201,27 @@ namespace
         }
     }
 
+#if defined(JOP_OS_WINDOWS)
+
     void setConsoleColor(const jop::Color& color)
     {
-    #if defined(JOP_OS_WINDOWS)
-
         using jop::Color;
 
         WORD attrib = 1; // White
 
-        if (color == Color::White)
+        if (color == Color::Red)
             attrib = 1;
-        else if (color == Color::Red)
-            attrib = 2;
-        else if (color == Color::Green)
-            attrib = 3;
-        else if (color == Color::Blue)
-            attrib = 4;
-        else if (color == Color::Cyan)
-            attrib = 5;
         else if (color == Color::Yellow)
-            attrib = 6;
-        else if (color == Color::Magenta)
-            attrib = 7;
-        else if (color == Color::Purple)
-            attrib = 8;
-        else if (color == Color::Orange)
-            attrib = 9;
+            attrib = 2;
+        else if (color == Color::White)
+            attrib = 3;
         else if (color == Color::Gray)
-            attrib = 10;
-        else if (color == Color::Brown)
-            attrib = 11;
+            attrib = 4;
 
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attrib);
-
-    #else
-
-        color;
-
-    #endif
     }
+
+#endif
 }
 
 namespace jop
@@ -360,6 +347,10 @@ namespace jop
 
             if (!m_noSpam || m_last != newStr)
             {
+                const unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
+
+            #ifndef JOP_OS_ANDROID
+
                 static const char* const severityStr[] =
                 {
                     "ERROR:\t\t",
@@ -368,10 +359,18 @@ namespace jop
                     "DIAG:\t\t"
                 };
 
-                const unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
+                static const Color severityColor[] =
+                {
+                    Color::Red,
+                    Color::Yellow,
+                    Color::White,
+                    Color::Gray
+                };
 
                 const std::string baseStr = std::string("[JOPNAL] ") + severityStr[severity];
                 const std::string finalString = baseStr + newStr + '\n';
+
+            #endif
 
                 if (isConsoleEnabled())
                 {
@@ -389,17 +388,21 @@ namespace jop
 
                 #else
 
+                    setConsoleColor(severityColor[severity]);
                     std::cout << finalString << std::endl;
-                    setConsoleColor(Color::White);
 
                 #endif
                 }
+
+            #ifndef JOP_OS_ANDROID
 
                 if (fileLoggingEnabled() && m_fileHandles[severity].is_open())
                 {
                     m_fileHandles[severity] << finalString;
                     m_fileHandles[severity].flush();
                 }
+
+            #endif
 
             #ifdef JOP_OS_WINDOWS
                 if (m_debuggerOutput)
@@ -412,18 +415,6 @@ namespace jop
         
         m_stream.str("");
         m_stream.clear();
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    DebugHandler& DebugHandler::operator <<(const Color& color)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        if (isConsoleEnabled())
-            setConsoleColor(color);
 
         return *this;
     }

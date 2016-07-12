@@ -92,7 +92,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO(Color::Blue << "Jopnal Engine v. " << JOP_VERSION_STRING);
+        JOP_DEBUG_INFO("Jopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()
@@ -111,7 +111,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO(Color::Blue << "Destroying jop::Engine, goodbye!");
+        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////
@@ -232,6 +232,8 @@ namespace jop
 
             frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
+
+            JOP_DEBUG_INFO("Update");
 
             // Update
             {

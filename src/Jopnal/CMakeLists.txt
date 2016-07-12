@@ -260,7 +260,7 @@ if (JOP_OPENGL_ES AND JOP_OS_LINUX)
 endif()
 
 if (JOP_OS_ANDROID)
-    list(APPEND EXT_LIBS z android log EGL GLESv3 OpenSLES)
+    list(APPEND EXT_LIBS android log EGL GLESv3 OpenSLES)
 endif()
 
 target_link_libraries(jopnal ${EXT_LIBS})
@@ -301,6 +301,7 @@ target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME
 
 if (JOP_OS_ANDROID)
     install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib/${ANDROID_ABI_DIR})
+    
 elseif(JOP_OS_WINDOWS)
 
     add_custom_command(TARGET OpenAL POST_BUILD
