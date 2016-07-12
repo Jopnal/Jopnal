@@ -26,37 +26,57 @@
 #include <Jopnal/Header.hpp>
 
 #ifdef JOP_OS_ANDROID
+#include <memory>
 
-
+struct android_app;
+struct ANativeActivity;
+namespace gpg
+{
+    class GameServices;
+}
 namespace jop
 {
     class GooglePlayService
     {
     public:
 
-        static void init();
+        /// \brief Initialize google play services
+        ///
+        static void init(android_app *app,ANativeActivity* activity);
 
-        static void unlockAchievement(const char *achievementID);
+        /// \brief Unlock achievement
+        ///
+        /// \param achievementID Achievement ID in google play developer console
+        ///
+        static void unlockAchievement(const char* achievementID);
 
-        static void submitHighScore(const char *leaderBoardID, uint64_t score);
+        /// \brief Submit high score to a leaderboard
+        ///
+        /// \param leadearboardID Leaderboard ID same as defined in google play developer console
+        /// \param score Score to submit
+        ///
+        static void submitHighScore(const char* leaderboardID, uint64_t score);
 
+        /// \brief Show all achievements (Default UI)
+        ///
         static void showAchievements();
 
-        static void showLeaderboard();
+        /// \brief Show a leaderboard
+        ///
+        /// \param leaderboardID Leaderboard ID same as defined in google play developer console
+        ///
+        static void showLeaderboard(const char* leaderboardID);
 
+        /// \brief Get player statistics
+        ///
+        /// Includes: average session length, churn probability, days since last played, number of purchases
+        /// number of sessions, session percentile, spend percentile
+        ///
         static void getPlayerStats();
 
     private:
 
-        // callback funcs for gpg
-        void onAuthActionStarted(gpg::AuthOperation op);
-
-        void onAuthActionFinished(gpg::AuthOperation op, gpg::AuthStatus status);
-
-        void fetchPlayerStats(gpg::StatsManager::FetchForPlayerResponse const &response);
-
-        // m_gameService // unique ptr gpg::GameServices
-        // m_androidApp // native activity app instance
+        static std::unique_ptr<gpg::GameServices> m_gameServices;
 
     };
 

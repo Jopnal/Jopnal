@@ -38,7 +38,7 @@ namespace jop
         }
         else
         {
-            JOP_DEBUG_ERROR("Sensor with ID(" << sensorType << ")is not available for use!");
+            JOP_DEBUG_ERROR("Sensor with type ID(" << sensorType << ")is not available for use!");
             return false;
         }    
     }
