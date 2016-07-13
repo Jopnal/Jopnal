@@ -118,5 +118,6 @@
 #include <Jopnal/Physics/Detail/WorldImpl.hpp>
 #include <Jopnal/Audio/AlTry.hpp>
 #include <Jopnal/Audio/AudioReader.hpp>
+#include <Jopnal/Window/SensorManager.hpp>
 
 #endif

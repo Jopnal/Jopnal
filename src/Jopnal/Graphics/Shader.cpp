@@ -113,7 +113,7 @@ namespace jop
                 char log[1024];
                 glCheck(glGetShaderInfoLog(m_handle, sizeof(log), NULL, log));
 
-                if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                if (std::strpbrk(log, "0123456789"))
                     JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
             }
         }
