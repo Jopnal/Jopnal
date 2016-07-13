@@ -19,46 +19,24 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVITYSTATE_HPP
-#define JOP_ACTIVITYSTATE_HPP
-
-// Headers
-#include <Jopnal/Header.hpp>
+#ifndef JOP_AINPUTHANDLING_HPP
+#define JOP_AINPUTHANDLING_HPP
 
 #ifdef JOP_OS_ANDROID
 
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <glm/vec2.hpp>
-#include <android/native_activity.h>
-#include <mutex>
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Engine.hpp>
+#include <Jopnal/Window/Window.hpp>
+#include <Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Main/Android/android_native_app_glue.h>
 
 //////////////////////////////////////////////
-
-
-namespace jop { namespace detail
-{
-    struct JOP_API ActivityState
+namespace jop { namespace input
     {
-        ActivityState() = default;
-
-        static ActivityState* create(ANativeActivity* activity);
-
-        static ActivityState* get();
-
-        static void reset();
-
-
-        std::mutex mutex;
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-
-        void(*pollFunc)();
-
-        Window* window;
-        glm::uvec2 screenSize;
-    };
-}}
-
+        JOP_API int32_t onKey(const int32_t& action, const int32_t& meta, const int32_t& key);
+        JOP_API int32_t onMotion(const int32_t& action, AInputEvent* event);
+    }
+}
 #endif
 #endif

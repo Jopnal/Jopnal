@@ -23,6 +23,7 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Android/WindowImpl.hpp>
+
 #ifdef JOP_OS_ANDROID
 
 #ifndef JOP_PRECOMPILED_HEADER
@@ -266,7 +267,10 @@ namespace jop { namespace detail
 
     void WindowImpl::pollEvents()
     {
-        ALooper_pollAll(0, NULL, NULL, NULL);
+        auto state = ActivityState::get();
+        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+
+        state->pollFunc();
     }
 
     //////////////////////////////////////////////
@@ -304,6 +308,7 @@ namespace jop { namespace detail
     {
         return nullptr;
     }
+
 }}
 
 #endif

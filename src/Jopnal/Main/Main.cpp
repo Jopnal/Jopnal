@@ -35,25 +35,26 @@ extern int main(int argc, char* argv[]);
     {
         return main(__argc, __argv);
     }
-    
+
 #elif defined(JOP_OS_ANDROID)
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
-    #include<Jopnal/Window/InputEnumsImpl.hpp>
+    #include <Jopnal/Window/Android/InputHandling.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
-    #include <android/input.h>
     #include<Jopnal/Window/Window.hpp>
     #include <thread>
     #include <atomic>
 
     namespace jop { namespace detail
     {
-        std::atomic<bool> ns_ready(false);
 
+
+        std::atomic<bool> ns_ready(false);
+   
         void onAppCmd(struct android_app* app, int32_t cmd)
-        {
+        { 
             auto state = ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
@@ -101,106 +102,50 @@ extern int main(int argc, char* argv[]);
 
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
+            JOP_DEBUG_INFO("input");
+            using namespace input;
 			int32_t type = AInputEvent_getType(event);
 			int32_t action = AKeyEvent_getAction(event);
+
 			if (type == AINPUT_EVENT_TYPE_KEY)
 			{
-				int32_t metakey = AKeyEvent_getMetaState(event);
-				int32_t key = AKeyEvent_getKeyCode(event);
-                int jopKey = input::getJopKey(key);
-
-				int mod = 0x0000;
-				if (metakey & AMETA_ALT_ON)
-					mod = 0x0001;
-				else if (metakey & AMETA_SHIFT_ON)
-					mod = 0x0004;
-
-				switch (action)
-				{
-				case AKEY_EVENT_ACTION_DOWN:
-				{
-					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
-					if (windowRef != nullptr)
-					{
-                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
-						return 1;
-					}
-					return 0;
-				}
-				case AKEY_EVENT_ACTION_UP:
-				{
-					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
-					if (windowRef != nullptr)
-					{
-                        windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-						return 1;
-					}
-					return 0;
-				}
-				case AKEY_EVENT_ACTION_MULTIPLE:
-				{
-					jop::Window* windowRef = &jop::Engine::getCurrentWindow();
-					if (windowRef != nullptr)
-					{
-                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
-                        windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-						return 1;
-					}
-					return 0;
-				}
-			    default:
-				break;
-				}		
-			return 0;
+                int32_t metakey = AKeyEvent_getMetaState(event);
+                int32_t key = AKeyEvent_getKeyCode(event);
+                return  onKey(action,metakey,key);
 			}
 			else if (type == AINPUT_EVENT_TYPE_MOTION)
 			{
-				int32_t device = AInputEvent_getSource(event);
-				int pointerCount = AMotionEvent_getPointerCount(event);
-			
-				jop::Window* windowRef = &jop::Engine::getCurrentWindow();
-				if (windowRef != nullptr)
-				{
-					for (int p = 0; p < pointerCount; p++)
-					{
-						int id = AMotionEvent_getPointerId(event, p);
-
-						float x = AMotionEvent_getX(event, p);
-						float y = AMotionEvent_getY(event, p);
-
-						if (device == AINPUT_SOURCE_MOUSE)
-						{
-                            windowRef->getEventHandler()->mouseMoved(x, y);
-						}
-						else if (device & AINPUT_SOURCE_TOUCHSCREEN)
-						{
-                            windowRef->getEventHandler()->touchEvent(id, x, y);
-						}
-					}
-					return 1;
-				}
+                return  onMotion(action, event);
 			}
+
             return 0;
+        }
+        android_app* ns_app=nullptr;
+        void pollFunc()
+        {
+            JOP_DEBUG_INFO("pollFunc");
+            android_poll_source* event = nullptr;
+            while (ALooper_pollAll(0, NULL, NULL, reinterpret_cast<void**>(&event)) >= 0)
+            {
+                if (event)
+                    event->process(ns_app, event);
+            }
         }
 
         void main(struct android_app* app)
         {
-            JOP_DEBUG_INFO("Android activity started, waiting for window...");
 
+            ns_app=app;
+            JOP_DEBUG_INFO("Android activity started, waiting for window...");
             while (!ns_ready.load())
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-                android_poll_source* event = nullptr;
-                while (ALooper_pollAll(0, NULL, NULL, reinterpret_cast<void**>(&event)) >= 0)
-                {
-                    if (event)
-                        event->process(app, event);
-                }
+                pollFunc();
             }
-
+            
             app->onAppCmd       = onAppCmdRunning;
-            app->onInputEvent   = onInputEvent;
+            app->onInputEvent   = onInputEvent;       
+            ActivityState::get()->pollFunc=&pollFunc;
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 

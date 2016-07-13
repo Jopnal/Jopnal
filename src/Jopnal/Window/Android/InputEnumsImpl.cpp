@@ -164,7 +164,7 @@ namespace jop
         {
             using k = jop::Keyboard::Key;
 
-            switch(jopKey)
+            switch (jopKey)
             {
 
             case k::Unknown:                   return AKEYCODE_UNKNOWN;

@@ -44,7 +44,7 @@ namespace jop
     WindowEventHandler::WindowEventHandler(Window& windowRef)
         : m_windowRef(windowRef)
     {
-    #ifdef JOP_OS_DESKTOP
+#ifdef JOP_OS_DESKTOP
 
         auto handle = windowRef.getLibraryHandle();
         glfwSetWindowUserPointer(handle, this);
@@ -70,16 +70,16 @@ namespace jop
         glfwSetKeyCallback(handle, [](GLFWwindow* w, int key, int scancode, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
-			using namespace input;
+            using namespace input;
 
             switch (action)
             {
-                case GLFW_REPEAT:
-                case GLFW_PRESS:
-                    handler->keyPressed(getJopKey(key), scancode, mods);
-                    break;
-                case GLFW_RELEASE:
-                    handler->keyReleased(getJopKey(key), scancode, mods);
+            case GLFW_REPEAT:
+            case GLFW_PRESS:
+                handler->keyPressed(getJopKey(key), scancode, mods);
+                break;
+            case GLFW_RELEASE:
+                handler->keyReleased(getJopKey(key), scancode, mods);
             }
         });
 
@@ -124,15 +124,15 @@ namespace jop
         glfwSetMouseButtonCallback(handle, [](GLFWwindow* w, int button, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
-			using namespace input;
+            using namespace input;
 
             switch (action)
             {
-                case GLFW_PRESS:
-                    handler->mouseButtonPressed(getJopMouseButton(button), mods);
-                    break;
-                case GLFW_RELEASE:
-                    handler->mouseButtonReleased(getJopMouseButton(button), mods);
+            case GLFW_PRESS:
+                handler->mouseButtonPressed(getJopMouseButton(button), mods);
+                break;
+            case GLFW_RELEASE:
+                handler->mouseButtonReleased(getJopMouseButton(button), mods);
             }
         });
 
@@ -159,12 +159,12 @@ namespace jop
             static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w))->resized(x, y);
         });
 
-    #endif
+#endif
     }
 
     WindowEventHandler::~WindowEventHandler()
     {
-    #ifdef JOP_OS_DESKTOP
+#ifdef JOP_OS_DESKTOP
 
         auto handle = m_windowRef.getLibraryHandle();
 
@@ -178,7 +178,7 @@ namespace jop
         glfwSetScrollCallback(handle, NULL);
         glfwSetFramebufferSizeCallback(handle, NULL);
 
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
@@ -215,13 +215,13 @@ namespace jop
 
     int WindowEventHandler::keyDown(const int key) const
     {
-	using namespace input;
+        using namespace input;
 
-    #if defined(JOP_OS_DESKTOP)
+#if defined(JOP_OS_DESKTOP)
         return glfwGetKey(m_windowRef.getLibraryHandle(), getGlKey(key));
-    #else
+#else
         return false;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
@@ -239,10 +239,10 @@ namespace jop
     glm::vec2 WindowEventHandler::getCursorPosition() const
     {
         double x = 0.0, y = 0.0;
-        
-    #if defined(JOP_OS_DESKTOP)
+
+#if defined(JOP_OS_DESKTOP)
         glfwGetCursorPos(m_windowRef.getLibraryHandle(), &x, &y);
-    #endif
+#endif
 
         return glm::vec2(x, y);
     }
@@ -260,14 +260,14 @@ namespace jop
     //////////////////////////////////////////////
 
     int WindowEventHandler::mouseButtonDown(const int button) const
-	{	
-	using namespace input;
+    {
+        using namespace input;
 
-    #if defined(JOP_OS_DESKTOP)
+#if defined(JOP_OS_DESKTOP)
         return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlButton(button));
-    #else
+#else
         return false;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
@@ -282,8 +282,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-	void WindowEventHandler::mouseScrolled(const float x, const float y)
-	{}
+    void WindowEventHandler::mouseScrolled(const float x, const float y)
+    {}
 
     //////////////////////////////////////////////
 
@@ -312,6 +312,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-	void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
-	{}
+    void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::touchReleased(const int touchId, const float x, const float y)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::touchMotion(const int touchId, const float x, const float y)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::touchScrolled(const float x, const float y)
+    {}
 }

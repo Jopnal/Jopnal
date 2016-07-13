@@ -218,15 +218,44 @@ namespace jop
         ///
         virtual void controllerButtonReleased(const int index, const int button);
 
+        /// \brief Touch event callback
+        ///
+        /// This will be called when touch is received.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void touchEvent(const int touchId, const float x, const float y);
+
+        /// \brief Touch event callback
+        ///
+        /// This will be called when touch is ended.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void touchReleased(const int touchId, const float x, const float y);
+
 		/// \brief Touch event callback
 		///
-		/// This will be called when touch is received.
+		/// This will be called when touch isn't stationary.
 		///
 		/// \param touchId Id for finger in case of multiple touches
 		/// \param x The vertical position/offset
 		/// \param y The horizontal position/offset
 		///
-		virtual void touchEvent(const int touchId, const float x, const float y);
+		virtual void touchMotion(const int touchId, const float x, const float y);
+
+        /// \brief Touch event callback
+        ///
+        /// This will be called when touch has momentum only on one axis.
+        ///
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
+        ///
+        virtual void touchScrolled(const float x, const float y);
 
     protected:
 
