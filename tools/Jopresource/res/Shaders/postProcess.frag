@@ -36,9 +36,9 @@ void main()
         tempColor += vec4(texture(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
     #endif
 
-	#ifdef JPP_GAMMACORRECTION
-		out_FinalColor = vec4(pow(tempColor.rgb, vec3(1.0 / u_Gamma)), 1.0);
-	#else
-		out_FinalColor = tempColor;
-	#endif
+    #ifdef JPP_GAMMACORRECTION
+        out_FinalColor = vec4(pow(tempColor.rgb, vec3(1.0 / u_Gamma)), 1.0);
+    #else
+        out_FinalColor = tempColor;
+    #endif
 }
