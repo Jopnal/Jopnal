@@ -25,20 +25,32 @@
 // Headers
 #include <Jopnal/Header.hpp>
 
-#ifdef JOP_OS_ANDROID
+#if 0
+//#ifdef JOP_OS_ANDROID
 #include <memory>
 
 struct android_app;
 struct ANativeActivity;
-namespace gpg
-{
-    class GameServices;
-}
+
 namespace jop
 {
-    class GooglePlayService
+    class JOP_API GooglePlayService
     {
     public:
+
+        struct PlayerStats
+        {
+            float averageSessionLength; ///< The average session length of the player in minutes
+            float churnProbability; ///< The prediction of whether a player will churn in the next day, given as 0 (low probability) or 1 (high probability)
+            float sessionPercentile;///< The approximation of sessions percentile for the player, given as a decimal value between 0 and 1
+            float spendPercentile; ///< The approximate spend percentile of the player, given as a decimal value between 0 and 1
+            uint32_t daysSinceLastPlayed; ///< The approximate number of days since the player last played
+            uint32_t numberOfSessions; ///< The approximate number of sessions player has played
+            uint32_t numberOfPurchases; ///< The approximate number of in-app purchases for the player   
+        };
+
+    public:
+
 
         /// \brief Initialize google play services
         ///
@@ -76,7 +88,7 @@ namespace jop
 
     private:
 
-        static std::unique_ptr<gpg::GameServices> m_gameServices;
+        //PlayerStats m_playerStats;
 
     };
 

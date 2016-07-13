@@ -143,7 +143,7 @@ extern int main(int argc, char* argv[]);
     {
         JOP_DEBUG_INFO("Entered jopnal-main");
 
-        jop::GooglePlayService::init(app, app->activity);
+        //jop::GooglePlayService::init(app, app->activity);
 
         app->onAppCmd       = jop::detail::onAppCmd;
 

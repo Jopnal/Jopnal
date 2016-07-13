@@ -21,7 +21,9 @@
 
 // Headers
 #include <Jopnal/Core/Android/GooglePlayService.hpp>
-#ifdef JOP_OS_ANDROID
+
+#if 0
+//#ifdef JOP_OS_ANDROID
 #include <Jopnal/Core/DebugHandler.hpp>
 
 #include <android/native_activity.h>
@@ -40,8 +42,10 @@
 #include "gpg/stats_manager.h"
 #include "gpg/android_initialization.h"
 //////////////////////////////////////////////
-
-
+namespace
+{
+    std::unique_ptr<gpg::GameServices> m_gameServices;
+}
 namespace jop
 { 
     /// \brief Callback function for OnAuthActionStarted
@@ -56,7 +60,7 @@ namespace jop
     ///
     static void fetchPlayerStats(gpg::StatsManager::FetchForPlayerResponse const &response);
 
-    void GooglePlayService::init(struct android_app *app, struct ANativeActivity *activity)
+    void GooglePlayService::init(android_app *app, ANativeActivity *activity)
     {
 
         gpg::AndroidInitialization::android_main(app);
@@ -73,8 +77,9 @@ namespace jop
         gpg::GameServices::Builder builder;
 
         // Set callbacks & create
-        m_gameServices = builder.SetOnAuthActionStarted([](gpg::AuthOperation op) {onAuthActionStarted(op);}).
-            SetOnAuthActionFinished([](gpg::AuthOperation op, gpg::AuthStatus status) {onAuthActionFinished(op, status);}).
+        m_gameServices = builder.SetDefaultOnLog(gpg::LogLevel::VERBOSE).
+            SetOnAuthActionStarted(&onAuthActionStarted).
+            SetOnAuthActionFinished(&onAuthActionFinished).
             Create(platform_config);
 
     }
@@ -177,48 +182,41 @@ namespace jop
 
             if(player_stats.HasAverageSessionLength())
             {
-                // The average session length of the player in minutes
-                JOP_DEBUG_INFO("Average session length for player: (" << player_stats.AverageSessionLength() << ") minutes.\n");
+                //m_playerStats.averageSessionLength = player_stats.AverageSessionLength();
             }
 
             if(player_stats.HasDaysSinceLastPlayed())
             {
-                // The approximate number of days since the player last played
-                JOP_DEBUG_INFO("It has been: (" << player_stats.DaysSinceLastPlayed() << ") days since player last played.\n");
+                //m_playerStats.daysSinceLastPlayed = player_stats.DaysSinceLastPlayed();
             }
             
             if(player_stats.HasNumberOfSessions())
             {
-                // The approximate number of sessions of the player
                 // Sessions are determined by the number of times that a player signs in to gpg services
-                JOP_DEBUG_INFO("Player has played: (" << player_stats.NumberOfSessions() << ") sessions.\n");
+                //m_playerStats.numberOfSessions = player_stats.NumberOfSessions();
             }
 
             if (player_stats.HasSessionPercentile())
-            {
-                // The approximation of sessions percentile for the player, given as a decimal value between 0 and 1
+            {  
                 // This value indicates how many sessions the current player has played in comparison to the rest of this game's player base
-                float percentile = player_stats.SessionPercentile() * 100;
-                // 49> less 51<more
-                JOP_DEBUG_INFO("This player has played: (" << percentile << "%) more/less in comparison to the rest of player base\n");
+                //m_playerStats.sessionPercentile = player_stats.SessionPercentile();;
             }
 
             if(player_stats.HasChurnProbability())
             {
-                // The prediction of whether a player will churn in the next day, given as 0 (low probability of churn) or 1 (high probability of churn)
                 // Churn is defined as 7 days of inactivity
+                //m_playerStats.churnProbability = player_stats.ChurnProbability();
             }
 
             if(player_stats.HasNumberOfPurchases())
             {
-                // The approximate number of in-app purchases for the player
-                JOP_DEBUG_INFO("This player has made: " << player_stats.NumberOfPurchases() << " number of purchases in-game\n");
+                //m_playerStats.numberOfPurchases = player_stats.NumberOfPurchases();
             }
 
             if(player_stats.HasSpendPercentile())
             {
-                // The approximate spend percentile of the player, given as a decimal value between 0 and 1
                 // This value indicates how much the current player has spent in comparison to the rest of this game's player base
+                //m_playerStats.spendPercentile = player_stats.SpendPercentile();
             }
                 
         }

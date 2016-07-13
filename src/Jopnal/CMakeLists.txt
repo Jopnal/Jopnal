@@ -260,8 +260,8 @@ if (JOP_OPENGL_ES AND JOP_OS_LINUX)
 endif()
 
 if (JOP_OS_ANDROID)
-    list(APPEND EXT_LIBS android log EGL GLESv3 OpenSLES)
-    target_link_libraries(jopnal ${PROJECT_SOURCE_DIR}/extlibs/lib/${ANDROID_ABI}/libgpg.a)
+    list(APPEND EXT_LIBS z android log EGL GLESv3 OpenSLES)
+    #target_link_libraries(jopnal ${PROJECT_SOURCE_DIR}/extlibs/lib/${ANDROID_ABI}/libgpg.a)
 endif()
 
 target_link_libraries(jopnal ${EXT_LIBS})
