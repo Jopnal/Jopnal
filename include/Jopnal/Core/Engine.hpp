@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Graphics/MainRenderTarget.hpp>
 #include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
@@ -41,7 +42,6 @@ namespace jop
 {
     class Subsystem;
     class Scene;
-    class MainRenderTarget;
 
     namespace detail
     {

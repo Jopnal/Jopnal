@@ -70,7 +70,7 @@ namespace
 
             const EGLint configAttribs[] =
             {
-                EGL_SURFACE_TYPE, EGL_PBUFFER_BIT | EGL_VG_COLORSPACE_LINEAR_BIT,
+                EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                 EGL_NONE
             };
 
@@ -126,15 +126,15 @@ namespace jop { namespace detail
         {
             const EGLint configAttribs[] =
             {
-                EGL_SURFACE_TYPE,   EGL_WINDOW_BIT | EGL_VG_COLORSPACE_LINEAR_BIT,
+                EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
 
-                EGL_RED_SIZE,       8,
-                EGL_GREEN_SIZE,     8,
-                EGL_BLUE_SIZE,      8,
-                EGL_ALPHA_SIZE,     settings.colorBits.a,
+                EGL_RED_SIZE,       static_cast<EGLint>(settings.colorBits.r),
+                EGL_GREEN_SIZE,     static_cast<EGLint>(settings.colorBits.g),
+                EGL_BLUE_SIZE,      static_cast<EGLint>(settings.colorBits.b),
+                EGL_ALPHA_SIZE,     static_cast<EGLint>(settings.colorBits.a),
 
-                EGL_DEPTH_SIZE,     settings.depthBits,
-                EGL_STENCIL_SIZE,   settings.stencilBits,
+                EGL_DEPTH_SIZE,     static_cast<EGLint>(settings.depthBits),
+                EGL_STENCIL_SIZE,   static_cast<EGLint>(settings.stencilBits),
 
                 EGL_NONE
             };
@@ -147,7 +147,6 @@ namespace jop { namespace detail
 
             const EGLint surfaceAttribs[] =
             {
-                EGL_VG_COLORSPACE, EGL_VG_COLORSPACE_LINEAR,
                 EGL_NONE
             };
 
@@ -180,7 +179,7 @@ namespace jop { namespace detail
         {
             const EGLint configAttribs[] =
             {
-                EGL_SURFACE_TYPE,       EGL_PBUFFER_BIT,
+                EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                 EGL_NONE
             };
 
@@ -192,9 +191,8 @@ namespace jop { namespace detail
 
             const EGLint surfaceAttribs[] =
             {
-                EGL_WIDTH,          1,
-                EGL_HEIGHT,         1,
-                EGL_VG_COLORSPACE,  EGL_VG_COLORSPACE_LINEAR,
+                EGL_WIDTH,  1,
+                EGL_HEIGHT, 1,
                 EGL_NONE
             };
 

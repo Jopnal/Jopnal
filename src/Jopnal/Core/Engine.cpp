@@ -31,8 +31,8 @@
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/MainRenderTarget.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
-    #include <Jopnal/Graphics/RenderTexture.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
@@ -188,8 +188,6 @@ namespace jop
 
             frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
-
-            JOP_DEBUG_INFO("Update");
 
             // Update
             {

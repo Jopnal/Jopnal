@@ -73,6 +73,10 @@ namespace jop
 
         static float getExposure();
 
+        static void setGamma(const float gamma);
+
+        static float getGamma();
+
 
         void draw() override;
 

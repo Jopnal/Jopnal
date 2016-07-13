@@ -17,28 +17,28 @@ layout(location = 0) out vec4 out_FinalColor;
 
 void main()
 {
-    vec3 tempColor = texture(u_Scene, vf_TexCoords).rgb;
+    vec4 tempColor = texture(u_Scene, vf_TexCoords);
 
     #ifdef JPP_BLOOM
-        tempColor += texture(u_Bloom, vf_TexCoords).rgb;
+        tempColor += texture(u_Bloom, vf_TexCoords);
     #endif
 
-    tempColor =
+    tempColor = vec4(
         
     #ifdef JPP_TONEMAP
-        vec3(1.0) - exp(-tempColor * u_Exposure)
+        vec3(1.0) - exp(-tempColor.rgb * u_Exposure)
     #else
-        tempColor
+        tempColor.rgb
     #endif
-    ;
-
-	#ifdef JPP_GAMMACORRECTION
-		tempColor = pow(tempColor, vec3(1.0 / u_Gamma));
-	#endif
-
-	out_FinalColor = vec4(tempColor, 1.0);
+    , 1.0);
 
     #ifdef JPP_DITHER
-        out_FinalColor += vec4(texture2D(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
+        tempColor += vec4(texture(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
     #endif
+
+	#ifdef JPP_GAMMACORRECTION
+		out_FinalColor = vec4(pow(tempColor.rgb, vec3(1.0 / u_Gamma)), 1.0);
+	#else
+		out_FinalColor = tempColor;
+	#endif
 }

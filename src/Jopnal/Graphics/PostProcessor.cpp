@@ -38,6 +38,37 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    bool isLinear()
+    {
+    #ifdef JOP_OPENGL_ES
+
+        static bool init = false;
+        static bool linear = false;
+
+        if (!init)
+        {
+            jop::RenderTexture::unbind();
+
+            GLint enc;
+
+            glCheck(glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
+
+            linear = enc == GL_LINEAR;
+            init = true;
+        }
+
+        return linear;
+
+    #else
+
+        return true;
+
+    #endif
+    }
+}
+
 namespace jop
 {
     PostProcessor::PostProcessor(const RenderTexture& mainTarget)
@@ -46,7 +77,7 @@ namespace jop
           m_shaders             (),
           m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamedResource<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
           m_mainTarget          (mainTarget),
-          m_functions           (Function::GammaCorrection),
+          m_functions           (),
           m_exposure            (1.f),
           m_gamma               (2.2f),
           m_ditherMatrix        ("")
@@ -102,7 +133,7 @@ namespace jop
 
         // Bloom settings
         {
-            static const struct EnabledCallback : SettingCallback<bool>
+            /*static const struct EnabledCallback : SettingCallback<bool>
             {
                 const char* str;
 
@@ -113,12 +144,52 @@ namespace jop
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
-            } enabled;
+            } enabled;*/
         }
 
         // Gamma correction settings
         {
+            static const struct EnabledCallback : SettingCallback<bool>
+            {
+                const char* str;
 
+                EnabledCallback()
+                    : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
+                {
+                    enableFunctions(SettingManager::get<bool>(str, isLinear()) * Function::GammaCorrection);
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
+            } enabled;
+
+            static const struct GammaCallback : SettingCallback<float>
+            {
+                const char* str;
+
+                GammaCallback()
+                    : str("engine@Graphics|Postprocessor|GammaCorrection|fGamma")
+                {
+                    setExposure(SettingManager::get<float>(str, 2.2f));
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const float& value) override { setGamma(value); }
+            } exposure;
+        }
+
+        // Dithering settings
+        {
+            static const struct EnabledCallback : SettingCallback<bool>
+            {
+                const char* str;
+
+                EnabledCallback()
+                    : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
+                {
+                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Dither);
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
+            } enabled;
         }
 
         // Shader sources
@@ -173,6 +244,24 @@ namespace jop
             return m_instance->m_exposure;
 
         return 1.f;
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::setGamma(const float gamma)
+    {
+        if (m_instance)
+            m_instance->m_gamma = gamma;
+    }
+
+    //////////////////////////////////////////////
+
+    float PostProcessor::getGamma()
+    {
+        if (m_instance)
+            return m_instance->m_gamma;
+
+        return 0.f;
     }
 
     //////////////////////////////////////////////

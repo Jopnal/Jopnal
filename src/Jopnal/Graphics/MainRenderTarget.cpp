@@ -24,8 +24,10 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Graphics/MainRenderTarget.hpp>
+    #include <Jopnal/Graphics/MainRenderTarget.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Window/Window.hpp>
 
 #endif
 
