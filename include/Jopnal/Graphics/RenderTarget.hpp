@@ -35,7 +35,7 @@
 
 namespace jop
 {
-    class JOP_API RenderTarget : public Subsystem
+    class JOP_API RenderTarget
     {
     private:
 
@@ -60,20 +60,12 @@ namespace jop
         ///
         /// \param ID Identifier of this render target
         ///
-        RenderTarget(const uint32 ID);
+        RenderTarget();
 
         /// \brief Virtual destructor
         ///
         virtual ~RenderTarget() = 0;
 
-
-        /// \brief Post-update
-        ///
-        /// This will clear the color, depth and stencil buffers
-        ///
-        /// \param deltaTime The delta time, not used
-        ///
-        virtual void postUpdate(const float deltaTime) override;
 
         /// \brief Clear the selected buffers
         ///

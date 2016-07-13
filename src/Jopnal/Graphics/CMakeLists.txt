@@ -21,6 +21,7 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/Glyph.hpp
     ${__INCDIR_GRAPHICS}/Image.hpp
     ${__INCDIR_GRAPHICS}/LightSource.hpp
+    ${__INCDIR_GRAPHICS}/MainRenderTarget.hpp
     ${__INCDIR_GRAPHICS}/Material.hpp
     ${__INCDIR_GRAPHICS}/Model.hpp
     ${__INCDIR_GRAPHICS}/ModelLoader.hpp
@@ -91,6 +92,7 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/Glyph.cpp
     ${__SRCDIR_GRAPHICS}/Image.cpp
     ${__SRCDIR_GRAPHICS}/LightSource.cpp
+    ${__SRCDIR_GRAPHICS}/MainRenderTarget.cpp
     ${__SRCDIR_GRAPHICS}/Material.cpp
     ${__SRCDIR_GRAPHICS}/Model.cpp
     ${__SRCDIR_GRAPHICS}/ModelLoader.cpp

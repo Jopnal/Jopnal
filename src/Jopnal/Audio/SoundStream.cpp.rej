@@ -1,0 +1,9 @@
+diff a/src/Jopnal/Audio/SoundStream.cpp b/src/Jopnal/Audio/SoundStream.cpp	(rejected hunks)
+@@ -31,6 +31,7 @@
+     #include <Jopnal/Audio/SoundBuffer.hpp>
+     #include <Jopnal/Core/DebugHandler.hpp>
+     #include <Jopnal/Utility/CommandHandler.hpp>
++    #include <Jopnal/STL.hpp>
+     #include <AL/al.h>
+     #include <algorithm>
+ 

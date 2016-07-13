@@ -110,16 +110,7 @@ namespace jop
     //////////////////////////////////////////////
 
     RenderTexture::RenderTexture()
-        : RenderTarget          (0),
-          m_depthBuffer         (0),
-          m_stencilBuffer       (0),
-          m_depthStencilBuffer  (0),
-          m_frameBuffer         (0, nullptr),
-          m_colorAttachments    ()
-    {}
-
-    RenderTexture::RenderTexture(const uint32 ID)
-        : RenderTarget          (ID),
+        : RenderTarget          (),
           m_depthBuffer         (0),
           m_stencilBuffer       (0),
           m_depthStencilBuffer  (0),
@@ -579,7 +570,7 @@ namespace jop
 
     bool RenderTexture::attach() const
     {
-        JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another. RenderTexture id: " + getID());
+        JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another");
 
         if (!m_frameBuffer.second && !m_frameBuffer.first)
         {

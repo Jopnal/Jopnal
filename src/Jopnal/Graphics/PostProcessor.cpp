@@ -46,9 +46,9 @@ namespace jop
           m_shaders             (),
           m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamedResource<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
           m_mainTarget          (mainTarget),
-          m_functions           (),
+          m_functions           (Function::GammaCorrection),
           m_exposure            (1.f),
-          m_bloomBlurPasses     (0),
+          m_gamma               (2.2f),
           m_ditherMatrix        ("")
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
@@ -114,19 +114,11 @@ namespace jop
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
             } enabled;
+        }
 
-            static const struct PassesCallback : SettingCallback<unsigned int>
-            {
-                const char* str;
+        // Gamma correction settings
+        {
 
-                PassesCallback()
-                    : str("engine@Graphics|Postprocessor|Bloom|uBlurPasses")
-                {
-                    setBloomBlurPasses(SettingManager::get<unsigned int>(str, 10));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const unsigned int& value) override {setBloomBlurPasses(value);}
-            } passes;
         }
 
         // Shader sources
@@ -135,30 +127,13 @@ namespace jop
             m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
-        // Gaussian blur buffers
-        for (auto& i : m_pingPong)
-        {
-            i.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, RenderTexture::ColorAttachment::RGB2DFloat16, mainTarget.getSize());
-            i.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
-        }
-
-        //static WeakReference<ShaderProgram> blurShader;
-
-        //Shader blurVert("");
-        //blurVert.load(m_shaderSources[0],Shader::Type::Vertex, true);
-
-        //Shader blurFrag("");
-        //blurFrag.load(std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)), Shader::Type::Fragment, true);
-        //if (blurShader.expired())
-        //{
-        //    blurShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_blur_shader").getReference());
-
-        //    JOP_ASSERT(blurShader->load(blurVert, blurFrag), "Failed to compile gaussian blur shader!");
-
-        //    m_blurShader = static_ref_cast<ShaderProgram>(blurShader);
-        //}
-
-        auto& blurShader = ResourceManager::getNamedResource<ShaderProgram>("jop_blur_shader","", Shader::Type::Vertex, m_shaderSources[0],Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag)));
+        auto& blurShader = ResourceManager::getNamedResource<ShaderProgram>
+        (
+            "jop_blur_shader",
+            "", 
+            Shader::Type::Vertex, m_shaderSources[0],
+            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
+        );
 
         JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
@@ -202,24 +177,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void PostProcessor::setBloomBlurPasses(const unsigned int passes)
-    {
-        if (m_instance)
-            m_instance->m_bloomBlurPasses = passes;
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int PostProcessor::getBloomBlurPasses()
-    {
-        if (m_instance)
-            return m_instance->m_bloomBlurPasses;
-
-        return 0;
-    }
-
-    //////////////////////////////////////////////
-
     void PostProcessor::draw()
     {
         if (m_shaders.find(m_functions) == m_shaders.end())
@@ -242,14 +199,11 @@ namespace jop
             if ((m_functions & Function::ToneMap) != 0)
                 shdr.setUniform("u_Exposure", m_exposure);
 
-            if ((m_functions & Function::Bloom) != 0 && m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2))
-            {
-                applyBlur(*m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_2));
-                shdr.setUniform("u_Bloom", *m_pingPong[1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 2);
-            }
-
             if ((m_functions & Function::Dither) != 0)
                 shdr.setUniform("u_DitherMatrix", m_ditherMatrix, 3);
+
+            if ((m_functions & Function::GammaCorrection) != 0)
+                shdr.setUniform("u_Gamma", m_gamma);
         }
 
         RenderTexture::unbind();
@@ -278,39 +232,14 @@ namespace jop
         if ((funcs & Function::ToneMap) != 0)
             str += "#define JPP_TONEMAP\n";
 
-        if ((funcs & Function::Bloom) != 0)
-            str += "#define JPP_BLOOM\n";
+        //if ((funcs & Function::Bloom) != 0)
+        //    str += "#define JPP_BLOOM\n";
 
         if ((funcs & Function::Dither) != 0)
             str += "#define JPP_DITHER\n";
-    }
 
-    //////////////////////////////////////////////
-
-    void PostProcessor::applyBlur(const Texture& texture)
-    {
-        bool horizontal = true;
-
-        m_blurShader->setUniform("u_Buffer", texture, 1);
-
-        m_quad->getVertexBuffer().bind();
-        m_blurShader->setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::Position));
-        m_blurShader->setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::TexCoords));
-
-        m_quad->getIndexBuffer().bind();
-
-        for (uint32 i = 0; i < m_bloomBlurPasses; ++i)
-        {
-            m_pingPong[horizontal].bind();
-
-            m_blurShader->setUniform("u_Horizontal", horizontal);
-
-            glCheck(glDrawElements(GL_TRIANGLES, m_quad->getElementAmount(), m_quad->getElementEnum(), 0));
-
-            m_blurShader->setUniform("u_Buffer", *m_pingPong[horizontal].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
-
-            horizontal = !horizontal;
-        }
+        if ((funcs & Function::GammaCorrection) != 0)
+            str += "#define JPP_GAMMACORRECTION\n";
     }
 
     //////////////////////////////////////////////

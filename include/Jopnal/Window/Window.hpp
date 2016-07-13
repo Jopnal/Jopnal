@@ -63,7 +63,7 @@ namespace jop
         Window& m_windowRef;
     };
 
-    class JOP_API Window : public RenderTarget
+    class JOP_API Window : public RenderTarget, public Subsystem
     {
     private:
 

@@ -635,8 +635,5 @@ void main()
     // Finally assign to the fragment output
     out_FinalColor = vec4(tempColor.rgb, alpha);
 
-    if (dot(tempColor.rgb, vec3(0.2126, 0.7152, 0.0722)) > 1.0)
-        out_BloomColor = vec4(tempColor.rgb * alpha, 1.0);
-
 #endif // Sky box
 }

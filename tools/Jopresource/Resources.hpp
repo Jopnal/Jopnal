@@ -18,7 +18,7 @@ extern const unsigned char defaultShaderFrag[230];
 
 extern const unsigned char defaultShaderVert[436];
 
-extern const unsigned char defaultUberShaderFrag[18129];
+extern const unsigned char defaultUberShaderFrag[18002];
 
 extern const unsigned char defaultUberShaderVert[2704];
 
@@ -38,7 +38,7 @@ extern const unsigned char physicsDebugShaderFrag[297];
 
 extern const unsigned char physicsDebugShaderVert[528];
 
-extern const unsigned char postProcessFrag[899];
+extern const unsigned char postProcessFrag[944];
 
 extern const unsigned char postProcessVert[332];
 

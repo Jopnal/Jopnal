@@ -38,7 +38,7 @@ namespace jop
 {
     class Window;
 
-    class JOP_API RenderTexture final : public RenderTarget
+    class JOP_API RenderTexture : public RenderTarget
     {
     private:
 
@@ -143,8 +143,6 @@ namespace jop
         /// Doesn't initialize anything. To create the frame buffer, call create()
         ///
         RenderTexture();
-
-        RenderTexture(const uint32 ID);
 
         /// \brief Destructor
         ///

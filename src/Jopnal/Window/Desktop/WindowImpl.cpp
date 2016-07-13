@@ -206,7 +206,7 @@ namespace jop { namespace detail
         glfwWindowHint(GLFW_GREEN_BITS, settings.colorBits.g);
         glfwWindowHint(GLFW_BLUE_BITS, settings.colorBits.b);
         glfwWindowHint(GLFW_ALPHA_BITS, settings.colorBits.a);
-        glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
+        glfwWindowHint(GLFW_SRGB_CAPABLE, GL_FALSE);
 
         // Depth & stencil exist in the renderer frame buffer
         glfwWindowHint(GLFW_DEPTH_BITS, settings.depthBits);
@@ -235,6 +235,8 @@ namespace jop { namespace detail
 
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
+
+        glCheck(glDisable(GL_FRAMEBUFFER_SRGB));
     }
 
     WindowImpl::~WindowImpl()

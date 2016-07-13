@@ -51,9 +51,10 @@ namespace jop
         {
             enum : uint32
             {
-                ToneMap = 1,
-                Bloom   = 1 << 1,
-                Dither  = 1 << 2
+                ToneMap         = 1,
+                Bloom           = 1 << 1,
+                Dither          = 1 << 2,
+                GammaCorrection = 1 << 3
             };
         };
 
@@ -72,10 +73,6 @@ namespace jop
 
         static float getExposure();
 
-        static void setBloomBlurPasses(const unsigned int passes);
-
-        static unsigned int getBloomBlurPasses();
-
 
         void draw() override;
 
@@ -83,12 +80,9 @@ namespace jop
 
         void getPreprocessorStr(const uint32 funcs, std::string& str) const;
 
-        void applyBlur(const Texture& texture);
-
 
         static PostProcessor* m_instance;
 
-        std::array<RenderTexture, 2> m_pingPong;
         std::array<std::string, 2> m_shaderSources;
         std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
         WeakReference<ShaderProgram> m_blurShader;
@@ -96,7 +90,7 @@ namespace jop
         const RenderTexture& m_mainTarget;
         uint32 m_functions;
         float m_exposure;
-        unsigned int m_bloomBlurPasses;
+        float m_gamma;
         Texture2D m_ditherMatrix;
     };
 }

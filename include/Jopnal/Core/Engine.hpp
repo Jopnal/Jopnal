@@ -41,7 +41,7 @@ namespace jop
 {
     class Subsystem;
     class Scene;
-    class RenderTarget;
+    class MainRenderTarget;
 
     namespace detail
     {
@@ -237,11 +237,9 @@ namespace jop
 
         /// \brief Get the main render target
         ///
-        /// This could either return the main window or a HDR render texture.
-        ///
         /// \return Reference to the main render target
         ///
-        static const RenderTarget& getMainRenderTarget();
+        static const MainRenderTarget& getMainRenderTarget();
 
 
         static const Window& getMainWindow();
@@ -309,7 +307,7 @@ namespace jop
         std::atomic<bool> m_exit;                               ///< Should the engine exit?
         std::atomic<State> m_state;                             ///< Current state
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
-        RenderTarget* m_mainTarget;
+        MainRenderTarget* m_mainTarget;
         Window* m_mainWindow;
     };
 

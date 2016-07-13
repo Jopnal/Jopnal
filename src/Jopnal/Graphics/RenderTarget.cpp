@@ -36,9 +36,8 @@
 
 namespace jop
 {
-    RenderTarget::RenderTarget(const uint32 ID)
-        : Subsystem             (ID),
-          m_mutex               (),
+    RenderTarget::RenderTarget()
+        : m_mutex               (),
           m_clearColor          (Color::Black),
           m_clearDepth          (1.f),
           m_clearStencil        (0)
@@ -46,13 +45,6 @@ namespace jop
 
     RenderTarget::~RenderTarget()
     {}
-
-    //////////////////////////////////////////////
-
-    void RenderTarget::postUpdate(const float)
-    {
-        clear(AllBit);
-    }
 
     //////////////////////////////////////////////
 
