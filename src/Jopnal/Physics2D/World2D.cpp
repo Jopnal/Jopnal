@@ -34,6 +34,8 @@
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/VertexBuffer.hpp>
+    #include <Jopnal/Physics2D/ContactListener2D.hpp>
+    #include <Jopnal/Physics2D/ContactInfo2D.hpp>
     #include <Box2D/Collision/Shapes/b2PolygonShape.h>
     #include <Box2D/Common/b2Draw.h>
     #include <Box2D/Dynamics/b2World.h>
@@ -188,11 +190,38 @@ namespace jop
                 GlState::setDepthTest(true);
             }
         };
+
+        struct ContactListener2DImpl : b2ContactListener
+        {
+
+            virtual void BeginContact(b2Contact* contact) override
+            {
+                ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
+                auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
+                auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
+                for (auto& i : a->m_listeners)
+                {
+                    i->beginContact(*b, ci);
+                }
+            }
+
+            virtual void EndContact(b2Contact* contact) override
+            {
+                ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
+                auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
+                auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
+                for (auto& i : a->m_listeners)
+                {
+                    i->endContact(*b, ci);
+                }
+            }
+        };
     }
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable      (obj, renderer, 0),
+          m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
           m_worldData2D (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
           m_step        (0.f),
           m_dd          (std::make_unique<detail::DebugDraw>())
@@ -202,6 +231,7 @@ namespace jop
         m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
         m_worldData2D->SetAllowSleeping(false);
         m_worldData2D->SetDebugDraw(m_dd.get());
+        m_worldData2D->SetContactListener(m_contactListener.get());
 
         setDebugMode(false);
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);

@@ -186,6 +186,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Collider::registerListener(ContactListener& listener)
+    {
+        listener.m_collider = this;
+
+        // Check if this listener is already registered
+        std::pair<std::set<ContactListener*>::iterator, bool> ret;
+        ret = m_listeners.insert(&listener);
+
+        if (ret.second == false)
+        {
+            // Erase the old and replace it with new
+            m_listeners.erase(ret.first);
+            m_listeners.insert(&listener);
+        }
+    }
+
+    //////////////////////////////////////////////
+
     void Collider::beginOverlap(const Collider&)
     {}
 

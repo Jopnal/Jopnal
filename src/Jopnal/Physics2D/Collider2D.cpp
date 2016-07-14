@@ -44,13 +44,15 @@ namespace jop
     Collider2D::Collider2D(Object& object, World2D& world, const uint32 ID)
         : Component     (object, ID),
           m_body        (nullptr),
-          m_worldRef2D  (world)
+          m_worldRef2D  (world),
+          m_listeners   ()
     {}
 
     Collider2D::Collider2D(const Collider2D& other, Object& newObj)
         : Component     (other, newObj),
           m_body        (nullptr),
-          m_worldRef2D  (other.m_worldRef2D)
+          m_worldRef2D  (other.m_worldRef2D),
+          m_listeners   (other.m_listeners)
     {}
 
     Collider2D::~Collider2D()
@@ -158,4 +160,23 @@ namespace jop
 
         return cb.hit;
     }
+
+    //////////////////////////////////////////////
+
+    void Collider2D::registerListener(ContactListener2D& listener)
+    {
+        listener.m_collider = this;
+
+        // Check if this listener is already registered
+        std::pair<std::set<ContactListener2D*>::iterator, bool> ret;
+        ret = m_listeners.insert(&listener);
+
+        if (ret.second == false)
+        {
+            // Erase the old and replace it with new
+            m_listeners.erase(ret.first);
+            m_listeners.insert(&listener);
+        }
+    }
+
 }

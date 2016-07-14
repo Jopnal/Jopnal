@@ -39,6 +39,7 @@ namespace jop
     class Camera;
     namespace detail
     {
+        struct ContactListener2DImpl;
         struct DebugDraw;
     }
 
@@ -133,6 +134,7 @@ namespace jop
 
         Message::Result receiveMessage(const Message& message) override;
 
+        std::unique_ptr<detail::ContactListener2DImpl> m_contactListener; ///< Contact listener implementation
         std::unique_ptr<b2World> m_worldData2D;     ///< The world data
         std::unique_ptr<detail::DebugDraw> m_dd;
         float m_step;

@@ -282,7 +282,7 @@ namespace jop
             {*val = 1.f / value;}
 
         } cb(&timeStep, str);
-
+        
         m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
     }
 

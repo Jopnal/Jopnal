@@ -19,28 +19,40 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_CONTACTLISTENER_HPP
+#define JOP_CONTACTLISTENER_HPP
+
 // Headers
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Collider.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/FrustumShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/ContactListener.hpp>
+#include <Jopnal/Physics/ContactInfo.hpp>
 
-//////////////////////////////////////////////
+/////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class Collider;
+
+    class JOP_API ContactListener
+    {
+    public:
+        /// \brief Begin contact callback
+        ///
+        /// \param collider Reference to the collider which listener will be registered for
+        /// \param ci Contact info containing the contact point and contact normal
+        ///
+        virtual void beginContact(Collider& collider, ContactInfo& ci);
+
+        /// \brief End contact callback
+        ///
+        /// \param collider Reference to the collider which listener will be registered for
+        /// \param ci Contact info containing the contact point and contact normal
+        ///
+        virtual void endContact(Collider& collider, ContactInfo& ci);
+
+        Collider* m_collider; ///< Pointer to the collider which this listener is registered for
+    };
+}
+
+#endif

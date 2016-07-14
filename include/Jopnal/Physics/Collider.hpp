@@ -26,7 +26,9 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Physics/ContactInfo.hpp>
+#include <Jopnal/Physics/ContactListener.hpp>
 #include <memory>
+#include <set>
 
 //////////////////////////////////////////////
 
@@ -49,6 +51,7 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(Collider);
 
         friend struct ::detail::GhostCallback;
+        friend class ContactListener;
 
     protected:
 
@@ -101,6 +104,14 @@ namespace jop
         ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Register a listener for this collider
+        ///
+        /// Single collider can have multiple listeners
+        ///
+        /// \param listener Reference to the listener which is to be registered for this collider 
+        ///
+        void registerListener(ContactListener& listener);
+
         /// \brief Get the world this collider belongs to
         ///
         /// \return Reference to the world
@@ -136,6 +147,7 @@ namespace jop
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
+        std::set<ContactListener*> m_listeners;          ///< Listeners registered for this collider
     };
 }
 

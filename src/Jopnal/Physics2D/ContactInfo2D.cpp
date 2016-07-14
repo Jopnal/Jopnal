@@ -19,22 +19,15 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
-#include <Jopnal/Physics2D/ContactListener2D.hpp>
 #include <Jopnal/Physics2D/ContactInfo2D.hpp>
-
 
 //////////////////////////////////////////////
 
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    ContactInfo2D::ContactInfo2D(const glm::vec2& pos, const glm::vec2& norm) :
+        position(pos),
+        normal(norm)
+    {}
+}
