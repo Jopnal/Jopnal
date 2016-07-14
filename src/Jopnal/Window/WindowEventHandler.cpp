@@ -34,7 +34,7 @@
     #endif
 
 #endif
-
+#include <Jopnal/Core/DebugHandler.hpp>
 #include<Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
@@ -313,20 +313,28 @@ namespace jop
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
-    {}
+    {
+        JOP_DEBUG_INFO("TOUCH "<<touchId<<" "<<x<<" "<<y);
+    }
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchReleased(const int touchId, const float x, const float y)
-    {}
+    {
+        JOP_DEBUG_INFO("RELEASE " << touchId << " " << x << " " << y);
+    }
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchMotion(const int touchId, const float x, const float y)
-    {}
+    {
+        JOP_DEBUG_INFO("MOTION " << touchId << " " << x << " " << y);
+    }
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchScrolled(const float x, const float y)
-    {}
+    {
+        JOP_DEBUG_INFO("SCROLL " << " " << x << " " << y);
+    }
 }
