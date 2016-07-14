@@ -87,4 +87,34 @@ namespace jop
 		}
 		return glm::vec2(0,0);
 	}
+
+    //////////////////////////////////////////////
+
+    void Mouse::setClipping(float x, float y, float size)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Mouse::setClipping(float minX, float maxX, float minY, float maxY)
+    {}
+
+    //////////////////////////////////////////////
+
+    void Mouse::setClipping(glm::vec2 x, glm::vec2 y)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool Mouse::isClipping()
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    void Mouse::releaseClipping()
+    {}
+
+    //////////////////////////////////////////////
+
 }

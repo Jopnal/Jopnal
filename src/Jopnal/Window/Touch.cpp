@@ -59,16 +59,4 @@ namespace jop
         return glm::vec2(-1.f, -1.f);
     #endif
     }
-
-
-    glm::vec2 Touch::getPosition()
-    {
-    #if defined(JOP_OS_DESKTOP)
-        return glm::vec2(-1.f, -1.f);
-    #elif defined(JOP_OS_ANDROID)
-            return detail::ActivityState::get()->lastTouchPosition[0];
-    #else
-        return glm::vec2(-1.f, -1.f);
-    #endif
-    }
 }

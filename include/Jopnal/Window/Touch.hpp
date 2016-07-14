@@ -49,14 +49,7 @@ namespace jop
         ///
         /// \return Position as glm vector 2
         ///
-        static glm::vec2 getPosition(const int id);
-
-
-        /// \brief Get position of first touch
-        ///
-        /// \return Position as glm vector 2
-        ///
-        static glm::vec2 getPosition();
+        static glm::vec2 getPosition(const int id=0);
 	};
 }
 

@@ -72,6 +72,34 @@ namespace jop
 		/// \return Glm vector of mouse position
 		///
 		static glm::vec2 getPosition();
+
+        /// \brief Set clipping area for mouse
+        ///
+        /// \param Position x,y and size of clipping area
+        ///
+        static void setClipping(float x, float y, float size);
+
+        /// \brief Set clipping area for mouse
+        ///
+        /// \param Cordinates of clipping area (float minX, float maxX, float minY, float maxY)
+        ///
+        static void setClipping(float minX, float maxX, float minY, float maxY);
+
+        /// \brief Set clipping area for mouse
+        ///
+        /// \param Cordinates of clipping area as two min-max vector (glm::vec2 x, glm::vec2 y)
+        ///
+        static void setClipping(glm::vec2 x, glm::vec2 y);
+
+        /// \brief Does mouse have clipping area
+        ///
+        /// \return True if mouse has clipping area
+        ///
+        static bool isClipping();
+
+        /// \brief Releases mouse if it's clipping
+        ///
+        static void releaseClipping();
     };
 }
 
