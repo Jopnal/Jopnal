@@ -325,25 +325,29 @@ namespace jop { namespace detail
             for (int p = 0; p < pointerCount; p++)
             {
                 int id = AMotionEvent_getPointerId(event, p);
-                float x = AMotionEvent_getX(event, p);
-                float y = AMotionEvent_getY(event, p);
 
-                if (device & AINPUT_SOURCE_TOUCHSCREEN)
+                if(id<10)
                 {
-                    windowRef->getEventHandler()->touchMoved(id, x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                    windowRef->getEventHandler()->touchMovedApsolute(id, x, y);
-                }
-                else if (device & AINPUT_SOURCE_MOUSE)
-                {
-                    windowRef->getEventHandler()->mouseMoved(x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                    windowRef->getEventHandler()->mouseMovedApsolute(x, y);
-                }
-                else
-                    return 0;
+                    float x = AMotionEvent_getX(event, p);
+                    float y = AMotionEvent_getY(event, p);
 
-                ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+                    if (device & AINPUT_SOURCE_TOUCHSCREEN)
+                    {
+                        windowRef->getEventHandler()->touchMoved(id, x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
+                        windowRef->getEventHandler()->touchMovedApsolute(id, x, y);
+                    }
+                    else if (device & AINPUT_SOURCE_MOUSE)
+                    {
+                        windowRef->getEventHandler()->mouseMoved(x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
+                        windowRef->getEventHandler()->mouseMovedApsolute(x, y);
+                    }
+                    else
+                        return 0;
+
+                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+                }
+                return 1;
             }
-            return 1;
         }
         return 0;
     }
@@ -385,21 +389,24 @@ namespace jop { namespace detail
             {
                 int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
                 int id = AMotionEvent_getPointerId(event, index);
-                float x = AMotionEvent_getX(event, index);
-                float y = AMotionEvent_getY(event, index);
-
-                if (down)
+                if(id<10)
                 {
-                    windowRef->getEventHandler()->touchEvent(id, x, y);
-                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
-                }
-                else
-                {
-                    windowRef->getEventHandler()->touchReleased(id, x, y);
-                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(-1.f,-1.f);
-                }
+                    float x = AMotionEvent_getX(event, index);
+                    float y = AMotionEvent_getY(event, index);
 
-                return 1;
+                    if (down)
+                    {
+                        windowRef->getEventHandler()->touchEvent(id, x, y);
+                        ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+                    }
+                    else
+                    {
+                        windowRef->getEventHandler()->touchReleased(id, x, y);
+                        ActivityState::get()->lastTouchPosition[id]=glm::vec2(-1.f,-1.f);
+                    }
+
+                    return 1;
+                }
             }
         }
         return 0;
