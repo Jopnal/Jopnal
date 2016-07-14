@@ -38,6 +38,7 @@ namespace jop
     class ShaderProgram;
     class Renderer;
     class RectangleMesh;
+    class MainRenderTarget;
 
     class JOP_API PostProcessor final : public Subsystem
     {
@@ -60,7 +61,9 @@ namespace jop
 
     public:
 
-        PostProcessor(const RenderTexture& mainTarget);
+        PostProcessor(const MainRenderTarget& mainTarget);
+
+        ~PostProcessor();
 
 
         static void enableFunctions(const uint32 funcs);
@@ -77,12 +80,20 @@ namespace jop
 
         static float getGamma();
 
+        static void setBloomThreshold(const float threshold);
+
+        static float getBloomThreshold();
+
 
         void draw() override;
 
     private:
 
         void getPreprocessorStr(const uint32 funcs, std::string& str) const;
+
+        void makeBloom();
+
+        void enableBloom();
 
 
         static PostProcessor* m_instance;
@@ -91,11 +102,14 @@ namespace jop
         std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
         WeakReference<ShaderProgram> m_blurShader;
         WeakReference<RectangleMesh> m_quad;
-        const RenderTexture& m_mainTarget;
+        const MainRenderTarget& m_mainTarget;
         uint32 m_functions;
         float m_exposure;
         float m_gamma;
+        float m_bloomThreshold;
         Texture2D m_ditherMatrix;
+        std::array<std::array<RenderTexture, 2>, 5> m_bloomTextures;
+        WeakReference<ShaderProgram> m_brightShader;
     };
 }
 

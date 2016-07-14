@@ -26,6 +26,7 @@
 
 #include <android/looper.h>
 #include <Jopnal/Core/DebugHandler.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -39,7 +40,7 @@ namespace
     ALooper* looper                     = nullptr;
     ASensorManager* sensorManager       = nullptr;
     ASensorEventQueue* sensorEventQueue = nullptr;
-    glm::vec3 m_data[Sensor::Type::Count];
+    glm::vec3 m_data[jop::Sensor::Type::Count];
 }
 
 namespace jop
@@ -129,7 +130,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 SensorImpl::getData(Sensor::Type sensorType) const
+    glm::vec3 SensorImpl::getData(const Sensor::Type sensorType) const
     {
         return m_data[sensorType];
     }
@@ -168,7 +169,7 @@ namespace jop
         while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0)
         {
             unsigned int type = Sensor::Type::Count;
-            glm::fvec3 data;
+            glm::vec3 data;
 
             switch (event.type)
             {

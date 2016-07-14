@@ -9,9 +9,12 @@ in vec2 vf_TexCoords;
 uniform sampler2D u_Scene;
 
 uniform float u_Exposure;
-uniform sampler2D u_Bloom;
 uniform sampler2D u_DitherMatrix;
 uniform float u_Gamma;
+
+#ifdef JPP_BLOOM
+	uniform sampler2D u_Bloom[JPP_BLOOM_TEXTURES];
+#endif
 
 layout(location = 0) out vec4 out_FinalColor;
 
@@ -20,7 +23,10 @@ void main()
     vec4 tempColor = texture(u_Scene, vf_TexCoords);
 
     #ifdef JPP_BLOOM
-        tempColor += texture(u_Bloom, vf_TexCoords);
+
+		for (int i = 0; i < u_Bloom.length(); ++i)
+			tempColor += (texture(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
+
     #endif
 
     tempColor = vec4(

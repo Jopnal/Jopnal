@@ -98,11 +98,11 @@ extern int main(int argc, char* argv[]);
                 }
                 case APP_CMD_GAINED_FOCUS:
                 {
-                    SensorManager::getInstance().gainedFocus();
+                    //SensorManager::getInstance().gainedFocus();
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
-                    SensorManager::getInstance().lostFocus();
+                    //SensorManager::getInstance().lostFocus();
                 }
             }
         }

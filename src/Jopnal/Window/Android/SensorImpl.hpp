@@ -83,7 +83,7 @@ namespace jop
 
         /// \brief Get default sensor of a type
         ///
-        static const ASensor* getDefault(Sensor::Type sensorType);
+        static const ASensor* getDefault(const Sensor::Type sensorType);
 
         /// \brief Process events and save data
         ///

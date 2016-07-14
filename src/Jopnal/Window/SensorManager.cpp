@@ -96,6 +96,8 @@ namespace jop
         return m_sensors[sensorType].getData(sensorType);
     }
 
+    //////////////////////////////////////////////
+
     void SensorManager::lostFocus()
     {
         for (size_t i = 0; i < Sensor::Count; ++i)

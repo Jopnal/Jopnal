@@ -85,6 +85,10 @@
             "name": "postProcessVert",
             "path": "res/Shaders/postProcess.vert"
         },
+        {
+            "name": "brightFilter",
+            "path": "res/Shaders/brightFilter.frag"
+        },
 
         {
             "name": "defaultPlugins",

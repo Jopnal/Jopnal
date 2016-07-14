@@ -38,14 +38,13 @@
 
 namespace jop
 {
-    class JOP_API SensorManager
+    class SensorManager
     {
-
     public:
         
         /// \brief Is sensor available or not?
         ///
-        bool isAvailable(Sensor::Type sensorType);
+        bool isAvailable(const Sensor::Type sensorType) const;
 
         /// \brief Process sensor events and update their data
         ///
@@ -53,11 +52,11 @@ namespace jop
 
         /// \brief Enable sensor of a type
         ///
-        void enable(Sensor::Type sensorType);
+        void enable(const Sensor::Type sensorType);
 
         /// \brief Disable sensor of a type
         ///
-        void disable(Sensor::Type sensorType);
+        void disable(const Sensor::Type sensorType);
 
         /// \brief Disable all sensors
         ///
@@ -65,11 +64,11 @@ namespace jop
 
         /// \brief Get sensor status (True = enabled, False = disabled)
         ///
-        bool getStatus(Sensor::Type) const;
+        bool getStatus(const Sensor::Type) const;
 
         /// \brief Get sensor data
         ///
-        glm::vec3 getData(Sensor::Type sensorType) const;
+        glm::vec3 getData(const Sensor::Type sensorType) const;
 
         /// \brief If application loses focus - call this to disable sensors
         ///
@@ -90,10 +89,7 @@ namespace jop
         ~SensorManager();
 
         SensorImpl m_sensors[Sensor::Count]; ///< Sensors
-
     };
-
-
 }
 
 #endif

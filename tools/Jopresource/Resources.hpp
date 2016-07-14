@@ -38,9 +38,11 @@ extern const unsigned char physicsDebugShaderFrag[297];
 
 extern const unsigned char physicsDebugShaderVert[528];
 
-extern const unsigned char postProcessFrag[965];
+extern const unsigned char postProcessFrag[1112];
 
 extern const unsigned char postProcessVert[332];
+
+extern const unsigned char brightFilter[548];
 
 extern const unsigned char defaultPlugins[57];
 

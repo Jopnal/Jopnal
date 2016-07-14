@@ -30,6 +30,7 @@
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/STL.hpp>
 
 #endif
 
@@ -67,11 +68,30 @@ namespace
 
     #endif
     }
+
+    void drawQuad(const jop::RectangleMesh& mesh, jop::ShaderProgram& shdr)
+    {
+        mesh.getVertexBuffer().bind();
+        shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position));
+        shdr.setAttribute(1, GL_FLOAT, 2, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords));
+
+        mesh.getIndexBuffer().bind();
+        glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
+    }
+
+    const float ns_defBloomThreshold =
+
+    #ifdef JOP_OPENGL_ES
+        0.9f;
+    #else
+        1.0f;
+    #endif
+    ;
 }
 
 namespace jop
 {
-    PostProcessor::PostProcessor(const RenderTexture& mainTarget)
+    PostProcessor::PostProcessor(const MainRenderTarget& mainTarget)
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
@@ -80,7 +100,9 @@ namespace jop
           m_functions           (),
           m_exposure            (1.f),
           m_gamma               (2.2f),
-          m_ditherMatrix        ("")
+          m_bloomThreshold      (ns_defBloomThreshold),
+          m_ditherMatrix        (""),
+          m_bloomTextures       ()
     {
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
@@ -101,6 +123,9 @@ namespace jop
 
         m_ditherMatrix.load(glm::uvec2(8, 8), 1, pattern, false, false);
         m_ditherMatrix.getSampler().setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
+
+        // Bloom
+        enableBloom();
 
         // Tone mapping settings
         {
@@ -133,7 +158,7 @@ namespace jop
 
         // Bloom settings
         {
-            /*static const struct EnabledCallback : SettingCallback<bool>
+            static const struct EnabledCallback : SettingCallback<bool>
             {
                 const char* str;
 
@@ -144,7 +169,23 @@ namespace jop
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
-            } enabled;*/
+            } enabled;
+
+            static const struct ThresholdCallback : SettingCallback<float>
+            {
+                const char* str;
+
+                ThresholdCallback()
+                    : str("engine@Graphics|Postprocessor|Bloom|fThreshold")
+                {
+                    setBloomThreshold(SettingManager::get<float>(str, ns_defBloomThreshold));
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const float& value) override { setBloomThreshold(value); }
+            } threshold;
+
+            if (functionEnabled(Function::Bloom))
+                enableBloom();
         }
 
         // Gamma correction settings
@@ -208,9 +249,22 @@ namespace jop
 
         JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
+        auto& brightShader = ResourceManager::getNamedResource<ShaderProgram>
+        (
+            "jop_bright_filter_shader",
+            "",
+            Shader::Type::Vertex, m_shaderSources[0],
+            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
+        );
+
+        JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
+
         m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
-        
+        m_brightShader = static_ref_cast<ShaderProgram>(brightShader.getReference());
     }
+
+    PostProcessor::~PostProcessor()
+    {}
 
     //////////////////////////////////////////////
 
@@ -266,6 +320,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void PostProcessor::setBloomThreshold(const float threshold)
+    {
+        if (m_instance)
+            m_instance->m_bloomThreshold = threshold;
+    }
+
+    //////////////////////////////////////////////
+
+    float PostProcessor::getBloomThreshold()
+    {
+        if (m_instance)
+            return m_instance->m_bloomThreshold;
+
+        return 0.f;
+    }
+
+    //////////////////////////////////////////////
+
     void PostProcessor::draw()
     {
         if (m_shaders.find(m_functions) == m_shaders.end())
@@ -288,8 +360,19 @@ namespace jop
             if ((m_functions & Function::ToneMap) != 0)
                 shdr.setUniform("u_Exposure", m_exposure);
 
+            if ((m_functions & Function::Bloom) != 0)
+            {
+                if (m_bloomTextures.empty())
+                    enableBloom();
+
+                makeBloom();
+
+                for (unsigned int i = 0; i < m_bloomTextures.size(); ++i)
+                    shdr.setUniform("u_Bloom[" + std::to_string(i) + "]", *m_bloomTextures[i][1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 3 + i);
+            }
+
             if ((m_functions & Function::Dither) != 0)
-                shdr.setUniform("u_DitherMatrix", m_ditherMatrix, 3);
+                shdr.setUniform("u_DitherMatrix", m_ditherMatrix, 2);
 
             if ((m_functions & Function::GammaCorrection) != 0)
                 shdr.setUniform("u_Gamma", m_gamma);
@@ -297,14 +380,8 @@ namespace jop
 
         RenderTexture::unbind();
         
-        m_quad->getVertexBuffer().bind();
-        shdr.setAttribute(0, GL_FLOAT, 3, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::Position));
-        shdr.setAttribute(1, GL_FLOAT, 2, m_quad->getVertexSize(), m_quad->getVertexOffset(Mesh::TexCoords));
-
         shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
-
-        m_quad->getIndexBuffer().bind();
-        glCheck(glDrawElements(GL_TRIANGLES, m_quad->getElementAmount(), m_quad->getElementEnum(), 0));
+        drawQuad(m_quad, shdr);
     }
 
     //////////////////////////////////////////////
@@ -321,14 +398,87 @@ namespace jop
         if ((funcs & Function::ToneMap) != 0)
             str += "#define JPP_TONEMAP\n";
 
-        //if ((funcs & Function::Bloom) != 0)
-        //    str += "#define JPP_BLOOM\n";
+        if ((funcs & Function::Bloom) != 0)
+        {
+            str += "#define JPP_BLOOM\n#define JPP_BLOOM_TEXTURES ";
+            str += std::to_string(m_bloomTextures.size());
+            str += "\n";
+        }
 
         if ((funcs & Function::Dither) != 0)
             str += "#define JPP_DITHER\n";
 
         if ((funcs & Function::GammaCorrection) != 0)
             str += "#define JPP_GAMMACORRECTION\n";
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::makeBloom()
+    {
+        const auto slot = RenderTexture::ColorAttachmentSlot::_1;
+
+        // Brightness pass
+        m_bloomTextures[0][0].bind();
+        m_bloomTextures[0][0].clear(RenderTarget::ColorBit);
+
+        m_brightShader->setUniform("u_Texture", *m_mainTarget.getColorTexture(slot), 1);
+        m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
+        drawQuad(m_quad, m_brightShader);
+
+        // Blur
+        for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
+        {
+            m_blurShader->setUniform("u_Buffer", *(*itr)[0].getColorTexture(slot), 1);
+            bool horizontal = true;
+
+            static DynamicSetting<unsigned int> kernelSize("engine@Graphics|Postprocessor|Bloom|uKernelSize", 5);
+
+            for (unsigned int j = 0; j < kernelSize.value * 2; ++j)
+            {
+                (*itr)[horizontal].bind();
+                m_blurShader->setUniform("u_Horizontal", horizontal);
+                m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getColorTexture(slot), 1);
+
+                drawQuad(m_quad, m_blurShader);
+                horizontal = !horizontal;
+            }
+
+            if (itr != (m_bloomTextures.end() - 1))
+            {
+                auto& src = (*itr)[1];
+                auto& dst = (*++itr)[0];
+
+                dst.bind();
+                src.bind(true);
+
+                glCheck(glBlitFramebuffer(0, 0, src.getSize().x, src.getSize().y,
+                                          0, 0, dst.getSize().x, dst.getSize().y,
+                                          GL_COLOR_BUFFER_BIT, GL_LINEAR));
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::enableBloom()
+    {
+        using CAS = RenderTexture::ColorAttachmentSlot;
+        using CA = RenderTexture::ColorAttachment;
+        using TSR = TextureSampler::Repeat;
+        using TSF = TextureSampler::Filter;
+
+        for (unsigned int i = 0; i < m_bloomTextures.size(); ++i)
+        {
+            for (auto& j : m_bloomTextures[i])
+            {
+                glm::uvec2 size(glm::uvec2((16 << m_bloomTextures.size()) >> i));
+                size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
+
+                j.addColorAttachment(CAS::_1, CA::RGB2D, size);
+                j.getColorTexture(CAS::_1)->getSampler().setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
+            }
+        }
     }
 
     //////////////////////////////////////////////

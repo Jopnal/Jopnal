@@ -140,7 +140,7 @@ namespace jop
 
         /// \brief Constructor
         ///
-        /// Doesn't initialize anything. To create the frame buffer, call create()
+        /// Doesn't initialize the frame buffer.
         ///
         RenderTexture();
 

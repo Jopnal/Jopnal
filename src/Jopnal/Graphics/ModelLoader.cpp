@@ -49,12 +49,10 @@ namespace jop
     {
         std::string getHex()
         {
-        #ifdef JOP_OS_WINDOWS
-            const __int64 timePoint = __rdtsc();
-        #endif
+            static unsigned long long count = 0;
 
             std::ostringstream ss;
-            ss << std::hex << timePoint;
+            ss << std::hex << ++count;
             return ss.str();
         }
 
