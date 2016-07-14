@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
@@ -34,6 +35,28 @@ namespace jop
 	{
 	public:
 
+        /// \brief Is touch received
+        ///
+        /// \param Finger's id 0-9
+        ///
+        /// \return True if touch is received false if not
+        ///
+        static bool isDown(const int id);
+
+        /// \brief Get position of specific finger
+        ///
+        /// \param Finger's id 0-9
+        ///
+        /// \return Position as glm vector 2
+        ///
+        static glm::vec2 getPosition(const int id);
+
+
+        /// \brief Get position of first touch
+        ///
+        /// \return Position as glm vector 2
+        ///
+        static glm::vec2 getPosition();
 	};
 }
 

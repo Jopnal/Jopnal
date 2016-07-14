@@ -103,14 +103,6 @@ namespace jop
         ///
         virtual void keyReleased(const int key, const int scanCode, const int mods);
 
-        /// \brief Check if a key is down
-        ///
-        /// \param key The virtual key code
-        ///
-        /// \return state of key
-        ///
-        int keyDown(const int key) const;
-
         /// \brief Text entered callback
         ///
         /// This will produce an unicode code point whenever text is entered.
@@ -123,16 +115,19 @@ namespace jop
         ///
         /// This will be called when the mouse is moved.
         ///
-        /// \param x The vertical position/offset
-        /// \param y The horizontal position/offset
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
         ///
         virtual void mouseMoved(const float x, const float y);
 
-        /// \brief Get the cursor position
+        /// \brief Mouse position callback
         ///
-        /// \return A std::pair with the position. First = x, second = y
+        /// This will be called when the mouse is moved.
         ///
-        glm::vec2 getCursorPosition() const;
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void mouseMovedApsolute(const float x, const float y);
 
         /// \brief Mouse button pressed callback
         ///
@@ -151,14 +146,6 @@ namespace jop
         /// \param mods Modifiers
         ///
         virtual void mouseButtonReleased(const int button, const int mods);
-
-        /// \brief Check if a mouse button is down
-        ///
-        /// \param button The virtual button code
-        ///
-        /// \return True if the button is down
-        ///
-        int mouseButtonDown(const int button) const;
 
         /// \brief Mouse left callback
         ///
@@ -238,15 +225,25 @@ namespace jop
         ///
         virtual void touchReleased(const int touchId, const float x, const float y);
 
+        /// \brief Touch event callback
+        ///
+        /// This will be called when touch isn't stationary.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position/offset
+        /// \param y The horizontal position/offset
+        ///
+        virtual void touchMoved(const int touchId, const float x, const float y);
+
 		/// \brief Touch event callback
 		///
 		/// This will be called when touch isn't stationary.
 		///
 		/// \param touchId Id for finger in case of multiple touches
-		/// \param x The vertical position/offset
-		/// \param y The horizontal position/offset
+		/// \param x The vertical offset
+		/// \param y The horizontal offset
 		///
-		virtual void touchMotion(const int touchId, const float x, const float y);
+		virtual void touchMovedApsolute(const int touchId, const float x, const float y);
 
         /// \brief Touch event callback
         ///
@@ -256,14 +253,15 @@ namespace jop
         /// \param y The horizontal offset
         ///
         virtual void touchScrolled(const float x, const float y);
-
+        
     protected:
 
-        Window& m_windowRef;                       ///< Reference to the window
-		
+        Window& m_windowRef;                                    ///< Reference to the window
+
     public:
-        float m_lastMouseX;                        ///< For internal use. Do not touch
-        float m_lastMouseY;                        ///< For internal use. Do not touch
+
+        float m_lastMouseX;                                     ///< For internal use. Do not touch
+        float m_lastMouseY;                                     ///< For internal use. Do not touch
     };
 }
 

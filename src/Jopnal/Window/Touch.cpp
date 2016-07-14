@@ -23,15 +23,52 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
-
-#include <Jopnal/Window/Mouse.hpp>
-
-#ifdef JOP_OS_DESKTOP
-#include <GLFW/glfw3.h>
+#include <Jopnal/Window/Touch.hpp>
 #endif
-
+#ifdef JOP_OS_ANDROID
+#include <Jopnal/Core/Android/ActivityState.hpp>
 #endif
-
-#include<Jopnal/Window/InputEnumsImpl.hpp>
-
 //////////////////////////////////////////////
+
+namespace jop
+{
+    bool Touch::isDown(const int id)
+    {
+     #if defined(JOP_OS_DESKTOP)
+        return false;
+     #elif defined(JOP_OS_ANDROID)
+        if (id < 10)
+            return detail::ActivityState::get()->lastTouchPosition[id].x>=0.f && detail::ActivityState::get()->lastTouchPosition[id].y>=0.f;
+        else
+            return false;
+     #else
+        return false;
+      #endif
+    }
+
+    glm::vec2 Touch::getPosition(const int id)
+    {
+    #if defined(JOP_OS_DESKTOP)
+        return glm::vec2(-1.f, -1.f);
+    #elif defined(JOP_OS_ANDROID)
+        if (id < 10)
+            return detail::ActivityState::get()->lastTouchPosition[id];
+        else
+            return glm::vec2(-1.f, -1.f);
+    #else
+        return glm::vec2(-1.f, -1.f);
+    #endif
+    }
+
+
+    glm::vec2 Touch::getPosition()
+    {
+    #if defined(JOP_OS_DESKTOP)
+        return glm::vec2(-1.f, -1.f);
+    #elif defined(JOP_OS_ANDROID)
+            return detail::ActivityState::get()->lastTouchPosition[0];
+    #else
+        return glm::vec2(-1.f, -1.f);
+    #endif
+    }
+}

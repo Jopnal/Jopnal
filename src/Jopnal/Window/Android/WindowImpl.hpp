@@ -76,6 +76,9 @@ namespace jop { namespace detail
         Window* m_windowPtr;
         glm::uvec2 m_size;
     };
+
+    JOP_API int32_t onKey(const int32_t& action, const int32_t& meta, const int32_t& key);
+    JOP_API int32_t onMotion(const int32_t& action, void* data);
 }}
 
 #endif

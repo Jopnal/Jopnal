@@ -29,10 +29,13 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+    #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
     #include <EGL/eglext.h>
     #include <unordered_map>
+    #include<glm/vec2.hpp>
 
 #endif
 
@@ -309,6 +312,184 @@ namespace jop { namespace detail
         return nullptr;
     }
 
+    //////////////////////////////////////////////
+
+    int32_t motion(AInputEvent* event)
+    {  
+        Window* windowRef = &Engine::getCurrentWindow();
+        if (windowRef != nullptr)
+        {
+            int32_t device = AInputEvent_getSource(event);
+            int pointerCount = AMotionEvent_getPointerCount(event);
+
+            for (int p = 0; p < pointerCount; p++)
+            {
+                int id = AMotionEvent_getPointerId(event, p);
+                float x = AMotionEvent_getX(event, p);
+                float y = AMotionEvent_getY(event, p);
+
+                if (device & AINPUT_SOURCE_TOUCHSCREEN)
+                {
+                    windowRef->getEventHandler()->touchMoved(id, x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
+                    windowRef->getEventHandler()->touchMovedApsolute(id, x, y);
+                }
+                else if (device & AINPUT_SOURCE_MOUSE)
+                {
+                    windowRef->getEventHandler()->mouseMoved(x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
+                    windowRef->getEventHandler()->mouseMovedApsolute(x, y);
+                }
+                else
+                    return 0;
+
+                ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+            }
+            return 1;
+        }
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int32_t scroll(AInputEvent* event)
+    {
+        Window* windowRef = &Engine::getCurrentWindow();
+        if (windowRef != nullptr)
+        {
+            int32_t device = AInputEvent_getSource(event);
+
+            float x = AMotionEvent_getX(event, 0);
+            float y = AMotionEvent_getY(event, 0);
+
+            if (device & AINPUT_SOURCE_TOUCHSCREEN)
+                windowRef->getEventHandler()->touchScrolled(x, y);
+            else if (device & AINPUT_SOURCE_MOUSE)
+                windowRef->getEventHandler()->mouseScrolled(x, y);
+            else
+                return 0;
+
+            return 1;
+        }
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int32_t touch(bool down, int32_t action, AInputEvent* event)
+    {
+
+        Window* windowRef = &Engine::getCurrentWindow();
+        if (windowRef != nullptr)
+        {
+            int32_t device = AInputEvent_getSource(event);
+            if (device & AINPUT_SOURCE_TOUCHSCREEN)
+            {
+                int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                int id = AMotionEvent_getPointerId(event, index);
+                float x = AMotionEvent_getX(event, index);
+                float y = AMotionEvent_getY(event, index);
+
+                if (down)
+                {
+                    windowRef->getEventHandler()->touchEvent(id, x, y);
+                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+                }
+                else
+                {
+                    windowRef->getEventHandler()->touchReleased(id, x, y);
+                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(-1.f,-1.f);
+                }
+
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int32_t onKey(const int32_t& action, const int32_t& meta, const int32_t& key)
+    {
+        int jopKey = input::getJopKey(key);
+
+        int mod = 0x0000;
+        if (meta & AMETA_ALT_ON)
+            mod = 0x0001;
+        else if (meta & AMETA_SHIFT_ON)
+            mod = 0x0004;
+
+        switch (action)
+        {
+        case AKEY_EVENT_ACTION_DOWN:
+        {
+            Window* windowRef = &Engine::getCurrentWindow();
+            if (windowRef != nullptr)
+            {
+                windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
+                return 1;
+            }
+            return 0;
+        }
+        case AKEY_EVENT_ACTION_UP:
+        {
+            Window* windowRef = &Engine::getCurrentWindow();
+            if (windowRef != nullptr)
+            {
+                windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
+                return 1;
+            }
+            return 0;
+        }
+        case AKEY_EVENT_ACTION_MULTIPLE:
+        {
+            Window* windowRef = &Engine::getCurrentWindow();
+            if (windowRef != nullptr)
+            {
+                windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
+                windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
+                return 1;
+            }
+            return 0;
+        }
+        default:
+            break;
+        }
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
+    int32_t onMotion(const int32_t& action, void* data)
+    {
+        auto event= static_cast<AInputEvent*>(data);
+
+        switch (action & AMOTION_EVENT_ACTION_MASK)
+        {
+        case AMOTION_EVENT_ACTION_SCROLL:
+        {
+            return scroll(event);
+            break;
+        }
+        case AMOTION_EVENT_ACTION_MOVE:
+        {
+            return motion(event);
+            break;
+        }
+        case AMOTION_EVENT_ACTION_POINTER_DOWN:
+        case AMOTION_EVENT_ACTION_DOWN:
+        {
+            return touch(true, action, event);
+            break;
+        }
+
+        case AMOTION_EVENT_ACTION_POINTER_UP:
+        case AMOTION_EVENT_ACTION_UP:
+        case AMOTION_EVENT_ACTION_CANCEL:
+        {
+            return touch(false, action, event);
+            break;
+        }
+        }
+    }
 }}
 
 #endif

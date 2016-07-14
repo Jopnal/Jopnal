@@ -34,7 +34,7 @@
     #endif
 
 #endif
-#include <Jopnal/Core/DebugHandler.hpp>
+
 #include<Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
@@ -115,6 +115,7 @@ namespace jop
             }
 
             h->mouseMoved(static_cast<float>(-realX), static_cast<float>(-realY));
+            h->mouseMovedApsolute(static_cast<float>(x), static_cast<float>(x));
 
             h->m_lastMouseX = static_cast<float>(x);
             h->m_lastMouseY = static_cast<float>(y);
@@ -213,19 +214,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int WindowEventHandler::keyDown(const int key) const
-    {
-        using namespace input;
-
-#if defined(JOP_OS_DESKTOP)
-        return glfwGetKey(m_windowRef.getLibraryHandle(), getGlKey(key));
-#else
-        return false;
-#endif
-    }
-
-    //////////////////////////////////////////////
-
     void WindowEventHandler::textEntered(const unsigned int)
     {}
 
@@ -236,16 +224,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec2 WindowEventHandler::getCursorPosition() const
-    {
-        double x = 0.0, y = 0.0;
-
-#if defined(JOP_OS_DESKTOP)
-        glfwGetCursorPos(m_windowRef.getLibraryHandle(), &x, &y);
-#endif
-
-        return glm::vec2(x, y);
-    }
+    void WindowEventHandler::mouseMovedApsolute(const float x, const float y)
+    {}
 
     //////////////////////////////////////////////
 
@@ -256,19 +236,6 @@ namespace jop
 
     void WindowEventHandler::mouseButtonReleased(const int, const int)
     {}
-
-    //////////////////////////////////////////////
-
-    int WindowEventHandler::mouseButtonDown(const int button) const
-    {
-        using namespace input;
-
-#if defined(JOP_OS_DESKTOP)
-        return glfwGetMouseButton(m_windowRef.getLibraryHandle(), getGlButton(button));
-#else
-        return false;
-#endif
-    }
 
     //////////////////////////////////////////////
 
@@ -313,28 +280,25 @@ namespace jop
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
-    {
-        JOP_DEBUG_INFO("TOUCH "<<touchId<<" "<<x<<" "<<y);
-    }
+    {}
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchReleased(const int touchId, const float x, const float y)
-    {
-        JOP_DEBUG_INFO("RELEASE " << touchId << " " << x << " " << y);
-    }
+    {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchMotion(const int touchId, const float x, const float y)
-    {
-        JOP_DEBUG_INFO("MOTION " << touchId << " " << x << " " << y);
-    }
+    void WindowEventHandler::touchMoved(const int touchId, const float x, const float y)
+    {}
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::touchMovedApsolute(const int touchId, const float x, const float y)
+    {}
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::touchScrolled(const float x, const float y)
-    {
-        JOP_DEBUG_INFO("SCROLL " << " " << x << " " << y);
-    }
+    {}
 }

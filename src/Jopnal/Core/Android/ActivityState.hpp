@@ -45,7 +45,7 @@ namespace jop { namespace detail
 
         static ActivityState* get();
 
-        static void reset();
+        static void reset();      
 
 
         std::mutex mutex;
@@ -57,6 +57,8 @@ namespace jop { namespace detail
 
         Window* window;
         glm::uvec2 screenSize;
+
+        glm::vec2 lastTouchPosition[10];
     };
 }}
 
