@@ -26,23 +26,24 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Physics/ContactInfo.hpp>
-#include <Jopnal/Physics/ContactListener.hpp>
 #include <memory>
 #include <set>
 
 //////////////////////////////////////////////
 
-
 class btMotionState;
 class btCollisionObject;
+
 namespace detail
 {
     struct GhostCallback;
+    struct ContactListenerImpl;
 }
 
 namespace jop
 {
     class World;
+    class ContactListener;
 
     class JOP_API Collider : public Component
     {
@@ -52,6 +53,7 @@ namespace jop
 
         friend struct ::detail::GhostCallback;
         friend class ContactListener;
+        friend struct ::detail::ContactListenerImpl;
 
     protected:
 

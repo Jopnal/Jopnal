@@ -43,10 +43,11 @@ namespace jop
         ///
         /// \param pos Contact position
         ///
-        ContactInfo(const glm::vec3& pos);
+        ContactInfo(const glm::vec3& pos, const glm::vec3& norm);
         
         
         const glm::vec3 position;   ///< Contact position
+        const glm::vec3 normal;
     };
 }
 

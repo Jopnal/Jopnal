@@ -38,6 +38,8 @@ namespace jop
     {
     public:
 
+        virtual ~ContactListener2D() = 0;
+
         /// \brief Begin contact callback
         ///
         /// This is called when two fixtures begin to overlap. This event can only occur inside the time step.

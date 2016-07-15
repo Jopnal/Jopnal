@@ -25,7 +25,6 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Physics2D/ContactListener2D.hpp>
 #include <glm/vec2.hpp>
 #include <set>
 
@@ -37,6 +36,7 @@ class b2Body;
 namespace jop
 {
     class World2D;
+    class ContactListener2D;
 
     namespace detail
     {
@@ -48,7 +48,7 @@ namespace jop
     private:
 
         friend class ContactListener2D;
-        friend struct ContactListener2DImpl;
+        friend struct detail::ContactListener2DImpl;
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
 

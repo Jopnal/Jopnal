@@ -227,6 +227,53 @@ namespace detail
             return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
         }
     };
+
+    struct ContactListenerImpl
+    {
+    private:
+
+
+
+    public:
+        static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
+        {
+            if (!body0 || !body1)
+                return false;
+
+            auto a = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
+            auto b = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
+
+            const auto& pos = cp.m_positionWorldOnB;
+            const auto& norm = cp.m_normalWorldOnB;
+
+            jop::ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
+            cp.m_userPersistentData = &ci;
+
+            for (auto& i : a->m_listeners)
+            {
+                i->beginContact(*b, ci);
+            }
+
+            return true;
+        }
+
+        static bool contactDestroyedCallback(void* userPersistentData)
+        {
+            if (!userPersistentData)
+                return false;
+
+            auto ci = static_cast<jop::ContactInfo*>(userPersistentData);
+
+            //for (auto& i : a->m_listeners)
+            //{
+            //    i->endContact(*b, *ci);
+            //}
+
+            return true;
+        }
+
+
+    };
 }
 
 #ifdef JOP_DEBUG_MODE
@@ -240,14 +287,17 @@ namespace jop
     World::World(Object& obj, Renderer& renderer)
         : Drawable          (obj, renderer, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
-          m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
+          m_ghostCallback   (std::make_unique<::detail::GhostCallback>()),
+          m_contactListener (std::make_unique<::detail::ContactListenerImpl>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         m_worldData->world->setWorldUserInfo(this);
-        
+        gContactProcessedCallback = m_contactListener->contactProcessedCallback;
+        gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
+
         setDebugMode(false);
 
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);

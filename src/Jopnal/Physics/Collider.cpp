@@ -188,17 +188,30 @@ namespace jop
 
     void Collider::registerListener(ContactListener& listener)
     {
-        listener.m_collider = this;
-
-        // Check if this listener is already registered
-        std::pair<std::set<ContactListener*>::iterator, bool> ret;
-        ret = m_listeners.insert(&listener);
-
-        if (ret.second == false)
+        if (listener.m_collider != this)
         {
-            // Erase the old and replace it with new
-            m_listeners.erase(ret.first);
-            m_listeners.insert(&listener);
+            if (listener.m_collider)
+            {
+                listener.m_collider->m_listeners.erase(&listener);
+            }
+            // Replace old collider with this
+            listener.m_collider = this;
+
+            // Check if this listener is already registered
+            std::pair<std::set<ContactListener*>::iterator, bool> ret;
+            ret = m_listeners.insert(&listener);
+
+            if (ret.second == false)
+            {
+                // Erase the old and replace it with new
+                m_listeners.erase(ret.first);
+                m_listeners.insert(&listener);
+            }
+        }
+        else
+        {
+            JOP_DEBUG_WARNING("Could not register listener for Collider2D: Listener is already registered for collider");
+            return;
         }
     }
 

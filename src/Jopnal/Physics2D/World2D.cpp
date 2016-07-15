@@ -193,10 +193,10 @@ namespace jop
 
         struct ContactListener2DImpl : b2ContactListener
         {
-
             virtual void BeginContact(b2Contact* contact) override
             {
                 ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
+
                 auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
                 for (auto& i : a->m_listeners)
