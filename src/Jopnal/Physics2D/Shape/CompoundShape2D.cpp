@@ -20,22 +20,51 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
-#include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
+
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/STL.hpp>    
+
+#pragma warning(push)
+#pragma warning(disable: 4127)
+
+#pragma warning(pop)
+
+#endif
 
 //////////////////////////////////////////////
 
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    CompoundShape2D::CompoundShape2D(const std::string& name)
+        : CollisionShape2D(name)
+    {
+         m_shape = std::make_unique<b2PolygonShape>();
+    }
+
+    //////////////////////////////////////////////
+
+    void CompoundShape2D::addChild(CollisionShape2D& childShape, const Transform::Variables& childTransform)
+    {
+        if (!childShape.m_shape)
+        {
+            JOP_DEBUG_ERROR("Compound shape \"" << getName() << "\": Tried to add an empty child shape");
+            return;
+        }
+
+        auto shape = static_cast<b2PolygonShape*>(m_shape.get());
+
+        auto& r = childTransform.rotation;
+        auto& p = childTransform.position;
+
+        const btTransform transform(btQuaternion(r.x, r.y, r.z, r.w), btVector3(p.x, p.y, p.z));
+
+        
+        shape->addChildShape(transform, childShape.m_shape.get());
+    }
+}

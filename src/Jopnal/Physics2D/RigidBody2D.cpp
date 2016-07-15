@@ -24,15 +24,15 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Physics2D/RigidBody2D.hpp>
+#include <Jopnal/Physics2D/RigidBody2D.hpp>
 
-    #include <Jopnal/Core/Object.hpp>   
-    #include <Jopnal/Physics2D/World2D.hpp>
-    #include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-    #include <Box2D/Dynamics/b2Body.h>
-    #include <Box2D/Dynamics/b2Fixture.h>
-    #include <Box2D/Dynamics/b2World.h>
-    #include <glm/gtc/quaternion.hpp>
+#include <Jopnal/Core/Object.hpp>   
+#include <Jopnal/Physics2D/World2D.hpp>
+#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+#include <Box2D/Dynamics/b2Body.h>
+#include <Box2D/Dynamics/b2Fixture.h>
+#include <Box2D/Dynamics/b2World.h>
+#include <glm/gtc/quaternion.hpp>
 
 #endif
 
@@ -62,13 +62,13 @@
 namespace jop
 {
     RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
-        : group       (1),
-          mask        (1),
-          friction    (0.2f),
-          restitution (0.5f),
-          m_shape     (shape),
-          m_type      (type),
-          m_mass      ((type == Type::Dynamic) * mass)
+        : group(1),
+        mask(1),
+        friction(0.2f),
+        restitution(0.5f),
+        m_shape(shape),
+        m_type(type),
+        m_mass((type == Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
@@ -89,26 +89,26 @@ namespace jop
 
         switch (info.m_type)
         {
-            case Type::StaticSensor:
-            {
-                bd.type = b2BodyType::b2_staticBody;
-                object.setIgnoreParent(true);
-                fdf.isSensor = true;
-                break;
-            }
+        case Type::StaticSensor:
+        {
+            bd.type = b2BodyType::b2_staticBody;
+            object.setIgnoreParent(true);
+            fdf.isSensor = true;
+            break;
+        }
 
-            case Type::KinematicSensor:
-            {
-                bd.type = b2BodyType::b2_kinematicBody;
-                fdf.isSensor = true;
-                break;
-            }
+        case Type::KinematicSensor:
+        {
+            bd.type = b2BodyType::b2_kinematicBody;
+            fdf.isSensor = true;
+            break;
+        }
 
-            default:
-            {
-                bd.type = Types[static_cast<int>(info.m_type)];
-                object.setIgnoreParent(true);
-            }
+        default:
+        {
+            bd.type = Types[static_cast<int>(info.m_type)];
+            object.setIgnoreParent(true);
+        }
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
@@ -130,6 +130,38 @@ namespace jop
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
         : Collider2D(other, newObj)
     {
+        b2BodyDef bd;
+        b2FixtureDef fdf;
+
+        //
+        auto& pos = getObject()->getGlobalPosition();
+        bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
+        bd.position = b2Vec2(pos.x, pos.y);
+        bd.userData = this;
+        //these ok?
+
+        auto om = other.m_body;
+
+        bd.type = om->GetType();
+        newObj.setIgnoreParent(other.getObject()->ignoresParent());
+        fdf.isSensor = om->GetFixtureList()->IsSensor();
+        bd.allowSleep = om->IsSleepingAllowed();
+
+        m_body = other.m_worldRef2D.m_worldData2D->CreateBody(&bd);
+
+        auto omf = om->GetFixtureList();
+
+        fdf.filter = omf->GetFilterData();
+        fdf.friction = omf->GetFriction();
+        fdf.restitution = omf->GetRestitution();
+
+        fdf.shape = omf->GetShape();
+        fdf.density = omf->GetDensity();
+
+        m_body->CreateFixture(&fdf);
+        setActive(om->IsActive());
+
+
         //b2Body* body = other.m_body; //check if fixtures are copied too
     }
 
@@ -253,8 +285,8 @@ namespace jop
 
     Message::Result RigidBody2D::receiveMessage(const Message& message)
     {
-       // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
-       //     return Message::Result::Escape;
+        // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
+        //     return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

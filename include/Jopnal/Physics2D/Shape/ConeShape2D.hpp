@@ -19,23 +19,38 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
-#include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
+#ifndef JOP_CONESHAPE2D_HPP
+#define JOP_CONESHAPE2D_HPP
 
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API ConeShape2D final : public CollisionShape2D
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
+        ConeShape2D(const std::string& name);
+
+
+        /// \brief Load this shape
+        ///
+        /// \param radius Radius of the cone
+        /// \param height Height of the cone
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float radius, const float height);
+    };
+}
+
+#endif

@@ -20,22 +20,46 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
-#include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
+
+#include <Jopnal/STL.hpp>
+#include <Box2D/Collision/Shapes/b2PolygonShape.h>
+#pragma warning(push)
+#pragma warning(disable: 4127)
+
+#pragma warning(pop)
+
+#endif
 
 //////////////////////////////////////////////
 
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    ConeShape2D::ConeShape2D(const std::string& name)
+        : CollisionShape2D(name)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool ConeShape2D::load(const float radius, const float height)
+    {
+        auto temp = std::make_unique<b2PolygonShape>();
+
+        static const std::vector<glm::vec2> points =
+        {
+            glm::vec2(0.f, height),
+            glm::vec2(-radius, 0.f),
+            glm::vec2(radius, 0.f)
+        };
+
+        temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size());
+        m_shape = std::move(temp);
+
+        return true;
+    }
+}

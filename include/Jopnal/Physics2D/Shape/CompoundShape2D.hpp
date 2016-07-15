@@ -19,23 +19,39 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/RayInfo2D.hpp>
-#include <Jopnal/Physics2D/RigidBody2D.hpp>
-#include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
-#include <Jopnal/Physics2D/World2D.hpp>
+#ifndef JOP_COMPOUNDSHAPE2D_HPP
+#define JOP_COMPOUNDSHAPE2D_HPP
 
+// Headers
+#include <Jopnal/Header.hpp>
+#include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+#include <Jopnal/Graphics/Transform.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class Transform;
+
+    class JOP_API CompoundShape2D final : public CollisionShape2D
+    {
+    public:
+
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
+        ///
+        CompoundShape2D(const std::string& name);
+
+
+        /// \brief Add a child shape
+        ///
+        /// \param childShape Reference to a valid shape
+        /// \param childTransform Local transform for the child
+        ///
+        void addChild(CollisionShape2D& childShape, const Transform::Variables& childTransform);
+    };
+}
+
+#endif
