@@ -84,6 +84,10 @@ namespace jop
 
         static float getBloomThreshold();
 
+        static void setBloomSubThresholdExponent(const float exponent);
+
+        static float getBloomSubThresholdExponent();
+
 
         void draw() override;
 
@@ -107,6 +111,7 @@ namespace jop
         float m_exposure;
         float m_gamma;
         float m_bloomThreshold;
+        float m_subBloomThresholdExp;
         Texture2D m_ditherMatrix;
         std::array<std::array<RenderTexture, 2>, 5> m_bloomTextures;
         WeakReference<ShaderProgram> m_brightShader;
