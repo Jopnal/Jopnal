@@ -42,7 +42,7 @@ extern const unsigned char postProcessFrag[1112];
 
 extern const unsigned char postProcessVert[332];
 
-extern const unsigned char brightFilter[1061];
+extern const unsigned char brightFilter[1245];
 
 extern const unsigned char defaultPlugins[57];
 
