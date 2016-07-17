@@ -145,9 +145,6 @@ namespace jop
         // Buffer swapper
         createSubsystem<BufferSwapper>(*m_mainWindow);
 
-        // Shared scene
-        m_sharedScene = std::make_unique<Scene>("sharedscene");
-
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
 
