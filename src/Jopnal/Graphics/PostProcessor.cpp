@@ -79,14 +79,7 @@ namespace
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
-    const float ns_defBloomThreshold =
-
-    #ifdef JOP_OPENGL_ES
-        0.9f;
-    #else
-        1.0f;
-    #endif
-    ;
+    const float ns_defBloomThreshold = 1.f - 0.1f * jop::gl::isGLES();
 }
 
 namespace jop
@@ -136,7 +129,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::ToneMap);
+                    enableFunctions(SettingManager::get<bool>(str, !gl::isGLES()) * Function::ToneMap);
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -165,7 +158,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Bloom);
+                    enableFunctions(SettingManager::get<bool>(str, !gl::isGLES()) * Function::Bloom);
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -226,7 +219,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Dither);
+                    enableFunctions(SettingManager::get<bool>(str, !gl::isGLES()) * Function::Dither);
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }

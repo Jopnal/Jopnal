@@ -57,10 +57,14 @@
 
     namespace jop { namespace detail
     {
-        bool checkEGLExtension(const char* ext);
+        JOP_API bool checkGLESExtension(const char* ext);
+
+        JOP_API bool checkEGLExtension(const char* ext);
     }}
 
-    #define JOP_CHECK_GL_EXTENSION(extension) (::jop::detail::checkEGLExtension(#extension))
+    #define JOP_CHECK_GL_EXTENSION(extension) (::jop::detail::checkGLESExtension(#extension))
+
+    #define JOP_CHECK_EGL_EXTENSION(extension) (::jop::detail::checkEGLExtension(#extension))
 
 #else
 
@@ -69,6 +73,8 @@
 
     #define JOP_CHECK_GL_EXTENSION(extension) ((ogl_ext_##extension)  != ogl_LOAD_FAILED)
 
+    #define JOP_CHECK_EGL_EXTENSION(extension) false
+
 #endif
 
 namespace jop
@@ -76,6 +82,11 @@ namespace jop
     JOP_API unsigned int getOGLVersionMajor();
 
     JOP_API unsigned int getOGLVersionMinor();
+
+    namespace gl
+    {
+        JOP_API bool isGLES();
+    }
 }
 
 #endif

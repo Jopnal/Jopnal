@@ -65,6 +65,7 @@ namespace
             {
                 EGL_WIDTH,  1,
                 EGL_HEIGHT, 1,
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 
@@ -147,6 +148,7 @@ namespace jop { namespace detail
 
             const EGLint surfaceAttribs[] =
             {
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 
@@ -193,6 +195,7 @@ namespace jop { namespace detail
             {
                 EGL_WIDTH,  1,
                 EGL_HEIGHT, 1,
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 
