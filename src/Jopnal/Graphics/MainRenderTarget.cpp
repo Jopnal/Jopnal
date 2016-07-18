@@ -27,6 +27,7 @@
     #include <Jopnal/Graphics/MainRenderTarget.hpp>
 
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Window/Window.hpp>
 
 #endif

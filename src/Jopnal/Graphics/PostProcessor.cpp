@@ -54,7 +54,7 @@ namespace
 
             GLint enc;
 
-            glCheck(glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
+            glCheck(glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
 
             linear = enc == GL_LINEAR;
             init = true;
@@ -130,7 +130,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()) * Function::ToneMap);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -159,7 +159,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()) * Function::Bloom);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -204,7 +204,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, isLinear()) * Function::GammaCorrection);
+                    valueChanged(SettingManager::get<bool>(str, isLinear()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
@@ -233,7 +233,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()) * Function::Dither);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }

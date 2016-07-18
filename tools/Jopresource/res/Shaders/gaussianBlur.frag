@@ -17,24 +17,26 @@ layout(location = 0) out vec4 out_FinalColor;
 
 void main()
 {
-    vec2 size = textureSize(u_Buffer, 0);
+    ivec2 size = textureSize(u_Buffer, 0);
 
-    out_FinalColor = texture(u_Buffer, vf_TexCoords) * weight[0];
+    vec3 tempColor = texture(u_Buffer, vf_TexCoords).rgb * weight[0];
 
     if (u_Horizontal)
     {
         for (int i = 1; i < 3; ++i)
         {
-            out_FinalColor += texture(u_Buffer, vf_TexCoords + vec2(offset[i] / size.x, 0.0)) * weight[i];
-            out_FinalColor += texture(u_Buffer, vf_TexCoords - vec2(offset[i] / size.x, 0.0)) * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords + vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords - vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
         }
     }
     else
     {
         for (int i = 1; i < 3; ++i)
         {
-            out_FinalColor += texture(u_Buffer, vf_TexCoords + vec2(0.0, offset[i] / size.y)) * weight[i];
-            out_FinalColor += texture(u_Buffer, vf_TexCoords - vec2(0.0, offset[i] / size.y)) * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords + vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords - vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
         }
     }
+
+	out_FinalColor = vec4(tempColor, 1.0);
 }

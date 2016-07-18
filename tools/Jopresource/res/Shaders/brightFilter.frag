@@ -17,19 +17,19 @@ const float weight[3] = float[](0.4162162162, 0.2270270270, 0.0702702703);
 
 void main()
 {
-    vec2 size = textureSize(u_Texture, 0);
+    ivec2 size = textureSize(u_Texture, 0);
 
 	vec3 tempColor = texture(u_Texture, vf_TexCoords).rgb * weight[0];
 
     for (int i = 1; i < 3; ++i)
     {
-        tempColor += texture(u_Texture, vf_TexCoords + vec2(offset[i] / size.x, 0.0)).rgb * weight[i];
-        tempColor += texture(u_Texture, vf_TexCoords - vec2(offset[i] / size.x, 0.0)).rgb * weight[i];
+        tempColor += texture(u_Texture, vf_TexCoords + vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
+        tempColor += texture(u_Texture, vf_TexCoords - vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
     }
     for (int i = 1; i < 3; ++i)
     {
-        tempColor += texture(u_Texture, vf_TexCoords + vec2(0.0, offset[i] / size.y)).rgb * weight[i];
-        tempColor += texture(u_Texture, vf_TexCoords - vec2(0.0, offset[i] / size.y)).rgb * weight[i];
+        tempColor += texture(u_Texture, vf_TexCoords + vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
+        tempColor += texture(u_Texture, vf_TexCoords - vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
     }
 
     out_FinalColor = vec4(max

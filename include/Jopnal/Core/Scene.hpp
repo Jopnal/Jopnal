@@ -44,7 +44,10 @@ namespace jop
     namespace detail
     {
         template<int D>
-        struct WorldType{};
+        struct WorldType
+        {
+            static_assert(D == 2 || D == 3, "Invalid world dimensions");
+        };
 
         template<>
         struct WorldType<2>

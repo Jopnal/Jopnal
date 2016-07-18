@@ -29,6 +29,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <android/native_window.h>
     #include <EGL/eglext.h>
@@ -61,6 +62,8 @@ namespace
     {
         if (ns_windowRefs.empty())
         {
+            eglCheck(eglInitialize(getDisplay(), NULL, NULL));
+
             const EGLint attribs[] =
             {
                 EGL_WIDTH,  1,
@@ -80,9 +83,6 @@ namespace
                 EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
-
-            eglCheck(eglInitialize(getDisplay(), NULL, NULL));
-
 
             EGLConfig config;
             EGLint numConfigs = 0;
