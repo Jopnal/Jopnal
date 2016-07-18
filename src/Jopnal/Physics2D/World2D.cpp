@@ -212,7 +212,7 @@ namespace jop
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
                 for (auto& i : a->m_listeners)
                 {
-                    i->endContact(*b, ci);
+                    i->endContact(*b);
                 }
             }
         };

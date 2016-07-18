@@ -36,6 +36,10 @@ namespace jop
 
     class JOP_API ContactListener
     {
+    private:
+
+        friend class Collider;
+
     public:
         /// \brief Begin contact callback
         ///
@@ -49,9 +53,12 @@ namespace jop
         /// \param collider Reference to the collider which listener will be registered for
         /// \param ci Contact info containing the contact point and contact normal
         ///
-        virtual void endContact(Collider& collider, ContactInfo& ci);
+        virtual void endContact(Collider& collider);
+
+    private:
 
         Collider* m_collider; ///< Pointer to the collider which this listener is registered for
+
     };
 }
 

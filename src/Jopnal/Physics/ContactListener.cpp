@@ -29,6 +29,6 @@ namespace jop
     void ContactListener::beginContact(Collider&, ContactInfo&)
     {}
 
-    void ContactListener::endContact(Collider&, ContactInfo&)
+    void ContactListener::endContact(Collider&)
     {}
 }

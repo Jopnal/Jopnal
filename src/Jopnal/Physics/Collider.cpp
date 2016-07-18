@@ -80,6 +80,7 @@ namespace jop
 {
     Collider::Collider(Object& object, World& world, const uint32 ID)
         : Component     (object, ID),
+          SafeReferenceable<Collider>(this),
           m_motionState (std::make_unique<::detail::MotionState>(object)),
           m_body        (),
           m_worldRef    (world)
@@ -87,6 +88,7 @@ namespace jop
 
     Collider::Collider(const Collider& other, Object& newObj)
         : Component     (other, newObj),
+          SafeReferenceable<Collider>(this),
           m_motionState (std::make_unique<::detail::MotionState>(newObj)),
           m_body        (),
           m_worldRef    (other.m_worldRef)

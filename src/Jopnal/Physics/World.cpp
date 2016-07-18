@@ -232,7 +232,16 @@ namespace detail
     {
     private:
 
+        struct ContactData
+        {
+            jop::WeakReference<jop::Collider> A;
+            jop::WeakReference<jop::Collider> B;
 
+            ContactData(jop::Collider* a, jop::Collider* b):
+                A(*a),
+                B(*b)
+            {}
+        };
 
     public:
         static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
@@ -247,7 +256,10 @@ namespace detail
             const auto& norm = cp.m_normalWorldOnB;
 
             jop::ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
-            cp.m_userPersistentData = &ci;
+
+            
+
+            cp.m_userPersistentData = new ContactData(a, b);
 
             for (auto& i : a->m_listeners)
             {
@@ -262,13 +274,16 @@ namespace detail
             if (!userPersistentData)
                 return false;
 
-            auto ci = static_cast<jop::ContactInfo*>(userPersistentData);
+            ContactData* cd = static_cast<ContactData*>(userPersistentData);
 
-            //for (auto& i : a->m_listeners)
-            //{
-            //    i->endContact(*b, *ci);
-            //}
-
+            if (!cd->A.expired() && !cd->B.expired())
+            {
+                for (auto& i : cd->A->m_listeners)
+                {
+                    i->endContact(*cd->B);
+                }
+            }
+            delete cd;
             return true;
         }
 

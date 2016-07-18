@@ -37,6 +37,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ContactListener2D::endContact(Collider2D&, ContactInfo2D&)
+    void ContactListener2D::endContact(Collider2D&)
     {}
 }

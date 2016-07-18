@@ -45,7 +45,7 @@ namespace jop
     class World;
     class ContactListener;
 
-    class JOP_API Collider : public Component
+    class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
     private:
 

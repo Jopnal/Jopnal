@@ -36,6 +36,10 @@ namespace jop
 
     class JOP_API ContactListener2D 
     {
+    private:
+
+        friend class Collider2D;
+
     public:
 
         virtual ~ContactListener2D() = 0;
@@ -58,7 +62,9 @@ namespace jop
         /// \param collider Reference to the collider which listener will be registered for
         /// \param ci Contact info containing the contact point and contact normal
         ///
-        virtual void endContact(Collider2D& collider, ContactInfo2D& ci);
+        virtual void endContact(Collider2D& collider);
+        
+    private:
 
         Collider2D* m_collider; ///< Pointer to the collider which this listener is registered for
     };
