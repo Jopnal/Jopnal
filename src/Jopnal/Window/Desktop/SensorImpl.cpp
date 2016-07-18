@@ -20,16 +20,62 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Sensor.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
+#include <Jopnal/Window/Desktop/SensorImpl.hpp>
+
+#ifdef JOP_OS_DESKTOP
+
+#include <Jopnal/Core/DebugHandler.hpp>
 
 //////////////////////////////////////////////
 
-/// \defgroup window Window
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    void SensorImpl::init()
+    {}
+
+    //////////////////////////////////////////////
+
+    void SensorImpl::uninit()
+    {}
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::available(const Sensor::Type) const
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::use(const Sensor::Type)
+    {
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    void SensorImpl::disable(const bool)
+    {}
+
+    //////////////////////////////////////////////
+
+    void SensorImpl::enable(const bool)
+    {}
+
+    //////////////////////////////////////////////
+
+    glm::vec3 SensorImpl::getData(const Sensor::Type) const
+    {
+        return glm::vec3(0.f);
+    }
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::getStatus() const
+    {
+        return false;
+    }
+}
+
+#endif

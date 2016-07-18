@@ -19,55 +19,44 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_MODELLOADER_HPP
-#define JOP_MODELLOADER_HPP
+#ifndef JOP_MAINRENDERTARGET_HPP
+#define JOP_MAINRENDERTARGET_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API ModelLoader : public Component
+    class Window;
+
+    class JOP_API MainRenderTarget : public RenderTexture, public Subsystem
     {
-    private:
-
-        /// \brief Copy constructor
-        ///
-        /// \param other The other loader to copy
-        /// \param newObj The new object
-        ///
-        ModelLoader(const ModelLoader& other, Object& obj);
-
-        JOP_DISALLOW_COPY_MOVE(ModelLoader);
-        JOP_GENERIC_COMPONENT_CLONE(ModelLoader);
-
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param obj The object this loader is bound to
-        ///
-        explicit ModelLoader(Object& obj);
+        MainRenderTarget(const Window& window);
 
 
-        /// \brief Load a model from file
-        ///
-        /// This will create the object tree and load the correct meshes and materials.
-        /// Only models converted with Jopmodel are supported.
-        ///
-        /// \param path Path to the model file
-        ///
-        /// \return True if successful
-        ///
-        bool load(const std::string& path);
+        void preUpdate(const float deltaTime) override;
+
+        void setMaxResolutionScale(const float scale);
+
+        float getMaxResolutionScale() const;
+
+        void setResolutionScale(const float scale);
+
+        float getResolutionScale() const;
+
 
     private:
 
-        std::string m_path; ///< Path to model file
+        float m_maxResScale;
+        float m_resScale;
+        const Window& m_windowRef;
     };
 }
 

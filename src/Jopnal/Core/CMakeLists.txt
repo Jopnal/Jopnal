@@ -65,6 +65,8 @@ list(APPEND SRC ${__SRC_CORE})
 set(__SRC_CORE_ANDROID
     ${__SRCDIR_CORE}/Android/ActivityState.cpp
     ${__SRCDIR_CORE}/Android/ActivityState.hpp
+    ${__SRCDIR_CORE}/Android/GooglePlayService.cpp
+    ${__SRCDIR_CORE}/Android/GooglePlayService.hpp
 )
 source_group("Core\\Source\\Android" FILES ${__SRC_CORE_ANDROID})
 list(APPEND SRC ${__SRC_CORE_ANDROID})

@@ -24,7 +24,6 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
 #include <set>
 
 //////////////////////////////////////////////
@@ -37,6 +36,7 @@ namespace jop
     class Drawable;
     class EnvironmentRecorder;
     class LightContainer;
+    class RenderTarget;
 
     class JOP_API Renderer
     {

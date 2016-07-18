@@ -127,27 +127,27 @@ namespace jop
 
 
     FileLoader::FileLoader()
-        : m_file(nullptr),
-        m_isAsset(false)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {}
 
     FileLoader::FileLoader(const std::string& path)
-        : m_file(nullptr),
-        m_isAsset(false)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {
         open(path);
     }
 
     FileLoader::FileLoader(const Directory dir, const std::string& path, const bool append)
-        : m_file(nullptr),
-        m_isAsset(false)
+        : m_file    (nullptr),
+          m_isAsset (false)
     {
         open(dir, path, append);
     }
 
     FileLoader::FileLoader(FileLoader&& other)
-        : m_file(other.m_file),
-        m_isAsset(other.m_isAsset)
+        : m_file    (other.m_file),
+          m_isAsset (other.m_isAsset)
     {
         other.m_file = nullptr;
         other.m_isAsset = false;
@@ -155,10 +155,10 @@ namespace jop
 
     FileLoader& FileLoader::operator =(FileLoader&& other)
     {
-        m_file = other.m_file;
-        m_isAsset = other.m_isAsset;
-        other.m_file = nullptr;
-        other.m_isAsset = false;
+        m_file              = other.m_file;
+        m_isAsset           = other.m_isAsset;
+        other.m_file        = nullptr;
+        other.m_isAsset     = false;
 
         return *this;
     }
@@ -181,18 +181,18 @@ namespace jop
 
         if (!isValid())
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             m_asset = AAssetManager_open(detail::ActivityState::get()->nativeActivity->assetManager, path.c_str(), AASSET_MODE_STREAMING);
 
             return (m_isAsset = (m_asset != nullptr)) == true;
 
-#else
+        #else
 
             checkError(path);
             return false;
 
-#endif
+        #endif
         }
 
         return true;
@@ -243,7 +243,7 @@ namespace jop
     {
         if (isValid())
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             if (m_isAsset)
             {
@@ -253,7 +253,7 @@ namespace jop
                 return;
             }
 
-#endif
+        #endif
 
             if (PHYSFS_close(m_file) == 0)
                 checkError("File close");
@@ -275,12 +275,12 @@ namespace jop
     {
         if (isValid() && size)
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             if (m_isAsset)
                 return static_cast<int64>(AAsset_read(m_asset, data, static_cast<size_t>(size)));
 
-#endif
+        #endif
 
             return PHYSFS_readBytes(m_file, data, size);
         }
@@ -304,12 +304,12 @@ namespace jop
     {
         if (isValid())
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             if (m_isAsset)
                 return AAsset_seek64(m_asset, position, SEEK_SET) != -1;
 
-#endif
+        #endif
 
             return PHYSFS_seek(m_file, position) != 0;
         }
@@ -323,12 +323,12 @@ namespace jop
     {
         if (isValid())
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             if (m_isAsset)
                 return AAsset_getLength64(m_asset) - AAsset_getRemainingLength64(m_asset);
 
-#endif
+        #endif
 
             return PHYSFS_tell(m_file);
         }
@@ -342,12 +342,12 @@ namespace jop
     {
         if (isValid())
         {
-#ifdef JOP_OS_ANDROID
+        #ifdef JOP_OS_ANDROID
 
             if (m_isAsset)
                 return AAsset_getLength64(m_asset);
 
-#endif
+        #endif
 
             return PHYSFS_fileLength(m_file);
         }
@@ -366,7 +366,7 @@ namespace jop
 
     bool FileLoader::fileExists(const std::string& path)
     {
-#ifdef JOP_OS_ANDROID
+    #ifdef JOP_OS_ANDROID
 
         if (AAsset* asset = AAssetManager_open(detail::ActivityState::get()->nativeActivity->assetManager, path.c_str(), AASSET_MODE_STREAMING))
         {
@@ -375,7 +375,7 @@ namespace jop
         }
         else
 
-#endif
+    #endif
 
             return PHYSFS_exists(path.c_str()) != 0;
     }

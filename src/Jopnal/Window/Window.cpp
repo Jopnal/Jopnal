@@ -128,14 +128,16 @@ namespace jop
     //////////////////////////////////////////////
 
     Window::Window()
-        : RenderTarget      (0),
+        : RenderTarget      (),
+          Subsystem         (0),
           m_impl            (),
           m_eventHandler    (),
           m_vertexArray     (0)
     {}
 
     Window::Window(const Settings& settings)
-        : RenderTarget      (0),
+        : RenderTarget      (),
+          Subsystem         (0),
           m_impl            (),
           m_eventHandler    (),
           m_vertexArray     (0)
@@ -143,7 +145,7 @@ namespace jop
         open(settings);
         setDefaultEventHandler();
 
-    #if defined(JOP_DEBUG_MODE) && !defined(JOP_OPENGL_ES)
+    #if defined(JOP_DEBUG_MODE) && defined(GL_KHR_debug)
 
         if (JOP_CHECK_GL_EXTENSION(KHR_debug) && settings.debug)
         {
@@ -181,12 +183,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const float deltaTime)
+    void Window::postUpdate(const float)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
-            RenderTarget::postUpdate(deltaTime);
+            clear(AllBit);
     }
 
     //////////////////////////////////////////////
@@ -242,7 +244,6 @@ namespace jop
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
         GlState::setBlendFunc(true);
-        GlState::setFramebufferSrgb(true);
 
         glCheck(glDisable(GL_DITHER));
     }

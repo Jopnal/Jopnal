@@ -235,6 +235,8 @@ namespace jop { namespace detail
 
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
+
+        glCheck(glDisable(GL_FRAMEBUFFER_SRGB));
     }
 
     WindowImpl::~WindowImpl()

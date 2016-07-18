@@ -31,8 +31,8 @@
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/MainRenderTarget.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
-    #include <Jopnal/Graphics/RenderTexture.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
@@ -127,30 +127,8 @@ namespace jop
         // Audio output
         createSubsystem<AudioDevice>();
 
-        const bool openGLES =
-        #ifdef JOP_OPENGL_ES
-            true
-        #else
-            false
-        #endif
-        ;
-
-        const bool useWindowRendertarget = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", openGLES);
-
         // Main window
-        {
-            Window::Settings settings(true);
-
-            if (useWindowRendertarget)
-            {
-                settings.colorBits.a = 8;
-                settings.depthBits = 24;
-                settings.stencilBits = 8;
-            }
-
-            m_mainWindow = &createSubsystem<Window>(settings);
-            m_mainTarget = m_mainWindow;
-        }
+        m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -158,38 +136,14 @@ namespace jop
         // Shader manager
         createSubsystem<ShaderAssembler>();
 
-        if (!useWindowRendertarget)
-        {
-            // Main render target
-            typedef RenderTexture RT;
-            auto& rtex = createSubsystem<RT>(UINT_MAX);
+        // Main render target
+        m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
-            m_mainTarget = &rtex;
-
-            const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(m_mainWindow->getSize()));
-
-            using Slot = RT::ColorAttachmentSlot;
-            using CA = RT::ColorAttachment;
-
-            rtex.addColorAttachment(Slot::_1, openGLES ? CA::RGBA2D : CA::RGBA2DFloat16, scaledRes);
-            rtex.addDepthStencilAttachment(RT::DepthStencilAttachment::Renderbuffer24_8, scaledRes);
-
-            rtex.getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
-
-            rtex.setClearColor(Color(SettingManager::get<std::string>("engine@Graphics|MainRenderTarget|sClearColor", "000000FF")));
-
-            // Post processor
-            rtex.addColorAttachment(Slot::_2, openGLES ? CA::RGB2D : CA::RGB2DFloat16, scaledRes);
-            rtex.getColorTexture(Slot::_2)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
-
-            createSubsystem<PostProcessor>(rtex);
-        }
+        // Post processor
+        createSubsystem<PostProcessor>(*m_mainTarget);
 
         // Buffer swapper
         createSubsystem<BufferSwapper>(*m_mainWindow);
-
-        // Shared scene
-        m_sharedScene = std::make_unique<Scene>("sharedscene");
 
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
@@ -209,7 +163,6 @@ namespace jop
     {
         JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop before initializing the engine!");
 
-#pragma warning(suppress: 6011)
         auto& eng = *m_engineObject;
 
         if (!eng.m_currentScene)
@@ -232,8 +185,6 @@ namespace jop
 
             frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
-
-            JOP_DEBUG_INFO("Update");
 
             // Update
             {
@@ -461,7 +412,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const RenderTarget& Engine::getMainRenderTarget()
+    const MainRenderTarget& Engine::getMainRenderTarget()
     {
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 

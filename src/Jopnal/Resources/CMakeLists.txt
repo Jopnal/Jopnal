@@ -14,6 +14,7 @@ if (CMAKE_HOST_WIN32)
     
     # Shaders
     set(__SRC_SHADERS
+        ${__SRCDIR_RESOURCES}/Shaders/brightFilter.frag
         ${__SRCDIR_RESOURCES}/Shaders/default.frag
         ${__SRCDIR_RESOURCES}/Shaders/default.vert
         ${__SRCDIR_RESOURCES}/Shaders/defaultUber.frag

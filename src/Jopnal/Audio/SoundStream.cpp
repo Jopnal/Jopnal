@@ -166,10 +166,10 @@ namespace jop
         
         m_bufferQueue.clear();
 
+        m_path = path;
+
         if (!openFile())
             return false;
-
-        m_path = path;
 
         std::vector<uint8> buf;
         buf.resize(JOP_AUDIO_STREAMING_BUFFER_SIZE);

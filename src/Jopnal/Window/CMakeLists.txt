@@ -14,6 +14,7 @@ set(__INC_WINDOW
     ${__INCDIR_WINDOW}/Controller.hpp
     ${__INCDIR_WINDOW}/Keyboard.hpp
     ${__INCDIR_WINDOW}/Mouse.hpp
+    ${__INCDIR_WINDOW}/Sensor.hpp
     ${__INCDIR_WINDOW}/VideoInfo.hpp
     ${__INCDIR_WINDOW}/Window.hpp
     ${__INCDIR_WINDOW}/WindowEventHandler.hpp
@@ -33,6 +34,9 @@ list(APPEND SRC ${__INL_WINDOW})
 # Source
 set(__SRC_WINDOW
     ${__SRCDIR_WINDOW}/Keyboard.cpp
+    ${__SRCDIR_WINDOW}/Sensor.cpp
+    ${__SRCDIR_WINDOW}/SensorManager.cpp
+    ${__SRCDIR_WINDOW}/SensorManager.hpp
     ${__SRCDIR_WINDOW}/VideoInfo.cpp
     ${__SRCDIR_WINDOW}/Window.cpp
     ${__SRCDIR_WINDOW}/WindowEventHandler.cpp
@@ -42,6 +46,8 @@ list(APPEND SRC ${__SRC_WINDOW})
 
 # Source - Desktop
 set(__SRC_WINDOW_DESKTOP
+    ${__SRCDIR_WINDOW}/Desktop/SensorImpl.cpp
+    ${__SRCDIR_WINDOW}/Desktop/SensorImpl.hpp
     ${__SRCDIR_WINDOW}/Desktop/VideoInfoImpl.cpp
     ${__SRCDIR_WINDOW}/Desktop/VideoInfoImpl.hpp
     ${__SRCDIR_WINDOW}/Desktop/WindowImpl.cpp
@@ -52,6 +58,8 @@ list(APPEND SRC ${__SRC_WINDOW_DESKTOP})
 
 # Source - Android
 set(__SRC_WINDOW_ANDROID
+    ${__SRCDIR_WINDOW}/Android/SensorImpl.cpp
+    ${__SRCDIR_WINDOW}/Android/SensorImpl.hpp
     ${__SRCDIR_WINDOW}/Android/VideoInfoImpl.cpp
     ${__SRCDIR_WINDOW}/Android/VideoInfoImpl.hpp
     ${__SRCDIR_WINDOW}/Android/WindowImpl.cpp

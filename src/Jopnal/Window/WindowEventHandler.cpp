@@ -358,11 +358,11 @@ namespace jop
         });
 
         // Lost/restored focus callback
-        glfwSetWindowIconifyCallback(handle, [](GLFWwindow* w, int iconified)
+        glfwSetWindowFocusCallback(handle, [](GLFWwindow* w, int focused)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
 
-            if (iconified)
+            if (focused)
                 handler->lostFocus();
             else
                 handler->gainedFocus();

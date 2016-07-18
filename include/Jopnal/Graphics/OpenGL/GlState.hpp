@@ -174,8 +174,6 @@ namespace jop
         ///
         static void setDepthWrite(const bool enable);
 
-        static void setFramebufferSrgb(const bool enable);
-
         static void flush();
     };
 }

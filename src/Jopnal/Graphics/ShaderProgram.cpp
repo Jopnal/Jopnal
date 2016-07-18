@@ -109,7 +109,7 @@ namespace jop
                 char log[1024];
                 glCheck(glGetProgramInfoLog(m_programID, sizeof(log), NULL, log));
 
-                if (std::strcmp(log, "No errors.") != 0 && std::strlen(log) > 0)
+                if (std::strpbrk(log, "0123456789"))
                     JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
             }
         }

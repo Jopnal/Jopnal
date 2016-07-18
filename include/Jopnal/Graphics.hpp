@@ -32,6 +32,7 @@
 #include <Jopnal/Graphics/GenericDrawable.hpp>
 #include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
+#include <Jopnal/Graphics/MainRenderTarget.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Model.hpp>

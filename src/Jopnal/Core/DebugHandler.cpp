@@ -97,12 +97,13 @@ namespace
         // Set custom color table
         COLORREF table[] =
         {
+            0x00000000,
+
             RGB(0xFF, 0x00, 0x00), // 1. Red
             RGB(0xFF, 0xFF, 0x00), // 2. Yellow
             RGB(0xFF, 0xFF, 0xFF), // 3. White
             RGB(0x99, 0x99, 0x99), // 4. Gray
 
-            0x00FFFFFF,
             0x00FFFFFF,
             0x00FFFFFF,
             0x00FFFFFF,
@@ -207,7 +208,7 @@ namespace
     {
         using jop::Color;
 
-        WORD attrib = 1; // White
+        WORD attrib = 3; // White
 
         if (color == Color::Red)
             attrib = 1;

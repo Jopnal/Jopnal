@@ -38,6 +38,7 @@ namespace jop
     class ShaderProgram;
     class Renderer;
     class RectangleMesh;
+    class MainRenderTarget;
 
     class JOP_API PostProcessor final : public Subsystem
     {
@@ -51,15 +52,18 @@ namespace jop
         {
             enum : uint32
             {
-                ToneMap = 1,
-                Bloom   = 1 << 1,
-                Dither  = 1 << 2
+                ToneMap         = 1,
+                Bloom           = 1 << 1,
+                Dither          = 1 << 2,
+                GammaCorrection = 1 << 3
             };
         };
 
     public:
 
-        PostProcessor(const RenderTexture& mainTarget);
+        PostProcessor(const MainRenderTarget& mainTarget);
+
+        ~PostProcessor();
 
 
         static void enableFunctions(const uint32 funcs);
@@ -72,9 +76,17 @@ namespace jop
 
         static float getExposure();
 
-        static void setBloomBlurPasses(const unsigned int passes);
+        static void setGamma(const float gamma);
 
-        static unsigned int getBloomBlurPasses();
+        static float getGamma();
+
+        static void setBloomThreshold(const float threshold);
+
+        static float getBloomThreshold();
+
+        static void setBloomSubThresholdExponent(const float exponent);
+
+        static float getBloomSubThresholdExponent();
 
 
         void draw() override;
@@ -83,21 +95,26 @@ namespace jop
 
         void getPreprocessorStr(const uint32 funcs, std::string& str) const;
 
-        void applyBlur(const Texture& texture);
+        void makeBloom();
+
+        void enableBloom();
 
 
         static PostProcessor* m_instance;
 
-        std::array<RenderTexture, 2> m_pingPong;
         std::array<std::string, 2> m_shaderSources;
         std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
         WeakReference<ShaderProgram> m_blurShader;
         WeakReference<RectangleMesh> m_quad;
-        const RenderTexture& m_mainTarget;
+        const MainRenderTarget& m_mainTarget;
         uint32 m_functions;
         float m_exposure;
-        unsigned int m_bloomBlurPasses;
+        float m_gamma;
+        float m_bloomThreshold;
+        float m_subBloomThresholdExp;
         Texture2D m_ditherMatrix;
+        std::array<std::array<RenderTexture, 2>, 5> m_bloomTextures;
+        WeakReference<ShaderProgram> m_brightShader;
     };
 }
 
