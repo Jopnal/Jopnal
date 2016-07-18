@@ -68,7 +68,7 @@ namespace jop
 
         if (defShape.expired())
         {
-            defShape = static_ref_cast<ConvexHullShape2D>(ResourceManager::getEmptyResource<ConvexHullShape2D>("jop_default_staticmeshshape2D").getReference());
+            defShape = static_ref_cast<ConvexHullShape2D>(ResourceManager::getEmpty<ConvexHullShape2D>("jop_default_staticmeshshape2D").getReference());
 
             static const std::vector<glm::vec2> points =
             {

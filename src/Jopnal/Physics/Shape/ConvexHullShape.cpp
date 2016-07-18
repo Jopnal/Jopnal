@@ -88,7 +88,7 @@ namespace jop
 
         if (defShape.expired())
         {
-            defShape = static_ref_cast<ConvexHullShape>(ResourceManager::getEmptyResource<ConvexHullShape>("jop_default_staticmeshshape").getReference());
+            defShape = static_ref_cast<ConvexHullShape>(ResourceManager::getEmpty<ConvexHullShape>("jop_default_staticmeshshape").getReference());
             defShape->m_shape = std::make_unique<btCapsuleShape>(0.5f, 2.f);
 
             defShape->setPersistence(0);

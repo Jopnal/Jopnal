@@ -196,7 +196,7 @@ namespace jop
 
         if (defFont.expired())
         {
-            defFont = static_ref_cast<Font>(ResourceManager::getEmptyResource<Font>("jop_default_font").getReference());
+            defFont = static_ref_cast<Font>(ResourceManager::getEmpty<Font>("jop_default_font").getReference());
 
             JOP_ASSERT_EVAL(defFont->load(jopr::defaultFont, sizeof(jopr::defaultFont), 32), "Failed to load default font!");
 

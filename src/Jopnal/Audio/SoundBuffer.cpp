@@ -121,7 +121,7 @@ namespace jop
         
         if (defBuf.expired())
         {
-            defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmptyResource<SoundBuffer>("jop_default_sound").getReference());
+            defBuf = static_ref_cast<SoundBuffer>(ResourceManager::getEmpty<SoundBuffer>("jop_default_sound").getReference());
 
             JOP_ASSERT_EVAL(defBuf->load(jopr::defaultSound, sizeof(jopr::defaultSound)), "Failed to load default soundbuffer!");
 

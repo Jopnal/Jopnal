@@ -118,20 +118,20 @@ namespace detail
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& ResourceManager::getResource(Args&&... args)
+T& ResourceManager::get(Args&&... args)
 {
-    return getNamedResource<T>(detail::getStringArg(args...), std::forward<Args>(args)...);
+    return getNamed<T>(detail::getStringArg(args...), std::forward<Args>(args)...);
 }
 
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args> 
-T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
+T& ResourceManager::getNamed(const std::string& name, Args&&... args)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-    if (resourceExists<T>(name))
-        return getExistingResource<T>(name);
+    if (exists<T>(name))
+        return getExisting<T>(name);
 
     else
     {
@@ -161,14 +161,14 @@ T& ResourceManager::getNamedResource(const std::string& name, Args&&... args)
 //////////////////////////////////////////////
 
 template<typename T, typename ... Args>
-T& ResourceManager::getEmptyResource(Args&&... args)
+T& ResourceManager::getEmpty(Args&&... args)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
     const std::string name = detail::getStringArg(args...);
 
-    if (resourceExists<T>(name))
-        return getExistingResource<T>(name);
+    if (exists<T>(name))
+        return getExisting<T>(name);
 
     else
     {
@@ -183,11 +183,11 @@ T& ResourceManager::getEmptyResource(Args&&... args)
 }
 
 template<typename T>
-T& ResourceManager::getExistingResource(const std::string& name)
+T& ResourceManager::getExisting(const std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-    if (resourceExists<T>(name))
+    if (exists<T>(name))
     {
         if (m_instance->m_loadPhase.load())
             m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
@@ -201,7 +201,7 @@ T& ResourceManager::getExistingResource(const std::string& name)
 //////////////////////////////////////////////
 
 template<typename T>
-bool ResourceManager::resourceExists(const std::string& name)
+bool ResourceManager::exists(const std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
@@ -213,17 +213,17 @@ bool ResourceManager::resourceExists(const std::string& name)
 //////////////////////////////////////////////
 
 template<typename T>
-T& ResourceManager::copyResource(const std::string& name, const std::string& newName)
+T& ResourceManager::copy(const std::string& name, const std::string& newName)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-    if (resourceExists<T>(name))
+    if (exists<T>(name))
     {
     #if JOP_CONSOLE_VERBOSITY >= 3
         Clock clk;
     #endif
 
-        auto& oldRes = getExistingResource<T>(name);
+        auto& oldRes = getExisting<T>(name);
 
         auto res = std::make_unique<T>(oldRes, newName);
         T& ptr = *res;
@@ -243,7 +243,7 @@ T& ResourceManager::copyResource(const std::string& name, const std::string& new
 //////////////////////////////////////////////
 
 template<typename T>
-void ResourceManager::unloadResource(const std::string& name)
+void ResourceManager::unload(const std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 

@@ -393,7 +393,7 @@ namespace jop
         static WeakReference<Material> defMat;
 
         if (defMat.expired())
-            defMat = static_ref_cast<Material>(ResourceManager::getEmptyResource<Material>("jop_default_material").getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material").getReference());
 
         return *defMat;
     }

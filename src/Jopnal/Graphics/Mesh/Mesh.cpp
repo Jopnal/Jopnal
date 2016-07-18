@@ -189,7 +189,7 @@ namespace jop
 
         if (defMesh.expired())
         {
-            defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmptyResource<BoxMesh>("jop_default_mesh").getReference());
+            defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmpty<BoxMesh>("jop_default_mesh").getReference());
 
             JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
 
