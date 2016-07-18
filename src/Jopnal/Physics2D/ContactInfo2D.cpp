@@ -26,8 +26,8 @@
 
 namespace jop
 {
-    ContactInfo2D::ContactInfo2D(const glm::vec2& pos, const glm::vec2& norm) :
-        position(pos),
-        normal(norm)
+    ContactInfo2D::ContactInfo2D(const glm::vec2& pos, const glm::vec2& norm) 
+        : position(pos),
+          normal(norm)
     {}
 }

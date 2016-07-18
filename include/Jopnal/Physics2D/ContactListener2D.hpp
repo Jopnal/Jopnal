@@ -42,6 +42,8 @@ namespace jop
 
     public:
 
+        /// \brief Virtual destructor
+        ///
         virtual ~ContactListener2D() = 0;
 
         /// \brief Begin contact callback
@@ -49,7 +51,7 @@ namespace jop
         /// This is called when two fixtures begin to overlap. This event can only occur inside the time step.
         /// This is called for sensors and non-sensors.
         ///
-        /// \param collider Reference to the collider which listener will be registered for
+        /// \param collider Reference to the collider which is being collided with
         /// \param ci Contact info containing the contact point and contact normal
         ///
         virtual void beginContact(Collider2D& collider, ContactInfo2D& ci);
@@ -59,7 +61,7 @@ namespace jop
         /// This is called when two fixtures cease to overlap. This is called for sensors and non-sensors. 
         /// This may be called when a body is destroyed, so this event can occur outside the time step.
         ///
-        /// \param collider Reference to the collider which listener will be registered for
+        /// \param collider Reference to the collider which was being collided with
         /// \param ci Contact info containing the contact point and contact normal
         ///
         virtual void endContact(Collider2D& collider);

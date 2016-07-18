@@ -39,6 +39,11 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param pos Position vector
+        /// \param norm Normal vector
+        ///
         ContactInfo2D(const glm::vec2& pos, const glm::vec2& norm);
 
         const glm::vec2 position;   ///< Contact position

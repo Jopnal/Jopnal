@@ -26,9 +26,20 @@
 
 namespace jop
 {
+    ContactListener::~ContactListener()
+    {
+        m_collider->m_listeners.erase(this);
+    }
+
     void ContactListener::beginContact(Collider&, ContactInfo&)
     {}
 
     void ContactListener::endContact(Collider&)
+    {}
+
+    void ContactListener::beginOverlap(Collider&)
+    {}
+
+    void ContactListener::endOverlap(Collider&)
     {}
 }

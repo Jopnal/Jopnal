@@ -126,18 +126,6 @@ namespace jop
 
     private:
 
-        /// \brief Overlap begin callback
-        ///
-        /// \param other The other collider that was overlapped
-        ///
-        virtual void beginOverlap(const Collider& other);
-
-        /// \brief Overlap end callback
-        ///
-        /// \param other The other collider that was overlapping
-        ///
-        virtual void endOverlap(const Collider& other);
-
         /// \brief Activity setter
         ///
         /// For internal use

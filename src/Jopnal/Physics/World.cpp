@@ -201,11 +201,16 @@ namespace detail
             auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
 
             if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
+            {    
+                for (auto& i : p0->m_listeners)
+                {
+                    i->beginOverlap(*p1);
+                }
 
-                p0->beginOverlap(*p1);
-                p1->beginOverlap(*p0);
+                for (auto& i : p1->m_listeners)
+                {
+                    i->beginOverlap(*p0);
+                }
             }
 
             return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
@@ -218,10 +223,15 @@ namespace detail
 
             if (p0 && p1)
             {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
+                for (auto& i : p0->m_listeners)
+                {
+                    i->endOverlap(*p1);
+                }
 
-                p0->endOverlap(*p1);
-                p1->endOverlap(*p0);
+                for (auto& i : p1->m_listeners)
+                {
+                    i->endOverlap(*p0);
+                }
             }
 
             return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
@@ -276,17 +286,14 @@ namespace detail
 
             ContactData* cd = static_cast<ContactData*>(userPersistentData);
 
-            if (!cd->A.expired() && !cd->B.expired())
+            for (auto& i : cd->A->m_listeners)
             {
-                for (auto& i : cd->A->m_listeners)
-                {
-                    i->endContact(*cd->B);
-                }
+                i->endContact(*cd->B);
             }
+
             delete cd;
             return true;
         }
-
 
     };
 }

@@ -11,9 +11,12 @@ list(APPEND SRC ${__LISTS_PHYSICS2D})
 # Include
 set(__INC_PHYSICS2D
     ${__INCDIR_PHYSICS2D}/Collider2D.hpp
+    ${__INCDIR_PHYSICS2D}/ContactInfo2D.hpp
+    ${__INCDIR_PHYSICS2D}/ContactListener2D.hpp
     ${__INCDIR_PHYSICS2D}/RayInfo2D.hpp
     ${__INCDIR_PHYSICS2D}/RigidBody2D.hpp
     ${__INCDIR_PHYSICS2D}/World2D.hpp
+    
 )
 source_group("Physics2D\\Headers" FILES ${__INC_PHYSICS2D})
 list(APPEND SRC ${__INC_PHYSICS2D})
@@ -32,6 +35,8 @@ list(APPEND SRC ${__INC_PHYSICS2D_SHAPE})
 # Source
 set(__SRC_PHYSICS2D
     ${__SRCDIR_PHYSICS2D}/Collider2D.cpp
+    ${__SRCDIR_PHYSICS2D}/ContactInfo2D.cpp
+    ${__SRCDIR_PHYSICS2D}/ContactListener2D.cpp
     ${__SRCDIR_PHYSICS2D}/RayInfo2D.cpp
     ${__SRCDIR_PHYSICS2D}/RigidBody2D.cpp
     ${__SRCDIR_PHYSICS2D}/World2D.cpp

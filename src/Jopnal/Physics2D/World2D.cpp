@@ -199,6 +199,7 @@ namespace jop
 
                 auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
+
                 for (auto& i : a->m_listeners)
                 {
                     i->beginContact(*b, ci);
@@ -210,6 +211,7 @@ namespace jop
                 ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
                 auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
+
                 for (auto& i : a->m_listeners)
                 {
                     i->endContact(*b);

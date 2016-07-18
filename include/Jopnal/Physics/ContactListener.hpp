@@ -41,19 +41,35 @@ namespace jop
         friend class Collider;
 
     public:
+
+        /// \brief Virtual destructor
+        ///
+        virtual ~ContactListener() = 0;
+
         /// \brief Begin contact callback
         ///
-        /// \param collider Reference to the collider which listener will be registered for
+        /// \param collider Reference to the collider which registered collider is colliding with
         /// \param ci Contact info containing the contact point and contact normal
         ///
         virtual void beginContact(Collider& collider, ContactInfo& ci);
 
         /// \brief End contact callback
         ///
-        /// \param collider Reference to the collider which listener will be registered for
-        /// \param ci Contact info containing the contact point and contact normal
+        /// \param collider Reference to the collider which registered collider was colliding with
         ///
         virtual void endContact(Collider& collider);
+
+        /// \brief AABB's begin overlapping
+        ///
+        /// \param collider Reference to the collider that is being overlapped with
+        ///
+        virtual void beginOverlap(Collider& collider);
+
+        /// \brief AABB's stopped overlapping
+        ///
+        /// \param collider Reference to the collider that was being overlapped with
+        ///
+        virtual void endOverlap(Collider& collider);
 
     private:
 

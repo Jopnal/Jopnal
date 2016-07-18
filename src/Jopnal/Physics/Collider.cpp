@@ -95,7 +95,12 @@ namespace jop
     {}
 
     Collider::~Collider()
-    {}
+    {
+        for (auto& i : m_listeners)
+        {
+            i->m_collider = nullptr;
+        }
+    }
 
     //////////////////////////////////////////////
 
@@ -212,16 +217,9 @@ namespace jop
         }
         else
         {
-            JOP_DEBUG_WARNING("Could not register listener for Collider2D: Listener is already registered for collider");
+            JOP_DEBUG_INFO("Could not register listener for Collider2D: Listener is already registered for collider");
             return;
         }
     }
 
-    //////////////////////////////////////////////
-
-    void Collider::beginOverlap(const Collider&)
-    {}
-
-    void Collider::endOverlap(const Collider&)
-    {}
 }
