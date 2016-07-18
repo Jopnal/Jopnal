@@ -19,41 +19,21 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CONTACTINFO_HPP
-#define JOP_CONTACTINFO_HPP
-
-// Headers
-#include <Jopnal/Header.hpp>
-#include <glm/vec3.hpp>
+#include <Jopnal/Physics2D/ContactListener2D.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    struct JOP_API ContactInfo
+    ContactListener2D::~ContactListener2D()
     {
-    private:
+        m_collider->m_listeners.erase(this);
+    }
 
-        JOP_DISALLOW_COPY_MOVE(ContactInfo);
+    void ContactListener2D::beginContact(Collider2D&, ContactInfo2D&)
+    {}
 
-    public:
-    
-        /// \brief Constructor
-        ///
-        /// \param pos Contact position
-        ///
-        ContactInfo(const glm::vec3& pos, const glm::vec3& norm);
-        
-        
-        const glm::vec3 position;   ///< Contact position
-        const glm::vec3 normal;
-    };
+    void ContactListener2D::endContact(Collider2D&)
+    {}
 }
-
-#endif
-
-/// \class ContactInfo
-/// \ingroup physics
-///
-/// #TODO Detailed description

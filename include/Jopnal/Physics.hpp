@@ -37,7 +37,7 @@
 #include <Jopnal/Physics/Shape/SphereShape.hpp>
 #include <Jopnal/Physics/Shape/TerrainShape.hpp>
 #include <Jopnal/Physics/World.hpp>
-
+#include <Jopnal/Physics/ContactListener.hpp>
 
 //////////////////////////////////////////////
 

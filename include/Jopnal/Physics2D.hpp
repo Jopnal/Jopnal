@@ -29,6 +29,8 @@
 #include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
 #include <Jopnal/Physics2D/World2D.hpp>
+#include <Jopnal/Physics2D/ContactListener2D.hpp>
+#include <Jopnal/Physics2D/ContactInfo2D.hpp>
 
 
 //////////////////////////////////////////////

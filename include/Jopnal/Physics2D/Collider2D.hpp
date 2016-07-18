@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <glm/vec2.hpp>
+#include <set>
 
 //////////////////////////////////////////////
 
@@ -35,10 +36,19 @@ class b2Body;
 namespace jop
 {
     class World2D;
+    class ContactListener2D;
+
+    namespace detail
+    {
+        struct ContactListener2DImpl;
+    }
 
     class JOP_API Collider2D : public Component
     {
     private:
+
+        friend class ContactListener2D;
+        friend struct detail::ContactListener2DImpl;
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
 
@@ -97,6 +107,14 @@ namespace jop
         ///
         bool checkRay(const glm::vec2& start, const glm::vec2& ray) const;
 
+        /// \brief Register a listener for this collider
+        ///
+        /// Single collider can have multiple listeners
+        ///
+        /// \param listener Reference to the listener which is to be registered for this collider 
+        ///
+        void registerListener(ContactListener2D& listener);
+
         /// \brief Get the world this collider belongs to
         ///
         /// \return Reference to the 2D world
@@ -119,6 +137,7 @@ namespace jop
 
         b2Body* m_body;         ///< A RigidBody2D
         World2D& m_worldRef2D;  ///< Reference to the world
+        std::set<ContactListener2D*> m_listeners;
     };
 }
 #endif
