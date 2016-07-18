@@ -35,7 +35,7 @@
 
 #endif
 
-#include<Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 
@@ -228,7 +228,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseMovedApsolute(const float x, const float y)
+    void WindowEventHandler::mouseMovedApsolute(const float, const float)
     {}
 
     //////////////////////////////////////////////
@@ -253,7 +253,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseScrolled(const float x, const float y)
+    void WindowEventHandler::mouseScrolled(const float, const float)
     {}
 
     //////////////////////////////////////////////
@@ -283,26 +283,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchEvent(const int touchId, const float x, const float y)
+    void WindowEventHandler::touchEvent(const int, const float, const float)
     {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchReleased(const int touchId, const float x, const float y)
+    void WindowEventHandler::touchReleased(const int, const float, const float)
     {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchMoved(const int touchId, const float x, const float y)
+    void WindowEventHandler::touchMoved(const int, const float, const float)
     {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchMovedApsolute(const int touchId, const float x, const float y)
+    void WindowEventHandler::touchMovedApsolute(const int, const float, const float)
     {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchScrolled(const float x, const float y)
+    void WindowEventHandler::touchScrolled(const float, const float)
     {}
 }

@@ -111,10 +111,12 @@ extern int main(int argc, char* argv[]);
                 int32_t key = AKeyEvent_getKeyCode(event);
                 return  onKey(action,metakey,key);
 			}
-			else if (type == AINPUT_EVENT_TYPE_MOTION)
-			{
+            else if (type == AINPUT_EVENT_TYPE_MOTION)
+            {
                 return  onMotion(action, event);
-			}
+            }
+            else 
+                JOP_DEBUG_INFO("Unknown input type");
 
             return 0;
         }
