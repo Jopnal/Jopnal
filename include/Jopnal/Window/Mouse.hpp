@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 //////////////////////////////////////////////
 
@@ -71,33 +72,59 @@ namespace jop
 		///
 		/// \return Glm vector of mouse position
 		///
-		static glm::vec2 getPosition();
+        static glm::vec2 getPosition();
 
-        /// \brief Set clipping area for mouse
+        /// \brief Sets mouse mode
         ///
-        /// \param Position x,y and size of clipping area
+        /// Mouse modes: Visible, Hidden, Frozen (Defined in mouse class)
         ///
-        static void setClipping(float x, float y, float size);
+        /// \param mode Enum mouse mode.
+        ///
+        void setMouseMode(const Mode mode);
 
-        /// \brief Set clipping area for mouse
+        /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
-        /// \param Cordinates of clipping area (float minX, float maxX, float minY, float maxY)
+        /// \default Size of context window
         ///
-        static void setClipping(float minX, float maxX, float minY, float maxY);
+        static void setClipping();
 
-        /// \brief Set clipping area for mouse
+        /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
-        /// \param Cordinates of clipping area as two min-max vector (glm::vec2 x, glm::vec2 y)
+        /// \param Center position x,y and size of clipping area
         ///
-        static void setClipping(glm::vec2 x, glm::vec2 y);
+        static void setClipping(int x, int y, int size);
 
-        /// \brief Does mouse have clipping area
+        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        ///
+        /// \param Coordinates of clipping area (int minX, int maxX, int minY, int maxY)
+        ///
+        static void setClipping(int minX, int maxX, int minY, int maxY);
+
+        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        ///
+        /// \param Coordinates of clipping area as two min-max vector (glm::ivec2 x, glm::ivec2 y)
+        ///
+        static void setClipping(glm::ivec2 x, glm::ivec2 y);
+
+        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        ///
+        /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
+        ///
+        static void setClipping(glm::ivec4 clipping);
+
+        /// \brief Get clipping coordinates of mouse
+        ///
+        /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
+        ///
+        static glm::ivec4 getClipping();
+
+        /// \brief Does mouse have movement restrictions
         ///
         /// \return True if mouse has clipping area
         ///
         static bool isClipping();
 
-        /// \brief Releases mouse if it's clipping
+        /// \brief Releases mouse if it's resrticted into clipping area
         ///
         static void releaseClipping();
     };

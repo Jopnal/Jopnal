@@ -143,7 +143,11 @@ namespace jop
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
 
             if (entered)
+            {
                 handler->mouseEntered();
+                if (Mouse::isClipping())
+                    Mouse::setClipping();
+            }
             else
                 handler->mouseLeft();
         });

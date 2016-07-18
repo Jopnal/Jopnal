@@ -259,7 +259,7 @@ namespace jop
         Window& m_windowRef;                                    ///< Reference to the window
 
     public:
-
+        
         float m_lastMouseX;                                     ///< For internal use. Do not touch
         float m_lastMouseY;                                     ///< For internal use. Do not touch
     };
