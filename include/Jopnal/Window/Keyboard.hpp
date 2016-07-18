@@ -132,7 +132,13 @@ namespace jop
 		///
 		/// \return True if down
 		///
-		static bool isKeyDown(Key key);
+		static bool isKeyDown(const Key key);
+
+        /// \brief Shows or hides virtual keyboard. Currently only for android
+        ///
+        /// \param Boolean true to show keyboard and false to hide it
+        ///
+        static void showVirtualKeyboard(const bool show);   
     };
 }
 

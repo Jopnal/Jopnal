@@ -92,25 +92,25 @@ namespace jop
         ///
         /// \param Center position x,y and size of clipping area
         ///
-        static void setClipping(int x, int y, int size);
+        static void setClipping(const int x, const int y, const int size);
 
         /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
         /// \param Coordinates of clipping area (int minX, int maxX, int minY, int maxY)
         ///
-        static void setClipping(int minX, int maxX, int minY, int maxY);
+        static void setClipping(const int minX, const int maxX, const int minY, const int maxY);
 
         /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
         /// \param Coordinates of clipping area as two min-max vector (glm::ivec2 x, glm::ivec2 y)
         ///
-        static void setClipping(glm::ivec2 x, glm::ivec2 y);
+        static void setClipping(const glm::ivec2 x, const glm::ivec2 y);
 
         /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
         /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
         ///
-        static void setClipping(glm::ivec4 clipping);
+        static void setClipping(const glm::ivec4 clipping);
 
         /// \brief Get clipping coordinates of mouse
         ///

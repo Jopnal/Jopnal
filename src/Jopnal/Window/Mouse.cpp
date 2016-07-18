@@ -133,7 +133,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mouse::setClipping(int x, int y, int size)
+    void Mouse::setClipping(const int x, const int y, const int size)
     {
         int s = size / 2;
         setClipping(glm::ivec4(x-s, x+s, y-s, y+s));
@@ -141,21 +141,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mouse::setClipping(int minX, int maxX, int minY, int maxY)
+    void Mouse::setClipping(const int minX, const int maxX, const int minY, const int maxY)
     {
         setClipping(glm::ivec4(minX, maxX, minY, maxY));
     }
 
     //////////////////////////////////////////////
 
-    void Mouse::setClipping(glm::ivec2 x, glm::ivec2 y)
+    void Mouse::setClipping(const glm::ivec2 x, const glm::ivec2 y)
     {
         setClipping(glm::ivec4(x.x, x.y, y.x, y.y));
     }
 
     //////////////////////////////////////////////
 
-    void Mouse::setClipping(glm::ivec4 clipping)
+    void Mouse::setClipping(const glm::ivec4 clipping)
     {
         #if defined(JOP_OS_DESKTOP)
         if (validateWindowRef())
@@ -163,16 +163,17 @@ namespace jop
             glm::ivec2 winSize = { NULL, NULL };
             glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
-            if (clipping.y > winSize.x)
-                clipping.y = winSize.x;
-            if (clipping.x > winSize.x)
-                clipping.x = winSize.x;
-            if (clipping.w > winSize.y)
-                clipping.w = winSize.y;
-            if (clipping.z > winSize.y)
-                clipping.z = winSize.y;
-
             ns_restrictions = clipping;
+
+            if (ns_restrictions.y > winSize.x)
+                ns_restrictions.y = winSize.x;
+            if (ns_restrictions.x > winSize.x)
+                ns_restrictions.x = winSize.x;
+            if (ns_restrictions.w > winSize.y)
+                ns_restrictions.w = winSize.y;
+            if (ns_restrictions.z > winSize.y)
+                ns_restrictions.z = winSize.y;
+
             setClipping();
         }
         #elif defined(JOP_OS_ANDROID)

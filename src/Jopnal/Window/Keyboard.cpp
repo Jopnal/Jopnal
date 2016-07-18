@@ -32,8 +32,12 @@
 
 #endif
 
+#ifdef JOP_OS_ANDROID
+#include <Jopnal/Core/Android/ActivityState.hpp>
+#endif
+
 #include <Jopnal/Core/Engine.hpp>
-#include<Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 
@@ -63,7 +67,7 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	bool Keyboard::isKeyDown(Key key)
+	bool Keyboard::isKeyDown(const Key key)
 	{
 		using namespace input;
 
@@ -79,4 +83,24 @@ namespace jop
 		}
 		return false;
 	}
+
+    //////////////////////////////////////////////
+
+    void Keyboard::showVirtualKeyboard(const bool show)
+    {     
+        if (validateWindowRef())
+        {
+        #if defined(JOP_OS_DESKTOP)   
+                    return;
+        #elif defined(JOP_OS_ANDROID)
+            auto state = detail::ActivityState::get();
+            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
+            state->showVirtualKeyboard(show);
+        #else
+                    return;
+        #endif
+        }
+    }
+
+    //////////////////////////////////////////////
 }

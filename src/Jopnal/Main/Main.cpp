@@ -119,6 +119,80 @@ extern int main(int argc, char* argv[]);
             return 0;
         }
 
+        void showVirtualKeyboard(bool show)
+        { 
+            jint error;
+            jint flags = 0;
+
+            JavaVM* virtualMachine = ns_app->activity->vm;
+            JNIEnv* environment = ns_app->activity->env;
+
+            JavaVMAttachArgs vmArgs;
+            vmArgs.version = JNI_VERSION_1_6;
+            vmArgs.name = "nativeThread";
+            vmArgs.group = NULL;
+
+            error=virtualMachine->AttachCurrentThread(&environment, &vmArgs);
+
+            if (error == JNI_ERR)
+               JOP_DEBUG_ERROR("Failed to initialize java environment to able opening virtual keyboard");
+
+            jobject nativeActivity = ns_app->activity->clazz;
+            jclass classNativeActivity = environment->GetObjectClass( nativeActivity );
+            jclass ClassContext = environment->FindClass("android/content/Context");
+            jfieldID fieldInput = environment->GetStaticFieldID(ClassContext,
+                "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
+            jobject inputService = environment->GetStaticObjectField(ClassContext,
+                fieldInput);
+            environment->DeleteLocalRef(ClassContext);
+            jclass classInputManager =
+                environment->FindClass("android/view/inputmethod/InputMethodManager");
+            jmethodID systemService = environment->GetMethodID(classNativeActivity,
+                "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+            jobject inputManager = environment->CallObjectMethod( nativeActivity ,
+                systemService, inputService);
+            environment->DeleteLocalRef(inputService);
+
+            jmethodID javaWindow = environment->GetMethodID(classNativeActivity,
+                "getWindow", "()Landroid/view/Window;");
+            jobject javaWindowObject = environment->CallObjectMethod( nativeActivity , javaWindow);
+            jclass classWindow = environment->FindClass("android/view/Window");
+            jmethodID decorView = environment->GetMethodID(classWindow,
+                "getDecorView", "()Landroid/view/View;");
+            jobject decorViewObject = environment->CallObjectMethod(javaWindowObject, decorView);
+            environment->DeleteLocalRef(javaWindowObject);
+            environment->DeleteLocalRef(classWindow);
+
+            if(show)
+            {
+                jmethodID MethodShowSoftInput = environment->GetMethodID(classInputManager,
+                    "showSoftInput", "(Landroid/view/View;I)Z");
+                jboolean result = environment->CallBooleanMethod(inputManager,
+                    MethodShowSoftInput, decorViewObject, flags);
+            }
+            else
+            {
+                jclass classView = environment->FindClass("android/view/View");
+                jmethodID javaWindowToken = environment->GetMethodID(classView,
+                    "getWindowToken", "()Landroid/os/IBinder;");
+                jobject binder = environment->CallObjectMethod(decorViewObject,
+                    javaWindowToken);
+                environment->DeleteLocalRef(classView);
+
+
+                jmethodID MethodHideSoftInput = environment->GetMethodID(classInputManager,
+                    "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
+                jboolean res = environment->CallBooleanMethod(inputManager,
+                    MethodHideSoftInput, binder, flags);
+                environment->DeleteLocalRef(binder);
+            }
+
+            environment->DeleteLocalRef(classNativeActivity);
+            environment->DeleteLocalRef(classInputManager);
+            environment->DeleteLocalRef(decorViewObject);
+            virtualMachine->DetachCurrentThread();
+        }
+
         void pollFunc()
         { 
             android_poll_source* event = nullptr;
@@ -142,6 +216,7 @@ extern int main(int argc, char* argv[]);
             app->onAppCmd       = onAppCmdRunning;
             app->onInputEvent   = onInputEvent;       
             ActivityState::get()->pollFunc=&pollFunc;
+            ActivityState::get()->showVirtualKeyboard=&showVirtualKeyboard;
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 

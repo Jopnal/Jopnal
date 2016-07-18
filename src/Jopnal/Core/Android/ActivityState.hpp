@@ -54,11 +54,12 @@ namespace jop { namespace detail
         ANativeWindow* nativeWindow;
 
         void(*pollFunc)();
+        void(*showVirtualKeyboard)(bool show);
 
         Window* window;
         glm::uvec2 screenSize;
 
-        glm::vec2 lastTouchPosition[10];
+        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
     };
 }}
 
