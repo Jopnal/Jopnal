@@ -60,6 +60,7 @@ namespace jop
     protected:
 
         std::unique_ptr<b2Shape> m_shape;  ///< Shape data
+        bool m_isCompound;
     };
 }
 

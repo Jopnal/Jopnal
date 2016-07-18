@@ -20,8 +20,11 @@ list(APPEND SRC ${__INC_PHYSICS2D})
 
 # Include - Shape
 set(__INC_PHYSICS2D_SHAPE
+	${__INCDIR_PHYSICS2D}/Shape/CapsuleShape2D.hpp
     ${__INCDIR_PHYSICS2D}/Shape/CircleShape2D.hpp
     ${__INCDIR_PHYSICS2D}/Shape/CollisionShape2D.hpp
+	${__INCDIR_PHYSICS2D}/Shape/CompoundShape2D.hpp
+	${__INCDIR_PHYSICS2D}/Shape/ConeShape2D.hpp
     ${__INCDIR_PHYSICS2D}/Shape/ConvexHullShape2D.hpp
     ${__INCDIR_PHYSICS2D}/Shape/RectangleShape2D.hpp
     ${__INCDIR_PHYSICS2D}/Shape/TerrainShape2D.hpp
@@ -41,8 +44,11 @@ list(APPEND SRC ${__SRC_PHYSICS2D})
 
 # Source - Shape
 set(__SRC_PHYSICS2D_SHAPE
+	${__SRCDIR_PHYSICS2D}/Shape/CapsuleShape2D.cpp
     ${__SRCDIR_PHYSICS2D}/Shape/CircleShape2D.cpp
     ${__SRCDIR_PHYSICS2D}/Shape/CollisionShape2D.cpp
+	${__SRCDIR_PHYSICS2D}/Shape/CompoundShape2D.cpp
+	${__SRCDIR_PHYSICS2D}/Shape/ConeShape2D.cpp
     ${__SRCDIR_PHYSICS2D}/Shape/ConvexHullShape2D.cpp
     ${__SRCDIR_PHYSICS2D}/Shape/RectangleShape2D.cpp
     ${__SRCDIR_PHYSICS2D}/Shape/TerrainShape2D.cpp

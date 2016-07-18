@@ -51,7 +51,7 @@ namespace jop
     {
         auto temp = std::make_unique<b2PolygonShape>();
 
-        unsigned int accuracy = 15;
+        unsigned int accuracy = 4;
 
         float radians = glm::pi<float>() / accuracy;
         float theta = 0.f;

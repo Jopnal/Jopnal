@@ -77,7 +77,7 @@ namespace jop
         : Collider2D(object, world, 0)
     {
         b2BodyDef bd;
-        b2FixtureDef fdf;
+        
 
         auto& pos = getObject()->getGlobalPosition();
 
@@ -93,14 +93,12 @@ namespace jop
         {
             bd.type = b2BodyType::b2_staticBody;
             object.setIgnoreParent(true);
-            fdf.isSensor = true;
             break;
         }
 
         case Type::KinematicSensor:
         {
             bd.type = b2BodyType::b2_kinematicBody;
-            fdf.isSensor = true;
             break;
         }
 
@@ -112,20 +110,59 @@ namespace jop
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
-
+        
         m_body = world.m_worldData2D->CreateBody(&bd);
 
+        
+        if (info.m_shape.m_isCompound)
+        {
+            auto& shape = static_cast<const CompoundShape2D&>(info.m_shape);
+            for (auto i : shape.m_shapes)
+            {
+                bool firstComp = false;
+                if (shape.m_shapes.size() == 1)
+                    firstComp = true;
+
+                createCollidable(info, *i, firstComp);
+            }
+        }
+        else
+            createCollidable(info, *info.m_shape.m_shape, false);
+
+        setActive(isActive());
+    }
+    
+
+    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape, const bool firstComp)
+    {
+        if (firstComp)
+        {
+        //    m_body->
+        }
+
+
+        b2FixtureDef fdf;
+
+        fdf.density = 1;
         fdf.filter.groupIndex = info.group;
         fdf.filter.maskBits = info.mask;
         fdf.friction = info.friction;
+
+        if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
+            fdf.isSensor = true;
+        
         fdf.restitution = info.restitution;
+        fdf.shape = &shape;
 
-        fdf.shape = info.m_shape.m_shape.get();
-        fdf.density = 1;
-
+        
         m_body->CreateFixture(&fdf);
-        setActive(isActive());
+        m_body->ResetMassData();
+        m_body->SetActive(false);
+        m_body->SetActive(true);
     }
+
+
+
 
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
         : Collider2D(other, newObj)

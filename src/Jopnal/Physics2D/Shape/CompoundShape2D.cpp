@@ -44,7 +44,15 @@ namespace jop
     CompoundShape2D::CompoundShape2D(const std::string& name)
         : CollisionShape2D(name)
     {
-         m_shape = std::make_unique<b2PolygonShape>();
+        auto temp = std::make_unique<b2PolygonShape>();
+        temp->SetAsBox(1.f, 1.f);
+        m_shape = std::move(temp);
+        m_isCompound = true;
+    }
+
+    CompoundShape2D::~CompoundShape2D()
+    {
+
     }
 
     //////////////////////////////////////////////
@@ -57,14 +65,80 @@ namespace jop
             return;
         }
 
-        auto shape = static_cast<b2PolygonShape*>(m_shape.get());
+        if (m_shapes.find(childShape.m_shape.get()) != m_shapes.end())
+            return;
 
-        auto& r = childTransform.rotation;
-        auto& p = childTransform.position;
-
-        const btTransform transform(btQuaternion(r.x, r.y, r.z, r.w), btVector3(p.x, p.y, p.z));
+        auto pos = b2Vec2(childTransform.position.x, childTransform.position.y);
+        auto cs = childTransform.scale;
+        auto cr = childTransform.rotation;
 
         
-        shape->addChildShape(transform, childShape.m_shape.get());
+
+        switch (childShape.m_shape->GetType())
+        {
+
+        case b2Shape::Type::e_polygon:
+        {
+            auto ptr = static_cast<b2PolygonShape*>(childShape.m_shape.get());
+
+            for (unsigned int i = 0; i < sizeof(ptr->m_vertices) / sizeof(ptr->m_vertices[0]); ++i)
+            {
+                //Scale
+                ptr->m_vertices[i].x *= cs.x;
+                ptr->m_vertices[i].y *= cs.y;
+
+                //Rotation
+                ptr->m_vertices[i].x *= std::cos(cr.x);
+                ptr->m_vertices[i].y *= std::sin(cr.y);
+
+                //Position
+                ptr->m_vertices[i] += pos;
+            }
+            ptr->m_centroid += pos;
+            
+            m_shapes.emplace(ptr);
+            break;
+        }
+
+        case b2Shape::Type::e_chain:
+        {
+            auto ptr = static_cast<b2ChainShape*>(childShape.m_shape.get());
+
+            for (unsigned int i = 0; i < sizeof(ptr->m_vertices) / sizeof(ptr->m_vertices[0]); ++i)
+            {
+                //Scale
+                ptr->m_vertices[i].x *= cs.x;
+                ptr->m_vertices[i].y *= cs.y;
+
+                //Rotation
+                ptr->m_vertices[i].x *= std::cos(cr.x);
+                ptr->m_vertices[i].y *= std::sin(cr.y);
+
+                //Position
+                ptr->m_vertices[i] += pos;
+            }
+
+            m_shapes.emplace(ptr);
+            break;
+        }
+
+        case b2Shape::Type::e_circle:
+        {
+            auto ptr = static_cast<b2CircleShape*>(childShape.m_shape.get());
+            
+            //Position
+            ptr->m_p += pos;
+
+            //Scale
+            ptr->m_radius *= cs.x != 0.f ? cs.x : cs.y != 0.f ? cs.y : 1.f;
+            
+            m_shapes.emplace(ptr);
+            break;
+        }
+
+        default:
+            JOP_DEBUG_WARNING("CompoundShape bad type");
+            //do something?
+        }
     }
 }

@@ -29,7 +29,7 @@
 //////////////////////////////////////////////
 
 
-class World2D;
+class b2Shape;
 
 namespace jop
 {
@@ -233,6 +233,9 @@ namespace jop
         /// \param active Activate / deactivate the body
         ///
         void setActive(const bool active) final override;
+
+
+        void createCollidable(const ConstructInfo2D& info, const b2Shape& shape, const bool firstCompound);
     };
 }
 
