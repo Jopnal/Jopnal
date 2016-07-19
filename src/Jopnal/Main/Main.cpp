@@ -51,6 +51,9 @@ extern int main(int argc, char* argv[]);
     {
 
         android_app* ns_app=nullptr;
+        JavaVM* ns_virtualMachine = nullptr;
+        JNIEnv* ns_environment = nullptr;
+        JavaVMAttachArgs ns_vmArgs;
         std::atomic<bool> ns_ready(false);
    
         void onAppCmd(struct android_app* app, int32_t cmd)
@@ -100,6 +103,42 @@ extern int main(int argc, char* argv[]);
             }
         }
 
+        void unicodeEntered(AInputEvent* event)
+        {        
+            jint error;
+            jint flags = 0;
+            error=ns_virtualMachine->AttachCurrentThread(&ns_environment, &ns_vmArgs);
+
+            if (error == JNI_ERR)
+                JOP_DEBUG_ERROR("Failed to initialize java interface to read unicode");
+
+            jlong downTime = AKeyEvent_getDownTime(event);
+            jlong eventTime = AKeyEvent_getEventTime(event);
+            jint action = AKeyEvent_getAction(event);
+            jint code = AKeyEvent_getKeyCode(event);
+            jint repeat = AKeyEvent_getRepeatCount(event);
+            jint metaState = AKeyEvent_getMetaState(event);
+            jint deviceId = AInputEvent_getDeviceId(event);
+            jint scancode = AKeyEvent_getScanCode(event);
+            flags = AKeyEvent_getFlags(event);
+            jint source = AInputEvent_getSource(event);
+
+            jclass ClassKeyEvent = ns_environment->FindClass("android/view/KeyEvent");
+            jmethodID KeyEventConstructor = ns_environment->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
+            jobject ObjectKeyEvent = ns_environment->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
+
+            jmethodID MethodGetUnicode = ns_environment->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
+            unsigned int utf = ns_environment->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
+            
+            Window* windowRef = &Engine::getCurrentWindow();
+            if (windowRef != nullptr)
+                windowRef->getEventHandler()->textEntered(utf);
+
+            ns_environment->DeleteLocalRef(ClassKeyEvent);
+            ns_environment->DeleteLocalRef(ObjectKeyEvent);
+            ns_virtualMachine->DetachCurrentThread();
+        }
+
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
 			int32_t type = AInputEvent_getType(event);
@@ -109,6 +148,10 @@ extern int main(int argc, char* argv[]);
 			{
                 int32_t metakey = AKeyEvent_getMetaState(event);
                 int32_t key = AKeyEvent_getKeyCode(event);
+              
+                if(action==AKEY_EVENT_ACTION_DOWN&&key!=0)
+                   unicodeEntered(event);
+
                 return  onKey(action,metakey,key);
 			}
             else if (type == AINPUT_EVENT_TYPE_MOTION)
@@ -125,74 +168,75 @@ extern int main(int argc, char* argv[]);
         { 
             jint error;
             jint flags = 0;
-
-            JavaVM* virtualMachine = ns_app->activity->vm;
-            JNIEnv* environment = ns_app->activity->env;
-
-            JavaVMAttachArgs vmArgs;
-            vmArgs.version = JNI_VERSION_1_6;
-            vmArgs.name = "nativeThread";
-            vmArgs.group = NULL;
-
-            error=virtualMachine->AttachCurrentThread(&environment, &vmArgs);
+            error=ns_virtualMachine->AttachCurrentThread(&ns_environment, &ns_vmArgs);
 
             if (error == JNI_ERR)
-               JOP_DEBUG_ERROR("Failed to initialize java environment to able opening virtual keyboard");
+               JOP_DEBUG_ERROR("Failed to initialize java interface to able opening virtual keyboard");
 
             jobject nativeActivity = ns_app->activity->clazz;
-            jclass classNativeActivity = environment->GetObjectClass( nativeActivity );
-            jclass ClassContext = environment->FindClass("android/content/Context");
-            jfieldID fieldInput = environment->GetStaticFieldID(ClassContext,
+            jclass classNativeActivity = ns_environment->GetObjectClass( nativeActivity );
+            jclass ClassContext = ns_environment->FindClass("android/content/Context");
+            jfieldID fieldInput = ns_environment->GetStaticFieldID(ClassContext,
                 "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
-            jobject inputService = environment->GetStaticObjectField(ClassContext,
+            jobject inputService = ns_environment->GetStaticObjectField(ClassContext,
                 fieldInput);
-            environment->DeleteLocalRef(ClassContext);
+            ns_environment->DeleteLocalRef(ClassContext);
             jclass classInputManager =
-                environment->FindClass("android/view/inputmethod/InputMethodManager");
-            jmethodID systemService = environment->GetMethodID(classNativeActivity,
+                ns_environment->FindClass("android/view/inputmethod/InputMethodManager");
+            jmethodID systemService = ns_environment->GetMethodID(classNativeActivity,
                 "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-            jobject inputManager = environment->CallObjectMethod( nativeActivity ,
+            jobject inputManager = ns_environment->CallObjectMethod( nativeActivity ,
                 systemService, inputService);
-            environment->DeleteLocalRef(inputService);
+            ns_environment->DeleteLocalRef(inputService);
 
-            jmethodID javaWindow = environment->GetMethodID(classNativeActivity,
+            jmethodID javaWindow = ns_environment->GetMethodID(classNativeActivity,
                 "getWindow", "()Landroid/view/Window;");
-            jobject javaWindowObject = environment->CallObjectMethod( nativeActivity , javaWindow);
-            jclass classWindow = environment->FindClass("android/view/Window");
-            jmethodID decorView = environment->GetMethodID(classWindow,
+            jobject javaWindowObject = ns_environment->CallObjectMethod( nativeActivity , javaWindow);
+            jclass classWindow = ns_environment->FindClass("android/view/Window");
+            jmethodID decorView = ns_environment->GetMethodID(classWindow,
                 "getDecorView", "()Landroid/view/View;");
-            jobject decorViewObject = environment->CallObjectMethod(javaWindowObject, decorView);
-            environment->DeleteLocalRef(javaWindowObject);
-            environment->DeleteLocalRef(classWindow);
+            jobject decorViewObject = ns_environment->CallObjectMethod(javaWindowObject, decorView);
+            ns_environment->DeleteLocalRef(javaWindowObject);
+            ns_environment->DeleteLocalRef(classWindow);
 
             if(show)
             {
-                jmethodID MethodShowSoftInput = environment->GetMethodID(classInputManager,
+                jmethodID MethodShowSoftInput = ns_environment->GetMethodID(classInputManager,
                     "showSoftInput", "(Landroid/view/View;I)Z");
-                jboolean result = environment->CallBooleanMethod(inputManager,
+                jboolean result = ns_environment->CallBooleanMethod(inputManager,
                     MethodShowSoftInput, decorViewObject, flags);
             }
             else
             {
-                jclass classView = environment->FindClass("android/view/View");
-                jmethodID javaWindowToken = environment->GetMethodID(classView,
+                jclass classView = ns_environment->FindClass("android/view/View");
+                jmethodID javaWindowToken = ns_environment->GetMethodID(classView,
                     "getWindowToken", "()Landroid/os/IBinder;");
-                jobject binder = environment->CallObjectMethod(decorViewObject,
+                jobject binder = ns_environment->CallObjectMethod(decorViewObject,
                     javaWindowToken);
-                environment->DeleteLocalRef(classView);
+                ns_environment->DeleteLocalRef(classView);
 
 
-                jmethodID MethodHideSoftInput = environment->GetMethodID(classInputManager,
+                jmethodID MethodHideSoftInput = ns_environment->GetMethodID(classInputManager,
                     "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
-                jboolean res = environment->CallBooleanMethod(inputManager,
+                jboolean res = ns_environment->CallBooleanMethod(inputManager,
                     MethodHideSoftInput, binder, flags);
-                environment->DeleteLocalRef(binder);
+                ns_environment->DeleteLocalRef(binder);
             }
 
-            environment->DeleteLocalRef(classNativeActivity);
-            environment->DeleteLocalRef(classInputManager);
-            environment->DeleteLocalRef(decorViewObject);
-            virtualMachine->DetachCurrentThread();
+            ns_environment->DeleteLocalRef(classNativeActivity);
+            ns_environment->DeleteLocalRef(classInputManager);
+            ns_environment->DeleteLocalRef(decorViewObject);
+            ns_virtualMachine->DetachCurrentThread();
+        }
+
+        void initJavaEnvironment()
+        {
+            ns_virtualMachine = ns_app->activity->vm;
+            ns_environment = ns_app->activity->env;
+
+            ns_vmArgs.version = JNI_VERSION_1_6;
+            ns_vmArgs.name = "nativeThread";
+            ns_vmArgs.group = NULL;
         }
 
         void pollFunc()
@@ -219,6 +263,7 @@ extern int main(int argc, char* argv[]);
             app->onInputEvent   = onInputEvent;       
             ActivityState::get()->pollFunc=&pollFunc;
             ActivityState::get()->showVirtualKeyboard=&showVirtualKeyboard;
+            initJavaEnvironment();
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 

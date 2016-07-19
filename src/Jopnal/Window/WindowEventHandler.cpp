@@ -35,6 +35,7 @@
 
 #endif
 
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
@@ -208,18 +209,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::keyPressed(const int, const int, const int)
-    {}
+    void WindowEventHandler::keyPressed(const int key, const int scan, const int mod)
+    {
+        JOP_DEBUG_INFO("KeyPressed " << key << " scan " << scan << " mod " << mod);
+    }
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::keyReleased(const int, const int, const int)
-    {}
+    void WindowEventHandler::keyReleased(const int key, const int scan, const int mod)
+    {
+        JOP_DEBUG_INFO("KeyReleased " << key << " scan " << scan << " mod " << mod);
+    }
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::textEntered(const unsigned int)
-    {}
+    void WindowEventHandler::textEntered(const unsigned int key)
+    {
+        JOP_DEBUG_INFO("textEntered " << key);
+    }
 
     //////////////////////////////////////////////
 
