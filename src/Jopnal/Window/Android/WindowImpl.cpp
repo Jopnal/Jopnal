@@ -432,6 +432,7 @@ namespace jop { namespace detail
             Window* windowRef = &Engine::getCurrentWindow();
             if (windowRef != nullptr)
             {
+                ActivityState::get()->activeKey=jopKey;
                 windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
                 return 1;
             }

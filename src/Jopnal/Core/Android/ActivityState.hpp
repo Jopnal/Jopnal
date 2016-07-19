@@ -60,6 +60,7 @@ namespace jop { namespace detail
         glm::uvec2 screenSize;
 
         glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
+        int activeKey=0; 
     };
 }}
 
