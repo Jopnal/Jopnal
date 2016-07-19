@@ -33,6 +33,7 @@
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
+    #include <jni.h>
     #include <EGL/eglext.h>
     #include <unordered_map>
     #include<glm/vec2.hpp>
@@ -44,9 +45,9 @@
 
 namespace
 {
-    std::unordered_map<EGLContext, jop::Window*> ns_windowRefs;
-    EGLContext ns_shared;
-    EGLSurface ns_sharedSurface;
+    std::unordered_map<EGLContext, jop::Window*> windowRefs;
+    EGLContext shared;
+    EGLSurface sharedSurface;
 
     EGLDisplay getDisplay()
     {
@@ -62,7 +63,7 @@ namespace
 
     void initialize()
     {
-        if (ns_windowRefs.empty())
+        if (windowRefs.empty())
         {
             const EGLint attribs[] =
             {
@@ -92,20 +93,20 @@ namespace
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
 
 
-            ns_sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
-            JOP_ASSERT(ns_sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
+            sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
+            JOP_ASSERT(sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
 
-            ns_shared = eglCheck(eglCreateContext(getDisplay(), config, nullptr, version));
-            JOP_ASSERT(ns_shared != EGL_NO_CONTEXT, "Failed to create shared context!");
+            shared = eglCheck(eglCreateContext(getDisplay(), config, nullptr, version));
+            JOP_ASSERT(shared != EGL_NO_CONTEXT, "Failed to create shared context!");
         }
     }
 
     void deInitialize()
     {
-        if (ns_windowRefs.empty())
+        if (windowRefs.empty())
         {
-            eglCheck(eglDestroyContext(getDisplay(), ns_shared));
-            eglCheck(eglDestroySurface(getDisplay(), ns_sharedSurface));
+            eglCheck(eglDestroyContext(getDisplay(), shared));
+            eglCheck(eglDestroySurface(getDisplay(), sharedSurface));
 
             eglCheck(eglTerminate(getDisplay()));
         }
@@ -162,7 +163,7 @@ namespace jop { namespace detail
             m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, NULL));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
-            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            m_context = eglCheck(eglCreateContext(getDisplay(), config, shared, version));
             JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
@@ -202,19 +203,19 @@ namespace jop { namespace detail
             m_surface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, surfaceAttribs));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create pbuffer surface!");
 
-            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            m_context = eglCheck(eglCreateContext(getDisplay(), config, shared, version));
             JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
             JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
         }
 
-        ns_windowRefs[m_context] = &windowPtr;
+        windowRefs[m_context] = &windowPtr;
     }
 
     WindowImpl::~WindowImpl()
     {
-        ns_windowRefs.erase(m_context);
+        windowRefs.erase(m_context);
 
         {
             auto state = detail::ActivityState::get();
@@ -496,6 +497,120 @@ namespace jop { namespace detail
             break;
         }
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void getUnicode(void* data, void* vm, void* env, void* args)
+    {        
+        auto event = static_cast<AInputEvent*>(data);
+        auto virtualMachine = static_cast<JavaVM*>(vm);
+        auto environment = static_cast<JNIEnv*>(env);
+        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
+
+        jint error;
+        jint flags = 0;
+        error=virtualMachine->AttachCurrentThread(&environment, &vmArgs);
+
+        if (error == JNI_ERR)
+            JOP_DEBUG_ERROR("Failed to initialize java interface to read unicode");
+
+        jlong downTime = AKeyEvent_getDownTime(event);
+        jlong eventTime = AKeyEvent_getEventTime(event);
+        jint action = AKeyEvent_getAction(event);
+        jint code = AKeyEvent_getKeyCode(event);
+        jint repeat = AKeyEvent_getRepeatCount(event);
+        jint metaState = AKeyEvent_getMetaState(event);
+        jint deviceId = AInputEvent_getDeviceId(event);
+        jint scancode = AKeyEvent_getScanCode(event);
+        flags = AKeyEvent_getFlags(event);
+        jint source = AInputEvent_getSource(event);
+
+        jclass ClassKeyEvent = environment->FindClass("android/view/KeyEvent");
+        jmethodID KeyEventConstructor = environment->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
+        jobject ObjectKeyEvent = environment->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
+
+        jmethodID MethodGetUnicode = environment->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
+        unsigned int utf = environment->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
+
+        Window* windowRef = &Engine::getCurrentWindow();
+        if (windowRef != nullptr)
+            windowRef->getEventHandler()->textEntered(utf);
+
+        environment->DeleteLocalRef(ClassKeyEvent);
+        environment->DeleteLocalRef(ObjectKeyEvent);
+        virtualMachine->DetachCurrentThread();
+    }
+
+    //////////////////////////////////////////////
+
+    void showVirtualKeyboard(const bool show, void* vm, void* env, void* clazz, void* args)
+    {
+        auto virtualMachine = static_cast<JavaVM*>(vm);
+        auto environment = static_cast<JNIEnv*>(env);
+        auto nativeActivity = *static_cast<jobject*>(clazz);
+        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
+
+        jint error;
+        jint flags = 0;
+        error = virtualMachine->AttachCurrentThread(&environment, &vmArgs);
+
+        if (error == JNI_ERR)
+            JOP_DEBUG_ERROR("Failed to initialize java interface to able opening virtual keyboard");
+
+        jclass classNativeActivity = environment->GetObjectClass(nativeActivity);
+        jclass ClassContext = environment->FindClass("android/content/Context");
+        jfieldID fieldInput = environment->GetStaticFieldID(ClassContext,
+            "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
+        jobject inputService = environment->GetStaticObjectField(ClassContext,
+            fieldInput);
+        environment->DeleteLocalRef(ClassContext);
+        jclass classInputManager =
+            environment->FindClass("android/view/inputmethod/InputMethodManager");
+        jmethodID systemService = environment->GetMethodID(classNativeActivity,
+            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+        jobject inputManager = environment->CallObjectMethod(nativeActivity,
+            systemService, inputService);
+        environment->DeleteLocalRef(inputService);
+
+        jmethodID javaWindow = environment->GetMethodID(classNativeActivity,
+            "getWindow", "()Landroid/view/Window;");
+        jobject javaWindowObject = environment->CallObjectMethod(nativeActivity, javaWindow);
+        jclass classWindow = environment->FindClass("android/view/Window");
+        jmethodID decorView = environment->GetMethodID(classWindow,
+            "getDecorView", "()Landroid/view/View;");
+        jobject decorViewObject = environment->CallObjectMethod(javaWindowObject, decorView);
+        environment->DeleteLocalRef(javaWindowObject);
+        environment->DeleteLocalRef(classWindow);
+
+        if (show)
+        {
+            jmethodID MethodShowSoftInput = environment->GetMethodID(classInputManager,
+                "showSoftInput", "(Landroid/view/View;I)Z");
+            jboolean result = environment->CallBooleanMethod(inputManager,
+                MethodShowSoftInput, decorViewObject, flags);
+        }
+        else
+        {
+            jclass classView = environment->FindClass("android/view/View");
+            jmethodID javaWindowToken = environment->GetMethodID(classView,
+                "getWindowToken", "()Landroid/os/IBinder;");
+            jobject binder = environment->CallObjectMethod(decorViewObject,
+                javaWindowToken);
+            environment->DeleteLocalRef(classView);
+
+
+            jmethodID MethodHideSoftInput = environment->GetMethodID(classInputManager,
+                "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
+            jboolean res = environment->CallBooleanMethod(inputManager,
+                MethodHideSoftInput, binder, flags);
+            environment->DeleteLocalRef(binder);
+        }
+
+        environment->DeleteLocalRef(classNativeActivity);
+        environment->DeleteLocalRef(classInputManager);
+        environment->DeleteLocalRef(decorViewObject);
+        virtualMachine->DetachCurrentThread();
     }
 }}
 
