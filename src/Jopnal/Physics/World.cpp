@@ -41,6 +41,7 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
 
     #pragma warning(push)
     #pragma warning(disable: 4127)

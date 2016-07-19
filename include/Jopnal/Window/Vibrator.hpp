@@ -24,13 +24,14 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Vibrator
+    class JOP_API Vibrator
     {
     public:
 
@@ -38,20 +39,13 @@ namespace jop
         ///
         static void vibrate(const int time_ms);
 
-        /// \brief Vibrate with given pattern
+        /// \brief Vibrate
         ///
-        /// The first value of the pattern indicates the number of milliseconds to wait before turning the vibration on.
-        /// The next value indicates the number of milliseconds for which to keep the vibrator on before turning it off.
-        /// The values after these alternate between durations to turn the vibrator off or to turn the vibrator on.
-        ///
-        /// \param pattern Vibration pattern (Durations for which to turn on or off the vibration in milliseconds)
-        /// \param repeat Repeat pattern? (-1 = Don't repeat, 0 = repeat infinitely, 1 = repeat once)
-        ///
-        //static void vibrate(const long[] pattern, const int repeat);
+        static void vibrate();
 
         /// \brief Stop vibrating
         ///
-        //static void stop();
+        static void stop();
 
     };
 

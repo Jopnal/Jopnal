@@ -19,7 +19,7 @@
 
 //////////////////////////////////////////////
 
-#include <Jopnal/Window/Android/Vibrator.hpp>
+#include <Jopnal/Window/Vibrator.hpp>
 #include <Jopnal/Core/Android/ActivityState.hpp>
 
 //////////////////////////////////////////////
@@ -30,9 +30,10 @@ namespace jop
     void Vibrator::vibrate(const int time_ms)
     {
 #if defined (JOP_OS_ANDROID)
+
         // JVM & JNI
         JavaVM* vm = detail::ActivityState::get()->nativeActivity->vm;
-        JNIEnv* jni = detail::ActivityState::get()->nativeActivity->env;
+        JNIEnv* jni;
 
         // Attach thread
         JavaVMAttachArgs args;
@@ -48,13 +49,12 @@ namespace jop
             return;
         }
 
-
         // Class information
         jclass nativeAct = jni->FindClass("android/app/NativeActivity");
         jclass context = jni->FindClass("android/content/Context");
 
         // Parameters for getSystemService
-        jfieldID fieldID = jni->GetStaticFieldID(context, "VIBRATOR_SERVICE", "Ljava/lang/String");
+        jfieldID fieldID = jni->GetStaticFieldID(context, "VIBRATOR_SERVICE", "Ljava/lang/String;");
         jobject serviceStr = jni->GetStaticObjectField(context, fieldID);
 
         // getSystemService
@@ -66,7 +66,8 @@ namespace jop
         jmethodID vibrate = jni->GetMethodID(vibratorClass, "vibrate", "(J)V");
 
         // Vibrate!
-        jni->CallVoidMethod(vibrator, vibrate, time_ms);
+        jlong time = static_cast<jlong>(time_ms);
+        jni->CallVoidMethod(vibrator, vibrate, time);
 
         // Free references
         jni->DeleteLocalRef(nativeAct);
@@ -75,10 +76,8 @@ namespace jop
         jni->DeleteLocalRef(vibrator);
         jni->DeleteLocalRef(vibratorClass);
         
-
         vm->DetachCurrentThread();
-#else
-        return;
+        
 #endif
     }
 }
