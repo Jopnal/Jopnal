@@ -138,16 +138,6 @@ namespace jop
         /// \brief Receive message
         ///
         virtual Message::Result receiveMessage(const Message& message);
-        
-    private:
-
-        /// \brief Set active
-        ///
-        /// Some components need to know if the object they're bound to
-        /// goes active/inactive. This virtual method will be called by the object when
-        /// that happens.
-        ///
-        virtual void setActive(const bool active);
 
 
         uint32 m_ID;                        ///< Identifier

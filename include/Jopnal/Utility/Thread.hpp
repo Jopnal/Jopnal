@@ -131,6 +131,11 @@ namespace jop
 
     private:
 
+        static void attachJavaThread();
+
+        static void detachJavaThread();
+
+
         std::thread m_thread;   ///< The internal thread
     };
 

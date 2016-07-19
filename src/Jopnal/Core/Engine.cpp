@@ -142,6 +142,9 @@ namespace jop
         // Post processor
         createSubsystem<PostProcessor>(*m_mainTarget);
 
+        // Post-pass render proxy
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
+
         // Buffer swapper
         createSubsystem<BufferSwapper>(*m_mainWindow);
 

@@ -74,7 +74,6 @@ namespace jop
           friction              (0.5f),
           rollingFriction       (0.f),
           restitution           (0.f),
-          enableContactCallback (false),
           m_shape               (shape),
           m_type                (type),
           m_mass                ((type == Type::Dynamic) * mass)
@@ -98,25 +97,26 @@ namespace jop
         constInfo.m_restitution = info.restitution;
         
         auto rb = std::make_unique<btRigidBody>(constInfo);
+
+        int flags = rb->getCollisionFlags();
         
         if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
         else
             object.setIgnoreParent(true);
         
-        rb->setCollisionFlags(rb->getCollisionFlags() | (info.enableContactCallback * btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK));
+        flags |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
 
         // Remove contact response if body is a sensor
         if (m_type > Type::Kinematic)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
 
+        rb->setCollisionFlags(flags);
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), info.group, info.mask);
 
         m_rigidBody = rb.get();
         rb->setUserPointer(this);
         m_body = std::move(rb);
-
-        setActive(isActive());
     }
 
     RigidBody::RigidBody(const RigidBody& other, Object& newObj)
@@ -141,7 +141,6 @@ namespace jop
         m_body = std::move(rb);
 
         newObj.setIgnoreParent(other.getObject()->ignoresParent());
-        setActive(isActive());
     }
 
     RigidBody::~RigidBody()

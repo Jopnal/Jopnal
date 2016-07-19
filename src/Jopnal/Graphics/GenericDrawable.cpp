@@ -98,23 +98,9 @@ namespace jop
 
     #ifdef JOP_DEBUG_MODE
 
-        static const struct Callback : SettingCallback<bool>
-        {
-            const char* str;
-            bool validate;
-            Callback()
-                : str("engine@Debug|bValidateShaders"),
-                  validate(SettingManager::get<bool>(str, false))
-            {
-                SettingManager::registerCallback(str, *this);
-            }
-            void valueChanged(const bool& value) override
-            {
-                validate = value;
-            }
-        } cb;
+        static DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
 
-        if (cb.validate && !s.validate())
+        if (validateSetting.value && !s.validate())
             return;
 
     #endif

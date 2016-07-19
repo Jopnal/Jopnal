@@ -76,6 +76,9 @@ namespace jop
         ///
         virtual ~Collider() override = 0;
 
+
+        void update(const float deltaTime) override;
+
     public:
 
         /// \brief Check if this collider overlaps with another
@@ -123,14 +126,6 @@ namespace jop
         /// \copydoc getWorld()
         ///
         const World& getWorld() const;
-
-    private:
-
-        /// \brief Activity setter
-        ///
-        /// For internal use
-        ///
-        virtual void setActive(const bool) override = 0;
 
     protected:
 

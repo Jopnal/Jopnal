@@ -80,6 +80,9 @@ namespace jop
                 break;
             }
         }
+
+        if (m_body->IsActive() != isActive())
+            m_body->SetActive(isActive());
     }
 
     //////////////////////////////////////////////

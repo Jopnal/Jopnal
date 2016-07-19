@@ -104,6 +104,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Collider::update(const float)
+    {
+        if (m_body->isActive() != isActive())
+        {
+            if (m_body->isKinematicObject())
+                m_body->setActivationState(isActive() ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
+
+            else
+                m_body->setActivationState(isActive() ? ACTIVE_TAG : DISABLE_SIMULATION);
+        }
+    }
+
+    //////////////////////////////////////////////
+
     bool Collider::checkOverlap(const Collider& other) const
     {
         struct Callback : btBroadphaseAabbCallback

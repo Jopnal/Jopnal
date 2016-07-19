@@ -96,7 +96,7 @@ namespace jop
 
 
     Window::Settings::Settings(const bool loadSettings)
-        : colorBits     (8, 8, 8, 0),
+        : colorBits     (8, 8, 8, 8),
           size          (1u, 1u),
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),

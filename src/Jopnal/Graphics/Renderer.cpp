@@ -43,49 +43,6 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        class DrawableSorterOpaque
-        {
-            void operator =(const DrawableSorterOpaque&) = delete;
-
-            const glm::vec3& m_camPos;
-
-        public:
-
-            DrawableSorterOpaque(const Camera& cam)
-                : m_camPos(cam.getObject()->getGlobalPosition())
-            {}
-
-            bool operator ()(const Drawable* first, const Drawable* second) const
-            {
-                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) <
-                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
-            }
-        };
-
-        class DrawableSorterTranslucent
-        {
-            void operator =(const DrawableSorterTranslucent&) = delete;
-
-            const glm::vec3& m_camPos;
-
-        public:
-
-            DrawableSorterTranslucent(const Camera& cam)
-                : m_camPos(cam.getObject()->getGlobalPosition())
-            {}
-
-            bool operator ()(const Drawable* first, const Drawable* second) const
-            {
-                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) >
-                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
-            }
-        };
-    }
-
-    //////////////////////////////////////////////
-
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
@@ -128,7 +85,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const Drawable& drawable)
+    void Renderer::bind(const Drawable& drawable, const RenderPass::Pass pass)
     {
         m_drawables.insert(&drawable);
     }
@@ -156,7 +113,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const Drawable& drawable)
+    void Renderer::unbind(const Drawable& drawable, const RenderPass::Pass pass)
     {
         m_drawables.erase(&drawable);
     }
@@ -170,7 +127,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::draw()
+    void Renderer::draw(const RenderPass::Pass pass)
     {
         // Dummy LightContainer to pass into drawables when no lights were selected
         static const LightContainer dummyLightCont;
@@ -179,7 +136,7 @@ namespace jop
         for (auto light : m_lights)
         {
             if (light->isActive() && (m_mask & light->getRenderMask()) != 0)
-                light->drawShadowMap(m_drawables);
+                light->drawShadowMap(m_passes[1].m_drawables);
         }
 
         // Render environment maps
@@ -256,6 +213,37 @@ namespace jop
                 GlState::setDepthWrite(true);
             }
         }
+    }
+
+    //////////////////////////////////////////////
+
+    bool Renderer::unregisterRenderPass(const RenderPass::Pass pass, const uint32 weight)
+    {
+        auto& p = m_passes[static_cast<int>(pass)];
+
+        for (auto itr = p.begin(); itr != p.end(); ++itr)
+        {
+            if ((*itr)->getWeight() == weight)
+            {
+                p.erase(itr);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    RenderPass* Renderer::getRenderPass(const RenderPass::Pass pass, const uint32 weight)
+    {
+        for (auto& i : m_passes[static_cast<int>(pass)])
+        {
+            if (i->getWeight() == weight)
+                return i.get();
+        }
+
+        return nullptr;
     }
 
     //////////////////////////////////////////////

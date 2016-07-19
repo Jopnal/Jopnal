@@ -27,6 +27,7 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/ModelLoader.hpp
     ${__INCDIR_GRAPHICS}/PostProcessor.hpp
     ${__INCDIR_GRAPHICS}/Renderer.hpp
+    ${__INCDIR_GRAPHICS}/RenderPass.hpp
     ${__INCDIR_GRAPHICS}/RenderTarget.hpp
     ${__INCDIR_GRAPHICS}/RenderTexture.hpp
     ${__INCDIR_GRAPHICS}/Shader.hpp
@@ -98,6 +99,7 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/ModelLoader.cpp
     ${__SRCDIR_GRAPHICS}/PostProcessor.cpp
     ${__SRCDIR_GRAPHICS}/Renderer.cpp
+    ${__SRCDIR_GRAPHICS}/RenderPass.cpp
     ${__SRCDIR_GRAPHICS}/RenderTarget.cpp
     ${__SRCDIR_GRAPHICS}/RenderTexture.cpp
     ${__SRCDIR_GRAPHICS}/Shader.cpp

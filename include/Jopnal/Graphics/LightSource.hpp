@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <glm/vec2.hpp>
 #include <vector>
@@ -174,7 +175,7 @@ namespace jop
         ///
         /// \return True if any objects were drawn
         ///
-        bool drawShadowMap(const std::set<const Drawable*>& drawables) const;
+        bool drawShadowMap(const RenderPass::Drawables& drawables) const;
 
         /// \brief Get the shadow map
         ///

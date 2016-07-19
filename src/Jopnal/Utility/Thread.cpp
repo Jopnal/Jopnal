@@ -101,4 +101,33 @@ namespace jop
     {
         return m_thread.get_id();
     }
+
+    //////////////////////////////////////////////
+
+    void Thread::attachJavaThread()
+    {
+    #ifdef JOP_OS_ANDROID
+
+        auto na = detail::ActivityState::get()->nativeActivity;
+
+        JavaVMAttachArgs args;
+        args.version = JNI_VERSION_1_6;
+        args.name = "NativeThread";
+        args.group = NULL;
+        jint res = na->vm->AttachCurrentThread(&na->env, &args);
+
+        if (res == JNI_ERR)
+            JOP_DEBUG_ERROR("Failed to attach thread \"" << std::this_thread::get_id() << "\" to JNI");
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    void Thread::detachJavaThread()
+    {
+    #ifdef JOP_OS_ANDROID
+        detail::ActivityState::get()->nativeActivity->vm->DetachCurrentThread();
+    #endif
+    }
 }

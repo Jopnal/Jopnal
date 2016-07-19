@@ -86,10 +86,6 @@ namespace jop
             float rollingFriction;  ///< Rolling friction
             float restitution;      ///< Restitution
 
-            /// Set this true to enable contact callbacks.
-            /// This is false by default due to performance concerns.
-            bool enableContactCallback;
-
         private:
 
             const CollisionShape& m_shape;  ///< Collision shape
@@ -247,16 +243,6 @@ namespace jop
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
-
-    private:
-
-        /// \brief Called when the bound object is set active/inactive
-        ///
-        /// Sets the physics body activity
-        ///
-        /// \param active Was the object set active?
-        ///
-        void setActive(const bool active) final override;
 
 
         const Type m_type;           ///< The body type

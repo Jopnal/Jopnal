@@ -189,7 +189,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool LightSource::drawShadowMap(const std::set<const Drawable*>& drawables) const
+    bool LightSource::drawShadowMap(const RenderPass::Drawables& drawables) const
     {
         if (!castsShadows())
             return false;

@@ -1193,21 +1193,4 @@ namespace jop
         for (auto& i : m_children)
             i.propagateFlags(flags);
     }
-
-    void Object::propagateClearFlags(const uint32 flags)
-    {
-        clearFlags(flags);
-
-        for (auto& i : m_children)
-            i.propagateClearFlags(flags);
-    }
-
-    void Object::propagateActiveComponents(const bool active)
-    {
-        for (auto& i : m_components)
-            i->setActive(active);
-
-        for (auto& i : m_children)
-            i.propagateActiveComponents(active);
-    }
 }

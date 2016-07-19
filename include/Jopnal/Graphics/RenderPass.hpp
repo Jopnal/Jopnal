@@ -19,50 +19,78 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PHANTOMBODY_HPP
-#define JOP_PHANTOMBODY_HPP
+#ifndef JOP_RENDERPASS_HPP
+#define JOP_RENDERPASS_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <vector>
+#include <Jopnal/Core/SubSystem.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class CollisionShape;
+    class Renderer;
+    class LightSource;
+    class Camera;
+    class EnvironmentRecorder;
+    class Drawable;
 
-    class PhantomBody : public Collider
+    class JOP_API RenderPass final
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(PhantomBody);
-        JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
+        JOP_DISALLOW_COPY_MOVE(RenderPass);
 
-        PhantomBody(const PhantomBody& other, Object& newObj);
+        friend class Renderer;
 
     public:
 
-        enum class Type
+        typedef std::set<const LightSource*>    Lights;
+        typedef std::set<const Camera*>         Cameras;
+        typedef std::set<EnvironmentRecorder*>  EnvironmentRecorders;
+        typedef std::set<const Drawable*>       Drawables;
+
+        enum class Pass
         {
-            Static,
-            Kinematic
+            Pre,
+            Forward,
+            Post
         };
 
     public:
-    
-        PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type);
+
+        RenderPass(Renderer& renderer);
 
 
-        void update(const float deltaTime) override;
+        void draw();
+
+        void bind(const Drawable& drawable);
+
+        void unbind(const Drawable& drawable);
+
+    private:
+
+        Drawables m_drawables;
+        Renderer& m_rendererRef;
     };
+
+    namespace detail
+    {
+        class RenderPassProxy final : public Subsystem
+        {
+        public:
+
+            RenderPassProxy(const RenderPass::Pass pass);
+
+            void draw() override;
+
+        private:
+
+            const RenderPass::Pass m_pass;
+        };
+    }
 }
 
 #endif
-
-/// \class PhantomBody
-/// \ingroup physics
-///
-/// #TODO Detailed description
