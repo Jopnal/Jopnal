@@ -19,44 +19,37 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CAPSULESHAPE2D_HPP
-#define JOP_CAPSULESHAPE2D_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+#include <Jopnal/Physics2D/Joint2D.hpp>
+
+#include <Box2D/Dynamics/Joints/b2Joint.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 namespace jop
 {
-    class JOP_API CapsuleShape2D : public CompoundShape2D
+
+    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
+        m_bodyA(&bodyA),
+        m_bodyB(&bodyB),
+        m_worldRef(&worldRef)
     {
-    public:
+    }
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CapsuleShape2D(const std::string& name);
+    Joint2D::~Joint2D()
+    {
+          m_worldRef->m_worldData2D->DestroyJoint(m_joint);
+    }
 
+    b2Body* Joint2D::getBody(RigidBody2D& body) //(std::weak_ptr<RigidBody2D>& body)
+    {
+        return body./*lock()->*/m_body;
+    }
 
-        /// \brief Load this shape using different extents
-        ///
-        /// \param radius Radius of the capsule
-        /// \param height Height of the capsule
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float width, const float height);
-
-    private:
-        RectangleShape2D m_rect;
-        CircleShape2D m_ball1;
-        CircleShape2D m_ball2;
-    };
 }
-
-#endif

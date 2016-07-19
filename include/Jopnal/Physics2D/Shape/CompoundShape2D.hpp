@@ -34,7 +34,7 @@ namespace jop
 {
     class Transform;
 
-    class JOP_API CompoundShape2D final : public CollisionShape2D
+    class JOP_API CompoundShape2D : public CollisionShape2D
     {
         friend class RigidBody2D;
 
@@ -56,7 +56,7 @@ namespace jop
         ///
         void addChild(CollisionShape2D& childShape, const Transform::Variables& childTransform);
 
-    protected:
+    private:
         std::set<b2Shape*> m_shapes;
     };
 }

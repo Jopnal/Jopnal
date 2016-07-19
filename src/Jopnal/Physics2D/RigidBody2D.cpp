@@ -77,7 +77,7 @@ namespace jop
         : Collider2D(object, world, 0)
     {
         b2BodyDef bd;
-        
+
 
         auto& pos = getObject()->getGlobalPosition();
 
@@ -110,37 +110,27 @@ namespace jop
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
-        
+
         m_body = world.m_worldData2D->CreateBody(&bd);
 
-        
+
         if (info.m_shape.m_isCompound)
         {
             auto& shape = static_cast<const CompoundShape2D&>(info.m_shape);
             for (auto i : shape.m_shapes)
             {
-                bool firstComp = false;
-                if (shape.m_shapes.size() == 1)
-                    firstComp = true;
-
-                createCollidable(info, *i, firstComp);
+                createCollidable(info, *i);
             }
         }
         else
-            createCollidable(info, *info.m_shape.m_shape, false);
+            createCollidable(info, *info.m_shape.m_shape);
 
         setActive(isActive());
     }
-    
 
-    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape, const bool firstComp)
+
+    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape)
     {
-        if (firstComp)
-        {
-        //    m_body->
-        }
-
-
         b2FixtureDef fdf;
 
         fdf.density = 1;
@@ -150,11 +140,11 @@ namespace jop
 
         if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
             fdf.isSensor = true;
-        
+
         fdf.restitution = info.restitution;
         fdf.shape = &shape;
 
-        
+
         m_body->CreateFixture(&fdf);
         m_body->ResetMassData();
         m_body->SetActive(false);
@@ -204,6 +194,20 @@ namespace jop
 
     RigidBody2D::~RigidBody2D()
     {
+        for (auto& i : m_joints)
+        {
+            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+
+            //if (!body.expired())
+            body/*.lock()*/->m_joints.erase(i);
+         
+            {
+                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                thisBody = nullptr;
+            }
+        }
+        m_joints.clear();
+
         m_worldRef2D.m_worldData2D->DestroyBody(m_body);
     }
 
@@ -308,8 +312,6 @@ namespace jop
         m_body->SetFixedRotation(rot);
         return *this;
     }
-
-
 
     //////////////////////////////////////////////
 

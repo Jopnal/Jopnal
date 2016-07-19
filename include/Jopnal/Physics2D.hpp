@@ -21,6 +21,10 @@
 
 // Headers
 #include <Jopnal/Physics2D/Collider2D.hpp>
+#include <Jopnal/Physics2D/Joint/PistonJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/RopeJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/RotationJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint2D.hpp>
 #include <Jopnal/Physics2D/RayInfo2D.hpp>
 #include <Jopnal/Physics2D/RigidBody2D.hpp>
 #include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>

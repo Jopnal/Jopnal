@@ -128,7 +128,6 @@ namespace jop
 
             ce = ce->next;
         }
-
         return false;
     }
 
@@ -147,7 +146,6 @@ namespace jop
                     hit = true;
                     return 0.f;
                 }
-
                 return 1.f;
             }
         } cb;

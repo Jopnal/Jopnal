@@ -19,44 +19,38 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CAPSULESHAPE2D_HPP
-#define JOP_CAPSULESHAPE2D_HPP
+#ifndef JOP_JOINT2D_HPP
+#define JOP_JOINT2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
 
 //////////////////////////////////////////////
 
+class b2Joint;
+
 namespace jop
 {
-    class JOP_API CapsuleShape2D : public CompoundShape2D
+    class RigidBody2D;
+
+    class JOP_API Joint2D
     {
     public:
+        Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB);
+        virtual ~Joint2D() = 0;
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CapsuleShape2D(const std::string& name);
+        World2D* m_worldRef;
 
+        RigidBody2D* m_bodyA;
+        RigidBody2D* m_bodyB;
+        //std::weak_ptr<RigidBody2D> m_bodyA;
+        //std::weak_ptr<RigidBody2D> m_bodyB;
 
-        /// \brief Load this shape using different extents
-        ///
-        /// \param radius Radius of the capsule
-        /// \param height Height of the capsule
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float width, const float height);
+    protected:
+        static b2Body* getBody(RigidBody2D& body); //(std::weak_ptr<RigidBody2D>& body);
 
-    private:
-        RectangleShape2D m_rect;
-        CircleShape2D m_ball1;
-        CircleShape2D m_ball2;
+        b2Joint* m_joint;
+
     };
 }
-
 #endif

@@ -41,8 +41,8 @@ namespace jop
 
         RigidBody2D(const RigidBody2D& other, Object& newObj);
 
-       //JOP_GENERIC_COMPONENT_CLONE(RigidBody2D);
-       //JOP_DISALLOW_COPY_MOVE(RigidBody2D);
+        //JOP_GENERIC_COMPONENT_CLONE(RigidBody2D);
+        //JOP_DISALLOW_COPY_MOVE(RigidBody2D);
 
     public:
 
@@ -220,6 +220,15 @@ namespace jop
         ///
         RigidBody2D& setFixedRotation(const bool rot);
 
+
+        //T = joint
+        //this = A
+        //Rigidbody& = B
+        template<typename T, typename ... Args>
+        T& link(RigidBody2D&, Args&&...);
+
+
+
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
@@ -235,8 +244,15 @@ namespace jop
         void setActive(const bool active) final override;
 
 
-        void createCollidable(const ConstructInfo2D& info, const b2Shape& shape, const bool firstCompound);
+        void createCollidable(const ConstructInfo2D& info, const b2Shape& shape);
+
+        std::unordered_set<std::shared_ptr<Joint2D>> m_joints;
+
+
     };
+
+#include <Jopnal/Physics2D/Inl/RigidBody2D.inl>
+
 }
 
 #endif

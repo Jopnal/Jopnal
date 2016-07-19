@@ -19,44 +19,17 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CAPSULESHAPE2D_HPP
-#define JOP_CAPSULESHAPE2D_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
-
-//////////////////////////////////////////////
-
-namespace jop
+//T = joint
+//this = A
+//Rigidbody& = B
+template<typename T, typename ... Args>
+T& RigidBody2D::link(RigidBody2D& other, Args&&... args)
 {
-    class JOP_API CapsuleShape2D : public CompoundShape2D
-    {
-    public:
+    auto joint = std::make_shared<T>(m_worldRef2D, *this, other, std::forward<Args>(args)...);
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CapsuleShape2D(const std::string& name);
+    m_joints.emplace(joint);
+    other.m_joints.emplace(joint);
 
-
-        /// \brief Load this shape using different extents
-        ///
-        /// \param radius Radius of the capsule
-        /// \param height Height of the capsule
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float width, const float height);
-
-    private:
-        RectangleShape2D m_rect;
-        CircleShape2D m_ball1;
-        CircleShape2D m_ball2;
-    };
+    return static_cast<T&>(*joint);
 }
-
-#endif

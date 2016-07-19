@@ -37,6 +37,8 @@ class b2World;
 namespace jop
 {
     class Camera;
+    class Joint2D;
+
     namespace detail
     {
         struct DebugDraw;
@@ -52,6 +54,7 @@ namespace jop
         friend class Renderer;
         friend class RigidBody2D;
         friend class Collider2D;
+        friend class Joint2D;
 
         World2D* clone(Object&) const override;
 

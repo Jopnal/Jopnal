@@ -19,43 +19,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CAPSULESHAPE2D_HPP
-#define JOP_CAPSULESHAPE2D_HPP
+#ifndef JOP_ROTATIONJOINT2D_HPP
+#define JOP_ROTATIONJOINT2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
-#include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
+#include <Jopnal/Physics2D/Joint2D.hpp>
 
 //////////////////////////////////////////////
 
 namespace jop
 {
-    class JOP_API CapsuleShape2D : public CompoundShape2D
+    class JOP_API RotationJoint2D : public Joint2D
     {
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CapsuleShape2D(const std::string& name);
+        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque);
 
+        ~RotationJoint2D();
 
-        /// \brief Load this shape using different extents
-        ///
-        /// \param radius Radius of the capsule
-        /// \param height Height of the capsule
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float width, const float height);
-
-    private:
-        RectangleShape2D m_rect;
-        CircleShape2D m_ball1;
-        CircleShape2D m_ball2;
     };
 }
 

@@ -42,44 +42,45 @@
 namespace jop
 {
     CapsuleShape2D::CapsuleShape2D(const std::string& name)
-        : CollisionShape2D(name)
-    {}
+        : CompoundShape2D(name),
+        m_rect(""),
+        m_ball1(""),
+        m_ball2("")
+    {
+    }
 
     //////////////////////////////////////////////
 
-    bool CapsuleShape2D::load(const float radius, const float height)
+    bool CapsuleShape2D::load(const float width, const float height)
     {
-        auto temp = std::make_unique<b2PolygonShape>();
+        float radius = width * 0.5f;
 
-        unsigned int accuracy = 4;
+        Transform::Variables rect;
+        rect.position = glm::vec3(0.f, 0.f, 0.f);
+        rect.rotation = glm::quat(1.f, 0.f, 0.f, 0.f);
+        rect.scale = glm::vec3(1.f, 1.f, 1.f);
 
-        float radians = glm::pi<float>() / accuracy;
-        float theta = 0.f;
-
-        float hheight = height / 2.f;
-
-        std::vector<glm::vec2> points;
-        points.reserve(accuracy * 2 + 2);
+        if (width >= height)
         {
-            points.emplace_back(radius, hheight - radius);
-
-            for (unsigned int i = 0; i < accuracy; ++i)
-            {
-                theta += radians;
-                points.emplace_back(std::cos(theta) * radius, hheight - radius + (radius * std::sin(theta)));
-            }
-
-            points.emplace_back(-radius, -hheight + radius);
-
-            for (unsigned int i = 0; i < accuracy; ++i)
-            {
-                theta += radians;
-                points.emplace_back(std::cos(theta) * radius, -hheight + radius + (radius * std::sin(theta))); //works
-            }
+            //make a ball
+            m_ball1.load(radius);
+            addChild(m_ball1, rect);
+            return true;
         }
-        temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size());
 
-        m_shape = std::move(temp);
+        Transform::Variables ball1 = rect;
+        ball1.position.y = height * 0.5f - radius;
+
+        Transform::Variables ball2 = rect;
+        ball2.position.y = -height * 0.5f + radius;
+
+        m_rect.load(width, height - width);
+        m_ball1.load(radius);
+        m_ball2.load(radius);
+
+        addChild(m_rect, rect);
+        addChild(m_ball1, ball1);
+        addChild(m_ball2, ball2);
 
         return true;
     }

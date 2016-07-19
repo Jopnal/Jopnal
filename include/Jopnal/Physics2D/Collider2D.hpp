@@ -34,6 +34,7 @@ class b2Body;
 
 namespace jop
 {
+    class Joint2D;
     class World2D;
 
     class JOP_API Collider2D : public Component
@@ -41,6 +42,8 @@ namespace jop
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
+
+        friend class Joint2D;
 
     protected:
 
@@ -97,15 +100,15 @@ namespace jop
         ///
         bool checkRay(const glm::vec2& start, const glm::vec2& ray) const;
 
-        /// \brief Get the world this collider belongs to
-        ///
-        /// \return Reference to the 2D world
-        ///
-        World2D& getWorld();
-
-        /// \copydoc getWorld()
-        ///
-        const World2D& getWorld() const;
+     //   /// \brief Get the world this collider belongs to
+     //   ///
+     //   /// \return Reference to the 2D world
+     //   ///
+     //   World2D& getWorld();
+     //
+     //   /// \copydoc getWorld()
+     //   ///
+     //   const World2D& getWorld() const;
 
     private:
 

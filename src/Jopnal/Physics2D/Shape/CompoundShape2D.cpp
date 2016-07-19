@@ -70,7 +70,7 @@ namespace jop
 
         auto pos = b2Vec2(childTransform.position.x, childTransform.position.y);
         auto cs = childTransform.scale;
-        auto cr = childTransform.rotation;
+        auto cr = glm::eulerAngles( childTransform.rotation);
 
         
 
@@ -88,8 +88,8 @@ namespace jop
                 ptr->m_vertices[i].y *= cs.y;
 
                 //Rotation
-                ptr->m_vertices[i].x *= std::cos(cr.x);
-                ptr->m_vertices[i].y *= std::sin(cr.y);
+                const auto rot = glm::rotate(glm::vec2(ptr->m_vertices[i].x, ptr->m_vertices[i].y), cr.z);
+                ptr->m_vertices[i] = b2Vec2(rot.x, rot.y);
 
                 //Position
                 ptr->m_vertices[i] += pos;
@@ -111,8 +111,8 @@ namespace jop
                 ptr->m_vertices[i].y *= cs.y;
 
                 //Rotation
-                ptr->m_vertices[i].x *= std::cos(cr.x);
-                ptr->m_vertices[i].y *= std::sin(cr.y);
+                const auto rot = glm::rotate(glm::vec2(ptr->m_vertices[i].x, ptr->m_vertices[i].y), cr.z);
+                ptr->m_vertices[i] = b2Vec2(rot.x, rot.y);
 
                 //Position
                 ptr->m_vertices[i] += pos;
