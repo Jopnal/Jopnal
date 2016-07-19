@@ -88,7 +88,7 @@ namespace jop
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
-          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamedResource<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
+          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamed<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
           m_mainTarget          (mainTarget),
           m_functions           (),
           m_exposure            (1.f),
@@ -246,7 +246,7 @@ namespace jop
             m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
-        auto& blurShader = ResourceManager::getNamedResource<ShaderProgram>
+        auto& blurShader = ResourceManager::getNamed<ShaderProgram>
         (
             "jop_blur_shader",
             "", 
@@ -256,7 +256,7 @@ namespace jop
 
         JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
-        auto& brightShader = ResourceManager::getNamedResource<ShaderProgram>
+        auto& brightShader = ResourceManager::getNamed<ShaderProgram>
         (
             "jop_bright_filter_shader",
             "",
@@ -352,7 +352,7 @@ namespace jop
             std::string pp;
             getPreprocessorStr(m_functions, pp);
 
-            auto& shader = ResourceManager::getNamedResource<ShaderProgram>("jop_pp_shader_" + std::to_string(m_functions), pp, Shader::Type::Vertex, m_shaderSources[0], Shader::Type::Fragment, m_shaderSources[1]);
+            auto& shader = ResourceManager::getNamed<ShaderProgram>("jop_pp_shader_" + std::to_string(m_functions), pp, Shader::Type::Vertex, m_shaderSources[0], Shader::Type::Fragment, m_shaderSources[1]);
 
             JOP_ASSERT(&shader != &ShaderProgram::getError(), "Failed to compile post process shader!");
 

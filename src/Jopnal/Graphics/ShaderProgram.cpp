@@ -370,7 +370,7 @@ namespace jop
             vertex.load(std::string(reinterpret_cast<const char*>(jopr::defaultShaderVert), sizeof(jopr::defaultShaderVert)), Shader::Type::Vertex, true);
             fragment.load(std::string(reinterpret_cast<const char*>(jopr::defaultShaderFrag), sizeof(jopr::defaultShaderFrag)), Shader::Type::Fragment, true);
 
-            errProgram = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_default_shader_program").getReference());
+            errProgram = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_default_shader_program").getReference());
 
             JOP_ASSERT_EVAL(errProgram->load("",vertex, fragment), "Couldn't compile the default shader program!");
 

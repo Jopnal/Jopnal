@@ -199,7 +199,7 @@ namespace jop
         // Directional/spot light recorder
         if (dirSpotShader.expired())
         {
-            dirSpotShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_depth_record_shader").getReference());
+            dirSpotShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader").getReference());
             dirSpotShader->setPersistence(0);
 
             JOP_ASSERT_EVAL(dirSpotShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
@@ -210,7 +210,7 @@ namespace jop
         // Point light recorder
         if (pointShader.expired())
         {
-            pointShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_depth_record_shader_point").getReference());
+            pointShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader_point").getReference());
             pointShader->setPersistence(0);
 
             JOP_ASSERT_EVAL(pointShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),

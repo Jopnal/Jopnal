@@ -138,7 +138,7 @@ namespace detail
 
             if (shdr.expired())
             {
-                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_physics_debug_shader").getReference());
+                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_physics_debug_shader").getReference());
 
                 if (!shdr->isValid())
                 {
