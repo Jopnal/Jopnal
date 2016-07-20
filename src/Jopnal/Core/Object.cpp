@@ -906,7 +906,10 @@ namespace jop
     {
         if (flagSet(GlobalRotationDirty))
         {
-            m_globals.rotation = glm::quat(getTransform().getMatrix());
+            if (m_parent.expired() || ignoresTransform(Rotation))
+                return getLocalRotation();
+
+            m_globals.rotation = m_parent->getGlobalRotation() * getLocalRotation();
 
             clearFlags(GlobalRotationDirty);
         }
@@ -1159,7 +1162,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Object::ignoresTransform(const uint32 flag)
+    bool Object::ignoresTransform(const uint32 flag) const
     {
         return flagSet(flag);
     }
