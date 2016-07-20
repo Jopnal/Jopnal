@@ -37,21 +37,45 @@
 namespace jop
 {
 
-    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque) : Joint2D(worldRef, bodyA, bodyB)
+    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) : 
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL()
     {
-        b2DistanceJointDef jointDef;
+        b2DistanceJointDef jd;
 
-        jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), getBody(bodyB)->GetWorldCenter());
-        jointDef.length = distance;
-        jointDef.frequencyHz = 4.f;
-        jointDef.dampingRatio = 0.3f;
+        b2RevoluteJointDef jointDef;
+        jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter());
+        jointDef.collideConnected = collide;
 
-        b2DistanceJoint* dj = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_joint = static_cast<b2RevoluteJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2RevoluteJoint*>(m_joint);
     }
 
-    RotationJoint2D::~RotationJoint2D()
+    RotationJoint2D& RotationJoint2D::limit(const bool limit)
     {
+        m_jointL->EnableLimit(limit);
+        return *this;
+    }
 
+    RotationJoint2D& RotationJoint2D::setLimits(const float minAngle, const float maxAngle)
+    {
+        m_jointL->EnableLimit(true);
+        m_jointL->SetLimits(minAngle, maxAngle);
+        return *this;
+    }
+
+    RotationJoint2D& RotationJoint2D::enableMotor(const bool set)
+    {
+        m_jointL->EnableMotor(set);
+        return *this;
+    }
+
+    RotationJoint2D& RotationJoint2D::setMotor(const float speed, const float torque)
+    {
+        m_jointL->EnableMotor(true);
+        m_jointL->SetMotorSpeed(speed);
+        m_jointL->SetMaxMotorTorque(torque);
+        return *this;
     }
 
 }

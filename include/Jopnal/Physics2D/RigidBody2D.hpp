@@ -41,8 +41,8 @@ namespace jop
 
         RigidBody2D(const RigidBody2D& other, Object& newObj);
 
-        //JOP_GENERIC_COMPONENT_CLONE(RigidBody2D);
-        //JOP_DISALLOW_COPY_MOVE(RigidBody2D);
+        JOP_GENERIC_COMPONENT_CLONE(RigidBody2D);
+        JOP_DISALLOW_COPY_MOVE(RigidBody2D);
 
     public:
 
@@ -118,6 +118,8 @@ namespace jop
 
         /// \brief Get the gravity scale
         ///
+        /// \return float
+        ///
         float getGravityScale() const;
 
         /// \brief Sets the linear velocity for rigid body
@@ -130,7 +132,9 @@ namespace jop
         ///
         RigidBody2D& setLinearVelocity(const glm::vec2& linearVelocity);
 
-        /// \brief Gets the linear velocity as glm::vec2
+        /// \brief Get the linear velocity of the body
+        ///
+        /// \return glm::vec2
         ///
         glm::vec2 getLinearVelocity() const;
 
@@ -220,14 +224,41 @@ namespace jop
         ///
         RigidBody2D& setFixedRotation(const bool rot);
 
+        /// \brief Sets the RigidBody2D position to be same as the objects' transform.
+        ///
+        /// \return Reference to self.
+        ///
+        RigidBody2D& synchronizeTransform();
+
+        /// \brief Returns a pointer to a joint on the RigidBody2D whence called from.
+        ///
+        /// User can give an ID of the the joint which to return. If left empty, returns a pointer to the first joint the RigidBody2D has.
+        ///
+        /// \return Returns a pointer to the joint. Nullptr if not found.
+        ///
+        template<typename T>
+        T* getJoint(unsigned int id = 0);
+
+        /// \brief Breaks a joint from the RigidBody2D whence called from.
+        ///
+        /// User can give an ID of the the joint which to break. If left empty, breaks the first joint the RigidBody2D has.
+        ///
+        /// \return Returns true if successful.
+        ///
+        template<typename T>
+        bool breakJoint(unsigned int id = 0);
 
         //T = joint
         //this = A
         //Rigidbody& = B
+        /// \brief Creates a joint between this RigidBody2D and another RigidBody2D.
+        ///
+        /// \param T Type of the joint to create. Applicable joints are derived from Joint2D.
+        ///
+        /// \return Returns a reference to the RigidBody2D whence called from.
+        ///
         template<typename T, typename ... Args>
         T& link(RigidBody2D&, Args&&...);
-
-
 
     protected:
 
@@ -243,16 +274,16 @@ namespace jop
         ///
         void setActive(const bool active) final override;
 
-
+        /// \brief Initializes m_body with a collidable object.
+        ///
+        /// Handled by the Jopnal Engine.
+        ///
         void createCollidable(const ConstructInfo2D& info, const b2Shape& shape);
 
+        /// \brief All the joints that this body has.
+        ///
         std::unordered_set<std::shared_ptr<Joint2D>> m_joints;
-
-
     };
-
 #include <Jopnal/Physics2D/Inl/RigidBody2D.inl>
-
 }
-
 #endif

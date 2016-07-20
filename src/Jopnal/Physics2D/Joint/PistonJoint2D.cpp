@@ -36,18 +36,43 @@
 
 namespace jop
 {
-    PistonJoint2D::PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque) : Joint2D(worldRef, bodyA, bodyB)
+    PistonJoint2D::PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL()
     {
         b2PrismaticJointDef jointDef;
-
-        jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), b2Vec2(1.f,0.f));
-
-        jointDef.enableMotor = true;
-        jointDef.motorSpeed = 2.f;
-
-        m_joint = static_cast<b2PrismaticJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
-
+        jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), b2Vec2(axis.x, axis.y));
+        jointDef.collideConnected = collide;
         
+        m_joint = static_cast<b2PrismaticJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2PrismaticJoint*>(m_joint);
+    }
+
+    PistonJoint2D& PistonJoint2D::limit(const bool limit)
+    {
+        m_jointL->EnableLimit(limit);
+        return *this;
+    }
+
+    PistonJoint2D& PistonJoint2D::setLimits(const float min, const float max)
+    {
+        m_jointL->EnableLimit(true);
+        m_jointL->SetLimits(min, max);
+        return *this;
+    }
+
+    PistonJoint2D& PistonJoint2D::enableMotor(const bool set)
+    {
+        m_jointL->EnableMotor(set);
+        return *this;
+    }
+
+    PistonJoint2D& PistonJoint2D::setMotor(const float speed, const float torque)
+    {
+        m_jointL->EnableMotor(true);
+        m_jointL->SetMotorSpeed(speed);
+        m_jointL->SetMaxMotorForce(torque);
+        return *this;
     }
 
 }

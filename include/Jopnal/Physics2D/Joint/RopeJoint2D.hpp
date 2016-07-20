@@ -28,14 +28,20 @@
 
 //////////////////////////////////////////////
 
+class b2RopeJoint;
+
 namespace jop
 {
     class JOP_API RopeJoint2D : public Joint2D
     {
     public:
 
-        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque);
+        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
 
+        RopeJoint2D& setSoftness(const float frequency, const float damping);
+
+    private:
+        unsigned int m_type;
 
     };
 }

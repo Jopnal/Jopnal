@@ -29,7 +29,6 @@
 
 //////////////////////////////////////////////
 
-
 class b2Shape;
 
 namespace jop
@@ -63,5 +62,4 @@ namespace jop
         bool m_isCompound;
     };
 }
-
 #endif

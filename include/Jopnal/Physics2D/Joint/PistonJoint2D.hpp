@@ -28,13 +28,22 @@
 
 //////////////////////////////////////////////
 
+class b2PrismaticJoint;
+
 namespace jop
 {
     class JOP_API PistonJoint2D : public Joint2D
     {
     public:
+        PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis);
 
-        PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque);
+        PistonJoint2D& limit(const bool limit);
+        PistonJoint2D& setLimits(const float minAngle, const float maxAngle);
+        PistonJoint2D& enableMotor(const bool set);
+        PistonJoint2D& setMotor(const float speed, const float torque);
+
+    private:
+        b2PrismaticJoint* m_jointL;
 
     };
 }

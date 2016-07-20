@@ -42,10 +42,9 @@ namespace jop
         ///
         CapsuleShape2D(const std::string& name);
 
-
         /// \brief Load this shape using different extents
         ///
-        /// \param radius Radius of the capsule
+        /// \param width Width of the capsule
         /// \param height Height of the capsule
         ///
         /// \return True if successful
@@ -58,5 +57,4 @@ namespace jop
         CircleShape2D m_ball2;
     };
 }
-
 #endif

@@ -19,49 +19,28 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_MOTORJOINT2D_HPP
+#define JOP_MOTORJOINT2D_HPP
+
 // Headers
-#include JOP_PRECOMPILED_HEADER_FILE
-
-#ifndef JOP_PRECOMPILED_HEADER
-
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Physics2D/Joint2D.hpp>
-
-#include <Box2D/Dynamics/Joints/b2Joint.hpp>
-
-#endif
 
 //////////////////////////////////////////////
 
+class b2MotorJoint;
+
 namespace jop
 {
-
-    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
-        m_bodyA     (&bodyA),
-        m_bodyB     (&bodyB),
-        m_worldRef  (&worldRef),
-        m_ID        (0)
+    class JOP_API MotorJoint2D : public Joint2D
     {
-    }
+    public:
 
-    Joint2D::~Joint2D()
-    {
-          m_worldRef->m_worldData2D->DestroyJoint(m_joint);
-    }
+        MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
 
-    unsigned int Joint2D::getID() const
-    {
-        return m_ID;
-    }
 
-    Joint2D& Joint2D::setID(const unsigned int id)
-    {
-        m_ID = id;
-        return *this;
-    }
 
-    b2Body* Joint2D::getBody(RigidBody2D& body) //(std::weak_ptr<RigidBody2D>& body)
-    {
-        return body./*lock()->*/m_body;
-    }
-
+    };
 }
+
+#endif

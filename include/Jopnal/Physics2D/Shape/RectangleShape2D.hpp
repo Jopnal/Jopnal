@@ -29,7 +29,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     class JOP_API RectangleShape2D : public CollisionShape2D
@@ -41,7 +40,6 @@ namespace jop
         /// \param name Name of the resource
         ///
         RectangleShape2D(const std::string& name);
-
 
         /// \brief Load this shape
         ///
@@ -60,5 +58,4 @@ namespace jop
         bool load(const glm::vec2& extents);
     };
 }
-
 #endif

@@ -21,9 +21,13 @@ list(APPEND SRC ${__INC_PHYSICS2D})
 
 # Include - Joint
 set(__INC_PHYSICS2D_JOINT
+	${__INCDIR_PHYSICS2D}/Joint/GearJoint2D.hpp
+	${__INCDIR_PHYSICS2D}/Joint/MotorJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/PistonJoint2D.hpp
+	${__INCDIR_PHYSICS2D}/Joint/PulleyJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/RopeJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/RotationJoint2D.hpp
+	${__INCDIR_PHYSICS2D}/Joint/WheelJoint2D.hpp
 )
 source_group("Physics2D\\Headers\\Joint" FILES ${__INC_PHYSICS2D_JOINT})
 list(APPEND SRC ${__INC_PHYSICS2D_JOINT})
@@ -62,9 +66,13 @@ list(APPEND SRC ${__SRC_PHYSICS2D})
 
 # Source - Joint
 set(__SRC_PHYSICS2D_JOINT
+	${__SRCDIR_PHYSICS2D}/Joint/GearJoint2D.cpp
+	${__SRCDIR_PHYSICS2D}/Joint/MotorJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/PistonJoint2D.cpp
+	${__SRCDIR_PHYSICS2D}/Joint/PulleyJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/RopeJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/RotationJoint2D.cpp
+	${__SRCDIR_PHYSICS2D}/Joint/WheelJoint2D.cpp
 )
 source_group("Physics2D\\Source\\Joint" FILES ${__SRC_PHYSICS2D_JOINT})
 list(APPEND SRC ${__SRC_PHYSICS2D_JOINT})

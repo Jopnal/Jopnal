@@ -28,15 +28,22 @@
 
 //////////////////////////////////////////////
 
+class b2RevoluteJoint;
+
 namespace jop
 {
     class JOP_API RotationJoint2D : public Joint2D
     {
     public:
+        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
 
-        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque);
+        RotationJoint2D& limit(const bool limit);
+        RotationJoint2D& setLimits(const float minAngle, const float maxAngle);
+        RotationJoint2D& enableMotor(const bool set);
+        RotationJoint2D& setMotor(const float speed, const float torque);
 
-        ~RotationJoint2D();
+    private:
+        b2RevoluteJoint* m_jointL;
 
     };
 }

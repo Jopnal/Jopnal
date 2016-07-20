@@ -29,7 +29,6 @@
 
 //////////////////////////////////////////////
 
-
 class b2Body;
 
 namespace jop
@@ -100,15 +99,15 @@ namespace jop
         ///
         bool checkRay(const glm::vec2& start, const glm::vec2& ray) const;
 
-     //   /// \brief Get the world this collider belongs to
-     //   ///
-     //   /// \return Reference to the 2D world
-     //   ///
-     //   World2D& getWorld();
-     //
-     //   /// \copydoc getWorld()
-     //   ///
-     //   const World2D& getWorld() const;
+        /// \brief Get the world this collider belongs to
+        ///
+        /// \return Reference to the 2D world
+        ///
+        World2D& getWorld();
+     
+        /// \copydoc getWorld()
+        ///
+        const World2D& getWorld() const;
 
     private:
 

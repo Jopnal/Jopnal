@@ -38,7 +38,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     CompoundShape2D::CompoundShape2D(const std::string& name)
@@ -52,7 +51,6 @@ namespace jop
 
     CompoundShape2D::~CompoundShape2D()
     {
-
     }
 
     //////////////////////////////////////////////

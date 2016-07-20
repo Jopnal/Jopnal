@@ -19,49 +19,38 @@
 
 //////////////////////////////////////////////
 
-// Headers
-#include JOP_PRECOMPILED_HEADER_FILE
-
-#ifndef JOP_PRECOMPILED_HEADER
-
-#include <Jopnal/Physics2D/Joint2D.hpp>
-
-#include <Box2D/Dynamics/Joints/b2Joint.hpp>
-
-#endif
-
-//////////////////////////////////////////////
-
-namespace jop
+template<typename T>
+T* RigidBody::getJoint(unsigned int id)
 {
-
-    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
-        m_bodyA     (&bodyA),
-        m_bodyB     (&bodyB),
-        m_worldRef  (&worldRef),
-        m_ID        (0)
+    for (auto& i : m_joints)
     {
+        if (typeid(*i) == typeid(T) && id == i->getID())
+            return static_cast<T*>(i.get());
     }
+    return nullptr;
+}
 
-    Joint2D::~Joint2D()
+template<typename T>
+bool RigidBody::breakJoint(unsigned int id)
+{
+    for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
     {
-          m_worldRef->m_worldData2D->DestroyJoint(m_joint);
+        if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+        {
+            m_joints.erase(itr);
+            return true;
+        }
     }
+    return false;
+}
 
-    unsigned int Joint2D::getID() const
-    {
-        return m_ID;
-    }
+template<typename T, typename ... Args>
+T& RigidBody::link(RigidBody& other, Args&&... args)
+{
+    auto joint = std::make_shared<T>(m_worldRef2D, *this, other, std::forward<Args>(args)...);
 
-    Joint2D& Joint2D::setID(const unsigned int id)
-    {
-        m_ID = id;
-        return *this;
-    }
+    m_joints.emplace(joint);
+    other.m_joints.emplace(joint);
 
-    b2Body* Joint2D::getBody(RigidBody2D& body) //(std::weak_ptr<RigidBody2D>& body)
-    {
-        return body./*lock()->*/m_body;
-    }
-
+    return static_cast<T&>(*joint);
 }

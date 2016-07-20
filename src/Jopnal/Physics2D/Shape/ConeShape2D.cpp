@@ -37,7 +37,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     ConeShape2D::ConeShape2D(const std::string& name)
@@ -46,15 +45,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool ConeShape2D::load(const float radius, const float height)
+    bool ConeShape2D::load(const float width, const float height)
     {
         auto temp = std::make_unique<b2PolygonShape>();
 
         static const std::vector<glm::vec2> points =
         {
             glm::vec2(0.f, height),
-            glm::vec2(-radius, 0.f),
-            glm::vec2(radius, 0.f)
+            glm::vec2(-width * 0.5f, 0.f),
+            glm::vec2(width * 0.5f, 0.f)
         };
 
         temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size());

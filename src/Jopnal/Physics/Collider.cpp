@@ -186,6 +186,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    World& Collider::getWorld()
+    {
+        return m_worldRef;
+    }
+
+    //////////////////////////////////////////////
+
+    const World& Collider::getWorld() const
+    {
+        return m_worldRef;
+    }
+
+    //////////////////////////////////////////////
+
     void Collider::beginOverlap(const Collider&)
     {}
 

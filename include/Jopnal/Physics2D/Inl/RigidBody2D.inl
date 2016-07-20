@@ -19,10 +19,31 @@
 
 //////////////////////////////////////////////
 
+template<typename T>
+T* RigidBody2D::getJoint(unsigned int id)
+{
+    for (auto& i : m_joints)
+    {
+        if (typeid(*i) == typeid(T) && id == i->getID())
+            return static_cast<T*>(i.get());
+    }
+    return nullptr;
+}
 
-//T = joint
-//this = A
-//Rigidbody& = B
+template<typename T>
+bool RigidBody2D::breakJoint(unsigned int id)
+{
+    for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
+    {
+        if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+        {
+            m_joints.erase(itr);
+            return true;
+        }
+    }
+    return false;
+}
+
 template<typename T, typename ... Args>
 T& RigidBody2D::link(RigidBody2D& other, Args&&... args)
 {

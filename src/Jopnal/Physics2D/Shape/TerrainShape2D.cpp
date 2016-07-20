@@ -24,15 +24,14 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
+#include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>
 
-    #include <Jopnal/STL.hpp>
-    #include <Box2D/Collision/Shapes/b2ChainShape.h>
+#include <Jopnal/STL.hpp>
+#include <Box2D/Collision/Shapes/b2ChainShape.h>
 
 #endif
 
 //////////////////////////////////////////////
-
 
 namespace jop
 {
@@ -64,5 +63,4 @@ namespace jop
 
         return true;
     }
-
 }

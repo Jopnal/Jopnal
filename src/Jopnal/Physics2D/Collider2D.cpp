@@ -156,4 +156,18 @@ namespace jop
 
         return cb.hit;
     }
+
+    //////////////////////////////////////////////
+
+    World2D& Collider2D::getWorld()
+    {
+        return m_worldRef2D;
+    }
+
+    //////////////////////////////////////////////
+
+    const World2D& Collider2D::getWorld() const
+    {
+        return m_worldRef2D;
+    }
 }

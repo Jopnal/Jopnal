@@ -24,44 +24,22 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Physics2D/Joint2D.hpp>
+#include <Jopnal/Physics2D/Joint/PulleyJoint2D.hpp>
 
+#include <Jopnal/STL.hpp>
 #include <Box2D/Dynamics/Joints/b2Joint.hpp>
 
 #endif
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
 
-    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
-        m_bodyA     (&bodyA),
-        m_bodyB     (&bodyB),
-        m_worldRef  (&worldRef),
-        m_ID        (0)
+    PulleyJoint2D::PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
+        Joint2D(worldRef, bodyA, bodyB)
     {
-    }
 
-    Joint2D::~Joint2D()
-    {
-          m_worldRef->m_worldData2D->DestroyJoint(m_joint);
     }
-
-    unsigned int Joint2D::getID() const
-    {
-        return m_ID;
-    }
-
-    Joint2D& Joint2D::setID(const unsigned int id)
-    {
-        m_ID = id;
-        return *this;
-    }
-
-    b2Body* Joint2D::getBody(RigidBody2D& body) //(std::weak_ptr<RigidBody2D>& body)
-    {
-        return body./*lock()->*/m_body;
-    }
-
 }

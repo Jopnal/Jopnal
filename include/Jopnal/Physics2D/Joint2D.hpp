@@ -39,6 +39,9 @@ namespace jop
         Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB);
         virtual ~Joint2D() = 0;
 
+        unsigned int getID() const;
+        Joint2D& setID(const unsigned int id);
+
         World2D* m_worldRef;
 
         RigidBody2D* m_bodyA;
@@ -50,7 +53,7 @@ namespace jop
         static b2Body* getBody(RigidBody2D& body); //(std::weak_ptr<RigidBody2D>& body);
 
         b2Joint* m_joint;
-
+        unsigned int m_ID;
     };
 }
 #endif

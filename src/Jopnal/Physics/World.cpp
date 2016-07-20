@@ -56,7 +56,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(World)

@@ -28,7 +28,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     class JOP_API ConeShape2D final : public CollisionShape2D
@@ -41,16 +40,14 @@ namespace jop
         ///
         ConeShape2D(const std::string& name);
 
-
         /// \brief Load this shape
         ///
-        /// \param radius Radius of the cone
+        /// \param width Width of the cone
         /// \param height Height of the cone
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const float height);
+        bool load(const float width, const float height);
     };
 }
-
 #endif

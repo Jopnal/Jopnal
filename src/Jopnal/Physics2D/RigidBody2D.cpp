@@ -78,7 +78,6 @@ namespace jop
     {
         b2BodyDef bd;
 
-
         auto& pos = getObject()->getGlobalPosition();
 
         bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
@@ -113,7 +112,6 @@ namespace jop
 
         m_body = world.m_worldData2D->CreateBody(&bd);
 
-
         if (info.m_shape.m_isCompound)
         {
             auto& shape = static_cast<const CompoundShape2D&>(info.m_shape);
@@ -128,44 +126,16 @@ namespace jop
         setActive(isActive());
     }
 
-
-    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape)
-    {
-        b2FixtureDef fdf;
-
-        fdf.density = 1;
-        fdf.filter.groupIndex = info.group;
-        fdf.filter.maskBits = info.mask;
-        fdf.friction = info.friction;
-
-        if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
-            fdf.isSensor = true;
-
-        fdf.restitution = info.restitution;
-        fdf.shape = &shape;
-
-
-        m_body->CreateFixture(&fdf);
-        m_body->ResetMassData();
-        m_body->SetActive(false);
-        m_body->SetActive(true);
-    }
-
-
-
-
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
         : Collider2D(other, newObj)
     {
         b2BodyDef bd;
         b2FixtureDef fdf;
 
-        //
         auto& pos = getObject()->getGlobalPosition();
         bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
         bd.position = b2Vec2(pos.x, pos.y);
         bd.userData = this;
-        //these ok?
 
         auto om = other.m_body;
 
@@ -187,9 +157,6 @@ namespace jop
 
         m_body->CreateFixture(&fdf);
         setActive(om->IsActive());
-
-
-        //b2Body* body = other.m_body; //check if fixtures are copied too
     }
 
     RigidBody2D::~RigidBody2D()
@@ -200,7 +167,7 @@ namespace jop
 
             //if (!body.expired())
             body/*.lock()*/->m_joints.erase(i);
-         
+
             {
                 auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
                 thisBody = nullptr;
@@ -315,9 +282,41 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    RigidBody2D& RigidBody2D::synchronizeTransform()
+    {
+        auto& pos = getObject()->getGlobalPosition();
+        m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     void RigidBody2D::setActive(const bool active)
     {
         m_body->SetActive(active);
+    }
+
+    //////////////////////////////////////////////
+
+    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape)
+    {
+        b2FixtureDef fdf;
+
+        fdf.density = 1;
+        fdf.filter.groupIndex = info.group;
+        fdf.filter.maskBits = info.mask;
+        fdf.friction = info.friction;
+
+        if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
+            fdf.isSensor = true;
+
+        fdf.restitution = info.restitution;
+        fdf.shape = &shape;
+
+        m_body->CreateFixture(&fdf);
+        m_body->ResetMassData();
+        m_body->SetActive(false);
+        m_body->SetActive(true);
     }
 
     //////////////////////////////////////////////

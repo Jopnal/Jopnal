@@ -31,7 +31,6 @@
 
 //////////////////////////////////////////////
 
-
 class b2World;
 
 namespace jop
@@ -71,7 +70,6 @@ namespace jop
         ///
         ~World2D() override;
 
-
         /// \brief Update the world
         ///
         /// \param deltaTime The delta time
@@ -83,7 +81,6 @@ namespace jop
         /// \param camera Camera to use
         ///
         void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
-
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///
@@ -141,5 +138,4 @@ namespace jop
         float m_step;
     };
 }
-
 #endif

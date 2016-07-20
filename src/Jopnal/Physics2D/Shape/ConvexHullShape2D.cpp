@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     ConvexHullShape2D::ConvexHullShape2D(const std::string& name)

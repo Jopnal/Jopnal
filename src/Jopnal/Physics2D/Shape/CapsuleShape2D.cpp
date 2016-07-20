@@ -38,7 +38,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     CapsuleShape2D::CapsuleShape2D(const std::string& name)
@@ -46,8 +45,7 @@ namespace jop
         m_rect(""),
         m_ball1(""),
         m_ball2("")
-    {
-    }
+    {}
 
     //////////////////////////////////////////////
 
@@ -55,10 +53,11 @@ namespace jop
     {
         float radius = width * 0.5f;
 
-        Transform::Variables rect;
-        rect.position = glm::vec3(0.f, 0.f, 0.f);
-        rect.rotation = glm::quat(1.f, 0.f, 0.f, 0.f);
-        rect.scale = glm::vec3(1.f, 1.f, 1.f);
+        Transform::Variables rect(
+            glm::vec3(0.f, 0.f, 0.f),
+            glm::vec3(1.f, 1.f, 1.f),
+            glm::quat(1.f, 0.f, 0.f, 0.f)
+            );
 
         if (width >= height)
         {
@@ -70,7 +69,7 @@ namespace jop
 
         Transform::Variables ball1 = rect;
         ball1.position.y = height * 0.5f - radius;
-
+        
         Transform::Variables ball2 = rect;
         ball2.position.y = -height * 0.5f + radius;
 

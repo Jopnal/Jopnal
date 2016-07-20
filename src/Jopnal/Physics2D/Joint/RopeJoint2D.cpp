@@ -37,15 +37,44 @@
 namespace jop
 {
 
-    RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, float distance, float torque) : Joint2D(worldRef, bodyA, bodyB)
+    RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_type(stiff ? b2JointType::e_distanceJoint : b2JointType::e_ropeJoint)
     {
-        b2DistanceJointDef jointDef;
+        if (stiff)
+        {
+            b2DistanceJointDef jointDef;
+            jointDef.bodyA = getBody(bodyA);
+            jointDef.bodyB = getBody(bodyB);
+            jointDef.collideConnected = collide;
+            jointDef.length = length;
 
-        jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), getBody(bodyB)->GetWorldCenter());
-        jointDef.length = distance;
-        jointDef.frequencyHz = 4.f;
-        jointDef.dampingRatio = 0.3f;
+            m_joint = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        }
+        else
+        {
+            b2RopeJointDef jointDef;
+            jointDef.bodyA = getBody(bodyA);
+            jointDef.bodyB = getBody(bodyB);
+            jointDef.collideConnected = collide;
+            jointDef.maxLength = length;
 
-        b2DistanceJoint* dj = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+            m_joint = static_cast<b2RopeJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        }
+    }
+
+
+    RopeJoint2D& RopeJoint2D::setSoftness(const float frequency, const float damping)
+    {
+        if (m_type == b2JointType::e_distanceJoint)
+        {
+            auto j = static_cast<b2DistanceJoint*>(m_joint);
+            j->SetFrequency(frequency);
+            j->SetDampingRatio(damping);
+        }
+        else
+            JOP_DEBUG_WARNING_ONCE("Softness of a soft RopeJoint2D can not be changed.");
+
+        return *this;
     }
 }

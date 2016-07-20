@@ -244,6 +244,42 @@ namespace jop
         ///
         RigidBody& clearForces();
 
+        /// \brief Sets the RigidBody position to be same as the objects' transform.
+        ///
+        /// \return Reference to self.
+        ///
+        RigidBody& synchronizeTransform();
+
+        /// \brief Returns a pointer to a joint on the RigidBody whence called from.
+        ///
+        /// User can give an ID of the the joint which to return. If left empty, returns a pointer to the first joint the RigidBody has.
+        ///
+        /// \return Returns a pointer to the joint. Nullptr if not found.
+        ///
+        template<typename T>
+        T* getJoint(unsigned int id = 0);
+
+        /// \brief Breaks a joint from the RigidBody whence called from.
+        ///
+        /// User can give an ID of the the joint which to break. If left empty, breaks the first joint the RigidBody has.
+        ///
+        /// \return Returns true if successful.
+        ///
+        template<typename T>
+        bool breakJoint(unsigned int id = 0);
+
+        //T = joint
+        //this = A
+        //Rigidbody& = B
+        /// \brief Creates a joint between this RigidBody and another RigidBody.
+        ///
+        /// \param T Type of the joint to create. Applicable joints are derived from Joint.
+        ///
+        /// \return Returns a reference to the RigidBody whence called from.
+        ///
+        template<typename T, typename ... Args>
+        T& link(RigidBody&, Args&&...);
+
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
@@ -263,6 +299,7 @@ namespace jop
         const float m_mass;          ///< The mass
         btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
     };
+#include <Jopnal/Physics/Inl/RigidBody.inl>
 }
 
 #endif
