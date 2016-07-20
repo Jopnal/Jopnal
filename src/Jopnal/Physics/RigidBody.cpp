@@ -286,13 +286,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RigidBody::setActive(const bool active)
-    {
-        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION | ACTIVE_TAG : ACTIVE_TAG) : DISABLE_SIMULATION);
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result RigidBody::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(RigidBody, message.getString(), this) == Message::Result::Escape)

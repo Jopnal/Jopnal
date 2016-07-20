@@ -53,7 +53,9 @@ namespace jop
         int flags = ghost->getCollisionFlags();
 
         ghost->setCollisionShape(shape.m_shape.get());
-        ghost->setCollisionFlags((type == Type::Kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        flags |= (type == Type::Kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE;
+
+        ghost->setCollisionFlags(flags);
 
         m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
 

@@ -52,7 +52,7 @@ namespace jop
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
         ///
-        GenericDrawable(Object& object, Renderer& renderer);
+        GenericDrawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::Forward);
 
 
         /// \brief Draw function

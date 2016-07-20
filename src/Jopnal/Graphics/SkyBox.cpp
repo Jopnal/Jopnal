@@ -69,7 +69,7 @@ namespace jop
 namespace jop
 {
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
     {

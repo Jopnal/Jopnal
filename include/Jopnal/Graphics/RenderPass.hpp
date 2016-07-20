@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
+#include <set>
 
 //////////////////////////////////////////////
 
@@ -36,6 +37,7 @@ namespace jop
     class Camera;
     class EnvironmentRecorder;
     class Drawable;
+    class LightContainer;
 
     class JOP_API RenderPass final
     {
@@ -44,6 +46,7 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(RenderPass);
 
         friend class Renderer;
+        friend class EnvironmentRecorder;
 
     public:
 
@@ -64,13 +67,20 @@ namespace jop
         RenderPass(Renderer& renderer);
 
 
-        void draw();
+        void draw(const unsigned int group);
 
         void bind(const Drawable& drawable);
 
         void unbind(const Drawable& drawable);
 
     private:
+
+        /// \brief Select the lights that affect the drawable
+        ///
+        /// \param drawable The drawable
+        /// \param lights Reference to a light container to fill
+        ///
+        void chooseLights(const Drawable& drawable, LightContainer& lights) const;
 
         Drawables m_drawables;
         Renderer& m_rendererRef;

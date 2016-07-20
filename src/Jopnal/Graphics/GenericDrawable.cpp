@@ -43,8 +43,8 @@
 
 namespace jop
 {
-    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
-        : Drawable(object, renderer, 0)
+    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
+        : Drawable(object, renderer, pass, 0)
     {}
 
     GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)

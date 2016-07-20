@@ -24,7 +24,7 @@ template<typename F, typename ... Args>
 inline Thread::Thread(F&& func, Args&&... args)
     : m_thread()
 {
-    m_thread = std::thread([=]()
+    m_thread = std::thread([&]()
     {
         Thread::attachJavaThread();
 

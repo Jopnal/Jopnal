@@ -35,7 +35,7 @@ namespace jop
     class LightContainer;
     class RenderTarget;
 
-    class JOP_API Renderer
+    class JOP_API Renderer final
     {
     private:
 
@@ -54,10 +54,6 @@ namespace jop
         /// \brief Constructor
         ///
         Renderer(const RenderTarget& mainTarget);
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~Renderer();
 
 
         /// \brief Set the render mask
@@ -92,20 +88,14 @@ namespace jop
 
         void unbind(EnvironmentRecorder& envRecorder);
 
-    protected:
-
-        /// \brief Select the lights that affect the drawable
-        ///
-        /// \param drawable The drawable
-        /// \param lights Reference to a light container to fill
-        ///
-        void chooseLights(const Drawable& drawable, LightContainer& lights) const;
-
     private:
 
         RenderPass::Lights m_lights;                        ///< The bound lights
         RenderPass::Cameras m_cameras;                      ///< The bound cameras
-        std::array<RenderPass, 3> m_passes;        
+        RenderPass m_prePass;
+        RenderPass m_forwardPass;
+        RenderPass m_postPass;
+        std::array<RenderPass*, 3> m_passes;
         RenderPass::EnvironmentRecorders m_envRecorders;    ///< The bound environment recorders
         uint32 m_mask;                                      ///< The rendering mask
         const RenderTarget& m_mainTarget;

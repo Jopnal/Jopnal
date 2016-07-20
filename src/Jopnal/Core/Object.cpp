@@ -227,15 +227,9 @@ namespace jop
         if (m_children.size() == m_children.capacity())
             m_children.reserve(m_children.size() + 1);
 
-        const bool thisActive = isActive();
-        const bool activityStateChanged = child.getParent()->isActive() != thisActive;
-
         m_children.emplace_back(std::move(child));
         m_children.back().m_parent = *this;
         m_children.back().propagateFlags(TransformDirty);
-
-        if (activityStateChanged)
-            m_children.back().propagateActiveComponents(thisActive);
 
         child.removeSelf();
 
@@ -576,19 +570,7 @@ namespace jop
 
     Object& Object::setActive(const bool active)
     {
-        const bool wasActive = isActive();
-
-        if (((m_flags & ActiveFlag) != 0) != active)
-        {
-            setFlagsIf(ActiveFlag, active);
-
-            const bool active = isActive();
-            if (wasActive != active)
-            {
-                for (auto& i : m_children)
-                    i.propagateActiveComponents(active);
-            }
-        }
+        setFlagsIf(ActiveFlag, active);
 
         return *this;
     }

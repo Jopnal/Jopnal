@@ -222,7 +222,7 @@ namespace jop
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable      (obj, renderer, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
           m_worldData2D (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
           m_step        (0.f),

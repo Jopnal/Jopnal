@@ -126,7 +126,7 @@ namespace jop
 
         ShaderProgram* lastShader = nullptr;
 
-        for (auto drawable : rend.m_drawables)
+        for (auto drawable : rend.m_forwardPass.m_drawables)
         {
             uint32 drawableBit = 1 << drawable->getRenderGroup();
             if (!drawable->isActive() || !drawable->getModel().isValid() || !drawable->isReflected() || (m_mask & drawableBit) == 0)
@@ -158,7 +158,7 @@ namespace jop
 
             LightContainer lights;
             if (drawable->receiveLights())
-                rend.chooseLights(*drawable, lights);
+                rend.m_forwardPass.chooseLights(*drawable, lights);
 
             drawable->draw(nullptr, lights, *shdr);
         }
