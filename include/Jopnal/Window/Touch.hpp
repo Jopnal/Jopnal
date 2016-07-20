@@ -41,7 +41,7 @@ namespace jop
         ///
         /// \return True if touch is received false if not
         ///
-        static bool isDown(const int id);
+        static bool isDown(const int id=0);
 
         /// \brief Get position of specific finger
         ///
