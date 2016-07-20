@@ -37,18 +37,18 @@ namespace jop
 
         /// \brief Vibrate for given time (in milliseconds)
         ///
+        /// \param time_ms Time to vibrate in milliseconds
+        ///
         static void vibrate(const int time_ms);
 
-        /// \brief Vibrate
+        /// \brief Vibrate indefinitely
         ///
         static void vibrate();
 
         /// \brief Stop vibrating
         ///
         static void stop();
-
     };
-
 }
 
 #endif

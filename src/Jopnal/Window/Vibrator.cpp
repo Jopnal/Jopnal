@@ -80,5 +80,112 @@ namespace jop
         
 #endif
     }
+
+    void Vibrator::vibrate()
+    {
+#if defined (JOP_OS_ANDROID)
+
+        // JVM & JNI
+        JavaVM* vm = detail::ActivityState::get()->nativeActivity->vm;
+        JNIEnv* jni;
+
+        // Attach thread
+        JavaVMAttachArgs args;
+        args.version = JNI_VERSION_1_6;
+        args.name = "NativeThread";
+        args.group = NULL;
+
+        jint result = vm->AttachCurrentThread(&jni, &args);
+
+        if (result == JNI_ERR)
+        {
+            // Could not attach to thread
+            return;
+        }
+
+        // Class information
+        jclass nativeAct = jni->FindClass("android/app/NativeActivity");
+        jclass context = jni->FindClass("android/content/Context");
+
+        // Parameters for getSystemService
+        jfieldID fieldID = jni->GetStaticFieldID(context, "VIBRATOR_SERVICE", "Ljava/lang/String;");
+        jobject serviceStr = jni->GetStaticObjectField(context, fieldID);
+
+        // getSystemService
+        jmethodID getSysServ = jni->GetMethodID(nativeAct, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+        jobject vibrator = jni->CallObjectMethod(detail::ActivityState::get()->nativeActivity->clazz, getSysServ, serviceStr);
+
+        // Get class & method
+        jclass vibratorClass = jni->GetObjectClass(vibrator);
+        jmethodID vibrate = jni->GetMethodID(vibratorClass, "vibrate", "(J)V");
+
+        // Vibrate!
+        jlong time = static_cast<jlong>(LONG_MAX);
+        jni->CallVoidMethod(vibrator, vibrate, time);
+
+        // Free references
+        jni->DeleteLocalRef(nativeAct);
+        jni->DeleteLocalRef(context);
+        jni->DeleteLocalRef(serviceStr);
+        jni->DeleteLocalRef(vibrator);
+        jni->DeleteLocalRef(vibratorClass);
+
+        vm->DetachCurrentThread();
+#endif
+    }
+
+    void Vibrator::stop()
+    {
+#if defined (JOP_OS_ANDROID)
+
+        // JVM & JNI
+        JavaVM* vm = detail::ActivityState::get()->nativeActivity->vm;
+        JNIEnv* jni;
+
+        // Attach thread
+        JavaVMAttachArgs args;
+        args.version = JNI_VERSION_1_6;
+        args.name = "NativeThread";
+        args.group = NULL;
+
+        jint result = vm->AttachCurrentThread(&jni, &args);
+
+        if (result == JNI_ERR)
+        {
+            // Could not attach to thread
+            return;
+        }
+
+        // Class information
+        jclass nativeAct = jni->FindClass("android/app/NativeActivity");
+        jclass context = jni->FindClass("android/content/Context");
+
+        // Parameters for getSystemService
+        jfieldID fieldID = jni->GetStaticFieldID(context, "VIBRATOR_SERVICE", "Ljava/lang/String;");
+        jobject serviceStr = jni->GetStaticObjectField(context, fieldID);
+
+        // getSystemService
+        jmethodID getSysServ = jni->GetMethodID(nativeAct, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+        jobject vibrator = jni->CallObjectMethod(detail::ActivityState::get()->nativeActivity->clazz, getSysServ, serviceStr);
+
+        // Get class & method
+        jclass vibratorClass = jni->GetObjectClass(vibrator);
+        jmethodID stop = jni->GetMethodID(vibratorClass, "cancel", "()V");
+
+        // Stop vibrating
+        jni->CallVoidMethod(vibrator, stop);
+
+        // Free references
+        jni->DeleteLocalRef(nativeAct);
+        jni->DeleteLocalRef(context);
+        jni->DeleteLocalRef(serviceStr);
+        jni->DeleteLocalRef(vibrator);
+        jni->DeleteLocalRef(vibratorClass);
+
+        vm->DetachCurrentThread();
+
+#endif
+    }
+
 }
 
