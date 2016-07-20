@@ -38,6 +38,7 @@ namespace jop
     class EnvironmentRecorder;
     class Drawable;
     class LightContainer;
+    class RenderTarget;
 
     class JOP_API RenderPass final
     {
@@ -64,7 +65,7 @@ namespace jop
 
     public:
 
-        RenderPass(Renderer& renderer);
+        RenderPass(Renderer& renderer, const RenderTarget& target);
 
 
         void draw(const unsigned int group);
@@ -84,6 +85,7 @@ namespace jop
 
         Drawables m_drawables;
         Renderer& m_rendererRef;
+        const RenderTarget& m_target;
     };
 
     namespace detail

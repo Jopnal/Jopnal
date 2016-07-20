@@ -46,13 +46,12 @@ namespace jop
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
-          m_prePass         (*this),
-          m_forwardPass     (*this),
-          m_postPass        (*this),
+          m_prePass         (*this, mainTarget),
+          m_forwardPass     (*this, mainTarget),
+          m_postPass        (*this, Engine::getMainWindow()),
           m_passes          ({{&m_prePass, &m_forwardPass, &m_postPass}}),
           m_envRecorders    (),
-          m_mask            (1),
-          m_mainTarget      (mainTarget)
+          m_mask            (1)
     {}
 
     //////////////////////////////////////////////
@@ -142,8 +141,6 @@ namespace jop
             if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
                 envmap->record();
         }
-
-        m_mainTarget.bind();
 
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)

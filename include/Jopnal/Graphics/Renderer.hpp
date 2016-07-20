@@ -98,7 +98,6 @@ namespace jop
         std::array<RenderPass*, 3> m_passes;
         RenderPass::EnvironmentRecorders m_envRecorders;    ///< The bound environment recorders
         uint32 m_mask;                                      ///< The rendering mask
-        const RenderTarget& m_mainTarget;
     };
 }
 

@@ -95,12 +95,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RenderPass::RenderPass(Renderer& renderer)
+    RenderPass::RenderPass(Renderer& renderer, const RenderTarget& target)
         : m_drawables   (),
-          m_rendererRef (renderer)
-    {
-
-    }
+          m_rendererRef (renderer),
+          m_target      (target)
+    {}
 
     //////////////////////////////////////////////
 
@@ -111,6 +110,8 @@ namespace jop
 
         auto& rend = m_rendererRef;
 
+        m_target.bind();
+
         for (auto cam : rend.m_cameras)
         {
             const uint32 camMask = cam->getRenderMask();
@@ -118,7 +119,7 @@ namespace jop
                 continue;
 
             cam->getRenderTexture().bind();
-            cam->applyViewport(rend.m_mainTarget);
+            cam->applyViewport(m_target);
 
             // 0 - Opaque
             // 1 - Translucent
