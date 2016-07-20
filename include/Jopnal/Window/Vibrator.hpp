@@ -39,7 +39,7 @@ namespace jop
         ///
         /// \param time_ms Time to vibrate in milliseconds
         ///
-        static void vibrate(const int time_ms);
+        static void vibrate(const unsigned int time_ms);
 
         /// \brief Vibrate indefinitely
         ///

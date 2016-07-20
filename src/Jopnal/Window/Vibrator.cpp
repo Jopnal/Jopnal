@@ -27,7 +27,7 @@
     
 namespace jop
 {
-    void Vibrator::vibrate(const int time_ms)
+    void Vibrator::vibrate(const unsigned int time_ms)
     {
 #if defined (JOP_OS_ANDROID)
 
@@ -66,7 +66,7 @@ namespace jop
         jmethodID vibrate = jni->GetMethodID(vibratorClass, "vibrate", "(J)V");
 
         // Vibrate!
-        jlong time = static_cast<jlong>(time_ms);
+        jlong time = static_cast<jlong>(std::min(static_cast<unsigned int>(INT_MAX),time_ms));
         jni->CallVoidMethod(vibrator, vibrate, time);
 
         // Free references

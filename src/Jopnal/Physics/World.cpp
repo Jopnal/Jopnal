@@ -429,7 +429,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    std::vector<RayInfo> World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 
