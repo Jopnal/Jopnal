@@ -64,6 +64,21 @@ namespace
         {
             eglCheck(eglInitialize(getDisplay(), NULL, NULL));
 
+        #ifndef JOP_OPENGL_ES
+
+            {
+                const char* apis = eglCheck(eglQueryString(getDisplay(), EGL_CLIENT_APIS));
+
+                if (std::strstr(apis, "OpenGL"))
+                {
+                    eglCheck(eglBindAPI(EGL_OPENGL_API));
+                }
+                else
+                    JOP_DEBUG_ERROR("Couldn't choose OpenGL as the rendering api, using OpenGL ES instead");
+            }
+
+        #endif
+
             const EGLint attribs[] =
             {
                 EGL_WIDTH,  1,
@@ -80,7 +95,7 @@ namespace
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                //EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
 
@@ -142,7 +157,7 @@ namespace jop { namespace detail
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                //EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
 
@@ -187,7 +202,7 @@ namespace jop { namespace detail
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                //EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
 

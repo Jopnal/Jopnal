@@ -236,10 +236,14 @@ if (NOT JOP_OS_ANDROID)
 endif()
 
 # OpenGL/ES
-if (NOT JOP_OPENGL_ES)
+if (JOP_OS_ANDROID)
+    list(APPEND EXT_LIBS android log EGL GLESv3 OpenSLES)
+
+elseif (NOT JOP_OPENGL_ES)
 
     find_package(OpenGL REQUIRED)
     include_directories(${OPENGL_INCLUDE_DIR})
+    list(APPEND EXT_LIBS ${OPENGL_gl_LIBRARY})
 
 endif()
 
@@ -248,20 +252,8 @@ if (JOP_OPENGL_ES AND JOP_OS_LINUX)
     find_package(EGL REQUIRED)
     find_package(GLES REQUIRED)
     include_directories(${EGL_INCLUDE_DIR} ${GLES_INCLUDE_DIR})
-
-endif()
-
-if (NOT JOP_OPENGL_ES)
-    list(APPEND EXT_LIBS ${OPENGL_gl_LIBRARY})
-endif()
-
-if (JOP_OPENGL_ES AND JOP_OS_LINUX)
     list(APPEND EXT_LIBS ${EGL_LIBRARY} ${GLES_LIBRARY})
-endif()
 
-if (JOP_OS_ANDROID)
-    list(APPEND EXT_LIBS android log EGL GLESv3 OpenSLES)
-    #target_link_libraries(jopnal ${PROJECT_SOURCE_DIR}/extlibs/lib/${ANDROID_ABI}/libgpg.a)
 endif()
 
 target_link_libraries(jopnal ${EXT_LIBS})
