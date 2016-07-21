@@ -41,6 +41,7 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
 
     #pragma warning(push)
     #pragma warning(disable: 4127)
@@ -428,7 +429,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    std::vector<RayInfo> World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 

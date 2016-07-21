@@ -29,6 +29,8 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
 
     #pragma warning(push)
     #pragma warning(disable: 4127)

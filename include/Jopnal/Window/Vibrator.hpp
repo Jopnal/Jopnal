@@ -19,18 +19,36 @@
 
 //////////////////////////////////////////////
 
+#ifndef JOP_VIBRATOR_HPP
+#define JOP_VIBRATOR_HPP
+
 // Headers
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Sensor.hpp>
-#include <Jopnal/Window/Window.hpp>
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <Jopnal/Window/VideoInfo.hpp>
-#include <Jopnal/Window/Vibrator.hpp>
+#include <Jopnal/Header.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
-/// \defgroup window Window
-///
-/// #TODO Detailed decription
+
+namespace jop
+{
+    class JOP_API Vibrator
+    {
+    public:
+
+        /// \brief Vibrate for given time (in milliseconds)
+        ///
+        /// \param time_ms Time to vibrate in milliseconds
+        ///
+        static void vibrate(const unsigned int time_ms);
+
+        /// \brief Vibrate indefinitely
+        ///
+        static void vibrate();
+
+        /// \brief Stop vibrating
+        ///
+        static void stop();
+    };
+}
+
+#endif

@@ -40,6 +40,7 @@
     #include <Box2D/Common/b2Draw.h>
     #include <Box2D/Dynamics/b2World.h>
     #include <Box2D/Dynamics/b2Fixture.h>
+    #include <Box2D/Dynamics/Contacts/b2Contact.h>
     #include <LinearMath/btVector3.h>
     #include <glm/gtc/constants.hpp>
     #include <set>
