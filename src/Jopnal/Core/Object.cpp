@@ -24,11 +24,11 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Core/Object.hpp>
+#include <Jopnal/Core/Object.hpp>
 
-    #include <Jopnal/Core/DebugHandler.hpp>
-    #include <Jopnal/Core/Scene.hpp>
-    #include <Jopnal/Utility/CommandHandler.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Core/Scene.hpp>
+#include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif
 
@@ -41,41 +41,41 @@ namespace jop
 
         // Transform
         JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setRotation, "setRotation");
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
-       
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
-       
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
-        JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
-       
-        // Object
-       
-        // Tags
-        JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
-       
-        // Component
-        JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
-       
-        // Activity
-        JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
-       
-        // Children
-        JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
-        JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
-        JOP_BIND_MEMBER_COMMAND((WeakReference<Object> (Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
-        JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
-        JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
-        JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
-       
-        // Other
-        JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
-        JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
-        JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setScale, "setScale");
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::setPosition, "setPosition");
+
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::lookAt, "lookAt");
+
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::move, "move");
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::scale, "scale");
+    JOP_BIND_MEMBER_COMMAND((Object& (Object::*)(const float, const float, const float))&Object::rotate, "rotate");
+
+    // Object
+
+    // Tags
+    JOP_BIND_MEMBER_COMMAND(&Object::addTag, "addTag");
+    JOP_BIND_MEMBER_COMMAND(&Object::removeTag, "removeTag");
+    JOP_BIND_MEMBER_COMMAND(&Object::clearTags, "clearTags");
+
+    // Component
+    JOP_BIND_MEMBER_COMMAND(&Object::removeComponents, "removeComponents");
+    JOP_BIND_MEMBER_COMMAND(&Object::clearComponents, "clearComponents");
+
+    // Activity
+    JOP_BIND_MEMBER_COMMAND(&Object::setActive, "setActive");
+
+    // Children
+    JOP_BIND_MEMBER_COMMAND(&Object::createChild, "createChild");
+    JOP_BIND_MEMBER_COMMAND_ESCAPE(&Object::adoptChild, "adoptChild");
+    JOP_BIND_MEMBER_COMMAND((WeakReference<Object>(Object::*)(const std::string&, const std::string&))&Object::cloneChild, "cloneChild");
+    JOP_BIND_MEMBER_COMMAND(&Object::removeChildren, "removeChildren");
+    JOP_BIND_MEMBER_COMMAND(&Object::clearChildren, "clearChildren");
+    JOP_BIND_MEMBER_COMMAND(&Object::setParent, "setParent");
+
+    // Other
+    JOP_BIND_MEMBER_COMMAND(&Object::removeSelf, "removeSelf");
+    JOP_BIND_MEMBER_COMMAND(&Object::setID, "setID");
+    JOP_BIND_MEMBER_COMMAND(&Object::setIgnoreParent, "setIgnoreParent");
 
     JOP_END_COMMAND_HANDLER(Object)
 }
@@ -83,17 +83,17 @@ namespace jop
 namespace jop
 {
     Object::Object(const std::string& ID)
-        : SafeReferenceable<Object> (this),
-          m_transform               (),
-          m_inverseTransform        (),
-          m_locals                  (),
-          m_globals                 (),
-          m_children                (),
-          m_components              (),
-          m_tags                    (),
-          m_ID                      (),
-          m_parent                  (),
-          m_flags                   (ActiveFlag | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
+        : SafeReferenceable<Object>(this),
+        m_transform(),
+        m_inverseTransform(),
+        m_locals(),
+        m_globals(),
+        m_children(),
+        m_components(),
+        m_tags(),
+        m_ID(),
+        m_parent(),
+        m_flags(ActiveFlag | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
         setID(ID);
 
@@ -103,17 +103,17 @@ namespace jop
     }
 
     Object::Object(const Object& other, const std::string& newID, const Transform::Variables& newTransform)
-        : SafeReferenceable<Object> (this),
-          m_transform               (),
-          m_inverseTransform        (),
-          m_locals                  (newTransform),
-          m_globals                 (),
-          m_children                (),
-          m_components              (),
-          m_tags                    (other.m_tags),
-          m_ID                      (),
-          m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
+        : SafeReferenceable<Object>(this),
+        m_transform(),
+        m_inverseTransform(),
+        m_locals(newTransform),
+        m_globals(),
+        m_children(),
+        m_components(),
+        m_tags(other.m_tags),
+        m_ID(),
+        m_parent(other.m_parent),
+        m_flags(other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {
         setID(newID);
 
@@ -135,30 +135,30 @@ namespace jop
     }
 
     Object::Object(Object&& other)
-        : SafeReferenceable<Object> (std::move(other)),
-          m_transform               (),
-          m_inverseTransform        (),
-          m_locals                  (other.m_locals),
-          m_globals                 (),
-          m_children                (std::move(other.m_children)),
-          m_components              (std::move(other.m_components)),
-          m_tags                    (std::move(other.m_tags)),
-          m_ID                      (std::move(other.m_ID)),
-          m_parent                  (other.m_parent),
-          m_flags                   (other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
+        : SafeReferenceable<Object>(std::move(other)),
+        m_transform(),
+        m_inverseTransform(),
+        m_locals(other.m_locals),
+        m_globals(),
+        m_children(std::move(other.m_children)),
+        m_components(std::move(other.m_components)),
+        m_tags(std::move(other.m_tags)),
+        m_ID(std::move(other.m_ID)),
+        m_parent(other.m_parent),
+        m_flags(other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty)
     {}
 
     Object& Object::operator=(Object&& other)
     {
         SafeReferenceable<Object>::operator =(std::move(other));
-        
-        m_locals        = other.m_locals;
-        m_children      = std::move(other.m_children);
-        m_components    = std::move(other.m_components);
-        m_tags          = std::move(other.m_tags);
-        m_ID            = std::move(other.m_ID);
-        m_parent        = other.m_parent;
-        m_flags         = other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty;
+
+        m_locals = other.m_locals;
+        m_children = std::move(other.m_children);
+        m_components = std::move(other.m_components);
+        m_tags = std::move(other.m_tags);
+        m_ID = std::move(other.m_ID);
+        m_parent = other.m_parent;
+        m_flags = other.m_flags | MatrixDirty | InverseMatrixDirty | GlobalPositionDirty | GlobalRotationDirty | GlobalScaleDirty;
 
         return *this;
     }
@@ -357,8 +357,15 @@ namespace jop
 
         auto& vec = getParent()->m_children;
         if (vec.size() == vec.capacity())
-            vec.reserve(vec.size() + 1);
+        {
+            auto ID = newID;
+            auto transform = newTransform;
+            auto ref = getReference();
 
+            vec.reserve(vec.size() + std::max(1u, vec.size() / 5u));
+            vec.emplace_back(*ref, ID, transform);
+            return vec.back().getReference();
+        }
         vec.emplace_back(*this, newID, newTransform);
         return vec.back().getReference();
     }
@@ -555,7 +562,7 @@ namespace jop
 
         return WeakReference<Object>();
     }
-        
+
     /////////////////////////////////////////////
 
     std::string Object::makeSearchPath() const
@@ -630,7 +637,7 @@ namespace jop
 
     void Object::printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const
     {
-    #if JOP_CONSOLE_VERBOSITY >= 2
+#if JOP_CONSOLE_VERBOSITY >= 2
 
         auto& deb = DebugHandler::getInstance();
 
@@ -651,7 +658,7 @@ namespace jop
         if (spacing.empty())
         {
             const auto n = childCountRecursive() + 1; // +1 for scene
-            deb << DebugHandler::Severity::Info <<  "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
+            deb << DebugHandler::Severity::Info << "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
 
             for (uint32 i = 0; i < 45 + std::ceil(std::log10(n + 1)); ++i)
                 deb << codes[0];
@@ -670,7 +677,7 @@ namespace jop
 
             for (uint32 sp = 1; sp < spacing.size(); ++sp)
             {
-                if (sp + 1 < spacing.size() || !isLast) 
+                if (sp + 1 < spacing.size() || !isLast)
                     deb << codes[4];
                 else
                     deb << " ";
@@ -687,13 +694,13 @@ namespace jop
         if (spacing.size() == 1)
             deb << std::endl;
 
-    #else
+#else
 
         spacing;
         isLast;
 
-    #endif
-    }
+#endif
+        }
 
     /////////////////////////////////////////////
 
@@ -784,15 +791,15 @@ namespace jop
                 if (flagSet(ScaleX)) globalMat[0] = glm::normalize(globalMat[0]);
                 if (flagSet(ScaleY)) globalMat[1] = glm::normalize(globalMat[1]);
                 if (flagSet(ScaleZ)) globalMat[2] = glm::normalize(globalMat[2]);
-                
+
                 if (flagSet(Rotation))
                 {
                     const glm::vec3 scl
-                    (
+                        (
                         glm::length(globalMat[0]),
                         glm::length(globalMat[1]),
                         glm::length(globalMat[2])
-                    );
+                        );
 
                     m_transform.getMatrix()[3] = glm::quat(globalMat) * m_transform.getMatrix()[3];
 
@@ -810,7 +817,7 @@ namespace jop
                         globalMat[3][0] = 0.f;
                         localMat[3][0] = getLocalPosition().x;
                     }
-                    
+
                     if (flagSet(TranslationY))
                     {
                         globalMat[3][1] = 0.f;
@@ -863,7 +870,7 @@ namespace jop
     }
 
     /////////////////////////////////////////////S
-    
+
     Object& Object::setRotation(const float x, const float y, const float z)
     {
         return setRotation(glm::vec3(x, y, z));
@@ -996,11 +1003,11 @@ namespace jop
             const auto& mat = getTransform().getMatrix();
 
             m_globals.scale = glm::vec3
-            (
+                (
                 glm::length(mat[0]),
                 glm::length(mat[1]),
                 glm::length(mat[2])
-            );
+                );
 
             clearFlags(GlobalScaleDirty);
         }
@@ -1210,4 +1217,4 @@ namespace jop
         for (auto& i : m_children)
             i.propagateActiveComponents(active);
     }
-}
+    }

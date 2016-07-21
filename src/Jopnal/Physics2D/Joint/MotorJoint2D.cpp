@@ -33,13 +33,46 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
-    MotorJoint2D::MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
-        Joint2D(worldRef, bodyA, bodyB)
+    MotorJoint2D::MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL(nullptr)
     {
+        b2MotorJointDef jointDef;
+        jointDef.Initialize(getBody(bodyA), getBody(bodyB));
 
+        m_joint = static_cast<b2MotorJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2MotorJoint*>(m_joint);
+    }
+
+    glm::vec2 MotorJoint2D::getLinearOffset()
+    {
+        return glm::vec2(m_jointL->GetLinearOffset().x, m_jointL->GetLinearOffset().y);
+    }
+
+    float MotorJoint2D::getAngularOffset()
+    {
+        return m_jointL->GetAngularOffset();
+    }
+
+    MotorJoint2D& MotorJoint2D::setLinearOffset(const glm::vec2& offset)
+    {
+        m_jointL->SetLinearOffset(b2Vec2(offset.x, offset.y));
+        return *this;
+    }
+
+    MotorJoint2D& MotorJoint2D::setAngularOffset(const float offset)
+    {
+        m_jointL->SetAngularOffset(offset);
+        return *this;
+    }
+
+    MotorJoint2D& MotorJoint2D::setForces(const float force, const float torque)
+    {
+        m_jointL->SetMaxForce(force);
+        m_jointL->SetMaxTorque(torque);
+        return *this;
     }
 }

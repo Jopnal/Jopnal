@@ -36,10 +36,36 @@
 
 namespace jop
 {
-
-    PulleyJoint2D::PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
-        Joint2D(worldRef, bodyA, bodyB)
+    PulleyJoint2D::PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
+        const bool collide, const float ratio,
+        const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
+        const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
+        ) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL(nullptr)
     {
+        JOP_ASSERT(ratio > 0.f, "PulleyJoint2D ratio can not be exactly zero or negative!");
 
+        b2PulleyJointDef jointDef;
+
+        jointDef.Initialize(getBody(bodyA), getBody(bodyB),
+            b2Vec2(groundAnchorA.x, groundAnchorA.y),
+            b2Vec2(groundAnchorB.x, groundAnchorB.y),
+            b2Vec2(localAnchorA.x, localAnchorA.y),
+            b2Vec2(localAnchorB.x, localAnchorB.y),
+            ratio);
+        jointDef.collideConnected = collide;
+
+        //Re-apply local positions because box2D adds global coords to these and changes +/-
+        jointDef.localAnchorA = b2Vec2(localAnchorA.x, localAnchorA.y);
+        jointDef.localAnchorB = b2Vec2(localAnchorB.x, localAnchorB.y);
+
+        m_joint = static_cast<b2PulleyJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2PulleyJoint*>(m_joint);
+    }
+
+    std::pair<float, float> PulleyJoint2D::getRopeLengths()
+    {
+        return std::make_pair(m_jointL->GetCurrentLengthA(), m_jointL->GetCurrentLengthB());
     }
 }

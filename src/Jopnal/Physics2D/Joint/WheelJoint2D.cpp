@@ -37,9 +37,44 @@
 namespace jop
 {
 
-    WheelJoint2D::WheelJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
-        Joint2D(worldRef, bodyA, bodyB)
+    WheelJoint2D::WheelJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
+        const bool collide, const glm::vec2& axis,
+        const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
+        ) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL(nullptr)
     {
+        b2WheelJointDef jointDef;
 
+        jointDef.bodyA = getBody(bodyA);
+        jointDef.bodyB = getBody(bodyB);
+        jointDef.collideConnected = collide;
+        jointDef.localAxisA = b2Vec2(axis.x, axis.y);
+        jointDef.localAnchorA = b2Vec2(localAnchorA.x, localAnchorA.y);
+        jointDef.localAnchorB = b2Vec2(localAnchorB.x, localAnchorB.y);
+
+        m_joint = static_cast<b2WheelJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2WheelJoint*>(m_joint);
+    }
+
+    WheelJoint2D& WheelJoint2D::enableMotor(const bool enable)
+    {
+        m_jointL->EnableMotor(enable);
+        return *this;
+    }
+
+    WheelJoint2D& WheelJoint2D::setMotor(const float speed, const float torque)
+    {
+        m_jointL->EnableMotor(true);
+        m_jointL->SetMotorSpeed(speed);
+        m_jointL->SetMaxMotorTorque(torque);
+        return *this;
+    }
+
+    WheelJoint2D& WheelJoint2D::setSoftness(const float frequency, const float damping)
+    {
+        m_jointL->SetSpringFrequencyHz(frequency);
+        m_jointL->SetSpringDampingRatio(damping);
+        return *this;
     }
 }

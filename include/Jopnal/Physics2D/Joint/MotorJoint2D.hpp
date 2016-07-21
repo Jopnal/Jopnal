@@ -36,8 +36,17 @@ namespace jop
     {
     public:
 
-        MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB);
 
+        glm::vec2 getLinearOffset();
+        float getAngularOffset();
+        MotorJoint2D& setLinearOffset(const glm::vec2& offset);
+        MotorJoint2D& setAngularOffset(const float offset);
+        MotorJoint2D& setForces(const float force, const float torque);
+
+
+    private:
+        b2MotorJoint* m_jointL;
 
 
     };

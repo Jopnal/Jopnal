@@ -35,7 +35,13 @@ namespace jop
 
     class JOP_API Joint2D
     {
+        friend class RigidBody2D;
+        friend class GearJoint2D;
+
     public:
+        /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
+        /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
+        ///
         Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB);
         virtual ~Joint2D() = 0;
 

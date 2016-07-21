@@ -36,10 +36,14 @@ namespace jop
     {
     public:
 
-        GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2);
 
+        void setRatio(const float ratio);
+
+    private:
+
+        b2GearJoint* m_jointL;
 
     };
 }
-
 #endif

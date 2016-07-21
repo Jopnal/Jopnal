@@ -161,20 +161,31 @@ namespace jop
 
     RigidBody2D::~RigidBody2D()
     {
-        for (auto& i : m_joints)
+        if (!m_joints.empty())
         {
-            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+            std::vector<std::shared_ptr<Joint2D>> joints(m_joints.begin(), m_joints.end());
+            m_joints.clear();
 
-            //if (!body.expired())
-            body/*.lock()*/->m_joints.erase(i);
-
+            std::sort(joints.begin(), joints.end(), [](const std::shared_ptr<Joint2D>& left, const std::shared_ptr<Joint2D>& right)
             {
-                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
-                thisBody = nullptr;
-            }
-        }
-        m_joints.clear();
+                return left->m_joint->GetType() == b2JointType::e_gearJoint;
+            });
 
+            for (auto& i : joints)
+            {
+                auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+
+                //if (!body.expired())
+                body/*.lock()*/->m_joints.erase(i);
+
+                {
+                    auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                    thisBody = nullptr;
+                }
+                i.reset();
+            }
+            joints.clear();
+        }
         m_worldRef2D.m_worldData2D->DestroyBody(m_body);
     }
 

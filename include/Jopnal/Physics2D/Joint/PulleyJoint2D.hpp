@@ -36,8 +36,26 @@ namespace jop
     {
     public:
 
-        PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        /// \brief PulleyJoint2D constructor
+        ///
+        /// \param collide Collides with itself.
+        /// \param ratio Ratio for which the ropes move in relation to each other: ratio / 1.
+        /// \param groundAnchor World coordinates for attachment of the rope for each body.
+        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses center of mass if left empty. Please use values between -1.f and 1.f.
+        ///
+        /// \return PulleyJoint2D
+        ///
+        PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
+            const bool collide, const float ratio,
+            const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
+            const glm::vec2& localAnchorA = glm::vec2(0.f, 0.f),
+            const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
+            );
 
+        std::pair<float, float> getRopeLengths();
+
+    private:
+        b2PulleyJoint* m_jointL;
 
     };
 }

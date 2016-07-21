@@ -33,14 +33,34 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
-    GearJoint2D::GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
-        Joint2D(worldRef, bodyA, bodyB)
+    GearJoint2D::GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2) :
+        Joint2D(worldRef, bodyA, bodyB),
+        m_jointL(nullptr)
     {
-        
+        b2GearJointDef jointDef;
+        jointDef.bodyA = getBody(bodyA);
+        jointDef.bodyB = getBody(bodyB);
+        jointDef.collideConnected = collide;
+        jointDef.ratio = ratio;
+
+        if ((joint1.m_joint->GetType() == b2JointType::e_prismaticJoint || joint1.m_joint->GetType() == b2JointType::e_revoluteJoint) &&
+            (joint2.m_joint->GetType() == b2JointType::e_prismaticJoint || joint2.m_joint->GetType() == b2JointType::e_revoluteJoint))
+        {
+            jointDef.joint1 = static_cast<b2Joint*>(joint1.m_joint);
+            jointDef.joint2 = static_cast<b2Joint*>(joint2.m_joint);
+        }
+        else
+            JOP_ASSERT(false, "GearJoint2D can only be constructed with any combination of PistonJoint2Ds and RotationJoint2Ds.");
+
+        m_joint = static_cast<b2GearJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2GearJoint*>(m_joint);
     }
-    
+
+    void GearJoint2D::setRatio(const float ratio)
+    {
+        m_jointL->SetRatio(ratio);
+    }
 }

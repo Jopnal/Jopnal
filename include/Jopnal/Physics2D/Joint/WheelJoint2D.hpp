@@ -36,10 +36,26 @@ namespace jop
     {
     public:
 
-        WheelJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        /// \brief WheelJoint2D constructor
+        ///
+        /// \param collide Boolean for wheel colliding with the object it is attached to.
+        /// \param axis Single axis where movement is allowed.
+        /// \param localAnchorA Given in world units in relation to the target body center.
+        /// \param localAnchorB Given in local units. Defaults to the center of the wheel. Should be left empty unless user wants funny wheels.
+        ///
+        WheelJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
+            const bool collide, const glm::vec2& axis,
+            const glm::vec2& localAnchorA,
+            const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
+            );
 
+        WheelJoint2D& enableMotor(const bool enable);
+        WheelJoint2D& setMotor(const float speed, const float torque);
+        WheelJoint2D& setSoftness(const float frequency, const float damping);
+
+    private:
+        b2WheelJoint* m_jointL;
 
     };
 }
-
 #endif

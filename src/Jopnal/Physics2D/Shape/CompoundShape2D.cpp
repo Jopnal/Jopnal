@@ -135,7 +135,7 @@ namespace jop
         }
 
         default:
-            JOP_DEBUG_WARNING("CompoundShape bad type");
+            JOP_ASSERT(false, "CompoundShape2D addChild: shape type not supported.");
             //do something?
         }
     }
