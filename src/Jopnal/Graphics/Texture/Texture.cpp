@@ -26,6 +26,8 @@
 
     #include <Jopnal/Graphics/Texture/Texture.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
@@ -34,14 +36,102 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    bool ns_allowSRGB = true;
+
+    void setGLFilterMode(const GLenum target, const jop::TextureSampler::Filter mode, const float param)
+    {
+        using Filter = jop::TextureSampler::Filter;
+
+        switch (mode)
+        {
+            case Filter::None:
+                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                break;
+            case Filter::Bilinear:
+                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                break;
+            case Filter::Trilinear:
+                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                break;
+            case Filter::Anisotropic:
+                if (jop::TextureSampler::getMaxAnisotropy() > 0.f)
+                {
+                    glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, jop::TextureSampler::getMaxAnisotropy())));
+                }
+                else
+                    // Should never happen but just to be sure.
+                    JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
+        }
+    }
+
+    void setGLRepeatMode(const GLenum target, const jop::TextureSampler::Repeat repeat)
+    {
+        using Repeat = jop::TextureSampler::Repeat;
+
+        switch (repeat)
+        {
+            case Repeat::Basic:
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
+                break;
+            case Repeat::Mirrored:
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
+                break;
+            case Repeat::ClampEdge:
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+                break;
+
+        #ifndef JOP_OPENGL_ES
+
+            case Repeat::ClampBorder:
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+
+        #endif
+        }
+    }
+
+    void setGLBorderColor(const GLenum target, const jop::Color& color)
+    {
+    #ifndef JOP_OPENGL_ES
+        glCheck(glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, &color.colors[0]));
+    #endif
+    }
+}
+
 namespace jop
 {
     Texture::Texture(const std::string& name, const unsigned int glTarget)
         : Resource          (name),
           m_sampler         (),
           m_texture         (0),
-          m_target          (glTarget)
-    {}
+          m_target          (glTarget),
+          m_filter          (TextureSampler::Filter::None),
+          m_repeat          (TextureSampler::Repeat::Basic),
+          m_anisotropic     (1.f),
+          m_borderColor     ()
+    {
+        static const TextureSampler::Filter defFilter = static_cast<TextureSampler::Filter>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultFilterMode", 0));
+        static const TextureSampler::Repeat defRepeat = static_cast<TextureSampler::Repeat>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultRepeatMode", 0));
+        static const float defAniso = SettingManager::get<float>("engine@Graphics|Texture|fDefaultAnisotropyLevel", 16.f);
+        static const Color defColor = Color(SettingManager::get<std::string>("engine@Graphics|Texture|fDefaultBorderColor", "FFFFFFFF"));
+
+        m_filter = defFilter;
+        m_repeat = defRepeat;
+        m_anisotropic = defAniso;
+        m_borderColor = defColor;
+    }
 
     Texture::~Texture()
     {
@@ -61,29 +151,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::bind(const unsigned int texUnit) const
+    bool Texture::bind(const unsigned int texUnit) const
     {
         if (!m_texture)
+        {
             glCheck(glGenTextures(1, &m_texture));
+            glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
+            glCheck(glBindTexture(m_target, m_texture));
+            updateSampling();
+        }
 
         glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
         glCheck(glBindTexture(m_target, m_texture));
 
-        m_sampler.bind(texUnit);
-    }
+        if (!m_sampler.expired())
+            m_sampler->bind(texUnit);
 
-    //////////////////////////////////////////////
-
-    TextureSampler& Texture::getSampler()
-    {
-        return m_sampler;
-    }
-
-    //////////////////////////////////////////////
-
-    const TextureSampler& Texture::getSampler() const
-    {
-        return m_sampler;
+        return isValid();
     }
 
     //////////////////////////////////////////////
@@ -91,6 +175,83 @@ namespace jop
     bool Texture::isValid() const
     {
         return m_texture != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::setSampler(const TextureSampler& sampler)
+    {
+        m_sampler = static_ref_cast<const TextureSampler>(sampler.getReference());
+    }
+
+    //////////////////////////////////////////////
+
+    Texture& Texture::setFilterMode(const TextureSampler::Filter mode, const float param)
+    {
+        if (bind())
+        {
+            setGLFilterMode(m_target, mode, param);
+
+            m_filter = mode;
+            m_anisotropic = param;
+        }
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Texture& Texture::setRepeatMode(const TextureSampler::Repeat repeat)
+    {
+        if (bind())
+        {
+            setGLRepeatMode(m_target, repeat);
+
+            m_repeat = repeat;
+        }
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Texture& Texture::setBorderColor(const Color& color)
+    {
+        if (bind())
+        {
+            setGLBorderColor(m_target, color);
+            m_borderColor = color;
+        }
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    TextureSampler::Filter Texture::getFilteringMode() const
+    {
+        return m_filter;
+    }
+
+    //////////////////////////////////////////////
+
+    TextureSampler::Repeat Texture::getRepeatMode() const
+    {
+        return m_repeat;
+    }
+
+    //////////////////////////////////////////////
+
+    float Texture::getAnisotropyLevel() const
+    {
+        return m_anisotropic;
+    }
+
+    //////////////////////////////////////////////
+
+    const Color& Texture::getBorderColor() const
+    {
+        return m_borderColor;
     }
 
     //////////////////////////////////////////////
@@ -142,5 +303,42 @@ namespace jop
         }
 
         glCheck(glPixelStorei(GL_UNPACK_ALIGNMENT, param));
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::setAllowSRGB(const bool allow)
+    {
+        ns_allowSRGB = allow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Texture::allowSRGB()
+    {
+    #ifdef JOP_OPENGL_ES
+
+        #if __ANDROID_API__ < 18 && !defined(GL_EXT_sRGB)
+            return false;
+
+        #else
+
+            if (jop::gl::getVersionMajor() < 3)
+                return JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB) && ns_allowSRGB;
+
+        #endif
+
+    #endif
+
+        return ns_allowSRGB;
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::updateSampling() const
+    {
+        setGLFilterMode(m_target, m_filter, m_anisotropic);
+        setGLRepeatMode(m_target, m_repeat);
+        setGLBorderColor(m_target, m_borderColor);
     }
 }

@@ -31,6 +31,7 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/STL.hpp>
+    #include <android/api-level.h>
 
 #endif
 
@@ -41,6 +42,10 @@
 
 namespace
 {
+    #if !defined(JOP_OPENGL_ES) || __ANDROID_API__ >= 18
+        #define JOP_ENABLE_BLOOM
+    #endif
+
     bool isLinear()
     {
     #ifdef JOP_OPENGL_ES
@@ -79,7 +84,7 @@ namespace
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
-    const float ns_defBloomThreshold = 1.f - 0.1f * jop::gl::isGLES();
+    const float ns_defBloomThreshold = 1.f - 0.1f * jop::gl::isES();
 }
 
 namespace jop
@@ -116,7 +121,7 @@ namespace jop
         };
 
         m_ditherMatrix.load(glm::uvec2(8, 8), 1, pattern, false, false);
-        m_ditherMatrix.getSampler().setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
+        m_ditherMatrix.setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
 
         // Bloom
         enableBloom();
@@ -130,7 +135,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -159,7 +164,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -204,7 +209,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, isLinear()));
+                    valueChanged(SettingManager::get<bool>(str, !isLinear()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
@@ -233,7 +238,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
@@ -374,8 +379,12 @@ namespace jop
 
                 makeBloom();
 
+            #ifdef JOP_ENABLE_BLOOM
+
                 for (unsigned int i = 0; i < m_bloomTextures.size(); ++i)
                     shdr.setUniform("u_Bloom[" + std::to_string(i) + "]", *m_bloomTextures[i][1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 3 + i);
+
+            #endif
             }
 
             if ((m_functions & Function::Dither) != 0)
@@ -423,6 +432,13 @@ namespace jop
 
     void PostProcessor::makeBloom()
     {
+    #ifdef JOP_ENABLE_BLOOM
+
+    #ifdef JOP_OPENGL_ES
+        if (jop::gl::getVersionMajor() >= 3)
+            return;
+    #endif
+
         const auto slot = RenderTexture::ColorAttachmentSlot::_1;
 
         // Brightness pass
@@ -465,12 +481,21 @@ namespace jop
                                           GL_COLOR_BUFFER_BIT, GL_LINEAR));
             }
         }
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void PostProcessor::enableBloom()
     {
+    #ifdef JOP_ENABLE_BLOOM
+
+    #ifdef JOP_OPENGL_ES
+        if (jop::gl::getVersionMajor() >= 3)
+            return;
+    #endif
+
         using CAS = RenderTexture::ColorAttachmentSlot;
         using CA = RenderTexture::ColorAttachment;
         using TSR = TextureSampler::Repeat;
@@ -484,9 +509,11 @@ namespace jop
                 size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
 
                 j.addColorAttachment(CAS::_1, CA::RGB2D, size);
-                j.getColorTexture(CAS::_1)->getSampler().setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
+                j.getColorTexture(CAS::_1)->setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
             }
         }
+
+    #endif
     }
 
     //////////////////////////////////////////////

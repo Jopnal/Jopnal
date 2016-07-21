@@ -28,6 +28,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
@@ -43,8 +44,8 @@
 namespace
 {
     std::unordered_map<EGLContext, jop::Window*> ns_windowRefs;
-    EGLContext ns_shared;
-    EGLSurface ns_sharedSurface;
+    EGLContext ns_shared = EGL_NO_CONTEXT;
+    EGLSurface ns_sharedSurface = EGL_NO_SURFACE;
 
     EGLDisplay getDisplay()
     {
@@ -58,26 +59,41 @@ namespace
         return display;
     }
 
+    //////////////////////////////////////////////
+
+    EGLContext createContext(EGLConfig config)
+    {
+        EGLint version[] =
+        {
+            EGL_CONTEXT_CLIENT_VERSION,
+
+        #if __ANDROID_API__ >= 18
+            3
+        #else
+            2
+        #endif
+
+            , EGL_NONE
+        };
+
+        EGLContext context = EGL_NO_CONTEXT;
+
+        while (context == EGL_NO_CONTEXT && version[1] >= 2)
+        {
+            context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            --version[1];
+        }
+
+        return context;
+    }
+
+    //////////////////////////////////////////////
+
     void initialize()
     {
         if (ns_windowRefs.empty())
         {
             eglCheck(eglInitialize(getDisplay(), NULL, NULL));
-
-        #ifndef JOP_OPENGL_ES
-
-            {
-                const char* apis = eglCheck(eglQueryString(getDisplay(), EGL_CLIENT_APIS));
-
-                if (std::strstr(apis, "OpenGL"))
-                {
-                    eglCheck(eglBindAPI(EGL_OPENGL_API));
-                }
-                else
-                    JOP_DEBUG_ERROR("Couldn't choose OpenGL as the rendering api, using OpenGL ES instead");
-            }
-
-        #endif
 
             const EGLint attribs[] =
             {
@@ -93,12 +109,6 @@ namespace
                 EGL_NONE
             };
 
-            const EGLint version[] =
-            {
-                //EGL_CONTEXT_CLIENT_VERSION, 3,
-                EGL_NONE
-            };
-
             EGLConfig config;
             EGLint numConfigs = 0;
 
@@ -108,7 +118,8 @@ namespace
             ns_sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
             JOP_ASSERT(ns_sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
 
-            ns_shared = eglCheck(eglCreateContext(getDisplay(), config, nullptr, version));
+            ns_shared = createContext(config);
+
             JOP_ASSERT(ns_shared != EGL_NO_CONTEXT, "Failed to create shared context!");
         }
     }
@@ -155,12 +166,6 @@ namespace jop { namespace detail
                 EGL_NONE
             };
 
-            const EGLint version[] =
-            {
-                //EGL_CONTEXT_CLIENT_VERSION, 3,
-                EGL_NONE
-            };
-
             const EGLint surfaceAttribs[] =
             {
                 JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
@@ -181,7 +186,7 @@ namespace jop { namespace detail
             m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, surfaceAttribs));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
-            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            m_context = createContext(config);
             JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
@@ -197,12 +202,6 @@ namespace jop { namespace detail
             const EGLint configAttribs[] =
             {
                 EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-                EGL_NONE
-            };
-
-            const EGLint version[] =
-            {
-                //EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
 
@@ -222,7 +221,7 @@ namespace jop { namespace detail
             m_surface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, surfaceAttribs));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create pbuffer surface!");
 
-            m_context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            m_context = createContext(config);
             JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));

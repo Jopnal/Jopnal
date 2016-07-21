@@ -27,7 +27,9 @@
     #include <Jopnal/Physics/PhantomBody.hpp>
 
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/STL.hpp>
 
     #pragma warning(push)

@@ -34,8 +34,6 @@
 
 namespace jop
 {
-    class TextureSampler;
-
     class JOP_API Texture : public Resource
     {
     private:
@@ -64,18 +62,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        void bind(const unsigned int texUnit = 1) const;
-
-
-        /// \brief Get the sampler
-        ///
-        /// \return Reference to the internal sampler
-        ///
-        TextureSampler& getSampler();
-
-        /// \copydoc getSampler()
-        ///
-        const TextureSampler& getSampler() const;
+        bool bind(const unsigned int texUnit = 1) const;
 
 
         /// \brief Check if this texture is valid
@@ -85,11 +72,57 @@ namespace jop
         bool isValid() const;
 
 
+        void setSampler(const TextureSampler& sampler);
+
+
         /// \brief Get the texture size
         ///
         /// \return The size
         ///
         virtual glm::uvec2 getSize() const = 0;
+
+
+        Texture& setFilterMode(const TextureSampler::Filter mode, const float param = 1.f);
+
+        /// \brief Set the repeating mode
+        ///
+        /// \param repeat The repeating mode
+        ///
+        /// \return Reference to self
+        ///
+        Texture& setRepeatMode(const TextureSampler::Repeat repeat);
+
+        /// \brief Set the border color
+        ///
+        /// \param color The border color
+        ///
+        /// \return Reference to self
+        ///
+        Texture& setBorderColor(const Color& color);
+
+        /// \brief Get the filtering mode
+        ///
+        /// \return The filtering mode
+        ///
+        TextureSampler::Filter getFilteringMode() const;
+
+        /// \brief Get the repeating mode
+        ///
+        /// \return The repeating mode
+        ///
+        TextureSampler::Repeat getRepeatMode() const;
+
+        /// \brief Get the anisotropy level
+        ///
+        /// \return The anisotropy level
+        ///
+        float getAnisotropyLevel() const;
+
+        /// \brief Get the border color
+        ///
+        /// \return The border color
+        ///
+        const Color& getBorderColor() const;
 
 
         /// \brief Get the OpenGL handle for this texture
@@ -115,11 +148,21 @@ namespace jop
         ///
         static void setPixelStore(const unsigned int depth);
 
+        static void setAllowSRGB(const bool allow);
+
+        static bool allowSRGB();
+
     private:
 
-        TextureSampler m_sampler;       ///< Texture sampler
+        void updateSampling() const;
+
+        WeakReference<const TextureSampler> m_sampler;       ///< Texture sampler
         mutable unsigned int m_texture; ///< The OpenGL handle
         const unsigned int m_target;    ///< The OpenGL texture target
+        TextureSampler::Filter m_filter;        ///< The filtering mode
+        TextureSampler::Repeat m_repeat;        ///< The repeating mode
+        float m_anisotropic;    ///< The anisotropic level
+        Color m_borderColor;    ///< The border color
     };
 }
 

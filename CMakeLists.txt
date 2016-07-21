@@ -24,10 +24,10 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
 
 # Android options, must be set in the beginning
 
-# API level, must be at least 18 for GLES 3.0
-jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or equal to 18)")
+# API level
+jopSetOption(ANDROID_API_MIN 18 STRING "Choose the Android API level (greater or equal to 15)")
 set_property(CACHE ANDROID_API_MIN PROPERTY STRINGS
-             "18" "19" "21" "23" "24")
+             "15" "16" "17" "18" "19" "21" "23" "24")
 
 # Setup version value for the toolchain
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
@@ -134,8 +134,8 @@ add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
 if (JOP_OS_ANDROID)
 
     # Make sure there's the android library available
-    if (${ANDROID_API_MIN} LESS 18)
-        message(FATAL_ERROR "Android API level must be equal or greater than 18. Please adjust the CMake variable 'ANDROID_API_MIN'")
+    if (${ANDROID_API_MIN} LESS 15)
+        message(FATAL_ERROR "Android API level must be equal or greater than 15. Please adjust the CMake variable 'ANDROID_API_MIN'")
     endif()
 
     if (NOT ANDROID_NDK)

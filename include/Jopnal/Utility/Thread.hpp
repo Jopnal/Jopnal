@@ -129,12 +129,12 @@ namespace jop
         ///
         std::thread::id getId() const;
 
-    private:
 
         static void attachJavaThread();
 
         static void detachJavaThread();
 
+    private:
 
         std::thread m_thread;   ///< The internal thread
     };

@@ -173,8 +173,8 @@ namespace jop
         {
             versionString += "#version ";
 
-            versionString += std::to_string(getOGLVersionMajor());
-            versionString += std::to_string(getOGLVersionMinor());
+            versionString += std::to_string(gl::getVersionMajor());
+            versionString += std::to_string(gl::getVersionMinor());
 
         #ifdef JOP_OPENGL_ES
             versionString += "0 es\n#define JOP_OPENGL_ES\n";

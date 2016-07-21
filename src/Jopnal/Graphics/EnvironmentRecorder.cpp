@@ -66,7 +66,7 @@ namespace jop
         m_fbo.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, CA::RGBACubeFloat16, glm::uvec2(mapResolution));
         m_fbo.addDepthAttachment(DA::TextureCube16, glm::uvec2(mapResolution));
 
-        m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear);
+        m_fbo.getColorTexture(RenderTexture::ColorAttachmentSlot::_1)->setFilterMode(TextureSampler::Filter::Bilinear);
 
     #endif
 

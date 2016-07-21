@@ -26,6 +26,10 @@
 
     #include <Jopnal/Utility/Thread.hpp>
 
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <jni.h>
+
 #endif
 
 #ifdef JOP_OS_WINDOWS

@@ -46,7 +46,7 @@ namespace jop
           m_size    (),
           m_bytes   (0)
     {
-        getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampBorder).setBorderColor(Color::White);
+        setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampBorder).setBorderColor(Color::White);
     }
 
     //////////////////////////////////////////////

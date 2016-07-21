@@ -43,7 +43,7 @@ namespace jop
           m_size    (),
           m_bytes   (0)
     {
-        getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+        setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
     }
 
     //////////////////////////////////////////////

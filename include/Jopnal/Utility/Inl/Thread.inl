@@ -22,14 +22,5 @@
 
 template<typename F, typename ... Args>
 inline Thread::Thread(F&& func, Args&&... args)
-    : m_thread()
-{
-    m_thread = std::thread([&]()
-    {
-        Thread::attachJavaThread();
-
-        std::bind(func, args...)();
-
-        Thread::detachJavaThread();
-    });
-}
+    : m_thread(std::forward<F>(func), std::forward<Args>(args)...)
+{}

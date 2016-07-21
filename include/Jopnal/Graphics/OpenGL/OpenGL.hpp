@@ -31,12 +31,22 @@
 
 #ifdef JOP_OPENGL_ES
 
-    #include <GLES3/gl3.h>
-    #define __gl2_h_ // Workaround for broken gl headers
-    #include <GLES2/gl2ext.h>
-    #include <GLES3/gl3platform.h>
-
     #include <android/api-level.h>
+
+    #if __ANDROID_API__ >= 18
+
+        #include <GLES3/gl3.h>
+        #define __gl2_h_ // Workaround for broken gl headers
+        #include <GLES2/gl2ext.h>
+        #include <GLES3/gl3platform.h>
+
+    #else
+
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+        #include <GLES2/gl2platform.h>
+
+    #endif
 
     #if __ANDROID_API__ >= 23
         #include <GLES3/gl31.h>
@@ -77,16 +87,13 @@
 
 #endif
 
-namespace jop
+namespace jop { namespace gl
 {
-    JOP_API unsigned int getOGLVersionMajor();
+    JOP_API unsigned int getVersionMajor();
 
-    JOP_API unsigned int getOGLVersionMinor();
+    JOP_API unsigned int getVersionMinor();
 
-    namespace gl
-    {
-        JOP_API bool isGLES();
-    }
-}
+    JOP_API bool isES();
+}}
 
 #endif

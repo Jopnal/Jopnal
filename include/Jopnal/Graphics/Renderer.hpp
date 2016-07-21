@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
 #include <set>
+#include <array>
 
 //////////////////////////////////////////////
 

@@ -34,6 +34,7 @@
     #include <Jopnal/Graphics/MainRenderTarget.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
+    #include <Jopnal/Graphics/RenderPass.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <Jopnal/STL.hpp>

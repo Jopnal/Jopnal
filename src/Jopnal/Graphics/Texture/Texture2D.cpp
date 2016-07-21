@@ -263,14 +263,14 @@ namespace jop
                 return GL_RG8;
 
             case 3:
-                return srgb ? GL_SRGB8 : GL_RGB8;
+                return (srgb && allowSRGB()) ? GL_SRGB8 : GL_RGB8;
             case 6:
                 return GL_RGB16F;
             case 12:
                 return GL_RGB32F;
 
             case 4:
-                return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+                return (srgb && allowSRGB()) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
             case 8:
                 return GL_RGBA16F;
             case 16:
@@ -292,6 +292,22 @@ namespace jop
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+
+        #if __ANDROID_API__ < 18
+
+            #ifdef GL_EXT_sRGB
+                
+                #define GL_SRGB8        GL_SRGB8_EXT
+                #define GL_SRGB8_ALPHA8 GL_SRGB8_ALPHA8_EXT
+
+            #else
+                
+                #define GL_SRGB8        0
+                #define GL_SRGB8_ALPHA8 0
+
+            #endif
+
+        #endif
 
     #endif
 
