@@ -64,7 +64,8 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                LTrigger,
+                RTrigger,
                 RightStickY,
                 RightStickX
             };
@@ -97,7 +98,8 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                LTrigger,
+                RTrigger,
                 RightStickY,
                 RightStickX
             };

@@ -26,16 +26,24 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Keyboard.hpp>
 #include <Jopnal/Window/Mouse.hpp>
+#include <Jopnal/Window/Controller.hpp>
+#include <Jopnal/Window/Touch.hpp>
 
 //////////////////////////////////////////////
 namespace jop
 {
 	namespace input
 	{
-		JOP_API int getJopKey(const int glfwKey);
-        JOP_API int getGlKey(const int jopKey);
-        JOP_API int getJopMouseButton(const int glfwButton);
-        JOP_API int getGlButton(const int jopButton);
+		JOP_API int getJopKey(const int key);
+        JOP_API int getGlKey(const int key);
+        JOP_API int getJopControllerButton(const int button);
+        JOP_API int getJopControllerAxis(const int button);
+        JOP_API int getGlControllerButton(const int button);
+        JOP_API int getGlControllerAxis(const int button);
+        JOP_API int getJopMouseButton(const int button);
+        JOP_API int getGlMouseButton(const int button);
+        JOP_API int getJopTouchInfo(const int info);
+        JOP_API int getGlTouchInfo(const int info);
 	}
 }
 #endif

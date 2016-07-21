@@ -23,7 +23,7 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Android/WindowImpl.hpp>
-
+#include <Jopnal/Core/DebugHandler.hpp>
 #ifdef JOP_OS_ANDROID
 
 #ifndef JOP_PRECOMPILED_HEADER
@@ -48,6 +48,22 @@ namespace
     std::unordered_map<EGLContext, jop::Window*> windowRefs;
     EGLContext shared;
     EGLSurface sharedSurface;
+
+    int ns_touchAxes[7]=
+    {
+        AMOTION_EVENT_AXIS_PRESSURE, AMOTION_EVENT_AXIS_SIZE, AMOTION_EVENT_AXIS_TOUCH_MAJOR,
+        AMOTION_EVENT_AXIS_TOUCH_MINOR, AMOTION_EVENT_AXIS_TOOL_MAJOR, AMOTION_EVENT_AXIS_TOOL_MINOR,
+        AMOTION_EVENT_AXIS_ORIENTATION
+    };
+
+    int ns_joystickAxes[15]=
+    {
+        AMOTION_EVENT_AXIS_X, AMOTION_EVENT_AXIS_Y, AMOTION_EVENT_AXIS_Z,
+        AMOTION_EVENT_AXIS_RX, AMOTION_EVENT_AXIS_RY, AMOTION_EVENT_AXIS_RZ,
+        AMOTION_EVENT_AXIS_HAT_X, AMOTION_EVENT_AXIS_HAT_Y, AMOTION_EVENT_AXIS_LTRIGGER,
+        AMOTION_EVENT_AXIS_RTRIGGER, AMOTION_EVENT_AXIS_THROTTLE, AMOTION_EVENT_AXIS_RUDDER,
+        AMOTION_EVENT_AXIS_WHEEL, AMOTION_EVENT_AXIS_GAS, AMOTION_EVENT_AXIS_BRAKE,
+    };
 
     EGLDisplay getDisplay()
     {
@@ -80,7 +96,7 @@ namespace
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL_NONE
             };
 
@@ -145,7 +161,7 @@ namespace jop { namespace detail
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL_NONE
             };
 
@@ -184,7 +200,7 @@ namespace jop { namespace detail
 
             const EGLint version[] =
             {
-                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL_NONE
             };
 
@@ -316,7 +332,7 @@ namespace jop { namespace detail
     //////////////////////////////////////////////
 
     int32_t motion(AInputEvent* event)
-    {  
+    {  JOP_DEBUG_INFO("motion");
         Window* windowRef = &Engine::getCurrentWindow();
         if (windowRef != nullptr)
         {
@@ -334,13 +350,44 @@ namespace jop { namespace detail
 
                     if (device & AINPUT_SOURCE_TOUCHSCREEN)
                     {
+                        JOP_DEBUG_INFO("touch");
                         windowRef->getEventHandler()->touchMoved(id, x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                        windowRef->getEventHandler()->touchMovedApsolute(id, x, y);
+                        windowRef->getEventHandler()->touchMovedAbsolute(id, x, y);
+
+                        for(int info = 0;info<7;++info)
+                        {
+                            float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],p);
+                            if(i>JOP_AXIS_TOLERANCE)
+                            windowRef->getEventHandler()->touchInfo(id,input::getJopTouchInfo(ns_touchAxes[info]) , i);
+                        }
                     }
                     else if (device & AINPUT_SOURCE_MOUSE)
                     {
+                        JOP_DEBUG_INFO("mouse");
                         windowRef->getEventHandler()->mouseMoved(x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                        windowRef->getEventHandler()->mouseMovedApsolute(x, y);
+                        windowRef->getEventHandler()->mouseMovedAbsolute(x, y);
+                    }
+                    else if (device & AINPUT_SOURCE_JOYSTICK )
+                    {
+                        JOP_DEBUG_INFO("joystick");
+                        for(int axis = 0;axis<15;++axis)
+                        {
+                            x = AMotionEvent_getAxisValue(event,ns_joystickAxes[axis],p);
+                            if(x>JOP_AXIS_TOLERANCE||x<-JOP_AXIS_TOLERANCE &&x!=0)
+                            {
+                                if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_X)
+                                {     
+                                    if(x>0)
+                                        x=1;
+                                    else
+                                        x=-1;
+                                 windowRef->getEventHandler()->controllerButtonPressed(id,input::getJopControllerButton(x*ns_joystickAxes[axis]));
+                                }
+                                else
+                                windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
+                            }
+                        }
+
                     }
                     else
                         return 0;
@@ -356,7 +403,7 @@ namespace jop { namespace detail
     //////////////////////////////////////////////
 
     int32_t scroll(AInputEvent* event)
-    {
+    {JOP_DEBUG_INFO("scroll");
         Window* windowRef = &Engine::getCurrentWindow();
         if (windowRef != nullptr)
         {
@@ -366,9 +413,15 @@ namespace jop { namespace detail
             float y = AMotionEvent_getY(event, 0);
 
             if (device & AINPUT_SOURCE_TOUCHSCREEN)
+            {
                 windowRef->getEventHandler()->touchScrolled(x, y);
+                JOP_DEBUG_INFO("touch");
+            }
             else if (device & AINPUT_SOURCE_MOUSE)
+            {
                 windowRef->getEventHandler()->mouseScrolled(x, y);
+                JOP_DEBUG_INFO("mouse");
+            }
             else
                 return 0;
 
@@ -381,7 +434,7 @@ namespace jop { namespace detail
 
     int32_t touch(bool down, int32_t action, AInputEvent* event)
     {
-
+        JOP_DEBUG_INFO("touch");
         Window* windowRef = &Engine::getCurrentWindow();
         if (windowRef != nullptr)
         {
@@ -397,13 +450,22 @@ namespace jop { namespace detail
 
                     if (down)
                     {
+                        JOP_DEBUG_INFO("down");
                         windowRef->getEventHandler()->touchEvent(id, x, y);
                         ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
                     }
                     else
                     {
+                        JOP_DEBUG_INFO("up");
                         windowRef->getEventHandler()->touchReleased(id, x, y);
                         ActivityState::get()->lastTouchPosition[id]=glm::vec2(-1.f,-1.f);
+                    }
+
+                    for(int info = 0;info<7;++info)
+                    {
+                        float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],index);
+                        if(i>JOP_AXIS_TOLERANCE)
+                            windowRef->getEventHandler()->touchInfo(id,input::getJopTouchInfo(ns_touchAxes[info]) , i);
                     }
 
                     return 1;
@@ -416,7 +478,7 @@ namespace jop { namespace detail
     //////////////////////////////////////////////
 
     int32_t onKey(const int32_t& action, const int32_t& meta, const int32_t& key)
-    {
+    {JOP_DEBUG_INFO("key");
         int jopKey = input::getJopKey(key);
 
         int mod = 0x0000;
@@ -468,7 +530,7 @@ namespace jop { namespace detail
     //////////////////////////////////////////////
 
     int32_t onMotion(const int32_t& action, void* data)
-    {
+    {JOP_DEBUG_INFO("onMotion");
         auto event= static_cast<AInputEvent*>(data);
 
         switch (action & AMOTION_EVENT_ACTION_MASK)

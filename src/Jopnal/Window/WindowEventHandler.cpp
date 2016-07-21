@@ -34,10 +34,16 @@
     #endif
 
 #endif
-
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
+
+namespace
+{
+    std::array<bool, 16> ns_controllersPresent;
+    std::array<std::vector<unsigned char>, 16> ns_controllerButtonStates;
+}
 
 namespace jop
 {
@@ -115,7 +121,7 @@ namespace jop
             }
 
             h->mouseMoved(static_cast<float>(-realX), static_cast<float>(-realY));
-            h->mouseMovedApsolute(static_cast<float>(x), static_cast<float>(x));
+            h->mouseMovedAbsolute(static_cast<float>(x), static_cast<float>(x));
 
             h->m_lastMouseX = static_cast<float>(x);
             h->m_lastMouseY = static_cast<float>(y);
@@ -208,8 +214,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::keyPressed(const int, const int, const int)
-    {}
+    void WindowEventHandler::keyPressed(const int a, const int b, const int c)
+    {
+        JOP_DEBUG_INFO("KeyPressed "<<a << " " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
@@ -228,13 +236,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseMovedApsolute(const float, const float)
-    {}
+    void WindowEventHandler::mouseMovedAbsolute(const float b, const float c)
+    {
+        JOP_DEBUG_INFO("mouse moved " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseButtonPressed(const int, const int)
-    {}
+    void WindowEventHandler::mouseButtonPressed(const int b, const int c)
+    {
+        JOP_DEBUG_INFO("mouse pressed " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
@@ -253,8 +265,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseScrolled(const float, const float)
-    {}
+    void WindowEventHandler::mouseScrolled(const float b, const float c)
+    {
+        JOP_DEBUG_INFO("mouse scrolled" << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
@@ -268,13 +282,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::controllerAxisShifted(const int, const int, const float)
-    {}
+    void WindowEventHandler::controllerAxisShifted(const int a, const int b, const float c)
+    {
+        JOP_DEBUG_INFO("Controller axis "<<a << " " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::controllerButtonPressed(const int, const int)
-    {}
+    void WindowEventHandler::controllerButtonPressed(const int b, const int c)
+    {
+        JOP_DEBUG_INFO("controller button " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
@@ -283,8 +301,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchEvent(const int, const float, const float)
-    {}
+    void WindowEventHandler::touchEvent(const int a, const float b, const float c)
+    {
+        JOP_DEBUG_INFO(a << " " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
@@ -298,11 +318,92 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchMovedApsolute(const int, const float, const float)
-    {}
+    void WindowEventHandler::touchMovedAbsolute(const int a, const float b, const float c)
+    {
+        JOP_DEBUG_INFO(a << " " << b << " " << c);
+    }
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchScrolled(const float, const float)
-    {}
+    void WindowEventHandler::touchInfo(const int a, const int b, const float c)
+    {
+        JOP_DEBUG_INFO("info "<<a << " " << b << " " << c);
+    }
+
+        //////////////////////////////////////////////
+
+    void WindowEventHandler::touchScrolled(const float b, const float c)
+    {
+        JOP_DEBUG_INFO("touch scrolled " << b << " " << c);
+    }
+
+
+    //////////////////////////////////////////////
+
+    void WindowEventHandler::handleControllerInput()
+    {
+     #ifdef JOP_OS_DESKTOP
+
+        static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
+        static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
+        static unsigned int counter = 99;
+
+        // Query the presence of controllers and update states.
+        // We won't need to check the states every single frame,
+        // so we can do a little optimization using a counter.
+        for (int i = 0; i < maxControllers && (++counter % 100) == 0; ++i)
+        {
+            bool present = glfwJoystickPresent(i) == GL_TRUE;
+
+            if (present != ns_controllersPresent[i])
+            {
+                ns_controllersPresent[i] = present;
+                present ? controllerConnected(i, std::string(glfwGetJoystickName(i))) : controllerDisconnected(i);
+            }
+        }
+
+        // Query controller axes
+        for (int i = 0; i < maxControllers; ++i)
+        {
+            if (ns_controllersPresent[i])
+            {
+                int n;
+                const float* axes = glfwGetJoystickAxes(i, &n);
+
+                for (int j = 0; j < n; ++j)
+                {
+                    if (axes[j] < -deadzone || axes[j] > deadzone)
+
+                        if (j == 2 && axes[j] < 0.f)
+                        controllerAxisShifted(i, input::getJopControllerAxis(-j), axes[j]);
+                        else
+                        controllerAxisShifted(i, input::getJopControllerAxis(-j), axes[j]);
+                }
+            }
+        }
+
+        // Query controller buttons
+        for (int i = 0; i < maxControllers; ++i)
+        {
+            if (ns_controllersPresent[i])
+            {
+                int n;
+                const unsigned char* buttons = glfwGetJoystickButtons(i, &n);
+
+                if (n > static_cast<int>(ns_controllerButtonStates[i].size()))
+                    ns_controllerButtonStates[i].resize(n, 0);
+
+                for (int j = 0; j < n; ++j)
+                {
+                    if (buttons[j] != ns_controllerButtonStates[i][j])
+                    {
+                        ns_controllerButtonStates[i][j] = buttons[j];
+                        buttons[j] ? controllerButtonPressed(i, j) : controllerButtonReleased(i, j);
+                    }
+                }
+            }
+        }
+
+#endif
+    }
 }

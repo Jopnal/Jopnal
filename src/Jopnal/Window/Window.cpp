@@ -204,6 +204,9 @@ namespace jop
 
             pollEvents();
 
+            if (controllers && m_eventHandler)
+                m_eventHandler->handleControllerInput();
+
             ns_eventsPolled = true;
         }
     }

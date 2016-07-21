@@ -64,7 +64,7 @@ namespace jop
 		if (validateWindowRef())
 		{
         #if defined(JOP_OS_DESKTOP)
-			return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlButton(button)) == GLFW_PRESS;
+			return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlMouseButton(button)) == GLFW_PRESS;
         #elif defined(JOP_OS_ANDROID)
 			return false;
         #else

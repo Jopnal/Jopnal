@@ -35,6 +35,19 @@ namespace jop
 	{
 	public:
 
+        /// Information
+        ///
+        enum Info
+        {
+            PRESSURE,               ///< Approximate pressure applied to the surface
+            SIZE,                   ///< Approximate size of the contact area
+            TOUCH_MAJOR,            ///< Major axis of an ellipse that represents the touch area at the point of contact
+            TOUCH_MINOR,            ///< Minor axis of an ellipse that represents the touch area at the point of contact
+            TOOL_MAJOR,             ///< Major axis of an ellipse that represents the size of the approaching touch
+            TOOL_MINOR,             ///< Minor axis of an ellipse that represents the size of the approaching touch
+            ORIENTATION,            ///< Orientation of the finger or tool in radians relative to the vertical plane of the device
+        };
+
         /// \brief Is touch received
         ///
         /// \param Finger's id 0-9

@@ -23,11 +23,6 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 #ifndef JOP_PRECOMPILED_HEADER
 #include <Jopnal/Window/InputEnumsImpl.hpp>
-
-#ifdef JOP_OS_ANDROID
-#include <android/input.h>
-#endif
-
 #endif
 
 #ifdef JOP_OS_ANDROID
@@ -38,11 +33,11 @@ namespace jop
 {
     namespace input
     {
-        int getJopKey(const int glfwKey)
+        int getJopKey(const int key)
         {
             using k = jop::Keyboard::Key;
 
-            switch (glfwKey)
+            switch (key)
             {
             case AKEYCODE_UNKNOWN:            return k::Unknown;
             case AKEYCODE_SOFT_LEFT:          return k::Unknown;
@@ -160,11 +155,11 @@ namespace jop
             }
         }
 
-        int getGlKey(const int jopKey)
+        int getGlKey(const int key)
         {
             using k = jop::Keyboard::Key;
 
-            switch (jopKey)
+            switch (key)
             {
 
             case k::Unknown:                   return AKEYCODE_UNKNOWN;
@@ -233,18 +228,137 @@ namespace jop
             }
         }
 
-        int getJopMouseButton(const int glfwButton)
+        int getJopControllerButton(const int button)
+        {
+            using m = jop::Controller::XBox::Button;
+
+            switch (button)
+            {
+            case AKEYCODE_BUTTON_A:             return m::A;
+            case AKEYCODE_BUTTON_B:             return m::B;
+            case AKEYCODE_BUTTON_X:             return m::X;
+            case AKEYCODE_BUTTON_Y:             return m::Y;
+            case AKEYCODE_BUTTON_L1:            return m::LShoulder;
+            case AKEYCODE_BUTTON_R1:            return m::RShoulder;
+            case AKEYCODE_BACK:                 return m::Back;
+            case AKEYCODE_BUTTON_START:         return m::Start;
+            case AKEYCODE_BUTTON_THUMBL:        return m::LStick;
+            case AKEYCODE_BUTTON_THUMBR:        return m::RStick;
+            case -AMOTION_EVENT_AXIS_HAT_Y :    return m::PadUp;
+            case AMOTION_EVENT_AXIS_HAT_X:      return m::PadRight;
+            case AMOTION_EVENT_AXIS_HAT_Y :     return m::PadDown;
+            case -AMOTION_EVENT_AXIS_HAT_X:     return m::PadLeft;
+
+            }
+
+            return button;
+        }
+        int getJopControllerAxis(const int button)
+        {
+            using a = jop::Controller::XBox::Axis;
+
+            switch (button)
+            {
+            case AMOTION_EVENT_AXIS_X:          return a::LeftStickX;
+            case AMOTION_EVENT_AXIS_Y:          return a::LeftStickY;
+            case AMOTION_EVENT_AXIS_LTRIGGER:   return a::LTrigger;
+            case AMOTION_EVENT_AXIS_RTRIGGER:   return a::RTrigger;
+            case AMOTION_EVENT_AXIS_Z:          return a::RightStickY;
+            case AMOTION_EVENT_AXIS_RZ:         return a::RightStickX;
+            }
+
+            return button;
+        }
+
+        int getGlControllerButton(const int button)
+        {
+            using m = jop::Controller::XBox::Button;
+
+            switch (button)
+            {
+            case m::A:                          return AKEYCODE_BUTTON_A;
+            case m::B:                          return AKEYCODE_BUTTON_B;
+            case m::X:                          return AKEYCODE_BUTTON_X;
+            case m::Y:                          return AKEYCODE_BUTTON_Y;
+            case m::LShoulder:                  return AKEYCODE_BUTTON_L1;
+            case m::RShoulder:                  return AKEYCODE_BUTTON_R1;
+            case m::Back:                       return AKEYCODE_BACK;
+            case m::Start:                      return AKEYCODE_BUTTON_START;
+            case m::LStick:                     return AKEYCODE_BUTTON_THUMBL;
+            case m::RStick:                     return AKEYCODE_BUTTON_THUMBR;
+            case m::PadUp:                      return -AMOTION_EVENT_AXIS_HAT_X;
+            case m::PadRight:                   return AMOTION_EVENT_AXIS_HAT_Y;
+            case m::PadDown:                    return AMOTION_EVENT_AXIS_HAT_X;
+            case m::PadLeft:                    return -AMOTION_EVENT_AXIS_HAT_Y;
+            }
+
+            return button;
+        }
+        int getGlControllerAxis(const int button)
+        {
+            using a = jop::Controller::XBox::Axis;
+
+            switch (button)
+            {
+            case a::LeftStickX: return AMOTION_EVENT_AXIS_X;
+            case a::LeftStickY: return AMOTION_EVENT_AXIS_Y;
+            case a::LTrigger: return AMOTION_EVENT_AXIS_LTRIGGER;
+            case a::RTrigger: return AMOTION_EVENT_AXIS_RTRIGGER;
+            case a::RightStickY: return AMOTION_EVENT_AXIS_Z;
+            case a::RightStickX: return AMOTION_EVENT_AXIS_RZ;
+            }
+
+            return button;
+        }
+
+        int getJopMouseButton(const int button)
         {
             using m = jop::Mouse::Button;
 
             return m::Unknown;
         }
 
-        int getGlButton(const int jopButton)
+        int getGlMouseButton(const int button)
         {
             using m = jop::Mouse::Button;
 
             return  AKEYCODE_UNKNOWN;
+        }
+
+        int getJopTouchInfo(const int info)
+        {
+            using i = jop::Touch::Info;
+
+            switch (info)
+            {
+            case AMOTION_EVENT_AXIS_PRESSURE:       return i::PRESSURE;
+            case AMOTION_EVENT_AXIS_SIZE:           return i::SIZE;
+            case AMOTION_EVENT_AXIS_TOUCH_MAJOR:    return i::TOUCH_MAJOR;
+            case AMOTION_EVENT_AXIS_TOUCH_MINOR:    return i::TOUCH_MINOR;
+            case AMOTION_EVENT_AXIS_TOOL_MAJOR:     return i::TOOL_MAJOR;
+            case AMOTION_EVENT_AXIS_TOOL_MINOR:     return i::TOOL_MINOR;
+            case AMOTION_EVENT_AXIS_ORIENTATION:    return i::ORIENTATION;
+            }
+
+            return info;
+        }
+
+        int getGlTouchInfo(const int info)
+        {
+            using i = jop::Touch::Info;
+
+            switch (info)
+            {
+            case i::PRESSURE:           return AMOTION_EVENT_AXIS_PRESSURE;
+            case i::SIZE:               return AMOTION_EVENT_AXIS_SIZE;
+            case i::TOUCH_MAJOR:        return AMOTION_EVENT_AXIS_TOUCH_MAJOR;
+            case i::TOUCH_MINOR:        return AMOTION_EVENT_AXIS_TOUCH_MINOR;
+            case i::TOOL_MAJOR:         return AMOTION_EVENT_AXIS_TOOL_MAJOR;
+            case i::TOOL_MINOR:         return AMOTION_EVENT_AXIS_TOOL_MINOR;
+            case i::ORIENTATION:        return AMOTION_EVENT_AXIS_ORIENTATION;
+            }
+
+            return info;
         }
     }
 }

@@ -37,11 +37,11 @@ namespace jop
 {
 	namespace input
 	{
-		int getJopKey(const int glfwKey)
+		int getJopKey(const int key)
 		{
 			using k = jop::Keyboard::Key;
 
-			switch (glfwKey)
+			switch (key)
 			{
 			case GLFW_KEY_UNKNOWN:           return k::Unknown;
 			case GLFW_KEY_SPACE:             return k::Space;
@@ -156,11 +156,11 @@ namespace jop
 			return k::Unknown;
 		}
 
-		int getGlKey(const int jopKey)
+		int getGlKey(const int key)
 		{
 			using k = jop::Keyboard::Key;
 
-			switch (jopKey)
+			switch (key)
 			{
 			case k::Unknown:             return GLFW_KEY_UNKNOWN;
 			case k::Space:               return GLFW_KEY_SPACE;
@@ -267,7 +267,7 @@ namespace jop
 			case k::LSuper:              return GLFW_KEY_LEFT_SUPER;
 			case k::RShift:              return GLFW_KEY_RIGHT_SHIFT;
 			case k::RControl:            return GLFW_KEY_RIGHT_CONTROL;
-			case k::RAlt:               return GLFW_KEY_RIGHT_ALT;
+			case k::RAlt:                return GLFW_KEY_RIGHT_ALT;
 			case k::RSuper:              return GLFW_KEY_RIGHT_SUPER;
 			case k::Menu:                return GLFW_KEY_MENU;
 			}
@@ -275,30 +275,72 @@ namespace jop
 			return GLFW_KEY_UNKNOWN;
 		}
 
-		int getJopMouseButton(const int glfwButton)
+        int getJopControllerButton(const int button)
+        {
+            return button;
+        }
+        int getJopControllerAxis(const int button)
+        {
+            using a = jop::Controller::XBox::Axis;
+
+            switch (button)
+            {
+            case  0:                    return a::LeftStickX;
+            case  1:                    return a::LeftStickY;
+            case  2:                    return a::RTrigger;
+            case -2:                    return a::LTrigger;
+            case  3:                    return a::RightStickX;
+            case  4:                    return a::RightStickY;
+            }
+            return button;
+        }
+
+        int getGlControllerButton(const int button)
+        {
+            return button;
+        }
+
+        int getGlControllerAxis(const int button)
+        {
+            using a = jop::Controller::XBox::Axis;
+
+            switch (button)
+            {
+            case  a::LeftStickX:          return  0;
+            case  a::LeftStickY:          return  1;
+            case  a::RTrigger:            return  2;
+            case  a::LTrigger:            return -2;
+            case  a::RightStickX:         return  3;
+            case  a::RightStickY:         return  4;
+            }
+
+            return button;
+        }
+
+        int getJopMouseButton(const int button)
+        {
+            using m = jop::Mouse::Button;
+
+            switch (button)
+            {
+            case GLFW_MOUSE_BUTTON_LEFT:    return m::Left;
+            case GLFW_MOUSE_BUTTON_RIGHT:   return m::Right;
+            case GLFW_MOUSE_BUTTON_MIDDLE:  return m::Middle;
+            case GLFW_MOUSE_BUTTON_4:       return m::X1;
+            case GLFW_MOUSE_BUTTON_5:       return m::X2;
+            case GLFW_MOUSE_BUTTON_6:       return m::X3;
+            case GLFW_MOUSE_BUTTON_7:       return m::X4;
+            case GLFW_MOUSE_BUTTON_8:       return m::X5;
+            }
+
+            return m::Unknown;
+        }
+
+		int getGlMouseButton(const int button)
 		{
 			using m = jop::Mouse::Button;
 
-			switch (glfwButton)
-			{
-			case GLFW_MOUSE_BUTTON_LEFT:    return m::Left;
-			case GLFW_MOUSE_BUTTON_RIGHT:   return m::Right;
-			case GLFW_MOUSE_BUTTON_MIDDLE:  return m::Middle;
-			case GLFW_MOUSE_BUTTON_4:       return m::X1;
-			case GLFW_MOUSE_BUTTON_5:       return m::X2;
-			case GLFW_MOUSE_BUTTON_6:       return m::X3;
-			case GLFW_MOUSE_BUTTON_7:       return m::X4;
-			case GLFW_MOUSE_BUTTON_8:       return m::X5;
-			}
-
-			return m::Unknown;
-		}
-
-		int getGlButton(const int jopButton)
-		{
-			using m = jop::Mouse::Button;
-
-			switch (jopButton)
+			switch (button)
 			{
 			case m::Left:   return GLFW_MOUSE_BUTTON_LEFT;
 			case m::Right:  return GLFW_MOUSE_BUTTON_RIGHT;
@@ -312,6 +354,17 @@ namespace jop
 
 			return GLFW_MOUSE_BUTTON_1;
 		}
+
+        int getJopTouchInfo(const int info)
+        {
+            return info;
+        }
+
+        int getGlTouchInfo(const int info)
+        {
+            return info;
+        }
+
 	}
 }
 #endif

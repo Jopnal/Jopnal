@@ -31,6 +31,8 @@
 #include <Jopnal/Window/WindowHandle.hpp>
 #include <EGL/egl.h>
 
+#define JOP_AXIS_TOLERANCE 0.005
+
 //////////////////////////////////////////////
 
 namespace jop { namespace detail

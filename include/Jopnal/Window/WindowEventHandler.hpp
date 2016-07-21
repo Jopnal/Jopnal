@@ -127,7 +127,7 @@ namespace jop
         /// \param x The vertical position
         /// \param y The horizontal position
         ///
-        virtual void mouseMovedApsolute(const float x, const float y);
+        virtual void mouseMovedAbsolute(const float x, const float y);
 
         /// \brief Mouse button pressed callback
         ///
@@ -243,7 +243,15 @@ namespace jop
 		/// \param x The vertical offset
 		/// \param y The horizontal offset
 		///
-		virtual void touchMovedApsolute(const int touchId, const float x, const float y);
+		virtual void touchMovedAbsolute(const int touchId, const float x, const float y);
+
+        /// \brief Information about touch event callback.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param info Enum value of information
+        /// \param value Pressure or radius of touch
+        ///
+        virtual void touchInfo(const int touchId, const int info, const float value);
 
         /// \brief Touch event callback
         ///
@@ -254,6 +262,12 @@ namespace jop
         ///
         virtual void touchScrolled(const float x, const float y);
         
+   private:
+
+        /// \brief Internal function to invoke controller callbacks
+        ///
+        void handleControllerInput();
+
     protected:
 
         Window& m_windowRef;                                    ///< Reference to the window
