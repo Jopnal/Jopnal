@@ -44,7 +44,7 @@ extern const unsigned char postProcessVert[353];
 
 extern const unsigned char brightFilter[1582];
 
-extern const unsigned char compatibilityPlugins[1555];
+extern const unsigned char compatibilityPlugins[1481];
 
 }
 #endif

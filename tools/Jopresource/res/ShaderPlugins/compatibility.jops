@@ -1,4 +1,4 @@
-// Jopnal default shader plugin file
+// Jopnal compatibility shader plugin file
 //
 // Jopnal license applies.
 
@@ -31,8 +31,6 @@
 // 
 #plugin <Jopnal/Compat/Varyings>
 
-#include <Jopnal/Compat/Attributes>
-
 	#if defined(GL_ES) && __VERSION__ < 300
 		#define JOP_VARYING_IN  varying
 		#define JOP_VARYING_OUT varying
@@ -50,8 +48,6 @@
 // output variable.
 //
 #plugin <Jopnal/Compat/FragmentColor>
-
-    #include <Jopnal/Compat/Varyings>
 
 	#if defined(GL_ES) && __VERSION__ < 300
 		#define JOP_COLOR_OUT(loc) 

@@ -93,7 +93,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "Jopnal Engine v. " << JOP_VERSION_STRING);
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tJopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()

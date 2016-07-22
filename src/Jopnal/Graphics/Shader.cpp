@@ -42,7 +42,6 @@ namespace jop
           m_shaderType      (),
           m_sources         (0),
           m_handle          (0)
-
     {}
 
     Shader::~Shader()

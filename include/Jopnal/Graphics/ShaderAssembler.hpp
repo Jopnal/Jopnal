@@ -43,7 +43,7 @@ namespace jop
     {
     private:
 
-        typedef std::unordered_map<std::string,std::string> PluginMap;
+        typedef std::unordered_map<std::string, std::string> PluginMap;
         typedef std::unordered_map<Material::AttribType, WeakReference<ShaderProgram>> ShaderMap;
 
     public:
@@ -108,6 +108,9 @@ namespace jop
         static const ShaderMap& getShaderMap();
 
     private:
+
+        static void preprocess(const std::vector<const char*>& input, std::string& output, const bool nested, std::unordered_set<const char*>& duplicateSet);
+
 
         static ShaderAssembler* m_instance; ///< The single instance
 
