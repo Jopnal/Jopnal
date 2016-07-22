@@ -363,9 +363,9 @@ namespace jop
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
 
             if (focused)
-                handler->lostFocus();
-            else
                 handler->gainedFocus();
+            else
+                handler->lostFocus();
         });
 
         // Keyboard callback

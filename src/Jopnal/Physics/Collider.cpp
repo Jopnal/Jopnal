@@ -80,6 +80,7 @@ namespace jop
 {
     Collider::Collider(Object& object, World& world, const uint32 ID)
         : Component     (object, ID),
+          SafeReferenceable<Collider>(this),
           m_motionState (std::make_unique<::detail::MotionState>(object)),
           m_body        (),
           m_worldRef    (world)
@@ -87,13 +88,19 @@ namespace jop
 
     Collider::Collider(const Collider& other, Object& newObj)
         : Component     (other, newObj),
+          SafeReferenceable<Collider>(this),
           m_motionState (std::make_unique<::detail::MotionState>(newObj)),
           m_body        (),
           m_worldRef    (other.m_worldRef)
     {}
 
     Collider::~Collider()
-    {}
+    {
+        for (auto& i : m_listeners)
+        {
+            i->m_collider = nullptr;
+        }
+    }
 
     //////////////////////////////////////////////
 
@@ -200,9 +207,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Collider::beginOverlap(const Collider&)
-    {}
 
-    void Collider::endOverlap(const Collider&)
-    {}
+    void Collider::registerListener(ContactListener& listener)
+    {
+        if (listener.m_collider != this)
+        {
+            if (listener.m_collider)
+            {
+                listener.m_collider->m_listeners.erase(&listener);
+            }
+            // Replace old collider with this
+            listener.m_collider = this;
+
+            // Check if this listener is already registered
+            std::pair<std::set<ContactListener*>::iterator, bool> ret;
+            ret = m_listeners.insert(&listener);
+
+            if (ret.second == false)
+            {
+                // Erase the old and replace it with new
+                m_listeners.erase(ret.first);
+                m_listeners.insert(&listener);
+            }
+        }
+        else
+        {
+            JOP_DEBUG_INFO("Could not register listener for Collider2D: Listener is already registered for collider");
+            return;
+        }
+    }
+
 }

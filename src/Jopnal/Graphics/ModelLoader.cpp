@@ -66,7 +66,7 @@ namespace jop
                 Texture2D* tex = nullptr;
 
                 if (itr->value.HasMember("path") && itr->value["path"].IsString())
-                    tex = &ResourceManager::getResource<Texture2D>
+                    tex = &ResourceManager::get<Texture2D>
                     (
                         root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(),
                         itr->value.HasMember("srgb") && itr->value["srgb"].IsBool() ? itr->value["srgb"].GetBool() : false,
@@ -75,7 +75,7 @@ namespace jop
 
                 else if (itr->value.HasMember("start") && itr->value["start"].IsUint() &&
                          itr->value.HasMember("length") && itr->value["length"].IsUint())
-                    tex = &ResourceManager::getNamedResource<Texture2D>
+                    tex = &ResourceManager::getNamed<Texture2D>
                     (
                         root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), &data.at(itr->value["start"].GetUint()), itr->value["length"].GetUint(),
                         itr->value.HasMember("srgb") && itr->value["srgb"].IsBool() ? itr->value["srgb"].GetBool() : false,
@@ -106,7 +106,7 @@ namespace jop
 
                 for (auto& mat : doc["materials"])
                 {
-                    auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true);
+                    auto& m = ResourceManager::getEmpty<Material>("jop_material_" + getHex(), true);
 
                     if (mat.HasMember("reflection") && mat["reflection"].IsArray() && mat["reflection"].Size() >= 16)
                     {
@@ -145,7 +145,7 @@ namespace jop
                                 continue;
                                 
                             m.setMap(static_cast<Material::Map>(itr->value["type"].GetUint()),
-                                     ResourceManager::getExistingResource<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString()));
+                                     ResourceManager::getExisting<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString()));
                         }
                     }
 
@@ -200,7 +200,7 @@ namespace jop
 
                     meshes.push_back(std::make_pair
                     (
-                        &ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), &data.at(info[2]), data[3], data[1], &data.at(data[4]), data[7], data[5] / data[7]),
+                        &ResourceManager::getNamed<Mesh>("jop_mesh_" + getHex(), &data.at(info[2]), data[3], data[1], &data.at(data[4]), data[7], data[5] / data[7]),
                         data[6]
                     ));
                 }

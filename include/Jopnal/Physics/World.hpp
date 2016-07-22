@@ -35,6 +35,7 @@
 namespace detail
 {
     struct GhostCallback;
+    struct ContactListenerImpl;
 }
 
 namespace jop
@@ -139,8 +140,9 @@ namespace jop
         Message::Result receiveMessage(const Message& message) override;
 
 
-        std::unique_ptr<detail::WorldImpl> m_worldData;             ///< The world data
-        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback
+        std::unique_ptr<detail::WorldImpl> m_worldData;                 ///< The world data
+        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;       ///< Internal ghost callback
+        std::unique_ptr<::detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
     };
 }
 

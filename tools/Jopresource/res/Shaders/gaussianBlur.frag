@@ -9,31 +9,34 @@ in vec2 vf_TexCoords;
 uniform sampler2D u_Buffer;
 
 uniform bool u_Horizontal;
-const float weight[5] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+
+const float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
+const float weight[3] = float[](0.3162162162, 0.2270270270, 0.0702702703);
 
 layout(location = 0) out vec4 out_FinalColor;
 
 void main()
 {
-    vec2 tcOffset = 1.0 / vec2(textureSize(u_Buffer, 0));
-    vec3 result = texture(u_Buffer, vf_TexCoords).rgb * weight[0];
+    ivec2 size = textureSize(u_Buffer, 0);
+
+    vec3 tempColor = texture(u_Buffer, vf_TexCoords).rgb * weight[0];
 
     if (u_Horizontal)
     {
-        for (int i = 1; i < 5; ++i)
+        for (int i = 1; i < 3; ++i)
         {
-            result += texture(u_Buffer, vf_TexCoords + vec2(tcOffset.x * float(i), 0.0)).rgb * weight[i];
-            result += texture(u_Buffer, vf_TexCoords - vec2(tcOffset.x * float(i), 0.0)).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords + vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords - vec2(offset[i] / float(size.x), 0.0)).rgb * weight[i];
         }
     }
     else
     {
-        for (int i = 1; i < 5; ++i)
+        for (int i = 1; i < 3; ++i)
         {
-            result += texture(u_Buffer, vf_TexCoords + vec2(0.0, tcOffset.y * float(i))).rgb * weight[i];
-            result += texture(u_Buffer, vf_TexCoords - vec2(0.0, tcOffset.y * float(i))).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords + vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
+            tempColor += texture(u_Buffer, vf_TexCoords - vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
         }
     }
 
-    out_FinalColor = vec4(result, 1.0);
+	out_FinalColor = vec4(tempColor, 1.0);
 }

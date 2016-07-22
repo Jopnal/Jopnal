@@ -19,41 +19,36 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CONTACTINFO_HPP
-#define JOP_CONTACTINFO_HPP
+#ifndef JOP_CONTACTINFO2D_HPP
+#define JOP_CONTACTINFO2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    struct JOP_API ContactInfo
+    struct JOP_API ContactInfo2D
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(ContactInfo);
+        JOP_DISALLOW_COPY_MOVE(ContactInfo2D);
 
     public:
-    
+
         /// \brief Constructor
         ///
-        /// \param pos Contact position
+        /// \param pos Position vector
+        /// \param norm Normal vector
         ///
-        ContactInfo(const glm::vec3& pos, const glm::vec3& norm);
-        
-        
-        const glm::vec3 position;   ///< Contact position
-        const glm::vec3 normal;
+        ContactInfo2D(const glm::vec2& pos, const glm::vec2& norm);
+
+        const glm::vec2 position;   ///< Contact position
+        const glm::vec2 normal;     ///< Contact normal
     };
 }
 
 #endif
-
-/// \class ContactInfo
-/// \ingroup physics
-///
-/// #TODO Detailed description

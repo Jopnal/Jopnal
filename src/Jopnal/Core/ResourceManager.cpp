@@ -59,7 +59,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResource(const std::string& name)
+    void ResourceManager::unload(const std::string& name)
     {
         if (m_instance)
         {
@@ -88,7 +88,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResources(const unsigned short persistence, const bool descending)
+    void ResourceManager::unload(const unsigned short persistence, const bool descending)
     {
         if (m_instance)
         {

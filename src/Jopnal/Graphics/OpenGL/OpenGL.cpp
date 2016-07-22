@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <EGL/egl.h>
     #include <unordered_map>
     #include <cstring>
 
@@ -39,7 +40,7 @@ namespace jop
 
     namespace detail
     {
-        bool checkEGLExtension(const char* ext)
+        bool checkExtensionBase(const char* exts, const char* ext)
         {
             static std::unordered_map<const char*, bool> extMap;
 
@@ -48,12 +49,28 @@ namespace jop
             if (itr != extMap.end())
                 return itr->second;
 
-            const bool available = strstr(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), ext) != NULL;
+            const bool available = strstr(exts, ext) != NULL;
 
             extMap[ext] = available;
 
             return available;
         }
+
+        //////////////////////////////////////////////
+
+        bool checkGLESExtension(const char* ext)
+        {
+            return checkExtensionBase(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), ext);
+        }
+
+        //////////////////////////////////////////////
+
+        bool checkEGLExtension(const char* ext)
+        {
+            return checkExtensionBase(eglQueryString(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_EXTENSIONS), ext);
+        }
+
+        //////////////////////////////////////////////
 
         const std::string& getVersionString()
         {
@@ -95,6 +112,17 @@ namespace jop
         return detail::getVersionString()[2] - '0';
     #else
         return ogl_GetMinorVersion();
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    JOP_API bool gl::isGLES()
+    {
+    #ifdef JOP_OPENGL_ES
+        return true;
+    #else
+        return false;
     #endif
     }
 }

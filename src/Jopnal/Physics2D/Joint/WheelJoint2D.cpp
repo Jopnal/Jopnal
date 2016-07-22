@@ -52,6 +52,7 @@ namespace jop
         jointDef.localAxisA = b2Vec2(axis.x, axis.y);
         jointDef.localAnchorA = b2Vec2(localAnchorA.x, localAnchorA.y);
         jointDef.localAnchorB = b2Vec2(localAnchorB.x, localAnchorB.y);
+        jointDef.userData = this;
 
         m_joint = static_cast<b2WheelJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2WheelJoint*>(m_joint);

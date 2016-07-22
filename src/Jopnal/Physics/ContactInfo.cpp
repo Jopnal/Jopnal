@@ -33,7 +33,8 @@
 
 namespace jop
 {
-    ContactInfo::ContactInfo(const glm::vec3& pos)
-        : position(pos)
+    ContactInfo::ContactInfo(const glm::vec3& pos, const glm::vec3& norm)
+        : position(pos),
+          normal(norm)
     {}
 }

@@ -51,16 +51,17 @@ if (CMAKE_HOST_WIN32)
     # Descriptor
     list(APPEND RES ${PROJECT_SOURCE_DIR}/tools/Jopresource/desc.json)
     
+    add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
+                              ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp
+                       COMMAND ${PROJECT_SOURCE_DIR}/tools/Jopresource/jopres desc.json
+                       DEPENDS ${RES} ${PROJECT_SOURCE_DIR}/tools/Jopresource/desc.json
+                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools/Jopresource)
+    
     add_custom_target(jopnal-resources
                       SOURCES ${RES}
-                      DEPENDS ${RES})
-                      
-    add_custom_command(TARGET jopnal-resources
-                       PRE_BUILD
-                       COMMAND ${PROJECT_SOURCE_DIR}/tools/Jopresource/jopres desc.json
-                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools/Jopresource
-                       DEPENDS ${RES})
-                       
+                      DEPENDS ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
+                              ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp)
+    
 else ()
 
     message(WARNING "Resource compiler is provided only for Windows, using pre-assembled Jopnal resource files")

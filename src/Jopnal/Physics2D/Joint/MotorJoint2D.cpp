@@ -42,6 +42,7 @@ namespace jop
     {
         b2MotorJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB));
+        jointDef.userData = this;
 
         m_joint = static_cast<b2MotorJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2MotorJoint*>(m_joint);

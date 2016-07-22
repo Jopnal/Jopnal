@@ -77,7 +77,7 @@ mark_as_advanced(CMAKE_TOOLCHAIN_FILE)
 
 
 # Cotire for precompiled headers
-set (COTIRE_PCH_MEMORY_SCALING_FACTOR "500")
+set(COTIRE_PCH_MEMORY_SCALING_FACTOR "500")
 include(cotire)
 
 # Include the configuration file

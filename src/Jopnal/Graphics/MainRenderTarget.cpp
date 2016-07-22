@@ -27,9 +27,12 @@
     #include <Jopnal/Graphics/MainRenderTarget.hpp>
 
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Window/Window.hpp>
 
 #endif
+
+//////////////////////////////////////////////
 
 
 namespace jop
@@ -43,14 +46,7 @@ namespace jop
     {
         const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(window.getSize()));
 
-        const bool hdr =
-
-        #ifdef JOP_OPENGL_ES
-            false
-        #else
-            SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", true)
-        #endif
-        ;
+        const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::isGLES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
 
         using Slot = ColorAttachmentSlot;
         using CA = ColorAttachment;
@@ -62,6 +58,8 @@ namespace jop
 
         setClearColor(Color(SettingManager::get<std::string>("engine@Graphics|MainRenderTarget|sClearColor", "000000FF")));
     }
+
+    //////////////////////////////////////////////
 
     void jop::MainRenderTarget::preUpdate(const float)
     {

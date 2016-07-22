@@ -81,8 +81,8 @@ namespace jop
         const auto& uber = m_instance->m_uber;
         const std::string shaderName = "jop_shader_" + std::to_string(attributes);
 
-        if (ResourceManager::resourceExists<ShaderProgram>(shaderName))
-            return ResourceManager::getExistingResource<ShaderProgram>(shaderName);
+        if (ResourceManager::exists<ShaderProgram>(shaderName))
+            return ResourceManager::getExisting<ShaderProgram>(shaderName);
 
         
         std::string pp;
@@ -91,11 +91,11 @@ namespace jop
 
         if ((attributes & Material::Attribute::__RecordEnv))
         {
-            s = &ResourceManager::getNamedResource<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
+            s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
         }
         else
         {
-            s = &ResourceManager::getNamedResource<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
+            s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
         }
 
         if (s != &ShaderProgram::getError())

@@ -43,7 +43,8 @@ namespace jop
         b2PrismaticJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), b2Vec2(axis.x, axis.y));
         jointDef.collideConnected = collide;
-        
+        jointDef.userData = this;
+
         m_joint = static_cast<b2PrismaticJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2PrismaticJoint*>(m_joint);
     }

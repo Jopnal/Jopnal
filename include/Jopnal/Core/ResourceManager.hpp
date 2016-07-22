@@ -74,7 +74,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getResource(Args&&... args);
+        static T& get(Args&&... args);
 
         /// \brief Get a named resource
         ///
@@ -87,7 +87,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getNamedResource(const std::string& name, Args&&... args);
+        static T& getNamed(const std::string& name, Args&&... args);
 
         /// \brief Get an empty resource
         ///
@@ -98,7 +98,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getEmptyResource(Args&&... args);
+        static T& getEmpty(Args&&... args);
 
         /// \brief Get an existing resource
         ///
@@ -110,7 +110,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T>
-        static T& getExistingResource(const std::string& name);
+        static T& getExisting(const std::string& name);
 
         /// \brief Check is a resource exists
         ///
@@ -121,7 +121,7 @@ namespace jop
         /// \return True if the resource exists
         /// 
         template<typename T>
-        static bool resourceExists(const std::string& name);
+        static bool exists(const std::string& name);
 
 
         /// \brief Copy a resource
@@ -136,7 +136,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T>
-        static T& copyResource(const std::string& name, const std::string& newName);
+        static T& copy(const std::string& name, const std::string& newName);
 
 
         /// \brief Deletes resources from memory
@@ -148,7 +148,7 @@ namespace jop
         ///
         /// \param name Name of the resources to unload
         ///
-        static void unloadResource(const std::string& name);
+        static void unload(const std::string& name);
 
         /// \brief Delete a resource from memory
         ///
@@ -158,14 +158,14 @@ namespace jop
         /// \param name Name of the resource
         ///
         template<typename T>
-        static void unloadResource(const std::string& name);
+        static void unload(const std::string& name);
 
         /// \brief Deletes all resources from memory
         ///
         /// \param persistence The persistence of the resources to unload
         /// \param descending Set true to unload all resources with the given and below persistence levels
         ///
-        static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
+        static void unload(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
 
         /// \brief Mark the beginning of a resource loading phase

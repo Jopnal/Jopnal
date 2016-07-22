@@ -27,28 +27,33 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Physics/ContactInfo.hpp>
 #include <memory>
+#include <set>
 
 //////////////////////////////////////////////
 
-
 class btMotionState;
 class btCollisionObject;
+
 namespace detail
 {
     struct GhostCallback;
+    struct ContactListenerImpl;
 }
 
 namespace jop
 {
     class World;
+    class ContactListener;
 
-    class JOP_API Collider : public Component
+    class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider);
 
         friend struct ::detail::GhostCallback;
+        friend class ContactListener;
+        friend struct ::detail::ContactListenerImpl;
 
     protected:
 
@@ -101,6 +106,14 @@ namespace jop
         ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Register a listener for this collider
+        ///
+        /// Single collider can have multiple listeners
+        ///
+        /// \param listener Reference to the listener which is to be registered for this collider 
+        ///
+        void registerListener(ContactListener& listener);
+
         /// \brief Get the world this collider belongs to
         ///
         /// \return Reference to the world
@@ -113,18 +126,6 @@ namespace jop
 
     private:
 
-        /// \brief Overlap begin callback
-        ///
-        /// \param other The other collider that was overlapped
-        ///
-        virtual void beginOverlap(const Collider& other);
-
-        /// \brief Overlap end callback
-        ///
-        /// \param other The other collider that was overlapping
-        ///
-        virtual void endOverlap(const Collider& other);
-
         /// \brief Activity setter
         ///
         /// For internal use
@@ -136,6 +137,7 @@ namespace jop
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
+        std::set<ContactListener*> m_listeners;          ///< Listeners registered for this collider
     };
 }
 

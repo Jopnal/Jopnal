@@ -63,6 +63,10 @@ namespace detail
     template<>
     inline void waitSignal<true>(std::atomic<bool>& signal, const std::string& id)
     {
+    #if JOP_CONSOLE_VERBOSITY < 2
+        id;
+    #endif
+
         JOP_DEBUG_INFO("Scene \"" << id << "\" loaded, waiting for signal...");
 
         while (!signal.load())

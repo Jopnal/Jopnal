@@ -137,7 +137,7 @@ namespace detail
 
             if (shdr.expired())
             {
-                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmptyResource<ShaderProgram>("jop_physics_debug_shader").getReference());
+                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_physics_debug_shader").getReference());
 
                 if (!shdr->isValid())
                 {
@@ -200,11 +200,16 @@ namespace detail
             auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
 
             if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
+            {    
+                for (auto& i : p0->m_listeners)
+                {
+                    i->beginOverlap(*p1);
+                }
 
-                p0->beginOverlap(*p1);
-                p1->beginOverlap(*p0);
+                for (auto& i : p1->m_listeners)
+                {
+                    i->beginOverlap(*p0);
+                }
             }
 
             return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
@@ -217,14 +222,78 @@ namespace detail
 
             if (p0 && p1)
             {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
+                for (auto& i : p0->m_listeners)
+                {
+                    i->endOverlap(*p1);
+                }
 
-                p0->endOverlap(*p1);
-                p1->endOverlap(*p0);
+                for (auto& i : p1->m_listeners)
+                {
+                    i->endOverlap(*p0);
+                }
             }
 
             return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
         }
+    };
+
+    struct ContactListenerImpl
+    {
+    private:
+
+        struct ContactData
+        {
+            jop::WeakReference<jop::Collider> A;
+            jop::WeakReference<jop::Collider> B;
+
+            ContactData(jop::Collider* a, jop::Collider* b):
+                A(*a),
+                B(*b)
+            {}
+        };
+
+    public:
+        static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
+        {
+            if (!body0 || !body1)
+                return false;
+
+            auto a = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
+            auto b = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
+
+            const auto& pos = cp.m_positionWorldOnB;
+            const auto& norm = cp.m_normalWorldOnB;
+
+            jop::ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
+
+            
+
+            cp.m_userPersistentData = new ContactData(a, b);
+
+            for (auto& i : a->m_listeners)
+            {
+                i->beginContact(*b, ci);
+            }
+
+            return true;
+        }
+
+        static bool contactDestroyedCallback(void* userPersistentData)
+        {
+            if (!userPersistentData)
+                return false;
+
+            ContactData* cd = static_cast<ContactData*>(userPersistentData);
+
+            for (auto& i : cd->A->m_listeners)
+            {
+                i->endContact(*cd->B);
+            }
+
+            delete cd;
+            return true;
+        }
+
     };
 }
 
@@ -239,14 +308,17 @@ namespace jop
     World::World(Object& obj, Renderer& renderer)
         : Drawable          (obj, renderer, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
-          m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
+          m_ghostCallback   (std::make_unique<::detail::GhostCallback>()),
+          m_contactListener (std::make_unique<::detail::ContactListenerImpl>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         m_worldData->world->setWorldUserInfo(this);
-        
+        gContactProcessedCallback = m_contactListener->contactProcessedCallback;
+        gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
+
         setDebugMode(false);
 
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
@@ -281,7 +353,7 @@ namespace jop
             {*val = 1.f / value;}
 
         } cb(&timeStep, str);
-
+        
         m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
     }
 

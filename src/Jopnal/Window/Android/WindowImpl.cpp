@@ -29,6 +29,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <android/native_window.h>
     #include <EGL/eglext.h>
@@ -61,10 +62,13 @@ namespace
     {
         if (ns_windowRefs.empty())
         {
+            eglCheck(eglInitialize(getDisplay(), NULL, NULL));
+
             const EGLint attribs[] =
             {
                 EGL_WIDTH,  1,
                 EGL_HEIGHT, 1,
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 
@@ -79,9 +83,6 @@ namespace
                 EGL_CONTEXT_CLIENT_VERSION, 3,
                 EGL_NONE
             };
-
-            eglCheck(eglInitialize(getDisplay(), NULL, NULL));
-
 
             EGLConfig config;
             EGLint numConfigs = 0;
@@ -147,6 +148,7 @@ namespace jop { namespace detail
 
             const EGLint surfaceAttribs[] =
             {
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 
@@ -193,6 +195,7 @@ namespace jop { namespace detail
             {
                 EGL_WIDTH,  1,
                 EGL_HEIGHT, 1,
+                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
                 EGL_NONE
             };
 

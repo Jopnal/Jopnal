@@ -48,6 +48,7 @@ namespace jop
             jointDef.bodyB = getBody(bodyB);
             jointDef.collideConnected = collide;
             jointDef.length = length;
+            jointDef.userData = this;
 
             m_joint = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         }
@@ -58,6 +59,7 @@ namespace jop
             jointDef.bodyB = getBody(bodyB);
             jointDef.collideConnected = collide;
             jointDef.maxLength = length;
+            jointDef.userData = this;
 
             m_joint = static_cast<b2RopeJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         }

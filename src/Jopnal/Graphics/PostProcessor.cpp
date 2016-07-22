@@ -54,7 +54,7 @@ namespace
 
             GLint enc;
 
-            glCheck(glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
+            glCheck(glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
 
             linear = enc == GL_LINEAR;
             init = true;
@@ -79,14 +79,7 @@ namespace
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
-    const float ns_defBloomThreshold =
-
-    #ifdef JOP_OPENGL_ES
-        0.9f;
-    #else
-        1.0f;
-    #endif
-    ;
+    const float ns_defBloomThreshold = 1.f - 0.1f * jop::gl::isGLES();
 }
 
 namespace jop
@@ -95,12 +88,13 @@ namespace jop
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
-          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamedResource<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
+          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamed<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
           m_mainTarget          (mainTarget),
           m_functions           (),
           m_exposure            (1.f),
           m_gamma               (2.2f),
           m_bloomThreshold      (ns_defBloomThreshold),
+          m_subBloomThresholdExp(4.f),
           m_ditherMatrix        (""),
           m_bloomTextures       ()
     {
@@ -136,7 +130,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::ToneMap);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -149,7 +143,7 @@ namespace jop
                 ExposureCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|fExposure")
                 {
-                    setExposure(SettingManager::get<float>(str, 1.f));
+                    valueChanged(SettingManager::get<float>(str, 1.f));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const float& value) override {setExposure(value);}
@@ -165,7 +159,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Bloom);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -178,11 +172,24 @@ namespace jop
                 ThresholdCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|fThreshold")
                 {
-                    setBloomThreshold(SettingManager::get<float>(str, ns_defBloomThreshold));
+                    valueChanged(SettingManager::get<float>(str, ns_defBloomThreshold));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const float& value) override { setBloomThreshold(value); }
             } threshold;
+
+            static const struct ExponentCallback : SettingCallback<float>
+            {
+                const char* str;
+
+                ExponentCallback()
+                    : str("engine@Graphics|Postprocessor|Bloom|fSubThresholdExponent")
+                {
+                    valueChanged(SettingManager::get<float>(str, 4.f));
+                    SettingManager::registerCallback(str, *this);
+                }
+                void valueChanged(const float& value) override { setBloomSubThresholdExponent(value); }
+            } exponent;
 
             if (functionEnabled(Function::Bloom))
                 enableBloom();
@@ -197,7 +204,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, isLinear()) * Function::GammaCorrection);
+                    valueChanged(SettingManager::get<bool>(str, isLinear()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
@@ -210,7 +217,7 @@ namespace jop
                 GammaCallback()
                     : str("engine@Graphics|Postprocessor|GammaCorrection|fGamma")
                 {
-                    setExposure(SettingManager::get<float>(str, 2.2f));
+                    valueChanged(SettingManager::get<float>(str, 2.2f));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const float& value) override { setGamma(value); }
@@ -226,7 +233,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    enableFunctions(SettingManager::get<bool>(str, true) * Function::Dither);
+                    valueChanged(SettingManager::get<bool>(str, !gl::isGLES()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
@@ -239,7 +246,7 @@ namespace jop
             m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
-        auto& blurShader = ResourceManager::getNamedResource<ShaderProgram>
+        auto& blurShader = ResourceManager::getNamed<ShaderProgram>
         (
             "jop_blur_shader",
             "", 
@@ -249,7 +256,7 @@ namespace jop
 
         JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
-        auto& brightShader = ResourceManager::getNamedResource<ShaderProgram>
+        auto& brightShader = ResourceManager::getNamed<ShaderProgram>
         (
             "jop_bright_filter_shader",
             "",
@@ -345,7 +352,7 @@ namespace jop
             std::string pp;
             getPreprocessorStr(m_functions, pp);
 
-            auto& shader = ResourceManager::getNamedResource<ShaderProgram>("jop_pp_shader_" + std::to_string(m_functions), pp, Shader::Type::Vertex, m_shaderSources[0], Shader::Type::Fragment, m_shaderSources[1]);
+            auto& shader = ResourceManager::getNamed<ShaderProgram>("jop_pp_shader_" + std::to_string(m_functions), pp, Shader::Type::Vertex, m_shaderSources[0], Shader::Type::Fragment, m_shaderSources[1]);
 
             JOP_ASSERT(&shader != &ShaderProgram::getError(), "Failed to compile post process shader!");
 
@@ -424,6 +431,7 @@ namespace jop
 
         m_brightShader->setUniform("u_Texture", *m_mainTarget.getColorTexture(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
+        m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
         drawQuad(m_quad, m_brightShader);
 
         // Blur
@@ -479,6 +487,24 @@ namespace jop
                 j.getColorTexture(CAS::_1)->getSampler().setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
             }
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void PostProcessor::setBloomSubThresholdExponent(const float exponent)
+    {
+        if (m_instance)
+            m_instance->m_subBloomThresholdExp = exponent;
+    }
+
+    //////////////////////////////////////////////
+
+    float PostProcessor::getBloomSubThresholdExponent()
+    {
+        if (m_instance)
+            return m_instance->m_subBloomThresholdExp;
+
+        return 0.f;
     }
 
     //////////////////////////////////////////////

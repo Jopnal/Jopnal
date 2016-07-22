@@ -59,6 +59,7 @@ namespace jop
         //Re-apply local positions because box2D adds global coords to these and changes +/-
         jointDef.localAnchorA = b2Vec2(localAnchorA.x, localAnchorA.y);
         jointDef.localAnchorB = b2Vec2(localAnchorB.x, localAnchorB.y);
+        jointDef.userData = this;
 
         m_joint = static_cast<b2PulleyJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2PulleyJoint*>(m_joint);
