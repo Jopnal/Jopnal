@@ -1,0 +1,64 @@
+// Jopnal default shader plugin file
+//
+// Jopnal license applies.
+
+// Attribute compatibility
+//
+// Needed because of the differences between GL ES 2 and 3
+//
+#plugin <Jopnal/Compat/Attributes>
+
+    // Attribute keyword
+	// ES 2.0 = attribute
+	// Everywhere else = in
+	#if defined(GL_ES) && __VERSION__ < 300
+		#define __JOP_ATTRIB_KW attribute
+	#else
+		#define __JOP_ATTRIB_KW in
+	#endif
+
+	#if !defined(GL_ES) || defined(GL_NV_explicit_attrib_location)
+		#define JOP_ATTRIBUTE(loc) layout(location = loc) __JOP_ATTRIB_KW 
+	#else
+		#define JOP_ATTRIBUTE(loc) __JOP_ATTRIB_KW 
+	#endif
+
+#pluginend
+
+// Varying (in/out) compatibility
+//
+// Needed because of the differences between GL ES 2 and 3
+// 
+#plugin <Jopnal/Compat/Varyings>
+
+#include <Jopnal/Compat/Attributes>
+
+	#if defined(GL_ES) && __VERSION__ < 300
+		#define JOP_VARYING_IN  varying
+		#define JOP_VARYING_OUT varying
+	#else
+		#define JOP_VARYING_IN  in
+		#define JOP_VARYING_OUT out
+	#endif
+
+#pluginend
+
+// Color buffer output compatibility
+//
+// In GL ES 2, fragment color is written to gl_FragColor,
+// while everywhere else it's written in a self-defined
+// output variable.
+//
+#plugin <Jopnal/Compat/FragmentColor>
+
+    #include <Jopnal/Compat/Varyings>
+
+	#if defined(GL_ES) && __VERSION__ < 300
+		#define JOP_COLOR_OUT(loc) 
+		#define JOP_FRAG_COLOR(loc) gl_FragColor 
+	#else
+		#define JOP_COLOR_OUT(loc) layout(location = loc) out vec4 jop_FragColor##loc;
+		#define JOP_FRAG_COLOR(loc) jop_FragColor##loc 
+	#endif
+
+#pluginend

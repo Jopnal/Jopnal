@@ -431,6 +431,7 @@ if (JOP_COMPILER_MSVC AND NOT BUILD_SHARED_LIBS)
      
     set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS_DEBUG ${DEBUG_LIBRARIES})
     set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS_RELEASE ${LIBRARIES} ${RELEASE_LIBRARIES})
+    set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS "/ignore:4221 /ignore:4006")
 
 else ()
     target_link_libraries(jopnal ${EXT_LIBS})

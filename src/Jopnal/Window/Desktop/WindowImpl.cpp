@@ -81,54 +81,7 @@ namespace
             const int failed = result - ogl_LOAD_SUCCEEDED;
 
             if (failed > 0)
-            {
-                std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
-
-                jop::DebugHandler::getInstance() << jop::DebugHandler::Severity::Warning << failed << " requested OpenGL extensions failed to load: \n\n";
-
-                const int extsArr[] =
-                {
-                    ogl_ext_EXT_texture_compression_s3tc,ogl_ext_EXT_texture_sRGB,ogl_ext_EXT_texture_filter_anisotropic,ogl_ext_NV_texture_barrier,
-                    ogl_ext_NV_copy_image,ogl_ext_ARB_compressed_texture_pixel_storage,ogl_ext_ARB_conservative_depth,ogl_ext_ARB_ES2_compatibility,
-                    ogl_ext_ARB_get_program_binary,ogl_ext_ARB_explicit_uniform_location,ogl_ext_ARB_internalformat_query,ogl_ext_ARB_internalformat_query2,
-                    ogl_ext_ARB_map_buffer_alignment,ogl_ext_ARB_program_interface_query,ogl_ext_ARB_separate_shader_objects,ogl_ext_ARB_shading_language_420pack,
-                    ogl_ext_ARB_shading_language_packing,ogl_ext_ARB_texture_buffer_range,ogl_ext_ARB_texture_storage,ogl_ext_ARB_texture_view,
-                    ogl_ext_ARB_vertex_attrib_binding,ogl_ext_ARB_viewport_array,ogl_ext_ARB_arrays_of_arrays,ogl_ext_ARB_clear_buffer_object,
-                    ogl_ext_ARB_copy_image,ogl_ext_ARB_ES3_compatibility,ogl_ext_ARB_fragment_layer_viewport,ogl_ext_ARB_framebuffer_no_attachments,
-                    ogl_ext_ARB_invalidate_subdata,ogl_ext_ARB_robust_buffer_access_behavior,ogl_ext_ARB_stencil_texturing,ogl_ext_ARB_texture_query_levels,
-                    ogl_ext_ARB_texture_storage_multisample,ogl_ext_KHR_debug,ogl_ext_ARB_buffer_storage,ogl_ext_ARB_clear_texture,
-                    ogl_ext_ARB_enhanced_layouts,ogl_ext_ARB_multi_bind,ogl_ext_ARB_query_buffer_object,ogl_ext_ARB_texture_mirror_clamp_to_edge,
-                    ogl_ext_ARB_texture_stencil8,ogl_ext_ARB_vertex_type_10f_11f_11f_rev,ogl_ext_ARB_seamless_cubemap_per_texture,ogl_ext_ARB_clip_control,
-                    ogl_ext_ARB_conditional_render_inverted,ogl_ext_ARB_cull_distance,ogl_ext_ARB_derivative_control,ogl_ext_ARB_direct_state_access,
-                    ogl_ext_ARB_get_texture_sub_image,ogl_ext_ARB_shader_texture_image_samples,ogl_ext_ARB_texture_barrier,ogl_ext_KHR_context_flush_control,
-                    ogl_ext_KHR_robust_buffer_access_behavior,ogl_ext_KHR_robustness
-                };
-                const char* const strArr[] =
-                {
-                    "ogl_ext_EXT_texture_compression_s3tc", "ogl_ext_EXT_texture_sRGB", "ogl_ext_EXT_texture_filter_anisotropic", "ogl_ext_NV_texture_barrier",
-                    "ogl_ext_NV_copy_image", "ogl_ext_ARB_compressed_texture_pixel_storage", "ogl_ext_ARB_conservative_depth", "ogl_ext_ARB_ES2_compatibility",
-                    "ogl_ext_ARB_get_program_binary", "ogl_ext_ARB_explicit_uniform_location", "ogl_ext_ARB_internalformat_query", "ogl_ext_ARB_internalformat_query2",
-                    "ogl_ext_ARB_map_buffer_alignment", "ogl_ext_ARB_program_interface_query", "ogl_ext_ARB_separate_shader_objects", "ogl_ext_ARB_shading_language_420pack",
-                    "ogl_ext_ARB_shading_language_packing", "ogl_ext_ARB_texture_buffer_range", "ogl_ext_ARB_texture_storage", "ogl_ext_ARB_texture_view",
-                    "ogl_ext_ARB_vertex_attrib_binding", "ogl_ext_ARB_viewport_array", "ogl_ext_ARB_arrays_of_arrays", "ogl_ext_ARB_clear_buffer_object",
-                    "ogl_ext_ARB_copy_image", "ogl_ext_ARB_ES3_compatibility", "ogl_ext_ARB_fragment_layer_viewport", "ogl_ext_ARB_framebuffer_no_attachments",
-                    "ogl_ext_ARB_invalidate_subdata", "ogl_ext_ARB_robust_buffer_access_behavior", "ogl_ext_ARB_stencil_texturing", "ogl_ext_ARB_texture_query_levels",
-                    "ogl_ext_ARB_texture_storage_multisample", "ogl_ext_KHR_debug", "ogl_ext_ARB_buffer_storage", "ogl_ext_ARB_clear_texture",
-                    "ogl_ext_ARB_enhanced_layouts", "ogl_ext_ARB_multi_bind", "ogl_ext_ARB_query_buffer_object", "ogl_ext_ARB_texture_mirror_clamp_to_edge",
-                    "ogl_ext_ARB_texture_stencil8", "ogl_ext_ARB_vertex_type_10f_11f_11f_rev", "ogl_ext_ARB_seamless_cubemap_per_texture", "ogl_ext_ARB_clip_control",
-                    "ogl_ext_ARB_conditional_render_inverted", "ogl_ext_ARB_cull_distance", "ogl_ext_ARB_derivative_control", "ogl_ext_ARB_direct_state_access",
-                    "ogl_ext_ARB_get_texture_sub_image", "ogl_ext_ARB_shader_texture_image_samples", "ogl_ext_ARB_texture_barrier", "ogl_ext_KHR_context_flush_control",
-                    "ogl_ext_KHR_robust_buffer_access_behavior", "ogl_ext_KHR_robustness"
-                };
-
-                for (int i = 0; i < sizeof(extsArr) / sizeof(int); ++i)
-                {
-                    if (extsArr[i] == ogl_LOAD_FAILED)
-                        jop::DebugHandler::getInstance() << "\t" << strArr[i] << "\n";
-                }
-
-                JOP_DEBUG_WARNING("\n");
-            }
+                JOP_DEBUG_WARNING(failed << " requested OpenGL extensions failed to load");
 
             init = true;
         }

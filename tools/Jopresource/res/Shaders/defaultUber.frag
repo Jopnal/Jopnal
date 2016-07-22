@@ -6,6 +6,7 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/FragmentColor>
 
 // Diffuse map
 #ifdef JMAT_DIFFUSEMAP
@@ -62,7 +63,7 @@
 #endif
 
 // Vertex attribute data
-#ifdef JOP_OPENGL_ES
+#ifdef GL_ES
 
     in vec3 var_Position;
     in vec2 var_TexCoords;
@@ -521,8 +522,7 @@ uniform float u_AlphaMult;
 #endif
 
 // Final fragment color
-layout(location = 0) out vec4 out_FinalColor;
-layout(location = 1) out vec4 out_BloomColor;
+JOP_COLOR_OUT(0)
 
 void main() 
 {
@@ -633,7 +633,7 @@ void main()
     alpha *= u_AlphaMult;
 
     // Finally assign to the fragment output
-    out_FinalColor = vec4(tempColor.rgb, alpha);
+    JOP_FRAG_COLOR(0) = vec4(tempColor.rgb, alpha);
 
 #endif // Sky box
 }

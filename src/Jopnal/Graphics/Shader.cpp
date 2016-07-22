@@ -70,6 +70,11 @@ namespace jop
         if (preprocess)
         {
             std::string finalSource;
+
+            // Add version & extension string to the start of the output code
+            finalSource += Shader::getVersionString();
+            finalSource += Shader::getExtensionString();
+
             ShaderAssembler::preprocess(m_sources, finalSource);
 
             const char* strs[] = {finalSource.c_str()};
@@ -177,12 +182,29 @@ namespace jop
             versionString += std::to_string(gl::getVersionMinor());
 
         #ifdef JOP_OPENGL_ES
-            versionString += "0 es\n#define JOP_OPENGL_ES\n";
+            versionString += "0 es\n";
         #else
             versionString += "0 core\n";
         #endif
         }
 
         return versionString;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::string& Shader::getExtensionString()
+    {
+        static std::string extString;
+
+        if (extString.empty())
+        {
+        #ifdef JOP_OPENGL_ES
+            if (JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location) && gl::getVersionMajor() < 3)
+                extString += "#extension GL_NV_explicit_attrib_location : enable\n";
+        #endif
+        }
+
+        return extString;
     }
 }

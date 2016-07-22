@@ -4,6 +4,8 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/FragmentColor>
+
 in vec2 vf_TexCoords;
 
 uniform sampler2D u_Buffer;
@@ -13,7 +15,7 @@ uniform bool u_Horizontal;
 const float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
 const float weight[3] = float[](0.3162162162, 0.2270270270, 0.0702702703);
 
-layout(location = 0) out vec4 out_FinalColor;
+JOP_COLOR_OUT(0)
 
 void main()
 {
@@ -38,5 +40,5 @@ void main()
         }
     }
 
-	out_FinalColor = vec4(tempColor, 1.0);
+	JOP_FRAG_COLOR(0) = vec4(tempColor, 1.0);
 }

@@ -206,7 +206,7 @@ namespace jop
         /// \param stride The stride. Refer to OpenGL documentation on what this is
         /// \param pointer Pointer to the data or the offset in the buffer
         ///
-        void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const void* pointer);
+        void setAttribute(const std::string& name, const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer);
 
         /// \brief Get the default shader
         ///
@@ -228,8 +228,12 @@ namespace jop
         ///
         int getUniformLocation(const std::string& name);
 
+        int getAttributeLocation(const std::string& name, const unsigned int loc);
+
+
         std::unordered_map<unsigned int, WeakReference<const Shader>> m_shaders;    ///< Map with shaders
         LocationMap m_unifMap;                                                      ///< Map with uniform locations
+        LocationMap m_attribMap;
         unsigned int m_programID;                                                   ///< OpenGL program handle
     };
 #include <Jopnal/Graphics/Inl/ShaderProgram.inl>

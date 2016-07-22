@@ -4,10 +4,10 @@
 
 //////////////////////////////////////////////
 
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec2 a_TexCoords;
+#include <Jopnal/Compat/Attributes>
 
-
+JOP_ATTRIBUTE(0) vec3 a_Position;
+JOP_ATTRIBUTE(1) vec2 a_TexCoords;
 
 out vec2 vf_TexCoords;
 

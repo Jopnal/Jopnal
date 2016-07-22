@@ -55,8 +55,7 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
 
         // Load plugins
-        addPlugins(std::string(reinterpret_cast<const char*>(jopr::defaultPlugins), sizeof(jopr::defaultPlugins)));
-
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::compatibilityPlugins), sizeof(jopr::compatibilityPlugins)));
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -285,9 +284,6 @@ namespace jop
     {
         if (!m_instance)
             return;
-        
-        // Add version string to the start of the output code
-        output += Shader::getVersionString();
 
         for (auto i : input)
         {
@@ -319,7 +315,24 @@ namespace jop
                     std::string temp(opener + 1, closer);
                     auto itr = m_instance->m_plugins.find(temp);
                     if (itr != m_instance->m_plugins.end())
-                        output.append(itr->second);
+                    {
+                        if (strstr(itr->second.c_str(), "#include"))
+                        {
+                            std::vector<const char*> nested(1, itr->second.c_str());
+                            preprocess(nested, output);
+
+                            std::string stripped = itr->second;
+
+                            while (auto pos = stripped.find("#include") != std::string::npos)
+                            {
+                                stripped.erase(pos, stripped.find_first_of('>', pos));
+                            }
+
+                            output.append(stripped);
+                        }
+                        else
+                            output.append(itr->second);
+                    }
                     else
                         JOP_DEBUG_WARNING("Shader plugin: \"" << temp << "\" not found, or invalid formatting!");
 

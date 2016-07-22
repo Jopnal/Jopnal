@@ -103,8 +103,8 @@ namespace
             RGB(0xFF, 0xFF, 0x00), // 2. Yellow
             RGB(0xFF, 0xFF, 0xFF), // 3. White
             RGB(0x99, 0x99, 0x99), // 4. Gray
+            RGB(0x00, 0x89, 0xFF), // 5. Cyan/blue
 
-            0x00FFFFFF,
             0x00FFFFFF,
             0x00FFFFFF,
             0x00FFFFFF,
@@ -218,6 +218,8 @@ namespace
             attrib = 3;
         else if (color == Color::Gray)
             attrib = 4;
+        else if (color == Color::Cyan)
+            attrib = 5;
 
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attrib);
     }
@@ -342,13 +344,13 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        if ((isConsoleEnabled() || m_debuggerOutput) && m_lastSeverity <= m_displaySeverity)
+        if ((isConsoleEnabled() || m_debuggerOutput) && (m_lastSeverity <= m_displaySeverity || m_lastSeverity == Severity::__Always))
         {
             const std::string newStr(m_stream.str());
 
             if (!m_noSpam || m_last != newStr)
             {
-                const unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
+                unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
 
             #ifndef JOP_OS_ANDROID
 
@@ -357,7 +359,8 @@ namespace jop
                     "ERROR:\t\t",
                     "WARNING:\t",
                     "INFO:\t\t",
-                    "DIAG:\t\t"
+                    "DIAG:\t\t",
+                    ""
                 };
 
                 static const Color severityColor[] =
@@ -365,7 +368,8 @@ namespace jop
                     Color::Red,
                     Color::Yellow,
                     Color::White,
-                    Color::Gray
+                    Color::Gray,
+                    Color::Cyan
                 };
 
                 const std::string baseStr = std::string("[JOPNAL] ") + severityStr[severity];
@@ -382,7 +386,8 @@ namespace jop
                         ANDROID_LOG_ERROR,
                         ANDROID_LOG_WARN,
                         ANDROID_LOG_INFO,
-                        ANDROID_LOG_VERBOSE
+                        ANDROID_LOG_VERBOSE,
+                        ANDROID_LOG_INFO
                     };
 
                     __android_log_write(androidSeverity[severity], "jopnal", newStr.c_str());
@@ -396,6 +401,8 @@ namespace jop
                 }
 
             #ifndef JOP_OS_ANDROID
+
+                severity = std::min(static_cast<unsigned int>(Severity::Diagnostic), severity);
 
                 if (fileLoggingEnabled() && m_fileHandles[severity].is_open())
                 {

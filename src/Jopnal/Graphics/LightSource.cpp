@@ -277,7 +277,7 @@ namespace jop
             auto& mesh = *d->getModel().getMesh();
             mesh.getVertexBuffer().bind();
 
-            shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(Mesh::Position));
+            shdr.setAttribute("a_Position", 0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(Mesh::Position));
             shdr.setUniform("u_MMatrix", d->getObject()->getTransform().getMatrix());
 
             if (mesh.getElementAmount())

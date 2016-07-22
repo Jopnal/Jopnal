@@ -93,7 +93,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO("Jopnal Engine v. " << JOP_VERSION_STRING);
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "Jopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()
@@ -112,7 +112,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "Destroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////

@@ -4,13 +4,14 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/Attribute>
 
 // Matrices
 uniform mat4 u_PVMatrix; // Projection-view
 
 // Vertex attributes
-layout(location = 0) in vec3 a_Position;
-layout(location = 3) in vec3 a_Color;
+JOP_ATTRIBUTE(0) in vec3 a_Position;
+JOP_ATTRIBUTE(3) in vec3 a_Color;
 
 // Color to fragment shader
 out vec3 vf_Color;

@@ -77,8 +77,8 @@ namespace
     void drawQuad(const jop::RectangleMesh& mesh, jop::ShaderProgram& shdr)
     {
         mesh.getVertexBuffer().bind();
-        shdr.setAttribute(0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position));
-        shdr.setAttribute(1, GL_FLOAT, 2, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords));
+        shdr.setAttribute("a_Position", 0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position));
+        shdr.setAttribute("a_TexCoords", 1, GL_FLOAT, 2, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords));
 
         mesh.getIndexBuffer().bind();
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
