@@ -49,7 +49,7 @@ namespace jop
             RayInfo();
 
             unsigned int triangleIndex; ///< Triangle index
-            glm::vec3 triangle;         ///< Triangle points
+            glm::vec3 triangle[3];      ///< Triangle points
             bool hit;                   ///< Was any triangle hit?
         };
 
