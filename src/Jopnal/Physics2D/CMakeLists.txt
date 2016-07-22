@@ -30,6 +30,7 @@ set(__INC_PHYSICS2D_JOINT
 	${__INCDIR_PHYSICS2D}/Joint/PulleyJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/RopeJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/RotationJoint2D.hpp
+	${__INCDIR_PHYSICS2D}/Joint/WeldJoint2D.hpp
 	${__INCDIR_PHYSICS2D}/Joint/WheelJoint2D.hpp
 )
 source_group("Physics2D\\Headers\\Joint" FILES ${__INC_PHYSICS2D_JOINT})
@@ -77,6 +78,7 @@ set(__SRC_PHYSICS2D_JOINT
 	${__SRCDIR_PHYSICS2D}/Joint/PulleyJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/RopeJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/RotationJoint2D.cpp
+	${__SRCDIR_PHYSICS2D}/Joint/WeldJoint2D.cpp
 	${__SRCDIR_PHYSICS2D}/Joint/WheelJoint2D.cpp
 )
 source_group("Physics2D\\Source\\Joint" FILES ${__SRC_PHYSICS2D_JOINT})

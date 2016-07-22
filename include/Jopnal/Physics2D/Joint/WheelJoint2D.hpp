@@ -49,9 +49,34 @@ namespace jop
             const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
             );
 
+        /// \param enable Enables/disables motor.
+        ///
+        /// \return Returns reference to self.
+        ///
         WheelJoint2D& enableMotor(const bool enable);
-        WheelJoint2D& setMotor(const float speed, const float torque);
-        WheelJoint2D& setSoftness(const float frequency, const float damping);
+        
+        /// \param speed Maximum rotation speed the motor tries to reach.
+        /// \param torque Maximum torque the motor exerts to reachs the target speed.
+        ///
+        /// \return Returns reference to self.
+        ///
+        WheelJoint2D& setMotorForces(const float speed, const float torque);
+
+        /// \return Returns motor forces: first = current motor speed, second = maximum torque.
+        ///
+        std::pair<float, float> getMotorForces();
+
+        /// Set new damping values.
+        ///
+        /// \param frequency Damping frequency in Hz.
+        /// \param damping Damping value. Please use values between 0.f - 1.f.
+        ///
+        /// \return Returns reference to self.
+        ///
+        WheelJoint2D& setDamping(const float frequency, const float damping);
+
+        /// \return Returns current damping values: first = frequency, second = damping.
+        std::pair<float, float> getDamping();
 
     private:
         b2WheelJoint* m_jointL;

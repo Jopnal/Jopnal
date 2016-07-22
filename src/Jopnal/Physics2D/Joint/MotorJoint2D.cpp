@@ -35,13 +35,13 @@
 
 namespace jop
 {
-
-    MotorJoint2D::MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
+    MotorJoint2D::MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
         Joint2D(worldRef, bodyA, bodyB),
         m_jointL(nullptr)
     {
         b2MotorJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB));
+        jointDef.collideConnected = collide;
         jointDef.userData = this;
 
         m_joint = static_cast<b2MotorJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
@@ -70,10 +70,28 @@ namespace jop
         return *this;
     }
 
-    MotorJoint2D& MotorJoint2D::setForces(const float force, const float torque)
+    MotorJoint2D& MotorJoint2D::setForce(const float force)
     {
+        JOP_ASSERT(force >= 0.f, "MotorJoint2D force can not be negative!");
         m_jointL->SetMaxForce(force);
+        return *this;
+    }
+
+    float MotorJoint2D::getForce()
+    {
+        return m_jointL->GetMaxForce();
+    }
+
+    MotorJoint2D& MotorJoint2D::setTorque(const float torque)
+    {
+        JOP_ASSERT(torque >= 0.f, "MotorJoint2D torque can not be negative!");
         m_jointL->SetMaxTorque(torque);
         return *this;
     }
+
+    float MotorJoint2D::getTorque()
+    {
+        return m_jointL->GetMaxTorque();
+    }
+
 }

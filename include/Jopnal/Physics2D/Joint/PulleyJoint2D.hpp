@@ -38,10 +38,10 @@ namespace jop
 
         /// \brief PulleyJoint2D constructor
         ///
-        /// \param collide Collides with itself.
+        /// \param collide Joined bodies collide with each other.
         /// \param ratio Ratio for which the ropes move in relation to each other: ratio / 1.
-        /// \param groundAnchor World coordinates for attachment of the rope for each body.
-        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses center of mass if left empty. Please use values between -1.f and 1.f.
+        /// \param groundAnchor World coordinates for attachment point of the second end of the rope.
+        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
         ///
         /// \return PulleyJoint2D
         ///
@@ -52,6 +52,8 @@ namespace jop
             const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
             );
 
+        /// \return Returns current rope lengths: first = bodyA, second = bodyB
+        ///
         std::pair<float, float> getRopeLengths();
 
     private:

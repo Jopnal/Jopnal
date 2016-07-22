@@ -35,7 +35,7 @@ namespace jop
     class JOP_API GearJoint2D : public Joint2D
     {
     public:
-    private:
+    private: ///Destruction issues
         GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2);
 
         void setRatio(const float ratio);

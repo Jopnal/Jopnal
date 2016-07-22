@@ -49,9 +49,9 @@ namespace jop
         m_jointL = static_cast<b2PrismaticJoint*>(m_joint);
     }
 
-    PistonJoint2D& PistonJoint2D::limit(const bool limit)
+    PistonJoint2D& PistonJoint2D::limit(const bool enable)
     {
-        m_jointL->EnableLimit(limit);
+        m_jointL->EnableLimit(enable);
         return *this;
     }
 
@@ -62,18 +62,29 @@ namespace jop
         return *this;
     }
 
+    std::pair<float, float> PistonJoint2D::getLimits()
+    {
+        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+    }
+
     PistonJoint2D& PistonJoint2D::enableMotor(const bool set)
     {
         m_jointL->EnableMotor(set);
         return *this;
     }
 
-    PistonJoint2D& PistonJoint2D::setMotor(const float speed, const float torque)
+    PistonJoint2D& PistonJoint2D::setMotorForces(const float speed, const float force)
     {
-        m_jointL->EnableMotor(true);
+        JOP_ASSERT(force >= 0.f, "PistonJoint2D force can not be negative!");
+
         m_jointL->SetMotorSpeed(speed);
-        m_jointL->SetMaxMotorForce(torque);
+        m_jointL->SetMaxMotorForce(force);
         return *this;
+    }
+
+    std::pair<float, float> PistonJoint2D::getMotorForces()
+    {
+        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorForce());
     }
 
 }

@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ROPEJOINT2D_HPP
-#define JOP_ROPEJOINT2D_HPP
+#ifndef JOP_WELDJOINT2D_HPP
+#define JOP_WELDJOINT2D_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -28,34 +28,33 @@
 
 //////////////////////////////////////////////
 
-class b2RopeJoint;
+class b2WeldJoint;
 
 namespace jop
 {
-    class JOP_API RopeJoint2D : public Joint2D
+    class JOP_API WeldJoint2D : public Joint2D
     {
     public:
 
-        /// \brief RopeJoint2D constructor.
+        /// \brief WeldJoint2D constructor
         ///
-        /// \param collide Joined bodies collide with each other.
-        /// \param length Length of the rope.
-        /// \param stiff True: Bodies are connected like with a solid block.
-        /// \param stiff False: Bodies are connected like with a real rope.
+        /// \param collide Boolean for wheel colliding with the object it is attached to.
         ///
-        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        WeldJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
 
+        /// \brief Set new damping values
+        ///
         /// \param frequency Damping frequency in Hz.
-        /// \param damping Damping ratio. Please use values between 0.f - 1.0f.
+        /// \param damping Damping ratio. Please use values between 0.f - 1.f.
         ///
-        /// \return Returns reference to self.
+        WeldJoint2D& setDamping(const float frequency, const float damping);
+
+        /// \return Returns current damping: first = frequency, second = damping.
         ///
-        RopeJoint2D& setDamping(const float frequency, const float damping);
+        std::pair<float, float> getDamping();
 
     private:
-        unsigned int m_type;
-
+        b2WeldJoint* m_jointL;
     };
 }
-
 #endif

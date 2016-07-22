@@ -31,14 +31,29 @@ T* RigidBody2D::getJoint(unsigned int id)
 }
 
 template<typename T>
-bool RigidBody2D::breakJoint(unsigned int id)
+bool RigidBody2D::breakJoint(RigidBody2D& other, unsigned int id)
 {
-    for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
+    unsigned int result = 0;
+    //this
+    if (!m_joints.empty() && !other.m_joints.empty())
     {
-        if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+        for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
         {
-            m_joints.erase(itr);
-            return true;
+            if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+            {
+                m_joints.erase(itr);
+                ++result;
+            }
+        }
+
+        //other
+        for (auto itr = other.m_joints.begin(); itr != other.m_joints.end(); ++itr)
+        {
+            if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+            {
+                m_joints.erase(itr);
+                return ++result == 2;
+            }
         }
     }
     return false;

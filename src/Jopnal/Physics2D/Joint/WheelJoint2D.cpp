@@ -64,18 +64,27 @@ namespace jop
         return *this;
     }
 
-    WheelJoint2D& WheelJoint2D::setMotor(const float speed, const float torque)
+    WheelJoint2D& WheelJoint2D::setMotorForces(const float speed, const float torque)
     {
-        m_jointL->EnableMotor(true);
         m_jointL->SetMotorSpeed(speed);
         m_jointL->SetMaxMotorTorque(torque);
         return *this;
     }
 
-    WheelJoint2D& WheelJoint2D::setSoftness(const float frequency, const float damping)
+    std::pair<float, float> WheelJoint2D::getMotorForces()
+    {
+        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
+    }
+
+    WheelJoint2D& WheelJoint2D::setDamping(const float frequency, const float damping)
     {
         m_jointL->SetSpringFrequencyHz(frequency);
         m_jointL->SetSpringDampingRatio(damping);
         return *this;
+    }
+
+    std::pair<float, float> WheelJoint2D::getDamping()
+    {
+        return std::make_pair<float, float>(m_jointL->GetSpringFrequencyHz(), m_jointL->GetSpringDampingRatio());
     }
 }

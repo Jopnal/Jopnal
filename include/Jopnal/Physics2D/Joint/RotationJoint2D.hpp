@@ -36,16 +36,45 @@ namespace jop
     {
     public:
         RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
+    
+        /// \param enable Enables/disables obeying rotation limits.
+        ///
+        /// \return Returns reference to self.
+        ///
+        RotationJoint2D& limit(const bool enable);
 
-        RotationJoint2D& limit(const bool limit);
+        /// \param minAngle Minimum angle of rotation in radians.
+        /// \param maxAngle Maximum angle of rotation in radians.
+        ///
+        /// Enables limiting when called.
+        ///
+        /// \return Returns reference to self.
+        ///
         RotationJoint2D& setLimits(const float minAngle, const float maxAngle);
-        RotationJoint2D& enableMotor(const bool set);
-        RotationJoint2D& setMotor(const float speed, const float torque);
+
+        /// \return Returns current rotation limits in radians: first = minimum angle, second = maximum angle.
+        ///
+        std::pair<float, float> getLimits();
+
+        /// \param enable Enables/disables motor.
+        ///
+        /// \return Returns reference to self.
+        ///
+        RotationJoint2D& enableMotor(const bool enable);
+
+        /// \param speed Maximum speed the motor tries to rotate.
+        /// \param torque Maximum torque the engine exerts to achieve the target speed.
+        ///
+        /// \return Returns reference to self.
+        ///
+        RotationJoint2D& setMotorForces(const float speed, const float torque);
+
+        /// \return Returns motor forces: first = current rotation speed, second = maximum torque.
+        ///
+        std::pair<float, float> getMotorForces();
 
     private:
         b2RevoluteJoint* m_jointL;
-
     };
 }
-
 #endif

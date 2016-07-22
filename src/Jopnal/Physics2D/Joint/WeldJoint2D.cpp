@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Physics2D/Joint/RotationJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/WeldJoint2D.hpp>
 
 #include <Jopnal/STL.hpp>
 #include <Box2D/Dynamics/Joints/b2Joint.hpp>
@@ -37,54 +37,31 @@
 namespace jop
 {
 
-    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
+    WeldJoint2D::WeldJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
         Joint2D(worldRef, bodyA, bodyB),
         m_jointL(nullptr)
     {
-        b2DistanceJointDef jd;
-
-        b2RevoluteJointDef jointDef;
+        b2WeldJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter());
         jointDef.collideConnected = collide;
+        jointDef.userData = this;
 
-        m_joint = static_cast<b2RevoluteJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
-        m_jointL = static_cast<b2RevoluteJoint*>(m_joint);
+        m_joint = static_cast<b2WeldJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2WeldJoint*>(m_joint);
     }
 
-    RotationJoint2D& RotationJoint2D::limit(const bool enable)
+    WeldJoint2D& WeldJoint2D::setDamping(const float frequency, const float damping)
     {
-        m_jointL->EnableLimit(enable);
+        JOP_ASSERT(frequency >= 0.f, "WeldJoint2D damping frequency can not be negative!");
+        JOP_ASSERT(damping >= 0.f, "WeldJoint2D damping ratio can not be negative!");
+
+        m_jointL->SetFrequency(frequency);
+        m_jointL->SetDampingRatio(damping);
         return *this;
     }
 
-    RotationJoint2D& RotationJoint2D::setLimits(const float minAngle, const float maxAngle)
+    std::pair<float, float> WeldJoint2D::getDamping()
     {
-        m_jointL->EnableLimit(true);
-        m_jointL->SetLimits(minAngle, maxAngle);
-        return *this;
+        return std::make_pair<float, float>(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
     }
-
-    std::pair<float, float> RotationJoint2D::getLimits()
-    {
-        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
-    }
-
-    RotationJoint2D& RotationJoint2D::enableMotor(const bool enable)
-    {
-        m_jointL->EnableMotor(enable);
-        return *this;
-    }
-
-    RotationJoint2D& RotationJoint2D::setMotorForces(const float speed, const float torque)
-    {
-        m_jointL->SetMotorSpeed(speed);
-        m_jointL->SetMaxMotorTorque(torque);
-        return *this;
-    }
-
-    std::pair<float, float> RotationJoint2D::getMotorForces()
-    {
-        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
-    }
-
 }

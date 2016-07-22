@@ -35,12 +35,45 @@ namespace jop
     class JOP_API PistonJoint2D : public Joint2D
     {
     public:
+        /// \brief PistonJoint2D constructor.
+        ///
+        /// \param collide Joined bodies collide with each other.
+        /// \param axis A single axis where movement is permitted.
+        ///
         PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis);
 
-        PistonJoint2D& limit(const bool limit);
-        PistonJoint2D& setLimits(const float minAngle, const float maxAngle);
-        PistonJoint2D& enableMotor(const bool set);
-        PistonJoint2D& setMotor(const float speed, const float torque);
+        /// \param enable Enables/disables obeying of movement limits.
+        ///
+        /// \return Returns reference to self.
+        ///
+        PistonJoint2D& limit(const bool enable);
+
+        /// Set new limits in world coordinates in relation to current position.
+        /// Enables limiting when called.
+        ///
+        /// \return Returns reference to self.
+        ///
+        PistonJoint2D& setLimits(const float min, const float max);
+
+        /// \return Returns current movement limits of the piston: first = minimum, second = maximum.
+        ///
+        std::pair<float, float> getLimits();
+
+        /// \param enable Enables/disables motor.
+        ///
+        /// \return Returns reference to self.
+        ///
+        PistonJoint2D& enableMotor(const bool enable);
+
+        /// Set new speed and force for the motor to exert.
+        /// 
+        /// \return Returns reference to self.
+        ///
+        PistonJoint2D& setMotorForces(const float speed, const float force);
+
+        /// \return Returns current motor forces: first = speed, second = force.
+        ///
+        std::pair<float, float> getMotorForces();
 
     private:
         b2PrismaticJoint* m_jointL;

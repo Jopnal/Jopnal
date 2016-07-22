@@ -27,6 +27,7 @@
 #include <Jopnal/Physics2D/Joint/PulleyJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/RopeJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/RotationJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/WeldJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/WheelJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint2D.hpp>
 #include <Jopnal/Physics2D/RayInfo2D.hpp>

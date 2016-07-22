@@ -33,10 +33,8 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
-
     RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
         Joint2D(worldRef, bodyA, bodyB),
         m_type(stiff ? b2JointType::e_distanceJoint : b2JointType::e_ropeJoint)
@@ -65,17 +63,15 @@ namespace jop
         }
     }
 
-
-    RopeJoint2D& RopeJoint2D::setSoftness(const float frequency, const float damping)
+    RopeJoint2D& RopeJoint2D::setDamping(const float frequency, const float damping)
     {
-        if (m_type == b2JointType::e_distanceJoint)
-        {
-            auto j = static_cast<b2DistanceJoint*>(m_joint);
-            j->SetFrequency(frequency);
-            j->SetDampingRatio(damping);
-        }
-        else
-            JOP_DEBUG_WARNING_ONCE("Softness of a soft RopeJoint2D can not be changed.");
+        JOP_ASSERT(m_type == b2JointType::e_distanceJoint, "Softness of a soft RopeJoint2D can not be changed.");
+        JOP_ASSERT(frequency >= 0.f, "RopeJoint2D damping frequency can not be negative!");
+        JOP_ASSERT(damping >= 0.f, "RopeJoint2D damping ratio can not be negative!");
+
+        auto j = static_cast<b2DistanceJoint*>(m_joint);
+        j->SetFrequency(frequency);
+        j->SetDampingRatio(damping);
 
         return *this;
     }
