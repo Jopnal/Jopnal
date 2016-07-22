@@ -51,7 +51,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path, const bool srgb, const bool genMipmaps);
+        bool load(const std::string& path, const bool srgb, const bool genMipmaps, const bool allowCompression = true);
 
         /// \brief Load from memory
         ///
@@ -99,7 +99,9 @@ namespace jop
         /// \param size The size of the area
         /// \param pixels Pointer to the pixels
         ///
-        void setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels);
+        void setPixels(const glm::uvec2& start, const glm::uvec2& size,const uint32 bytesPerPixel , const unsigned char* pixels);
+
+        void setPixels(const glm::uvec2& start, const Image& image);
 
         /// \brief Get the texture size
         ///

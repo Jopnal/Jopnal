@@ -60,6 +60,7 @@ set(__INC_GRAPHICS_TEXTURE
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture2D.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture2DDepth.hpp
+    ${__INCDIR_GRAPHICS}/Texture/TextureAtlas.hpp
     ${__INCDIR_GRAPHICS}/Texture/TextureSampler.hpp
 )
 source_group("Graphics\\Headers\\Texture" FILES ${__INC_GRAPHICS_TEXTURE})
@@ -76,6 +77,7 @@ list(APPEND SRC ${__INC_GRAPHICS_OPENGL})
 # Inline - Graphics
 set(__INL_GRAPHICS
     ${__INLDIR_GRAPHICS}/ShaderProgram.inl
+    ${__INLDIR_GRAPHICS}/TextureAtlas.inl
 )
 source_group("Graphics\\Inl" FILES ${__INL_GRAPHICS})
 list(APPEND SRC ${__INL_GRAPHICS})
@@ -131,6 +133,7 @@ set(__SRC_GRAPHICS_TEXTURE
     ${__SRCDIR_GRAPHICS}/Texture/Texture.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Texture2D.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Texture2DDepth.cpp
+    ${__SRCDIR_GRAPHICS}/Texture/TextureAtlas.cpp
     ${__SRCDIR_GRAPHICS}/Texture/TextureSampler.cpp
 )
 source_group("Graphics\\Source\\Texture" FILES ${__SRC_GRAPHICS_TEXTURE})

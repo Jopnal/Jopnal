@@ -59,7 +59,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path);
+        bool load(const std::string& path, const bool allowCompression = true);
 
         /// \brief Load the image from memory
         ///
@@ -78,9 +78,11 @@ namespace jop
         ///
         bool load(const glm::uvec2& size, const uint32 bytesPerpixel, const unsigned char* pixels);
 
-        /// \brief Return the size of the image
+        /// \brief Return the dimensions of the image
         ///
         glm::uvec2 getSize() const;
+
+        unsigned int getPixelSize() const;
 
         /// \brief Get image depth (bytes per pixel)
         ///
@@ -108,6 +110,10 @@ namespace jop
         ///
         bool isCompressed() const;
 
+        void flipVertically();
+
+        void flipHorizontally();
+
         /// \brief Check if the pixel depth value is supported
         ///
         /// \param depth The pixel depth in bytes
@@ -116,6 +122,7 @@ namespace jop
         ///
         static bool checkDepthValid(const uint32 depth);
 
+
     private:
 
         /// \brief Compress uncompressed image
@@ -123,7 +130,7 @@ namespace jop
         /// Compresses image to DXT1 format if RGB color space
         /// or DXT5 format if RGBA color space
         ///
-        bool compress();
+        bool compress(const bool allowCompression);
 
         std::vector<uint8>  m_pixels;           ///< Pixels in image
         uint32              m_bytesPerPixel;    ///< Image depth
