@@ -93,6 +93,8 @@ namespace jop { namespace gl
 
     JOP_API unsigned int getVersionMinor();
 
+    JOP_API unsigned int getGLSLVersion();
+
     JOP_API bool isES();
 }}
 

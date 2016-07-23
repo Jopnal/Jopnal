@@ -67,6 +67,69 @@ namespace
 
     int ns_argc;
     char** ns_argv;
+
+    void printOpenGLInfo()
+    {
+        using namespace jop;
+
+        auto getStr = [](const GLenum e) -> const char*
+        {
+            return reinterpret_cast<const char*>(glGetString(e));
+        };
+
+        std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
+        auto& deb = jop::DebugHandler::getInstance();
+
+        deb << DebugHandler::Severity::__Always
+            << "\t\tOpenGL initialized, adapter info:\n\n"
+            << "    Vendor:       " << getStr(GL_VENDOR) << "\n"
+            << "    Renderer:     " << getStr(GL_RENDERER) << "\n"
+            << "    Version:      " << getStr(GL_VERSION) << "\n"
+            << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION) << "\n";
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", false))
+        {
+            int unifVert = 0, unifFrag = 0, attr = 0, var = 0;
+
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &unifVert));
+            glCheck(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &unifFrag));
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attr));
+            glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
+
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits() << "\n"
+                <<   "    Maximum texture size: " << Texture::getMaximumSize() << "\n"
+                <<   "    Maximum GLSL vertex uniform vectors: " << unifVert << "\n"
+                <<   "    Maximum GLSL fragment uniform vectors: " << unifFrag << "\n"
+                <<   "    Maximum GLSL attribute vectors: " << attr << "\n"
+                <<   "    Maximum GLSL varying vectors: " << var << "\n";
+        }
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
+        {
+            GLint extensions;
+            glCheck(glGetIntegerv(GL_NUM_EXTENSIONS, &extensions));
+
+            deb << "\n\n    Available extensions:\n\n";
+
+            const int alignBase = 40;
+            int lastAlign = 0;
+
+            for (int i = 0; i < extensions; ++i)
+            {
+                const char* str = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+
+                for (int j = 0; j < lastAlign; ++j)
+                    deb << " ";
+
+                deb << "    " << str << (i % 4 == 3 ? "\n" : "");
+
+                lastAlign = (i % 4 == 3 ? 0 : alignBase - std::strlen(str));
+            }
+        }
+
+        JOP_DEBUG_INFO(jop::DebugHandler::Severity::__Always);
+
+    }
 }
 
 namespace jop
@@ -112,7 +175,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "Destroying jop::Engine, goodbye!");
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tDestroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////
@@ -130,6 +193,7 @@ namespace jop
 
         // Main window
         m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
+        printOpenGLInfo();
 
         // Resource manager
         createSubsystem<ResourceManager>();

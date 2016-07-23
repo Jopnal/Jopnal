@@ -62,7 +62,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool bind(const unsigned int texUnit = 1) const;
+        bool bind(const unsigned int texUnit = 0) const;
 
 
         /// \brief Check if this texture is valid
@@ -73,6 +73,8 @@ namespace jop
 
 
         void setSampler(const TextureSampler& sampler);
+
+        const TextureSampler& getSampler() const;
 
 
         /// \brief Get the texture size

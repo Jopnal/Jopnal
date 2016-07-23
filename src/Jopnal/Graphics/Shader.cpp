@@ -176,14 +176,12 @@ namespace jop
         if (versionString.empty())
         {
             versionString += "#version ";
-
-            versionString += std::to_string(gl::getVersionMajor());
-            versionString += std::to_string(gl::getVersionMinor());
+            versionString += std::to_string(gl::getGLSLVersion());
 
         #ifdef JOP_OPENGL_ES
-            versionString += "0 es\n";
+            versionString += " es\n";
         #else
-            versionString += "0 core\n";
+            versionString += " core\n";
         #endif
         }
 
@@ -199,7 +197,7 @@ namespace jop
         if (extString.empty())
         {
         #ifdef JOP_OPENGL_ES
-            if (JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location) && gl::getVersionMajor() < 3)
+            if (gl::getVersionMajor() < 3 && JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location))
                 extString += "#extension GL_NV_explicit_attrib_location : enable\n";
         #endif
         }

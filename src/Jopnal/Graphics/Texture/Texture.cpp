@@ -186,6 +186,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const TextureSampler& Texture::getSampler() const
+    {
+        return *m_sampler;
+    }
+
+    //////////////////////////////////////////////
+
     Texture& Texture::setFilterMode(const TextureSampler::Filter mode, const float param)
     {
         if (bind())

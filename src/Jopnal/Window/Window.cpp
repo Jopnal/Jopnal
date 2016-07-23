@@ -246,48 +246,6 @@ namespace jop
         GlState::setBlendFunc(true);
 
         glCheck(glDisable(GL_DITHER));
-
-        {
-            auto getStr = [](const GLenum e) -> const char*
-            {
-                return reinterpret_cast<const char*>(glGetString(e));
-            };
-
-            std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
-            auto& deb = jop::DebugHandler::getInstance();
-
-            deb << DebugHandler::Severity::__Always
-                << "Main window created, adapter info:\n\n"
-                << "    Vendor:       " << getStr(GL_VENDOR)                     << "\n"
-                << "    Renderer:     " << getStr(GL_RENDERER)                   << "\n"
-                << "    Version:      " << getStr(GL_VERSION)                    << "\n"
-                << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)   << "\n";
-
-            if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
-            {
-                GLint extensions;
-                glCheck(glGetIntegerv(GL_NUM_EXTENSIONS, &extensions));
-
-                deb << "\n\n    Available extensions:\n\n";
-
-                const int alignBase = 40;
-                int lastAlign = 0;
-
-                for (int i = 0; i < extensions; ++i)
-                {
-                    const char* str = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
-
-                    for (int j = 0; j < lastAlign; ++j)
-                        deb << " ";
-
-                    deb << "    " << str << (i % 4 == 3 ? "\n" : "");
-
-                    lastAlign = (i % 4 == 3 ? 0 : alignBase - std::strlen(str));
-                }
-            }
-
-            JOP_DEBUG_INFO(jop::DebugHandler::Severity::__Always);
-        }
     }
 
     //////////////////////////////////////////////
