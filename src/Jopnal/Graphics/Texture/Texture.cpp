@@ -325,7 +325,7 @@ namespace jop
     {
     #ifdef JOP_OPENGL_ES
 
-        #if __ANDROID_API__ < 18 && !defined(GL_EXT_sRGB)
+        #if !defined(JOP_OPENGL_ES3) && !defined(GL_EXT_sRGB)
             return false;
 
         #else

@@ -248,12 +248,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 RigidBody::getLinearVelocity() const
+    {
+        auto& vel = m_rigidBody->getLinearVelocity();
+
+        return glm::vec3(vel.x(), vel.y(), vel.z());
+    }
+
+    //////////////////////////////////////////////
+
     RigidBody& RigidBody::setAngularVelocity(const glm::vec3& angularVelocity)
     {
         m_rigidBody->activate();
         m_rigidBody->setAngularVelocity(btVector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 RigidBody::getAngularVelocity() const
+    {
+        auto& vel = m_rigidBody->getAngularVelocity();
+
+        return glm::vec3(vel.x(), vel.y(), vel.z());
     }
 
     //////////////////////////////////////////////
@@ -282,6 +300,17 @@ namespace jop
     {
         m_rigidBody->clearForces();
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    std::pair<glm::vec3, glm::vec3> RigidBody::getLocalBounds() const
+    {
+        btVector3 min;
+        btVector3 max;
+        m_rigidBody->getAabb(min, max);
+
+        return std::make_pair(glm::vec3(min.x(), min.y(), min.z()), glm::vec3(max.x(), max.y(), max.z()));
     }
 
     //////////////////////////////////////////////

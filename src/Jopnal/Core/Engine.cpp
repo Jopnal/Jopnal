@@ -32,6 +32,8 @@
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/MainRenderTarget.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Graphics/RenderPass.hpp>
@@ -82,10 +84,10 @@ namespace
 
         deb << DebugHandler::Severity::__Always
             << "\t\tOpenGL initialized, adapter info:\n\n"
-            << "    Vendor:       " << getStr(GL_VENDOR) << "\n"
-            << "    Renderer:     " << getStr(GL_RENDERER) << "\n"
-            << "    Version:      " << getStr(GL_VERSION) << "\n"
-            << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION) << "\n";
+            << "    Vendor:       " << getStr(GL_VENDOR)                    << "\n"
+            << "    Renderer:     " << getStr(GL_RENDERER)                  << "\n"
+            << "    Version:      " << getStr(GL_VERSION)                   << "\n"
+            << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)  << "\n";
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", false))
         {
@@ -96,20 +98,23 @@ namespace
             glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attr));
             glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
 
-            deb << "\n    Texture units: " << Texture::getMaxTextureUnits() << "\n"
-                <<   "    Maximum texture size: " << Texture::getMaximumSize() << "\n"
-                <<   "    Maximum GLSL vertex uniform vectors: " << unifVert << "\n"
-                <<   "    Maximum GLSL fragment uniform vectors: " << unifFrag << "\n"
-                <<   "    Maximum GLSL attribute vectors: " << attr << "\n"
-                <<   "    Maximum GLSL varying vectors: " << var << "\n";
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()               << "\n"
+                <<   "    Maximum: \n"
+                <<   "      Texture size:                  " << Texture::getMaximumSize() << "\n"
+                <<   "      GLSL vertex uniform vectors:   " << unifVert                  << "\n"
+                <<   "      GLSL fragment uniform vectors: " << unifFrag                  << "\n"
+                <<   "      GLSL attribute vectors:        " << attr                      << "\n"
+                <<   "      GLSL varying vectors:          " << var                       << "\n";
         }
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
         {
+            deb << "\n\n    Available extensions:\n\n";
+
+        #ifdef JOP_OS_DESKTOP
+
             GLint extensions;
             glCheck(glGetIntegerv(GL_NUM_EXTENSIONS, &extensions));
-
-            deb << "\n\n    Available extensions:\n\n";
 
             const int alignBase = 40;
             int lastAlign = 0;
@@ -125,6 +130,12 @@ namespace
 
                 lastAlign = (i % 4 == 3 ? 0 : alignBase - std::strlen(str));
             }
+
+        #else
+
+            deb << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+
+        #endif
         }
 
         JOP_DEBUG_INFO(jop::DebugHandler::Severity::__Always);

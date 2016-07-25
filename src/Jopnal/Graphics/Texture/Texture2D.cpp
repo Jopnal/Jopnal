@@ -88,7 +88,7 @@ namespace jop
         setPixelStore(bytesPerPixel);
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel);
-        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, pixels));
+        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, getTypeEnum(bytesPerPixel), pixels));
 
         if (genMipmaps)
         {
@@ -255,6 +255,25 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Texture2D::getTypeEnum(const unsigned int bytesPerPixel)
+    {
+        switch (bytesPerPixel)
+        {
+            case 6:
+            case 8:
+                return GL_HALF_FLOAT;
+
+            case 12:
+            case 16:
+                return GL_FLOAT;
+
+            default:
+                return GL_UNSIGNED_BYTE;
+        }
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Texture2D::getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb)
     {
         switch (bytesPerPixel)
@@ -293,7 +312,7 @@ namespace jop
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
 
-        #if __ANDROID_API__ < 18
+        #ifndef JOP_OPENGL_ES3
 
             #ifdef GL_EXT_sRGB
                 

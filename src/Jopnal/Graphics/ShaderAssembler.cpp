@@ -238,12 +238,14 @@ namespace jop
             // Handle missing opener case
             if (first[0] != '<')
                 next = first - whitespace;
+
             else
             {
                 const char* opener = first;
                 const char* closer = strchr(opener, '>');
                 std::string temp(opener + 1, closer);
                 const char* pluginEnd = strstr(first, "#pluginend");
+
                 if (!pluginEnd)
                 {
                     JOP_DEBUG_WARNING("Shader plugins not found or invalid formatting!");
@@ -254,6 +256,7 @@ namespace jop
 
                 next = closer + 1;
             }
+
             first = strstr(next, "#plugin");
         }
     }
@@ -323,12 +326,14 @@ namespace jop
                 // Handle missing opener case
                 if (current[0] != '<')
                     next = current - whitespace;
+
                 else
                 {
                     const char* opener = current;
                     const char* closer = strchr(opener, '>');
                     std::string temp(opener + 1, closer);
                     auto itr = m_instance->m_plugins.find(temp);
+
                     if (itr != m_instance->m_plugins.end())
                     {
                         if (duplicateSet.find(itr->first.c_str()) != duplicateSet.end())
@@ -347,9 +352,7 @@ namespace jop
                             std::string stripped = itr->second;
 
                             while (auto pos = stripped.find("#include") != std::string::npos)
-                            {
                                 stripped.erase(pos, stripped.find_first_of('>', pos));
-                            }
 
                             output.append(stripped);
                         }

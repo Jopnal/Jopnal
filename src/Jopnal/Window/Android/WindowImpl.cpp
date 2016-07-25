@@ -67,7 +67,7 @@ namespace
         {
             EGL_CONTEXT_CLIENT_VERSION,
 
-        #if __ANDROID_API__ >= 18
+        #ifdef JOP_OPENGL_ES3
             3
         #else
             2

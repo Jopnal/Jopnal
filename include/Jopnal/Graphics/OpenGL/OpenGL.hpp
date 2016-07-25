@@ -40,6 +40,8 @@
         #include <GLES2/gl2ext.h>
         #include <GLES3/gl3platform.h>
 
+        #define JOP_OPENGL_ES3
+
     #else
 
         #include <GLES2/gl2.h>

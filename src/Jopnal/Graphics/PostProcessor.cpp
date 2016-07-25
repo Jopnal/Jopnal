@@ -31,7 +31,6 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/STL.hpp>
-    #include <android/api-level.h>
 
 #endif
 
@@ -42,7 +41,7 @@
 
 namespace
 {
-    #if !defined(JOP_OPENGL_ES) || __ANDROID_API__ >= 18
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
         #define JOP_ENABLE_BLOOM
     #endif
 

@@ -53,8 +53,24 @@
 		#define JOP_COLOR_OUT(loc) 
 		#define JOP_FRAG_COLOR(loc) gl_FragColor 
 	#else
-		#define JOP_COLOR_OUT(loc) layout(location = loc) out vec4 jop_FragColor##loc;
-		#define JOP_FRAG_COLOR(loc) jop_FragColor##loc 
+		#define JOP_COLOR_OUT(loc) layout(location = loc) out vec4 jop_FragColor_loc;
+		#define JOP_FRAG_COLOR(loc) jop_FragColor_loc 
+	#endif
+
+#pluginend
+
+// Texture sampling function compatibility
+//
+// Needed because of the differences between GL ES 2 and 3
+//
+#plugin <Jopnal/Compat/Samplers>
+
+	#if defined(GL_ES) && __VERSION__ < 300
+		#define JOP_TEXTURE_2D texture2D
+		#define JOP_TEXTURE_CUBE textureCube
+	#else
+		#define JOP_TEXTURE_2D texture
+		#define JOP_TEXTURE_CUBE texture
 	#endif
 
 #pluginend

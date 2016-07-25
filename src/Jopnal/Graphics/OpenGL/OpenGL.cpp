@@ -125,14 +125,7 @@ namespace jop
             {
                 const char* str = std::strpbrk(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)), "0123456789");
 
-                version =
-
-            #ifdef JOP_OPENGL_ES
-                std::stoul(std::string(&str[0], 1) + str[1] + str[2])
-            #else
-                std::stoul(std::string(&str[0], 1) + str[2] + str[3])
-            #endif
-                ;
+                version = std::stoul(std::string(&str[0], 1) + str[2] + str[3]);
             }
 
             return version;

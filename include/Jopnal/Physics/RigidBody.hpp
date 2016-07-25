@@ -202,6 +202,8 @@ namespace jop
         ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
+        glm::vec3 getLinearVelocity() const;
+
         /// \brief Sets angular velocity to the rigid body
         ///
         /// \comm setAngularVelocity
@@ -211,6 +213,8 @@ namespace jop
         /// \return Reference to self
         ///
         RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
+
+        glm::vec3 getAngularVelocity() const;
 
         /// \brief Applies force to the rigid body's center 
         ///
@@ -239,6 +243,8 @@ namespace jop
         /// \return Reference to self
         ///
         RigidBody& clearForces();
+
+        std::pair<glm::vec3, glm::vec3> getLocalBounds() const;
 
     protected:
 
