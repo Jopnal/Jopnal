@@ -65,7 +65,7 @@ namespace jop
         ///
         PistonJoint2D& enableMotor(const bool enable);
 
-        /// Set new speed and force for the motor to exert.
+        /// Set new target speed and the maximum force for the motor to try to reach it.
         /// 
         /// \return Returns reference to self.
         ///

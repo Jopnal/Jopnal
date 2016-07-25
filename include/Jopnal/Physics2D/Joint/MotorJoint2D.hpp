@@ -46,9 +46,11 @@ namespace jop
         MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
 
         /// \return glm::vec2 Returns target linear offsets as a glm::vec2 with x and y components.
+        ///
         glm::vec2 getLinearOffset();
 
         /// \return float Returns target angular offset as radians.
+        ///
         float getAngularOffset();
 
         /// Set new target linear offsets for x and y components in relation to the other body.
@@ -67,14 +69,17 @@ namespace jop
         MotorJoint2D& setForce(const float force);
 
         /// \return float Returns the current force with which the body tries to reach the target offsets.
+        ///
         float getForce();
 
         /// Set new torque with which the body tries to reach the target offsets.
         ///
         /// \return Reference to self
+        ///
         MotorJoint2D& setTorque(const float torque);
 
         /// \return float Returns the current torque with which the body tries to reach the target offsets.
+        ///
         float getTorque();
 
     private:

@@ -76,6 +76,7 @@ namespace jop
         WheelJoint2D& setDamping(const float frequency, const float damping);
 
         /// \return Returns current damping values: first = frequency, second = damping.
+        ///
         std::pair<float, float> getDamping();
 
     private:
