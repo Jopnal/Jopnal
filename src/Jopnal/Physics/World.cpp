@@ -41,6 +41,7 @@
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/STL.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
 
     #pragma warning(push)
     #pragma warning(disable: 4127)
@@ -160,8 +161,8 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute("a_Position", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
+                shdr->setAttribute("a_Normal", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -307,7 +308,7 @@ namespace detail
 namespace jop
 {
     World::World(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, 0),
+        : Drawable          (obj, renderer, RenderPass::Pass::Forward, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<::detail::GhostCallback>()),
           m_contactListener (std::make_unique<::detail::ContactListenerImpl>())
@@ -428,7 +429,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    std::vector<RayInfo> World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 

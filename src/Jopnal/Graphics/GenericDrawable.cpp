@@ -43,8 +43,8 @@
 
 namespace jop
 {
-    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer)
-        : Drawable(object, renderer, 0)
+    GenericDrawable::GenericDrawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
+        : Drawable(object, renderer, pass, 0)
     {}
 
     GenericDrawable::GenericDrawable(const GenericDrawable& other, Object& newObj)
@@ -77,16 +77,16 @@ namespace jop
         // Set vertex attributes
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute("a_Position", 0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute("a_TexCoords", 1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
 
         if (mat.hasAttribute(Material::Attribute::VertexColor) && msh.hasVertexComponent(Mesh::VertexComponent::Color))
-            s.setAttribute(5, GL_FLOAT, 4, stride, msh.getVertexOffset(Mesh::Color));
+            s.setAttribute("a_Color", 5, GL_FLOAT, 4, stride, msh.getVertexOffset(Mesh::Color));
 
         if (mat.hasAttribute(Material::Attribute::__Lighting | Material::Attribute::EnvironmentMap))
         {
             s.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-            s.setAttribute(2, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Normal));
+            s.setAttribute("a_Normal", 2, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Normal));
 
             // Set lights
             if (mat.hasAttribute(Material::Attribute::__Lighting))
@@ -98,23 +98,9 @@ namespace jop
 
     #ifdef JOP_DEBUG_MODE
 
-        static const struct Callback : SettingCallback<bool>
-        {
-            const char* str;
-            bool validate;
-            Callback()
-                : str("engine@Debug|bValidateShaders"),
-                  validate(SettingManager::get<bool>(str, false))
-            {
-                SettingManager::registerCallback(str, *this);
-            }
-            void valueChanged(const bool& value) override
-            {
-                validate = value;
-            }
-        } cb;
+        static DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
 
-        if (cb.validate && !s.validate())
+        if (validateSetting.value && !s.validate())
             return;
 
     #endif

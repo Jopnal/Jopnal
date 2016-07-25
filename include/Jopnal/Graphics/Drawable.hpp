@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <memory>
 
@@ -48,10 +49,10 @@ namespace jop
 
         enum
         {
-            ReceiveLights = 1,
-            ReceiveShadows = 1 << 1,
-            CastShadows = 1 << 2,
-            Reflected = 1 << 3
+            ReceiveLights   = 1,
+            ReceiveShadows  = 1 << 1,
+            CastShadows     = 1 << 2,
+            Reflected       = 1 << 3
         };
 
     protected:
@@ -71,7 +72,7 @@ namespace jop
         /// \param renderer Reference to the renderer
         /// \param ID Component identifier
         ///
-        Drawable(Object& object, Renderer& renderer, const uint32 ID);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -255,6 +256,7 @@ namespace jop
         mutable Model m_model;                          ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
         Renderer& m_rendererRef;                        ///< Reference to the renderer
+        const RenderPass::Pass m_pass;
         float m_alphaMult;
         uint8 m_renderGroup;                            ///< The render group
         unsigned char m_flags;                          ///< Property flags

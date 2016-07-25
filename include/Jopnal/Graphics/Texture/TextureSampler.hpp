@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <memory>
 
@@ -32,8 +33,12 @@
 
 namespace jop
 {
-    class JOP_API TextureSampler
+    class JOP_API TextureSampler final : public Resource
     {
+    private:
+
+        JOP_DISALLOW_COPY_MOVE(TextureSampler);
+
     public:
 
         /// The filtering mode
@@ -62,7 +67,7 @@ namespace jop
         /// 
         /// This will create a sampler object with default settings.
         ///
-        TextureSampler();
+        TextureSampler(const std::string& name);
 
         /// \brief Constructor
         ///
@@ -70,23 +75,7 @@ namespace jop
         /// \param repeat Initial repeating mode
         /// \param param Anisotropic filtering level
         ///
-        TextureSampler(const Filter filter, const Repeat repeat, const float param = 1.f);
-
-        /// \brief Copy constructor
-        ///
-        TextureSampler(const TextureSampler& other);
-
-        /// \brief Copy assignment operator
-        ///
-        TextureSampler& operator =(const TextureSampler& other);
-
-        /// \brief Move constructor
-        ///
-        TextureSampler(TextureSampler&& other);
-
-        /// \brief Move assignment operator
-        ///
-        TextureSampler& operator =(TextureSampler&& other);
+        TextureSampler(const std::string& name, const Filter filter, const Repeat repeat, const float param = 1.f);
 
         /// \brief Destructor
         ///

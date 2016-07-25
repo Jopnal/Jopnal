@@ -69,7 +69,7 @@ namespace jop
 namespace jop
 {
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
     {
@@ -107,7 +107,7 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute("a_Position", 0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
 
         mat.sendToShader(s, camera, getAlphaMultiplier());
 

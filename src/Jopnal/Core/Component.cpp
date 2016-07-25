@@ -151,11 +151,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Component::setActive(const bool)
-    {}
-
-    //////////////////////////////////////////////
-
     Message::Result Component::receiveMessage(const Message& message)
     {
         return JOP_EXECUTE_COMMAND(Component, message.getString(), this);

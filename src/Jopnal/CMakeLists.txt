@@ -101,7 +101,7 @@ if (JOP_OS_ANDROID)
 endif()
 
 if (JOP_OS_ANDROID)
-    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}")
+    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}-${ANDROID_API_MIN}")
 else ()
     set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}")
 endif()
@@ -132,7 +132,7 @@ ExternalProject_Get_Property(PhysFS SOURCE_DIR)
 include_directories(${SOURCE_DIR}/src)
 
 ExternalProject_Get_Property(PhysFS BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX})
+list(APPEND EXT_LIBS ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 
 # Bullet
@@ -180,12 +180,12 @@ if (NOT JOP_OS_ANDROID)
     set(BULLET_LIB_SUFFIX _Debug)
 endif()
 
-target_link_libraries(jopnal debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+list(APPEND EXT_LIBS debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
                              debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
                              debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
                              debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-target_link_libraries(jopnal optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}
+list(APPEND EXT_LIBS optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}
                              optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
                              optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
                              optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -231,15 +231,26 @@ if (NOT JOP_OS_ANDROID)
     include_directories(${SOURCE_DIR}/include)
 
     ExternalProject_Get_Property(GLFW BINARY_DIR)
-    target_link_libraries(jopnal ${BINARY_DIR}/src/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
+    list(APPEND EXT_LIBS ${BINARY_DIR}/src/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 endif()
 
 # OpenGL/ES
-if (NOT JOP_OPENGL_ES)
+if (JOP_OS_ANDROID)
+
+    if (ANDROID_API_MIN GREATER 17)
+        set(ES_LIB GLESv3)
+    else ()
+        set(ES_LIB GLESv2)
+    endif()
+    
+    list(APPEND EXT_LIBS android log EGL ${ES_LIB} OpenSLES)
+
+elseif (NOT JOP_OPENGL_ES)
 
     find_package(OpenGL REQUIRED)
     include_directories(${OPENGL_INCLUDE_DIR})
+    list(APPEND EXT_LIBS ${OPENGL_gl_LIBRARY})
 
 endif()
 
@@ -248,24 +259,9 @@ if (JOP_OPENGL_ES AND JOP_OS_LINUX)
     find_package(EGL REQUIRED)
     find_package(GLES REQUIRED)
     include_directories(${EGL_INCLUDE_DIR} ${GLES_INCLUDE_DIR})
-
-endif()
-
-if (NOT JOP_OPENGL_ES)
-    list(APPEND EXT_LIBS ${OPENGL_gl_LIBRARY})
-endif()
-
-if (JOP_OPENGL_ES AND JOP_OS_LINUX)
     list(APPEND EXT_LIBS ${EGL_LIBRARY} ${GLES_LIBRARY})
+
 endif()
-
-if (JOP_OS_ANDROID)
-    list(APPEND EXT_LIBS android log EGL GLESv3 OpenSLES)
-    #target_link_libraries(jopnal ${PROJECT_SOURCE_DIR}/extlibs/lib/${ANDROID_ABI}/libgpg.a)
-endif()
-
-target_link_libraries(jopnal ${EXT_LIBS})
-
 
 # OpenAL
 if (JOP_OS_WINDOWS)
@@ -298,7 +294,7 @@ ExternalProject_Get_Property(OpenAL SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(OpenAL BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME})
+list(APPEND EXT_LIBS ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME})
 
 if (JOP_OS_ANDROID)
     install(FILES ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${OPENAL_LIB_NAME} DESTINATION extlibs/lib/${ANDROID_ABI_DIR})
@@ -361,7 +357,7 @@ ExternalProject_Get_Property(Vorbis SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(Vorbis BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
+list(APPEND EXT_LIBS ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisfile${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbisenc${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vorbis${CMAKE_STATIC_LIBRARY_SUFFIX}
                              ${OGG_LIBRARY}) # Apparently ogg has to be linked after vorbis to avoid linker errors
@@ -389,4 +385,55 @@ ExternalProject_Get_Property(Box2D SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 ExternalProject_Get_Property(Box2D BINARY_DIR)
-target_link_libraries(jopnal ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX})
+list(APPEND EXT_LIBS ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Box2D${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+# Combine static libraries on VC++
+if (JOP_COMPILER_MSVC AND NOT BUILD_SHARED_LIBS)
+
+    set(DEBUG_LIBRARIES "")
+    set(RELEASE_LIBRARIES "")
+    set(ADD_DEBUG FALSE)
+    set(ADD_RELEASE FALSE)
+    
+    foreach(lib ${EXT_LIBS})
+    
+        if (${lib} MATCHES "debug")
+        
+            set(ADD_DEBUG TRUE)
+            continue()
+        
+        elseif (${lib} MATCHES "optimized")
+        
+            set(ADD_RELEASE TRUE)
+            continue()
+        
+        endif()
+        
+        if (NOT ${lib} MATCHES ".*\\.lib")
+             set(lib ${lib}.lib)
+        endif()
+        
+        if (ADD_DEBUG)
+            set(DEBUG_LIBRARIES "${DEBUG_LIBRARIES} \"${lib}\"")
+            set(ADD_DEBUG FALSE)
+            
+        elseif (ADD_RELEASE)
+            set(RELEASE_LIBRARIES "${RELEASE_LIBRARIES} \"${lib}\"")
+            set(ADD_RELEASE FALSE)
+            
+        else ()
+            set(DEBUG_LIBRARIES "${DEBUG_LIBRARIES} \"${lib}\"")
+            set(RELEASE_LIBRARIES "${RELEASE_LIBRARIES} \"${lib}\"")
+            
+        endif()
+        
+    endforeach()
+     
+    set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS_DEBUG ${DEBUG_LIBRARIES})
+    set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS_RELEASE ${LIBRARIES} ${RELEASE_LIBRARIES})
+    set_target_properties(jopnal PROPERTIES STATIC_LIBRARY_FLAGS "/ignore:4221 /ignore:4006")
+
+else ()
+    target_link_libraries(jopnal ${EXT_LIBS})
+    
+endif()

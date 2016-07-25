@@ -334,8 +334,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ShaderProgram::setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const void* pointer)
+    void ShaderProgram::setAttribute(const std::string& name, const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer)
     {
+        const int loc = getAttributeLocation(name, location);
+
         GlState::setVertexAttribute(true, loc);
         glCheck(glVertexAttribPointer(loc, amount, type, GL_FALSE, stride, pointer));
     }
@@ -384,22 +386,6 @@ namespace jop
 
     int ShaderProgram::getUniformLocation(const std::string& name)
     {
-        static const struct Callback : SettingCallback<bool>
-        {
-            const char* str;
-            bool err;
-            Callback()
-                : str("engine@Debug|bPrintShaderUniformLocationErrors"),
-                err(SettingManager::get<bool>(str, true))
-            {
-                SettingManager::registerCallback(str, *this);
-            }
-            void valueChanged(const bool& value) override
-            {
-                err = value;
-            }
-        } cb;
-
         if (bind())
         {
             auto itr = m_unifMap.find(name);
@@ -411,8 +397,10 @@ namespace jop
 
             if (location == -1)
             {
-                if (cb.err)
-                    JOP_DEBUG_WARNING("Uniform/attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
+                static DynamicSetting<bool> err("engine@Debug|bPrintShaderUniformLocationErrors", true);
+
+                if (err.value)
+                    JOP_DEBUG_WARNING("Uniform named \"" << name << "\" not found in shader \"" << getName() << "\"");
             }
             else
                 m_unifMap[name] = location;
@@ -421,6 +409,46 @@ namespace jop
         }
 
         return -1;
-    }  
+    }
 
+    //////////////////////////////////////////////
+
+    int ShaderProgram::getAttributeLocation(const std::string& name, const unsigned int loc)
+    {
+    #ifndef JOP_OPENGL_ES
+
+        name;
+        return loc;
+
+    #else
+
+        if (gl::getVersionMajor() >= 3)
+            return loc;
+
+        else if (bind())
+        {
+            auto itr = m_attribMap.find(name);
+
+            if (itr != m_attribMap.end())
+                return itr->second;
+
+            const int location = glCheck(glGetAttribLocation(m_programID, name.c_str()));
+
+            if (location == -1)
+            {
+                static DynamicSetting<bool> err("engine@Debug|bPrintShaderAttributeLocationErrors", true);
+
+                if (err.value)
+                    JOP_DEBUG_WARNING("Attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
+            }
+            else
+                m_unifMap[name] = location;
+
+            return location;
+        }
+
+        return -1;
+
+    #endif
+    }
 }

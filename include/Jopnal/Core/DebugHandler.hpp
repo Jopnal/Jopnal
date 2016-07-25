@@ -99,7 +99,9 @@ namespace jop
             Error,
             Warning,
             Info,
-            Diagnostic
+            Diagnostic,
+
+            __Always
         };
 
     public:

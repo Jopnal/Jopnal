@@ -33,28 +33,30 @@
 
 #endif
 
+#if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+    #define JOP_ENABLE_SAMPLERS
+#endif
+
+
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    TextureSampler::TextureSampler()
-        : m_sampler     (0),
+    TextureSampler::TextureSampler(const std::string& name)
+        : Resource      (name),
+          m_sampler     (0),
           m_filter      (Filter::None),
           m_repeat      (Repeat::Basic),
           m_anisotropic (1.f),
           m_borderColor ()
     {
-        static const Filter defFilter = static_cast<Filter>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultFilterMode", 0));
-        static const Repeat defRepeat = static_cast<Repeat>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultRepeatMode", 0));
-        static const float defAniso = SettingManager::get<float>("engine@Graphics|Texture|fDefaultAnisotropyLevel", 16.f);
-        static const Color defColor = Color(SettingManager::get<std::string>("engine@Graphics|Texture|fDefaultBorderColor", "FFFFFFFF"));
-
-        reset().setFilterMode(defFilter, defAniso).setRepeatMode(defRepeat).setBorderColor(defColor);
+        reset().setFilterMode(Filter::None, 1.f).setRepeatMode(Repeat::Basic).setBorderColor(Color::Black);
     }
 
-    TextureSampler::TextureSampler(const Filter filter, const Repeat repeat, const float param)
-        : m_sampler     (0),
+    TextureSampler::TextureSampler(const std::string& name, const Filter filter, const Repeat repeat, const float param)
+        : Resource      (name),
+          m_sampler     (0),
           m_filter      (Filter::None),
           m_repeat      (Repeat::Basic),
           m_anisotropic (1.f),
@@ -63,68 +65,50 @@ namespace jop
         reset().setFilterMode(filter, param).setRepeatMode(repeat);
     }
 
-    TextureSampler::TextureSampler(const TextureSampler& other)
-        : m_sampler     (0),
-          m_filter      (Filter::None),
-          m_repeat      (Repeat::Basic),
-          m_anisotropic (1.f),
-          m_borderColor ()
-    {
-        *this = other;
-    }
-
-    TextureSampler& TextureSampler::operator =(const TextureSampler& other)
-    {
-        return reset()
-              .setFilterMode(other.getFilteringMode(), other.getAnisotropyLevel())
-              .setRepeatMode(other.getRepeatMode()).setBorderColor(other.getBorderColor());
-    }
-
-    TextureSampler::TextureSampler(TextureSampler&& other)
-        : m_sampler     (other.m_sampler),
-          m_filter      (other.m_filter),
-          m_repeat      (other.m_repeat),
-          m_anisotropic (other.m_anisotropic),
-          m_borderColor (other.m_borderColor)
-    {
-        other.m_sampler = 0;
-    }
-
-    TextureSampler& TextureSampler::operator=(TextureSampler&& other)
-    {
-        m_sampler = other.m_sampler;
-        other.m_sampler = 0;
-
-        m_filter = other.m_filter;
-        m_repeat = other.m_repeat;
-        m_anisotropic = other.m_anisotropic;
-        m_borderColor = other.m_borderColor;
-
-        return *this;
-    }
-
     TextureSampler::~TextureSampler()
     {
+    #ifdef JOP_ENABLE_SAMPLERS
+
         if (m_sampler)
+        {
             glCheck(glDeleteSamplers(1, &m_sampler));
+        }
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void TextureSampler::bind(const unsigned int textureUnit) const
     {
+    #ifdef JOP_ENABLE_SAMPLERS
+
         if (m_sampler)
+        {
             glCheck(glBindSampler(textureUnit, m_sampler));
+        }
+
+    #else
+
+        textureUnit;
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     TextureSampler& TextureSampler::reset()
     {
+    #ifdef JOP_ENABLE_SAMPLERS
+
         if (m_sampler)
+        {
             glCheck(glDeleteSamplers(1, &m_sampler));
+        }
 
         glCheck(glGenSamplers(1, &m_sampler));
+
+    #endif
 
         return *this;
     }
@@ -133,23 +117,32 @@ namespace jop
 
     TextureSampler& TextureSampler::setFilterMode(const Filter mode, const float param)
     {
+    #ifdef JOP_ENABLE_SAMPLERS
+
         if (m_sampler)
         {
             switch (mode)
             {
                 case Filter::None:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-                    break;                                                        
-                case Filter::Bilinear:                                            
+                    break;
+                }
+                case Filter::Bilinear:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                    break;                                                        
-                case Filter::Trilinear:                                           
+                    break;
+                }
+                case Filter::Trilinear:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                     break;
+                }
                 case Filter::Anisotropic:
+                {
                     if (getMaxAnisotropy() > 0.f)
                     {
                         glCheck(glSamplerParameterf(m_sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, getMaxAnisotropy())));
@@ -157,11 +150,19 @@ namespace jop
                     else
                         // Should never happen but just to be sure.
                         JOP_DEBUG_WARNING("Anisotropic filtering is not supported on this system");
+                }
             }
 
             m_filter = mode;
             m_anisotropic = param;
         }
+
+    #else
+
+        mode;
+        param;
+
+    #endif
 
         return *this;
     }
@@ -170,38 +171,54 @@ namespace jop
 
     TextureSampler& TextureSampler::setRepeatMode(const Repeat repeat)
     {
+    #ifdef JOP_ENABLE_SAMPLERS
+
         if (m_sampler)
         {
             switch (repeat)
             {
                 case Repeat::Basic:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_REPEAT));
                     break;
+                }
                 case Repeat::Mirrored:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
                     break;
+                }
                 case Repeat::ClampEdge:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
                     break;
+                }
 
             #ifndef JOP_OPENGL_ES
 
                 case Repeat::ClampBorder:
+                {
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
                     glCheck(glSamplerParameteri(m_sampler, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+                }
 
             #endif
             }
 
             m_repeat = repeat;
         }
+
+    #else
+
+        repeat;
+
+    #endif
 
         return *this;
     }
@@ -212,7 +229,7 @@ namespace jop
     {
     #ifndef JOP_OPENGL_ES
 
-        if (m_sampler && m_borderColor != color)
+        if (m_sampler)
         {
             glCheck(glSamplerParameterfv(m_sampler, GL_TEXTURE_BORDER_COLOR, &m_borderColor.colors[0]));
 

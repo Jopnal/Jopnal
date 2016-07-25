@@ -4,13 +4,15 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/FragmentColor>
+
 uniform sampler2D u_Texture;
 uniform float u_Threshold;
 uniform float u_SubExponent;
 
 in vec2 vf_TexCoords;
 
-layout(location = 0) out vec4 out_FinalColor;
+JOP_COLOR_OUT(0)
 
 const float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
 const float weight[3] = float[](0.4162162162, 0.2270270270, 0.0702702703);
@@ -32,7 +34,7 @@ void main()
         tempColor += texture(u_Texture, vf_TexCoords - vec2(0.0, offset[i] / float(size.y))).rgb * weight[i];
     }
 
-    out_FinalColor = vec4(max
+    JOP_FRAG_COLOR(0) = vec4(max
     (
         float(dot(tempColor.rgb, vec3(0.2126, 0.7152, 0.0722)) > u_Threshold) * tempColor,  //< If the brightness exceeds the threshold
         pow(tempColor / vec3(u_Threshold), vec3(u_SubExponent))                             //< Otherwise dim the output color exponentally

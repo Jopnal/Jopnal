@@ -4,10 +4,12 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/FragmentColor>
+
 // Final color
-out vec4 out_FinalColor; 
+JOP_COLOR_OUT(0)
 
 void main() 
 { 
-    out_FinalColor = vec4(1.0, 0.0, 0.0, 1.0);
+    JOP_FRAG_COLOR(0) = vec4(1.0, 0.0, 0.0, 1.0);
 }

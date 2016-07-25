@@ -88,6 +88,8 @@ namespace jop
         ///
         static const std::string& getVersionString();
 
+        static const std::string& getExtensionString();
+
     private:
 
         Type                        m_shaderType;   ///< Shaders type (Vertex / Geometry / Fragment)

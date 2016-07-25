@@ -46,7 +46,7 @@ namespace jop
     {
         const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(window.getSize()));
 
-        const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::isGLES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
+        const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::isES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
 
         using Slot = ColorAttachmentSlot;
         using CA = ColorAttachment;
@@ -54,7 +54,7 @@ namespace jop
         addColorAttachment(Slot::_1, hdr ? CA::RGBA2DFloat16 : CA::RGBA2D, scaledRes);
         addDepthStencilAttachment(DepthStencilAttachment::Renderbuffer24_8, scaledRes);
 
-        getColorTexture(Slot::_1)->getSampler().setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+        getColorTexture(Slot::_1)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
 
         setClearColor(Color(SettingManager::get<std::string>("engine@Graphics|MainRenderTarget|sClearColor", "000000FF")));
     }

@@ -75,16 +75,17 @@ namespace jop
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, Renderer& renderer, const uint32 ID)
+    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 ID)
         : Component     (object, ID),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (renderer),
+          m_pass        (pass),
           m_alphaMult   (1.f),
           m_renderGroup (0),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
     {
-        renderer.bind(*this);
+        renderer.bind(*this, pass);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
@@ -92,16 +93,17 @@ namespace jop
           m_model       (other.m_model),
           m_shader      (other.m_shader),
           m_rendererRef (other.m_rendererRef),
+          m_pass        (other.m_pass),
           m_alphaMult   (other.m_alphaMult),
           m_renderGroup (other.m_renderGroup),
           m_flags       (other.m_flags)
     {
-        m_rendererRef.bind(*this);
+        m_rendererRef.bind(*this, m_pass);
     }
 
     Drawable::~Drawable()
     {
-        m_rendererRef.unbind(*this);
+        m_rendererRef.unbind(*this, m_pass);
     }
 
     //////////////////////////////////////////////

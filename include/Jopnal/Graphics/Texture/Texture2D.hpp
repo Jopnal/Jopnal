@@ -123,6 +123,8 @@ namespace jop
         ///
         static unsigned int getFormatEnum(const unsigned int bytesPerPixel);
 
+        static unsigned int getTypeEnum(const unsigned int bytesPerPixel);
+
         /// \brief Get the OpenGL internal format enum
         ///
         /// \param formatEnum The external format enum fetched with getFormatEnum()

@@ -112,7 +112,7 @@ namespace jop
         ///
         enum class Map
         {
-            Diffuse = 1,
+            Diffuse = 0,
             Specular,
             Emission,
             Environment,

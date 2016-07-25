@@ -124,7 +124,6 @@ namespace jop
         fdf.density = 1;
 
         m_body->CreateFixture(&fdf);
-        setActive(isActive());
     }
 
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
@@ -238,15 +237,6 @@ namespace jop
     {
         m_body->SetFixedRotation(rot);
         return *this;
-    }
-
-
-
-    //////////////////////////////////////////////
-
-    void RigidBody2D::setActive(const bool active)
-    {
-        m_body->SetActive(active);
     }
 
     //////////////////////////////////////////////

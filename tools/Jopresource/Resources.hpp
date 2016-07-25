@@ -14,13 +14,13 @@ extern const unsigned char defaultTexture[18901];
 
 extern const unsigned char errorTexture[92086];
 
-extern const unsigned char defaultShaderFrag[230];
+extern const unsigned char defaultShaderFrag[266];
 
-extern const unsigned char defaultShaderVert[436];
+extern const unsigned char defaultShaderVert[466];
 
-extern const unsigned char defaultUberShaderFrag[18002];
+extern const unsigned char defaultUberShaderFrag[17961];
 
-extern const unsigned char defaultUberShaderVert[2704];
+extern const unsigned char defaultUberShaderVert[2696];
 
 extern const unsigned char depthRecordShaderFrag[177];
 
@@ -32,19 +32,19 @@ extern const unsigned char depthRecordShaderPointGeom[1691];
 
 extern const unsigned char depthRecordShaderPointVert[298];
 
-extern const unsigned char gaussianBlurShaderFrag[1218];
+extern const unsigned char gaussianBlurShaderFrag[1234];
 
-extern const unsigned char physicsDebugShaderFrag[297];
+extern const unsigned char physicsDebugShaderFrag[313];
 
-extern const unsigned char physicsDebugShaderVert[528];
+extern const unsigned char physicsDebugShaderVert[556];
 
-extern const unsigned char postProcessFrag[1117];
+extern const unsigned char postProcessFrag[1122];
 
-extern const unsigned char postProcessVert[332];
+extern const unsigned char postProcessVert[353];
 
-extern const unsigned char brightFilter[1566];
+extern const unsigned char brightFilter[1582];
 
-extern const unsigned char defaultPlugins[57];
+extern const unsigned char compatibilityPlugins[1848];
 
 }
 #endif

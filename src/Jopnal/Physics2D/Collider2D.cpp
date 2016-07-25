@@ -28,6 +28,8 @@
 
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics2D/World2D.hpp>
+    #include <Jopnal/Physics2D/ContactListener2D.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
     #include <Box2D/Dynamics/b2Body.h>
     #include <Box2D/Dynamics/b2WorldCallbacks.h>
     #include <Box2D/Dynamics/b2World.h>
@@ -80,6 +82,9 @@ namespace jop
                 break;
             }
         }
+
+        if (m_body->IsActive() != isActive())
+            m_body->SetActive(isActive());
     }
 
     //////////////////////////////////////////////

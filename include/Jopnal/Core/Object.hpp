@@ -882,10 +882,6 @@ namespace jop
 
         void propagateFlags(const uint32 flags);
 
-        void propagateClearFlags(const uint32 flags);
-
-        void propagateActiveComponents(const bool active);
-
 
         // Transformation
         mutable Transform m_transform;

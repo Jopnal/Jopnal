@@ -31,6 +31,7 @@
 
 //////////////////////////////////////////////
 
+
 class btMotionState;
 class btCollisionObject;
 
@@ -75,6 +76,9 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Collider() override = 0;
+
+
+        void update(const float deltaTime) override;
 
     public:
 
@@ -123,14 +127,6 @@ namespace jop
         /// \copydoc getWorld()
         ///
         const World& getWorld() const;
-
-    private:
-
-        /// \brief Activity setter
-        ///
-        /// For internal use
-        ///
-        virtual void setActive(const bool) override = 0;
 
     protected:
 

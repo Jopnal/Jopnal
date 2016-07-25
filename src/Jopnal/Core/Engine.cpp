@@ -32,8 +32,11 @@
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/MainRenderTarget.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
+    #include <Jopnal/Graphics/RenderPass.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <Jopnal/STL.hpp>
@@ -66,6 +69,78 @@ namespace
 
     int ns_argc;
     char** ns_argv;
+
+    void printOpenGLInfo()
+    {
+        using namespace jop;
+
+        auto getStr = [](const GLenum e) -> const char*
+        {
+            return reinterpret_cast<const char*>(glGetString(e));
+        };
+
+        std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
+        auto& deb = jop::DebugHandler::getInstance();
+
+        deb << DebugHandler::Severity::__Always
+            << "\t\tOpenGL initialized, adapter info:\n\n"
+            << "    Vendor:       " << getStr(GL_VENDOR)                    << "\n"
+            << "    Renderer:     " << getStr(GL_RENDERER)                  << "\n"
+            << "    Version:      " << getStr(GL_VERSION)                   << "\n"
+            << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)  << "\n";
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", false))
+        {
+            int unifVert = 0, unifFrag = 0, attr = 0, var = 0;
+
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &unifVert));
+            glCheck(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &unifFrag));
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attr));
+            glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
+
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()               << "\n"
+                <<   "    Maximum: \n"
+                <<   "      Texture size:                  " << Texture::getMaximumSize() << "\n"
+                <<   "      GLSL vertex uniform vectors:   " << unifVert                  << "\n"
+                <<   "      GLSL fragment uniform vectors: " << unifFrag                  << "\n"
+                <<   "      GLSL attribute vectors:        " << attr                      << "\n"
+                <<   "      GLSL varying vectors:          " << var                       << "\n";
+        }
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
+        {
+            deb << "\n\n    Available extensions:\n\n";
+
+        #ifdef JOP_OS_DESKTOP
+
+            GLint extensions;
+            glCheck(glGetIntegerv(GL_NUM_EXTENSIONS, &extensions));
+
+            const int alignBase = 40;
+            int lastAlign = 0;
+
+            for (int i = 0; i < extensions; ++i)
+            {
+                const char* str = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+
+                for (int j = 0; j < lastAlign; ++j)
+                    deb << " ";
+
+                deb << "    " << str << (i % 4 == 3 ? "\n" : "");
+
+                lastAlign = (i % 4 == 3 ? 0 : alignBase - std::strlen(str));
+            }
+
+        #else
+
+            deb << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+
+        #endif
+        }
+
+        JOP_DEBUG_INFO(jop::DebugHandler::Severity::__Always);
+
+    }
 }
 
 namespace jop
@@ -92,7 +167,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO("Jopnal Engine v. " << JOP_VERSION_STRING);
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tJopnal Engine v. " << JOP_VERSION_STRING);
     }
 
     Engine::~Engine()
@@ -111,7 +186,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
+        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tDestroying jop::Engine, goodbye!");
     }
 
     //////////////////////////////////////////////
@@ -129,6 +204,7 @@ namespace jop
 
         // Main window
         m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
+        printOpenGLInfo();
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -141,6 +217,9 @@ namespace jop
 
         // Post processor
         createSubsystem<PostProcessor>(*m_mainTarget);
+
+        // Post-pass render proxy
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
 
         // Buffer swapper
         createSubsystem<BufferSwapper>(*m_mainWindow);

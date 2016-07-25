@@ -74,7 +74,6 @@ namespace jop
           friction              (0.5f),
           rollingFriction       (0.f),
           restitution           (0.f),
-          enableContactCallback (false),
           m_shape               (shape),
           m_type                (type),
           m_mass                ((type == Type::Dynamic) * mass)
@@ -98,25 +97,26 @@ namespace jop
         constInfo.m_restitution = info.restitution;
         
         auto rb = std::make_unique<btRigidBody>(constInfo);
+
+        int flags = rb->getCollisionFlags();
         
         if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
         else
             object.setIgnoreParent(true);
         
-        rb->setCollisionFlags(rb->getCollisionFlags() | (info.enableContactCallback * btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK));
+        flags |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
 
         // Remove contact response if body is a sensor
         if (m_type > Type::Kinematic)
-            rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
 
+        rb->setCollisionFlags(flags);
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), info.group, info.mask);
 
         m_rigidBody = rb.get();
         rb->setUserPointer(this);
         m_body = std::move(rb);
-
-        setActive(isActive());
     }
 
     RigidBody::RigidBody(const RigidBody& other, Object& newObj)
@@ -141,7 +141,6 @@ namespace jop
         m_body = std::move(rb);
 
         newObj.setIgnoreParent(other.getObject()->ignoresParent());
-        setActive(isActive());
     }
 
     RigidBody::~RigidBody()
@@ -249,12 +248,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    glm::vec3 RigidBody::getLinearVelocity() const
+    {
+        auto& vel = m_rigidBody->getLinearVelocity();
+
+        return glm::vec3(vel.x(), vel.y(), vel.z());
+    }
+
+    //////////////////////////////////////////////
+
     RigidBody& RigidBody::setAngularVelocity(const glm::vec3& angularVelocity)
     {
         m_rigidBody->activate();
         m_rigidBody->setAngularVelocity(btVector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 RigidBody::getAngularVelocity() const
+    {
+        auto& vel = m_rigidBody->getAngularVelocity();
+
+        return glm::vec3(vel.x(), vel.y(), vel.z());
     }
 
     //////////////////////////////////////////////
@@ -287,9 +304,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void RigidBody::setActive(const bool active)
+    std::pair<glm::vec3, glm::vec3> RigidBody::getLocalBounds() const
     {
-        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION | ACTIVE_TAG : ACTIVE_TAG) : DISABLE_SIMULATION);
+        btVector3 min;
+        btVector3 max;
+        m_rigidBody->getAabb(min, max);
+
+        return std::make_pair(glm::vec3(min.x(), min.y(), min.z()), glm::vec3(max.x(), max.y(), max.z()));
     }
 
     //////////////////////////////////////////////
