@@ -61,6 +61,11 @@ namespace jop
         ///
         bool load(const float size);
 
+        /// \brief 
+        ///
+        /// tex min and max coords
+        ///
+        bool load(const float size, const glm::vec2& min, const glm::vec2& max);
 
         /// \brief Get the size
         ///

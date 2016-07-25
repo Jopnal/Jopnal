@@ -69,10 +69,12 @@ namespace jop
         /// \param atlasSize Size of the atlas to be created.
         /// \param args Variable amount of Texture2D's or Image's
         ///
-        template<typename ... Args>
+        template<typename... Args>
         bool load(const glm::uvec2& atlasSize, const Args&... args);
 
-        /// \brief Load from JSON
+        /// \brief Load from JSON file
+        ///
+        /// \param mode Load mode - if you have a complete sheet use LoadMode::Sheet, otherwise use LoadMode::Seperate (which is on by default)
         ///
         bool load(const std::string& path, const LoadMode mode = LoadMode::Separate);
 
@@ -88,16 +90,26 @@ namespace jop
         ///
         unsigned int addTexture(const Texture2D& texture);
 
+        /// \brief Add texture from file to atlas
+        ///
+        /// \param texturePath Path to the texture in file
+        ///
         unsigned int addTexture(const std::string& texturePath);
 
         /// \brief Get texture location inside atlas
         ///
         /// \param index Index of the texture
         ///
-        std::pair<glm::vec2, glm::vec2> getCoordinates(const int index) const;
+        std::pair<glm::vec2, glm::vec2> getCoordinates(const unsigned int index) const;
 
+        /// \brief Get amount of textures inside atlas
+        ///
         unsigned int getTextureAmount() const;
 
+        /// \brief Get the texture of atlas
+        ///
+        /// If no textures have been added to atlas default texture will be returned
+        ///
         const Texture2D& getTexture() const;
 
     private:

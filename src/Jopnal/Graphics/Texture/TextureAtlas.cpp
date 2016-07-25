@@ -25,7 +25,6 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
 #include <Jopnal/Graphics/Texture/TextureAtlas.hpp>
-#include <Jopnal/Graphics/Glyph.hpp>
 
 #endif
 
@@ -74,7 +73,7 @@ namespace jop
 
             Image defaultImg;
 
-            // Create default glyph (2x2 square in the corner)
+            // Create default glyph (2x2 white square in the corner)
             std::array<unsigned char, 16> data;
             data.fill(255);
 
@@ -104,7 +103,7 @@ namespace jop
 
         if (!doc.IsObject())
         {
-            //err Texture atlas root must be a JSON object
+            JOP_DEBUG_ERROR("Atlas root must be a JSON object");
             return false;
         }
 
@@ -119,7 +118,7 @@ namespace jop
             {
                 if (!m_texture.load(rootPath + doc["path"].GetString(), true, false))
                 {
-                    // err
+                    JOP_DEBUG_ERROR("Texture being loaded into atlas has invalid path");
                     return false;
                 }
 
@@ -127,7 +126,7 @@ namespace jop
                 {
                     if (!i.IsObject() || !i.HasMember("start") || !i.HasMember("end"))
                     {
-                        // warn
+                        JOP_DEBUG_WARNING("Texture in JSON file is not an object or start/end is missing");
                         continue;
                     }
 
@@ -186,10 +185,10 @@ namespace jop
 
         // Find an empty spot in the texture
         // Add padding to avoid pixel overflow (2 empty pixels)
-        stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(image.getSize().x + 2), static_cast<stbrp_coord>(image.getSize().y + 2) };
+        stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(image.getSize().x + 1), static_cast<stbrp_coord>(image.getSize().y + 1) };
         stbrp_pack_rects(&m_packer->context, &rectangle, 1);
-        rectangle.w -= 2;
-        rectangle.h -= 2;
+        rectangle.w -= 1;
+        rectangle.h -= 1;
 
         if (rectangle.was_packed)
         {
@@ -215,7 +214,6 @@ namespace jop
             return 0;
         }
 
-        return 0;
     }
 
     //////////////////////////////////////////////
@@ -235,21 +233,36 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::pair<glm::vec2, glm::vec2> TextureAtlas::getCoordinates(int index) const
+    std::pair<glm::vec2, glm::vec2> TextureAtlas::getCoordinates(const unsigned int index) const
     {
-        return m_textures[index];
+        if (m_textures.size() >= index)
+            return m_textures[index];
+
+        if (m_textures.empty())
+        {
+            JOP_DEBUG_ERROR("Invalid index given while getting coordinates from texture atlas");
+            return std::make_pair(glm::vec2(0.f), glm::vec2(1.f));
+        }
+
+        return m_textures[0];
     }
 
     //////////////////////////////////////////////
 
     unsigned int TextureAtlas::getTextureAmount() const
     {
-        return m_textures.size() - 1;
+            return m_textures.size();
     }
+
+    //////////////////////////////////////////////
 
     const jop::Texture2D& TextureAtlas::getTexture() const
     {
-        return m_texture;
+        if (getTextureAmount() > 0)
+            return m_texture;
+
+        JOP_DEBUG_ERROR("Error texture: No texture found for texture atlas");
+        return m_texture.getError();
     }
 
 }

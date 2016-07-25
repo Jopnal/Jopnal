@@ -24,19 +24,19 @@ namespace detail
     template<typename Last>
     bool add(TextureAtlas& atlas, const Last& last)
     {
-        static_assert(std::is_same<Last, Image>::value || std::is_same<Last, Texture2D>::value, "You can only add Texture2D or Image to Texture Atlas");
+        static_assert(std::is_same<Last, Image>::value || std::is_same<Last, Texture2D>::value || std::is_convertible<Last, std::string>::value, "You can only add Texture2D or Image to Texture Atlas");
         return atlas.addTexture(last) != 0;
     }
 
     template<typename First, typename ...Rest>
-    bool add(TextureAtlas& atlas, glm::uvec2 atlasSize, const First& first, const Rest&... rest)
+    bool add(TextureAtlas& atlas, const First& first, const Rest&... rest)
     {
         return add(atlas, first) && add(atlas, rest...);
     }
 }
 
-template<typename ... Args>
-bool load(glm::uvec2 atlasSize, const Args&... args)
+template<typename... Args>
+bool jop::TextureAtlas::load(const glm::uvec2& atlasSize, const Args&... args)
 {
     return load(atlasSize) && detail::add(*this, args...);
 }

@@ -110,8 +110,12 @@ namespace jop
         ///
         bool isCompressed() const;
 
+        /// \brief Flip image vertically
+        ///
         void flipVertically();
 
+        /// brief Flip image horizontally
+        ///
         void flipHorizontally();
 
         /// \brief Check if the pixel depth value is supported

@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+#include <Jopnal/Graphics/Texture/TextureAtlas.hpp>
 
 //////////////////////////////////////////////
 
@@ -70,6 +71,19 @@ namespace jop
         ///
         bool load(const float size, const bool invert);
 
+        /// \brief 
+        ///
+        /// tex min and max coords
+        ///
+        bool load(const float size, const glm::vec2& min, const glm::vec2& max, const bool invert);
+
+        /// \brief Load from atlas with different texture for each face
+        ///
+        bool load(const float size, const TextureAtlas& atlas, const unsigned int front, const unsigned int left, const unsigned int back, const unsigned int right, const unsigned int top, const unsigned int bottom, const bool invert);
+        
+        // 6x pair
+        bool load(const float size, std::pair<glm::vec2, glm::vec2> front, std::pair<glm::vec2, glm::vec2> left, std::pair<glm::vec2, glm::vec2> back, std::pair<glm::vec2, glm::vec2> right, std::pair<glm::vec2, glm::vec2> top, std::pair<glm::vec2, glm::vec2> bottom, const bool invert);
+        
         /// \brief Get the size
         ///
         /// \return The size
