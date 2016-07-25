@@ -20,30 +20,54 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Physics/Collider.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
 #include <Jopnal/Physics/Joint.hpp>
-#include <Jopnal/Physics/Joint/PistonJoint.hpp>
-#include <Jopnal/Physics/Joint/RotationJoint.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
-#include <Jopnal/Physics/RayInfo.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
-#include <Jopnal/Physics/Shape/BoxShape.hpp>
-#include <Jopnal/Physics/Shape/CapsuleShape.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Physics/Shape/CompoundShape.hpp>
-#include <Jopnal/Physics/Shape/ConeShape.hpp>
-#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
-#include <Jopnal/Physics/Shape/CylinderShape.hpp>
-#include <Jopnal/Physics/Shape/FrustumShape.hpp>
-#include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
-#include <Jopnal/Physics/Shape/RectangleShape.hpp>
-#include <Jopnal/Physics/Shape/SphereShape.hpp>
-#include <Jopnal/Physics/Shape/TerrainShape.hpp>
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/ContactListener.hpp>
+
+
+
+#endif
 
 //////////////////////////////////////////////
 
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+namespace jop
+{
+
+    Joint::Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB) :
+        m_bodyA     (&bodyA),
+        m_bodyB     (&bodyB),
+        m_worldRef  (&worldRef),
+        m_ID        (0)
+    {
+    }
+
+    Joint::~Joint()
+    {
+        //why implementation
+        m_worldRef->m_worldData->world->removeConstraint(m_joint.get());
+    }
+
+    unsigned int Joint::getID() const
+    {
+        return m_ID;
+    }
+
+    Joint& Joint::setID(const unsigned int id)
+    {
+        m_ID = id;
+        return *this;
+    }
+
+    btRigidBody* Joint::getBody(RigidBody& body) //(std::weak_ptr<RigidBody2D>& body)
+    {
+        return body.m_rigidBody;//  /*lock()->*/m_body;
+    }
+
+    btDiscreteDynamicsWorld& Joint::getWorld(World& world)
+    {
+        return *world.m_worldData->world;
+    }
+
+}

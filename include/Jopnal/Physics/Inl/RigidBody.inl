@@ -31,14 +31,31 @@ T* RigidBody::getJoint(unsigned int id)
 }
 
 template<typename T>
-bool RigidBody::breakJoint(unsigned int id)
+bool RigidBody::breakJoint(RigidBody& other, unsigned int IDthis, unsigned int IDother)
 {
-    for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
+    unsigned int result = 0;
+
+    if ((!m_joints.empty()) && (!other.m_joints.empty()))
     {
-        if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+        //this
+        for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
         {
-            m_joints.erase(itr);
-            return true;
+            if (typeid(*(*itr)) == typeid(T) && IDthis == (*itr)->getID())
+            {
+                m_joints.erase(itr);
+                ++result;
+                break;
+            }
+        }
+
+        //other
+        for (auto itr = other.m_joints.begin(); itr != other.m_joints.end(); ++itr)
+        {
+            if (typeid(*(*itr)) == typeid(T) && IDother == (*itr)->getID())
+            {
+                other.m_joints.erase(itr);
+                return ++result == 2;
+            }
         }
     }
     return false;
@@ -47,7 +64,7 @@ bool RigidBody::breakJoint(unsigned int id)
 template<typename T, typename ... Args>
 T& RigidBody::link(RigidBody& other, Args&&... args)
 {
-    auto joint = std::make_shared<T>(m_worldRef2D, *this, other, std::forward<Args>(args)...);
+    auto joint = std::make_shared<T>(m_worldRef, *this, other, std::forward<Args>(args)...);
 
     m_joints.emplace(joint);
     other.m_joints.emplace(joint);

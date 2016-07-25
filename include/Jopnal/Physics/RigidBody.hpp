@@ -34,6 +34,7 @@ class btRigidBody;
 namespace jop
 {
     class CollisionShape;
+    class Joint;
 
     class JOP_API RigidBody : public Collider
     {
@@ -43,6 +44,8 @@ namespace jop
 
         JOP_GENERIC_COMPONENT_CLONE(RigidBody);
         JOP_DISALLOW_COPY_MOVE(RigidBody);
+
+        friend class Joint;
 
     public:
 
@@ -266,7 +269,7 @@ namespace jop
         /// \return Returns true if successful.
         ///
         template<typename T>
-        bool breakJoint(unsigned int id = 0);
+        bool breakJoint(RigidBody& other, unsigned int IDthis = 0, unsigned int IDother = 0);
 
         //T = joint
         //this = A
@@ -298,6 +301,8 @@ namespace jop
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass
         btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
+
+        std::unordered_set<std::shared_ptr<Joint>> m_joints;
     };
 #include <Jopnal/Physics/Inl/RigidBody.inl>
 }

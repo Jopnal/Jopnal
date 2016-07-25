@@ -42,8 +42,10 @@ namespace detail
 
 namespace jop
 {
-    class World;
     class ContactListener;
+    class Joint;
+    class World;
+    
 
     class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
@@ -51,9 +53,11 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Collider);
 
+        friend struct ::detail::ContactListenerImpl;
         friend struct ::detail::GhostCallback;
         friend class ContactListener;
-        friend struct ::detail::ContactListenerImpl;
+        friend class Joint;
+        
 
     protected:
 

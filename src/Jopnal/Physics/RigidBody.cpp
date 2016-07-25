@@ -146,6 +146,19 @@ namespace jop
 
     RigidBody::~RigidBody()
     {
+        for (auto& i : m_joints)
+        {
+            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+
+            //if (!body.expired())
+            body/*.lock()*/->m_joints.erase(i);
+            {
+                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                thisBody = nullptr;
+            }
+        }
+        m_joints.clear();
+
         m_worldRef.m_worldData->world->removeRigidBody(btRigidBody::upcast(m_body.get()));
     }
 

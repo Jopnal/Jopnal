@@ -45,6 +45,7 @@ namespace jop
         struct WorldImpl;
     }
     class Camera;
+    class Joint;
 
     class JOP_API World : public Drawable
     {
@@ -52,10 +53,11 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(World);
 
-        friend class Scene;
+        friend class Collider;
+        friend class Joint;
         friend class Renderer;
         friend class RigidBody;
-        friend class Collider;
+        friend class Scene;
 
         World* clone(Object&) const override;
 
