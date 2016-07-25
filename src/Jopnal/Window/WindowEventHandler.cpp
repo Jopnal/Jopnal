@@ -34,7 +34,7 @@
     #endif
 
 #endif
-#include <Jopnal/Core/DebugHandler.hpp>
+
 #include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
@@ -214,10 +214,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::keyPressed(const int a, const int b, const int c)
-    {
-        JOP_DEBUG_INFO("KeyPressed "<<a << " " << b << " " << c);
-    }
+    void WindowEventHandler::keyPressed(const int, const int, const int)
+    {}
 
     //////////////////////////////////////////////
 
@@ -236,17 +234,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseMovedAbsolute(const float b, const float c)
-    {
-        JOP_DEBUG_INFO("mouse moved " << b << " " << c);
-    }
+    void WindowEventHandler::mouseMovedAbsolute(const float, const float)
+    {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseButtonPressed(const int b, const int c)
-    {
-        JOP_DEBUG_INFO("mouse pressed " << b << " " << c);
-    }
+    void WindowEventHandler::mouseButtonPressed(const int, const int)
+    {}
 
     //////////////////////////////////////////////
 
@@ -265,10 +259,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::mouseScrolled(const float b, const float c)
-    {
-        JOP_DEBUG_INFO("mouse scrolled" << b << " " << c);
-    }
+    void WindowEventHandler::mouseScrolled(const float, const float)
+    {}
 
     //////////////////////////////////////////////
 
@@ -282,17 +274,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::controllerAxisShifted(const int a, const int b, const float c)
-    {
-        JOP_DEBUG_INFO("Controller axis "<<a << " " << b << " " << c);
-    }
+    void WindowEventHandler::controllerAxisShifted(const int, const int, const float)
+    {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::controllerButtonPressed(const int b, const int c)
-    {
-        JOP_DEBUG_INFO("controller button " << b << " " << c);
-    }
+    void WindowEventHandler::controllerButtonPressed(const int, const int)
+    {}
 
     //////////////////////////////////////////////
 
@@ -301,10 +289,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchEvent(const int a, const float b, const float c)
-    {
-        JOP_DEBUG_INFO(a << " " << b << " " << c);
-    }
+    void WindowEventHandler::touchEvent(const int, const float, const float)
+    {}
 
     //////////////////////////////////////////////
 
@@ -318,24 +304,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchMovedAbsolute(const int a, const float b, const float c)
-    {
-        JOP_DEBUG_INFO(a << " " << b << " " << c);
-    }
+    void WindowEventHandler::touchMovedAbsolute(const int, const float, const float)
+    {}
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchInfo(const int a, const int b, const float c)
-    {
-        JOP_DEBUG_INFO("info "<<a << " " << b << " " << c);
-    }
+    void WindowEventHandler::touchInfo(const int, const int, const float)
+    {}
 
         //////////////////////////////////////////////
 
-    void WindowEventHandler::touchScrolled(const float b, const float c)
-    {
-        JOP_DEBUG_INFO("touch scrolled " << b << " " << c);
-    }
+    void WindowEventHandler::touchScrolled(const float, const float)
+    {}
 
 
     //////////////////////////////////////////////
@@ -373,11 +353,12 @@ namespace jop
                 for (int j = 0; j < n; ++j)
                 {
                     if (axes[j] < -deadzone || axes[j] > deadzone)
-
-                        if (j == 2 && axes[j] < 0.f)
-                        controllerAxisShifted(i, input::getJopControllerAxis(-j), axes[j]);
+                    {
+                        if (j > 3)
+                        controllerAxisShifted(i, input::getJopControllerAxis(j), (axes[j] + 1) / 2);
                         else
-                        controllerAxisShifted(i, input::getJopControllerAxis(-j), axes[j]);
+                        controllerAxisShifted(i, input::getJopControllerAxis(j), axes[j]);
+                    }
                 }
             }
         }

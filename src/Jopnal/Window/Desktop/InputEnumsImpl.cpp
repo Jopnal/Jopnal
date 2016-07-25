@@ -287,10 +287,10 @@ namespace jop
             {
             case  0:                    return a::LeftStickX;
             case  1:                    return a::LeftStickY;
-            case  2:                    return a::RTrigger;
-            case -2:                    return a::LTrigger;
-            case  3:                    return a::RightStickX;
-            case  4:                    return a::RightStickY;
+            case  2:                    return a::RightStickX;
+            case  3:                    return a::RightStickY;
+            case  4:                    return a::LTrigger;
+            case  5:                    return a::RTrigger;
             }
             return button;
         }
@@ -308,10 +308,10 @@ namespace jop
             {
             case  a::LeftStickX:          return  0;
             case  a::LeftStickY:          return  1;
-            case  a::RTrigger:            return  2;
-            case  a::LTrigger:            return -2;
-            case  a::RightStickX:         return  3;
-            case  a::RightStickY:         return  4;
+            case  a::RightStickX:         return  2;
+            case  a::RightStickY:         return  3;
+            case  a::LTrigger:            return  4;
+            case  a::RTrigger:            return  5;
             }
 
             return button;

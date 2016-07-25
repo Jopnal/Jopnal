@@ -64,10 +64,10 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                LTrigger,
-                RTrigger,
                 RightStickY,
-                RightStickX
+                RightStickX,
+                LTrigger,
+                RTrigger
             };
         };
 
@@ -98,10 +98,10 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                LTrigger,
-                RTrigger,
                 RightStickY,
-                RightStickX
+                RightStickX,
+                LTrigger,
+                RTrigger
             };
         };
 

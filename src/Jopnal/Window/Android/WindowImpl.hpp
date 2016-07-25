@@ -81,8 +81,8 @@ namespace jop { namespace detail
 
     JOP_API void getUnicode(void* data, void* vm, void* env, void* args);
     JOP_API void showVirtualKeyboard(const bool show, void* vm, void* env, void* clazz, void* args);
-    JOP_API int32_t onKey(const int32_t& action, const int32_t& meta, const int32_t& key);
     JOP_API int32_t onMotion(const int32_t& action, void* data);
+    JOP_API int32_t onKey(const int32_t& action, void* data);
 }}
 
 #endif

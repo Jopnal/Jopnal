@@ -32,6 +32,10 @@
 
 #endif
 
+#ifdef JOP_OS_ANDROID
+#include <Jopnal/Core/Android/ActivityState.hpp>
+#endif
+
 #include <Jopnal/Core/SettingManager.hpp>
 #include <Jopnal/Core/Engine.hpp>
 #include<Jopnal/Window/InputEnumsImpl.hpp>
@@ -113,7 +117,9 @@ namespace jop
 			JOP_DEBUG_WARNING("Controller " << index << " has only " << count << " buttons")
 				return false;
         #elif defined(JOP_OS_ANDROID)
-			return false;
+            bool result = detail::ActivityState::get()->activeKey == Button;
+            detail::ActivityState::get()->activeKey=0;
+            return result;
         #else
 			return false;
         #endif

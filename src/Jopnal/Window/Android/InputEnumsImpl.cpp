@@ -248,7 +248,6 @@ namespace jop
             case AMOTION_EVENT_AXIS_HAT_X:      return m::PadRight;
             case AMOTION_EVENT_AXIS_HAT_Y :     return m::PadDown;
             case -AMOTION_EVENT_AXIS_HAT_X:     return m::PadLeft;
-
             }
 
             return button;
@@ -334,10 +333,7 @@ namespace jop
             case AMOTION_EVENT_AXIS_PRESSURE:       return i::PRESSURE;
             case AMOTION_EVENT_AXIS_SIZE:           return i::SIZE;
             case AMOTION_EVENT_AXIS_TOUCH_MAJOR:    return i::TOUCH_MAJOR;
-            case AMOTION_EVENT_AXIS_TOUCH_MINOR:    return i::TOUCH_MINOR;
             case AMOTION_EVENT_AXIS_TOOL_MAJOR:     return i::TOOL_MAJOR;
-            case AMOTION_EVENT_AXIS_TOOL_MINOR:     return i::TOOL_MINOR;
-            case AMOTION_EVENT_AXIS_ORIENTATION:    return i::ORIENTATION;
             }
 
             return info;
@@ -352,10 +348,7 @@ namespace jop
             case i::PRESSURE:           return AMOTION_EVENT_AXIS_PRESSURE;
             case i::SIZE:               return AMOTION_EVENT_AXIS_SIZE;
             case i::TOUCH_MAJOR:        return AMOTION_EVENT_AXIS_TOUCH_MAJOR;
-            case i::TOUCH_MINOR:        return AMOTION_EVENT_AXIS_TOUCH_MINOR;
             case i::TOOL_MAJOR:         return AMOTION_EVENT_AXIS_TOOL_MAJOR;
-            case i::TOOL_MINOR:         return AMOTION_EVENT_AXIS_TOOL_MINOR;
-            case i::ORIENTATION:        return AMOTION_EVENT_AXIS_ORIENTATION;
             }
 
             return info;

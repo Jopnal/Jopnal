@@ -112,14 +112,11 @@ extern int main(int argc, char* argv[]);
 			int32_t action = AKeyEvent_getAction(event);
 
 			if (type == AINPUT_EVENT_TYPE_KEY)
-			{
-                int32_t metakey = AKeyEvent_getMetaState(event);
-                int32_t key = AKeyEvent_getKeyCode(event);
-              
-                if(action==AKEY_EVENT_ACTION_DOWN&&key!=0)
+			{           
+                if(action==AKEY_EVENT_ACTION_DOWN)
                     getUnicode(event, ns_virtualMachine, ns_environment, &ns_vmArgs);
 
-                return  onKey(action,metakey,key);
+                return  onKey(action, event);
 			}
             else if (type == AINPUT_EVENT_TYPE_MOTION)
             {
