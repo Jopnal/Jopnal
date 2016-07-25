@@ -47,7 +47,7 @@ namespace
 
     bool isLinear()
     {
-    #ifdef JOP_OPENGL_ES
+    #if !defined(JOP_OPENGL_ES) && defined(JOP_OPENGL_ES3)
 
         static bool init = false;
         static bool linear = false;
@@ -250,28 +250,35 @@ namespace jop
             m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
-        auto& blurShader = ResourceManager::getNamed<ShaderProgram>
-        (
-            "jop_blur_shader",
-            "", 
-            Shader::Type::Vertex, m_shaderSources[0],
-            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
-        );
+    #ifdef JOP_ENABLE_BLOOM
 
-        JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
+        if (gl::getVersionMajor() >= 3)
+        {
+            auto& blurShader = ResourceManager::getNamed<ShaderProgram>
+                (
+                "jop_blur_shader",
+                "",
+                Shader::Type::Vertex, m_shaderSources[0],
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
+                );
 
-        auto& brightShader = ResourceManager::getNamed<ShaderProgram>
-        (
-            "jop_bright_filter_shader",
-            "",
-            Shader::Type::Vertex, m_shaderSources[0],
-            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
-        );
+            JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
-        JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
+            auto& brightShader = ResourceManager::getNamed<ShaderProgram>
+                (
+                "jop_bright_filter_shader",
+                "",
+                Shader::Type::Vertex, m_shaderSources[0],
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
+                );
 
-        m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
-        m_brightShader = static_ref_cast<ShaderProgram>(brightShader.getReference());
+            JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
+
+            m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
+            m_brightShader = static_ref_cast<ShaderProgram>(brightShader.getReference());
+        }
+
+    #endif
     }
 
     PostProcessor::~PostProcessor()
@@ -434,7 +441,7 @@ namespace jop
     #ifdef JOP_ENABLE_BLOOM
 
     #ifdef JOP_OPENGL_ES
-        if (jop::gl::getVersionMajor() >= 3)
+        if (jop::gl::getVersionMajor() < 3)
             return;
     #endif
 
@@ -491,7 +498,7 @@ namespace jop
     #ifdef JOP_ENABLE_BLOOM
 
     #ifdef JOP_OPENGL_ES
-        if (jop::gl::getVersionMajor() >= 3)
+        if (jop::gl::getVersionMajor() < 3)
             return;
     #endif
 

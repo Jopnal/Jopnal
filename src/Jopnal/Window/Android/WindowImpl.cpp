@@ -65,24 +65,19 @@ namespace
     {
         EGLint version[] =
         {
-            EGL_CONTEXT_CLIENT_VERSION,
-
-        #ifdef JOP_OPENGL_ES3
-            3
-        #else
-            2
-        #endif
-
-            , EGL_NONE
+            EGL_CONTEXT_CLIENT_VERSION, 3, 
+            EGL_NONE
         };
 
         EGLContext context = EGL_NO_CONTEXT;
 
         while (context == EGL_NO_CONTEXT && version[1] >= 2)
         {
-            context = eglCheck(eglCreateContext(getDisplay(), config, ns_shared, version));
+            context = eglCreateContext(getDisplay(), config, ns_shared, version);
             --version[1];
         }
+
+        jop::detail::esglCheck("eglCreateContext", __FILE__, __LINE__);
 
         return context;
     }

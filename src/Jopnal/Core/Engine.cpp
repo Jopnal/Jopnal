@@ -89,7 +89,7 @@ namespace
             << "    Version:      " << getStr(GL_VERSION)                   << "\n"
             << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)  << "\n";
 
-        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", false))
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", true))
         {
             int unifVert = 0, unifFrag = 0, attr = 0, var = 0;
 

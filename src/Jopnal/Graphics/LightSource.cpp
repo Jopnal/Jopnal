@@ -597,7 +597,7 @@ namespace jop
         // Point lights
         {
             auto& points = (*this)[LS::Type::Point];
-            shader.setUniform("u_NumPointLights", points.size());
+            shader.setUniform("u_NumPointLights", static_cast<int>(points.size()));
 
             for (std::size_t i = 0; i < points.size(); ++i)
             {
@@ -632,7 +632,7 @@ namespace jop
         // Spot lights
         {
             auto& spots = (*this)[LS::Type::Spot];
-            shader.setUniform("u_NumSpotLights", spots.size());
+            shader.setUniform("u_NumSpotLights", static_cast<int>(spots.size()));
 
             for (std::size_t i = 0; i < spots.size(); ++i)
             {
@@ -673,7 +673,7 @@ namespace jop
         // Directional lights
         {
             auto& dirs = (*this)[LS::Type::Directional];
-            shader.setUniform("u_NumDirectionalLights", dirs.size());
+            shader.setUniform("u_NumDirectionalLights", static_cast<int>(dirs.size()));
 
             for (std::size_t i = 0; i < dirs.size(); ++i)
             {

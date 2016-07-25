@@ -51,6 +51,8 @@ namespace jop
 
     VertexBuffer& VertexBuffer::operator =(const VertexBuffer& other)
     {
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
         if (m_bytesAllocated)
         {
             bind();
@@ -60,8 +62,10 @@ namespace jop
             glBindBuffer(GL_COPY_WRITE_BUFFER, m_buffer);
             glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, m_bytesAllocated);
 
-            Buffer::operator=(other);
+            Buffer::operator =(other);
         }
+
+    #endif
 
         return *this;
     }

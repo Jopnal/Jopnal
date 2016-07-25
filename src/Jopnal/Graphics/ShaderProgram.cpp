@@ -270,14 +270,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool ShaderProgram::setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit)
+    bool ShaderProgram::setUniform(const std::string& name, const Texture& texture, const unsigned int unit)
     {
         const int loc = getUniformLocation(name);
 
         if (loc != -1)
         {
             texture.bind(unit);
-            glCheck(glUniform1i(loc, unit));
+            glCheck(glUniform1i(loc, static_cast<int>(unit)));
         }
 
         return loc != -1;
@@ -306,20 +306,6 @@ namespace jop
         if (loc != -1)
         {
             glCheck(glUniform1i(loc, value));
-        }
-
-        return loc != -1;
-    }
-
-    //////////////////////////////////////////////
-
-    bool ShaderProgram::setUniform(const std::string& name, const unsigned int value)
-    {
-        const int loc = getUniformLocation(name);
-
-        if (loc != -1)
-        {
-            glCheck(glUniform1ui(loc, value));
         }
 
         return loc != -1;
@@ -422,7 +408,7 @@ namespace jop
 
     #else
 
-        if (gl::getVersionMajor() >= 3)
+        if (gl::getGLSLVersion() >= 300)
             return loc;
 
         else if (bind())

@@ -55,6 +55,9 @@ namespace jop
         ///
         ~Shader() override;
 
+
+        void destroy();
+
         /// \brief Add source
         ///
         /// The string must stay in existence until after compile() is called.

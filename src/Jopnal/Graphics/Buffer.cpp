@@ -41,7 +41,10 @@ namespace
     {
         GL_ARRAY_BUFFER,
         GL_ELEMENT_ARRAY_BUFFER,
+
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
         GL_UNIFORM_BUFFER
+    #endif
     };
 
     static const int ns_usageType[] =

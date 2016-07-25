@@ -98,9 +98,16 @@ namespace jop
         unsigned int getVersionMajor()
         {
         #ifdef JOP_OPENGL_ES
-            return detail::getVersionString()[0] - '0';
+
+            #ifdef JOP_OPENGL_ES3
+                return detail::getVersionString()[0] - '0';
+            #else   
+                return 2;
+            #endif
+
         #else
             return ogl_GetMajorVersion();
+
         #endif
         }
 
@@ -109,9 +116,16 @@ namespace jop
         unsigned int getVersionMinor()
         {
         #ifdef JOP_OPENGL_ES
-            return detail::getVersionString()[2] - '0';
+
+            #ifdef JOP_OPENGL_ES3
+                return detail::getVersionString()[2] - '0';
+            #else
+                return 0;
+            #endif
+
         #else
             return ogl_GetMinorVersion();
+
         #endif
         }
 
@@ -128,7 +142,8 @@ namespace jop
                 version = std::stoul(std::string(&str[0], 1) + str[2] + str[3]);
             }
 
-            return version;
+            //return version;
+            return 100;
         }
 
         //////////////////////////////////////////////

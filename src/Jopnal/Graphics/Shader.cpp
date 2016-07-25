@@ -46,6 +46,13 @@ namespace jop
 
     Shader::~Shader()
     {
+        destroy();
+    }
+
+    //////////////////////////////////////////////
+
+    void Shader::destroy()
+    {
         glCheck(glDeleteShader(m_handle));
         m_sources.clear();
         m_handle = 0;
@@ -61,7 +68,12 @@ namespace jop
     //////////////////////////////////////////////
 
     bool Shader::compile(const Type type, bool preprocess)
-    {      
+    {     
+        if (m_handle)
+        {
+            glCheck(glDeleteShader(m_handle));
+        }
+
         // Create shader & set handle
         m_handle = glCheck(glCreateShader(shaderTypes[static_cast<int>(type)]));
         m_shaderType = type;
@@ -97,9 +109,33 @@ namespace jop
         {
             GLchar message[1024];
             glCheck(glGetShaderInfoLog(m_handle, sizeof(message), NULL, message));
-            JOP_DEBUG_ERROR("Failed to compile shader:\n\n" << message);
+            JOP_DEBUG_ERROR("Failed to compile shader:\n\n" << message << "\n\n");
 
-            m_sources.clear();
+            GLint sourceLength;
+            glCheck(glGetShaderiv(m_handle, GL_SHADER_SOURCE_LENGTH, &sourceLength));
+            JOP_DEBUG_INFO(sourceLength);
+
+            std::string source(sourceLength, '0');
+            glCheck(glGetShaderSource(m_handle, sourceLength, NULL, &source[0]));
+
+            {
+                std::size_t startPos = 0;
+                std::size_t endPos = source.find_first_of('\n');
+                std::size_t currentLine = 1;
+
+                auto& deb = DebugHandler::getInstance();
+
+                while (endPos != std::string::npos)
+                {
+                    JOP_DEBUG_ERROR(currentLine << " " << source.substr(startPos, endPos - startPos));
+
+                    ++currentLine;
+                    startPos = endPos + 1;
+                    endPos = source.find_first_of('\n', startPos);
+                }
+            }
+
+            destroy();
 
             return false;
         }
@@ -147,6 +183,7 @@ namespace jop
         
         // Add sources
         addSource(*sources);
+
         // For each type compile
         bool success = compile(type, preprocess);
 
@@ -179,7 +216,7 @@ namespace jop
             versionString += std::to_string(gl::getGLSLVersion());
 
         #ifdef JOP_OPENGL_ES
-            versionString += " es\n";
+            versionString += (gl::getGLSLVersion() > 100 ? " es\n" : "\n");
         #else
             versionString += " core\n";
         #endif
@@ -197,7 +234,7 @@ namespace jop
         if (extString.empty())
         {
         #ifdef JOP_OPENGL_ES
-            if (gl::getVersionMajor() < 3 && JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location))
+            if (gl::getGLSLVersion() < 300 && JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location))
                 extString += "#extension GL_NV_explicit_attrib_location : enable\n";
         #endif
         }

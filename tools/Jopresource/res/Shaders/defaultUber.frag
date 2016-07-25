@@ -1,12 +1,12 @@
 // JOPNAL DEFAULT FRAGMENT UBERSHADER
 //
 // Jopnal license applies
-//
-// Lot of techniques used courtesy of http://learnopengl.com/
 
 //////////////////////////////////////////////
 
 #include <Jopnal/Compat/FragmentColor>
+#include <Jopnal/Compat/Varyings>
+#include <Jopnal/Compat/Samplers>
 
 // Diffuse map
 #ifdef JMAT_DIFFUSEMAP
@@ -53,7 +53,7 @@
     uniform bool u_ReceiveShadows;
 
     // Fragment position from vertex/geometry shader
-    in vec3 vgf_FragPosition;
+    JOP_VARYING_IN vec3 vgf_FragPosition;
 
 #endif
 
@@ -65,10 +65,10 @@
 // Vertex attribute data
 #ifdef GL_ES
 
-    in vec3 var_Position;
-    in vec2 var_TexCoords;
-    in vec3 var_Normal;
-    in vec4 var_Color;
+    JOP_VARYING_IN vec3 var_Position;
+    JOP_VARYING_IN vec2 var_TexCoords;
+    JOP_VARYING_IN vec3 var_Normal;
+    JOP_VARYING_IN vec4 var_Color;
 
     #define OUT_POS var_Position
     #define OUT_TC    var_TexCoords
@@ -143,7 +143,7 @@ uniform float u_AlphaMult;
     };
     uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
     uniform samplerCube u_PointLightShadowMaps[JMAT_MAX_POINT_LIGHTS];
-    uniform uint u_NumPointLights;
+    uniform int u_NumPointLights;
 
     // Directional lights
     struct DirectionalLightInfo
@@ -164,7 +164,7 @@ uniform float u_AlphaMult;
     };
     uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
     uniform sampler2D u_DirectionalLightShadowMaps[JMAT_MAX_DIRECTIONAL_LIGHTS];
-    uniform uint u_NumDirectionalLights;
+    uniform int u_NumDirectionalLights;
 
     // Spot lights
     struct SpotLightInfo
@@ -194,9 +194,11 @@ uniform float u_AlphaMult;
     };
     uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
     uniform sampler2D u_SpotLightShadowMaps[JMAT_MAX_SPOT_LIGHTS];
-    uniform uint u_NumSpotLights;
+    uniform int u_NumSpotLights;
 
     // Offset directions for sampling point shadows
+#if !defined(GL_ES) || __VERSION__ >= 300
+
     const vec3 g_gridSamplingDisk[20] = vec3[]
     (
         vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
@@ -206,8 +208,10 @@ uniform float u_AlphaMult;
         vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
     );
 
+#endif
+
     // Point light calculation
-    vec3 calculatePointLight(const in uint index)
+    vec3 calculatePointLight(const in int index)
     {
         PointLightInfo l = u_PointLights[index];
 
@@ -284,10 +288,12 @@ uniform float u_AlphaMult;
             // Get a vector between fragment and light positions
             vec3 fragToLight = vgf_FragPosition - l.position;
 
+            // Test for shadows with PCF
+		#if !defined(GL_ES) || __VERSION__ >= 300
+
             // Get current linear depth as the length between the fragment and light position
             float currentDepth = length(fragToLight);
 
-            // Test for shadows with PCF
             float shadow = 0.0;
             const float bias = 0.15;
             const int samples = 20;
@@ -308,6 +314,20 @@ uniform float u_AlphaMult;
             }
             shadow /= float(samples);
 
+		#else
+
+			float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], fragToLight).r;
+
+            closestDepth *= l.farPlane;
+
+			float currentDepth = length(fragToLight);
+
+			const float bias = 0.05;
+
+			float shadow = currentDepth - bias > closestDepth : 1.0 : 0.0;
+
+		#endif
+		
             return (ambient + (1.0 - shadow) * (diffuse + specular));
         }
 
@@ -350,7 +370,7 @@ uniform float u_AlphaMult;
     }
 
     // Directional light calculation
-    vec3 calculateDirectionalLight(const in uint index)
+    vec3 calculateDirectionalLight(const in int index)
     {
         DirectionalLightInfo l = u_DirectionalLights[index];
 
@@ -429,7 +449,7 @@ uniform float u_AlphaMult;
     }
 
     // Spot light calculation
-    vec3 calculateSpotLight(const in uint index)
+    vec3 calculateSpotLight(const in int index)
     {
         SpotLightInfo l = u_SpotLights[index];
 
@@ -580,15 +600,15 @@ void main()
         if (u_ReceiveLights)
         {
             // Point lights
-            for (uint i = 0u; i < u_NumPointLights; ++i)
+            for (int i = 0; i < u_NumPointLights; ++i)
                 tempColor += vec4(calculatePointLight(i), 0.0);
 
             // Directional lights
-            for (uint i = 0u; i < u_NumDirectionalLights; ++i)
+            for (int i = 0; i < u_NumDirectionalLights; ++i)
                 tempColor += vec4(calculateDirectionalLight(i), 0.0);
 
             // Spot lights
-            for (uint i = 0u; i < u_NumSpotLights; ++i)
+            for (int i = 0; i < u_NumSpotLights; ++i)
                 tempColor += vec4(calculateSpotLight(i), 0.0);
         }
 
@@ -620,7 +640,7 @@ void main()
     #endif
 
     #ifdef JMAT_MATERIAL
-        * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a * u_Material.emission.a
+        * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a + u_Material.emission.a
     #else
         * u_Emission.a
     #endif

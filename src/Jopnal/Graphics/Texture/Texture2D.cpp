@@ -87,7 +87,7 @@ namespace jop
 
         setPixelStore(bytesPerPixel);
 
-        const GLenum depthEnum = getFormatEnum(bytesPerPixel);
+        const GLenum depthEnum = getFormatEnum(bytesPerPixel, srgb);
         glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, getTypeEnum(bytesPerPixel), pixels));
 
         if (genMipmaps)
@@ -172,7 +172,7 @@ namespace jop
 
         bind();
         setPixelStore(m_bytesPerPixel);
-        glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, pixels));
+        glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel, false), GL_UNSIGNED_BYTE, pixels));
     }
 
     //////////////////////////////////////////////
@@ -211,7 +211,7 @@ namespace jop
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer));
             glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getHandle(), 0));
-            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, &pixels[0]));
+            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, getFormatEnum(m_bytesPerPixel, false), GL_UNSIGNED_BYTE, &pixels[0]));
             glCheck(glDeleteFramebuffers(1, &frameBuffer));
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer));
@@ -220,7 +220,7 @@ namespace jop
     #else        
 
         bind();
-        glCheck(glGetTexImage(GL_TEXTURE_2D, 0, getFormatEnum(m_bytesPerPixel), GL_UNSIGNED_BYTE, &pixels[0]));
+        glCheck(glGetTexImage(GL_TEXTURE_2D, 0, getFormatEnum(m_bytesPerPixel, false), GL_UNSIGNED_BYTE, &pixels[0]));
         
     #endif
 
@@ -231,7 +231,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Texture2D::getFormatEnum(const unsigned int bytesPerPixel)
+    #ifdef JOP_OPENGL_ES
+
+        #ifndef JOP_OPENGL_ES3
+
+            #define GL_SRGB GL_SRGB_EXT
+            #define GL_SRGB_ALPHA GL_SRGB_ALPHA_EXT
+            #define GL_SRGB8        GL_SRGB_EXT
+            #define GL_SRGB8_ALPHA8 GL_SRGB_ALPHA_EXT
+            
+            #define GL_RED GL_ALPHA
+            #define GL_R8 GL_RED
+            #define GL_RG GL_LUMINANCE_ALPHA
+            #define GL_RG8 GL_RG
+            #define GL_RGB8 GL_RGB
+            #define GL_RGBA8 GL_RGBA
+
+        #endif
+
+    #endif
+
+    unsigned int Texture2D::getFormatEnum(const unsigned int bytesPerPixel, const bool srgb)
     {
         switch (bytesPerPixel)
         {
@@ -239,11 +259,15 @@ namespace jop
                 return GL_RG;
 
             case 3:
+                return srgb ? GL_SRGB : GL_RGB;
+
             case 6:
             case 12:
                 return GL_RGB;
 
             case 4:
+                return srgb ? GL_SRGB_ALPHA : GL_RGBA;
+
             case 8:
             case 16:
                 return GL_RGBA;
@@ -259,6 +283,8 @@ namespace jop
     {
         switch (bytesPerPixel)
         {
+        #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
             case 6:
             case 8:
                 return GL_HALF_FLOAT;
@@ -266,6 +292,8 @@ namespace jop
             case 12:
             case 16:
                 return GL_FLOAT;
+
+        #endif
 
             default:
                 return GL_UNSIGNED_BYTE;
@@ -283,18 +311,22 @@ namespace jop
 
             case 3:
                 return (srgb && allowSRGB()) ? GL_SRGB8 : GL_RGB8;
+
+            case 4:
+                return (srgb && allowSRGB()) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+
+        #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
             case 6:
                 return GL_RGB16F;
             case 12:
                 return GL_RGB32F;
-
-            case 4:
-                return (srgb && allowSRGB()) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
             case 8:
                 return GL_RGBA16F;
             case 16:
                 return GL_RGBA32F;
 
+        #endif
 
             default:
                 return GL_R8;
@@ -305,28 +337,12 @@ namespace jop
 
     #ifdef JOP_OPENGL_ES
 
-        #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-        #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        //#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        //#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_S3TC_DXT1_EXT GL_COMPRESSED_RGB_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-
-        #ifndef JOP_OPENGL_ES3
-
-            #ifdef GL_EXT_sRGB
-                
-                #define GL_SRGB8        GL_SRGB8_EXT
-                #define GL_SRGB8_ALPHA8 GL_SRGB8_ALPHA8_EXT
-
-            #else
-                
-                #define GL_SRGB8        0
-                #define GL_SRGB8_ALPHA8 0
-
-            #endif
-
-        #endif
 
     #endif
 

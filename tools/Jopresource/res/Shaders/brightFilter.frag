@@ -5,12 +5,13 @@
 //////////////////////////////////////////////
 
 #include <Jopnal/Compat/FragmentColor>
+#include <Jopnal/Compat/Varyings>
 
 uniform sampler2D u_Texture;
 uniform float u_Threshold;
 uniform float u_SubExponent;
 
-in vec2 vf_TexCoords;
+JOP_VARYING_IN vec2 vf_TexCoords;
 
 JOP_COLOR_OUT(0)
 

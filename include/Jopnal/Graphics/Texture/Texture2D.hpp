@@ -121,7 +121,7 @@ namespace jop
         ///
         /// \return The OpenGL format enum
         ///
-        static unsigned int getFormatEnum(const unsigned int bytesPerPixel);
+        static unsigned int getFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
 
         static unsigned int getTypeEnum(const unsigned int bytesPerPixel);
 

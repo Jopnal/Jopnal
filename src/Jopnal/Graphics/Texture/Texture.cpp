@@ -47,18 +47,25 @@ namespace
         switch (mode)
         {
             case Filter::None:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
                 break;
+            }
             case Filter::Bilinear:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                 break;
+            }
             case Filter::Trilinear:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                 break;
+            }
             case Filter::Anisotropic:
+            {
                 if (jop::TextureSampler::getMaxAnisotropy() > 0.f)
                 {
                     glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, jop::TextureSampler::getMaxAnisotropy())));
@@ -66,6 +73,7 @@ namespace
                 else
                     // Should never happen but just to be sure.
                     JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
+            }
         }
     }
 
@@ -76,27 +84,47 @@ namespace
         switch (repeat)
         {
             case Repeat::Basic:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
+            #endif
+
                 break;
+            }
             case Repeat::Mirrored:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
+            #endif
+
                 break;
+            }
             case Repeat::ClampEdge:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+            #endif
+
                 break;
+            }
 
         #ifndef JOP_OPENGL_ES
 
             case Repeat::ClampBorder:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+            }
 
         #endif
         }
