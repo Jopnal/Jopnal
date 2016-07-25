@@ -142,7 +142,12 @@ namespace jop
 			else
 				return glm::vec2(0,0);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(0,0);
+            using namespace input;
+            glm::vec2 result={detail::ActivityState::get()->activeAxes[2],detail::ActivityState::get()->activeAxes[3]};
+            ActivityState::get()->activeAxes[2]=0.f;
+            ActivityState::get()->activeAxes[3]=0.f;
+
+            return result;
         #else
 			return glm::vec2(0,0);
         #endif
@@ -165,7 +170,11 @@ namespace jop
 			else
 				return glm::vec2(0,0);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(0,0);
+            glm::vec2 result={detail::ActivityState::get()->activeAxes[0],detail::ActivityState::get()->activeAxes[1]};
+            ActivityState::get()->activeAxes[0]=0.f;
+            ActivityState::get()->activeAxes[1]=0.f;
+
+            return result;
         #else
 			return glm::vec2(0,0);
         #endif

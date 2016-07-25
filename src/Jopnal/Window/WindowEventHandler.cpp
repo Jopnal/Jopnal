@@ -355,7 +355,10 @@ namespace jop
                     if (axes[j] < -deadzone || axes[j] > deadzone)
                     {
                         if (j > 3)
-                        controllerAxisShifted(i, input::getJopControllerAxis(j), (axes[j] + 1) / 2);
+                        {
+                            if (axes[j] > -1.f)
+                                controllerAxisShifted(i, input::getJopControllerAxis(j), (axes[j] + 1) / 2);
+                        }
                         else
                         controllerAxisShifted(i, input::getJopControllerAxis(j), axes[j]);
                     }

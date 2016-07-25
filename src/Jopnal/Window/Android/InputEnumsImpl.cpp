@@ -264,8 +264,8 @@ namespace jop
             case AMOTION_EVENT_AXIS_Y:          return a::LeftStickY;
             case AMOTION_EVENT_AXIS_LTRIGGER:   return a::LTrigger;
             case AMOTION_EVENT_AXIS_RTRIGGER:   return a::RTrigger;
-            case AMOTION_EVENT_AXIS_Z:          return a::RightStickY;
-            case AMOTION_EVENT_AXIS_RZ:         return a::RightStickX;
+            case AMOTION_EVENT_AXIS_RZ:         return a::RightStickY;
+            case AMOTION_EVENT_AXIS_Z:          return a::RightStickX;
             }
 
             return button;
@@ -305,8 +305,8 @@ namespace jop
             case a::LeftStickY: return AMOTION_EVENT_AXIS_Y;
             case a::LTrigger: return AMOTION_EVENT_AXIS_LTRIGGER;
             case a::RTrigger: return AMOTION_EVENT_AXIS_RTRIGGER;
-            case a::RightStickY: return AMOTION_EVENT_AXIS_Z;
-            case a::RightStickX: return AMOTION_EVENT_AXIS_RZ;
+            case a::RightStickY: return AMOTION_EVENT_AXIS_RZ;
+            case a::RightStickX: return AMOTION_EVENT_AXIS_Z;
             }
 
             return button;

@@ -383,11 +383,31 @@ namespace jop { namespace detail
                                 else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
                                 {
                                     x=-x;
+                                    if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
+                                        ActivityState::get()->activeAxes[1]=x;
+                                    else
+                                        ActivityState::get()->activeAxes[3]=x;
+
                                     windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
                                 }
                                 else
-                                windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
+                                {
+                                    if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
+                                        ActivityState::get()->activeAxes[0]=x;
+                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                                        ActivityState::get()->activeAxes[2]=x;
+
+                                    windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
+                                }
                             }
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
+                                ActivityState::get()->activeAxes[0]=0.f;
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
+                                ActivityState::get()->activeAxes[1]=0.f;
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                                ActivityState::get()->activeAxes[2]=0.f;
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
+                                ActivityState::get()->activeAxes[3]=0.f;
                         }
 
                     }
