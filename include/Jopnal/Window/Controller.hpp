@@ -125,17 +125,17 @@ namespace jop
 		///
 		static bool isButtonDown(const int index, const int Button);
 
-		/// \brief Get Vector of right stick's offset
-		///
-		/// \return glm::vec2
-		///
-		static glm::vec2 rightStickOffset(const int index);
-
 		/// \brief Get Vector of left stick's offset
 		///
 		/// \return glm::vec2
 		///
 		static glm::vec2 leftStickOffset(const int index);
+
+		/// \brief Get Vector of right stick's offset
+		///
+		/// \return glm::vec2
+		///
+		static glm::vec2 rightStickOffset(const int index);
     };
 }
 

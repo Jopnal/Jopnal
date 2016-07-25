@@ -130,6 +130,33 @@ namespace jop
 
 	//////////////////////////////////////////////
 
+	glm::vec2 Controller::leftStickOffset(const int index)
+	{
+		if (validateWindowRef())
+		{
+        #if defined(JOP_OS_DESKTOP)
+			int count = 0;
+			const float* axes = glfwGetJoystickAxes(index, &count);
+			if (count = 4)
+				return glm::vec2(axes[0], axes[1]);
+			else
+				return glm::vec2(0,0);
+        #elif defined(JOP_OS_ANDROID)
+            glm::vec2 result={detail::ActivityState::get()->activeAxes[0],detail::ActivityState::get()->activeAxes[1]};
+            ActivityState::get()->activeAxes[0]=0.f;
+            ActivityState::get()->activeAxes[1]=0.f;
+
+            return result;
+        #else
+			return glm::vec2(0,0);
+        #endif
+			return glm::vec2(0,0);
+		}
+		return glm::vec2(0,0);
+	}
+
+	//////////////////////////////////////////////
+
 	glm::vec2 Controller::rightStickOffset(const int index)
 	{
 		if (validateWindowRef())
@@ -146,33 +173,6 @@ namespace jop
             glm::vec2 result={detail::ActivityState::get()->activeAxes[2],detail::ActivityState::get()->activeAxes[3]};
             ActivityState::get()->activeAxes[2]=0.f;
             ActivityState::get()->activeAxes[3]=0.f;
-
-            return result;
-        #else
-			return glm::vec2(0,0);
-        #endif
-			return glm::vec2(0,0);
-		}
-		return glm::vec2(0,0);
-	}
-
-	//////////////////////////////////////////////
-
-	glm::vec2 Controller::leftStickOffset(const int index)
-	{
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
-			int count = 0;
-			const float* axes = glfwGetJoystickAxes(index, &count);
-			if (count = 4)
-				return glm::vec2(axes[0], axes[1]);
-			else
-				return glm::vec2(0,0);
-        #elif defined(JOP_OS_ANDROID)
-            glm::vec2 result={detail::ActivityState::get()->activeAxes[0],detail::ActivityState::get()->activeAxes[1]};
-            ActivityState::get()->activeAxes[0]=0.f;
-            ActivityState::get()->activeAxes[1]=0.f;
 
             return result;
         #else
