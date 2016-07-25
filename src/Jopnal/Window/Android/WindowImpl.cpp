@@ -368,15 +368,17 @@ namespace jop { namespace detail
                         for(int axis = 0;axis<15;++axis)
                         {
                             x = AMotionEvent_getAxisValue(event,ns_joystickAxes[axis],p);
-                            if(x>JOP_AXIS_TOLERANCE||x<-JOP_AXIS_TOLERANCE &&x!=0)
+                            if(x>JOP_AXIS_TOLERANCE||x<-JOP_AXIS_TOLERANCE)
                             {
                                 if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_X)
-                                {     
+                                {
                                     if(x>0)
                                         x=1;
                                     else
                                         x=-1;
-                                    windowRef->getEventHandler()->controllerButtonPressed(id,input::getJopControllerButton(x*ns_joystickAxes[axis]));
+                                    int jopKey=input::getJopControllerButton(x*ns_joystickAxes[axis]);
+                                    ActivityState::get()->activeKey=jopKey;
+                                    windowRef->getEventHandler()->controllerButtonPressed(id,jopKey);
                                 }
                                 else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
                                 {
@@ -447,8 +449,8 @@ namespace jop { namespace detail
 
                     if (down)
                     {
-                        windowRef->getEventHandler()->touchEvent(id, x, y);
                         ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
+                        windowRef->getEventHandler()->touchEvent(id, x, y);
                     }
                     else
                     {
@@ -478,6 +480,7 @@ namespace jop { namespace detail
 
         int32_t metakey = AKeyEvent_getMetaState(event);
         int32_t key = AKeyEvent_getKeyCode(event);
+        int jopKey = input::getJopKey(key);
 
         int mod = 0x0000;
         if (metakey & AMETA_ALT_ON)
@@ -494,37 +497,34 @@ namespace jop { namespace detail
             Window* windowRef = &Engine::getCurrentWindow();
             if (windowRef != nullptr)
             {          
-                    if (device & AINPUT_SOURCE_KEYBOARD)
-                {
-                    int jopKey = input::getJopKey(key);
-                    ActivityState::get()->activeKey=jopKey;
-                    windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
-                }
-                   else if(device & AINPUT_SOURCE_GAMEPAD)
-                {
-                    int jopKey = input::getGlControllerButton(key);
-                    ActivityState::get()->activeKey=jopKey;
-                    windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
-                }
+                    if(jopKey!=0)
+                    {
+                        ActivityState::get()->activeKey=jopKey;
+                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
+                    }
+                    else
+                    {
+                        jopKey = input::getJopControllerButton(key);
+                        ActivityState::get()->activeKey=jopKey;
+                        windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
+                    }
                 return 1;
             }
             return 0;
         }
         case AKEY_EVENT_ACTION_UP:
-        {
+        {           
             Window* windowRef = &Engine::getCurrentWindow();
             if (windowRef != nullptr)
             {
-                if (device & AINPUT_SOURCE_KEYBOARD)
-                {
-                    int jopKey = input::getJopKey(key);
-                    windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-                }
-                else if(device & AINPUT_SOURCE_GAMEPAD)
-                {
-                    int jopKey = input::getGlControllerButton(key);
-                    windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
-                }
+               if(jopKey!=0)
+               windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
+               else
+               {
+                 jopKey = input::getJopControllerButton(key);
+                 windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
+               } 
+
                 return 1;
             }
             return 0;
@@ -534,15 +534,14 @@ namespace jop { namespace detail
             Window* windowRef = &Engine::getCurrentWindow();
             if (windowRef != nullptr)
             {
-                if (device & AINPUT_SOURCE_KEYBOARD)
+                if(jopKey!=0)
                 {
-                    int jopKey = input::getJopKey(key);
                     windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
                     windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-                }
-                else if(device & AINPUT_SOURCE_GAMEPAD)
+                } 
+                else
                 {
-                    int jopKey = input::getGlControllerButton(key);
+                    jopKey = input::getJopControllerButton(key);
                     windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
                     windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
                 }

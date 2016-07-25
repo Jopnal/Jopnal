@@ -236,7 +236,9 @@ namespace jop
             {
             case AKEYCODE_BUTTON_A:             return m::A;
             case AKEYCODE_BUTTON_B:             return m::B;
+            case AKEYCODE_X:                    return m::X;
             case AKEYCODE_BUTTON_X:             return m::X;
+            case AKEYCODE_Y:                    return m::Y;
             case AKEYCODE_BUTTON_Y:             return m::Y;
             case AKEYCODE_BUTTON_L1:            return m::LShoulder;
             case AKEYCODE_BUTTON_R1:            return m::RShoulder;

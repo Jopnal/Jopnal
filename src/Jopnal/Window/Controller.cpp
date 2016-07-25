@@ -117,8 +117,9 @@ namespace jop
 			JOP_DEBUG_WARNING("Controller " << index << " has only " << count << " buttons")
 				return false;
         #elif defined(JOP_OS_ANDROID)
+            using namespace input;
             bool result = detail::ActivityState::get()->activeKey == Button;
-            detail::ActivityState::get()->activeKey=0;
+            detail::ActivityState::get()->activeKey=-1;
             return result;
         #else
 			return false;

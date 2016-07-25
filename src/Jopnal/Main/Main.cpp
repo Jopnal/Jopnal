@@ -112,7 +112,7 @@ extern int main(int argc, char* argv[]);
 			int32_t action = AKeyEvent_getAction(event);
 
 			if (type == AINPUT_EVENT_TYPE_KEY)
-			{           
+            { 
                 if(action==AKEY_EVENT_ACTION_DOWN)
                     getUnicode(event, ns_virtualMachine, ns_environment, &ns_vmArgs);
 
