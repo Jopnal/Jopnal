@@ -29,7 +29,6 @@
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <memory>
 
-
 //////////////////////////////////////////////
 
 
@@ -47,13 +46,20 @@ namespace jop
         enum class LoadMode
         {
             Separate,
-            Sheet
+            Sheet,
+            TextureOnly
         };
 
     public:
         
+        /// \brief Constructor
+        ///
+        /// \param name Name for the resource
+        ///
         TextureAtlas(const std::string& name);
 
+        /// \brief Destructor
+        ///
         ~TextureAtlas();
 
         /// \brief Load atlas
@@ -64,10 +70,11 @@ namespace jop
 
         /// \brief Load atlas
         ///
-        /// Loads atlas of given size and with variable amount of given Images and Texture2D's
+        /// Loads atlas of given size and with variable amount of given Images, Texture2D's or filepath's
+        /// using the addTexture method for each argument
         ///
         /// \param atlasSize Size of the atlas to be created.
-        /// \param args Variable amount of Texture2D's or Image's
+        /// \param args Variable amount of Texture2D's, Image's or file paths
         ///
         template<typename... Args>
         bool load(const glm::uvec2& atlasSize, const Args&... args);
@@ -95,6 +102,8 @@ namespace jop
         /// \param texturePath Path to the texture in file
         ///
         unsigned int addTexture(const std::string& texturePath);
+
+        unsigned int defineTexture(const glm::vec2& start, const glm::vec2& end);
 
         /// \brief Get texture location inside atlas
         ///

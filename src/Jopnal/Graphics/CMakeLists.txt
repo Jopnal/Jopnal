@@ -11,6 +11,8 @@ list(APPEND SRC ${__LISTS_GRAPHICS})
 
 # Include
 set(__INC_GRAPHICS
+    ${__INCDIR_GRAPHICS}/AnimatedSprite.hpp
+    ${__INCDIR_GRAPHICS}/AnimationAtlas.hpp 
     ${__INCDIR_GRAPHICS}/Buffer.hpp
     ${__INCDIR_GRAPHICS}/Camera.hpp
     ${__INCDIR_GRAPHICS}/Color.hpp
@@ -84,6 +86,8 @@ list(APPEND SRC ${__INL_GRAPHICS})
 
 # Source
 set(__SRC_GRAPHICS
+    ${__SRCDIR_GRAPHICS}/AnimatedSprite.cpp
+    ${__SRCDIR_GRAPHICS}/AnimationAtlas.cpp    
     ${__SRCDIR_GRAPHICS}/Buffer.cpp
     ${__SRCDIR_GRAPHICS}/Camera.cpp
     ${__SRCDIR_GRAPHICS}/Color.cpp

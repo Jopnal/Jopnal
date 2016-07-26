@@ -82,7 +82,6 @@ namespace jop
             return addTexture(defaultImg) == 0;
         }
 
-        
         return false;
     }
 
@@ -90,6 +89,9 @@ namespace jop
 
     bool TextureAtlas::load(const std::string& path, LoadMode mode)
     {
+        if (mode == LoadMode::TextureOnly)
+            return m_texture.load(path, true, true, false);
+
         std::string file;
 
         if (!FileLoader::readTextfile(path, file))
@@ -126,7 +128,7 @@ namespace jop
                 {
                     if (!i.IsObject() || !i.HasMember("start") || !i.HasMember("end"))
                     {
-                        JOP_DEBUG_WARNING("Texture in JSON file is not an object or start/end is missing");
+                        JOP_DEBUG_WARNING("Texture in JSON file is not a JSON object or start/end is missing");
                         continue;
                     }
 
@@ -139,7 +141,6 @@ namespace jop
         }
         else
         {
-
             if (doc.HasMember("sizeX") && doc["sizeX"].IsUint() && doc.HasMember("sizeY") && doc["sizeY"].IsUint() &&
                 doc.HasMember("textures") && doc["textures"].IsArray())
             {
@@ -149,7 +150,7 @@ namespace jop
                 {
                     if (!i.IsString() || i.GetStringLength() == 0)
                     {
-                        JOP_DEBUG_WARNING("Atlas texture path is not a valid string");
+                        JOP_DEBUG_WARNING("Texture in JSON file missing a string or length is zero");
                         continue;
                     }
 
@@ -184,7 +185,7 @@ namespace jop
         }
 
         // Find an empty spot in the texture
-        // Add padding to avoid pixel overflow (2 empty pixels)
+        // Add padding to avoid pixel overflow (1 empty pixel)
         stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(image.getSize().x + 1), static_cast<stbrp_coord>(image.getSize().y + 1) };
         stbrp_pack_rects(&m_packer->context, &rectangle, 1);
         rectangle.w -= 1;
@@ -231,6 +232,12 @@ namespace jop
         return img.load(texturePath, false) && addTexture(img) != 0;
     }
 
+    unsigned int TextureAtlas::defineTexture(const glm::vec2& start, const glm::vec2& end)
+    {
+        m_textures.emplace_back(start / glm::vec2(m_texture.getSize()),end / glm::vec2(m_texture.getSize()));
+        return m_textures.size() - 1;
+    }
+
     //////////////////////////////////////////////
 
     std::pair<glm::vec2, glm::vec2> TextureAtlas::getCoordinates(const unsigned int index) const
@@ -258,7 +265,7 @@ namespace jop
 
     const jop::Texture2D& TextureAtlas::getTexture() const
     {
-        if (getTextureAmount() > 0)
+        if (m_texture.isValid())
             return m_texture;
 
         JOP_DEBUG_ERROR("Error texture: No texture found for texture atlas");

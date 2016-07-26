@@ -60,6 +60,8 @@
 #include <Jopnal/Graphics/Font.hpp>
 #include <Jopnal/Graphics/Text.hpp>
 #include <Jopnal/Graphics/Texture/TextureAtlas.hpp>
+#include <Jopnal/Graphics/AnimatedSprite.hpp>
+#include <Jopnal/Graphics/AnimationAtlas.hpp>
 
 //////////////////////////////////////////////
 
