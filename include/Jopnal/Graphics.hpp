@@ -25,6 +25,7 @@
 #include <Jopnal/Graphics/Camera.hpp>
 #include <Jopnal/Graphics/Mesh/CircleMesh.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Graphics/Mesh/Cylinder.hpp>
 #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
