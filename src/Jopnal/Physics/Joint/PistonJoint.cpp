@@ -36,93 +36,79 @@
 
 namespace jop
 {
-    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB) :
+    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot) :
         Joint(worldRef, bodyA, bodyB),
         m_jointL(nullptr)
     {
+        btTransform ctwt = btTransform::getIdentity();
+        ctwt.setOrigin(btVector3(jPos.x, jPos.y, jPos.z));
+        ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
+        btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
+        btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
-        
-
-        btTransform frameInA = btTransform::btTransform(getBody(bodyA)->getWorldTransform());
-        btTransform frameInB = btTransform::btTransform(getBody(bodyB)->getWorldTransform());
-
-        //btTransform frameInA;
-        //frameInA = btTransform::getIdentity();
-        //frameInA.setOrigin(btVector3(btScalar(2.), btScalar(-3.), btScalar(2.)));
-        frameInA.setRotation(btQuaternion(0., 0., 0.707, 0.707));
-
-        //btTransform frameInB;
-        //frameInB = btTransform::getIdentity();
-
-        //frameInB.setOrigin(btVector3(btScalar(2.), btScalar(6.), btScalar(2.))); 
-        frameInB.setRotation(btQuaternion(0., 0., 0.707, 0.707));
-        
-
-        auto temp = std::make_unique<btSliderConstraint>(*getBody(bodyA), *getBody(bodyB), frameInA, frameInB, true);
-
-
-        temp->setLowerLinLimit(0.f);
-        temp->setUpperLinLimit(btScalar(10.f));
-        temp->setPoweredLinMotor(true);
-        temp->setMaxLinMotorForce(-50.);
-
-
-        //temp->setLowerAngLimit(btScalar(0.707));
-        //temp->setUpperAngLimit(btScalar(-0.354));
-        //temp->setPoweredAngMotor(true); //needs limits to work
-        //temp->setMaxAngMotorForce(5.);
-        
-        //temp->calculateTransforms(getBody(bodyA)->getWorldTransform(), getBody(bodyB)->getWorldTransform()); //no difference
-
-
-
-        m_joint = std::move(temp);
-        getWorld(worldRef).addConstraint(m_joint.get(), true);
-
-        //  jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter(), b2Vec2(axis.x, axis.y));
-        //  jointDef.collideConnected = collide;
-        //  jointDef.userData = this;
-        //
-        //  m_joint = static_cast<b2PrismaticJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
-        //  m_jointL = static_cast<b2PrismaticJoint*>(m_joint);
+        m_joint = std::make_unique<btSliderConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, true);
+        getWorld(worldRef).addConstraint(m_joint.get(), !collide);
+        m_jointL = static_cast<btSliderConstraint*>(m_joint.get());
     }
 
-    /*PistonJoint& PistonJoint::limit(const bool enable)
+    PistonJoint& PistonJoint::enableAngMotor(const bool enable)
     {
-    m_jointL->EnableLimit(enable);
-    return *this;
+        m_jointL->setPoweredAngMotor(enable);
+        return *this;
     }
 
-    PistonJoint& PistonJoint::setLimits(const float min, const float max)
+    PistonJoint& PistonJoint::enableMoveMotor(const bool enable)
     {
-    m_jointL->EnableLimit(true);
-    m_jointL->SetLimits(min, max);
-    return *this;
+        m_jointL->setPoweredLinMotor(enable);
+        return *this;
     }
 
-    std::pair<float, float> PistonJoint::getLimits()
+    std::pair<float, float> PistonJoint::getAngLimits() const
     {
-    return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+        return std::make_pair<float, float>(m_jointL->getLowerAngLimit(), m_jointL->getUpperAngLimit());
     }
 
-    PistonJoint& PistonJoint::enableMotor(const bool set)
+    std::pair<float, float> PistonJoint::getAngMotorForces() const
     {
-    m_jointL->EnableMotor(set);
-    return *this;
+        return std::make_pair<float,float>(m_jointL->getTargetAngMotorVelocity(), m_jointL->getMaxAngMotorForce());
     }
 
-    PistonJoint& PistonJoint::setMotorForces(const float speed, const float force)
+    std::pair<float, float> PistonJoint::getMoveLimits() const
     {
-    JOP_ASSERT(force >= 0.f, "PistonJoint force can not be negative!");
-
-    m_jointL->SetMotorSpeed(speed);
-    m_jointL->SetMaxMotorForce(force);
-    return *this;
+        return std::make_pair<float, float>(m_jointL->getLowerLinLimit(), m_jointL->getUpperLinLimit());
     }
 
-    std::pair<float, float> PistonJoint::getMotorForces()
+    std::pair<float, float> PistonJoint::getMoveMotorForces() const
     {
-    return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorForce());
-    }*/
+        return std::make_pair<float, float>(m_jointL->getTargetLinMotorVelocity(), m_jointL->getMaxLinMotorForce());
+    }
+
+    PistonJoint& PistonJoint::setAngLimits(const float min, const float max)
+    {
+        m_jointL->setLowerAngLimit(min);
+        m_jointL->setUpperAngLimit(max);
+        return *this;
+    }
+
+    PistonJoint& PistonJoint::setAngMotorForces(const float speed, const float force)
+    {
+        m_jointL->setTargetAngMotorVelocity(speed);
+        m_jointL->setMaxAngMotorForce(force);
+        return *this;
+    }
+
+    PistonJoint& PistonJoint::setMoveLimits(const float min, const float max)
+    {
+        m_jointL->setLowerLinLimit(min);
+        m_jointL->setUpperLinLimit(max);
+        return *this;
+    }
+
+    PistonJoint& PistonJoint::setMoveMotorForces(const float speed, const float force)
+    {
+        m_jointL->setTargetLinMotorVelocity(speed);
+        m_jointL->setMaxLinMotorForce(force);
+        return *this;
+    }
 
 }

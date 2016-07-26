@@ -26,6 +26,7 @@ list(APPEND SRC ${__INC_PHYSICS})
 set(__INC_PHYSICS_JOINT
 	${__INCDIR_PHYSICS}/Joint/PistonJoint.hpp
 	${__INCDIR_PHYSICS}/Joint/RotationJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/WeldJoint.hpp
 )
 source_group("Physics\\Headers\\Joint" FILES ${__INC_PHYSICS_JOINT})
 list(APPEND SRC ${__INC_PHYSICS_JOINT})
@@ -73,6 +74,7 @@ list(APPEND SRC ${__SRC_PHYSICS})
 set(__SRC_PHYSICS_JOINT
 	${__SRCDIR_PHYSICS}/Joint/PistonJoint.cpp
 	${__SRCDIR_PHYSICS}/Joint/RotationJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/WeldJoint.cpp
 )
 source_group("Physics\\Source\\Joint" FILES ${__SRC_PHYSICS_JOINT})
 list(APPEND SRC ${__SRC_PHYSICS_JOINT})

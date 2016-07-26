@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ROTATIONJOINT_HPP
-#define JOP_ROTATIONJOINT_HPP
+#ifndef JOP_WELDJOINT_HPP
+#define JOP_WELDJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -28,53 +28,35 @@
 
 //////////////////////////////////////////////
 
-class btHingeConstraint;
+class btFixedConstraint;
 // class btGeneric6DofConstraint; //expand to this?
 
 namespace jop
 {
-    class JOP_API RotationJoint : public Joint
+    class JOP_API WeldJoint : public Joint
     {
     public:
-        /// \brief RotationJoint (hinge) constructor.
+        /// \brief WeldJoint (hinge) constructor.
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.
         /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
-        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot = glm::fquat(1.f, 0.f, 0.f, 0.f));
+        WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
-        /// \param enable Enables/disables the hinge motor.
+        /// \return Returns currently used damping.
+        ///
+        float getDamping() const;
+
+        /// \param damping Set new damping value. Please use values between 0 - 1.
         ///
         /// \return Returns reference to self.
         ///
-        RotationJoint& enableMotor(const bool enable);
-
-        /// \return Returns current rotational limits of the hinge: first = minimum, second = maximum.
-        ///
-        std::pair<float, float> getAngLimits() const;
-
-        /// \return Returns current angular motor forces: first = speed, second = force
-        ///
-        std::pair<float, float> getAngForces() const;
-
-        /// Set new rotational limits for the hinge in radians.
-        ///
-        /// \return Returns reference to self.
-        ///
-        RotationJoint& setAngLimits(const float min, const float max);
-
-        /// Set new rotational forces for the hinge motor.
-        ///
-        /// \param speed New target speed to reach.
-        /// \param force New maximum motor force to exert to reach the target speed. Negative force causes the hinge to keep moving from one limit to the other.
-        /// 
-        /// \return Returns reference to self.
-        ///
-        RotationJoint& setAngForces(const float speed, const float force);
+        WeldJoint& setDamping(const float damping);
 
     private:
-        btHingeConstraint* m_jointL;
+        btFixedConstraint* m_jointL;
+        float m_damping;
     };
 }
 #endif

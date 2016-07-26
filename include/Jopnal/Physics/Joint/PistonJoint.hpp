@@ -38,42 +38,77 @@ namespace jop
         /// \brief PistonJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param axis A single axis where movement is permitted.
+        /// \param jPos Position of the joint in world coordinates.
+        /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
-        PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB);
+        PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot = glm::fquat(1.f, 0.f, 0.f, 0.f));
 
-        /// \param enable Enables/disables obeying of movement limits.
+
+        /// \param enable Enables/disables angular motor.
         ///
         /// \return Returns reference to self.
         ///
-       /* PistonJoint& limit(const bool enable);
+        PistonJoint& enableAngMotor(const bool enable);
 
-        /// Set new limits in world coordinates in relation to current position.
-        /// Enables limiting when called.
+        /// \param enable Enables/disables translation motor.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& setLimits(const float min, const float max);
+        PistonJoint& enableMoveMotor(const bool enable);
 
-        /// \return Returns current movement limits of the piston: first = minimum, second = maximum.
+        /// \return Returns current rotational limits of the piston: first = minimum, second = maximum.
         ///
-        std::pair<float, float> getLimits();
+        std::pair<float, float> getAngLimits() const;
 
-        /// \param enable Enables/disables motor.
+        /// \return Returns current angular motor forces: first = speed, second = force
+        ///
+        std::pair<float, float> getAngMotorForces() const;
+
+        /// \return Returns current angular target speed.
+        ///
+        float getAngTargetSpeed() const;
+
+        /// \return Returns current translation limits of the piston: first = minimum, second = maximum.
+        ///
+        std::pair<float, float> getMoveLimits() const;
+
+        /// \return Returns current translational motor force.
+        ///
+        std::pair<float, float> getMoveMotorForces() const;
+
+        /// \return Returns current translational target speed.
+        ///
+        float getMoveTargetSpeed() const;
+
+        /// Set new rotation limits for the piston in radians.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& enableMotor(const bool enable);
+        PistonJoint& setAngLimits(const float min, const float max);
 
-        /// Set new target speed and the maximum force for the motor to try to reach it.
+        /// Set new maximum forces for the angular motor.
+        ///
+        /// \param speed New angular target speed to reach.
+        /// \param force New maximum angular motor force to exert to reach the target speed. Negative force causes the piston to keep moving from one limit to the other.
         /// 
         /// \return Returns reference to self.
         ///
-        PistonJoint& setMotorForces(const float speed, const float force);
+        PistonJoint& setAngMotorForces(const float speed, const float force);
 
-        /// \return Returns current motor forces: first = speed, second = force.
+        /// Set new limits where translation is allowed. 0 is the center of the bodyA.
         ///
-        std::pair<float, float> getMotorForces();*/
+        /// \return Returns reference to self.
+        ///
+        PistonJoint& setMoveLimits(const float min, const float max);
+
+        /// Set new maximum forces for the translational motor to exert.
+        ///
+        /// \param speed New translational target speed.
+        /// \param force New maximum translational force to exert to reach the target speed. Negative force causes the piston to keep moving from one limit to the other.
+        /// 
+        /// \return Returns reference to self.
+        ///
+        PistonJoint& setMoveMotorForces(const float speed, const float force);
 
     private:
         btSliderConstraint* m_jointL;

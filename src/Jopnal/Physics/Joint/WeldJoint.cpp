@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Physics/Joint/RotationJoint.hpp>
+#include <Jopnal/Physics/Joint/WeldJoint.hpp>
 
 #include <Jopnal/STL.hpp>
 #include <Box/Dynamics/Joints/b2Joint.hpp>
@@ -36,47 +36,39 @@
 
 namespace jop
 {
-    RotationJoint::RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot) :
+    WeldJoint::WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
         Joint(worldRef, bodyA, bodyB),
-        m_jointL(nullptr)
+        m_jointL(nullptr),
+        m_damping(1.f)
     {
         btTransform ctwt = btTransform::getIdentity();
-        ctwt.setOrigin(btVector3(jPos.x, jPos.y, jPos.z));
-        ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
+        ctwt.setOrigin(btVector3(-getBody(bodyA)->getCenterOfMassPosition() - getBody(bodyB)->getCenterOfMassPosition()));
+        ctwt.setRotation(btQuaternion(0.f, 0.f, 0.f, 1.f));
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
-        m_joint = std::make_unique<btHingeConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, true);
+        m_joint = std::make_unique<btFixedConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
-        m_jointL = static_cast<btHingeConstraint*>(m_joint.get());
+        m_jointL = static_cast<btFixedConstraint*>(m_joint.get());
+
+        for (unsigned int i = 0; i < 6; ++i)
+        {
+            m_jointL->setDamping(i, m_damping, false);
+        }
     }
 
-    RotationJoint& RotationJoint::enableMotor(const bool enable)
+    float WeldJoint::getDamping() const
     {
-        m_jointL->enableMotor(enable);
-        return *this;
+        return m_damping;
     }
 
-    std::pair<float, float> RotationJoint::getAngLimits() const
+    WeldJoint& WeldJoint::setDamping(const float damping)
     {
-        return std::make_pair<float, float>(m_jointL->getLowerLimit(), m_jointL->getUpperLimit());
-    }
-
-    std::pair<float, float> RotationJoint::getAngForces() const
-    {
-        return std::make_pair<float, float>(m_jointL->getMotorTargetVelosity(), m_jointL->getMaxMotorImpulse());
-    }
-
-    RotationJoint& RotationJoint::setAngLimits(const float min, const float max)
-    {
-        m_jointL->setLimit(min, max);
-        return *this;
-    }
-
-    RotationJoint& RotationJoint::setAngForces(const float speed, const float force)
-    {
-        m_jointL->setMotorTargetVelocity(speed);
-        m_jointL->setMaxMotorImpulse(force);
+        for (unsigned int i = 0; i < 6; ++i)
+        {
+            m_jointL->setDamping(i, damping);
+        }
+        m_damping = damping;
         return *this;
     }
 }
