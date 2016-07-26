@@ -90,7 +90,7 @@ namespace jop
         const GLenum depthEnum = getFormatEnum(bytesPerPixel, srgb);
         glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, getTypeEnum(bytesPerPixel), pixels));
 
-        if (genMipmaps)
+        if (allowGenMipmaps(m_size, srgb) && genMipmaps)
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_2D));
         }
@@ -136,7 +136,7 @@ namespace jop
                 height = std::max(height, 1u);
             }
 
-            if (genMipmaps && image.getMipMapCount() > 1)
+            if (allowGenMipmaps(m_size, srgb) && genMipmaps && image.getMipMapCount() > 1)
             {
                 glCheck(glGenerateMipmap(GL_TEXTURE_2D));
             }
@@ -231,23 +231,19 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    #ifdef JOP_OPENGL_ES
+    #if defined(JOP_OPENGL_ES) && !defined(JOP_OPENGL_ES3)
 
-        #ifndef JOP_OPENGL_ES3
-
-            #define GL_SRGB GL_SRGB_EXT
-            #define GL_SRGB_ALPHA GL_SRGB_ALPHA_EXT
-            #define GL_SRGB8        GL_SRGB_EXT
-            #define GL_SRGB8_ALPHA8 GL_SRGB_ALPHA_EXT
+        #define GL_SRGB         GL_SRGB_EXT
+        #define GL_SRGB_ALPHA   GL_SRGB_ALPHA_EXT
+        #define GL_SRGB8        GL_SRGB_EXT
+        #define GL_SRGB8_ALPHA8 GL_SRGB_ALPHA_EXT
             
-            #define GL_RED GL_ALPHA
-            #define GL_R8 GL_RED
-            #define GL_RG GL_LUMINANCE_ALPHA
-            #define GL_RG8 GL_RG
-            #define GL_RGB8 GL_RGB
-            #define GL_RGBA8 GL_RGBA
-
-        #endif
+        #define GL_RED      GL_ALPHA
+        #define GL_R8       GL_RED
+        #define GL_RG       GL_LUMINANCE_ALPHA
+        #define GL_RG8      GL_RG
+        #define GL_RGB8     GL_RGB
+        #define GL_RGBA8    GL_RGBA
 
     #endif
 
@@ -259,14 +255,14 @@ namespace jop
                 return GL_RG;
 
             case 3:
-                return srgb ? GL_SRGB : GL_RGB;
+                return (srgb && gl::isES() && gl::getVersionMajor() < 3) ? GL_SRGB : GL_RGB;
 
             case 6:
             case 12:
                 return GL_RGB;
 
             case 4:
-                return srgb ? GL_SRGB_ALPHA : GL_RGBA;
+                return GL_RGBA;
 
             case 8:
             case 16:
@@ -373,7 +369,7 @@ namespace jop
         {
             errTex = static_ref_cast<Texture2D>(ResourceManager::getEmpty<Texture2D>("jop_error_texture").getReference());
 
-            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, false), "Failed to load error 2D texture!");
+            JOP_ASSERT_EVAL(errTex->load(jopr::errorTexture, sizeof(jopr::errorTexture), true, true), "Failed to load error 2D texture!");
 
             errTex->setPersistence(0);
         }
@@ -391,7 +387,7 @@ namespace jop
         {
             defTex = static_ref_cast<Texture2D>(ResourceManager::getEmpty<Texture2D>("jop_default_texture").getReference());
 
-            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, false), "Failed to load default texture!");
+            JOP_ASSERT_EVAL(defTex->load(jopr::defaultTexture, sizeof(jopr::defaultTexture), true, true), "Failed to load default texture!");
 
             defTex->setPersistence(0);
         }

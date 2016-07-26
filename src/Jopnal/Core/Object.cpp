@@ -351,8 +351,15 @@ namespace jop
 
         auto& vec = getParent()->m_children;
         if (vec.size() == vec.capacity())
-            vec.reserve(vec.size() + 1);
+        {
+            auto ID = newID;
+            auto transform = newTransform;
+            auto ref = getReference();
 
+            vec.reserve(vec.size() + std::max(1u, vec.size() / 5u));
+            vec.emplace_back(*ref, ID, transform);
+            return vec.back().getReference();
+        }
         vec.emplace_back(*this, newID, newTransform);
         return vec.back().getReference();
     }
@@ -549,7 +556,7 @@ namespace jop
 
         return WeakReference<Object>();
     }
-        
+
     /////////////////////////////////////////////
 
     std::string Object::makeSearchPath() const
@@ -633,7 +640,7 @@ namespace jop
         if (spacing.empty())
         {
             const auto n = childCountRecursive() + 1; // +1 for scene
-            deb << DebugHandler::Severity::Info <<  "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
+            deb << DebugHandler::Severity::Info << "Tree (total amount " << n << "): " << codes[5] << "\n" << codes[6];
 
             for (uint32 i = 0; i < 45 + std::ceil(std::log10(n + 1)); ++i)
                 deb << codes[0];
@@ -652,7 +659,7 @@ namespace jop
 
             for (uint32 sp = 1; sp < spacing.size(); ++sp)
             {
-                if (sp + 1 < spacing.size() || !isLast) 
+                if (sp + 1 < spacing.size() || !isLast)
                     deb << codes[4];
                 else
                     deb << " ";
@@ -792,7 +799,7 @@ namespace jop
                         globalMat[3][0] = 0.f;
                         localMat[3][0] = getLocalPosition().x;
                     }
-                    
+
                     if (flagSet(TranslationY))
                     {
                         globalMat[3][1] = 0.f;
@@ -845,7 +852,7 @@ namespace jop
     }
 
     /////////////////////////////////////////////S
-    
+
     Object& Object::setRotation(const float x, const float y, const float z)
     {
         return setRotation(glm::vec3(x, y, z));
@@ -888,7 +895,10 @@ namespace jop
     {
         if (flagSet(GlobalRotationDirty))
         {
-            m_globals.rotation = glm::quat(getTransform().getMatrix());
+            if (m_parent.expired() || ignoresTransform(Rotation))
+                return getLocalRotation();
+
+            m_globals.rotation = m_parent->getGlobalRotation() * getLocalRotation();
 
             clearFlags(GlobalRotationDirty);
         }
@@ -1141,7 +1151,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Object::ignoresTransform(const uint32 flag)
+    bool Object::ignoresTransform(const uint32 flag) const
     {
         return flagSet(flag);
     }

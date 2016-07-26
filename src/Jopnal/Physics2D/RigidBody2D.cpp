@@ -28,7 +28,7 @@
 
     #include <Jopnal/Core/Object.hpp>   
     #include <Jopnal/Physics2D/World2D.hpp>
-    #include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+    #include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
     #include <Box2D/Dynamics/b2Body.h>
     #include <Box2D/Dynamics/b2Fixture.h>
     #include <Box2D/Dynamics/b2World.h>
@@ -62,13 +62,13 @@
 namespace jop
 {
     RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
-        : group       (1),
-          mask        (1),
-          friction    (0.2f),
-          restitution (0.5f),
-          m_shape     (shape),
-          m_type      (type),
-          m_mass      ((type == Type::Dynamic) * mass)
+        : group(1),
+        mask(1),
+        friction(0.2f),
+        restitution(0.5f),
+        m_shape(shape),
+        m_type(type),
+        m_mass((type == Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
@@ -77,7 +77,6 @@ namespace jop
         : Collider2D(object, world, 0)
     {
         b2BodyDef bd;
-        b2FixtureDef fdf;
 
         auto& pos = getObject()->getGlobalPosition();
 
@@ -89,51 +88,89 @@ namespace jop
 
         switch (info.m_type)
         {
-            case Type::StaticSensor:
-            {
-                bd.type = b2BodyType::b2_staticBody;
-                object.setIgnoreParent(true);
-                fdf.isSensor = true;
-                break;
-            }
+        case Type::StaticSensor:
+        {
+            bd.type = b2BodyType::b2_staticBody;
+            object.setIgnoreParent(true);
+            break;
+        }
 
-            case Type::KinematicSensor:
-            {
-                bd.type = b2BodyType::b2_kinematicBody;
-                fdf.isSensor = true;
-                break;
-            }
+        case Type::KinematicSensor:
+        {
+            bd.type = b2BodyType::b2_kinematicBody;
+            break;
+        }
 
-            default:
-            {
-                bd.type = Types[static_cast<int>(info.m_type)];
-                object.setIgnoreParent(true);
-            }
+        default:
+        {
+            bd.type = Types[static_cast<int>(info.m_type)];
+            object.setIgnoreParent(true);
+        }
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
 
         m_body = world.m_worldData2D->CreateBody(&bd);
 
-        fdf.filter.groupIndex = info.group;
-        fdf.filter.maskBits = info.mask;
-        fdf.friction = info.friction;
-        fdf.restitution = info.restitution;
+        if (info.m_shape.m_isCompound)
+        {
+            auto& shape = static_cast<const CompoundShape2D&>(info.m_shape);
+            for (auto i : shape.m_shapes)
+            {
+                createCollidable(info, *i);
+            }
+        }
+        else
+            createCollidable(info, *info.m_shape.m_shape);
 
-        fdf.shape = info.m_shape.m_shape.get();
-        fdf.density = 1;
-
-        m_body->CreateFixture(&fdf);
     }
 
     RigidBody2D::RigidBody2D(const RigidBody2D& other, Object& newObj)
         : Collider2D(other, newObj)
     {
-        //b2Body* body = other.m_body; //check if fixtures are copied too
+        b2BodyDef bd;
+        b2FixtureDef fdf;
+
+        auto& pos = getObject()->getGlobalPosition();
+        bd.angle = glm::eulerAngles(getObject()->getGlobalRotation()).z;
+        bd.position = b2Vec2(pos.x, pos.y);
+        bd.userData = this;
+
+        auto om = other.m_body;
+
+        bd.type = om->GetType();
+        newObj.setIgnoreParent(other.getObject()->ignoresParent());
+        fdf.isSensor = om->GetFixtureList()->IsSensor();
+        bd.allowSleep = om->IsSleepingAllowed();
+
+        m_body = other.m_worldRef2D.m_worldData2D->CreateBody(&bd);
+
+        auto omf = om->GetFixtureList();
+
+        fdf.filter = omf->GetFilterData();
+        fdf.friction = omf->GetFriction();
+        fdf.restitution = omf->GetRestitution();
+
+        fdf.shape = omf->GetShape();
+        fdf.density = omf->GetDensity();
+
+        m_body->CreateFixture(&fdf);
     }
 
     RigidBody2D::~RigidBody2D()
     {
+        for (auto& i : m_joints)
+        {
+            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+
+            //if (!body.expired())
+            body/*.lock()*/->m_joints.erase(i);
+            {
+                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                thisBody = nullptr;
+            }
+        }
+        m_joints.clear();
         m_worldRef2D.m_worldData2D->DestroyBody(m_body);
     }
 
@@ -240,11 +277,41 @@ namespace jop
     }
 
     //////////////////////////////////////////////
+    RigidBody2D& RigidBody2D::synchronizeTransform()
+    {
+        auto& pos = getObject()->getGlobalPosition();
+        m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
+        return *this;
+    }
+    //////////////////////////////////////////////
+
+    void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape)
+    {
+        b2FixtureDef fdf;
+
+        fdf.density = 1;
+        fdf.filter.groupIndex = info.group;
+        fdf.filter.maskBits = info.mask;
+        fdf.friction = info.friction;
+
+        if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
+            fdf.isSensor = true;
+
+        fdf.restitution = info.restitution;
+        fdf.shape = &shape;
+
+        m_body->CreateFixture(&fdf);
+        m_body->ResetMassData();
+        m_body->SetActive(false);
+        m_body->SetActive(true);
+    }
+
+    //////////////////////////////////////////////
 
     Message::Result RigidBody2D::receiveMessage(const Message& message)
     {
-       // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
-       //     return Message::Result::Escape;
+        // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
+        //     return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

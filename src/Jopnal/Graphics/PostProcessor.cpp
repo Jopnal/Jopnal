@@ -88,7 +88,7 @@ namespace
 
 namespace jop
 {
-    PostProcessor::PostProcessor(const MainRenderTarget& mainTarget)
+    PostProcessor::PostProcessor(const RenderTarget& mainTarget)
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
@@ -402,7 +402,7 @@ namespace jop
 
         RenderTexture::unbind();
         
-        shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
+        shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
         drawQuad(m_quad, shdr);
     }
 
@@ -451,7 +451,7 @@ namespace jop
         m_bloomTextures[0][0].bind();
         m_bloomTextures[0][0].clear(RenderTarget::ColorBit);
 
-        m_brightShader->setUniform("u_Texture", *m_mainTarget.getColorTexture(slot), 1);
+        m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
         drawQuad(m_quad, m_brightShader);

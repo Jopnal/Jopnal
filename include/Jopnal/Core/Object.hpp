@@ -864,7 +864,7 @@ namespace jop
         ///
         /// \return True if the flag is set
         ///
-        bool ignoresTransform(const uint32 flag);
+        bool ignoresTransform(const uint32 flag) const;
 
     private:
 

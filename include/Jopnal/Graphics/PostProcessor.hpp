@@ -38,7 +38,7 @@ namespace jop
     class ShaderProgram;
     class Renderer;
     class RectangleMesh;
-    class MainRenderTarget;
+    class RenderTarget;
 
     class JOP_API PostProcessor final : public Subsystem
     {
@@ -61,7 +61,7 @@ namespace jop
 
     public:
 
-        PostProcessor(const MainRenderTarget& mainTarget);
+        PostProcessor(const RenderTarget& mainTarget);
 
         ~PostProcessor();
 
@@ -106,7 +106,7 @@ namespace jop
         std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
         WeakReference<ShaderProgram> m_blurShader;
         WeakReference<RectangleMesh> m_quad;
-        const MainRenderTarget& m_mainTarget;
+        const RenderTarget& m_mainTarget;
         uint32 m_functions;
         float m_exposure;
         float m_gamma;

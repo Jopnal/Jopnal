@@ -25,7 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Physics2D/World2D.hpp>
-    
+
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
@@ -36,6 +36,7 @@
     #include <Jopnal/Graphics/VertexBuffer.hpp>
     #include <Jopnal/Physics2D/ContactListener2D.hpp>
     #include <Jopnal/Physics2D/ContactInfo2D.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Box2D/Collision/Shapes/b2PolygonShape.h>
     #include <Box2D/Common/b2Draw.h>
     #include <Box2D/Dynamics/b2World.h>
@@ -51,6 +52,14 @@
 
 //////////////////////////////////////////////
 
+namespace jop
+{
+    JOP_REGISTER_COMMAND_HANDLER(World2D)
+
+        JOP_BIND_MEMBER_COMMAND(&World2D::setDebugMode, "setWorldDebugMode");
+
+    JOP_END_COMMAND_HANDLER(World2D)
+}
 
 namespace jop
 {
@@ -175,9 +184,9 @@ namespace jop
                 // Draw points
                 if (m_points.empty())
                 {
-                #ifndef JOP_OPENGL_ES
+#ifndef JOP_OPENGL_ES
                     glCheck(glPointSize(3));
-                #endif
+#endif
 
                     GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
@@ -194,7 +203,7 @@ namespace jop
 
         struct ContactListener2DImpl : b2ContactListener
         {
-            virtual void BeginContact(b2Contact* contact) override
+            void BeginContact(b2Contact* contact) override
             {
                 ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
 
@@ -207,7 +216,7 @@ namespace jop
                 }
             }
 
-            virtual void EndContact(b2Contact* contact) override
+            void EndContact(b2Contact* contact) override
             {
                 ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
                 auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
@@ -219,15 +228,16 @@ namespace jop
                 }
             }
         };
+
     }
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
         : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
-          m_worldData2D (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-          m_step        (0.f),
-          m_dd          (std::make_unique<detail::DebugDraw>())
+        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+        m_step(0.f),
+        m_dd(std::make_unique<detail::DebugDraw>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
@@ -277,7 +287,7 @@ namespace jop
 
         while (m_step >= timeStep)
         {
-            m_worldData2D->Step(timeStep, 8, 3); // 8 velocity and 3 position check done for each timeStep
+            m_worldData2D->Step(timeStep, 8, 3); // 8 velocity and 3 position checks done for each timeStep
             m_step -= timeStep;
             m_worldData2D->ClearForces();
         }
@@ -287,7 +297,7 @@ namespace jop
 
     void World2D::draw(const Camera* camera, const LightContainer&, ShaderProgram&) const
     {
-    #ifdef JOP_DEBUG_MODE
+#ifdef JOP_DEBUG_MODE
 
         if (camera && debugMode())
         {
@@ -296,37 +306,37 @@ namespace jop
             m_dd->flushLines();
         }
 
-    #else
+#else
 
         camera;
 
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
 
     void World2D::setDebugMode(const bool enable)
     {
-    #ifdef JOP_DEBUG_MODE
+#ifdef JOP_DEBUG_MODE
 
-        m_dd->SetFlags(enable * (b2Draw::e_shapeBit | b2Draw::e_aabbBit));
+        m_dd->SetFlags(enable * (b2Draw::e_shapeBit | b2Draw::e_aabbBit | b2Draw::e_jointBit | b2Draw::e_pairBit | b2Draw::e_centerOfMassBit));
 
-    #else
+#else
 
         enable;
 
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
 
     bool World2D::debugMode() const
     {
-    #ifdef JOP_DEBUG_MODE
+#ifdef JOP_DEBUG_MODE
         return m_dd->GetFlags() != 0;
-    #else
+#else
         return false;
-    #endif
+#endif
     }
 
     //////////////////////////////////////////////
@@ -424,8 +434,8 @@ namespace jop
 
     Message::Result World2D::receiveMessage(const Message& message)
     {
-        // if (JOP_EXECUTE_COMMAND(World2D, message.getString(), this) == Message::Result::Escape)
-        //    return Message::Result::Escape;
+        if (JOP_EXECUTE_COMMAND(World2D, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

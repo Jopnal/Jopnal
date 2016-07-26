@@ -107,33 +107,109 @@ namespace jop
 
         if (status != GL_TRUE)
         {
-            GLchar message[1024];
-            glCheck(glGetShaderInfoLog(m_handle, sizeof(message), NULL, message));
-            JOP_DEBUG_ERROR("Failed to compile shader:\n\n" << message << "\n\n");
+            std::queue<int32> lines;
 
-            GLint sourceLength;
-            glCheck(glGetShaderiv(m_handle, GL_SHADER_SOURCE_LENGTH, &sourceLength));
-            JOP_DEBUG_INFO(sourceLength);
-
-            std::string source(sourceLength, '0');
-            glCheck(glGetShaderSource(m_handle, sourceLength, NULL, &source[0]));
+            auto& deb = DebugHandler::getInstance();
+            std::lock_guard<std::recursive_mutex> lock(deb.getMutex());
 
             {
-                std::size_t startPos = 0;
-                std::size_t endPos = source.find_first_of('\n');
-                std::size_t currentLine = 1;
+                GLint logLen;
+                glCheck(glGetShaderiv(m_handle, GL_INFO_LOG_LENGTH, &logLen));
 
-                auto& deb = DebugHandler::getInstance();
+                std::string log(logLen, '0');
+                glCheck(glGetShaderInfoLog(m_handle, logLen, NULL, &log[0]));
+                deb << "Failed to compile shader:\n\n" << log << "\n\n";
 
-                while (endPos != std::string::npos)
+                // Find lines with errors
+                const char* current = log.c_str();
+
+                while (current)
                 {
-                    JOP_DEBUG_ERROR(currentLine << " " << source.substr(startPos, endPos - startPos));
+                    const char* next = std::strpbrk(current, "123456789");
+                    const char* newLine = std::strchr(current, '\n');
 
-                    ++currentLine;
-                    startPos = endPos + 1;
-                    endPos = source.find_first_of('\n', startPos);
+                    if (!next || !newLine)
+                        break;
+
+                    if (next < newLine)
+                    {
+                        auto checkNum = [](const char num) -> bool
+                        {
+                            return num == '0' || num == '1' || num == '2' || num == '3' || num == '4' ||
+                                   num == '5' || num == '6' || num == '7' || num == '8' || num == '9';
+                        };
+
+                        std::size_t len = 1;
+
+                        while (checkNum(next[len]))
+                            ++len;
+
+                        lines.push(std::stoi(std::string(next, len)));
+                    }
+
+                    current = newLine + 1;
                 }
             }
+
+            if (!lines.empty())
+            {
+                GLint sourceLength;
+                glCheck(glGetShaderiv(m_handle, GL_SHADER_SOURCE_LENGTH, &sourceLength));
+
+                std::string source(sourceLength, '0');
+                glCheck(glGetShaderSource(m_handle, sourceLength, NULL, &source[0]));
+
+                auto inRange = [](const int32 offset, const int32 ref, const int32 value) -> bool
+                {
+                    return (value >= std::max(0, ref - offset)) && (value <= ref + offset);
+                };
+
+                const int32 offset = 3;
+
+                const char* current = source.c_str();
+                int currentLine = 0;
+
+                int32 currentRef = lines.front();
+                while (current && !lines.empty())
+                {
+                    ++currentLine;
+
+                    if (current[0] == '\0')
+                        break;
+
+                    if (inRange(offset, currentRef, currentLine))
+                    {
+                        deb << " ";
+
+                        if (currentLine == currentRef)
+                            deb << "> ";
+                        else
+                            deb << "  ";
+
+                        deb << currentLine << " " << std::string(current, std::strpbrk(current, "\n\0") - current) << 
+                            
+                        #ifdef JOP_OS_ANDROID
+                            std::endl;
+                        #else
+                            "\n"
+                        #endif
+                        ;
+
+                        if (currentLine == currentRef + offset)
+                        {
+                            deb << "\n";
+                            lines.pop();
+
+                            if (!lines.empty())
+                                currentRef = lines.front();
+                        }
+                    }
+
+                    current = std::strchr(current, '\n') + 1;
+                }
+            }
+
+            JOP_DEBUG_ERROR("\n");
 
             destroy();
 

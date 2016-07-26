@@ -370,10 +370,41 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Texture::allowGenMipmaps(const glm::uvec2& size, const bool srgb)
+    {
+    #ifdef JOP_OPENGL_ES
+
+        bool npot = ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0) || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot);
+        //static bool decode = JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode);
+
+
+        return (!srgb/* || decode*/) && npot;
+
+    #else
+
+        size;
+        srgb;
+
+        return true;
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
     void Texture::updateSampling() const
     {
         setGLFilterMode(m_target, m_filter, m_anisotropic);
         setGLRepeatMode(m_target, m_repeat);
         setGLBorderColor(m_target, m_borderColor);
+
+    #ifdef JOP_OPENGL_ES
+
+        //if (JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode))
+        //{
+        //    glCheck(glTexParameteri(m_target, GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT));
+        //}
+
+    #endif
     }
 }

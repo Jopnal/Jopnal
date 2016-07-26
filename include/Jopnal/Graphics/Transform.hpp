@@ -36,8 +36,15 @@ namespace jop
     {
     public:
 
-        struct Variables
+        struct JOP_API Variables
         {
+            Variables() = default;
+            Variables(
+                const float posX, const float posY, const float posZ,
+                const float scaX, const float scaY, const float scaZ,
+                const float qW, const float qX, const float qY, const float qZ
+                );
+            Variables(const glm::vec3& pos, const glm::vec3& sca, const glm::quat& rot);
             glm::vec3 position;
             glm::vec3 scale;
             glm::quat rotation;

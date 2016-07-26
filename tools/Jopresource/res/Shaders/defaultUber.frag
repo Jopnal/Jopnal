@@ -221,7 +221,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -238,7 +238,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).rgb
         #endif
         ;
 
@@ -251,7 +251,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, OUT_TC).r
+            * JOP_TEXTURE_2D(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -273,7 +273,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -304,7 +304,7 @@ uniform float u_AlphaMult;
             {
                 vec3 samp = fragToLight + g_gridSamplingDisk[i] * diskRadius;
                 
-                float closestDepth = texture(u_PointLightShadowMaps[index], samp).r;
+                float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], samp).r;
 
                 // Undo mapping [0,1]
                 closestDepth *= l.farPlane;
@@ -324,7 +324,7 @@ uniform float u_AlphaMult;
 
 			const float bias = 0.05;
 
-			float shadow = currentDepth - bias > closestDepth : 1.0 : 0.0;
+			float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
 		#endif
 		
@@ -338,7 +338,7 @@ uniform float u_AlphaMult;
     float calculateDirSpotShadow(const in vec3 projCoords, const in vec3 norm, const in vec3 lightDir, const in sampler2D samp)
     {
         // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-        float closestDepth = texture(samp, projCoords.xy).r; 
+        float closestDepth = JOP_TEXTURE_2D(samp, projCoords.xy).r;
 
         // Get depth of current fragment from light's perspective
         float currentDepth = projCoords.z;
@@ -352,6 +352,8 @@ uniform float u_AlphaMult;
             shadow = 0.0;
 
         // Do percentage-closer filtering
+	#if !defined(GL_ES) || __VERSION__ >= 300
+
         else
         {
             vec2 texelSize = vec2(1.0) / vec2(textureSize(samp, 0));
@@ -359,12 +361,14 @@ uniform float u_AlphaMult;
             {
                 for(int y = -1; y <= 1; ++y)
                 {
-                    float pcfDepth = texture(samp, projCoords.xy + vec2(x, y) * texelSize).r; 
+                    float pcfDepth = JOP_TEXTURE_2D(samp, projCoords.xy + vec2(x, y) * texelSize).r;
                     shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
                 }    
             }
             shadow /= 9.0;
         }
+
+	#endif
 
         return shadow;
     }
@@ -380,7 +384,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -399,7 +403,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -412,7 +416,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, OUT_TC).r
+            * JOP_TEXTURE_2D(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -434,7 +438,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -459,7 +463,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.ambient)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
         ;
 
@@ -476,7 +480,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.diffuse)
         #endif
         #ifdef JMAT_DIFFUSEMAP
-            * vec3(texture(u_DiffuseMap, OUT_TC))
+            * JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).rgb
         #endif
         ;
 
@@ -489,7 +493,7 @@ uniform float u_AlphaMult;
         float shininess = max(1.0, u_Material.shininess
 
         #ifdef JMAT_GLOSSMAP
-            * texture(u_GlossMap, OUT_TC).r
+            * JOP_TEXTURE_2D(u_GlossMap, OUT_TC).r
         #endif
         );
 
@@ -511,7 +515,7 @@ uniform float u_AlphaMult;
             * vec3(u_Material.specular)
         #endif
         #ifdef JMAT_SPECULARMAP
-            * vec3(texture(u_SpecularMap, OUT_TC))
+            * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
         ;
 
@@ -548,7 +552,7 @@ void main()
 {
 #ifdef JMAT_SKYBOX
 
-    out_FinalColor = texture(u_EnvironmentMap, OUT_POS);
+    out_FinalColor = JOP_TEXTURE_CUBE(u_EnvironmentMap, OUT_POS);
     out_FinalColor.a *= u_Emission.a;
 
 #else
@@ -557,7 +561,7 @@ void main()
     vec4 tempColor =
 
     #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
-        texture(u_DiffuseMap, OUT_TC)
+        JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC)
 
         #ifdef JMAT_VERTEXCOLOR
             * OUT_COL
@@ -579,11 +583,11 @@ void main()
         vec3 refl = vec3(0.0, 0.0, 0.0);
 
         #ifdef JMAT_REFLECTIONMAP
-            float reflIntensity = texture(u_ReflectionMap, OUT_TC).r;
+            float reflIntensity = JOP_TEXTURE_2D(u_ReflectionMap, OUT_TC).r;
             if (reflIntensity > 0.1)
-                refl = vec3(texture(u_EnvironmentMap, R)) * reflIntensity
+                refl = vec3(JOP_TEXTURE_CUBE(u_EnvironmentMap, R)) * reflIntensity
         #else
-            refl = vec3(texture(u_EnvironmentMap, R))
+            refl = vec3(JOP_TEXTURE_CUBE(u_EnvironmentMap, R))
         #endif
         #ifdef JMAT_MATERIAL
             * u_Material.reflectivity
@@ -617,9 +621,9 @@ void main()
     // Emission
     #ifdef JMAT_EMISSIONMAP
         #ifdef JMAT_MATERIAL
-            tempColor += u_Material.emission * vec3(texture(u_EmissionMap, OUT_TC));
+            tempColor += u_Material.emission * vec3(JOP_TEXTURE_2D(u_EmissionMap, OUT_TC));
         #else
-            tempColor += texture(u_EmissionMap, OUT_TC);
+            tempColor += JOP_TEXTURE_2D(u_EmissionMap, OUT_TC);
         #endif
     #else
         #ifdef JMAT_MATERIAL
@@ -632,9 +636,9 @@ void main()
     float alpha =
 
     #if defined(JMAT_OPACITYMAP)
-        (texture(u_OpacityMap, OUT_TC).r + specularComponent)
+        (JOP_TEXTURE_2D(u_OpacityMap, OUT_TC).r + specularComponent)
     #elif defined(JMAT_DIFFUSEALPHA)
-        texture(u_DiffuseMap, OUT_TC).a
+        JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).a
     #else
         1.0
     #endif

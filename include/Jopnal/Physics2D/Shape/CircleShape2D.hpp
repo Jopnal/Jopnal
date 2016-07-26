@@ -28,7 +28,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     class JOP_API CircleShape2D final : public CollisionShape2D
@@ -41,7 +40,6 @@ namespace jop
         ///
         CircleShape2D(const std::string& name);
 
-
         /// \brief Load this shape using different extents
         ///
         /// \param radius Radius of the circle
@@ -51,5 +49,4 @@ namespace jop
         bool load(const float radius);
     };
 }
-
 #endif

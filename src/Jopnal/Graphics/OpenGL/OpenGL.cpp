@@ -142,8 +142,7 @@ namespace jop
                 version = std::stoul(std::string(&str[0], 1) + str[2] + str[3]);
             }
 
-            //return version;
-            return 100;
+            return version;
         }
 
         //////////////////////////////////////////////

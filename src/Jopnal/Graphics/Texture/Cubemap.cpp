@@ -87,7 +87,7 @@ namespace jop
             GLenum depthEnum = Texture2D::getFormatEnum(bytes, srgb);
             glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bytes, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
 
-            if (genMipmaps)
+            if (allowGenMipmaps(size, srgb) && genMipmaps)
             {
                 glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
@@ -112,7 +112,7 @@ namespace jop
         {
             glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, srgb), size.x, size.y, 0, depthEnum, GL_UNSIGNED_BYTE, NULL));
 
-            if (genMipmaps)
+            if (allowGenMipmaps(size, srgb) && genMipmaps)
             {
                 glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
             }
@@ -204,7 +204,11 @@ namespace jop
             for (std::size_t i = 0; i < 6; ++i)
             {
                 glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
-                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
+
+                if (allowGenMipmaps(glm::uvec2(x, y), true))
+                {
+                    glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                }
             }
 
             stbi_image_free(pix);
@@ -232,7 +236,11 @@ namespace jop
             for (std::size_t i = 0; i < 6; ++i)
             {
                 glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Texture2D::getInternalFormatEnum(bpp, true), x, y, 0, depthEnum, GL_UNSIGNED_BYTE, pix));
-                glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
+
+                if (allowGenMipmaps(glm::uvec2(x, y), true))
+                {
+                    glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
+                }
             }
 
             stbi_image_free(pix);

@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     CircleShape2D::CircleShape2D(const std::string& name)

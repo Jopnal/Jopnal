@@ -205,7 +205,7 @@ namespace jop
         // Main window
         m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
         printOpenGLInfo();
-
+        m_mainTarget = m_mainWindow;
         // Resource manager
         createSubsystem<ResourceManager>();
 
@@ -213,10 +213,10 @@ namespace jop
         createSubsystem<ShaderAssembler>();
 
         // Main render target
-        m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
+        //m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
         // Post processor
-        createSubsystem<PostProcessor>(*m_mainTarget);
+        //createSubsystem<PostProcessor>(*m_mainTarget);
 
         // Post-pass render proxy
         createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
@@ -491,7 +491,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const MainRenderTarget& Engine::getMainRenderTarget()
+    const RenderTarget& Engine::getMainRenderTarget()
     {
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 

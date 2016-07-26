@@ -39,6 +39,13 @@ set(__INC_PHYSICS_SHAPE
 source_group("Physics\\Headers\\Shape" FILES ${__INC_PHYSICS_SHAPE})
 list(APPEND SRC ${__INC_PHYSICS_SHAPE})
 
+# Inline
+set(__INL_CORE
+    ${__INCDIR_PHYSICS}/Inl/RigidBody.inl
+)
+source_group("Physics\\Inl" FILES ${__INL_CORE})
+list(APPEND SRC ${__INL_CORE})
+
 # Source
 set(__SRC_PHYSICS
     ${__SRCDIR_PHYSICS}/Collider.cpp
