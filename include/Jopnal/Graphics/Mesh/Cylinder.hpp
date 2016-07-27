@@ -52,11 +52,11 @@ namespace jop
         /// \param radius The radius of the Cylinder
         /// \param size How tall will the Cylinder be
         /// \param sectors How many blocks will form the exterior surface
-        /// \param normalizedTexCoords Normalize the texture coordinates?
+        /// \param dividedTexCoords If true side will use coordinates 0.25-0.75 from texture and rest is used for top and bottom
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const float size, const unsigned int sectors, const bool normalizedTexCoords = true);
+		bool load(const float radius, const float size, const unsigned int sectors, const bool dividedTexCoords = true);
 
 
         /// \brief Get the radius
@@ -81,14 +81,14 @@ namespace jop
         ///
         /// \return True if normalized
         ///
-        bool normalizedTexCoords() const;
+        bool dividedTexCoords() const;
 
     private:
 
         float m_radius;         ///< The radius
-        float m_size;    ///< Rings
+        float m_size;			///< Rings
         unsigned int m_sectors; ///< Sectors
-        bool m_normTexCoords;   ///< Normalized texture coordinates
+		bool m_dividedTexCoords;   ///< Normalized texture coordinates
     };
 }
 

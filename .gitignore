@@ -5,3 +5,6 @@ extlibs/*
 
 # Generated HTML documentation
 doc/html/
+*.tlog
+*.res
+project/

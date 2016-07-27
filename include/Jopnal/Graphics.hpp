@@ -23,6 +23,7 @@
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/Mesh/Capsule.hpp>
 #include <Jopnal/Graphics/Mesh/CircleMesh.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Mesh/Cylinder.hpp>

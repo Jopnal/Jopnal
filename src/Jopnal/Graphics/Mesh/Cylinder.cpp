@@ -41,7 +41,7 @@ namespace jop
         m_radius(0.f),
         m_sectors(0.f),
         m_size(0.f),
-        m_normTexCoords(true)
+		m_dividedTexCoords(false)
     {}
 
     CylinderMesh::CylinderMesh(const CylinderMesh& other, const std::string& newName)
@@ -49,60 +49,71 @@ namespace jop
         m_radius(0.f),
         m_sectors(0.f),
         m_size(0.f),
-        m_normTexCoords(true)
+		m_dividedTexCoords(false)
     {
-        load(other.m_radius, other.m_size, other.m_sectors, other.m_normTexCoords);
+		load(other.m_radius, other.m_size, other.m_sectors, other.m_dividedTexCoords);
     }
 
     //////////////////////////////////////////////
 
-    bool CylinderMesh::load(const float radius, const float size, const unsigned int sectors, const bool normalizedTexCoords)
-    {
-        m_radius = radius;
-        m_sectors = sectors;
-        m_size = size;
-        m_normTexCoords = normalizedTexCoords;
+	bool CylinderMesh::load(const float radius, const float size, const unsigned int sectors, const bool dividedTexCoords)
+	{
+		m_radius = radius;
+		m_size = size;
+		m_dividedTexCoords = dividedTexCoords;
 
-        const float height = 0.5f * size;
-        const float norm = 1.f;
-        float rdepth = radius;
-        float ldepth = rdepth;
-        float rwidth = (height)*(glm::two_pi<float>() * radius) / sectors+0.005f;
-        float lwidth = -rwidth;
-        const float alfa = glm::two_pi<float>() / sectors;
-        float texMulti = 1.f/ sectors;
-        float texCoord = 0;
+		if (sectors>=10)
+		m_sectors = sectors;
+		else
+		m_sectors = 10;
+
+		const float height = 0.5f * size;
+		const float norm = 1.f;
+		float divide = 0.f;
+
+		if (dividedTexCoords)
+		divide = 0.25f;
+
+		float width[2] = { NULL };
+		float depth[2] = {radius, radius};
+
+		width[0] = (glm::two_pi<float>() * radius)*0.5f / sectors + 0.005f;
+		width[1] = -width[0];
+
+		const float alfa = glm::two_pi<float>() / static_cast<float>(sectors);
+		float texMulti = 1.f / (static_cast<float>(sectors) + 1.f);
+        float texCoord = 1.f;
 
         std::vector<Vertex> vertexArray((8 * sectors)+1);
         auto itr = vertexArray.begin();
-
         for (std::size_t s = 0; s < sectors; ++s)
         {
-            float rlenght = glm::sqrt((rwidth * rwidth) + 1.f + (rdepth * rdepth));
-            float llenght = glm::sqrt((lwidth * lwidth) + 1.f + (ldepth * ldepth));
+			float lenght[2] = {glm::sqrt((width[0] * width[0]) + 1.f + (depth[0] * depth[0])), glm::sqrt((width[1] * width[1]) + 1.f + (depth[1] * depth[1]))};
+
            
-            *itr++ = Vertex(glm::vec3(0.f, -height, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, -norm, 0.f));                         // 0, middle, Bottom    
-            *itr++ = Vertex(glm::vec3(lwidth, -height, ldepth), glm::vec2(texCoord, 0.f), glm::vec3(lwidth, -norm, ldepth)/llenght);              // 1, Left, Bottom   
-            *itr++ = Vertex(glm::vec3(rwidth, -height, rdepth), glm::vec2(texCoord + texMulti, 0.f), glm::vec3(rwidth, -norm, rdepth)/rlenght);     // 2, Right, Bottom  
+			*itr++ = Vertex(glm::vec3(0.f, -height, 0.f), glm::vec2(texCoord + texMulti, 1.f), glm::vec3(0.f, -norm, 0.f));                         // 0, middle, Bottom    
+			*itr++ = Vertex(glm::vec3(width[1], -height, depth[1]), glm::vec2(texCoord, 1.f-divide), glm::vec3(width[1], -norm, depth[1]) / lenght[1]);              // 1, Left, Bottom   
+			*itr++ = Vertex(glm::vec3(width[0], -height, depth[0]), glm::vec2(texCoord + texMulti, 1.f - divide), glm::vec3(width[0], -norm, depth[0]) / lenght[0]);     // 2, Right, Bottom  
 
-            *itr++ = Vertex(glm::vec3(lwidth, -height, ldepth), glm::vec2(texCoord, 0.f), glm::vec3(lwidth, 0.f, ldepth)/llenght);               // 3, Left, Bottom   
-            *itr++ = Vertex(glm::vec3(rwidth, -height, rdepth), glm::vec2(texCoord + texMulti, 0.f), glm::vec3(rwidth, 0.f, rdepth)/rlenght);    // 4, Right, Bottom  
-            *itr++ = Vertex(glm::vec3(lwidth, height, ldepth), glm::vec2(texCoord, 1.f), glm::vec3(lwidth, 0.f, ldepth)/llenght);                // 5, Left, Top    
-            *itr++ = Vertex(glm::vec3(rwidth, height, rdepth), glm::vec2(texCoord + texMulti, 1.f), glm::vec3(rwidth, 0.f, rdepth)/rlenght);     // 6, Right, Top    
-            *itr++ = Vertex(glm::vec3(0.f, height, 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, norm, 0.f));                           // 7, middle, Top  
+			*itr++ = Vertex(glm::vec3(width[1], -height, depth[1]), glm::vec2(texCoord, 1.f - divide), glm::vec3(width[1], 0.f, depth[1]) / lenght[1]);               // 3, Left, Bottom   
+			*itr++ = Vertex(glm::vec3(width[0], -height, depth[0]), glm::vec2(texCoord + texMulti, 1.f - divide), glm::vec3(width[0], 0.f, depth[0]) / lenght[0]);    // 4, Right, Bottom  
+			*itr++ = Vertex(glm::vec3(width[1], height, depth[1]), glm::vec2(texCoord, 0.f + divide), glm::vec3(width[1], 0.f, depth[1]) / lenght[1]);                // 5, Left, Top    
+			*itr++ = Vertex(glm::vec3(width[0], height, depth[0]), glm::vec2(texCoord + texMulti, 0.f + divide), glm::vec3(width[0], 0.f, depth[0]) / lenght[0]);     // 6, Right, Top    
+			*itr++ = Vertex(glm::vec3(0.f, height, 0.f), glm::vec2(texCoord + texMulti, 0.f), glm::vec3(0.f, norm, 0.f));                           // 7, middle, Top  
 
-            texCoord += texMulti;
+            texCoord -= texMulti;
 
-            float x = rwidth;
-            float z = rdepth;
-            rwidth = (x*glm::cos(alfa)) - (z*glm::sin(alfa));
-            rdepth = (x*glm::sin(alfa)) + (z*glm::cos(alfa));
+            float x = width[0];
+            float z = depth[0];
+            width[0] = (x*glm::cos(alfa)) - (z*glm::sin(alfa));
+            depth[0] = (x*glm::sin(alfa)) + (z*glm::cos(alfa));
 
-            x = lwidth;
-            z = ldepth;
-            lwidth = (x*glm::cos(alfa)) - (z*glm::sin(alfa));
-            ldepth = (x*glm::sin(alfa)) + (z*glm::cos(alfa));
+            x = width[1];
+            z = depth[1];
+            width[1] = (x*glm::cos(alfa)) - (z*glm::sin(alfa));
+            depth[1] = (x*glm::sin(alfa)) + (z*glm::cos(alfa));
         }
+
         std::vector<unsigned int> indices(24 * sectors);
         auto ind = indices.begin();
         for (std::size_t s = 0; s < sectors; ++s)
@@ -150,8 +161,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool CylinderMesh::normalizedTexCoords() const
+	bool CylinderMesh::dividedTexCoords() const
     {
-        return m_normTexCoords;
+		return m_dividedTexCoords;
     }
 }
