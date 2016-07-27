@@ -33,7 +33,6 @@
 
 namespace jop
 {
-
     AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer)
         : GenericDrawable(object, renderer),
           m_atlas(),

@@ -53,11 +53,12 @@ namespace jop
 
     bool AnimationAtlas::load(const std::string& path, const glm::uvec2& frames, const glm::uvec2& rectMin, const glm::uvec2& rectMax)
     {
-        TextureAtlas::load(path, TextureAtlas::LoadMode::TextureOnly);
+        if (!TextureAtlas::load(path, TextureAtlas::LoadMode::TextureOnly))
+            return false;
 
         glm::vec2 size(0, 0);
 
-        if (rectMin.x > 0 && rectMin.y > 0 && rectMax.x > 0 && rectMax.y > 0)
+        if (rectMin.x > 0 || rectMin.y > 0 || rectMax.x > 0 || rectMax.y > 0)
             size = rectMax - rectMin;
         else
             size = getTexture().getSize();
@@ -74,16 +75,12 @@ namespace jop
         }
 
         return true;
-
-
     }
 
+    //////////////////////////////////////////////
 
     const glm::vec2& AnimationAtlas::getFrameSize() const
     {
         return m_frameSize;
     }
-
-
-
 }

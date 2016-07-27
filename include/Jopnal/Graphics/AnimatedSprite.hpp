@@ -48,42 +48,51 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param object Reference to the object which this component is getting bound to
+        /// \param renderer Reference to the renderer
+        ///
         AnimatedSprite(Object& object, Renderer& renderer);
 
+        /// \brief Destructor
+        ///
         ~AnimatedSprite();
 
-        /// \brief 
+        /// \brief Update sprite animation
+        ///
+        /// Cycles through animation range with given frame time
         ///
         void update(const float deltaTime) override;
 
-        /// \brief
+        /// \brief Stop animating
         ///
         void stop();
 
-        /// \brief
+        /// \brief Play animation
         ///
         void play();
 
-        /// \brief
+        /// \brief Pause animation
         ///
         void pause();
 
         /// \brief Set animation range
         ///
-        /// \param startIndex todo
-        /// \param endIndex todo
+        /// \param startIndex The first frame in the range
+        /// \param endIndex The last frame in the range
         ///
         AnimatedSprite& setAnimationRange(const uint32 startIndex, const uint32 endIndex);
 
         /// \brief Set frame time
         ///
-        /// \param seconds todo
+        /// \param seconds Time taken for each frame (1 / 60 = 60FPS)
         ///
         AnimatedSprite& setFrameTime(const float seconds);
 
         /// \brief Set animation atlas
         ///
-        /// \param atlas todo
+        /// \param atlas Reference to the animation atlas holding the frames
         ///
         AnimatedSprite& setAtlas(const AnimationAtlas& atlas);
 
@@ -93,13 +102,13 @@ namespace jop
 
     private:
 
-        WeakReference<const AnimationAtlas> m_atlas;
-        std::unique_ptr<RectangleMesh> m_mesh; ///< 
-        Material m_material; ///<
+        WeakReference<const AnimationAtlas> m_atlas; ///< Reference to the animation atlas
+        std::unique_ptr<RectangleMesh> m_mesh; ///< Mesh to be drawn on
+        Material m_material; ///< Material to be drawn with
         std::pair<uint32, uint32> m_animationRange; ///< Animation range (Start - End)
-        float m_frameTime;
-        float m_timer;
-        Status m_status;
+        float m_frameTime; ///< Time taken for each frame
+        float m_timer; 
+        Status m_status; ///< Animation status
         int m_currentFrame;
     };
 

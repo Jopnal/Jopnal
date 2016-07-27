@@ -232,6 +232,8 @@ namespace jop
         return img.load(texturePath, false) && addTexture(img) != 0;
     }
 
+    //////////////////////////////////////////////
+
     unsigned int TextureAtlas::defineTexture(const glm::vec2& start, const glm::vec2& end)
     {
         m_textures.emplace_back(start / glm::vec2(m_texture.getSize()),end / glm::vec2(m_texture.getSize()));

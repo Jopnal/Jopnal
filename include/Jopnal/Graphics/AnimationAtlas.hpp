@@ -36,28 +36,45 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param name Name for the resource
+        ///
         AnimationAtlas(const std::string& name);
 
+        /// \brief Destructor
+        ///
         ~AnimationAtlas();
 
-        /// \brief
+        /// \brief Load animation atlas from texture
+        ///
+        /// Creates an animation atlas from texture. Uses texture atlas to load the texture
+        /// and automatically calculates the coordinates for each frame.
+        ///
+        /// \param path Path to the file which contains texture for animation atlas
+        /// \param frames How many frames are there in the texture (X, Y)
         ///
         bool load(const std::string& path, const glm::uvec2& frames);
 
-        /// \brief
+        /// \brief Load animation atlas from part of texture
+        ///
+        /// Creates an animation atlas from part of texture. Uses texture atlas to load the texture
+        /// and automatically calculates the coordinates for each frame.
+        ///
+        /// \param path Path to the file which contains texture for animation atlas
+        /// \param frames How many frames are there in the texture (X, Y)
+        /// \param rectMin Minimum coordinates for the rectangle bounding the frames
+        /// \param rectMax Maximum coordinates for the rectangle bounding the frames
         ///
         bool load(const std::string& path, const glm::uvec2& frames, const glm::uvec2& rectMin, const glm::uvec2& rectMax);
 
-
-        /// \brief 
+        /// \brief Get size of a single frame
         ///
         const glm::vec2& getFrameSize() const;
 
-
-
     private:
 
-        glm::vec2 m_frameSize;
+        glm::vec2 m_frameSize; ///< Size of frame
     };
 }
 

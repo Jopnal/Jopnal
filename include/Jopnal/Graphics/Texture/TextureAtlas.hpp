@@ -103,6 +103,10 @@ namespace jop
         ///
         unsigned int addTexture(const std::string& texturePath);
 
+        /// \brief Define a texture
+        ///
+        /// Adds a texture to memory with given dimension
+        ///
         unsigned int defineTexture(const glm::vec2& start, const glm::vec2& end);
 
         /// \brief Get texture location inside atlas
