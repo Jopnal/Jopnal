@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ROTATIONJOINT_HPP
-#define JOP_ROTATIONJOINT_HPP
+#ifndef JOP_WHEELJOINT_HPP
+#define JOP_WHEELJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -28,27 +28,28 @@
 
 //////////////////////////////////////////////
 
-class btHingeConstraint;
-// class btGeneric6DofConstraint; //expand to this?
+class btGeneric6DofConstraint;
 
 namespace jop
 {
-    class JOP_API RotationJoint : public Joint
+    class JOP_API WheelJoint : public Joint
     {
     public:
-        /// \brief RotationJoint (hinge) constructor.
+        /// \brief WheelJoint (hinge) constructor.
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned.
+        /// \param jRot Rotation of the joint. Default axis-aligned and direction decided from Y-axis positions. 
+        /// \param steeringAngle Maximum steering angle of the wheel in radians. Default is ~40 degrees.
         ///
-        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
-
+        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const bool enableSteering = false,
+            const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f), const float steeringAngle = 0.7f);
+/*
         /// \param enable Enables/disables the hinge motor.
         ///
         /// \return Returns reference to self.
         ///
-        RotationJoint& enableMotor(const bool enable);
+        WheelJoint& applyForce(const float force);
 
         /// \return Returns current rotational limits of the hinge: first = minimum, second = maximum.
         ///
@@ -62,7 +63,7 @@ namespace jop
         ///
         /// \return Returns reference to self.
         ///
-        RotationJoint& setAngLimits(const float min, const float max);
+        WheelJoint& setAngLimits(const float min, const float max);
 
         /// Set new rotational forces for the hinge motor.
         ///
@@ -71,10 +72,10 @@ namespace jop
         /// 
         /// \return Returns reference to self.
         ///
-        RotationJoint& setAngForces(const float speed, const float force);
+        WheelJoint& setAngForces(const float speed, const float force);*/
 
     private:
-        btHingeConstraint* m_jointL;
+        btGeneric6DofConstraint* m_jointL;
     };
 }
 #endif

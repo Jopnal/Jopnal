@@ -36,7 +36,7 @@
 
 namespace jop
 {
-    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::fquat& jRot) :
+    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::quat& jRot) :
         Joint(worldRef, bodyA, bodyB),
         m_jointL(nullptr)
     {
