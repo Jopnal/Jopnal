@@ -61,9 +61,10 @@ namespace jop
         ///
         bool load(const float size);
 
-        /// \brief 
+        /// \brief Load rectangle from specific part of texture
         ///
-        /// tex min and max coords
+        /// \param min Minimum bounds
+        /// \param max Maximum bounds
         ///
         bool load(const float size, const glm::vec2& min, const glm::vec2& max);
 

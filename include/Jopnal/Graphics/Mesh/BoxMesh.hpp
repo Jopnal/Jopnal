@@ -71,17 +71,40 @@ namespace jop
         ///
         bool load(const float size, const bool invert);
 
-        /// \brief 
+        /// \brief Load this box with certain part of texture
         ///
-        /// tex min and max coords
+        /// \param size Size of the box
+        /// \param min Minimum bound of texture
+        /// \param max Maximum bound of texture
+        /// \param invert Is cube inside-out?
         ///
         bool load(const float size, const glm::vec2& min, const glm::vec2& max, const bool invert);
 
         /// \brief Load from atlas with different texture for each face
         ///
+        /// \param size Size of the box
+        /// \param atlas Reference to the atlas
+        /// \param front Index to the texture to be placed in to front face
+        /// \param left Index to the texture to be placed in to left face
+        /// \param back Index to the texture to be placed in to back face
+        /// \param right Index to the texture to be placed in to right face
+        /// \param top Index to the texture to be placed in to top face
+        /// \param bottom Index to the texture to be placed in to bottom face
+        /// \param invert Is cube inside-out?
+        ///
         bool load(const float size, const TextureAtlas& atlas, const unsigned int front, const unsigned int left, const unsigned int back, const unsigned int right, const unsigned int top, const unsigned int bottom, const bool invert);
         
-        // 6x pair
+        /// \brief Load from atlas with different texture for each face
+        ///
+        /// \param size Size of the box
+        /// \param front Coordinates of the texture to be placed in front face
+        /// \param left Coordinates of the texture to be placed in left face
+        /// \param back Coordinates of the texture to be placed in back face
+        /// \param right Coordinates of the texture to be placed in right face
+        /// \param top Coordinates of the texture to be placed in top face
+        /// \param bottom Coordinates of the texture to be placed in bottom face
+        /// \param invert Is cube inside-out?
+        ///
         bool load(const float size, std::pair<glm::vec2, glm::vec2> front, std::pair<glm::vec2, glm::vec2> left, std::pair<glm::vec2, glm::vec2> back, std::pair<glm::vec2, glm::vec2> right, std::pair<glm::vec2, glm::vec2> top, std::pair<glm::vec2, glm::vec2> bottom, const bool invert);
         
         /// \brief Get the size
