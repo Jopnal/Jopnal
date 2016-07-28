@@ -39,6 +39,7 @@ namespace jop
 	CapsuleMesh::CapsuleMesh(const std::string& name)
 		: Mesh(name),
 		m_radius(0.f),
+        m_height(0.f),
 		m_rings(0),
 		m_sectors(0),
 		m_normTexCoords(true)
@@ -46,25 +47,26 @@ namespace jop
 
 	CapsuleMesh::CapsuleMesh(const CapsuleMesh& other, const std::string& newName)
 		: Mesh(newName),
-		m_radius(0.f),
+        m_radius(0.f),
+        m_height(0.f),
 		m_rings(0),
 		m_sectors(0),
 		m_normTexCoords(true)
 	{
-		load(other.m_radius, other.m_rings, other.m_sectors, other.m_normTexCoords);
+		load(other.m_radius, other.m_height, other.m_rings, other.m_sectors, other.m_normTexCoords);
 	}
 
 	//////////////////////////////////////////////
 
-	bool CapsuleMesh::load(const float radius, const float size, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+	bool CapsuleMesh::load(const float radius, const float height, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
 	{
 		m_radius = radius;
+        m_height = height;
 		m_rings = rings;
 		m_sectors = sectors;
 		m_normTexCoords = normalizedTexCoords;
 
-
-		const float half = size*0.5f;
+		const float half = height*0.5f;
 		const float stretch = radius / (static_cast<float>(rings)+1.f);
 		const float R = 1.0f / static_cast<float>(rings - 1);
 		const float S = 1.0f / static_cast<float>(sectors - 1);
@@ -133,6 +135,13 @@ namespace jop
 	{
 		return m_radius;
 	}
+
+    //////////////////////////////////////////////
+
+    float CapsuleMesh::getHeight() const
+    {
+        return m_height;
+    }
 
 	//////////////////////////////////////////////
 

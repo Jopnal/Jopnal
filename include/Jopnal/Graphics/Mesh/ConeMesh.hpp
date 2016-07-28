@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CYLINDERMESH_HPP
-#define JOP_CYLINDERMESH_HPP
+#ifndef JOP_CONEMESH_HPP
+#define JOP_CONEMESH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -31,32 +31,31 @@
 
 namespace jop
 {
-    class JOP_API CylinderMesh : public Mesh
+    class JOP_API ConeMesh : public Mesh
     {
     public:
 
         /// \copydoc jop::BoxMesh::BoxMesh()
         ///
-        CylinderMesh(const std::string& name);
+        ConeMesh(const std::string& name);
 
         /// \brief Copy constructor
         ///
         /// \param other The other mesh to be copied
         /// \param newName Name of the new mesh
         ///
-        CylinderMesh(const CylinderMesh& other, const std::string& newName);
+        ConeMesh(const ConeMesh& other, const std::string& newName);
 
 
-        /// \brief Load a Cylinder
+        /// \brief Load a Cone
         ///
-        /// \param radius The radius of the Cylinder
-        /// \param size How tall will the Cylinder be
+        /// \param radius The radius of the Cone's lowest ring
+        /// \param height How tall will the Cone be
         /// \param sectors How many blocks will form the exterior surface
-        /// \param dividedTexCoords If true side will use coordinates 0.25-0.75 from texture and rest is used for top and bottom
         ///
         /// \return True if successful
         ///
-		bool load(const float radius, const float size, const unsigned int sectors, const bool dividedTexCoords = true);
+        bool load(const float radius, const float height, const int sectors);
 
 
         /// \brief Get the radius
@@ -75,26 +74,19 @@ namespace jop
         ///
         /// \return The size
         ///
-        float getSize() const;
-
-        /// \brief Check if this Cylinder uses normalized texture coordinates
-        ///
-        /// \return True if normalized
-        ///
-        bool dividedTexCoords() const;
+        float getHeight() const;
 
     private:
 
         float m_radius;         ///< The radius
-        float m_size;			///< Rings
+        float m_height;			///< The height
         unsigned int m_sectors; ///< Sectors
-		bool m_dividedTexCoords;   ///< Normalized texture coordinates
     };
 }
 
 #endif
 
-/// \class CylinderMesh
+/// \class ConeMesh
 /// \ingroup Graphics
 ///
 /// 

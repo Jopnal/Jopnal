@@ -46,10 +46,10 @@ list(APPEND SRC ${__INC_GRAPHICS})
 # Include - Mesh
 set(__INC_GRAPHICS_MESH
     ${__INCDIR_GRAPHICS}/Mesh/BoxMesh.hpp
-    ${__INCDIR_GRAPHICS}/Mesh/Capsule.hpp
+    ${__INCDIR_GRAPHICS}/Mesh/CapsuleMesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/CircleMesh.hpp
-    ${__INCDIR_GRAPHICS}/Mesh/Cone.hpp
-    ${__INCDIR_GRAPHICS}/Mesh/Cylinder.hpp
+    ${__INCDIR_GRAPHICS}/Mesh/ConeMesh.hpp
+    ${__INCDIR_GRAPHICS}/Mesh/CylinderMesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/Mesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/RectangleMesh.hpp
     ${__INCDIR_GRAPHICS}/Mesh/SphereMesh.hpp
@@ -121,10 +121,10 @@ list(APPEND SRC ${__SRC_GRAPHICS})
 # Source - Mesh
 set(__SRC_GRAPHICS_MESH
     ${__SRCDIR_GRAPHICS}/Mesh/BoxMesh.cpp
-    ${__SRCDIR_GRAPHICS}/Mesh/Capsule.cpp
+    ${__SRCDIR_GRAPHICS}/Mesh/CapsuleMesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/CircleMesh.cpp
-    ${__SRCDIR_GRAPHICS}/Mesh/Cone.cpp
-    ${__SRCDIR_GRAPHICS}/Mesh/Cylinder.cpp
+    ${__SRCDIR_GRAPHICS}/Mesh/ConeMesh.cpp
+    ${__SRCDIR_GRAPHICS}/Mesh/CylinderMesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/Mesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/RectangleMesh.cpp
     ${__SRCDIR_GRAPHICS}/Mesh/SphereMesh.cpp
