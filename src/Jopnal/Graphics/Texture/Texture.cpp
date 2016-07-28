@@ -47,18 +47,25 @@ namespace
         switch (mode)
         {
             case Filter::None:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
                 break;
+            }
             case Filter::Bilinear:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                 break;
+            }
             case Filter::Trilinear:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
                 glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
                 break;
+            }
             case Filter::Anisotropic:
+            {
                 if (jop::TextureSampler::getMaxAnisotropy() > 0.f)
                 {
                     glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, jop::TextureSampler::getMaxAnisotropy())));
@@ -66,6 +73,7 @@ namespace
                 else
                     // Should never happen but just to be sure.
                     JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
+            }
         }
     }
 
@@ -76,27 +84,47 @@ namespace
         switch (repeat)
         {
             case Repeat::Basic:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
+            #endif
+
                 break;
+            }
             case Repeat::Mirrored:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
+            #endif
+
                 break;
+            }
             case Repeat::ClampEdge:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+            #endif
+
                 break;
+            }
 
         #ifndef JOP_OPENGL_ES
 
             case Repeat::ClampBorder:
+            {
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
                 glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+            }
 
         #endif
         }
@@ -295,6 +323,7 @@ namespace jop
     void Texture::setPixelStore(const unsigned int depth)
     {
         GLint param = 4;
+        
         switch (depth)
         {
             case 1:
@@ -342,10 +371,41 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Texture::allowGenMipmaps(const glm::uvec2& size, const bool srgb)
+    {
+    #ifdef JOP_OPENGL_ES
+
+        bool npot = ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0) || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot);
+        //static bool decode = JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode);
+
+
+        return (!srgb/* || decode*/) && npot;
+
+    #else
+
+        size;
+        srgb;
+
+        return true;
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
     void Texture::updateSampling() const
     {
         setGLFilterMode(m_target, m_filter, m_anisotropic);
         setGLRepeatMode(m_target, m_repeat);
         setGLBorderColor(m_target, m_borderColor);
+
+    #ifdef JOP_OPENGL_ES
+
+        //if (JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode))
+        //{
+        //    glCheck(glTexParameteri(m_target, GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT));
+        //}
+
+    #endif
     }
 }

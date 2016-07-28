@@ -69,7 +69,7 @@ namespace jop
             vertexarray.emplace_back(glm::vec3(std::cos(theta) * radius, std::sin(theta) * radius, 0.f), glm::vec2(0.f), glm::vec3(0.f, 0.f, 1.f));
 
             vertexarray.back().texCoords.x = (vertexarray.back().position.x / radius + 1.f) * 0.5f;
-            vertexarray.back().texCoords.y = (vertexarray.back().position.y / radius + 1.f) * 0.5f;
+            vertexarray.back().texCoords.y = 1.f - ((vertexarray.back().position.y / radius + 1.f) * 0.5f);
 
             theta += radians;
         }

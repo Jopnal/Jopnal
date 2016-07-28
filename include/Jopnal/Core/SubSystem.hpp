@@ -108,24 +108,20 @@ namespace jop
 
     protected:
 
-        /// \brief Virtual sendMessage
-        ///
-        /// \param message The message
-        ///
-        /// \return The message result
+        /// \copydoc Component::receiveMessage()
         ///
         virtual Message::Result receiveMessage(const Message& message);
 
     private:
 
-        const uint32 m_ID;          ///< This subsystem's name
+        const uint32 m_ID;          ///< This subsystem's identifier
         std::atomic<bool> m_active; ///< Sets activity 
     };
 }
 
 #endif
 
-/// \class SubSystem
+/// \class jop::SubSystem
 /// \ingroup core
 ///
 /// 

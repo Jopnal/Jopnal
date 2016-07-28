@@ -101,25 +101,28 @@ namespace
 
 namespace jop
 {
-    FileSystemInitializer::FileSystemInitializer(const char* arg)
-        : Subsystem(0)
+    namespace detail
     {
-        JOP_ASSERT(!PHYSFS_isInit(), "You can only have a single jop::FileSystemInitializer sub system instance!");
+        FileSystemInitializer::FileSystemInitializer(const char* arg)
+            : Subsystem(0)
+        {
+            JOP_ASSERT(!PHYSFS_isInit(), "You can only have a single jop::FileSystemInitializer sub system instance!");
 
-        JOP_ASSERT_EVAL(PHYSFS_init(arg) != 0, "Failed to initialize file system!");
-        JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
+            JOP_ASSERT_EVAL(PHYSFS_init(arg) != 0, "Failed to initialize file system!");
+            JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
 
-        checkError("Init");
+            checkError("Init");
 
-        DebugHandler::getInstance().openFileHandles();
-    }
+            DebugHandler::getInstance().openFileHandles();
+        }
 
-    FileSystemInitializer::~FileSystemInitializer()
-    {
-        DebugHandler::getInstance().closeFileHandles();
+        FileSystemInitializer::~FileSystemInitializer()
+        {
+            DebugHandler::getInstance().closeFileHandles();
 
-        if (!PHYSFS_deinit())
-            checkError("Filesystem deinit");
+            if (!PHYSFS_deinit())
+                checkError("Filesystem deinit");
+        }
     }
 
 

@@ -24,13 +24,14 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Controller
+	class JOP_API Controller
     {
     public:
 
@@ -63,9 +64,10 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                RightStickX,
                 RightStickY,
-                RightStickX
+                LTrigger,
+                RTrigger
             };
         };
 
@@ -96,11 +98,44 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                RightStickX,
                 RightStickY,
-                RightStickX
+                LTrigger,
+                RTrigger
             };
         };
+
+		/// \brief Check how many controllers are connected
+		///
+		/// \return Number of controllers
+		///
+		static int controllersPresent();
+
+		/// \brief Check if specific controller is connected
+		///
+		/// \return True if connected
+		///
+		static bool iscontrollerPresent(const int index);
+
+		/// \brief Get boolean is button pressed
+		///
+		/// \param Button's code
+		///
+		/// \return True if pressed
+		///
+		static bool isButtonDown(const int index, const int Button);
+
+		/// \brief Get Vector of left stick's offset
+		///
+		/// \return glm::vec2
+		///
+		static glm::vec2 leftStickOffset(const int index);
+
+		/// \brief Get Vector of right stick's offset
+		///
+		/// \return glm::vec2
+		///
+		static glm::vec2 rightStickOffset(const int index);
     };
 }
 

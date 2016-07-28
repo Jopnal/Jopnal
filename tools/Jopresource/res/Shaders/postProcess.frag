@@ -5,8 +5,10 @@
 //////////////////////////////////////////////
 
 #include <Jopnal/Compat/FragmentColor>
+#include <Jopnal/Compat/Varyings>
+#include <Jopnal/Compat/Samplers>
 
-in vec2 vf_TexCoords;
+JOP_VARYING_IN vec2 vf_TexCoords;
 
 uniform sampler2D u_Scene;
 
@@ -22,12 +24,12 @@ JOP_COLOR_OUT(0)
 
 void main()
 {
-    vec4 tempColor = texture(u_Scene, vf_TexCoords);
+    vec4 tempColor = JOP_TEXTURE_2D(u_Scene, vf_TexCoords);
 
     #ifdef JPP_BLOOM
 
 		for (int i = 0; i < int(u_Bloom.length()); ++i)
-			tempColor += (texture(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
+			tempColor += (JOP_TEXTURE_2D(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
 
     #endif
 
@@ -41,7 +43,7 @@ void main()
     , 1.0);
 
     #ifdef JPP_DITHER
-        tempColor += vec4(texture(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
+        tempColor += vec4(JOP_TEXTURE_2D(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
     #endif
 
 	JOP_FRAG_COLOR(0) =

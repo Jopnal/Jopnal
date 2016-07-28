@@ -35,6 +35,24 @@
 
 namespace jop
 {
+    Transform::Variables::Variables(
+        const float posX, const float posY, const float posZ,
+        const float scaX, const float scaY, const float scaZ,
+        const float qW, const float qX, const float qY, const float qZ
+        ) :
+
+        position(posX, posY,posZ),
+        scale(scaX, scaY, scaZ),
+        rotation(qW, qX, qY, qZ)
+    {}
+
+
+    Transform::Variables::Variables(const glm::vec3& pos, const glm::vec3& sca, const glm::quat& rot) :
+        position(pos),
+        scale(sca),
+        rotation(rot)
+    {}
+
     Transform::Transform()
         : m_matrix(IdentityMatrix)
     {}

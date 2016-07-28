@@ -30,11 +30,11 @@
 
 //////////////////////////////////////////////
 
-
 class b2Body;
 
 namespace jop
 {
+    class Joint2D;
     class World2D;
     class ContactListener2D;
 
@@ -51,6 +51,8 @@ namespace jop
         friend struct detail::ContactListener2DImpl;
 
         JOP_DISALLOW_COPY_MOVE(Collider2D);
+
+        friend class Joint2D;
 
     protected:
 
@@ -120,7 +122,7 @@ namespace jop
         /// \return Reference to the 2D world
         ///
         World2D& getWorld();
-
+     
         /// \copydoc getWorld()
         ///
         const World2D& getWorld() const;

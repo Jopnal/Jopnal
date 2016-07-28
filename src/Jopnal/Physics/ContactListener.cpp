@@ -28,7 +28,8 @@ namespace jop
 {
     ContactListener::~ContactListener()
     {
-        m_collider->m_listeners.erase(this);
+        if (m_collider)
+            m_collider->m_listeners.erase(this);
     }
 
     void ContactListener::beginContact(Collider&, ContactInfo&)

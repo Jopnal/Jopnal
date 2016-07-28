@@ -4,13 +4,16 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/Attributes>
+#include <Jopnal/Compat/Varyings>
+
 // Vertex attributes
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec2 a_TexCoords;
-layout(location = 2) in vec3 a_Normal;
+JOP_ATTRIBUTE(0) vec3 a_Position;
+JOP_ATTRIBUTE(1) vec2 a_TexCoords;
+JOP_ATTRIBUTE(2) vec3 a_Normal;
 //layout(location = 3) in vec3 a_Tangent;
 //layout(location = 4) in vec3 a_BiTangent;
-layout(location = 5) in vec4 a_Color;
+JOP_ATTRIBUTE(5) vec4 a_Color;
 
 // Matrices
 #ifndef JMAT_ENVIRONMENT_RECORD
@@ -23,10 +26,10 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 // Vertex attributes to fragment/geometry shader
 #ifdef GL_ES
 
-    out vec3 var_Position;
-    out vec2 var_TexCoords;
-    out vec3 var_Normal;
-    out vec4 var_Color;
+    JOP_VARYING_OUT vec3 var_Position;
+    JOP_VARYING_OUT vec2 var_TexCoords;
+    JOP_VARYING_OUT vec3 var_Normal;
+    JOP_VARYING_OUT vec4 var_Color;
 
     #define OUT_POS var_Position
     #define OUT_TC    var_TexCoords
@@ -63,7 +66,7 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 // If this shader used to record an environment map, geometry shader will
 // take care of the fragment position
 #ifndef JMAT_ENVIRONMENT_RECORD
-    out vec3 vgf_FragPosition;
+    JOP_VARYING_OUT vec3 vgf_FragPosition;
 #endif
 
 void main()

@@ -4,12 +4,13 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/Attributes>
 
 // Model matrix
 uniform mat4 u_MMatrix;
 
 // Position attribute
-layout(location = 0) in vec3 a_Position;
+JOP_ATTRIBUTE(0) vec3 a_Position;
 
 void main()
 {

@@ -237,8 +237,10 @@ namespace jop
         static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "000000FF"));
         setClearColor(defColor);
 
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
         glCheck(glGenVertexArrays(1, &m_vertexArray));
         glCheck(glBindVertexArray(m_vertexArray));
+    #endif
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
@@ -253,9 +255,11 @@ namespace jop
     void Window::close()
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
+        
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
         glCheck(glBindVertexArray(0));
         glCheck(glDeleteVertexArrays(1, &m_vertexArray));
+    #endif
 
         m_impl.reset();
     }

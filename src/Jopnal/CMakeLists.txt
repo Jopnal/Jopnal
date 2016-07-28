@@ -100,16 +100,15 @@ if (JOP_OS_ANDROID)
 
 endif()
 
-if (JOP_OS_ANDROID)
-    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}-${ANDROID_API_MIN}")
-else ()
-    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}")
-endif()
+set(PREFIX_DIR "${PROJECT_BINARY_DIR}/extlibs")
+set(DL_DIR "${PROJECT_SOURCE_DIR}/extlibs/temp")
 
 # PhysFS
 ExternalProject_Add(PhysFS
     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/PhysFS
+                    STAMP_DIR ${DL_DIR}/PhysFS-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
                     GIT_TAG "master"
@@ -144,6 +143,8 @@ set(BULLET_LIB_LINEARMATH ${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC
 ExternalProject_Add(Bullet
     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/Bullet
+                    STAMP_DIR ${DL_DIR}/Bullet-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/bullet3.git"
                     GIT_TAG "master"
@@ -210,6 +211,8 @@ if (NOT JOP_OS_ANDROID)
     ExternalProject_Add(GLFW
         
                         PREFIX ${PREFIX_DIR}
+                        SOURCE_DIR ${DL_DIR}/GLFW
+                        STAMP_DIR ${DL_DIR}/GLFW-stamp
         
                         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
                         GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
@@ -273,6 +276,8 @@ endif()
 ExternalProject_Add(OpenAL
     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/OpenAL
+                    STAMP_DIR ${DL_DIR}/OpenAL-stamp
     
                     GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
                     GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
@@ -303,7 +308,7 @@ elseif(JOP_OS_WINDOWS)
 
     add_custom_command(TARGET OpenAL POST_BUILD
         
-        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/OpenAL32.dll ${PREFIX_DIR}/bin/OpenAL32.dll)
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/OpenAL32.dll ${PREFIX_DIR}/dll/OpenAL32.dll)
     
 endif()
 
@@ -311,6 +316,8 @@ endif()
 ExternalProject_Add(Ogg
                     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/Ogg
+                    STAMP_DIR ${DL_DIR}/Ogg-stamp
                     
                     GIT_REPOSITORY "https://git.xiph.org/ogg.git"
                     GIT_TAG "18c401c6bc8814d06f3ae53ebf5d4399f90871cc"
@@ -333,6 +340,8 @@ set(OGG_LIBRARY ${BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}
 ExternalProject_Add(Vorbis
                     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/Vorbis
+                    STAMP_DIR ${DL_DIR}/Vorbis-stamp
                     
                     GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
                     GIT_TAG "d8ffc480787fcd8b5bb7203d6e0acf3bbfb2dd02"
@@ -366,6 +375,8 @@ list(APPEND EXT_LIBS ${BINARY_DIR}/lib/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRAR
 ExternalProject_Add(Box2D
     
                     PREFIX ${PREFIX_DIR}
+                    SOURCE_DIR ${DL_DIR}/Box2D
+                    STAMP_DIR ${DL_DIR}/Box2D-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/Box2D.git"
                     GIT_TAG "master"
@@ -436,4 +447,32 @@ if (JOP_COMPILER_MSVC AND NOT BUILD_SHARED_LIBS)
 else ()
     target_link_libraries(jopnal ${EXT_LIBS})
     
+endif()
+
+# Documentation generation
+if (JOP_GENERATE_DOCS)
+
+    set(DOXYGEN_SKIP_DOT TRUE)
+
+    if (JOP_OS_ANDROID)
+        find_host_package(Doxygen)
+    else ()
+        find_package(Doxygen)
+    endif()
+
+    if (DOXYGEN_FOUND)
+        
+        add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
+                           COMMAND ${DOXYGEN_EXECUTABLE}
+                           COMMAND cmake -E touch ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
+                           DEPENDS ${PROJECT_SOURCE_DIR}/doc/Doxyfile ${SRC}
+                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc)
+                           
+        add_custom_target(jopnal-docs ALL
+                          DEPENDS ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp)
+    
+    else ()
+        message(WARNING "Couldn't find Doxygen, documentation won't be generated")
+    endif()
+
 endif()

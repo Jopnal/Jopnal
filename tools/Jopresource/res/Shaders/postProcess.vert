@@ -5,11 +5,12 @@
 //////////////////////////////////////////////
 
 #include <Jopnal/Compat/Attributes>
+#include <Jopnal/Compat/Varyings>
 
 JOP_ATTRIBUTE(0) vec3 a_Position;
 JOP_ATTRIBUTE(1) vec2 a_TexCoords;
 
-out vec2 vf_TexCoords;
+JOP_VARYING_OUT vec2 vf_TexCoords;
 
 void main()
 {

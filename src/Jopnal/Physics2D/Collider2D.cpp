@@ -135,7 +135,6 @@ namespace jop
 
             ce = ce->next;
         }
-
         return false;
     }
 
@@ -154,7 +153,6 @@ namespace jop
                     hit = true;
                     return 0.f;
                 }
-
                 return 1.f;
             }
         } cb;
@@ -164,6 +162,20 @@ namespace jop
         this->m_worldRef2D.m_worldData2D->RayCast(&cb, b2Vec2(start.x, start.y), b2Vec2(start.x + ray.x, start.y + ray.y));
 
         return cb.hit;
+    }
+
+    //////////////////////////////////////////////
+
+    World2D& Collider2D::getWorld()
+    {
+        return m_worldRef2D;
+    }
+
+    //////////////////////////////////////////////
+
+    const World2D& Collider2D::getWorld() const
+    {
+        return m_worldRef2D;
     }
 
     //////////////////////////////////////////////

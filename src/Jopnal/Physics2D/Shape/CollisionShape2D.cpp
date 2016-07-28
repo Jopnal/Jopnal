@@ -36,10 +36,12 @@
 namespace jop
 {
     CollisionShape2D::CollisionShape2D(const std::string& name)
-        : Resource  (name),
-          m_shape   ()
+        : Resource      (name),
+          m_shape       (),
+          m_isCompound  (false)
     {}
 
     CollisionShape2D::~CollisionShape2D()
     {}
+
 }

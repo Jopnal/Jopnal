@@ -207,6 +207,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    World& Collider::getWorld()
+    {
+        return m_worldRef;
+    }
+
+    //////////////////////////////////////////////
+
+    const World& Collider::getWorld() const
+    {
+        return m_worldRef;
+    }
+
+    //////////////////////////////////////////////
+
+
     void Collider::registerListener(ContactListener& listener)
     {
         if (listener.m_collider != this)

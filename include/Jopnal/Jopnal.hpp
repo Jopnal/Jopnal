@@ -27,18 +27,3 @@
 #include <Jopnal/Physics2D.hpp>
 #include <Jopnal/Utility.hpp>
 #include <Jopnal/Window.hpp>
-
-//////////////////////////////////////////////
-
-/// \mainpage <h3 align="center">Jopnal %Engine Documentation</h3>
-///
-/// <p align="center"><img src="http://s20.postimg.org/bqljj922l/Jopnal_v19_png.png" width="333" height="333"></p>
-///
-/// \section intro_sec Introduction
-///
-/// [Introduction text here]
-///
-/// \section starting_sec Getting started
-///
-/// \subsection start_step1 Step 1: Just do it!
-/// Blah blah blah...

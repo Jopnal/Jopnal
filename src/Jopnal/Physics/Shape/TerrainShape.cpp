@@ -44,7 +44,7 @@ namespace jop
 {
     TerrainShape::RayInfo::RayInfo()
         : triangleIndex (0),
-          triangle      (0.f),
+          triangle      (),
           hit           (false)
     {}
 
@@ -118,11 +118,14 @@ namespace jop
 
             void processTriangle(btVector3* triangle, int, int triangleIndex) override
             {
-                info.triangle.x = triangle->x();
-                info.triangle.y = triangle->y();
-                info.triangle.z = triangle->z();
-
+                for (int i = 0; i < 3; ++i)
+                {
+                    info.triangle[i].x = triangle[i].x();
+                    info.triangle[i].y = triangle[i].y();
+                    info.triangle[i].z = triangle[i].z();
+                }
                 info.triangleIndex = static_cast<unsigned int>(triangleIndex);
+
             }
 
         } cb;

@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     RectangleShape2D::RectangleShape2D(const std::string& name)

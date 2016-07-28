@@ -154,6 +154,8 @@ namespace jop
 
         static bool allowSRGB();
 
+        static bool allowGenMipmaps(const glm::uvec2& size, const bool srgb);
+
     private:
 
         void updateSampling() const;

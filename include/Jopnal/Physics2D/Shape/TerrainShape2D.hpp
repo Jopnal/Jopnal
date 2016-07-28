@@ -47,7 +47,6 @@ namespace jop
         ///
         ~TerrainShape2D() override;
 
-
         /// \brief Load this shape
         ///
         /// \param points Terrain points, must be more than one
@@ -66,5 +65,4 @@ namespace jop
         bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
     };
 }
-
 #endif

@@ -31,7 +31,13 @@
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
     #ifdef JOP_OPENGL_ES
+
         #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
+
+        #ifndef JOP_OPENGL_ES3
+            #define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT
+        #endif
+
     #endif
 
 #endif

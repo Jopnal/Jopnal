@@ -31,12 +31,13 @@
 
 //////////////////////////////////////////////
 
-
 class b2World;
 
 namespace jop
 {
     class Camera;
+    class Joint2D;
+
     namespace detail
     {
         struct ContactListener2DImpl;
@@ -53,6 +54,7 @@ namespace jop
         friend class Renderer;
         friend class RigidBody2D;
         friend class Collider2D;
+        friend class Joint2D;
 
         World2D* clone(Object&) const override;
 
@@ -69,7 +71,6 @@ namespace jop
         ///
         ~World2D() override;
 
-
         /// \brief Update the world
         ///
         /// \param deltaTime The delta time
@@ -81,7 +82,6 @@ namespace jop
         /// \param camera Camera to use
         ///
         void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
-
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///
@@ -140,5 +140,4 @@ namespace jop
         float m_step;
     };
 }
-
 #endif

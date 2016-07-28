@@ -25,7 +25,9 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/Image.hpp>
+
     #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
 
 #endif
 
@@ -69,10 +71,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Image::load(const std::string& path)
+    bool Image::load(const std::string& path, const bool allowCompression)
     {
         if (path.empty())
             return false;
+
+        if (!allowCompression)
+        {
+            std::vector<uint8> buf;
+            return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()) && compress(allowCompression);
+        }
 
         FileLoader f;
 
@@ -120,9 +128,11 @@ namespace jop
             default:
             {
                 std::vector<uint8> buf;
-                return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()) && compress();
+                return FileLoader::readBinaryfile(path, buf) && load(buf.data(), buf.size()) && compress(allowCompression);
             }   
         }
+
+        m_bytesPerPixel = m_format == Format::DXT1RGB ? 3 : 4;
 
         // Check if loaded image contains a cubemap
         if (dwCaps2 & 0x200)
@@ -148,7 +158,6 @@ namespace jop
         }
 
         f.close();
-      
         return true;      
     }
 
@@ -200,6 +209,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Image::getPixelSize() const
+    {
+        return m_pixels.size();
+    }
+
+    //////////////////////////////////////////////
+
     uint32 Image::getDepth() const
     {
         return m_bytesPerPixel;
@@ -247,12 +263,58 @@ namespace jop
         return m_isCompressed;
     }
 
+    void Image::flipVertically()
+    {
+        if (!m_pixels.empty())
+        {
+            std::size_t rowSize = m_size.x * m_bytesPerPixel;
+
+            std::vector<uint8>::iterator top = m_pixels.begin();
+            std::vector<uint8>::iterator bottom = m_pixels.end() - rowSize;
+
+            for (std::size_t y = 0; y < m_size.y / 2; ++y)
+            {
+                std::swap_ranges(top, top + rowSize, bottom);
+
+                top += rowSize;
+                bottom -= rowSize;
+            }
+        }
+    }
+
+    void Image::flipHorizontally()
+    {
+        if (!m_pixels.empty())
+        {
+            std::size_t rowSize = m_size.x * m_bytesPerPixel;
+
+            for (std::size_t y = 0; y < m_size.y; ++y)
+            {
+                std::vector<uint8>::iterator left = m_pixels.begin() + y * rowSize;
+                std::vector<uint8>::iterator right = m_pixels.begin() + (y + 1) * rowSize - m_bytesPerPixel;
+
+                for (std::size_t x = 0; x < m_size.x / 2; ++x)
+                {
+                    std::swap_ranges(left, left + m_bytesPerPixel, right);
+
+                    left += m_bytesPerPixel;
+                    right -= m_bytesPerPixel;
+                }
+            }
+        }
+    }
+
     //////////////////////////////////////////////
 
-    bool Image::compress()
+    bool Image::compress(const bool allowCompression)
     {
         int size = 0;
         unsigned char* buf = nullptr;
+
+        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", true);
+
+        if (!allowCompressionGlobal || !allowCompression)
+            return true;
 
         if (m_bytesPerPixel <= 3) // RGB
         {

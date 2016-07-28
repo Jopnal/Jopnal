@@ -45,7 +45,7 @@ namespace jop { namespace detail
 
         static ActivityState* get();
 
-        static void reset();
+        static void reset();      
 
 
         std::mutex mutex;
@@ -53,8 +53,15 @@ namespace jop { namespace detail
         ANativeActivity* nativeActivity;
         ANativeWindow* nativeWindow;
 
+        void(*pollFunc)();
+        void(*showVirtualKeyboard)(bool show);
+
         Window* window;
         glm::uvec2 screenSize;
+
+        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
+        int activeKey=-1; 
+        float activeAxes[4]={0.f,0.f,0.f,0.f}; 
     };
 }}
 

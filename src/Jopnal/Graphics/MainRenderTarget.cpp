@@ -52,7 +52,8 @@ namespace jop
         using CA = ColorAttachment;
 
         addColorAttachment(Slot::_1, hdr ? CA::RGBA2DFloat16 : CA::RGBA2D, scaledRes);
-        addDepthStencilAttachment(DepthStencilAttachment::Renderbuffer24_8, scaledRes);
+        //addDepthStencilAttachment(DepthStencilAttachment::Renderbuffer24_8, scaledRes);
+        addDepthAttachment(DepthAttachment::Renderbuffer24, scaledRes);
 
         getColorTexture(Slot::_1)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
 

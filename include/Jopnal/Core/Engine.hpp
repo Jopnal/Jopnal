@@ -25,7 +25,6 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/DebugHandler.hpp>
-#include <Jopnal/Graphics/MainRenderTarget.hpp>
 #include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
@@ -42,6 +41,7 @@ namespace jop
 {
     class Subsystem;
     class Scene;
+    class RenderTarget;
 
     namespace detail
     {
@@ -153,6 +153,18 @@ namespace jop
         ///
         static Scene& getCurrentScene();
 
+		/// \brief Check if there's a current window
+		///
+		/// \return True if there's a current window
+		///
+		static bool hasCurrentWindow();
+
+		/// \brief Get the current window
+		///
+		/// \return Reference to the window
+		///
+		static Window& getCurrentWindow();
+
         /// \brief Signal a new scene (loaded in a threaded manner) to set itself current
         ///
         /// If a scene wasn't previously loaded with a thread, this function has no effect.
@@ -239,7 +251,7 @@ namespace jop
         ///
         /// \return Reference to the main render target
         ///
-        static const MainRenderTarget& getMainRenderTarget();
+        static const RenderTarget& getMainRenderTarget();
 
 
         static const Window& getMainWindow();
@@ -307,7 +319,7 @@ namespace jop
         std::atomic<bool> m_exit;                               ///< Should the engine exit?
         std::atomic<State> m_state;                             ///< Current state
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
-        MainRenderTarget* m_mainTarget;
+        RenderTarget* m_mainTarget;
         Window* m_mainWindow;
     };
 

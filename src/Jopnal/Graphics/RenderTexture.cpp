@@ -38,15 +38,25 @@
     #include <Jopnal/Window/Window.hpp>
     #include <vector>
 
-#ifdef JOP_OPENGL_ES
+    #ifdef JOP_OPENGL_ES
 
-    #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
-    #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
-    #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX
+        #ifndef JOP_OPENGL_ES3
 
-    #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
+            #define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT16
+            #define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
+            #define GL_DEPTH32F_STENCIL8 GL_DEPTH24_STENCIL8
+            #define GL_DRAW_FRAMEBUFFER GL_FRAMEBUFFER
+            #define GL_READ_FRAMEBUFFER GL_DRAW_FRAMEBUFFER
 
-#endif
+        #endif
+
+        #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
+        #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
+        #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX
+
+        #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
+
+    #endif
 
 #endif
 
@@ -67,15 +77,20 @@ namespace jop
 
                 switch (status)
                 {
+                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
+                    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
                     case GL_FRAMEBUFFER_UNDEFINED:
                         errorS = "GL_FRAMEBUFFER_UNDEFINED";
                         break;
-                    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHEMENT";
-                        break;
-                    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHEMENT";
-                        break;
+
+                #elif !defined(JOP_OPENGL_ES3)
+
+                    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+
+                #endif
 
                 #ifndef JOP_OPENGL_ES
 
@@ -94,8 +109,12 @@ namespace jop
                     case GL_FRAMEBUFFER_UNSUPPORTED:
                         errorS = "GL_FRAMEBUFFER_UNSUPPORTED";
                         break;
-                    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+                    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHEMENT";
+                        break;
+                    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                        errorS = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHEMENT";
+                        break;
                 }
 
                 JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer: " << errorS);
@@ -591,7 +610,15 @@ namespace jop
 
             if (m_depthStencilBuffer)
             {
+            #if defined(JOP_OPENGL_ES) && !defined(JOP_OPENGL_ES3)
+
+                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
+                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
+
+            #else
                 glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
+
+            #endif
             }
             else if (m_depthBuffer)
             {
@@ -619,12 +646,20 @@ namespace jop
                 if (!hasColor)
                 {
                 #ifdef JOP_OPENGL_ES
-                    glCheck(glDrawBuffers(1, GL_NONE));
-                #else
-                    glCheck(glDrawBuffer(GL_NONE));
-                #endif
 
+                    #ifdef JOP_OPENGL_ES3
+
+                        glCheck(glDrawBuffers(1, GL_NONE));
+                        glCheck(glReadBuffer(GL_NONE));
+
+                    #endif
+
+                #else
+
+                    glCheck(glDrawBuffer(GL_NONE));
                     glCheck(glReadBuffer(GL_NONE));
+
+                #endif
                 }
             }
             
@@ -640,10 +675,14 @@ namespace jop
                     colorAtt.push_back(GL_COLOR_ATTACHMENT0 + i - 2);
                 }
 
+            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
                 if (!colorAtt.empty())
                 {
                     glCheck(glDrawBuffers(colorAtt.size(), colorAtt.data()));
                 }
+
+            #endif
             }
 
             return detail::checkFrameBufferStatus();

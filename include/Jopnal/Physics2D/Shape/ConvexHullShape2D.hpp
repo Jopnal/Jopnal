@@ -30,7 +30,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     class JOP_API ConvexHullShape2D final : public CollisionShape2D
@@ -42,7 +41,6 @@ namespace jop
         /// \param name Name of the resource
         ///
         ConvexHullShape2D(const std::string& name);
-
 
         /// \brief Load this shape
         ///
@@ -64,7 +62,6 @@ namespace jop
         ///
         bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
 
-
         /// \brief Get the default mesh shape
         ///
         /// \return Reference to the shape
@@ -72,5 +69,4 @@ namespace jop
         static ConvexHullShape2D& getDefault();
     };
 }
-
 #endif

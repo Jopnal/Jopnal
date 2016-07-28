@@ -44,6 +44,11 @@ namespace jop
 
         /// \brief Clone function
         ///
+        /// If you want your component to be copyable, you should override
+        /// this function, either manually or by using the 
+        /// JOP_GENERIC_COMPONENT_CLONE macro. If you don't do this,
+        /// attempting to copy the component during object clone will produce errors.
+        ///
         /// \param newObj The object for the cloned component
         ///
         /// \return Pointer to the cloned component
@@ -135,7 +140,15 @@ namespace jop
 
     protected:
 
-        /// \brief Receive message
+        /// \brief Receive a message
+        ///
+        /// Override this to handle messages sent to this.
+        /// <b>Don't forget to call the base class' method as well
+        /// to ensure that the message gets forwarded correctly.</b>
+        ///
+        /// \param message The message
+        ///
+        /// \return The message result
         ///
         virtual Message::Result receiveMessage(const Message& message);
 
@@ -147,5 +160,7 @@ namespace jop
 
 #endif
 
-/// \class Component
+/// \class jop::Component
 /// \ingroup core
+///
+///

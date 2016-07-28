@@ -35,18 +35,26 @@
 
     #if __ANDROID_API__ >= 18
 
-        #include <GLES3/gl3.h>
-        #define __gl2_h_ // Workaround for broken gl headers
-        #include <GLES2/gl2ext.h>
-        #include <GLES3/gl3platform.h>
+        //#include <GLES3/gl3.h>
+        //#define __gl2_h_ // Workaround for broken gl headers
+        //#include <GLES2/gl2ext.h>
+        //#include <GLES3/gl3platform.h>
+
+#include <GL_ES/gl3.h>
+#define __gl2_h_ // Workaround for broken gl headers
+#include <GL_ES/gl2ext.h>
+#include <GL_ES/gl3platform.h>
 
         #define JOP_OPENGL_ES3
 
     #else
 
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-        #include <GLES2/gl2platform.h>
+        //#include <GLES2/gl2.h>
+        //#include <GLES2/gl2ext.h>
+//#include <GLES2/gl2platform.h>
+#include <GL_ES/gl2.h>
+#include <GL_ES/gl2ext.h>
+#include <GL_ES/gl2platform.h>
 
     #endif
 

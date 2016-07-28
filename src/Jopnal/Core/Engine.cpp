@@ -89,7 +89,7 @@ namespace
             << "    Version:      " << getStr(GL_VERSION)                   << "\n"
             << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)  << "\n";
 
-        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", false))
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", true))
         {
             int unifVert = 0, unifFrag = 0, attr = 0, var = 0;
 
@@ -194,7 +194,7 @@ namespace jop
     void Engine::loadDefaultConfiguration()
     {
         // File system
-        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+        createSubsystem<detail::FileSystemInitializer>(ns_argv[0]);
 
         // Setting manager
         createSubsystem<SettingManager>();
@@ -205,7 +205,7 @@ namespace jop
         // Main window
         m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
         printOpenGLInfo();
-
+        m_mainTarget = m_mainWindow;
         // Resource manager
         createSubsystem<ResourceManager>();
 
@@ -213,10 +213,10 @@ namespace jop
         createSubsystem<ShaderAssembler>();
 
         // Main render target
-        m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
+        //m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
         // Post processor
-        createSubsystem<PostProcessor>(*m_mainTarget);
+        //createSubsystem<PostProcessor>(*m_mainTarget);
 
         // Post-pass render proxy
         createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
@@ -326,6 +326,16 @@ namespace jop
         JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
     }
+
+	//////////////////////////////////////////////
+
+	Window& Engine::getCurrentWindow()
+	{
+		std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+
+		JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
+		return *m_engineObject->m_mainWindow;
+	}
 
     //////////////////////////////////////////////
 
@@ -458,6 +468,19 @@ namespace jop
         return false;
     }
 
+	//////////////////////////////////////////////
+
+	bool Engine::hasCurrentWindow()
+	{
+		if (m_engineObject)
+		{
+			std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+			return m_engineObject->m_mainWindow!=nullptr;
+		}
+
+		return false;
+	}
+
     //////////////////////////////////////////////
 
     void Engine::advanceFrame()
@@ -491,7 +514,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const MainRenderTarget& Engine::getMainRenderTarget()
+    const RenderTarget& Engine::getMainRenderTarget()
     {
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 

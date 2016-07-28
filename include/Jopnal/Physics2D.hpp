@@ -21,10 +21,22 @@
 
 // Headers
 #include <Jopnal/Physics2D/Collider2D.hpp>
+#include <Jopnal/Physics2D/Joint/GearJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/MotorJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/PistonJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/PulleyJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/RopeJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/RotationJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/WeldJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint/WheelJoint2D.hpp>
+#include <Jopnal/Physics2D/Joint2D.hpp>
 #include <Jopnal/Physics2D/RayInfo2D.hpp>
 #include <Jopnal/Physics2D/RigidBody2D.hpp>
+#include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/CircleShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/CollisionShape2D.hpp>
+#include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
+#include <Jopnal/Physics2D/Shape/ConeShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/ConvexHullShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/RectangleShape2D.hpp>
 #include <Jopnal/Physics2D/Shape/TerrainShape2D.hpp>

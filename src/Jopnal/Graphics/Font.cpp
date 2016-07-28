@@ -126,7 +126,7 @@ namespace jop
             // Create default glyph
             const unsigned char data[4] = {255, 255, 255, 255};
 
-            m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
+            m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), 1, data);
 
             Rect bounds{0, 0, 2, 2};
 
@@ -238,7 +238,7 @@ namespace jop
             // Pass pixel data to texture
             if (pixelData)
             {
-                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), pixelData);
+                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), 1, pixelData);
                 stbtt_FreeBitmap(pixelData, nullptr);
             }
 
@@ -300,7 +300,7 @@ namespace jop
             // Load texture with new size
             m_texture.load(size, 1, false, false);
             // Copy images pixels to new texture
-            m_texture.setPixels(glm::uvec2(0, 0), size / 2u, image.getPixels());
+            m_texture.setPixels(glm::uvec2(0, 0), size / 2u, 1, image.getPixels());
         }
 
         ++m_packerIndex;

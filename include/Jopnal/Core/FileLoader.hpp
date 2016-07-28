@@ -36,20 +36,23 @@ struct AAsset;
 
 namespace jop
 {
-    class JOP_API FileSystemInitializer final : public Subsystem
+    namespace detail
     {
-    private:
+        class FileSystemInitializer final : public Subsystem
+        {
+        private:
 
-        JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
+            JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
-        friend class ModelLoader;
+            friend class ModelLoader;
 
-    public:
+        public:
 
-        FileSystemInitializer(const char* arg);
+            FileSystemInitializer(const char* arg);
 
-        ~FileSystemInitializer();
-    };
+            ~FileSystemInitializer();
+        };
+    }
 
     class JOP_API FileLoader
     {

@@ -28,7 +28,8 @@ namespace jop
 {
     ContactListener2D::~ContactListener2D()
     {
-        m_collider->m_listeners.erase(this);
+        if (m_collider)
+            m_collider->m_listeners.erase(this);
     }
 
     void ContactListener2D::beginContact(Collider2D&, ContactInfo2D&)

@@ -47,7 +47,7 @@ namespace
 
     bool isLinear()
     {
-    #ifdef JOP_OPENGL_ES
+    #if !defined(JOP_OPENGL_ES) && defined(JOP_OPENGL_ES3)
 
         static bool init = false;
         static bool linear = false;
@@ -88,7 +88,7 @@ namespace
 
 namespace jop
 {
-    PostProcessor::PostProcessor(const MainRenderTarget& mainTarget)
+    PostProcessor::PostProcessor(const RenderTarget& mainTarget)
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
@@ -105,7 +105,7 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
-        m_quad->load(2.f);
+        m_quad->load(2.f, glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f));
 
         static const unsigned char pattern[] = 
         {
@@ -250,28 +250,35 @@ namespace jop
             m_shaderSources[1].assign(reinterpret_cast<const char*>(jopr::postProcessFrag), sizeof(jopr::postProcessFrag));
         }
 
-        auto& blurShader = ResourceManager::getNamed<ShaderProgram>
-        (
-            "jop_blur_shader",
-            "", 
-            Shader::Type::Vertex, m_shaderSources[0],
-            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
-        );
+    #ifdef JOP_ENABLE_BLOOM
 
-        JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
+        if (gl::getVersionMajor() >= 3)
+        {
+            auto& blurShader = ResourceManager::getNamed<ShaderProgram>
+                (
+                "jop_blur_shader",
+                "",
+                Shader::Type::Vertex, m_shaderSources[0],
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
+                );
 
-        auto& brightShader = ResourceManager::getNamed<ShaderProgram>
-        (
-            "jop_bright_filter_shader",
-            "",
-            Shader::Type::Vertex, m_shaderSources[0],
-            Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
-        );
+            JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
-        JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
+            auto& brightShader = ResourceManager::getNamed<ShaderProgram>
+                (
+                "jop_bright_filter_shader",
+                "",
+                Shader::Type::Vertex, m_shaderSources[0],
+                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
+                );
 
-        m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
-        m_brightShader = static_ref_cast<ShaderProgram>(brightShader.getReference());
+            JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
+
+            m_blurShader = static_ref_cast<ShaderProgram>(blurShader.getReference());
+            m_brightShader = static_ref_cast<ShaderProgram>(brightShader.getReference());
+        }
+
+    #endif
     }
 
     PostProcessor::~PostProcessor()
@@ -395,7 +402,7 @@ namespace jop
 
         RenderTexture::unbind();
         
-        shdr.setUniform("u_Scene", *m_mainTarget.getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
+        shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
         drawQuad(m_quad, shdr);
     }
 
@@ -434,7 +441,7 @@ namespace jop
     #ifdef JOP_ENABLE_BLOOM
 
     #ifdef JOP_OPENGL_ES
-        if (jop::gl::getVersionMajor() >= 3)
+        if (jop::gl::getVersionMajor() < 3)
             return;
     #endif
 
@@ -444,7 +451,7 @@ namespace jop
         m_bloomTextures[0][0].bind();
         m_bloomTextures[0][0].clear(RenderTarget::ColorBit);
 
-        m_brightShader->setUniform("u_Texture", *m_mainTarget.getColorTexture(slot), 1);
+        m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
         drawQuad(m_quad, m_brightShader);
@@ -491,7 +498,7 @@ namespace jop
     #ifdef JOP_ENABLE_BLOOM
 
     #ifdef JOP_OPENGL_ES
-        if (jop::gl::getVersionMajor() >= 3)
+        if (jop::gl::getVersionMajor() < 3)
             return;
     #endif
 

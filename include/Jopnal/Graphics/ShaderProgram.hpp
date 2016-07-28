@@ -160,7 +160,7 @@ namespace jop
         ///
         /// \return True if set successfully
         ///
-        bool setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit);
+        bool setUniform(const std::string& name, const Texture& texture, const unsigned int unit);
 
         /// \brief Set a float uniform
         ///
@@ -188,15 +188,6 @@ namespace jop
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const bool value);
-
-        /// \brief Set an unsigned integer uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param value The unsigned integer to set
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const unsigned int value);
 
         /// \brief Set an attribute using the location
         ///
