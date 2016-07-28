@@ -100,21 +100,15 @@ if (JOP_OS_ANDROID)
 
 endif()
 
-if (JOP_OS_ANDROID)
-    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}-${ANDROID_ABI}-${ANDROID_API_MIN}")
-else ()
-    set(PREFIX_DIR "${PROJECT_SOURCE_DIR}/extlibs/${CMAKE_GENERATOR}")
-endif()
-
-set(DL_DIR "${PROJECT_SOURCE_DIR}/extlibs/download")
-set(STAMP_DIR "${PROJECT_SOURCE_DIR}/extlibs/temp")
+set(PREFIX_DIR "${PROJECT_BINARY_DIR}/extlibs")
+set(DL_DIR "${PROJECT_SOURCE_DIR}/extlibs/temp")
 
 # PhysFS
 ExternalProject_Add(PhysFS
     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/PhysFS
-                    STAMP_DIR ${STAMP_DIR}/PhysFS
+                    STAMP_DIR ${DL_DIR}/PhysFS-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
                     GIT_TAG "master"
@@ -150,7 +144,7 @@ ExternalProject_Add(Bullet
     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/Bullet
-                    STAMP_DIR ${STAMP_DIR}/Bullet
+                    STAMP_DIR ${DL_DIR}/Bullet-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/bullet3.git"
                     GIT_TAG "master"
@@ -218,7 +212,7 @@ if (NOT JOP_OS_ANDROID)
         
                         PREFIX ${PREFIX_DIR}
                         SOURCE_DIR ${DL_DIR}/GLFW
-                        STAMP_DIR ${STAMP_DIR}/GLFW
+                        STAMP_DIR ${DL_DIR}/GLFW-stamp
         
                         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
                         GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
@@ -283,7 +277,7 @@ ExternalProject_Add(OpenAL
     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/OpenAL
-                    STAMP_DIR ${STAMP_DIR}/OpenAL
+                    STAMP_DIR ${DL_DIR}/OpenAL-stamp
     
                     GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
                     GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
@@ -323,7 +317,7 @@ ExternalProject_Add(Ogg
                     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/Ogg
-                    STAMP_DIR ${STAMP_DIR}/Ogg
+                    STAMP_DIR ${DL_DIR}/Ogg-stamp
                     
                     GIT_REPOSITORY "https://git.xiph.org/ogg.git"
                     GIT_TAG "18c401c6bc8814d06f3ae53ebf5d4399f90871cc"
@@ -347,7 +341,7 @@ ExternalProject_Add(Vorbis
                     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/Vorbis
-                    STAMP_DIR ${STAMP_DIR}/Vorbis
+                    STAMP_DIR ${DL_DIR}/Vorbis-stamp
                     
                     GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
                     GIT_TAG "d8ffc480787fcd8b5bb7203d6e0acf3bbfb2dd02"
@@ -382,7 +376,7 @@ ExternalProject_Add(Box2D
     
                     PREFIX ${PREFIX_DIR}
                     SOURCE_DIR ${DL_DIR}/Box2D
-                    STAMP_DIR ${STAMP_DIR}/Box2D
+                    STAMP_DIR ${DL_DIR}/Box2D-stamp
     
                     GIT_REPOSITORY "https://github.com/Jopnal/Box2D.git"
                     GIT_TAG "master"

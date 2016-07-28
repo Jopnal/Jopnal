@@ -19,51 +19,53 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVITYSTATE_HPP
-#define JOP_ACTIVITYSTATE_HPP
+#ifndef JOP_TOUCH_HPP
+#define JOP_TOUCH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-
-#ifdef JOP_OS_ANDROID
-
-#include <Jopnal/Window/WindowEventHandler.hpp>
 #include <glm/vec2.hpp>
-#include <android/native_activity.h>
-#include <mutex>
 
 //////////////////////////////////////////////
 
 
-namespace jop { namespace detail
+namespace jop
 {
-    struct JOP_API ActivityState
-    {
-        ActivityState() = default;
+	class JOP_API Touch
+	{
+	public:
 
-        static ActivityState* create(ANativeActivity* activity);
+        /// Information
+        ///
+        enum Info
+        {
+            PRESSURE,               ///< Approximate pressure applied to the surface
+            SIZE,                   ///< Approximate size of the contact area
+            TOUCH_MAJOR,            ///< Major axis of an ellipse that represents the touch area at the point of contact
+            TOOL_MAJOR,             ///< Major axis of an ellipse that represents the size of the approaching touch
+        };
 
-        static ActivityState* get();
+        /// \brief Is touch received
+        ///
+        /// \param Finger's id 0-9
+        ///
+        /// \return True if touch is received false if not
+        ///
+        static bool isDown(const int id=0);
 
-        static void reset();      
-
-
-        std::mutex mutex;
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-
-        void(*pollFunc)();
-        void(*showVirtualKeyboard)(bool show);
-
-        Window* window;
-        glm::uvec2 screenSize;
-
-        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
-        int activeKey=-1; 
-        float activeAxes[4]={0.f,0.f,0.f,0.f}; 
-    };
-}}
+        /// \brief Get position of specific finger
+        ///
+        /// \param Finger's id 0-9
+        ///
+        /// \return Position as glm vector 2
+        ///
+        static glm::vec2 getPosition(const int id=0);
+	};
+}
 
 #endif
-#endif
+
+/// \class Touch
+/// \ingroup window
+///
+/// #TODO Detailed description

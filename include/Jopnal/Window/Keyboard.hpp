@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -99,7 +100,7 @@ namespace jop
             LSuper,
             RShift,
             RControl,
-            RAlth,
+            RAlt,
             RSuper,
             Menu
         };
@@ -117,15 +118,27 @@ namespace jop
             };
         };
 
-    public:
-
         /// \brief Get the key name in the current locale
         ///
         /// \param scanCode The scan code
         ///
         /// \return String with the name
         ///
-        static std::string getKeyName(const int scanCode);
+		static std::string getKeyName(const int scanCode);
+
+		/// \brief Get boolean is key down
+		///
+		/// \param Keycode
+		///
+		/// \return True if down
+		///
+		static bool isKeyDown(const Key key);
+
+        /// \brief Shows or hides virtual keyboard. Currently only for android
+        ///
+        /// \param Boolean true to show keyboard and false to hide it
+        ///
+        static void showVirtualKeyboard(const bool show);   
     };
 }
 

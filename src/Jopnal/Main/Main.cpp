@@ -24,7 +24,6 @@
 
 //////////////////////////////////////////////
 
-
 extern int main(int argc, char* argv[]);
 
 #if defined(JOP_OS_WINDOWS)
@@ -45,15 +44,25 @@ extern int main(int argc, char* argv[]);
     #include <Jopnal/Window/SensorManager.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
     #include <Jopnal/Core/Android/GooglePlayService.hpp>
+    #include <Jopnal/Window/Window.hpp>
+    #include <Jopnal/Window/Android/WindowImpl.hpp>
     #include <thread>
-    #include <atomic>
+    #include <atomic>  
 
     namespace jop { namespace detail
     {
-        std::atomic<bool> ns_ready(false);
 
+        android_app* ns_app=nullptr;
+
+        JavaVM* ns_virtualMachine = nullptr;
+        JNIEnv* ns_environment = nullptr;
+        jobject ns_nativeActivity =nullptr;
+        JavaVMAttachArgs ns_vmArgs;
+
+        std::atomic<bool> ns_ready(false);
+   
         void onAppCmd(struct android_app* app, int32_t cmd)
-        {
+        { 
             auto state = ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
@@ -109,27 +118,67 @@ extern int main(int argc, char* argv[]);
 
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
+			int32_t type = AInputEvent_getType(event);
+			int32_t action = AKeyEvent_getAction(event);
+
+			if (type == AINPUT_EVENT_TYPE_KEY)
+            { 
+                if(action==AKEY_EVENT_ACTION_DOWN)
+                    getUnicode(event, ns_virtualMachine, ns_environment, &ns_vmArgs);
+
+                return  onKey(action, event);
+			}
+            else if (type == AINPUT_EVENT_TYPE_MOTION)
+            {
+                return  onMotion(action, event);
+            }
+            else 
+                JOP_DEBUG_INFO("Unknown input type");
+
             return 0;
+        }
+
+        void showVirtualKeyboard(const bool show)
+        {
+            showVirtualKeyboard(show, ns_virtualMachine, ns_environment, &ns_nativeActivity, &ns_vmArgs);
+        }
+
+        void initJavaEnvironment()
+        {
+            ns_virtualMachine = ns_app->activity->vm;
+            ns_environment = ns_app->activity->env;
+            ns_nativeActivity = ns_app->activity->clazz;
+
+            ns_vmArgs.version = JNI_VERSION_1_6;
+            ns_vmArgs.name = "nativeThread";
+            ns_vmArgs.group = NULL;
+        }
+
+        void pollFunc()
+        { 
+            android_poll_source* event = nullptr;
+            while (ALooper_pollAll(0, NULL, NULL, reinterpret_cast<void**>(&event)) >= 0)
+            {
+                if (event)
+                    event->process(ns_app, event);
+            }
         }
 
         void main(struct android_app* app)
         {
-            JOP_DEBUG_INFO("Android activity started, waiting for window...");
 
+            ns_app=app;
+            JOP_DEBUG_INFO("Android activity started, waiting for window...");
             while (!ns_ready.load())
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-                android_poll_source* event = nullptr;
-                while (ALooper_pollAll(0, NULL, NULL, reinterpret_cast<void**>(&event)) >= 0)
-                {
-                    if (event)
-                        event->process(app, event);
-                }
+                pollFunc();
             }
-
             app->onAppCmd       = onAppCmdRunning;
-            app->onInputEvent   = onInputEvent;
+            app->onInputEvent   = onInputEvent;       
+            ActivityState::get()->pollFunc=&pollFunc;
+            ActivityState::get()->showVirtualKeyboard=&showVirtualKeyboard;
+            initJavaEnvironment();
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 

@@ -19,51 +19,31 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVITYSTATE_HPP
-#define JOP_ACTIVITYSTATE_HPP
+#ifndef JOP_INPUTENUMSIMPL_HPP
+#define JOP_INPUTENUMSIMPL_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-
-#ifdef JOP_OS_ANDROID
-
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <glm/vec2.hpp>
-#include <android/native_activity.h>
-#include <mutex>
+#include <Jopnal/Window/Keyboard.hpp>
+#include <Jopnal/Window/Mouse.hpp>
+#include <Jopnal/Window/Controller.hpp>
+#include <Jopnal/Window/Touch.hpp>
 
 //////////////////////////////////////////////
-
-
-namespace jop { namespace detail
+namespace jop
 {
-    struct JOP_API ActivityState
-    {
-        ActivityState() = default;
-
-        static ActivityState* create(ANativeActivity* activity);
-
-        static ActivityState* get();
-
-        static void reset();      
-
-
-        std::mutex mutex;
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-
-        void(*pollFunc)();
-        void(*showVirtualKeyboard)(bool show);
-
-        Window* window;
-        glm::uvec2 screenSize;
-
-        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
-        int activeKey=-1; 
-        float activeAxes[4]={0.f,0.f,0.f,0.f}; 
-    };
-}}
-
-#endif
+	namespace input
+	{
+		JOP_API int getJopKey(const int key);
+        JOP_API int getGlKey(const int key);
+        JOP_API int getJopControllerButton(const int button);
+        JOP_API int getJopControllerAxis(const int button);
+        JOP_API int getGlControllerButton(const int button);
+        JOP_API int getGlControllerAxis(const int button);
+        JOP_API int getJopMouseButton(const int button);
+        JOP_API int getGlMouseButton(const int button);
+        JOP_API int getJopTouchInfo(const int info);
+        JOP_API int getGlTouchInfo(const int info);
+	}
+}
 #endif

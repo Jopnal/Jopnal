@@ -19,51 +19,44 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ACTIVITYSTATE_HPP
-#define JOP_ACTIVITYSTATE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
+#ifndef JOP_PRECOMPILED_HEADER
+#include <Jopnal/Window/Touch.hpp>
+#endif
 #ifdef JOP_OS_ANDROID
-
-#include <Jopnal/Window/WindowEventHandler.hpp>
-#include <glm/vec2.hpp>
-#include <android/native_activity.h>
-#include <mutex>
-
+#include <Jopnal/Core/Android/ActivityState.hpp>
+#endif
 //////////////////////////////////////////////
 
-
-namespace jop { namespace detail
+namespace jop
 {
-    struct JOP_API ActivityState
+    bool Touch::isDown(const int id)
     {
-        ActivityState() = default;
+     #if defined(JOP_OS_DESKTOP)
+        return false;
+     #elif defined(JOP_OS_ANDROID)
+        if (id < 10)
+            return detail::ActivityState::get()->lastTouchPosition[id].x>=0.f && detail::ActivityState::get()->lastTouchPosition[id].y>=0.f;
+        else
+            return false;
+     #else
+        return false;
+      #endif
+    }
 
-        static ActivityState* create(ANativeActivity* activity);
-
-        static ActivityState* get();
-
-        static void reset();      
-
-
-        std::mutex mutex;
-
-        ANativeActivity* nativeActivity;
-        ANativeWindow* nativeWindow;
-
-        void(*pollFunc)();
-        void(*showVirtualKeyboard)(bool show);
-
-        Window* window;
-        glm::uvec2 screenSize;
-
-        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
-        int activeKey=-1; 
-        float activeAxes[4]={0.f,0.f,0.f,0.f}; 
-    };
-}}
-
-#endif
-#endif
+    glm::vec2 Touch::getPosition(const int id)
+    {
+    #if defined(JOP_OS_DESKTOP)
+        return glm::vec2(-1.f, -1.f);
+    #elif defined(JOP_OS_ANDROID)
+        if (id < 10)
+            return detail::ActivityState::get()->lastTouchPosition[id];
+        else
+            return glm::vec2(-1.f, -1.f);
+    #else
+        return glm::vec2(-1.f, -1.f);
+    #endif
+    }
+}
