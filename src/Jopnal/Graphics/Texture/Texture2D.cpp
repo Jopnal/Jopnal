@@ -51,10 +51,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps)
+    bool Texture2D::load(const std::string& path, const bool srgb, const bool genMipmaps, const bool allowCompression)
     {
         Image image;
-        return image.load(path) && load(image, srgb, genMipmaps);
+        return image.load(path, allowCompression) && load(image, srgb, genMipmaps);
     }
 
     //////////////////////////////////////////////
@@ -157,7 +157,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture2D::setPixels(const glm::uvec2& start, const glm::uvec2& size, const unsigned char* pixels)
+    void Texture2D::setPixels(const glm::uvec2& start, const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels)
     {
         if ((start.x + size.x > m_size.x) || (start.y + size.y > m_size.y))
         {
@@ -171,8 +171,15 @@ namespace jop
         }
 
         bind();
-        setPixelStore(m_bytesPerPixel);
+        setPixelStore(bytesPerPixel);
         glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel, false), GL_UNSIGNED_BYTE, pixels));
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture2D::setPixels(const glm::uvec2& start, const Image& image)
+    {
+        setPixels(start, image.getSize(), image.getDepth(), image.getPixels());
     }
 
     //////////////////////////////////////////////

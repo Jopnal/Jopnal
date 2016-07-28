@@ -19,22 +19,24 @@
 
 //////////////////////////////////////////////
 
-#include <Jopnal/Physics2D/ContactListener2D.hpp>
-
-//////////////////////////////////////////////
-
-
-namespace jop
+namespace detail
 {
-    ContactListener2D::~ContactListener2D()
+    template<typename Last>
+    bool add(TextureAtlas& atlas, const Last& last)
     {
-        if (m_collider)
-            m_collider->m_listeners.erase(this);
+        static_assert(std::is_same<Last, Image>::value || std::is_same<Last, Texture2D>::value || std::is_convertible<Last, std::string>::value, "You can only add Texture2D or Image to Texture Atlas");
+        return atlas.addTexture(last) != 0;
     }
 
-    void ContactListener2D::beginContact(Collider2D&, ContactInfo2D&)
-    {}
+    template<typename First, typename ...Rest>
+    bool add(TextureAtlas& atlas, const First& first, const Rest&... rest)
+    {
+        return add(atlas, first) && add(atlas, rest...);
+    }
+}
 
-    void ContactListener2D::endContact(Collider2D&)
-    {}
+template<typename... Args>
+bool jop::TextureAtlas::load(const glm::uvec2& atlasSize, const Args&... args)
+{
+    return load(atlasSize) && detail::add(*this, args...);
 }

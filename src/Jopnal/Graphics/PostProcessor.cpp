@@ -105,7 +105,7 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
-        m_quad->load(2.f);
+        m_quad->load(2.f, glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f));
 
         static const unsigned char pattern[] = 
         {

@@ -323,6 +323,7 @@ namespace jop
     void Texture::setPixelStore(const unsigned int depth)
     {
         GLint param = 4;
+        
         switch (depth)
         {
             case 1:
