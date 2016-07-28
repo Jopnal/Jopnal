@@ -84,7 +84,7 @@ namespace jop
     {
     private:
 
-        friend class FileSystemInitializer;
+        friend class detail::FileSystemInitializer;
 
         /// Private constructor since this is a singleton class
         ///

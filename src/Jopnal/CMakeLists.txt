@@ -448,3 +448,31 @@ else ()
     target_link_libraries(jopnal ${EXT_LIBS})
     
 endif()
+
+# Documentation generation
+if (JOP_GENERATE_DOCS)
+
+    set(DOXYGEN_SKIP_DOT TRUE)
+
+    if (JOP_OS_ANDROID)
+        find_host_package(Doxygen)
+    else ()
+        find_package(Doxygen)
+    endif()
+
+    if (DOXYGEN_FOUND)
+        
+        add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
+                           COMMAND ${DOXYGEN_EXECUTABLE}
+                           COMMAND cmake -E touch ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
+                           DEPENDS ${PROJECT_SOURCE_DIR}/doc/Doxyfile ${SRC}
+                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc)
+                           
+        add_custom_target(jopnal-docs ALL
+                          DEPENDS ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp)
+    
+    else ()
+        message(WARNING "Couldn't find Doxygen, documentation won't be generated")
+    endif()
+
+endif()

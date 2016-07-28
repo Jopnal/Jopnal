@@ -129,6 +129,8 @@ add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
 jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away")
 add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
 
+# Generate documentation
+jopSetOption(JOP_GENERATE_DOCS FALSE BOOL "True to generate documentation, false otherwise")
 
 # Android options
 if (JOP_OS_ANDROID)
@@ -191,7 +193,7 @@ endif()
 
 if (JOP_COMPILER_MSVC)
 
-    jopSetOption(JOP_GENERATE_PDB TRUE BOOL "True to generate PDB debug symbol files, FALSE otherwise")
+    jopSetOption(JOP_GENERATE_PDB TRUE BOOL "True to generate PDB debug symbol files, false otherwise")
     
     # - Disable deprecation warnings
     # - Set warning level to 4

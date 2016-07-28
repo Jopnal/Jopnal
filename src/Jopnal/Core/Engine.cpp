@@ -194,7 +194,7 @@ namespace jop
     void Engine::loadDefaultConfiguration()
     {
         // File system
-        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+        createSubsystem<detail::FileSystemInitializer>(ns_argv[0]);
 
         // Setting manager
         createSubsystem<SettingManager>();
