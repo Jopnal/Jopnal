@@ -76,6 +76,7 @@ namespace jop
     void AnimatedSprite::stop()
     {
         m_status = Status::Stopped;
+        m_currentFrame = m_animationRange.first;
     }
 
     //////////////////////////////////////////////
