@@ -125,14 +125,6 @@ namespace jop
         ///
         const World2D& getWorld() const;
 
-    private:
-
-        /// \brief Activity setter
-        ///
-        /// For internal use
-        ///
-        virtual void setActive(const bool) override = 0;
-
     protected:
 
         b2Body* m_body;         ///< A RigidBody2D

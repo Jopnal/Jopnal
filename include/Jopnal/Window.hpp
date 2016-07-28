@@ -27,6 +27,7 @@
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <Jopnal/Window/VideoInfo.hpp>
+#include <Jopnal/Window/Vibrator.hpp>
 
 //////////////////////////////////////////////
 

@@ -55,8 +55,7 @@ namespace jop
         m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
 
         // Load plugins
-        addPlugins(std::string(reinterpret_cast<const char*>(jopr::defaultPlugins), sizeof(jopr::defaultPlugins)));
-
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::compatibilityPlugins), sizeof(jopr::compatibilityPlugins)));
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -239,12 +238,14 @@ namespace jop
             // Handle missing opener case
             if (first[0] != '<')
                 next = first - whitespace;
+
             else
             {
                 const char* opener = first;
                 const char* closer = strchr(opener, '>');
                 std::string temp(opener + 1, closer);
                 const char* pluginEnd = strstr(first, "#pluginend");
+
                 if (!pluginEnd)
                 {
                     JOP_DEBUG_WARNING("Shader plugins not found or invalid formatting!");
@@ -255,6 +256,7 @@ namespace jop
 
                 next = closer + 1;
             }
+
             first = strstr(next, "#plugin");
         }
     }
@@ -285,20 +287,32 @@ namespace jop
     {
         if (!m_instance)
             return;
-        
-        // Add version string to the start of the output code
-        output += Shader::getVersionString();
 
+        std::unordered_set<const char*> dupeSet;
+
+        preprocess(input, output, false, dupeSet);
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::preprocess(const std::vector<const char*>& input, std::string& output, const bool nested, std::unordered_set<const char*>& duplicateSet)
+    {
         for (auto i : input)
         {
             // Search for #include in shader source
             const char* current = strstr(i, "#include");
             const char* next = i;
-            
+
+            bool wasDuplicate = false;
+
             while (current != NULL)
             {
                 // Add everything before first #include
-                output.append(next, current);
+                if (!wasDuplicate)
+                {
+                    output.append(next, current);
+                    wasDuplicate = false;
+                }
 
                 // Move to the end of first #include
                 current += 8;
@@ -312,24 +326,51 @@ namespace jop
                 // Handle missing opener case
                 if (current[0] != '<')
                     next = current - whitespace;
+
                 else
                 {
                     const char* opener = current;
                     const char* closer = strchr(opener, '>');
                     std::string temp(opener + 1, closer);
                     auto itr = m_instance->m_plugins.find(temp);
+
                     if (itr != m_instance->m_plugins.end())
-                        output.append(itr->second);
+                    {
+                        if (duplicateSet.find(itr->first.c_str()) != duplicateSet.end())
+                        {
+                            wasDuplicate = true;
+                            continue;
+                        }
+
+                        duplicateSet.insert(itr->first.c_str());
+
+                        if (strstr(itr->second.c_str(), "#include"))
+                        {
+                            std::vector<const char*> nested(1, itr->second.c_str());
+                            preprocess(nested, output, true, duplicateSet);
+
+                            std::string stripped = itr->second;
+
+                            while (auto pos = stripped.find("#include") != std::string::npos)
+                                stripped.erase(pos, stripped.find_first_of('>', pos));
+
+                            output.append(stripped);
+                        }
+                        else
+                            output.append(itr->second);
+                    }
                     else
-                        JOP_DEBUG_WARNING("Shader plugin: \"" << temp << "\" not found, or invalid formatting!");
+                        JOP_DEBUG_WARNING("Shader plugin \"" << temp << "\" not found, or has invalid formatting");
 
                     next = closer + 1;
                 }
-                current = strstr(next, "#include");
 
+                current = strstr(next, "#include");
             }
+
             // Add rest of the code
-            output.append(next);
+            if (!nested)
+                output.append(next);
         }
     }
 

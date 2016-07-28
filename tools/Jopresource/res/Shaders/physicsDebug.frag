@@ -4,13 +4,15 @@
 
 //////////////////////////////////////////////
 
+#include <Jopnal/Compat/FragmentColor>
+
 // Color from vertex shader
 in vec3 vf_Color;
 
 // Final color
-layout(location = 0) out vec4 out_FinalColor;
+JOP_COLOR_OUT(0)
 
 void main()
 {
-    out_FinalColor = vec4(vf_Color, 1.0);
+    JOP_FRAG_COLOR(0) = vec4(vf_Color, 1.0);
 }

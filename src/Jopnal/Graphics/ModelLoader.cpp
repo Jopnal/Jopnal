@@ -92,7 +92,7 @@ namespace jop
                     continue;
 
                 if (itr->value.HasMember("wrapmode") && itr->value["wrapmode"].IsInt())
-                    tex->getSampler().setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
+                    tex->setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
             }
         }
 

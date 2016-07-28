@@ -16,6 +16,7 @@ set(__INC_WINDOW
     ${__INCDIR_WINDOW}/Mouse.hpp
     ${__INCDIR_WINDOW}/Sensor.hpp
     ${__INCDIR_WINDOW}/VideoInfo.hpp
+    ${__INCDIR_WINDOW}/Vibrator.hpp
     ${__INCDIR_WINDOW}/Window.hpp
     ${__INCDIR_WINDOW}/WindowEventHandler.hpp
     ${__INCDIR_WINDOW}/WindowHandle.hpp
@@ -38,6 +39,7 @@ set(__SRC_WINDOW
     ${__SRCDIR_WINDOW}/SensorManager.cpp
     ${__SRCDIR_WINDOW}/SensorManager.hpp
     ${__SRCDIR_WINDOW}/VideoInfo.cpp
+    ${__SRCDIR_WINDOW}/Vibrator.cpp
     ${__SRCDIR_WINDOW}/Window.cpp
     ${__SRCDIR_WINDOW}/WindowEventHandler.cpp
 )

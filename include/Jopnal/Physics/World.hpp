@@ -55,6 +55,7 @@ namespace jop
         friend class Scene;
         friend class Renderer;
         friend class RigidBody;
+        friend class PhantomBody;
         friend class Collider;
 
         World* clone(Object&) const override;

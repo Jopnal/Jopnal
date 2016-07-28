@@ -93,36 +93,53 @@ namespace jop
 
 #endif
 
-    //////////////////////////////////////////////
-
-    unsigned int getOGLVersionMajor()
+    namespace gl
     {
-    #ifdef JOP_OPENGL_ES
-        return detail::getVersionString()[0] - '0';
-    #else
-        return ogl_GetMajorVersion();
-    #endif
-    }
+        unsigned int getVersionMajor()
+        {
+        #ifdef JOP_OPENGL_ES
+            return detail::getVersionString()[0] - '0';
+        #else
+            return ogl_GetMajorVersion();
+        #endif
+        }
 
-    //////////////////////////////////////////////
+        //////////////////////////////////////////////
 
-    unsigned int getOGLVersionMinor()
-    {
-    #ifdef JOP_OPENGL_ES
-        return detail::getVersionString()[2] - '0';
-    #else
-        return ogl_GetMinorVersion();
-    #endif
-    }
+        unsigned int getVersionMinor()
+        {
+        #ifdef JOP_OPENGL_ES
+            return detail::getVersionString()[2] - '0';
+        #else
+            return ogl_GetMinorVersion();
+        #endif
+        }
 
-    //////////////////////////////////////////////
+        //////////////////////////////////////////////
 
-    JOP_API bool gl::isGLES()
-    {
-    #ifdef JOP_OPENGL_ES
-        return true;
-    #else
-        return false;
-    #endif
+        unsigned int getGLSLVersion()
+        {
+            static unsigned int version = 0;
+
+            if (!version)
+            {
+                const char* str = std::strpbrk(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)), "0123456789");
+
+                version = std::stoul(std::string(&str[0], 1) + str[2] + str[3]);
+            }
+
+            return version;
+        }
+
+        //////////////////////////////////////////////
+
+        bool isES()
+        {
+        #ifdef JOP_OPENGL_ES
+            return true;
+        #else
+            return false;
+        #endif
+        }
     }
 }

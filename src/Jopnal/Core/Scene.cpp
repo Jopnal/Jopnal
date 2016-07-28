@@ -109,6 +109,8 @@ namespace jop
     {
         if (isActive())
         {
+            m_renderer->draw(RenderPass::Pass::Pre);
+
             const float dt = deltaTime * m_deltaScale;
 
             preUpdate(dt);
@@ -125,7 +127,7 @@ namespace jop
         {
             preDraw();
 
-            m_renderer->draw();
+            m_renderer->draw(RenderPass::Pass::Forward);
 
             postDraw();
         }

@@ -24,42 +24,37 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/RenderPass.hpp>
 #include <set>
+#include <array>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class LightSource;
-    class Camera;
-    class Drawable;
-    class EnvironmentRecorder;
     class LightContainer;
     class RenderTarget;
 
-    class JOP_API Renderer
+    class JOP_API Renderer final
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(Renderer);
 
-        friend class Drawable;
         friend class Camera;
         friend class LightSource;
         friend class Scene;
         friend class World;
         friend class EnvironmentRecorder;
+        friend class RenderPass;
+        friend class Drawable;
 
     public:
 
         /// \brief Constructor
         ///
         Renderer(const RenderTarget& mainTarget);
-
-        /// \brief Virtual destructor
-        ///
-        virtual ~Renderer();
 
 
         /// \brief Set the render mask
@@ -74,13 +69,15 @@ namespace jop
         ///
         uint32 getMask() const;
 
+        void draw(const RenderPass::Pass pass);
+
     private:
 
         void bind(const LightSource& light);
 
         void bind(const Camera& camera);
 
-        void bind(const Drawable& drawable);
+        void bind(const Drawable& drawable, const RenderPass::Pass pass);
 
         void bind(EnvironmentRecorder& envRecorder);
 
@@ -88,29 +85,20 @@ namespace jop
 
         void unbind(const Camera& camera);
 
-        void unbind(const Drawable& drawable);
+        void unbind(const Drawable& drawable, const RenderPass::Pass pass);
 
         void unbind(EnvironmentRecorder& envRecorder);
 
-        virtual void draw();
-
-    protected:
-
-        /// \brief Select the lights that affect the drawable
-        ///
-        /// \param drawable The drawable
-        /// \param lights Reference to a light container to fill
-        ///
-        void chooseLights(const Drawable& drawable, LightContainer& lights) const;
-
     private:
 
-        std::set<const LightSource*> m_lights;          ///< The bound lights
-        std::set<const Camera*> m_cameras;              ///< The bound cameras
-        std::set<const Drawable*> m_drawables;          ///< The bound drawables
-        std::set<EnvironmentRecorder*> m_envRecorders;  ///< The bound environment recorders
-        uint32 m_mask;                                  ///< The rendering mask
-        const RenderTarget& m_mainTarget;
+        RenderPass::Lights m_lights;                        ///< The bound lights
+        RenderPass::Cameras m_cameras;                      ///< The bound cameras
+        RenderPass m_prePass;
+        RenderPass m_forwardPass;
+        RenderPass m_postPass;
+        std::array<RenderPass*, 3> m_passes;
+        RenderPass::EnvironmentRecorders m_envRecorders;    ///< The bound environment recorders
+        uint32 m_mask;                                      ///< The rendering mask
     };
 }
 

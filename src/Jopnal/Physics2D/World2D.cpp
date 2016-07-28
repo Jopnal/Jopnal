@@ -40,6 +40,7 @@
     #include <Box2D/Common/b2Draw.h>
     #include <Box2D/Dynamics/b2World.h>
     #include <Box2D/Dynamics/b2Fixture.h>
+    #include <Box2D/Dynamics/Contacts/b2Contact.h>
     #include <LinearMath/btVector3.h>
     #include <glm/gtc/constants.hpp>
     #include <set>
@@ -163,8 +164,8 @@ namespace jop
 
                     shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                    shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                    shdr->setAttribute(3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                    shdr->setAttribute("a_Positio", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
+                    shdr->setAttribute("a_Normal", 3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
                     glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -222,7 +223,7 @@ namespace jop
 
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable      (obj, renderer, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
           m_worldData2D (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
           m_step        (0.f),

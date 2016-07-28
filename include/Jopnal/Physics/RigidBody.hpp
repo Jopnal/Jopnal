@@ -86,10 +86,6 @@ namespace jop
             float rollingFriction;  ///< Rolling friction
             float restitution;      ///< Restitution
 
-            /// Set this true to enable contact callbacks.
-            /// This is false by default due to performance concerns.
-            bool enableContactCallback;
-
         private:
 
             const CollisionShape& m_shape;  ///< Collision shape
@@ -206,6 +202,8 @@ namespace jop
         ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
+        glm::vec3 getLinearVelocity() const;
+
         /// \brief Sets angular velocity to the rigid body
         ///
         /// \comm setAngularVelocity
@@ -215,6 +213,8 @@ namespace jop
         /// \return Reference to self
         ///
         RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
+
+        glm::vec3 getAngularVelocity() const;
 
         /// \brief Applies force to the rigid body's center 
         ///
@@ -244,19 +244,11 @@ namespace jop
         ///
         RigidBody& clearForces();
 
+        std::pair<glm::vec3, glm::vec3> getLocalBounds() const;
+
     protected:
 
         Message::Result receiveMessage(const Message& message) override;
-
-    private:
-
-        /// \brief Called when the bound object is set active/inactive
-        ///
-        /// Sets the physics body activity
-        ///
-        /// \param active Was the object set active?
-        ///
-        void setActive(const bool active) final override;
 
 
         const Type m_type;           ///< The body type

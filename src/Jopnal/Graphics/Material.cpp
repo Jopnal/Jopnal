@@ -41,27 +41,22 @@
 
 namespace
 {
-    static const int ns_ambIndex = static_cast<int>(jop::Material::Reflection::Ambient);
-    static const int ns_diffIndex = static_cast<int>(jop::Material::Reflection::Diffuse);
-    static const int ns_specIndex = static_cast<int>(jop::Material::Reflection::Specular);
-    static const int ns_emissIndex = static_cast<int>(jop::Material::Reflection::Emission);
-
-    static const int ns_diffMapIndex = static_cast<int>(jop::Material::Map::Diffuse);
-    static const int ns_specMapIndex = static_cast<int>(jop::Material::Map::Specular);
-    static const int ns_emissMapIndex = static_cast<int>(jop::Material::Map::Emission);
-    static const int ns_envMapIndex = static_cast<int>(jop::Material::Map::Environment);
-    static const int ns_reflMapIndex = static_cast<int>(jop::Material::Map::Reflection);
-    static const int ns_opacMapIndex = static_cast<int>(jop::Material::Map::Opacity);
-    static const int ns_glossMapIndex = static_cast<int>(jop::Material::Map::Gloss);
+    template<typename T>
+    inline int castIndex(const T map)
+    {
+        return static_cast<int>(map);
+    }
 
     const std::array<jop::Color, 4>& getDefaultColors()
     {
-        static const std::array<jop::Color, 4> colors =
+        using namespace jop;
+
+        static const std::array<Color, 4> colors =
         {
-            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF")),
-            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF")),
-            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "000000FF")),
-            jop::Color(jop::SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF"))
+            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF")),
+            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF")),
+            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "000000FF")),
+            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF"))
         };
 
         return colors;
@@ -143,42 +138,42 @@ namespace jop
 
                 if (hasAttribute(Attribute::__Lighting))
                 {
-                    shader.setUniform(strCache[1], m_reflection[ns_ambIndex].asRGBAVector());
-                    shader.setUniform(strCache[2], m_reflection[ns_diffIndex].asRGBAVector());
-                    shader.setUniform(strCache[3], m_reflection[ns_specIndex].asRGBAVector());
-                    shader.setUniform(strCache[4], m_reflection[ns_emissIndex].asRGBAVector());
+                    shader.setUniform(strCache[1], m_reflection[castIndex(Reflection::Ambient)].asRGBAVector());
+                    shader.setUniform(strCache[2], m_reflection[castIndex(Reflection::Diffuse)].asRGBAVector());
+                    shader.setUniform(strCache[3], m_reflection[castIndex(Reflection::Specular)].asRGBAVector());
+                    shader.setUniform(strCache[4], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
                     shader.setUniform(strCache[5], m_shininess);
 
                     if (hasAttribute(Attribute::EnvironmentMap))
                         shader.setUniform(strCache[6], m_reflectivity);
                 }
                 else
-                    shader.setUniform(strCache[7], m_reflection[ns_emissIndex].asRGBAVector());
+                    shader.setUniform(strCache[7], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
 
                 if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                    shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), ns_diffMapIndex);
+                    shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
 
                 if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                    shader.setUniform(strCache[9], *getMap(Map::Specular), ns_specMapIndex);
+                    shader.setUniform(strCache[9], *getMap(Map::Specular), castIndex(Map::Specular));
 
                 if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                    shader.setUniform(strCache[10], *getMap(Map::Emission), ns_emissMapIndex);
+                    shader.setUniform(strCache[10], *getMap(Map::Emission), castIndex(Map::Emission));
 
                 if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                    shader.setUniform(strCache[11], *getMap(Map::Opacity), ns_opacMapIndex);
+                    shader.setUniform(strCache[11], *getMap(Map::Opacity), castIndex(Map::Opacity));
 
                 if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
-                    shader.setUniform(strCache[12], *getMap(Map::Gloss), ns_glossMapIndex);
+                    shader.setUniform(strCache[12], *getMap(Map::Gloss), castIndex(Map::Gloss));
             }
 
             shader.setUniform(strCache[15], alphaMult);
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
-                shader.setUniform(strCache[13], *getMap(Material::Map::Environment), ns_envMapIndex);
+                shader.setUniform(strCache[13], *getMap(Material::Map::Environment), castIndex(Map::Environment));
 
                 if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
-                    shader.setUniform(strCache[14], *getMap(Material::Map::Reflection), ns_reflMapIndex);
+                    shader.setUniform(strCache[14], *getMap(Material::Map::Reflection), castIndex(Map::Reflection));
             }
         }
     }
@@ -311,7 +306,7 @@ namespace jop
 
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        const int mapIndex = static_cast<int>(map) - 1;
+        const int mapIndex = static_cast<int>(map);
         m_maps[mapIndex] = static_ref_cast<const Texture>(tex.getReference());
 
         return addAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
@@ -321,7 +316,7 @@ namespace jop
 
     Material& Material::removeMap(const Map map)
     {
-        const int mapIndex = static_cast<int>(map) - 1;
+        const int mapIndex = static_cast<int>(map);
         m_maps[mapIndex].reset();
 
         return removeAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
@@ -331,7 +326,7 @@ namespace jop
 
     const Texture* Material::getMap(const Map map) const
     {
-        return m_maps[static_cast<int>(map) - 1].get();
+        return m_maps[static_cast<int>(map)].get();
     }
 
     //////////////////////////////////////////////

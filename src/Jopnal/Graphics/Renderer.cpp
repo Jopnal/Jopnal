@@ -26,15 +26,11 @@
 
     #include <Jopnal/Graphics/Renderer.hpp>
 
+    #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
-    #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
-    #include <Jopnal/Graphics/Material.hpp>
     #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
-    #include <Jopnal/Graphics/RenderTarget.hpp>
-    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
-    #include <glm/gtx/norm.hpp>
 
 #endif
 
@@ -43,59 +39,15 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        class DrawableSorterOpaque
-        {
-            void operator =(const DrawableSorterOpaque&) = delete;
-
-            const glm::vec3& m_camPos;
-
-        public:
-
-            DrawableSorterOpaque(const Camera& cam)
-                : m_camPos(cam.getObject()->getGlobalPosition())
-            {}
-
-            bool operator ()(const Drawable* first, const Drawable* second) const
-            {
-                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) <
-                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
-            }
-        };
-
-        class DrawableSorterTranslucent
-        {
-            void operator =(const DrawableSorterTranslucent&) = delete;
-
-            const glm::vec3& m_camPos;
-
-        public:
-
-            DrawableSorterTranslucent(const Camera& cam)
-                : m_camPos(cam.getObject()->getGlobalPosition())
-            {}
-
-            bool operator ()(const Drawable* first, const Drawable* second) const
-            {
-                return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) >
-                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
-            }
-        };
-    }
-
-    //////////////////////////////////////////////
-
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
-          m_drawables       (),
+          m_prePass         (*this, mainTarget),
+          m_forwardPass     (*this, mainTarget),
+          m_postPass        (*this, Engine::getMainWindow()),
+          m_passes          ({{&m_prePass, &m_forwardPass, &m_postPass}}),
           m_envRecorders    (),
-          m_mask            (1),
-          m_mainTarget      (mainTarget)
-    {}
-
-    Renderer::~Renderer()
+          m_mask            (1)
     {}
 
     //////////////////////////////////////////////
@@ -128,9 +80,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const Drawable& drawable)
+    void Renderer::bind(const Drawable& drawable, const RenderPass::Pass pass)
     {
-        m_drawables.insert(&drawable);
+        m_passes[static_cast<int>(pass)]->bind(drawable);
     }
 
     //////////////////////////////////////////////
@@ -156,9 +108,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const Drawable& drawable)
+    void Renderer::unbind(const Drawable& drawable, const RenderPass::Pass pass)
     {
-        m_drawables.erase(&drawable);
+        m_passes[static_cast<int>(pass)]->unbind(drawable);
     }
 
     //////////////////////////////////////////////
@@ -170,16 +122,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::draw()
+    void Renderer::draw(const RenderPass::Pass pass)
     {
-        // Dummy LightContainer to pass into drawables when no lights were selected
-        static const LightContainer dummyLightCont;
-
         // Render shadow maps
         for (auto light : m_lights)
         {
             if (light->isActive() && (m_mask & light->getRenderMask()) != 0)
-                light->drawShadowMap(m_drawables);
+                light->drawShadowMap(m_passes[1]->m_drawables);
         }
 
         // Render environment maps
@@ -189,92 +138,13 @@ namespace jop
                 envmap->record();
         }
 
-        m_mainTarget.bind();
-
         // Render objects
         for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
         {
             if ((m_mask & i) == 0)
                 continue;
 
-            for (auto cam : m_cameras)
-            {
-                const uint32 camMask = cam->getRenderMask();
-                if (!cam->isActive() || (camMask & i) == 0)
-                    continue;
-
-                cam->getRenderTexture().bind();
-                cam->applyViewport(m_mainTarget);
-
-                // 0 - Opaque
-                // 1 - Translucent
-                // 2 - Sky box/sphere
-                std::array<std::vector<const Drawable*>, 3> sorted;
-                sorted[0].reserve(m_drawables.size());
-                sorted[1].reserve(m_drawables.size() / 4);
-                
-                for (auto drawable : m_drawables)
-                {
-                    const uint32 groupBit = 1 << drawable->getRenderGroup();
-                    if (drawable->isActive() && drawable->getModel().isValid() && (i & groupBit) > 0 && (camMask & groupBit) > 0)
-                    {
-                        using M = Material::Attribute;
-                        auto& mat = *drawable->getModel().getMaterial();
-
-                        sorted[std::min(2, mat.hasAttributes(M::Alpha | M::DiffuseAlpha) + (mat.hasAttribute(M::__SkyBox | M::__SkySphere) * 2))].push_back(drawable);
-                    }
-                }
-
-                std::sort(sorted[0].begin(), sorted[0].end(), detail::DrawableSorterOpaque(*cam));
-                std::sort(sorted[1].begin(), sorted[1].end(), detail::DrawableSorterTranslucent(*cam));
-
-                auto drawSet = [this](const std::vector<const Drawable*>& drawables, const Camera& cam)
-                {
-                    for (auto drawable : drawables)
-                    {
-                        if (drawable->receiveLights())
-                        {
-                            // Select lights
-                            LightContainer lights;
-                            chooseLights(*drawable, lights);
-                            drawable->draw(cam, lights);
-                        }
-                        else
-                            drawable->draw(cam, dummyLightCont);
-                    }
-                };
-
-                // Opaque
-                drawSet(sorted[0], *cam);
-
-                // Sky boxes/spheres
-                drawSet(sorted[2], *cam);
-
-                // Translucent
-                GlState::setDepthWrite(false);
-                drawSet(sorted[1], *cam);
-                GlState::setDepthWrite(true);
-            }
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Renderer::chooseLights(const Drawable& drawable, LightContainer& lights) const
-    {
-        for (auto l : m_lights)
-        {
-            auto& container = lights[l->getType()];
-
-            if (!l->isActive() || LightSource::getMaximumLights(l->getType()) <= container.size())
-                continue;
-
-            const uint32 lightMask = l->getRenderMask();
-            if ((m_mask & lightMask) == 0 || (lightMask & (1 << drawable.getRenderGroup())) == 0)
-                continue;
-
-            if (drawable.lightTouches(*l))
-                container.push_back(l);
+            m_passes[static_cast<int>(pass)]->draw(i);
         }
     }
 }

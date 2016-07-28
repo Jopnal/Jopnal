@@ -29,6 +29,8 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
 
     #pragma warning(push)
     #pragma warning(disable: 4127)
@@ -79,26 +81,38 @@ namespace detail
 namespace jop
 {
     Collider::Collider(Object& object, World& world, const uint32 ID)
-        : Component     (object, ID),
-          SafeReferenceable<Collider>(this),
-          m_motionState (std::make_unique<::detail::MotionState>(object)),
-          m_body        (),
-          m_worldRef    (world)
+        : Component                     (object, ID),
+          SafeReferenceable<Collider>   (this),
+          m_motionState                 (std::make_unique<::detail::MotionState>(object)),
+          m_body                        (),
+          m_worldRef                    (world)
     {}
 
     Collider::Collider(const Collider& other, Object& newObj)
-        : Component     (other, newObj),
-          SafeReferenceable<Collider>(this),
-          m_motionState (std::make_unique<::detail::MotionState>(newObj)),
-          m_body        (),
-          m_worldRef    (other.m_worldRef)
+        : Component                     (other, newObj),
+          SafeReferenceable<Collider>   (this),
+          m_motionState                 (std::make_unique<::detail::MotionState>(newObj)),
+          m_body                        (),
+          m_worldRef                    (other.m_worldRef)
     {}
 
     Collider::~Collider()
     {
         for (auto& i : m_listeners)
-        {
             i->m_collider = nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::update(const float)
+    {
+        if (m_body->isActive() != isActive())
+        {
+            if (m_body->isKinematicObject())
+                m_body->setActivationState(isActive() ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
+
+            else
+                m_body->setActivationState(isActive() ? ACTIVE_TAG : DISABLE_SIMULATION);
         }
     }
 
@@ -221,5 +235,4 @@ namespace jop
             return;
         }
     }
-
 }

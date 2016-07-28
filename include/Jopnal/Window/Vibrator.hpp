@@ -19,12 +19,11 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PHANTOMBODY_HPP
-#define JOP_PHANTOMBODY_HPP
+#ifndef JOP_VIBRATOR_HPP
+#define JOP_VIBRATOR_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Collider.hpp>
 #include <vector>
 
 //////////////////////////////////////////////
@@ -32,37 +31,24 @@
 
 namespace jop
 {
-    class CollisionShape;
-
-    class PhantomBody : public Collider
+    class JOP_API Vibrator
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(PhantomBody);
-        JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
-
-        PhantomBody(const PhantomBody& other, Object& newObj);
-
     public:
 
-        enum class Type
-        {
-            Static,
-            Kinematic
-        };
+        /// \brief Vibrate for given time (in milliseconds)
+        ///
+        /// \param time_ms Time to vibrate in milliseconds
+        ///
+        static void vibrate(const unsigned int time_ms);
 
-    public:
-    
-        PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type);
+        /// \brief Vibrate indefinitely
+        ///
+        static void vibrate();
 
-
-        void update(const float deltaTime) override;
+        /// \brief Stop vibrating
+        ///
+        static void stop();
     };
 }
 
 #endif
-
-/// \class PhantomBody
-/// \ingroup physics
-///
-/// #TODO Detailed description

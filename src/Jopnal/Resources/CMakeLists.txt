@@ -12,6 +12,13 @@ if (CMAKE_HOST_WIN32)
     source_group("Fonts" FILES ${__SRC_FONTS})
     list(APPEND RES ${__SRC_FONTS})
     
+    # Shader plugins
+    set(__SRC_SHADERPLUGINS
+        ${__SRCDIR_RESOURCES}/ShaderPlugins/compatibility.jops
+    )
+    source_group("ShadersPlugins" FILES ${__SRC_SHADERPLUGINS})
+    list(APPEND RES ${__SRC_SHADERPLUGINS})
+    
     # Shaders
     set(__SRC_SHADERS
         ${__SRCDIR_RESOURCES}/Shaders/brightFilter.frag

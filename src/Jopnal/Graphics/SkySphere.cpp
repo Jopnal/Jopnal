@@ -42,7 +42,7 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable      (obj, renderer, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
     {
@@ -80,8 +80,8 @@ namespace jop
 
         msh.getVertexBuffer().bind();
         const auto stride = msh.getVertexSize();
-        s.setAttribute(0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
+        s.setAttribute("a_Position", 0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
+        s.setAttribute("a_TexCoords", 1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
 
         mat.sendToShader(s, camera, getAlphaMultiplier());
 

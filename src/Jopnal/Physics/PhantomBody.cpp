@@ -27,7 +27,9 @@
     #include <Jopnal/Physics/PhantomBody.hpp>
 
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/STL.hpp>
 
     #pragma warning(push)
@@ -45,12 +47,22 @@
 
 namespace jop
 {
-    PhantomBody::PhantomBody(Object& object, World& world, CollisionShape& shape)
+    PhantomBody::PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type)
         : Collider(object, world, 0)
     {
         auto ghost = std::make_unique<btPairCachingGhostObject>();
 
+        int flags = ghost->getCollisionFlags();
+
         ghost->setCollisionShape(shape.m_shape.get());
+        flags |= (type == Type::Kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE;
+
+        ghost->setCollisionFlags(flags);
+
+        m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
+
+        ghost->setUserPointer(this);
+        m_body = std::move(ghost);
     }
 
     PhantomBody::PhantomBody(const PhantomBody& other, Object& newObj)
@@ -61,19 +73,17 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void PhantomBody::update(const float)
+    void PhantomBody::update(const float deltaTime)
     {
-        auto& rot = getObject()->getGlobalRotation();
-        auto& pos = getObject()->getGlobalPosition();
-        btTransform transform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+        Collider::update(deltaTime);
 
-        m_body->setWorldTransform(transform);
+        if (m_body->isKinematicObject())
+        {
+            auto& rot = getObject()->getGlobalRotation();
+            auto& pos = getObject()->getGlobalPosition();
+            btTransform transform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+
+            m_body->setWorldTransform(transform);
+        }
     }    
-    
-    //////////////////////////////////////////////
-
-    void PhantomBody::setActive(const bool active)
-    {
-        m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
-    }
 }

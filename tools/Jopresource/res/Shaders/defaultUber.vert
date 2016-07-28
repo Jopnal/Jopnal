@@ -21,7 +21,7 @@ uniform mat4 u_MMatrix; // Model
 uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
 
 // Vertex attributes to fragment/geometry shader
-#ifdef JOP_OPENGL_ES
+#ifdef GL_ES
 
     out vec3 var_Position;
     out vec2 var_TexCoords;
