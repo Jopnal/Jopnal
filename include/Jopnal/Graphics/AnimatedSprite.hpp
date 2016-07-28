@@ -109,7 +109,7 @@ namespace jop
         float m_frameTime; ///< Time taken for each frame
         float m_timer; 
         Status m_status; ///< Animation status
-        int m_currentFrame;
+        unsigned int m_currentFrame;
     };
 
 }

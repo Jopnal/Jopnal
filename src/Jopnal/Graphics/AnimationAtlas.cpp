@@ -45,7 +45,6 @@ namespace jop
 
     bool AnimationAtlas::load(const std::string& path, const glm::uvec2& frames)
     {
-        const auto& texture = ResourceManager::get<jop::Texture2D>(path, true, true, false);
         return load(path, frames, glm::uvec2(0), glm::uvec2(0));        
     }
 
