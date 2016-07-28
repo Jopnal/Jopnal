@@ -51,12 +51,11 @@ namespace jop
         ///
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
-        /// \param sectors How many sectors the circle will get divided to
         /// \param normalizedTexCoords Normalize the texture coordinates?
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+        bool load(const float radius, const unsigned int rings, const bool normalizedTexCoords = true);
 
 
         /// \brief Get the radius
@@ -87,7 +86,6 @@ namespace jop
 
         float m_radius;         ///< The radius
         unsigned int m_rings;   ///< Rings
-        unsigned int m_sectors; ///< Sectors
         bool m_normTexCoords;   ///< Normalized texture coordinates
     };
 }

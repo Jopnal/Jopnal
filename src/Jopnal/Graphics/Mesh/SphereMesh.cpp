@@ -40,7 +40,6 @@ namespace jop
         : Mesh              (name),
           m_radius          (0.f),
           m_rings           (0),
-          m_sectors         (0),
           m_normTexCoords   (true)
     {}
 
@@ -48,31 +47,29 @@ namespace jop
         : Mesh              (newName),
           m_radius          (0.f),
           m_rings           (0),
-          m_sectors         (0),
           m_normTexCoords   (true)
     {
-        load(other.m_radius, other.m_rings, other.m_sectors, other.m_normTexCoords);
+        load(other.m_radius, other.m_rings, other.m_normTexCoords);
     }
 
     //////////////////////////////////////////////
 
-    bool SphereMesh::load(const float radius, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+    bool SphereMesh::load(const float radius, const unsigned int rings, const bool normalizedTexCoords)
     {
         m_radius = radius;
         m_rings = rings;
-        m_sectors = sectors;
         m_normTexCoords = normalizedTexCoords;
 
         const float R = 1.0f / static_cast<float>(rings - 1);
-        const float S = 1.0f / static_cast<float>(sectors - 1);
+        const float S = 1.0f / static_cast<float>(rings - 1);
 
-        const unsigned int texCoordMultS = normalizedTexCoords ? 1u : sectors;
+        const unsigned int texCoordMultS = normalizedTexCoords ? 1u : rings;
         const unsigned int texCoordMultR = normalizedTexCoords ? 1u : rings;
 
-        std::vector<Vertex> vertexArray(rings * sectors);
+        std::vector<Vertex> vertexArray(rings * rings);
         auto itr = vertexArray.begin();
 
-        for (std::size_t s = 0; s < sectors; ++s)
+        for (std::size_t s = 0; s < rings; ++s)
         {
             for (std::size_t r = 0; r < rings; ++r)
             {
@@ -98,21 +95,21 @@ namespace jop
             }
         }
 
-        std::vector<unsigned int> indices(rings * sectors * 6);
+        std::vector<unsigned int> indices(rings * rings * 6);
         std::vector<unsigned int>::iterator i = indices.begin();
         for (std::size_t r = 0; r < rings - 1; ++r)
         {
-            for (std::size_t s = 0; s < sectors - 1; ++s)
+            for (std::size_t s = 0; s < rings - 1; ++s)
             {
                 // First triangle
-                *i++ = r * sectors + s;             // 0, 0          
-                *i++ = r * sectors + (s + 1);       // 1, 0
-                *i++ = (r + 1) * sectors + (s + 1); // 1, 1
+                *i++ = r * rings + s;             // 0, 0          
+                *i++ = r * rings + (s + 1);       // 1, 0
+                *i++ = (r + 1) * rings + (s + 1); // 1, 1
 
                 // Second triangle
-                *i++ = r * sectors + s;             // 0, 0    
-                *i++ = (r + 1) * sectors + (s + 1); // 1, 1
-                *i++ = (r + 1) * sectors + s;       // 0, 1
+                *i++ = r * rings + s;             // 0, 0    
+                *i++ = (r + 1) * rings + (s + 1); // 1, 1
+                *i++ = (r + 1) * rings + s;       // 0, 1
             }
         }
 
@@ -131,13 +128,6 @@ namespace jop
     unsigned int SphereMesh::getRings() const
     {
         return m_rings;
-    }
-
-    //////////////////////////////////////////////
-
-    unsigned int SphereMesh::getSectors() const
-    {
-        return m_sectors;
     }
 
     //////////////////////////////////////////////

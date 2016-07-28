@@ -51,12 +51,11 @@ namespace jop
 		///
 		/// \param radius The radius of the Capsule
 		/// \param rings How many rings will the Capsule have
-		/// \param sectors How many sectors the circle will get divided to
 		/// \param normalizedTexCoords Normalize the texture coordinates?
 		///
 		/// \return True if successful
 		///
-		bool load(const float radius, const float height, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords = true);
+		bool load(const float radius, const float height, const unsigned int rings, const bool normalizedTexCoords = true);
 
 
 		/// \brief Get the radius
@@ -76,12 +75,6 @@ namespace jop
 		/// \return The ring amount
 		///
 		unsigned int getRings() const;
-
-		/// \brief Get the amount of sectors
-		///
-		/// \return The sector amount
-		///
-		unsigned int getSectors() const;
 
 		/// \brief Check if this Capsule uses normalized texture coordinates
 		///

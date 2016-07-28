@@ -41,7 +41,6 @@ namespace jop
 		m_radius(0.f),
         m_height(0.f),
 		m_rings(0),
-		m_sectors(0),
 		m_normTexCoords(true)
 	{}
 
@@ -50,34 +49,32 @@ namespace jop
         m_radius(0.f),
         m_height(0.f),
 		m_rings(0),
-		m_sectors(0),
 		m_normTexCoords(true)
 	{
-		load(other.m_radius, other.m_height, other.m_rings, other.m_sectors, other.m_normTexCoords);
+		load(other.m_radius, other.m_height, other.m_rings, other.m_normTexCoords);
 	}
 
 	//////////////////////////////////////////////
 
-	bool CapsuleMesh::load(const float radius, const float height, const unsigned int rings, const unsigned int sectors, const bool normalizedTexCoords)
+	bool CapsuleMesh::load(const float radius, const float height, const unsigned int rings, const bool normalizedTexCoords)
 	{
 		m_radius = radius;
         m_height = height;
 		m_rings = rings;
-		m_sectors = sectors;
 		m_normTexCoords = normalizedTexCoords;
 
 		const float half = height*0.5f;
 		const float stretch = radius / (static_cast<float>(rings)+1.f);
 		const float R = 1.0f / static_cast<float>(rings - 1);
-		const float S = 1.0f / static_cast<float>(sectors - 1);
+		const float S = 1.0f / static_cast<float>(rings - 1);
 
-		const unsigned int texCoordMultS = normalizedTexCoords ? 1u : sectors;
+		const unsigned int texCoordMultS = normalizedTexCoords ? 1u : rings;
 		const unsigned int texCoordMultR = normalizedTexCoords ? 1u : rings;
 
-		std::vector<Vertex> vertexArray(rings * sectors);
+		std::vector<Vertex> vertexArray(rings * rings);
 		auto itr = vertexArray.begin();
 
-		for (std::size_t s = 0; s < sectors; ++s)
+		for (std::size_t s = 0; s < rings; ++s)
 		{
 			for (std::size_t r = 0; r < rings; ++r)
 			{
@@ -108,21 +105,21 @@ namespace jop
 			}
 		}
 
-		std::vector<unsigned int> indices(rings * sectors * 6);
+		std::vector<unsigned int> indices(rings * rings * 6);
 		std::vector<unsigned int>::iterator i = indices.begin();
 		for (std::size_t r = 0; r < rings - 1; ++r)
 		{
-			for (std::size_t s = 0; s < sectors - 1; ++s)
+			for (std::size_t s = 0; s < rings - 1; ++s)
 			{
 				// First triangle
-				*i++ = r * sectors + s;             // 0, 0          
-				*i++ = r * sectors + (s + 1);       // 1, 0
-				*i++ = (r + 1) * sectors + (s + 1); // 1, 1
+				*i++ = r * rings + s;             // 0, 0          
+				*i++ = r * rings + (s + 1);       // 1, 0
+				*i++ = (r + 1) * rings + (s + 1); // 1, 1
 
 				// Second triangle
-				*i++ = r * sectors + s;             // 0, 0    
-				*i++ = (r + 1) * sectors + (s + 1); // 1, 1
-				*i++ = (r + 1) * sectors + s;       // 0, 1
+				*i++ = r * rings + s;             // 0, 0    
+				*i++ = (r + 1) * rings + (s + 1); // 1, 1
+				*i++ = (r + 1) * rings + s;       // 0, 1
 			}
 		}
 
@@ -148,13 +145,6 @@ namespace jop
 	unsigned int CapsuleMesh::getRings() const
 	{
 		return m_rings;
-	}
-
-	//////////////////////////////////////////////
-
-	unsigned int CapsuleMesh::getSectors() const
-	{
-		return m_sectors;
 	}
 
 	//////////////////////////////////////////////
