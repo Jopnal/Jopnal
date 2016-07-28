@@ -33,29 +33,28 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
-    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const bool enableSteering,
-        const glm::quat& jRot, const float steeringAngle) :
+    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const float maxSteering, const glm::quat& jRot) :
         Joint(worldRef, bodyA, bodyB),
-        m_jointL(nullptr)
+        m_jointL(nullptr),
+        m_maxAngle(maxSteering)
     {
         btTransform ctwt = btTransform::getIdentity();
         ctwt.setOrigin(btVector3(jPos.x, jPos.y, jPos.z));
 
         if (jRot == glm::quat(0.f, 0.f, 0.f, 0.f))
         {
-            getBody(bodyB)->getCenterOfMassPosition().m_floats[0] >
-                getBody(bodyA)->getCenterOfMassPosition().m_floats[0] ?
+            getBody(bodyB)->getCenterOfMassPosition().x() >
+                getBody(bodyA)->getCenterOfMassPosition().x() ?
                 ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, 1.f)) :
                 ctwt.setRotation(btQuaternion(jRot.x, 1.f, jRot.z, jRot.w));
-
-            JOP_DEBUG_ERROR("WHEELJOINT VECTOR Y U NO WORK WITH X BUT M_ ?!");
         }
+        else
+            ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 
-        btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt; //mounting point
-        btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt; //tyre center
+        btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
+        btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt; 
 
         m_joint = std::make_unique<btGeneric6DofConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
@@ -63,44 +62,51 @@ namespace jop
 
         //Axis locks
         {
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < 6; ++i)
                 m_jointL->setLimit(i, 0.f, 0.f);
 
-            m_jointL->setLimit(3, 1.f, 0.f); //X-rotation free
-
-            enableSteering ?
-                m_jointL->setLimit(4, -steeringAngle, steeringAngle) : m_jointL->setLimit(4, 0.f, 0.f);
-
-            m_jointL->setLimit(5, 0.f, 0.f); //camber, disabled
+            m_jointL->setLimit(static_cast<unsigned int>(Axis::X)+3u, 1.f, 0.f); //X-rotation free
         }
     }
 
-    /*WheelJoint& WheelJoint::applyForce(const float force)
+    WheelJoint& WheelJoint::applyTorque(const float torque, const Axis axis)
     {
+        glm::vec3 tq(0.f, 0.f, 0.f);
+        tq[static_cast<unsigned int>(axis)] = torque;
 
-    return *this;
+        return applyTorque(tq);
     }
 
-    std::pair<float, float> WheelJoint::getAngLimits() const
+    WheelJoint& WheelJoint::applyTorque(glm::vec3 torque)
     {
-    return std::make_pair<float, float>(m_jointL->getLowerLimit(), m_jointL->getUpperLimit());
+        m_jointL->getRigidBodyB().activate();
+        m_jointL->getRigidBodyB().applyTorque(m_jointL->getRigidBodyB().getWorldTransform().getBasis() * btVector3(torque.x, torque.y, torque.z));
+        return *this;
     }
 
-    std::pair<float, float> WheelJoint::getAngForces() const
+    float WheelJoint::getTorque(const Axis axis) const
     {
-    return std::make_pair<float, float>(m_jointL->getMotorTargetVelosity(), m_jointL->getMaxMotorImpulse());
+        return m_jointL->getRigidBodyB().getTotalTorque().m_floats[static_cast<unsigned int>(axis)];
     }
 
-    WheelJoint& WheelJoint::setAngLimits(const float min, const float max)
+    glm::vec3 WheelJoint::getTorque() const
     {
-    m_jointL->setLimit(min, max);
-    return *this;
+        auto tq = m_jointL->getRigidBodyB().getTotalTorque();
+        return glm::vec3(tq.m_floats[0], tq.m_floats[1], tq.m_floats[2]);
     }
 
-    WheelJoint& WheelJoint::setAngForces(const float speed, const float force)
+    float WheelJoint::getAngle(const Axis axis) const
     {
-    m_jointL->setMotorTargetVelocity(speed);
-    m_jointL->setMaxMotorImpulse(force);
-    return *this;
-    }*/
+        btVector3 df(0.f, 0.f, 0.f);
+        m_jointL->getAngularLowerLimit(df);
+
+        return df[static_cast<unsigned int>(axis)];
+    }
+
+    WheelJoint& WheelJoint::setAngle(const float steeringAngle, const Axis axis)
+    {
+        float newAngle = glm::clamp(steeringAngle, -m_maxAngle, m_maxAngle);
+        m_jointL->setLimit(static_cast<unsigned int>(axis)+3u, newAngle, newAngle);
+        return *this;
+    }
 }

@@ -35,47 +35,72 @@ namespace jop
     class JOP_API WheelJoint : public Joint
     {
     public:
-        /// \brief WheelJoint (hinge) constructor.
+
+        enum class Axis
+        {
+            X,
+            Y,
+            Z
+        };
+
+        /// \brief WheelJoint constructor.
+        ///
+        /// <b>When creating WheelJoints, always call the link from the chassis and pass the wheel in as the first argument.</b>
+        /// \note When creating a vehicle, it is best to create it in the following manner:
+        /// The vehicle is parallel to global Z-axis (by length).
+        /// The vehicle wheels are then +/- of the chassis in X-axis.
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned and direction decided from Y-axis positions. 
-        /// \param steeringAngle Maximum steering angle of the wheel in radians. Default is ~40 degrees.
+        /// \param maxSteering Maximum steering angle of the wheel in radians. setAngle can not override this. Default is ~40 degrees.
+        /// \param jRot Rotation of the joint in a quaternion. Defaults the orientation of the joint based on global difference between the chassis and the wheel X-positions.
         ///
-        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const bool enableSteering = false,
-            const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f), const float steeringAngle = 0.7f);
-/*
-        /// \param enable Enables/disables the hinge motor.
+        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const float maxSteering = 0.7f, const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f));
+
+        /// \brief Apply rotational force to the wheel's rigidbody.
+        ///
+        /// \param torque Torque to be applied to the wheel. Negative value rotates the wheel in opposite direction.
+        /// \param axis Axis to apply the force to. Default is Y-axis.
+        ///
+        /// \return Returns reference to self
+        ///
+        WheelJoint& applyTorque(const float torque, const Axis axis = Axis::Y);
+
+        /// \brief Apply rotational force to the wheel.
+        ///
+        /// \param torque Torque to be applied to the wheel. Negative value rotates the wheel in opposite direction.
         ///
         /// \return Returns reference to self.
         ///
-        WheelJoint& applyForce(const float force);
+        WheelJoint& applyTorque(glm::vec3 torque);
 
-        /// \return Returns current rotational limits of the hinge: first = minimum, second = maximum.
+        /// \return Returns current torque affecting the joint in an axis.
         ///
-        std::pair<float, float> getAngLimits() const;
+        float getTorque(const Axis axis = Axis::Y) const;
 
-        /// \return Returns current angular motor forces: first = speed, second = force
+        /// \return Returns vector of torques affecting the joint.
         ///
-        std::pair<float, float> getAngForces() const;
+        glm::vec3 getTorque() const;
 
-        /// Set new rotational limits for the hinge in radians.
+        /// \return Returns angle of the joint in an axis in radians. Default Y-axis.
+        ///
+        float getAngle(const Axis axis = Axis::Y) const;
+        
+        /// \brief Set new angle for the joint in an axis.
+        ///
+        /// This can not override the maxSteering of the joint.
+        ///
+        /// \param steeringAngle New steering angle to be set to the wheel. Negative value turns the wheel in the other direction.
+        /// \param axis Axis to change. Default Y-axis.
         ///
         /// \return Returns reference to self.
         ///
-        WheelJoint& setAngLimits(const float min, const float max);
-
-        /// Set new rotational forces for the hinge motor.
-        ///
-        /// \param speed New target speed to reach.
-        /// \param force New maximum motor force to exert to reach the target speed. Negative force causes the hinge to keep moving from one limit to the other.
-        /// 
-        /// \return Returns reference to self.
-        ///
-        WheelJoint& setAngForces(const float speed, const float force);*/
+        WheelJoint& setAngle(const float steeringAngle, const Axis axis = Axis::Y);
 
     private:
+
         btGeneric6DofConstraint* m_jointL;
+        float m_maxAngle;
     };
 }
 #endif
