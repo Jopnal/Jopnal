@@ -79,8 +79,8 @@ namespace jop
         width[1] = (width[0] * glm::cos(alfa)) - (radius*glm::sin(alfa));
         depth[1] = (width[0] * glm::sin(alfa)) + (radius*glm::cos(alfa));
 
-		float texMulti = 1.f / (static_cast<float>(sectors) + 1.f);
-        float texCoord = 1.f;
+		float texMulti = 1.f / (static_cast<float>(sectors));
+        float texCoord = 1.f-texMulti;
 
         std::vector<Vertex> vertexArray((8 * sectors)+1);
         auto itr = vertexArray.begin();

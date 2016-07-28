@@ -40,27 +40,33 @@ namespace jop
         : Mesh(name),
         m_radius(0.f),
         m_height(0.f),
-        m_sectors(0)
+        m_sectors(0),
+        m_dividedTexCoords(false)
     {}
 
     ConeMesh::ConeMesh(const ConeMesh& other, const std::string& newName)
         : Mesh(newName),
         m_radius(0.f),
         m_height(0.f),
-        m_sectors(0)
+        m_sectors(0),
+        m_dividedTexCoords(false)
     {
-        load(other.m_radius, other.m_height, other.m_sectors);
+        load(other.m_radius, other.m_height, other.m_sectors, other.m_dividedTexCoords);
     }
 
     //////////////////////////////////////////////
 
-    bool ConeMesh::load(const float radius, const float height, const int sectors)
+    bool ConeMesh::load(const float radius, const float height, const int sectors, const bool dividedTexCoords)
     {
         m_radius = radius;
         m_height = height;
+        m_dividedTexCoords = dividedTexCoords;
 
         const float half = 0.5f * height;
         const float norm = 1.f;
+        float divide[2] = { 0.f, 1.f };
+        float texMulti = 1.f;
+        float texCoord = 0.f;
 
         float width[2] = { NULL };
         float depth[2] = { radius, radius };
@@ -72,8 +78,15 @@ namespace jop
         width[1] = (width[0] * glm::cos(alfa)) - (radius*glm::sin(alfa));
         depth[1] = (width[0] * glm::sin(alfa)) + (radius*glm::cos(alfa));
  
-        float texMulti = 1.f / (static_cast<float>(sectors)+1.f);
-        float texCoord = 1.f;
+
+        if (dividedTexCoords)
+        {
+            divide[0] = 0.75f;
+            divide[1] = 0.75f;
+
+            texMulti = 1.f / (static_cast<float>(sectors));
+            texCoord = 1.f-texMulti;
+        }
 
         std::vector<Vertex> vertexArray((6 * sectors) + 1);
         auto itr = vertexArray.begin();
@@ -82,13 +95,14 @@ namespace jop
             float lenght[2] = { glm::sqrt((width[0] * width[0]) + 1.f + (depth[0] * depth[0])), glm::sqrt((width[1] * width[1]) + 1.f + (depth[1] * depth[1])) };
 
             *itr++ = Vertex(glm::vec3(0.f, -half, 0.f), glm::vec2(texCoord + texMulti, 1.f), glm::vec3(0.f, -norm, 0.f));                                    // 0, middle, Bottom    
-            *itr++ = Vertex(glm::vec3(width[1], -half, depth[1]), glm::vec2(texCoord, 0.75f), glm::vec3(width[1], -norm, depth[1]) / lenght[1]);               // 1, Left, Bottom   
-            *itr++ = Vertex(glm::vec3(width[0], -half, depth[0]), glm::vec2(texCoord + texMulti, 0.75f), glm::vec3(width[0], -norm, depth[0]) / lenght[0]);    // 2, Right, Bottom  
+            *itr++ = Vertex(glm::vec3(width[1], -half, depth[1]), glm::vec2(texCoord, divide[0]), glm::vec3(width[1], -norm, depth[1]) / lenght[1]);               // 1, Left, Bottom   
+            *itr++ = Vertex(glm::vec3(width[0], -half, depth[0]), glm::vec2(texCoord + texMulti, divide[0]), glm::vec3(width[0], -norm, depth[0]) / lenght[0]);    // 2, Right, Bottom  
 
-            *itr++ = Vertex(glm::vec3(width[1], -half, depth[1]), glm::vec2(texCoord, 1.f), glm::vec3(width[1], 0.f, depth[1]) / lenght[1]);                 // 3, Left, Bottom   
-            *itr++ = Vertex(glm::vec3(width[0], -half, depth[0]), glm::vec2(texCoord + texMulti, 1.f), glm::vec3(width[0], 0.f, depth[0]) / lenght[0]);      // 4, Right, Bottom  
+            *itr++ = Vertex(glm::vec3(width[1], -half, depth[1]), glm::vec2(texCoord, divide[1]), glm::vec3(width[1], 0.f, depth[1]) / lenght[1]);                 // 3, Left, Bottom   
+            *itr++ = Vertex(glm::vec3(width[0], -half, depth[0]), glm::vec2(texCoord + texMulti, divide[1]), glm::vec3(width[0], 0.f, depth[0]) / lenght[0]);      // 4, Right, Bottom  
             *itr++ = Vertex(glm::vec3(0.f, half, 0.f), glm::vec2(texCoord + texMulti, 0.f), glm::vec3(0.f, norm, 0.f));                                      // 7, middle, Top  
 
+            if (dividedTexCoords)
             texCoord -= texMulti;
 
             float x = width[1];
@@ -135,5 +149,12 @@ namespace jop
     unsigned int ConeMesh::getSectors() const
     {
         return m_sectors;
+    }
+
+    //////////////////////////////////////////////
+
+    bool ConeMesh::dividedTexCoords() const
+    {
+        return m_dividedTexCoords;
     }
 }

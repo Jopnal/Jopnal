@@ -52,10 +52,11 @@ namespace jop
         /// \param radius The radius of the Cone's lowest ring
         /// \param height How tall will the Cone be
         /// \param sectors How many blocks will form the exterior surface
+        /// \param dividedTexCoords If true side will use coordinates 0.25-0.1 from texture and rest is used for bottom
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const float height, const int sectors);
+        bool load(const float radius, const float height, const int sectors, const bool dividedTexCoords = false);
 
 
         /// \brief Get the radius
@@ -76,11 +77,18 @@ namespace jop
         ///
         float getHeight() const;
 
+        /// \brief Check if this Cylinder uses normalized texture coordinates
+        ///
+        /// \return True if normalized
+        ///
+        bool dividedTexCoords() const;
+
     private:
 
-        float m_radius;         ///< The radius
-        float m_height;			///< The height
-        unsigned int m_sectors; ///< Sectors
+        float m_radius;             ///< The radius
+        float m_height;			    ///< The height
+        unsigned int m_sectors;     ///< Sectors
+        bool m_dividedTexCoords;    ///< Normalized texture coordinates
     };
 }
 
