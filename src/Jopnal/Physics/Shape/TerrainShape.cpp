@@ -44,7 +44,7 @@ namespace jop
 {
     TerrainShape::RayInfo::RayInfo()
         : triangleIndex (0),
-          triangle      (0.f),
+          triangle      (),
           hit           (false)
     {}
 

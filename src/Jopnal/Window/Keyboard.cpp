@@ -89,19 +89,21 @@ namespace jop
     //////////////////////////////////////////////
 
     void Keyboard::showVirtualKeyboard(const bool show)
-    {     
+    {
+    #ifdef JOP_OS_ANDROID
+
         if (validateWindowRef())
         {
-        #if defined(JOP_OS_DESKTOP)   
-                    return;
-        #elif defined(JOP_OS_ANDROID)
             auto state = detail::ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
             state->showVirtualKeyboard(show);
-        #else
-                    return;
-        #endif
         }
+
+    #else
+
+        show;
+
+    #endif
     }
 
     //////////////////////////////////////////////
