@@ -44,24 +44,24 @@ namespace jop
     namespace detail
     {
         class WindowImpl;
+
+        class BufferSwapper final : public Subsystem
+        {
+        private:
+
+            JOP_DISALLOW_COPY_MOVE(BufferSwapper);
+
+        public:
+
+            BufferSwapper(Window& window);
+
+            void draw() override;
+
+        private:
+
+            Window& m_windowRef;
+        };
     }
-
-    class JOP_API BufferSwapper final : public Subsystem
-    {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(BufferSwapper);
-
-    public:
-
-        BufferSwapper(Window& window);
-
-        void draw() override;
-
-    private:
-
-        Window& m_windowRef;
-    };
 
     class JOP_API Window : public RenderTarget, public Subsystem
     {
@@ -69,7 +69,7 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Window);
 
-        friend class BufferSwapper;
+        friend class detail::BufferSwapper;
 
     public:
 

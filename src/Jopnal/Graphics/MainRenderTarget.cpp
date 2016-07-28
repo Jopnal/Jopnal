@@ -62,7 +62,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void jop::MainRenderTarget::preUpdate(const float)
+    void MainRenderTarget::preUpdate(const float)
     {
         clear(AllBit);
     }
