@@ -5,9 +5,10 @@
 //////////////////////////////////////////////
 
 #include <Jopnal/Compat/FragmentColor>
+#include <Jopnal/Compat/Varyings>
 
 // Color from vertex shader
-in vec3 vf_Color;
+JOP_VARYING_IN vec3 vf_Color;
 
 // Final color
 JOP_COLOR_OUT(0)
