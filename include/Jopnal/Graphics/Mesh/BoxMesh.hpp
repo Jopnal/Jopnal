@@ -55,6 +55,17 @@ namespace jop
         ///
         /// This will set up the vertices and create the buffers
         ///
+        /// \param (x,y,z) Size of the box as vector
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float x, const float y, const float z);
+
+
+        /// \brief Load this box
+        ///
+        /// This will set up the vertices and create the buffers
+        ///
         /// \param size Size of the box
         ///
         /// \return True if successful
@@ -69,6 +80,15 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float size, const bool invert);
+
+        /// \brief Load this box
+        ///
+        /// \param (x,y,z) Size of the box as vector
+        /// \param invert The cube is inside-out?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float x, const float y, const float z, const bool invert);
 
         /// \brief Get the size
         ///
