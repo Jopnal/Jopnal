@@ -1,6 +1,6 @@
 # Decompressed external libraries
 extlibs/temp/
-extlibs/doxygen.stamp
 
 # Generated HTML documentation
 doc/html/
+doc/doxygen.stamp
