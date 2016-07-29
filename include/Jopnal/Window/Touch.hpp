@@ -39,11 +39,13 @@ namespace jop
         ///
         enum Info
         {
-            PRESSURE,               ///< Approximate pressure applied to the surface
-            SIZE,                   ///< Approximate size of the contact area
-            TOUCH_MAJOR,            ///< Major axis of an ellipse that represents the touch area at the point of contact
-            TOOL_MAJOR,             ///< Major axis of an ellipse that represents the size of the approaching touch
+            Pressure,   ///< Approximate pressure applied to the surface
+            Size,       ///< Approximate size of the contact area
+            TouchMajor, ///< Major axis of an ellipse that represents the touch area at the point of contact
+            ToolMajor   ///< Major axis of an ellipse that represents the size of the approaching touch
         };
+
+    public:
 
         /// \brief Is touch received
         ///
@@ -51,7 +53,7 @@ namespace jop
         ///
         /// \return True if touch is received false if not
         ///
-        static bool isDown(const int id=0);
+        static bool isDown(const int id = 0);
 
         /// \brief Get position of specific finger
         ///
@@ -59,13 +61,13 @@ namespace jop
         ///
         /// \return Position as glm vector 2
         ///
-        static glm::vec2 getPosition(const int id=0);
+        static glm::vec2 getPosition(const int id = 0);
     };
 }
 
 #endif
 
-/// \class Touch
+/// \class jop::Touch
 /// \ingroup window
 ///
 /// #TODO Detailed description

@@ -23,7 +23,7 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Android/WindowImpl.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
+
 #ifdef JOP_OS_ANDROID
 
 #ifndef JOP_PRECOMPILED_HEADER
@@ -35,14 +35,18 @@
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
+    #include <android/window.h>
     #include <jni.h>
     #include <EGL/eglext.h>
     #include <unordered_map>
-    #include<glm/vec2.hpp>
+    #include <glm/vec2.hpp>
 
 #endif
 
+#define JOP_AXIS_TOLERANCE 0.005
+
 //////////////////////////////////////////////
+
 
 namespace
 {
@@ -146,6 +150,54 @@ namespace
             eglCheck(eglTerminate(getDisplay()));
         }
     }
+
+    void goFullscreen()
+    {
+        auto state = jop::detail::ActivityState::get();
+        auto apiLevel = state->getAPILevel();
+
+        ANativeActivity_setWindowFlags(state->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
+
+        JNIEnv* env = jop::Thread::getCurrentJavaEnv();
+
+        jobject objectActivity = state->nativeActivity->clazz;
+        jclass classActivity = env->GetObjectClass(objectActivity);
+
+        jmethodID methodGetWindow = env->GetMethodID(classActivity, "getWindow", "()Landroid/view/Window;");
+        jobject objectWindow = env->CallObjectMethod(objectActivity, methodGetWindow);
+
+        jclass classWindow = env->FindClass("android/view/Window");
+        jmethodID methodGetDecorView = env->GetMethodID(classWindow, "getDecorView", "()Landroid/view/View;");
+        jobject objectDecorView = env->CallObjectMethod(objectWindow, methodGetDecorView);
+
+        jclass classView = env->FindClass("android/view/View");
+
+        jint flags = 0;
+
+        if (apiLevel >= 14)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_LOW_PROFILE", "I");
+            jint SYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_LOW_PROFILE);
+            flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
+        }
+
+        if (apiLevel >= 16)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_FULLSCREEN", "I");
+            jint SYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_FULLSCREEN);
+            flags |= SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        if (apiLevel >= 19)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY  = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I");
+            jint SYSTEM_UI_FLAG_IMMERSIVE_STICKY = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            flags |= SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        jmethodID methodsetSystemUiVisibility = env->GetMethodID(classView, "setSystemUiVisibility", "(I)V");
+        env->CallVoidMethod(objectDecorView, methodsetSystemUiVisibility, flags);
+    }
 }
 
 namespace jop { namespace detail
@@ -159,7 +211,6 @@ namespace jop { namespace detail
         initialize();
 
         auto state = detail::ActivityState::get();
-        std::lock_guard<std::mutex> lock(state->mutex);
 
         if (!state->window)
         {
@@ -192,9 +243,6 @@ namespace jop { namespace detail
             EGLint format;
             eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
 
-            ANativeWindow_setBuffersGeometry(state->nativeWindow, 0, 0, format);
-
-
             m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, surfaceAttribs));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
@@ -206,6 +254,9 @@ namespace jop { namespace detail
 
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+
+            if (settings.displayMode > Window::DisplayMode::Windowed)
+                goFullscreen();
 
             state->window = &windowPtr;
         }
@@ -249,7 +300,6 @@ namespace jop { namespace detail
 
         {
             auto state = detail::ActivityState::get();
-            std::lock_guard<std::mutex> lock(state->mutex);
 
             if (state->window == m_windowPtr)
                 state->window = nullptr;
@@ -291,10 +341,7 @@ namespace jop { namespace detail
 
     WindowHandle WindowImpl::getNativeHandle()
     {
-        auto state = ActivityState::get();
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        return state->nativeWindow;
+        return ActivityState::get()->nativeWindow;
     }
 
     //////////////////////////////////////////////
@@ -302,9 +349,9 @@ namespace jop { namespace detail
     void WindowImpl::pollEvents()
     {
         auto state = ActivityState::get();
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-        state->pollFunc();
+        if (state && state->focus)
+            state->pollFunc();
     }
 
     //////////////////////////////////////////////
@@ -348,6 +395,7 @@ namespace jop { namespace detail
     int32_t motion(AInputEvent* event)
     {
         Window* windowRef = &Engine::getCurrentWindow();
+
         if (windowRef != nullptr)
         {
             int32_t device = AInputEvent_getSource(event);
@@ -412,6 +460,10 @@ namespace jop { namespace detail
                                         ActivityState::get()->activeAxes[0]=x;
                                     else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
                                         ActivityState::get()->activeAxes[2]=x;
+                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                        ActivityState::get()->activeAxes[4]=x;
+                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                        ActivityState::get()->activeAxes[5]=x;
 
                                     windowRef->getEventHandler()->controllerAxisShifted(id,Input::getJopControllerAxis(ns_joystickAxes[axis]),x);
                                 }
@@ -629,19 +681,13 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void getUnicode(void* data, void* vm, void* env, void* args)
+    void getUnicode(void* data, void*, void*)
     {        
         auto event = static_cast<AInputEvent*>(data);
-        auto virtualMachine = static_cast<JavaVM*>(vm);
-        auto environment = static_cast<JNIEnv*>(env);
-        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
 
-        jint error;
+        JNIEnv* env = Thread::getCurrentJavaEnv();
+
         jint flags = 0;
-        error=virtualMachine->AttachCurrentThread(&environment, &vmArgs);
-
-        if (error == JNI_ERR)
-            JOP_DEBUG_ERROR("Failed to initialize java interface to read unicode");
 
         jlong downTime = AKeyEvent_getDownTime(event);
         jlong eventTime = AKeyEvent_getEventTime(event);
@@ -654,91 +700,19 @@ namespace jop { namespace detail
         flags = AKeyEvent_getFlags(event);
         jint source = AInputEvent_getSource(event);
 
-        jclass ClassKeyEvent = environment->FindClass("android/view/KeyEvent");
-        jmethodID KeyEventConstructor = environment->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
-        jobject ObjectKeyEvent = environment->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
+        jclass ClassKeyEvent = env->FindClass("android/view/KeyEvent");
+        jmethodID KeyEventConstructor = env->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
+        jobject ObjectKeyEvent = env->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
 
-        jmethodID MethodGetUnicode = environment->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
-        unsigned int utf = environment->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
+        jmethodID MethodGetUnicode = env->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
+        unsigned int utf = env->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
 
         Window* windowRef = &Engine::getCurrentWindow();
         if (windowRef != nullptr)
             windowRef->getEventHandler()->textEntered(utf);
 
-        environment->DeleteLocalRef(ClassKeyEvent);
-        environment->DeleteLocalRef(ObjectKeyEvent);
-        virtualMachine->DetachCurrentThread();
-    }
-
-    //////////////////////////////////////////////
-
-    void showVirtualKeyboard(const bool show, void* vm, void* env, void* clazz, void* args)
-    {
-        auto virtualMachine = static_cast<JavaVM*>(vm);
-        auto environment = static_cast<JNIEnv*>(env);
-        auto nativeActivity = *static_cast<jobject*>(clazz);
-        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
-
-        jint error;
-        jint flags = 0;
-        error = virtualMachine->AttachCurrentThread(&environment, &vmArgs);
-
-        if (error == JNI_ERR)
-            JOP_DEBUG_ERROR("Failed to initialize java interface to able opening virtual keyboard");
-
-        jclass classNativeActivity = environment->GetObjectClass(nativeActivity);
-        jclass ClassContext = environment->FindClass("android/content/Context");
-        jfieldID fieldInput = environment->GetStaticFieldID(ClassContext,
-            "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
-        jobject inputService = environment->GetStaticObjectField(ClassContext,
-            fieldInput);
-        environment->DeleteLocalRef(ClassContext);
-        jclass classInputManager =
-            environment->FindClass("android/view/inputmethod/InputMethodManager");
-        jmethodID systemService = environment->GetMethodID(classNativeActivity,
-            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-        jobject inputManager = environment->CallObjectMethod(nativeActivity,
-            systemService, inputService);
-        environment->DeleteLocalRef(inputService);
-
-        jmethodID javaWindow = environment->GetMethodID(classNativeActivity,
-            "getWindow", "()Landroid/view/Window;");
-        jobject javaWindowObject = environment->CallObjectMethod(nativeActivity, javaWindow);
-        jclass classWindow = environment->FindClass("android/view/Window");
-        jmethodID decorView = environment->GetMethodID(classWindow,
-            "getDecorView", "()Landroid/view/View;");
-        jobject decorViewObject = environment->CallObjectMethod(javaWindowObject, decorView);
-        environment->DeleteLocalRef(javaWindowObject);
-        environment->DeleteLocalRef(classWindow);
-
-        if (show)
-        {
-            jmethodID MethodShowSoftInput = environment->GetMethodID(classInputManager,
-                "showSoftInput", "(Landroid/view/View;I)Z");
-            jboolean result = environment->CallBooleanMethod(inputManager,
-                MethodShowSoftInput, decorViewObject, flags);
-        }
-        else
-        {
-            jclass classView = environment->FindClass("android/view/View");
-            jmethodID javaWindowToken = environment->GetMethodID(classView,
-                "getWindowToken", "()Landroid/os/IBinder;");
-            jobject binder = environment->CallObjectMethod(decorViewObject,
-                javaWindowToken);
-            environment->DeleteLocalRef(classView);
-
-
-            jmethodID MethodHideSoftInput = environment->GetMethodID(classInputManager,
-                "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
-            jboolean res = environment->CallBooleanMethod(inputManager,
-                MethodHideSoftInput, binder, flags);
-            environment->DeleteLocalRef(binder);
-        }
-
-        environment->DeleteLocalRef(classNativeActivity);
-        environment->DeleteLocalRef(classInputManager);
-        environment->DeleteLocalRef(decorViewObject);
-        virtualMachine->DetachCurrentThread();
+        env->DeleteLocalRef(ClassKeyEvent);
+        env->DeleteLocalRef(ObjectKeyEvent);
     }
 }}
 

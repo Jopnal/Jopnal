@@ -37,7 +37,7 @@
 
 namespace jop
 {
-    class SensorManager
+    class JOP_API SensorManager
     {
     public:
         

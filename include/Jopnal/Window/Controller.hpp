@@ -105,6 +105,8 @@ namespace jop
             };
         };
 
+    public:
+
         /// \brief Check how many controllers are connected
         ///
         /// \return Number of controllers
@@ -129,13 +131,7 @@ namespace jop
         ///
         /// \return glm::vec2
         ///
-        static glm::vec2 leftStickOffset(const int index);
-
-        /// \brief Get Vector of right stick's offset
-        ///
-        /// \return glm::vec2
-        ///
-        static glm::vec2 rightStickOffset(const int index);
+        static float getAxisOffset(const int index);
     };
 }
 

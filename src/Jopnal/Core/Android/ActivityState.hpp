@@ -49,21 +49,24 @@ namespace jop { namespace detail
 
         static ActivityState* get();
 
-        static void reset();      
+        static void reset();
+
+        static unsigned int getAPILevel();
 
 
         ANativeActivity* nativeActivity;
         ANativeWindow* nativeWindow;
 
         void (*pollFunc)();
-        void (*showVirtualKeyboard)(bool show);
 
         Window* window;
         glm::uvec2 screenSize;
+        glm::uvec2 windowSize;
 
         glm::vec2 lastTouchPosition[10];
         int activeKey; 
         float activeAxes[4]; 
+        bool focus;
     };
 }}
 

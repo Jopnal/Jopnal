@@ -26,10 +26,13 @@
 
     #include <Jopnal/Window/Controller.hpp>
 
-    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #ifdef JOP_OS_ANDROID
+        #include <Jopnal/Core/Android/ActivityState.hpp>
+    #endif
+
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/Engine.hpp>
-    #include <Jopnal/Window/InputEnumsImpl.hpp>
+    #include<Jopnal/Window/InputEnumsImpl.hpp>
 
     #ifdef JOP_OS_DESKTOP
         #include <GLFW/glfw3.h>
@@ -42,145 +45,147 @@
 
 namespace
 {
-    int ns_maxControllers = 0;
-    float ns_deadzone = 0.f;
-    unsigned int ns_counter = 0;
+	jop::Window* ns_windowRef = nullptr;
 
-    jop::Window* ns_windowRef = nullptr;
+	bool validateWindowRef()
+	{
+		if (!ns_windowRef)
+			ns_windowRef = &jop::Engine::getCurrentWindow();
 
-    bool validateWindowRef()
-    {
-        if (!ns_windowRef)
-            ns_windowRef = &jop::Engine::getCurrentWindow();
-
-        return ns_windowRef != nullptr;
-    }
+		return ns_windowRef != nullptr;
+	}
 }
 
 namespace jop
 {
-    int Controller::controllersPresent()
-    {
-    #ifdef JOP_OS_DESKTOP
-
+	int Controller::controllersPresent()
+	{
         if (validateWindowRef())
         {
+        #ifdef JOP_OS_DESKTOP
+
+            const int max = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
+
             int count = 0;
-
-            ns_maxControllers = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
-            ns_deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
-            ns_counter = 99;
-
-            for (int i = 0; i < ns_maxControllers; ++i)
+            for (int i = 0; i < max; ++i)
             {
                 if (glfwJoystickPresent(i) == GL_TRUE)
                     count += 1;
             }
 
             return count;
+
+        #endif
         }
 
-    #endif
+		return 0;;
+	}
 
-        return 0;
-    }
+	//////////////////////////////////////////////
 
-    //////////////////////////////////////////////
+	bool Controller::isControllerPresent(const int index)
+	{
+		if (validateWindowRef())
+		{
+        #ifdef JOP_OS_DESKTOP
+			return glfwJoystickPresent(index) == GL_TRUE;
+        #endif
+		}
 
-    bool Controller::isControllerPresent(const int index)
-    {
-    #ifdef JOP_OS_DESKTOP
+		return false;
+	}
 
-        return glfwJoystickPresent(index) == GL_TRUE;
+	//////////////////////////////////////////////
 
-    #else
+	bool Controller::isButtonDown(const int index, const int button)
+	{
+		if (validateWindowRef())
+		{
+        #if defined(JOP_OS_DESKTOP)
 
-        index;
-        return false;
+			int count = 0;
+			const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
 
-    #endif
-    }
+			if (button < count)
+				return buttons[button] == GLFW_PRESS;
 
-    //////////////////////////////////////////////
+        #elif defined(JOP_OS_ANDROID)
 
-    bool Controller::isButtonDown(const int index, const int button)
+            return detail::ActivityState::get()->activeKey == button;
+
+        #endif
+		}
+
+		return false;
+	}
+
+	//////////////////////////////////////////////
+
+    float Controller::getAxisOffset(const int index)
     {
         if (validateWindowRef())
         {
         #if defined(JOP_OS_DESKTOP)
 
             int count = 0;
-            const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
+            const float* axes = glfwGetJoystickAxes(index, &count);
 
-            if (button < count)
-                return buttons[button] == GLFW_PRESS;
+            switch (index)
+            {
+                case XBox::Axis::LeftStickX:
+                    return axes[0];
+
+                case XBox::Axis::LeftStickY:
+                    return axes[1];
+
+                case XBox::Axis::RightStickX:
+                    return axes[2];
+
+                case XBox::Axis::RightStickY:
+                    return axes[3];
+
+                case XBox::Axis::LTrigger:
+                {
+                    if (count >= 6)
+                        return ((axes[4] + 1.f) / 2.f);
+
+                    break;
+                }
+                case XBox::Axis::RTrigger:
+                {
+                    if (count >= 6)
+                        return ((axes[5] + 1.f) / 2.f);
+                }
+            }
 
         #elif defined(JOP_OS_ANDROID)
 
             auto state = detail::ActivityState::get();
 
-            const bool result = state->activeKey == button;
-            state->activeKey=-1;
+            switch (index)
+            {
+                case XBox::Axis::LeftStickX:
+                    return state->activeAxes[0];
 
-            return result;
+                case XBox::Axis::LeftStickY:
+                    return state->activeAxes[1];
 
-        #endif
-        }
-        
-        return false;
-    }
+                case XBox::Axis::RightStickX:
+                    return state->activeAxes[2];
 
-    //////////////////////////////////////////////
+                case XBox::Axis::RightStickY:
+                    return state->activeAxes[3];
 
-    glm::vec2 Controller::leftStickOffset(const int index)
-    {
-        if (validateWindowRef())
-        {
-        #if defined(JOP_OS_DESKTOP)
+                case XBox::Axis::LTrigger:
+                    return state->activeAxes[4];
 
-            int count = 0;
-            const float* axes = glfwGetJoystickAxes(index, &count);
-            if (count == 4)
-                return glm::vec2(axes[0], axes[1]);
-
-        #elif defined(JOP_OS_ANDROID)
-
-            glm::vec2 result={detail::ActivityState::get()->activeAxes[0],detail::ActivityState::get()->activeAxes[1]};
-            detail::ActivityState::get()->activeAxes[0]=0.f;
-            detail::ActivityState::get()->activeAxes[1]=0.f;
-
-            return result;
+                case XBox::Axis::RTrigger:
+                    return state->activeAxes[2];
+            }
 
         #endif
         }
 
-        return glm::vec2(0,0);
+        return 0.f;
     }
-
-    //////////////////////////////////////////////
-
-    glm::vec2 Controller::rightStickOffset(const int index)
-    {
-        if (validateWindowRef())
-        {
-        #if defined(JOP_OS_DESKTOP)
-
-            int count = 0;
-            const float* axes = glfwGetJoystickAxes(index, &count);
-            if (count == 4)
-                return glm::vec2(axes[2], axes[3]);
-
-        #elif defined(JOP_OS_ANDROID)
-
-            using namespace Input;
-            glm::vec2 result={detail::ActivityState::get()->activeAxes[2],detail::ActivityState::get()->activeAxes[3]};
-            detail::ActivityState::get()->activeAxes[2]=0.f;
-            detail::ActivityState::get()->activeAxes[3]=0.f;
-
-            return result;
-        #endif
-        }
-        return glm::vec2(0,0);
-    }
-
 }
