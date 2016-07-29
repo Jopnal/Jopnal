@@ -49,18 +49,25 @@ namespace jop
 
     bool RectangleMesh::load(const float size)
     {
-        m_size = size;
-        const float half = 0.5f * size;
+        return load(size, size);
+    }
+
+    //////////////////////////////////////////////
+
+    bool RectangleMesh::load(const float x, const float y)
+    {
+        m_size = (x+y)/2.f;
+        const float half[2] = { 0.5f * x, 0.5f * y};
 
         const std::vector<Vertex> vertexarray
-        ({
-            Vertex(glm::vec3(-half, -half, 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 0, Left, Bottom, Front   
-            Vertex(glm::vec3( half, -half, 0.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 1, Right, Bottom, Front  
-            Vertex(glm::vec3( half,  half, 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)), // 2, Left, Top, Front      
-            Vertex(glm::vec3(-half,  half, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)), // 3, Right, Top, Front     
+            ({
+            Vertex(glm::vec3(-half[0], -half[1], 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 0, Left, Bottom, Front   
+            Vertex(glm::vec3( half[0], -half[1], 0.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)), // 1, Right, Bottom, Front  
+            Vertex(glm::vec3( half[0],  half[1], 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)), // 2, Left, Top, Front      
+            Vertex(glm::vec3(-half[0],  half[1], 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)), // 3, Right, Top, Front     
         });
         static const std::vector<unsigned int> indices
-        ({
+            ({
             0, 1, 2,
             2, 3, 0,
         });

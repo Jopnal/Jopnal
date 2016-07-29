@@ -61,6 +61,15 @@ namespace jop
         ///
         bool load(const float size);
 
+        /// \brief Load this rectangle
+        ///
+        /// This will set up the vertices and create the buffers.
+        ///
+        /// \param (x,y) Size as vector
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float x, const float y);
 
         /// \brief Get the size
         ///
