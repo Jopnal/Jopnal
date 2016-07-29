@@ -39,7 +39,7 @@ namespace jop
     CylinderMesh::CylinderMesh(const std::string& name)
         : Mesh(name),
         m_radius(0.f),
-        m_sectors(0.f),
+        m_sectors(0),
         m_height(0.f),
 		m_dividedTexCoords(false)
     {}
@@ -47,7 +47,7 @@ namespace jop
     CylinderMesh::CylinderMesh(const CylinderMesh& other, const std::string& newName)
         : Mesh(newName),
         m_radius(0.f),
-        m_sectors(0.f),
+        m_sectors(0),
         m_height(0.f),
 		m_dividedTexCoords(false)
     {

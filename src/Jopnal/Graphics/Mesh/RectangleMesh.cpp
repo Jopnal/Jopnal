@@ -49,15 +49,15 @@ namespace jop
 
     bool RectangleMesh::load(const float size)
     {
-        return load(size, size);
+        return load(glm::vec2(size, size));
     }
 
     //////////////////////////////////////////////
 
-    bool RectangleMesh::load(const float x, const float y)
+    bool RectangleMesh::load(glm::vec2 size)
     {
-        m_size = (x+y)/2.f;
-        const float half[2] = { 0.5f * x, 0.5f * y};
+        m_size = (size.x + size.y) / 2.f;
+        const float half[2] = { 0.5f * size.x, 0.5f * size.y };
 
         const std::vector<Vertex> vertexarray
             ({

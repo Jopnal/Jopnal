@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
@@ -65,11 +66,11 @@ namespace jop
         ///
         /// This will set up the vertices and create the buffers.
         ///
-        /// \param (x,y) Size as vector
+        /// \param size Size as vector
         ///
         /// \return True if successful
         ///
-        bool load(const float x, const float y);
+        bool load(glm::vec2 size);
 
         /// \brief Get the size
         ///

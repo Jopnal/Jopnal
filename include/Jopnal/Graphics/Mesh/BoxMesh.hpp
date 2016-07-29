@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -55,11 +56,11 @@ namespace jop
         ///
         /// This will set up the vertices and create the buffers
         ///
-        /// \param (x,y,z) Size of the box as vector
+        /// \param size Size of the box as vector
         ///
         /// \return True if successful
         ///
-        bool load(const float x, const float y, const float z);
+        bool load(const glm::vec3 size);
 
 
         /// \brief Load this box
@@ -83,12 +84,12 @@ namespace jop
 
         /// \brief Load this box
         ///
-        /// \param (x,y,z) Size of the box as vector
+        /// \param size Size of the box as vector
         /// \param invert The cube is inside-out?
         ///
         /// \return True if successful
         ///
-        bool load(const float x, const float y, const float z, const bool invert);
+        bool load(const glm::vec3 size, const bool invert);
 
         /// \brief Get the size
         ///

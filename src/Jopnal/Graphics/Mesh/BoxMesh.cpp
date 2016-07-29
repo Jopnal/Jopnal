@@ -56,26 +56,26 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool BoxMesh::load(const float x, const float y, const float z)
+    bool BoxMesh::load(const glm::vec3 size)
     {
-        return load(x, y, z, false);
+        return load(size, false);
     }
 
     //////////////////////////////////////////////
 
     bool BoxMesh::load(const float size, const bool invert)
     {
-        return load(size, size, size, invert);
+        return load(glm::vec3(size, size, size), invert);
     }
 
     //////////////////////////////////////////////
 
-    bool BoxMesh::load(const float x, const float y, const float z, const bool invert)
+    bool BoxMesh::load(const glm::vec3 size, const bool invert)
     {
-        m_size = (x+y+z)/3.f;
+        m_size = (size.x + size.y + size.z)/3.f;
         m_inverted = invert;
 
-        const float half[3] = { (invert ? -0.5f : 0.5f) * x, (invert ? -0.5f : 0.5f) * y, (invert ? -0.5f : 0.5f) * z };
+        const float half[3] = { (invert ? -0.5f : 0.5f) * size.x, (invert ? -0.5f : 0.5f) * size.y, (invert ? -0.5f : 0.5f) * size.z };
         const float norm = 1.f;
 
         const std::vector<Vertex> vertices
