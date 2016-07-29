@@ -111,10 +111,10 @@ namespace jop
             ///
             enum
             {
-                Shift = 1,
+                Shift   = 1,
                 Control = 1 << 1,
-                Alt = 1 << 2,
-                Super = 1 << 3
+                Alt     = 1 << 2,
+                Super   = 1 << 3
             };
         };
 
@@ -124,15 +124,15 @@ namespace jop
         ///
         /// \return String with the name
         ///
-		static std::string getKeyName(const int scanCode);
+        static std::string getKeyName(const int scanCode);
 
-		/// \brief Get boolean is key down
-		///
-		/// \param Keycode
-		///
-		/// \return True if down
-		///
-		static bool isKeyDown(const Key key);
+        /// \brief Get boolean is key down
+        ///
+        /// \param Keycode
+        ///
+        /// \return True if down
+        ///
+        static bool isKeyDown(const Key key);
 
         /// \brief Shows or hides virtual keyboard. Currently only for android
         ///

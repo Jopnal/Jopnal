@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup graphics Graphics
+///
+/// #TODO Detailed decription
+
 // Headers
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
@@ -62,9 +66,3 @@
 #include <Jopnal/Graphics/Texture/TextureAtlas.hpp>
 #include <Jopnal/Graphics/AnimatedSprite.hpp>
 #include <Jopnal/Graphics/AnimationAtlas.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription

@@ -32,7 +32,7 @@
 
 namespace jop
 {
-	class JOP_API Mouse
+    class JOP_API Mouse
     {
     public:
 
@@ -60,18 +60,20 @@ namespace jop
             Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
         };
 
-		/// \brief Get boolean is button down
-		///
-		/// \param Button's code
-		///
-		/// \return True if down
-		///
-		static bool isButtonDown(Button button);
+    public:
 
-		/// \brief Get mouse position
-		///
-		/// \return Glm vector of mouse position
-		///
+        /// \brief Get boolean is button down
+        ///
+        /// \param Button's code
+        ///
+        /// \return True if down
+        ///
+        static bool isButtonDown(const Button button);
+
+        /// \brief Get mouse position
+        ///
+        /// \return Glm vector of mouse position
+        ///
         static glm::vec2 getPosition();
 
         /// \brief Sets mouse mode
@@ -80,7 +82,7 @@ namespace jop
         ///
         /// \param mode Enum mouse mode.
         ///
-        void setMouseMode(const Mode mode);
+        static void setMouseMode(const Mode mode);
 
         /// \brief Restricts mouse into user defined retangle shaped area inside window
         ///
@@ -116,7 +118,7 @@ namespace jop
         ///
         /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
         ///
-        static glm::ivec4 getClipping();
+        static const glm::ivec4& getClipping();
 
         /// \brief Does mouse have movement restrictions
         ///

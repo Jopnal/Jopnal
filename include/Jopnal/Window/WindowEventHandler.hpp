@@ -33,7 +33,7 @@
 namespace jop
 {
     class Window;
-	class Controller;
+    class Controller;
 
     class JOP_API WindowEventHandler
     {
@@ -159,14 +159,14 @@ namespace jop
         ///
         virtual void mouseEntered();
 
-		/// \brief Mouse scrolled callback
-		///
-		/// This will be called when the mouse wheel is scrolled.
-		///
-		/// \param x The vertical offset
-		/// \param y The horizontal offset
-		///
-	    virtual	void mouseScrolled(const float x, const float y);
+        /// \brief Mouse scrolled callback
+        ///
+        /// This will be called when the mouse wheel is scrolled.
+        ///
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
+        ///
+        virtual    void mouseScrolled(const float x, const float y);
 
         /// \brief Controller connected callback
         ///
@@ -213,7 +213,7 @@ namespace jop
         /// \param x The vertical position
         /// \param y The horizontal position
         ///
-        virtual void touchEvent(const int touchId, const float x, const float y);
+        virtual void touchPressed(const int touchId, const float x, const float y);
 
         /// \brief Touch event callback
         ///
@@ -235,15 +235,15 @@ namespace jop
         ///
         virtual void touchMoved(const int touchId, const float x, const float y);
 
-		/// \brief Touch event callback
-		///
-		/// This will be called when touch isn't stationary.
-		///
-		/// \param touchId Id for finger in case of multiple touches
-		/// \param x The vertical offset
-		/// \param y The horizontal offset
-		///
-		virtual void touchMovedAbsolute(const int touchId, const float x, const float y);
+        /// \brief Touch event callback
+        ///
+        /// This will be called when touch isn't stationary.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
+        ///
+        virtual void touchMovedAbsolute(const int touchId, const float x, const float y);
 
         /// \brief Information about touch event callback.
         ///
@@ -270,16 +270,18 @@ namespace jop
 
     protected:
 
-        Window& m_windowRef;                                    ///< Reference to the window
+        Window& m_windowRef;    ///< Reference to the window
 
     public:
         
-        float m_lastMouseX;                                     ///< For internal use. Do not touch
-        float m_lastMouseY;                                     ///< For internal use. Do not touch
+        float m_lastMouseX;     ///< For internal use. Do not touch
+        float m_lastMouseY;     ///< For internal use. Do not touch
     };
 }
 
 #endif
 
-/// \class WindowEventHandler
+/// \class jop::WindowEventHandler
 /// \ingroup window
+///
+///

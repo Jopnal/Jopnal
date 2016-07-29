@@ -20,8 +20,14 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Window/SensorManager.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/SensorManager.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -34,7 +40,7 @@ namespace jop
         SensorImpl::init();
 
         // Check which sensors are available and take them to use
-        for (size_t i = 0; i < Sensor::Count; ++i)
+        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
             m_sensors[i].use(static_cast<Sensor::Type>(i));
 
         // Disable all after they are in memory
@@ -50,7 +56,7 @@ namespace jop
 
     bool SensorManager::isAvailable(const Sensor::Type sensorType) const
     {
-        return m_sensors[sensorType].available(sensorType);
+        return m_sensors[static_cast<size_t>(sensorType)].available(sensorType);
     }
 
     //////////////////////////////////////////////
@@ -64,21 +70,21 @@ namespace jop
 
     void SensorManager::enable(const Sensor::Type sensorType)
     {
-        m_sensors[sensorType].enable();
+        m_sensors[static_cast<size_t>(sensorType)].enable();
     }
 
     //////////////////////////////////////////////
 
     void SensorManager::disable(const Sensor::Type sensorType)
     {
-        m_sensors[sensorType].disable();
+        m_sensors[static_cast<size_t>(sensorType)].disable();
     }
 
     //////////////////////////////////////////////
 
     void SensorManager::disableAll()
     {
-        for (size_t i = 0; i < Sensor::Count; ++i)
+        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
             disable(static_cast<Sensor::Type>(i));
     }
 
@@ -86,21 +92,21 @@ namespace jop
 
     bool SensorManager::getStatus(const Sensor::Type sensorType) const
     {
-        return m_sensors[sensorType].getStatus();
+        return m_sensors[static_cast<size_t>(sensorType)].getStatus();
     }
 
     //////////////////////////////////////////////
 
     glm::vec3 SensorManager::getData(const Sensor::Type sensorType) const
     {
-        return m_sensors[sensorType].getData(sensorType);
+        return m_sensors[static_cast<size_t>(sensorType)].getData(sensorType);
     }
 
     //////////////////////////////////////////////
 
     void SensorManager::lostFocus()
     {
-        for (size_t i = 0; i < Sensor::Count; ++i)
+        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
         {
             if (m_sensors[i].getStatus())
                 m_sensors[i].disable(false);
@@ -111,7 +117,7 @@ namespace jop
 
     void SensorManager::gainedFocus()
     {
-        for (size_t i = 0; i < Sensor::Count; ++i)
+        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
         {
             if (m_sensors[i].getStatus())
                 m_sensors[i].enable(false);

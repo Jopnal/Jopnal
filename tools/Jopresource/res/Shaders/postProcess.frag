@@ -17,7 +17,7 @@ uniform sampler2D u_DitherMatrix;
 uniform float u_Gamma;
 
 #ifdef JPP_BLOOM
-	uniform sampler2D u_Bloom[JPP_BLOOM_TEXTURES];
+    uniform sampler2D u_Bloom[JPP_BLOOM_TEXTURES];
 #endif
 
 JOP_COLOR_OUT(0)
@@ -28,8 +28,8 @@ void main()
 
     #ifdef JPP_BLOOM
 
-		for (int i = 0; i < int(u_Bloom.length()); ++i)
-			tempColor += (JOP_TEXTURE_2D(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
+        for (int i = 0; i < int(u_Bloom.length()); ++i)
+            tempColor += (JOP_TEXTURE_2D(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
 
     #endif
 
@@ -46,12 +46,12 @@ void main()
         tempColor += vec4(JOP_TEXTURE_2D(u_DitherMatrix, gl_FragCoord.xy / 8.0).r / 64.0 - (1.0 / 128.0));
     #endif
 
-	JOP_FRAG_COLOR(0) =
+    JOP_FRAG_COLOR(0) =
 
     #ifdef JPP_GAMMACORRECTION
         vec4(pow(tempColor.rgb, vec3(1.0 / u_Gamma)), 1.0)
     #else
         tempColor
     #endif
-	;
+    ;
 }

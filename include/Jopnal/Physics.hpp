@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup physics Physics
+///
+/// #TODO Detailed decription
+
 // Headers
 #include <Jopnal/Physics/Collider.hpp>
 #include <Jopnal/Physics/PhantomBody.hpp>
@@ -38,9 +42,3 @@
 #include <Jopnal/Physics/Shape/TerrainShape.hpp>
 #include <Jopnal/Physics/World.hpp>
 #include <Jopnal/Physics/ContactListener.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription

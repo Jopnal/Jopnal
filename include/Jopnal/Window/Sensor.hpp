@@ -35,7 +35,7 @@ namespace jop
     {
     public:
 
-        enum Type
+        enum class Type
         {
             Accelerometer,      ///< Measures the raw acceleration (meter/second^2)
             Gyroscope,          ///< Measures the raw rotation rates (degrees/second)
@@ -51,7 +51,7 @@ namespace jop
 
         /// \brief Use this sensor
         ///
-        /// \return Return true if successfully taken in to use, false if not
+        /// \return True if successfully taken in to use, false if not
         ///
         static bool use(const Type sensorType);
 
@@ -67,11 +67,17 @@ namespace jop
         ///
         static glm::vec3 getData(const Type sensorType);
 
-        /// \brief Get sensor status (True = enabled, False = disabled)
+        /// \brief Get sensor status
+        ///
+        /// \return True if enabled
         ///
         static bool getStatus(const Type sensorType);
-
     };
 }
 
 #endif
+
+/// \class jop::Sensor
+/// \ingroup window
+///
+///

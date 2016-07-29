@@ -42,5 +42,5 @@ void main()
         }
     }
 
-	JOP_FRAG_COLOR(0) = vec4(tempColor, 1.0);
+    JOP_FRAG_COLOR(0) = vec4(tempColor, 1.0);
 }

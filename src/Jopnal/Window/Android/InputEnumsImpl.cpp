@@ -31,7 +31,7 @@
 //////////////////////////////////////////////
 namespace jop
 {
-    namespace input
+    namespace Input
     {
         int getJopKey(const int key)
         {

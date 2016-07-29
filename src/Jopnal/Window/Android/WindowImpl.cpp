@@ -371,7 +371,7 @@ namespace jop { namespace detail
                         {
                             float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],p);
                             if(i>JOP_AXIS_TOLERANCE)
-                            windowRef->getEventHandler()->touchInfo(id,input::getJopTouchInfo(ns_touchAxes[info]) , i);
+                            windowRef->getEventHandler()->touchInfo(id,Input::getJopTouchInfo(ns_touchAxes[info]) , i);
                         }
                     }
                     else if (device & AINPUT_SOURCE_MOUSE)
@@ -392,7 +392,7 @@ namespace jop { namespace detail
                                         x=1;
                                     else
                                         x=-1;
-                                    int jopKey=input::getJopControllerButton(x*ns_joystickAxes[axis]);
+                                    int jopKey=Input::getJopControllerButton(x*ns_joystickAxes[axis]);
                                     ActivityState::get()->activeKey=jopKey;
                                     windowRef->getEventHandler()->controllerButtonPressed(id,jopKey);
                                 }
@@ -404,7 +404,7 @@ namespace jop { namespace detail
                                     else
                                         ActivityState::get()->activeAxes[3]=x;
 
-                                    windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
+                                    windowRef->getEventHandler()->controllerAxisShifted(id,Input::getJopControllerAxis(ns_joystickAxes[axis]),x);
                                 }
                                 else
                                 {
@@ -413,7 +413,7 @@ namespace jop { namespace detail
                                     else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
                                         ActivityState::get()->activeAxes[2]=x;
 
-                                    windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
+                                    windowRef->getEventHandler()->controllerAxisShifted(id,Input::getJopControllerAxis(ns_joystickAxes[axis]),x);
                                 }
                             }
                             else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
@@ -486,7 +486,7 @@ namespace jop { namespace detail
                     if (down)
                     {
                         ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
-                        windowRef->getEventHandler()->touchEvent(id, x, y);
+                        windowRef->getEventHandler()->touchPressed(id, x, y);
                     }
                     else
                     {
@@ -498,7 +498,7 @@ namespace jop { namespace detail
                     {
                         float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],index);
                         if(i>JOP_AXIS_TOLERANCE)
-                            windowRef->getEventHandler()->touchInfo(id,input::getJopTouchInfo(ns_touchAxes[info]) , i);
+                            windowRef->getEventHandler()->touchInfo(id,Input::getJopTouchInfo(ns_touchAxes[info]) , i);
                     }
 
                     return 1;
@@ -516,7 +516,7 @@ namespace jop { namespace detail
 
         int32_t metakey = AKeyEvent_getMetaState(event);
         int32_t key = AKeyEvent_getKeyCode(event);
-        int jopKey = input::getJopKey(key);
+        int jopKey = Input::getJopKey(key);
 
         int mod = 0x0000;
         if (metakey & AMETA_ALT_ON)
@@ -540,7 +540,7 @@ namespace jop { namespace detail
                     }
                     else
                     {
-                        jopKey = input::getJopControllerButton(key);
+                        jopKey = Input::getJopControllerButton(key);
                         ActivityState::get()->activeKey=jopKey;
                         windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
                     }
@@ -557,7 +557,7 @@ namespace jop { namespace detail
                windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
                else
                {
-                 jopKey = input::getJopControllerButton(key);
+                 jopKey = Input::getJopControllerButton(key);
                  windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
                } 
 
@@ -577,7 +577,7 @@ namespace jop { namespace detail
                 } 
                 else
                 {
-                    jopKey = input::getJopControllerButton(key);
+                    jopKey = Input::getJopControllerButton(key);
                     windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
                     windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
                 }

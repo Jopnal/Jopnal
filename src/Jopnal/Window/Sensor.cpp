@@ -25,6 +25,7 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/Sensor.hpp>
+
     #include <Jopnal/Window/SensorManager.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
 
@@ -43,7 +44,8 @@ namespace jop
             return true;
         }
 
-        JOP_DEBUG_ERROR("Sensor with type ID(" << sensorType << ")is not available for use!");
+        JOP_DEBUG_ERROR("Sensor with type ID (" << static_cast<size_t>(sensorType) << ") is not available for use!");
+
         return false;
     }
 

@@ -69,7 +69,7 @@ set(__SRC_WINDOW_ANDROID
     ${__SRCDIR_WINDOW}/Android/SensorImpl.cpp
     ${__SRCDIR_WINDOW}/Android/InputEnumsImpl.cpp
     ${__SRCDIR_WINDOW}/Android/SensorImpl.hpp
-	${__SRCDIR_WINDOW}/Android/VideoInfoImpl.cpp
+    ${__SRCDIR_WINDOW}/Android/VideoInfoImpl.cpp
     ${__SRCDIR_WINDOW}/Android/VideoInfoImpl.hpp
     ${__SRCDIR_WINDOW}/Android/WindowImpl.cpp
     ${__SRCDIR_WINDOW}/Android/WindowImpl.hpp

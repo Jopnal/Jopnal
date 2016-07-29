@@ -39,7 +39,11 @@ namespace jop { namespace detail
 {
     struct JOP_API ActivityState
     {
-        ActivityState() = default;
+    private:
+
+        ActivityState();
+
+    public:
 
         static ActivityState* create(ANativeActivity* activity);
 
@@ -48,20 +52,18 @@ namespace jop { namespace detail
         static void reset();      
 
 
-        std::mutex mutex;
-
         ANativeActivity* nativeActivity;
         ANativeWindow* nativeWindow;
 
-        void(*pollFunc)();
-        void(*showVirtualKeyboard)(bool show);
+        void (*pollFunc)();
+        void (*showVirtualKeyboard)(bool show);
 
         Window* window;
         glm::uvec2 screenSize;
 
-        glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
-        int activeKey=-1; 
-        float activeAxes[4]={0.f,0.f,0.f,0.f}; 
+        glm::vec2 lastTouchPosition[10];
+        int activeKey; 
+        float activeAxes[4]; 
     };
 }}
 

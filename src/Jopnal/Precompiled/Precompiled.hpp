@@ -121,5 +121,6 @@
 #include <Jopnal/Audio/AlTry.hpp>
 #include <Jopnal/Audio/AudioReader.hpp>
 #include <Jopnal/Window/SensorManager.hpp>
+#include <Jopnal/Window/InputEnumsImpl.hpp>
 
 #endif

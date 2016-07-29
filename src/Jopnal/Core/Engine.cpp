@@ -332,15 +332,15 @@ namespace jop
         return *m_engineObject->m_currentScene;
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	Window& Engine::getCurrentWindow()
-	{
-		std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+    Window& Engine::getCurrentWindow()
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
-		JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
-		return *m_engineObject->m_mainWindow;
-	}
+        JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
+        return *m_engineObject->m_mainWindow;
+    }
 
     //////////////////////////////////////////////
 
@@ -473,18 +473,18 @@ namespace jop
         return false;
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool Engine::hasCurrentWindow()
-	{
-		if (m_engineObject)
-		{
-			std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-			return m_engineObject->m_mainWindow!=nullptr;
-		}
+    bool Engine::hasCurrentWindow()
+    {
+        if (m_engineObject)
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+            return m_engineObject->m_mainWindow!=nullptr;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     //////////////////////////////////////////////
 

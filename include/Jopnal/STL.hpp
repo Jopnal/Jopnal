@@ -24,21 +24,23 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
+#ifdef JOP_OS_ANDROID
+
 #include <memory>
+
+//////////////////////////////////////////////
 
 
 namespace std
 {
-#ifdef JOP_OS_ANDROID
-
     // Android STL doesn't have make_unique, so implement it here
     template<typename T, typename ... Args>
     inline unique_ptr<T> make_unique(Args&&... args)
     {
         return unique_ptr<T>(new T(forward<Args>(args)...));
     }
-
-#endif
 }
 
+#endif
 #endif

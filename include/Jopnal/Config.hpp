@@ -26,7 +26,9 @@
 
 // This file contains the configuration options for the engine compilation
 
-// CMake sets this for the engine. Redefine it here in case the user wants to use the debug functionality
+// CMake sets this for the engine. Redefine this for your application
+// to set the console verbosity.
+//
 #ifndef JOP_CONSOLE_VERBOSITY
     #define JOP_CONSOLE_VERBOSITY 3
 #endif

@@ -289,7 +289,7 @@ uniform float u_AlphaMult;
             vec3 fragToLight = vgf_FragPosition - l.position;
 
             // Test for shadows with PCF
-		#if !defined(GL_ES) || __VERSION__ >= 300
+        #if !defined(GL_ES) || __VERSION__ >= 300
 
             // Get current linear depth as the length between the fragment and light position
             float currentDepth = length(fragToLight);
@@ -314,20 +314,20 @@ uniform float u_AlphaMult;
             }
             shadow /= float(samples);
 
-		#else
+        #else
 
-			float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], fragToLight).r;
+            float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], fragToLight).r;
 
             closestDepth *= l.farPlane;
 
-			float currentDepth = length(fragToLight);
+            float currentDepth = length(fragToLight);
 
-			const float bias = 0.05;
+            const float bias = 0.05;
 
-			float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+            float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
-		#endif
-		
+        #endif
+        
             return (ambient + (1.0 - shadow) * (diffuse + specular));
         }
 
@@ -352,7 +352,7 @@ uniform float u_AlphaMult;
             shadow = 0.0;
 
         // Do percentage-closer filtering
-	#if !defined(GL_ES) || __VERSION__ >= 300
+    #if !defined(GL_ES) || __VERSION__ >= 300
 
         else
         {
@@ -368,7 +368,7 @@ uniform float u_AlphaMult;
             shadow /= 9.0;
         }
 
-	#endif
+    #endif
 
         return shadow;
     }

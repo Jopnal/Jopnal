@@ -28,17 +28,6 @@
 //////////////////////////////////////////////
 
 
-#ifdef JOP_OS_DESKTOP
-    
-    struct GLFWwindow;
-    typedef GLFWwindow* WindowLibHandle;
-
-#else
-
-    typedef void* WindowLibHandle;
-
-#endif
-
 #ifdef JOP_OS_WINDOWS
 
     struct HWND__;
@@ -54,6 +43,17 @@
     {
         typedef void* WindowHandle;
     }
+
+#endif
+
+#ifdef JOP_OS_DESKTOP
+
+    struct GLFWwindow;
+    typedef GLFWwindow* WindowLibHandle;
+
+#else
+
+    typedef WindowHandle WindowLibHandle;
 
 #endif
 
