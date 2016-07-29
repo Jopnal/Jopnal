@@ -412,6 +412,11 @@ namespace jop { namespace detail
                                 ActivityState::get()->activeAxes[2]=0.f;
                             else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
                                 ActivityState::get()->activeAxes[3]=0.f;
+                            else if(ActivityState::get()->activeController==0)
+                            {
+                                windowRef->getEventHandler()->controllerConnected(1, "Android_Controller");
+                                ActivityState::get()->activeController==1;
+                            }
                         }
 
                     }

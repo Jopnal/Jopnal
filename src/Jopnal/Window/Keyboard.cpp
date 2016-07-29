@@ -76,9 +76,7 @@ namespace jop
          #if defined(JOP_OS_DESKTOP)
 			return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
          #elif defined(JOP_OS_ANDROID)
-            bool result = detail::ActivityState::get()->activeKey == key;
-            detail::ActivityState::get()->activeKey=0;
-            return result;
+            return detail::ActivityState::get()->activeKey == key;
         #endif
 		}
 		return false;

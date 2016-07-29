@@ -61,7 +61,8 @@ namespace jop { namespace detail
 
         glm::vec2 lastTouchPosition[10]={glm::vec2(-1.f,-1.f)};
         int activeKey=-1; 
-        float activeAxes[4]={0.f,0.f,0.f,0.f,0.f,0.f}; 
+        int activeController = 0; 
+        float activeAxes[6]={0.f,0.f,0.f,0.f,0.f,0.f}; 
     };
 }}
 

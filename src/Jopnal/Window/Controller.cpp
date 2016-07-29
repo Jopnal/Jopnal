@@ -77,7 +77,7 @@ namespace jop
 		}
 		return count;
         #elif defined(JOP_OS_ANDROID)
-		return 0;
+        return detail::ActivityState::get()->activeController;
         #endif
 		}
 		return 0;;
@@ -92,7 +92,8 @@ namespace jop
         #if defined(JOP_OS_DESKTOP)
 			return glfwJoystickPresent(index) == GL_TRUE;
         #elif defined(JOP_OS_ANDROID)
-			return false;
+            if(index==0)
+            return detail::ActivityState::get()->activeController;
         #endif
 		}
 		return false;
@@ -115,7 +116,6 @@ namespace jop
         #elif defined(JOP_OS_ANDROID)
             using namespace input;
             bool result = detail::ActivityState::get()->activeKey == Button;
-            detail::ActivityState::get()->activeKey=-1;
             return result;
         #endif
 		}
@@ -124,7 +124,7 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-    float Controller::getAxisOffset(const int index)
+    float Controller::getAxisOffset(const int index, const int axis)
 	{
 		if (validateWindowRef())
 		{
@@ -133,7 +133,7 @@ namespace jop
             int count = 0;
 			const float* axes = glfwGetJoystickAxes(index, &count);
 
-            switch (index)
+            switch (axis)
             {
             case XBox::Axis::LeftStickX:
                 return axes[0];
@@ -161,59 +161,23 @@ namespace jop
                 break;
             }
         #elif defined(JOP_OS_ANDROID)
-            switch (index)
+            switch (axis)
             {
             case XBox::Axis::LeftStickX:
-            {
-                float result = detail::ActivityState::get()->activeAxes[0];
-                ActivityState::get()->activeAxes[0] = 0.f;
-                return result;
-            }
+            return detail::ActivityState::get()->activeAxes[0];
             case XBox::Axis::LeftStickY:
-            {
-                float result = detail::ActivityState::get()->activeAxes[1];
-                ActivityState::get()->activeAxes[1] = 0.f;
-                return result;
-            }
+            return detail::ActivityState::get()->activeAxes[1];
             case XBox::Axis::RightStickX:
-            {
-                float result = detail::ActivityState::get()->activeAxes[2];
-                ActivityState::get()->activeAxes[2] = 0.f;
-                return result;
-            }
+            return detail::ActivityState::get()->activeAxes[2];
             case XBox::Axis::RightStickY:
-            {
-                float result = detail::ActivityState::get()->activeAxes[3];
-                ActivityState::get()->activeAxes[3] = 0.f;
-                return result;
-            }
+            return detail::ActivityState::get()->activeAxes[3];
             case XBox::Axis::LTrigger:
-            {
-                if (count >= 6)
-                {
-                    float result = detail::ActivityState::get()->activeAxes[4];
-                    ActivityState::get()->activeAxes[4] = 0.f;
-                    return result;
-                }
-                else
-                    break;
-            }
+            return detail::ActivityState::get()->activeAxes[4];
             case XBox::Axis::RTrigger:
-            {
-                if (count >= 6)
-                {
-                    float result = detail::ActivityState::get()->activeAxes[5];
-                    ActivityState::get()->activeAxes[5] = 0.f;
-                    return result;
-                }
-                else
-                    break;
-            }
+            return detail::ActivityState::get()->activeAxes[5];
             default:
                 break;
-        }
-
-            return result;
+            }
         #endif
 			return 0.f;
 		}
