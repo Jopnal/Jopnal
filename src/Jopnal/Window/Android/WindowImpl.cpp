@@ -412,6 +412,10 @@ namespace jop { namespace detail
                                 ActivityState::get()->activeAxes[2]=0.f;
                             else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
                                 ActivityState::get()->activeAxes[3]=0.f;
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                ActivityState::get()->activeAxes[4]=0.f;
+                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                ActivityState::get()->activeAxes[5]=0.f;
                             else if(ActivityState::get()->activeController==0)
                             {
                                 windowRef->getEventHandler()->controllerConnected(1, "Android_Controller");
@@ -553,7 +557,7 @@ namespace jop { namespace detail
                  jopKey = input::getJopControllerButton(key);
                  windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
                } 
-
+               ActivityState::get()->activeKey=-1;
                 return 1;
             }
             return 0;
