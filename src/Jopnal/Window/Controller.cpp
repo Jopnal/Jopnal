@@ -78,8 +78,6 @@ namespace jop
 		return count;
         #elif defined(JOP_OS_ANDROID)
 		return 0;
-        #else
-		return 0;
         #endif
 		}
 		return 0;;
@@ -94,8 +92,6 @@ namespace jop
         #if defined(JOP_OS_DESKTOP)
 			return glfwJoystickPresent(index) == GL_TRUE;
         #elif defined(JOP_OS_ANDROID)
-			return false;
-        #else
 			return false;
         #endif
 		}
@@ -121,8 +117,6 @@ namespace jop
             bool result = detail::ActivityState::get()->activeKey == Button;
             detail::ActivityState::get()->activeKey=-1;
             return result;
-        #else
-			return false;
         #endif
 		}
 		 return false;
@@ -130,57 +124,99 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-	glm::vec2 Controller::leftStickOffset(const int index)
+    float Controller::getAxisOffset(const int index)
 	{
 		if (validateWindowRef())
 		{
         #if defined(JOP_OS_DESKTOP)
-			int count = 0;
+
+            int count = 0;
 			const float* axes = glfwGetJoystickAxes(index, &count);
-			if (count = 4)
-				return glm::vec2(axes[0], axes[1]);
-			else
-				return glm::vec2(0,0);
+
+            switch (index)
+            {
+            case XBox::Axis::LeftStickX:
+                return axes[0];
+            case XBox::Axis::LeftStickY:
+                return axes[1];
+            case XBox::Axis::RightStickX:
+                return axes[2];
+            case XBox::Axis::RightStickY:
+                return axes[3];
+            case XBox::Axis::LTrigger:
+            {
+                if (count >= 6)
+                    return ((axes[4]+1)/2.f);
+                else
+                    break;
+            }
+            case XBox::Axis::RTrigger:
+            {
+                if (count >= 6)
+                    return ((axes[5] + 1) / 2.f);
+                else
+                    break;
+            }
+            default:
+                break;
+            }
         #elif defined(JOP_OS_ANDROID)
-            glm::vec2 result={detail::ActivityState::get()->activeAxes[0],detail::ActivityState::get()->activeAxes[1]};
-            ActivityState::get()->activeAxes[0]=0.f;
-            ActivityState::get()->activeAxes[1]=0.f;
+            switch (index)
+            {
+            case XBox::Axis::LeftStickX:
+            {
+                float result = detail::ActivityState::get()->activeAxes[0];
+                ActivityState::get()->activeAxes[0] = 0.f;
+                return result;
+            }
+            case XBox::Axis::LeftStickY:
+            {
+                float result = detail::ActivityState::get()->activeAxes[1];
+                ActivityState::get()->activeAxes[1] = 0.f;
+                return result;
+            }
+            case XBox::Axis::RightStickX:
+            {
+                float result = detail::ActivityState::get()->activeAxes[2];
+                ActivityState::get()->activeAxes[2] = 0.f;
+                return result;
+            }
+            case XBox::Axis::RightStickY:
+            {
+                float result = detail::ActivityState::get()->activeAxes[3];
+                ActivityState::get()->activeAxes[3] = 0.f;
+                return result;
+            }
+            case XBox::Axis::LTrigger:
+            {
+                if (count >= 6)
+                {
+                    float result = detail::ActivityState::get()->activeAxes[4];
+                    ActivityState::get()->activeAxes[4] = 0.f;
+                    return result;
+                }
+                else
+                    break;
+            }
+            case XBox::Axis::RTrigger:
+            {
+                if (count >= 6)
+                {
+                    float result = detail::ActivityState::get()->activeAxes[5];
+                    ActivityState::get()->activeAxes[5] = 0.f;
+                    return result;
+                }
+                else
+                    break;
+            }
+            default:
+                break;
+        }
 
             return result;
-        #else
-			return glm::vec2(0,0);
         #endif
-			return glm::vec2(0,0);
+			return 0.f;
 		}
-		return glm::vec2(0,0);
+		return 0.f;
 	}
-
-	//////////////////////////////////////////////
-
-	glm::vec2 Controller::rightStickOffset(const int index)
-	{
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
-			int count = 0;
-			const float* axes = glfwGetJoystickAxes(index, &count);
-			if (count = 4)
-				return glm::vec2(axes[2], axes[3]);
-			else
-				return glm::vec2(0,0);
-        #elif defined(JOP_OS_ANDROID)
-            using namespace input;
-            glm::vec2 result={detail::ActivityState::get()->activeAxes[2],detail::ActivityState::get()->activeAxes[3]};
-            ActivityState::get()->activeAxes[2]=0.f;
-            ActivityState::get()->activeAxes[3]=0.f;
-
-            return result;
-        #else
-			return glm::vec2(0,0);
-        #endif
-			return glm::vec2(0,0);
-		}
-		return glm::vec2(0,0);
-	}
-
 }

@@ -39,8 +39,6 @@ namespace jop
      #elif defined(JOP_OS_ANDROID)
         if (id < 10)
             return detail::ActivityState::get()->lastTouchPosition[id].x>=0.f && detail::ActivityState::get()->lastTouchPosition[id].y>=0.f;
-        else
-            return false;
      #else
         return false;
       #endif
@@ -55,8 +53,7 @@ namespace jop
             return detail::ActivityState::get()->lastTouchPosition[id];
         else
             return glm::vec2(-1.f, -1.f);
-    #else
-        return glm::vec2(-1.f, -1.f);
     #endif
+        return glm::vec2(-1.f, -1.f);
     }
 }

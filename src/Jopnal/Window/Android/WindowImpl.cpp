@@ -396,6 +396,10 @@ namespace jop { namespace detail
                                         ActivityState::get()->activeAxes[0]=x;
                                     else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
                                         ActivityState::get()->activeAxes[2]=x;
+                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                        ActivityState::get()->activeAxes[4]=x;
+                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                        ActivityState::get()->activeAxes[5]=x;
 
                                     windowRef->getEventHandler()->controllerAxisShifted(id,input::getJopControllerAxis(ns_joystickAxes[axis]),x);
                                 }

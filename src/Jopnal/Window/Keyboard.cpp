@@ -79,9 +79,7 @@ namespace jop
             bool result = detail::ActivityState::get()->activeKey == key;
             detail::ActivityState::get()->activeKey=0;
             return result;
-         #else
-			return false;
-         #endif
+        #endif
 		}
 		return false;
 	}
@@ -98,8 +96,6 @@ namespace jop
             auto state = detail::ActivityState::get();
             std::lock_guard<decltype(state->mutex)> lock(state->mutex);
             state->showVirtualKeyboard(show);
-        #else
-                    return;
         #endif
         }
     }

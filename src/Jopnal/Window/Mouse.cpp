@@ -67,8 +67,6 @@ namespace jop
 			return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlMouseButton(button)) == GLFW_PRESS;
         #elif defined(JOP_OS_ANDROID)
 			return false;
-        #else
-			return false;
         #endif
 		}
 		return false;
@@ -85,8 +83,6 @@ namespace jop
 			glfwGetCursorPos(ns_windowRef->getLibraryHandle(),&x,&y);
 			return glm::vec2(x,y);
         #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(0,0);
-        #else
 			return glm::vec2(0,0);
         #endif
 		}
@@ -124,9 +120,6 @@ namespace jop
         }
        #elif defined(JOP_OS_ANDROID)
         JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
-        return;
-       #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
         return;
        #endif
     }
@@ -179,9 +172,6 @@ namespace jop
         #elif defined(JOP_OS_ANDROID)
         JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
         return;
-        #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
-        return;
         #endif
     }
 
@@ -212,9 +202,6 @@ namespace jop
         #elif defined(JOP_OS_ANDROID)
         JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
         ns_restrictions = { -1, -1, -1, -1};
-        return;
-        #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
         return;
         #endif
     }
