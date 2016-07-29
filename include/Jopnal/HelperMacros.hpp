@@ -25,20 +25,40 @@
 //////////////////////////////////////////////
 
 
-// Copy/move constructor deletion
+/// \brief Easy copy constructor removal
+///
+/// This macro must appear inside the class declaration.
+///
+/// \param className The name of the class
+///
 #define JOP_DISALLOW_COPY(className) className(const className &) = delete; \
                                      void operator =(const className &) = delete;
 
+/// \brief Easy move constructor removal
+///
+/// This macro must appear inside the class declaration.
+///
+/// \param className The name of the class
+///
 #define JOP_DISALLOW_MOVE(className) className(className &&) = delete; \
                                      void operator =(className &&) = delete;
 
+/// \brief Easy copy & move constructor removal
+///
+/// This macro must appear inside the class declaration.
+///
+/// \param className The name of the class
+///
 #define JOP_DISALLOW_COPY_MOVE(className) JOP_DISALLOW_COPY(className) \
                                           JOP_DISALLOW_MOVE(className)
 
 
-/// \brief Convenience macro for defining a component's clone function.
+/// \brief Convenience macro for defining a component's clone function
+///
+/// This macro must appear inside the class declaration.
+///
+/// \param className The name of the component
 ///
 #define JOP_GENERIC_COMPONENT_CLONE(className) virtual className* clone(jop::Object& obj) const override{return new className(*this, obj);}
-
 
 #endif

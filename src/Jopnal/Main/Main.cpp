@@ -44,6 +44,7 @@ extern int main(int argc, char* argv[]);
     #include <Jopnal/Window/SensorManager.hpp>
     #include <Jopnal/Main/Android/android_native_app_glue.c>
     #include <Jopnal/Core/Android/GooglePlayService.hpp>
+    #include <Jopnal/Utility/Thread.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <Jopnal/Window/Android/WindowImpl.hpp>
     #include <thread>
@@ -71,8 +72,8 @@ extern int main(int argc, char* argv[]);
                 case APP_CMD_INIT_WINDOW:
                 {
                     state->nativeWindow = app->window;
-                    //state->windowSize.x = ANativeWindow_getWidth(app->window);
-                    //state->windowSize.y = ANativeWindow_getHeight(app->window);
+                    state->windowSize.x = ANativeWindow_getWidth(app->window);
+                    state->windowSize.y = ANativeWindow_getHeight(app->window);
 
                     ns_ready.store(true);
                 }
@@ -118,16 +119,16 @@ extern int main(int argc, char* argv[]);
 
         int32_t onInputEvent(struct android_app* app, AInputEvent* event)
         {
-			int32_t type = AInputEvent_getType(event);
-			int32_t action = AKeyEvent_getAction(event);
+            int32_t type = AInputEvent_getType(event);
+            int32_t action = AKeyEvent_getAction(event);
 
-			if (type == AINPUT_EVENT_TYPE_KEY)
+            if (type == AINPUT_EVENT_TYPE_KEY)
             { 
                 if(action==AKEY_EVENT_ACTION_DOWN)
                     getUnicode(event, ns_virtualMachine, ns_environment, &ns_vmArgs);
 
                 return  onKey(action, event);
-			}
+            }
             else if (type == AINPUT_EVENT_TYPE_MOTION)
             {
                 return  onMotion(action, event);
@@ -166,7 +167,6 @@ extern int main(int argc, char* argv[]);
 
         void main(struct android_app* app)
         {
-
             ns_app=app;
             JOP_DEBUG_INFO("Android activity started, waiting for window...");
             while (!ns_ready.load())
@@ -194,11 +194,14 @@ extern int main(int argc, char* argv[]);
 
         //jop::GooglePlayService::init(app, app->activity);
 
-        app->onAppCmd       = jop::detail::onAppCmd;
+        jop::Thread::attachJavaThread();
 
+        app->onAppCmd       = jop::detail::onAppCmd;
         app->userData = jop::detail::ActivityState::create(app->activity);
 
         jop::detail::main(app);
+
+        jop::Thread::detachJavaThread();
     }
 
 #endif

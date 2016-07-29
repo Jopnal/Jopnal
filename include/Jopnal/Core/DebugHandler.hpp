@@ -34,6 +34,11 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        class FileSystemInitializer;
+    }
+
     #define __JOP_DEBUG_BASE(sev, stream) \
         {::jop::DebugHandler::getInstance() << ::jop::DebugHandler::Severity::sev << stream << std::endl;}
 

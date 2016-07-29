@@ -31,9 +31,9 @@
 
 namespace jop
 {
-	class JOP_API Touch
-	{
-	public:
+    class JOP_API Touch
+    {
+    public:
 
         /// Information
         ///
@@ -60,7 +60,7 @@ namespace jop
         /// \return Position as glm vector 2
         ///
         static glm::vec2 getPosition(const int id=0);
-	};
+    };
 }
 
 #endif

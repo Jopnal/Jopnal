@@ -31,7 +31,7 @@
 
 namespace jop
 {
-	class JOP_API Controller
+    class JOP_API Controller
     {
     public:
 
@@ -105,43 +105,43 @@ namespace jop
             };
         };
 
-		/// \brief Check how many controllers are connected
-		///
-		/// \return Number of controllers
-		///
-		static int controllersPresent();
+        /// \brief Check how many controllers are connected
+        ///
+        /// \return Number of controllers
+        ///
+        static int controllersPresent();
 
-		/// \brief Check if specific controller is connected
-		///
-		/// \return True if connected
-		///
-		static bool iscontrollerPresent(const int index);
+        /// \brief Check if specific controller is connected
+        ///
+        /// \return True if connected
+        ///
+        static bool isControllerPresent(const int index);
 
-		/// \brief Get boolean is button pressed
-		///
-		/// \param Button's code
-		///
-		/// \return True if pressed
-		///
-		static bool isButtonDown(const int index, const int Button);
+        /// \brief Get boolean is button pressed
+        ///
+        /// \param Button's code
+        ///
+        /// \return True if pressed
+        ///
+        static bool isButtonDown(const int index, const int button);
 
-		/// \brief Get Vector of left stick's offset
-		///
-		/// \return glm::vec2
-		///
-		static glm::vec2 leftStickOffset(const int index);
+        /// \brief Get Vector of left stick's offset
+        ///
+        /// \return glm::vec2
+        ///
+        static glm::vec2 leftStickOffset(const int index);
 
-		/// \brief Get Vector of right stick's offset
-		///
-		/// \return glm::vec2
-		///
-		static glm::vec2 rightStickOffset(const int index);
+        /// \brief Get Vector of right stick's offset
+        ///
+        /// \return glm::vec2
+        ///
+        static glm::vec2 rightStickOffset(const int index);
     };
 }
 
 #endif
 
-/// \class Controller
+/// \class jop::Controller
 /// \ingroup window
 ///
 /// #TODO Detailed description

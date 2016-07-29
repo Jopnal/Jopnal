@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup utility Utility
+///
+/// #TODO Detailed decription
+
 // Headers
 #include <Jopnal/Utility/Assert.hpp>
 #include <Jopnal/Utility/Clock.hpp>
@@ -29,9 +33,3 @@
 #include <Jopnal/Utility/Randomizer.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Utility/Thread.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup utility Utility
-///
-/// #TODO Detailed decription

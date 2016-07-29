@@ -205,7 +205,7 @@ namespace jop
         // Main window
         m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
         printOpenGLInfo();
-        m_mainTarget = m_mainWindow;
+
         // Resource manager
         createSubsystem<ResourceManager>();
 
@@ -213,16 +213,21 @@ namespace jop
         createSubsystem<ShaderAssembler>();
 
         // Main render target
-        //m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
+        if (!SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", false))
+        {
+            m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
-        // Post processor
-        //createSubsystem<PostProcessor>(*m_mainTarget);
+            // Post processor
+            createSubsystem<PostProcessor>(*m_mainTarget);
+        }
+        else
+            m_mainTarget = m_mainWindow;
 
         // Post-pass render proxy
         createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
 
         // Buffer swapper
-        createSubsystem<BufferSwapper>(*m_mainWindow);
+        createSubsystem<detail::BufferSwapper>(*m_mainWindow);
 
         // Set process priority
         if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
@@ -327,15 +332,15 @@ namespace jop
         return *m_engineObject->m_currentScene;
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	Window& Engine::getCurrentWindow()
-	{
-		std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+    Window& Engine::getCurrentWindow()
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
-		JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
-		return *m_engineObject->m_mainWindow;
-	}
+        JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
+        return *m_engineObject->m_mainWindow;
+    }
 
     //////////////////////////////////////////////
 
@@ -468,18 +473,18 @@ namespace jop
         return false;
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool Engine::hasCurrentWindow()
-	{
-		if (m_engineObject)
-		{
-			std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-			return m_engineObject->m_mainWindow!=nullptr;
-		}
+    bool Engine::hasCurrentWindow()
+    {
+        if (m_engineObject)
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+            return m_engineObject->m_mainWindow!=nullptr;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     //////////////////////////////////////////////
 

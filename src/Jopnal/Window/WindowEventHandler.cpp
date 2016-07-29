@@ -76,7 +76,7 @@ namespace jop
         glfwSetKeyCallback(handle, [](GLFWwindow* w, int key, int scancode, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
-            using namespace input;
+            using namespace Input;
 
             switch (action)
             {
@@ -131,15 +131,16 @@ namespace jop
         glfwSetMouseButtonCallback(handle, [](GLFWwindow* w, int button, int action, int mods)
         {
             auto handler = static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w));
-            using namespace input;
+            using namespace Input;
 
             switch (action)
             {
-            case GLFW_PRESS:
-                handler->mouseButtonPressed(getJopMouseButton(button), mods);
-                break;
-            case GLFW_RELEASE:
-                handler->mouseButtonReleased(getJopMouseButton(button), mods);
+                case GLFW_PRESS:
+                    handler->mouseButtonPressed(getJopMouseButton(button), mods);
+                    break;
+
+                case GLFW_RELEASE:
+                    handler->mouseButtonReleased(getJopMouseButton(button), mods);
             }
         });
 
@@ -151,6 +152,7 @@ namespace jop
             if (entered)
             {
                 handler->mouseEntered();
+
                 if (Mouse::isClipping())
                     Mouse::setClipping();
             }
@@ -170,12 +172,12 @@ namespace jop
             static_cast<WindowEventHandler*>(glfwGetWindowUserPointer(w))->resized(x, y);
         });
 
-#endif
+    #endif
     }
 
     WindowEventHandler::~WindowEventHandler()
     {
-#ifdef JOP_OS_DESKTOP
+    #ifdef JOP_OS_DESKTOP
 
         auto handle = m_windowRef.getLibraryHandle();
 
@@ -189,7 +191,7 @@ namespace jop
         glfwSetScrollCallback(handle, NULL);
         glfwSetFramebufferSizeCallback(handle, NULL);
 
-#endif
+    #endif
     }
 
     //////////////////////////////////////////////
@@ -289,7 +291,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void WindowEventHandler::touchEvent(const int, const float, const float)
+    void WindowEventHandler::touchPressed(const int, const float, const float)
     {}
 
     //////////////////////////////////////////////
@@ -312,17 +314,16 @@ namespace jop
     void WindowEventHandler::touchInfo(const int, const int, const float)
     {}
 
-        //////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void WindowEventHandler::touchScrolled(const float, const float)
     {}
-
 
     //////////////////////////////////////////////
 
     void WindowEventHandler::handleControllerInput()
     {
-     #ifdef JOP_OS_DESKTOP
+    #ifdef JOP_OS_DESKTOP
 
         static const int maxControllers = static_cast<int>(std::min(unsigned int(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1)));
         static const float deadzone = SettingManager::get<float>("engine@Input|Controller|fDeadzone", 0.1f);
@@ -357,10 +358,10 @@ namespace jop
                         if (j > 3)
                         {
                             if (axes[j] > -1.f)
-                                controllerAxisShifted(i, input::getJopControllerAxis(j), (axes[j] + 1) / 2);
+                                controllerAxisShifted(i, Input::getJopControllerAxis(j), (axes[j] + 1) / 2);
                         }
                         else
-                        controllerAxisShifted(i, input::getJopControllerAxis(j), axes[j]);
+                            controllerAxisShifted(i, Input::getJopControllerAxis(j), axes[j]);
                     }
                 }
             }
@@ -388,6 +389,6 @@ namespace jop
             }
         }
 
-#endif
+    #endif
     }
 }

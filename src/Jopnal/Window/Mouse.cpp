@@ -24,119 +24,109 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Window/Mouse.hpp>
+    #include <Jopnal/Window/Mouse.hpp>
 
-#ifdef JOP_OS_DESKTOP
-#include <GLFW/glfw3.h>
+    #include <Jopnal/Core/Engine.hpp>
+    #include<Jopnal/Window/InputEnumsImpl.hpp>
+
+    #ifdef JOP_OS_DESKTOP
+        #include <GLFW/glfw3.h>
+    #endif
+
 #endif
-
-#endif
-
-#ifdef JOP_OS_DESKTOP
-#include <Windows.h>
-#endif
-
-#include <Jopnal/Core/Engine.hpp>
-#include<Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 
 namespace
 {
     jop::Window* ns_windowRef = nullptr;
-    glm::ivec4 ns_restrictions = { -1, -1, -1, -1};
+    glm::ivec4 ns_restrictions(-1);
 
-	bool  validateWindowRef()
-	{
-		if (ns_windowRef == nullptr)
-			ns_windowRef = &jop::Engine::getCurrentWindow();
+    bool validateWindowRef()
+    {
+        if (!ns_windowRef)
+            ns_windowRef = &jop::Engine::getCurrentWindow();
 
-		return ns_windowRef != nullptr;
-	}
+        return ns_windowRef != nullptr;
+    }
 }
 
 namespace jop
 {
-	bool Mouse::isButtonDown(Button button)
-	{
-		using namespace input;
+    bool Mouse::isButtonDown(const Button button)
+    {
+        using namespace Input;
 
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
-			return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlMouseButton(button)) == GLFW_PRESS;
-        #elif defined(JOP_OS_ANDROID)
-			return false;
-        #else
-			return false;
+        if (validateWindowRef())
+        {
+        #ifdef JOP_OS_DESKTOP
+            return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlMouseButton(button)) == GLFW_PRESS;
         #endif
-		}
-		return false;
-	}
+        }
 
-	//////////////////////////////////////////////
+        return false;
+    }
+
+    //////////////////////////////////////////////
 
     glm::vec2 Mouse::getPosition()
-	{
-		if (validateWindowRef())
-		{
-         #if defined(JOP_OS_DESKTOP)
-			double x, y = NULL; 
-			glfwGetCursorPos(ns_windowRef->getLibraryHandle(),&x,&y);
-			return glm::vec2(x,y);
-        #elif defined(JOP_OS_ANDROID)
-			return glm::vec2(0,0);
-        #else
-			return glm::vec2(0,0);
+    {
+        if (validateWindowRef())
+        {
+        #ifdef JOP_OS_DESKTOP
+
+            double x, y; 
+            glfwGetCursorPos(ns_windowRef->getLibraryHandle(), &x, &y);
+
+            return glm::vec2(x, y);
+
         #endif
-		}
-		return glm::vec2(0,0);
-	}
+        }
+
+        return glm::vec2(0, 0);
+    }
 
     //////////////////////////////////////////////
 
     void Mouse::setMouseMode(const Mode mode)
     {
         if (validateWindowRef())
-        {
             ns_windowRef->setMouseMode(mode);
-        }
     }
 
     //////////////////////////////////////////////
 
     void Mouse::setClipping()
     {
-      #if defined(JOP_OS_DESKTOP)
-                if (validateWindowRef())
+    #ifdef JOP_OS_WINDOWS
+
+        if (validateWindowRef())
         {
-            glm::ivec2 winPos = {NULL,NULL};
+            glm::ivec2 winPos;
             glfwGetWindowPos(ns_windowRef->getLibraryHandle(), &winPos.x, &winPos.y);
 
             if (!isClipping())
             {
-                glm::ivec2 winSize = { NULL, NULL };
+                glm::ivec2 winSize;
                 glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
-                ns_restrictions = { 0, winSize.x, 0, winSize.y };
+
+                ns_restrictions = glm::ivec4(0, winSize.x, 0, winSize.y);
             }
-            RECT res{ winPos.x + ns_restrictions.x, winPos.y + ns_restrictions.z, winPos.x + ns_restrictions.y, winPos.y + ns_restrictions.w };
+
+            RECT res{winPos.x + ns_restrictions.x, winPos.y + ns_restrictions.z, winPos.x + ns_restrictions.y, winPos.y + ns_restrictions.w};
             ClipCursor(&res);
         }
-       #elif defined(JOP_OS_ANDROID)
-        JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
-        return;
-       #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
-        return;
-       #endif
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void Mouse::setClipping(const int x, const int y, const int size)
     {
-        int s = size / 2;
-        setClipping(glm::ivec4(x-s, x+s, y-s, y+s));
+        const int s = size / 2;
+
+        setClipping(glm::ivec4(x - s, x + s, y - s, y + s));
     }
 
     //////////////////////////////////////////////
@@ -157,10 +147,11 @@ namespace jop
 
     void Mouse::setClipping(const glm::ivec4 clipping)
     {
-        #if defined(JOP_OS_DESKTOP)
+    #ifdef JOP_OS_WINDOWS
+
         if (validateWindowRef())
         {
-            glm::ivec2 winSize = { NULL, NULL };
+            glm::ivec2 winSize = glm::ivec2(0);
             glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
             ns_restrictions = clipping;
@@ -176,18 +167,13 @@ namespace jop
 
             setClipping();
         }
-        #elif defined(JOP_OS_ANDROID)
-        JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
-        return;
-        #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
-        return;
-        #endif
+
+    #endif
     }
 
     //////////////////////////////////////////////
 
-    glm::ivec4 Mouse::getClipping()
+    const glm::ivec4& Mouse::getClipping()
     {
         return ns_restrictions;
     }
@@ -196,8 +182,12 @@ namespace jop
 
     bool Mouse::isClipping()
     {
+    #ifdef JOP_OS_WINDOWS
+
         if (ns_restrictions.x != -1 && ns_restrictions.y != -1 && ns_restrictions.z != -1 && ns_restrictions.w != -1)
             return true;
+
+    #endif
 
         return false;
     }
@@ -206,16 +196,11 @@ namespace jop
 
     void Mouse::releaseClipping()
     {
-        #if defined(JOP_OS_DESKTOP)
+    #ifdef JOP_OS_WINDOWS
+
         ClipCursor(NULL);
-        ns_restrictions = { -1, -1, -1, -1};
-        #elif defined(JOP_OS_ANDROID)
-        JOP_DEBUG_INFO("Android os doens't have ability to restrict mouse clipping")
-        ns_restrictions = { -1, -1, -1, -1};
-        return;
-        #else
-        JOP_DEBUG_INFO("This operation system doens't have ability to restrict mouse clipping")
-        return;
-        #endif
+        ns_restrictions = glm::ivec4(-1, -1, -1, -1);
+
+    #endif
     }
 }

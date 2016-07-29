@@ -22,7 +22,7 @@ void main()
 {
     ivec2 size = textureSize(u_Texture, 0);
 
-	vec3 tempColor = texture(u_Texture, vf_TexCoords).rgb * weight[0];
+    vec3 tempColor = texture(u_Texture, vf_TexCoords).rgb * weight[0];
 
     for (int i = 1; i < 3; ++i)
     {

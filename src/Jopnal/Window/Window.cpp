@@ -78,17 +78,20 @@ namespace
 
 namespace jop
 {
-    BufferSwapper::BufferSwapper(Window& window)
-        : Subsystem     (0),
-          m_windowRef   (window)
-    {}
-
-    //////////////////////////////////////////////
-
-    void BufferSwapper::draw()
+    namespace detail
     {
-        if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
-            m_windowRef.m_impl->swapBuffers();
+        BufferSwapper::BufferSwapper(Window& window)
+            : Subsystem(0),
+            m_windowRef(window)
+        {}
+
+        //////////////////////////////////////////////
+
+        void BufferSwapper::draw()
+        {
+            if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
+                m_windowRef.m_impl->swapBuffers();
+        }
     }
 
 

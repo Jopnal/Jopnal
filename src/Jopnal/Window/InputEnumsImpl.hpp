@@ -24,26 +24,24 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Window/Keyboard.hpp>
-#include <Jopnal/Window/Mouse.hpp>
-#include <Jopnal/Window/Controller.hpp>
-#include <Jopnal/Window/Touch.hpp>
 
 //////////////////////////////////////////////
+
+
 namespace jop
 {
-	namespace input
-	{
-		JOP_API int getJopKey(const int key);
-        JOP_API int getGlKey(const int key);
-        JOP_API int getJopControllerButton(const int button);
-        JOP_API int getJopControllerAxis(const int button);
-        JOP_API int getGlControllerButton(const int button);
-        JOP_API int getGlControllerAxis(const int button);
-        JOP_API int getJopMouseButton(const int button);
-        JOP_API int getGlMouseButton(const int button);
-        JOP_API int getJopTouchInfo(const int info);
-        JOP_API int getGlTouchInfo(const int info);
-	}
+    namespace Input
+    {
+        int getJopKey(const int key);
+        int getGlKey(const int key);
+        int getJopControllerButton(const int button);
+        int getJopControllerAxis(const int button);
+        int getGlControllerButton(const int button);
+        int getGlControllerAxis(const int button);
+        int getJopMouseButton(const int button);
+        int getGlMouseButton(const int button);
+        int getJopTouchInfo(const int info);
+        int getGlTouchInfo(const int info);
+    }
 }
 #endif

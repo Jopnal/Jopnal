@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup window Window
+///
+/// #TODO Detailed decription
+
 // Headers
 #include <Jopnal/Window/Controller.hpp>
 #include <Jopnal/Window/Keyboard.hpp>
@@ -29,9 +33,3 @@
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <Jopnal/Window/VideoInfo.hpp>
 #include <Jopnal/Window/Vibrator.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup window Window
-///
-/// #TODO Detailed decription

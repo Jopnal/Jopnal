@@ -153,17 +153,17 @@ namespace jop
         ///
         static Scene& getCurrentScene();
 
-		/// \brief Check if there's a current window
-		///
-		/// \return True if there's a current window
-		///
-		static bool hasCurrentWindow();
+        /// \brief Check if there's a current window
+        ///
+        /// \return True if there's a current window
+        ///
+        static bool hasCurrentWindow();
 
-		/// \brief Get the current window
-		///
-		/// \return Reference to the window
-		///
-		static Window& getCurrentWindow();
+        /// \brief Get the current window
+        ///
+        /// \return Reference to the window
+        ///
+        static Window& getCurrentWindow();
 
         /// \brief Signal a new scene (loaded in a threaded manner) to set itself current
         ///

@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup physics2d Physics2D
+///
+/// #TODO Detailed description
+
 // Headers
 #include <Jopnal/Physics2D/Collider2D.hpp>
 #include <Jopnal/Physics2D/Joint/GearJoint2D.hpp>
@@ -43,10 +47,3 @@
 #include <Jopnal/Physics2D/World2D.hpp>
 #include <Jopnal/Physics2D/ContactListener2D.hpp>
 #include <Jopnal/Physics2D/ContactInfo2D.hpp>
-
-
-//////////////////////////////////////////////
-
-/// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed decription

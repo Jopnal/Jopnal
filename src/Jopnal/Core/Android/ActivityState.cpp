@@ -38,6 +38,22 @@ namespace
 
 namespace jop { namespace detail
 {
+    ActivityState::ActivityState()
+        : nativeActivity        (NULL),
+          nativeWindow          (NULL),
+          pollFunc              (nullptr),
+          showVirtualKeyboard   (nullptr),
+          window                (nullptr),
+          screenSize            (0.f),
+          lastTouchPosition     (-1.f),
+          activeKey             (-1),
+          activeAxes            ()
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
     ActivityState* ActivityState::create(ANativeActivity* activity)
     {
         JOP_ASSERT(ns_instance == nullptr, "There may only be one ActivityState!");
@@ -49,15 +65,15 @@ namespace jop { namespace detail
 
         // Get the screen size
         {
-            //jclass displayMetricsClass = activity->env->FindClass("android/util/DisplayMetrics");
-            //
-            //jobject displayMetricsObject = activity->env->NewObject(displayMetricsClass, activity->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
-            //jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity-///>clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view////Display;"));
-            //
-            //activity->env->CallVoidMethod(displayObject, activity->env->GetMethodID(activity->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), //displayMetricsObject);
-            //
-            //ns_instance->screenSize.x = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
-            //ns_instance->screenSize.y = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
+            jclass displayMetricsClass = activity->env->FindClass("android/util/DisplayMetrics");
+            
+            jobject displayMetricsObject = activity->env->NewObject(displayMetricsClass, activity->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
+            jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity->clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view////Display;"));
+            
+            activity->env->CallVoidMethod(displayObject, activity->env->GetMethodID(activity->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), displayMetricsObject);
+            
+            ns_instance->screenSize.x = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
+            ns_instance->screenSize.y = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
         }
     }
 

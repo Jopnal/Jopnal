@@ -19,6 +19,10 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup audio Audio
+///
+/// #TODO Detailed decription
+
 // Headers
 #include <Jopnal/Audio/AudioDevice.hpp>
 #include <Jopnal/Audio/Listener.hpp>
@@ -26,9 +30,3 @@
 #include <Jopnal/Audio/SoundEffect.hpp>
 #include <Jopnal/Audio/SoundSource.hpp>
 #include <Jopnal/Audio/SoundStream.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription

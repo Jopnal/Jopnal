@@ -26,65 +26,67 @@
 
     #include <Jopnal/Window/Keyboard.hpp>
 
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Window/InputEnumsImpl.hpp>
+
     #ifdef JOP_OS_DESKTOP
         #include <GLFW/glfw3.h>
     #endif
 
 #endif
 
-#ifdef JOP_OS_ANDROID
-#include <Jopnal/Core/Android/ActivityState.hpp>
-#endif
-
-#include <Jopnal/Core/Engine.hpp>
-#include <Jopnal/Window/InputEnumsImpl.hpp>
-
 //////////////////////////////////////////////
+
 
 namespace
 {
-	jop::Window* ns_windowRef=nullptr;
+    jop::Window* ns_windowRef=nullptr;
 
-	bool  validateWindowRef()
-	{
-		if (ns_windowRef == nullptr)
-				ns_windowRef = &jop::Engine::getCurrentWindow();
+    bool validateWindowRef()
+    {
+        if (ns_windowRef == nullptr)
+            ns_windowRef = &jop::Engine::getCurrentWindow();
 
-				return ns_windowRef != nullptr;
-	}
+        return ns_windowRef != nullptr;
+    }
 }
 
 namespace jop
 {
     std::string Keyboard::getKeyName(const int scanCode)
     {
-    #if defined(JOP_OS_DESKTOP)
+    #ifdef JOP_OS_DESKTOP
         return std::string(glfwGetKeyName(GLFW_KEY_UNKNOWN, scanCode));
     #else
         return std::string("UNKNOWN");
     #endif
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	bool Keyboard::isKeyDown(const Key key)
-	{
-		using namespace input;
+    bool Keyboard::isKeyDown(const Key key)
+    {
+        using namespace Input;
 
-		if (validateWindowRef())
-		{
-         #if defined(JOP_OS_DESKTOP)
-			return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
-         #elif defined(JOP_OS_ANDROID)
-            bool result = detail::ActivityState::get()->activeKey == key;
-            detail::ActivityState::get()->activeKey=0;
+        if (validateWindowRef())
+        {
+        #if defined(JOP_OS_DESKTOP)
+            return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
+
+        #elif defined(JOP_OS_ANDROID)
+
+            auto state = detail::ActivityState::get();
+
+            const bool result = state->activeKey == key;
+            state->activeKey = 0;
+
             return result;
-         #else
-			return false;
-         #endif
-		}
-		return false;
-	}
+
+        #endif
+        }
+        return false;
+    }
 
     //////////////////////////////////////////////
 
@@ -93,11 +95,7 @@ namespace jop
     #ifdef JOP_OS_ANDROID
 
         if (validateWindowRef())
-        {
-            auto state = detail::ActivityState::get();
-            std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-            state->showVirtualKeyboard(show);
-        }
+            detail::ActivityState::get()->showVirtualKeyboard(show);
 
     #else
 

@@ -4,15 +4,15 @@
 
 //////////////////////////////////////////////
 
-#include <Jopnal/Compat/Attribute>
+#include <Jopnal/Compat/Attributes>
 #include <Jopnal/Compat/Varyings>
 
 // Matrices
 uniform mat4 u_PVMatrix; // Projection-view
 
 // Vertex attributes
-JOP_ATTRIBUTE(0) in vec3 a_Position;
-JOP_ATTRIBUTE(3) in vec3 a_Color;
+JOP_ATTRIBUTE(0) vec3 a_Position;
+JOP_ATTRIBUTE(3) vec3 a_Color;
 
 // Color to fragment shader
 JOP_VARYING_OUT vec3 vf_Color;

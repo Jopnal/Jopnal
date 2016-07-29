@@ -26,11 +26,10 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Sensor.hpp>
 
-// Check platform
 #if defined(JOP_OS_ANDROID)
-#include <Jopnal/Window/Android/SensorImpl.hpp>
+    #include <Jopnal/Window/Android/SensorImpl.hpp>
 #else
-#include <Jopnal/Window/Desktop/SensorImpl.hpp>
+    #include <Jopnal/Window/Desktop/SensorImpl.hpp>
 #endif
 
 //////////////////////////////////////////////
@@ -88,7 +87,7 @@ namespace jop
 
         ~SensorManager();
 
-        SensorImpl m_sensors[Sensor::Count]; ///< Sensors
+        SensorImpl m_sensors[static_cast<std::size_t>(Sensor::Type::Count)]; ///< Sensors
     };
 }
 
