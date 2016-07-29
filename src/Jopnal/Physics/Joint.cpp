@@ -36,16 +36,15 @@ namespace jop
 {
 
     Joint::Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB) :
-        m_bodyA     (&bodyA),
-        m_bodyB     (&bodyB),
-        m_worldRef  (&worldRef),
-        m_ID        (0)
+        m_bodyA(&bodyA),
+        m_bodyB(&bodyB),
+        m_worldRef(&worldRef),
+        m_ID(0)
     {
     }
 
     Joint::~Joint()
     {
-        //why implementation
         m_worldRef->m_worldData->world->removeConstraint(m_joint.get());
     }
 
@@ -60,14 +59,27 @@ namespace jop
         return *this;
     }
 
-    btRigidBody* Joint::getBody(RigidBody& body) //(std::weak_ptr<RigidBody2D>& body)
+    btRigidBody* Joint::getBody(RigidBody& body) const
     {
-        return body.m_rigidBody;//  /*lock()->*/m_body;
+        return body.m_rigidBody;
     }
 
-    btDiscreteDynamicsWorld& Joint::getWorld(World& world)
+    btDiscreteDynamicsWorld& Joint::getWorld(World& world) const
     {
         return *world.m_worldData->world;
     }
+
+    glm::vec3 Joint::defaultCenter(const glm::vec3& jPos) const
+    {
+        return jPos == glm::vec3(0.f, 0.f, FLT_MAX) ?
+            computeCenter() : jPos;
+    }
+
+    glm::vec3 Joint::computeCenter() const
+    {
+        return (m_bodyA->getObject()->getGlobalPosition() + m_bodyB->getObject()->getGlobalPosition()) * 0.5f;
+    }
+
+
 
 }

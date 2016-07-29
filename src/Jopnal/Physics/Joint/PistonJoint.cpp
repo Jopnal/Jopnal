@@ -41,8 +41,10 @@ namespace jop
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();
-        ctwt.setOrigin(btVector3(jPos.x, jPos.y, jPos.z));
+        glm::vec3& p = defaultCenter(jPos);
+        ctwt.setOrigin(btVector3(p.x, p.y, p.z));
         ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
+
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 

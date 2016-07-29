@@ -253,6 +253,12 @@ namespace jop
         ///
         RigidBody& synchronizeTransform();
 
+
+        void setAllowSleep(const bool allow);
+
+        bool getAllowSleep() const;
+        
+
         /// \brief Returns a pointer to a joint on the RigidBody whence called from.
         ///
         /// User can give an ID of the the joint which to return. If left empty, returns a pointer to the first joint the RigidBody has.
@@ -297,12 +303,12 @@ namespace jop
         ///
         void setActive(const bool active) final override;
 
-
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass
         btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
 
         std::unordered_set<std::shared_ptr<Joint>> m_joints;
+        bool m_allowSleep;
     };
 #include <Jopnal/Physics/Inl/RigidBody.inl>
 }

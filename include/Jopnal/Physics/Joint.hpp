@@ -43,8 +43,8 @@ namespace jop
         //friend class GearJoint;
 
     public:
-        /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
-        /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
+        /// \param bodyA RigidBody where to attach this joint. Received automatically from the calling function.
+        /// \param bodyB RigidBody in which to attach the second end of the joint. Given by user as the first argument.
         ///
         Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB);
         virtual ~Joint() = 0;
@@ -56,14 +56,13 @@ namespace jop
 
         RigidBody* m_bodyA;
         RigidBody* m_bodyB;
-        //std::weak_ptr<RigidBody2D> m_bodyA;
-        //std::weak_ptr<RigidBody2D> m_bodyB;
 
     protected:
-        //static btCollisionObject*
-        btRigidBody* getBody(RigidBody& body); //(std::weak_ptr<RigidBody2D>& body);
-        btDiscreteDynamicsWorld& getWorld(World& world);
+        btRigidBody* getBody(RigidBody& body) const; 
+        btDiscreteDynamicsWorld& getWorld(World& world) const;
 
+        glm::vec3 defaultCenter(const glm::vec3& jPos) const;
+        glm::vec3 computeCenter() const;
 
         std::unique_ptr<btTypedConstraint> m_joint;
         unsigned int m_ID;

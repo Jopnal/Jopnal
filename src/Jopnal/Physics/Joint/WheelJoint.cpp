@@ -27,7 +27,7 @@
 #include <Jopnal/Physics/Joint/WheelJoint.hpp>
 
 #include <Jopnal/STL.hpp>
-#include <Box/Dynamics/Joints/b2Joint.hpp>
+#include <BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
 
 #endif
 
@@ -35,13 +35,14 @@
 
 namespace jop
 {
-    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const float maxSteering, const glm::quat& jRot) :
+    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::vec3& jPos, const glm::quat& jRot) :
         Joint(worldRef, bodyA, bodyB),
         m_jointL(nullptr),
         m_maxAngle(maxSteering)
     {
         btTransform ctwt = btTransform::getIdentity();
-        ctwt.setOrigin(btVector3(jPos.x, jPos.y, jPos.z));
+        glm::vec3& p = defaultCenter(jPos);
+        ctwt.setOrigin(btVector3(p.x, p.y, p.z));
 
         if (jRot == glm::quat(0.f, 0.f, 0.f, 0.f))
         {
@@ -54,7 +55,7 @@ namespace jop
             ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
-        btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt; 
+        btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
         m_joint = std::make_unique<btGeneric6DofConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
@@ -65,7 +66,7 @@ namespace jop
             for (int i = 0; i < 6; ++i)
                 m_jointL->setLimit(i, 0.f, 0.f);
 
-            m_jointL->setLimit(static_cast<unsigned int>(Axis::X)+3u, 1.f, 0.f); //X-rotation free
+            m_jointL->setLimit(static_cast<unsigned int>(Axis::X) + 3u, 1.f, 0.f); //X-rotation free
         }
     }
 

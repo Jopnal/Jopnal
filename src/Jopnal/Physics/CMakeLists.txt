@@ -24,8 +24,10 @@ list(APPEND SRC ${__INC_PHYSICS})
 
 # Include - Joint
 set(__INC_PHYSICS_JOINT
+	${__INCDIR_PHYSICS}/Joint/GearJoint.hpp
 	${__INCDIR_PHYSICS}/Joint/PistonJoint.hpp
 	${__INCDIR_PHYSICS}/Joint/RotationJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/RopeJoint.hpp
 	${__INCDIR_PHYSICS}/Joint/WeldJoint.hpp
 	${__INCDIR_PHYSICS}/Joint/WheelJoint.hpp
 )
@@ -73,8 +75,10 @@ list(APPEND SRC ${__SRC_PHYSICS})
 
 # Source - Joint
 set(__SRC_PHYSICS_JOINT
+	${__SRCDIR_PHYSICS}/Joint/GearJoint.cpp
 	${__SRCDIR_PHYSICS}/Joint/PistonJoint.cpp
 	${__SRCDIR_PHYSICS}/Joint/RotationJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/RopeJoint.cpp
 	${__SRCDIR_PHYSICS}/Joint/WeldJoint.cpp
 	${__SRCDIR_PHYSICS}/Joint/WheelJoint.cpp
 )

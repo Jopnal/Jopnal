@@ -55,7 +55,7 @@ namespace jop
         /// \param maxSteering Maximum steering angle of the wheel in radians. setAngle can not override this. Default is ~40 degrees.
         /// \param jRot Rotation of the joint in a quaternion. Defaults the orientation of the joint based on global difference between the chassis and the wheel X-positions.
         ///
-        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const float maxSteering = 0.7f, const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f));
+        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering = 0.7f, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f));
 
         /// \brief Apply rotational force to the wheel's rigidbody.
         ///

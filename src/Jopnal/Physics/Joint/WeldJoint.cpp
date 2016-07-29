@@ -27,7 +27,7 @@
 #include <Jopnal/Physics/Joint/WeldJoint.hpp>
 
 #include <Jopnal/STL.hpp>
-#include <Box/Dynamics/Joints/b2Joint.hpp>
+#include <BulletDynamics/ConstraintSolver/btFixedConstraint.h>
 
 #endif
 
@@ -36,13 +36,16 @@
 
 namespace jop
 {
-    WeldJoint::WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
+    WeldJoint::WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos) :
         Joint(worldRef, bodyA, bodyB),
         m_jointL(nullptr),
         m_damping(1.f)
     {
         btTransform ctwt = btTransform::getIdentity();
-        ctwt.setOrigin(btVector3(-getBody(bodyA)->getCenterOfMassPosition() - getBody(bodyB)->getCenterOfMassPosition()));
+        
+        glm::vec3& p = defaultCenter(jPos);
+        ctwt.setOrigin(btVector3(p.x, p.y, p.z));
+        
         ctwt.setRotation(btQuaternion(0.f, 0.f, 0.f, 1.f));
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;

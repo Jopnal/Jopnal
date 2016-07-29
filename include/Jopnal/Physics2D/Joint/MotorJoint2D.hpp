@@ -56,16 +56,19 @@ namespace jop
         /// Set new target linear offsets for x and y components in relation to the other body.
         ///
         /// \return Reference to self
+        ///
         MotorJoint2D& setLinearOffset(const glm::vec2& offset);
 
         /// Set new target angular offset as radians in relation to the other body.
         ///
         /// \return Reference to self
+        ///
         MotorJoint2D& setAngularOffset(const float offset);
 
         /// Set new force with which the body tries to reach the target offsets.
         ///
         /// \return Reference to self
+        ///
         MotorJoint2D& setForce(const float force);
 
         /// \return float Returns the current force with which the body tries to reach the target offsets.

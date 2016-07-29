@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PISTONJOINT_HPP
-#define JOP_PISTONJOINT_HPP
+#ifndef JOP_ROPEJOINT_HPP
+#define JOP_ROPEJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -28,35 +28,37 @@
 
 //////////////////////////////////////////////
 
-class btSliderConstraint;
+class btGeneric6DofConstraint;
 
 namespace jop
 {
-    class JOP_API PistonJoint : public Joint
+    class JOP_API RopeJoint : public Joint
     {
     public:
-        /// \brief PistonJoint constructor.
+        /// \brief RopeJoint constructor.
+        ///
+        /// Length of the rope is calculated from the difference in global coordinates between the two bodies.
+        /// Longer ropes, where accurate physics computations are needed, should be created by creating separate bodíes and attaching RopeJoint to them one after another.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
-        PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::fquat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
+        RopeJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
 
         /// \param enable Enables/disables angular motor.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& enableAngMotor(const bool enable);
+        RopeJoint& enableAngMotor(const bool enable);
 
+        /*
         /// \param enable Enables/disables translation motor.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& enableMoveMotor(const bool enable);
+        RopeJoint& enableMoveMotor(const bool enable);
 
-        /// \return Returns current rotational limits of the piston: first = minimum, second = maximum.
+        /// \return Returns current rotational limits of the Rope: first = minimum, second = maximum.
         ///
         std::pair<float, float> getAngLimits() const;
 
@@ -68,7 +70,7 @@ namespace jop
         ///
         float getAngTargetSpeed() const;
 
-        /// \return Returns current translation limits of the piston: first = minimum, second = maximum.
+        /// \return Returns current translation limits of the Rope: first = minimum, second = maximum.
         ///
         std::pair<float, float> getMoveLimits() const;
 
@@ -80,39 +82,38 @@ namespace jop
         ///
         float getMoveTargetSpeed() const;
 
-        /// Set new rotation limits for the piston in radians.
+        /// Set new rotation limits for the Rope in radians.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& setAngLimits(const float min, const float max);
+        RopeJoint& setAngLimits(const float min, const float max);
 
         /// Set new maximum forces for the angular motor.
         ///
         /// \param speed New angular target speed to reach.
-        /// \param force New maximum angular motor force to exert to reach the target speed. Negative force causes the piston to keep moving from one limit to the other.
+        /// \param force New maximum angular motor force to exert to reach the target speed. Negative force causes the Rope to keep moving from one limit to the other.
         /// 
         /// \return Returns reference to self.
         ///
-        PistonJoint& setAngMotorForces(const float speed, const float force);
+        RopeJoint& setAngMotorForces(const float speed, const float force);
 
         /// Set new limits where translation is allowed. 0 is the center of the bodyA.
         ///
         /// \return Returns reference to self.
         ///
-        PistonJoint& setMoveLimits(const float min, const float max);
+        RopeJoint& setMoveLimits(const float min, const float max);
 
         /// Set new maximum forces for the translational motor to exert.
         ///
         /// \param speed New translational target speed.
-        /// \param force New maximum translational force to exert to reach the target speed. Negative force causes the piston to keep moving from one limit to the other.
+        /// \param force New maximum translational force to exert to reach the target speed. Negative force causes the Rope to keep moving from one limit to the other.
         /// 
         /// \return Returns reference to self.
         ///
-        PistonJoint& setMoveMotorForces(const float speed, const float force);
-
+        RopeJoint& setMoveMotorForces(const float speed, const float force);
+*/
     private:
-        btSliderConstraint* m_jointL;
-
+        btGeneric6DofConstraint* m_jointL;
     };
 }
 

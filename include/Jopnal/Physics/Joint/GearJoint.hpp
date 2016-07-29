@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_WELDJOINT_HPP
-#define JOP_WELDJOINT_HPP
+#ifndef JOP_GEARJOINT_HPP
+#define JOP_GEARJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -28,35 +28,47 @@
 
 //////////////////////////////////////////////
 
-class btFixedConstraint;
-// class btGeneric6DofConstraint; //expand to this?
+class btGearConstraint;
 
 namespace jop
 {
-    class JOP_API WeldJoint : public Joint
+    class JOP_API GearJoint : public Joint
     {
     public:
-        /// \brief WeldJoint (hinge) constructor.
+        /// \brief GearJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned.
+        /// \param rotAxisX Local axis of body X in which to apply and observe rotation.
+        /// \param ratio Ratio in which to affect bodies.
         ///
-        WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
+        GearJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& rotAxisA, const glm::vec3& rotAxisB, const float ratio = 1.f);
 
-        /// \return Returns currently used damping.
+        /// \param bodyA Body which axis to get. True for bodyA, false for bodyB. Default true.
         ///
-        float getDamping() const;
+        /// \return Returns current target vector
+        ///
+        glm::vec3 getAxis(const bool bodyA = true) const;
 
-        /// \param damping Set new damping value. Please use values between 0 - 1.
+        /// \return Returns current ratio of the joint.
+        ///
+        float getRatio() const;
+
+        /// \param axis Axis to use 
+        /// \param bodyA Body which axis to get. True for bodyA, false for bodyB. Default true.
         ///
         /// \return Returns reference to self.
         ///
-        WeldJoint& setDamping(const float damping);
+        GearJoint& setAxis(glm::vec3& axis, const bool bodyA = true);
+
+        /// \param ratio New ratio to use in the joint.
+        ///
+        /// \return Returns reference to self.
+        ///
+        GearJoint& setRatio(const float ratio);
 
     private:
-        btFixedConstraint* m_jointL;
-        float m_damping;
+        btGearConstraint* m_jointL;
+
     };
 }
 #endif

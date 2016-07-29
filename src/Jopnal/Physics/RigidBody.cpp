@@ -86,7 +86,8 @@ namespace jop
         : Collider  (object, world, 0),
         m_type      (info.m_type),
         m_mass      (info.m_mass),
-        m_rigidBody (nullptr)
+        m_rigidBody (nullptr),
+        m_allowSleep(true)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -313,9 +314,24 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void RigidBody::setAllowSleep(const bool allow)
+    {
+        m_allowSleep = allow;
+        setActive(isActive());
+    }
+
+    //////////////////////////////////////////////
+
+    bool RigidBody::getAllowSleep() const
+    {
+        return m_allowSleep;
+    }
+
+    //////////////////////////////////////////////
+
     void RigidBody::setActive(const bool active)
     {
-        m_body->forceActivationState(active ? (m_body->isKinematicObject() ? DISABLE_DEACTIVATION | ACTIVE_TAG : ACTIVE_TAG) : DISABLE_SIMULATION);
+        m_body->forceActivationState(active ? ((m_body->isKinematicObject() || !m_allowSleep) ? DISABLE_DEACTIVATION | ACTIVE_TAG : ACTIVE_TAG) : DISABLE_SIMULATION);
     }
 
     //////////////////////////////////////////////

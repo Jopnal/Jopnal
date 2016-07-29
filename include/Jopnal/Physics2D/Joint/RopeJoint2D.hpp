@@ -40,8 +40,7 @@ namespace jop
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param length Length of the rope.
-        /// \param stiff True: Bodies are connected like with a solid block.
-        /// \param stiff False: Bodies are connected like with a real rope.
+        /// \param stiff True: Bodies are connected like with a solid block. False: Bodies are connected like with a real rope.
         ///
         RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
 
