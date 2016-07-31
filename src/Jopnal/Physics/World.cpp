@@ -161,7 +161,7 @@ namespace detail
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
                 shdr->setAttribute("a_Position", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                shdr->setAttribute("a_Normal", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute("a_Color", 3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -293,9 +293,14 @@ namespace jop
         {
             bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
             {
-                return !(static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject() && static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject()) &&
-                    (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
-                    (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
+                auto btColl0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+                auto btColl1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+
+                return !(btColl0->isStaticObject() && btColl1->isStaticObject()) &&
+                        static_cast<Collider*>(btColl0->getUserPointer())->isActive() &&
+                        static_cast<Collider*>(btColl1->getUserPointer())->isActive() &&
+                        (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
+                        (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
             }
         };
     }
@@ -440,7 +445,7 @@ namespace jop
         std::vector<RayInfo> objContainer;
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
-        for (size_t i = 0; i < cb.m_collisionObjects.size(); ++i)
+        for (int i = 0; i < cb.m_collisionObjects.size(); ++i)
         {
             const auto& point = cb.m_hitPointWorld[i];
             const auto& normal = cb.m_hitNormalWorld[i];
