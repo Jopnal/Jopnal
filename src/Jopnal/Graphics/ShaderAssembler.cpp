@@ -346,8 +346,8 @@ namespace jop
 
                         if (strstr(itr->second.c_str(), "#include"))
                         {
-                            std::vector<const char*> nested(1, itr->second.c_str());
-                            preprocess(nested, output, true, duplicateSet);
+                            std::vector<const char*> nestedVec(1, itr->second.c_str());
+                            preprocess(nestedVec, output, true, duplicateSet);
 
                             std::string stripped = itr->second;
 
