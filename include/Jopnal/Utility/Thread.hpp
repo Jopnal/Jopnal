@@ -29,6 +29,8 @@
 //////////////////////////////////////////////
 
 
+class _JNIEnv;
+
 namespace jop
 {
     class JOP_API Thread
@@ -130,9 +132,11 @@ namespace jop
         std::thread::id getId() const;
 
 
-        static void attachJavaThread();
+        static void attachJavaThread(void* vm);
 
-        static void detachJavaThread();
+        static void detachJavaThread(void* vm);
+
+        static _JNIEnv* getCurrentJavaEnv();
 
     private:
 

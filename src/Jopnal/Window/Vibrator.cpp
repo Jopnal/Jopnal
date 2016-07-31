@@ -29,7 +29,7 @@ namespace jop
 {
     void Vibrator::vibrate(const unsigned int time_ms)
     {
-#if defined (JOP_OS_ANDROID)
+    #if defined (JOP_OS_ANDROID)
 
         // JVM & JNI
         JavaVM* vm = detail::ActivityState::get()->nativeActivity->vm;
@@ -75,12 +75,14 @@ namespace jop
         jni->DeleteLocalRef(serviceStr);
         jni->DeleteLocalRef(vibrator);
         jni->DeleteLocalRef(vibratorClass);
-        
-        vm->DetachCurrentThread();
-#else
-        time_ms;
-#endif
 
+        vm->DetachCurrentThread();
+
+    #else
+
+        time_ms;
+
+    #endif
     }
 
     void Vibrator::vibrate()
@@ -90,7 +92,7 @@ namespace jop
 
     void Vibrator::stop()
     {
-#if defined (JOP_OS_ANDROID)
+    #if defined (JOP_OS_ANDROID)
 
         // JVM & JNI
         JavaVM* vm = detail::ActivityState::get()->nativeActivity->vm;
@@ -138,8 +140,6 @@ namespace jop
 
         vm->DetachCurrentThread();
 
-#endif
+    #endif
     }
-
 }
-

@@ -31,9 +31,8 @@
 #include <Jopnal/Window/WindowHandle.hpp>
 #include <EGL/egl.h>
 
-#define JOP_AXIS_TOLERANCE 0.005
-
 //////////////////////////////////////////////
+
 
 namespace jop { namespace detail
 {
@@ -79,8 +78,7 @@ namespace jop { namespace detail
         glm::uvec2 m_size;
     };
 
-    JOP_API void getUnicode(void* data, void* vm, void* env, void* args);
-    JOP_API void showVirtualKeyboard(const bool show, void* vm, void* env, void* clazz, void* args);
+    JOP_API void getUnicode(void* data, void* vm, void* env);
     JOP_API int32_t onMotion(const int32_t& action, void* data);
     JOP_API int32_t onKey(const int32_t& action, void* data);
 }}

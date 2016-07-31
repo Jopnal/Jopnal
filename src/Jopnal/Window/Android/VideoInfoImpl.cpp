@@ -56,11 +56,7 @@ namespace jop { namespace detail
 
     glm::uvec2 VideoInfoImpl::getDesktopResolution()
     {
-        auto state = detail::ActivityState::get();
-
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        return state->screenSize;
+        return detail::ActivityState::get()->screenSize;
     }
 }}
 

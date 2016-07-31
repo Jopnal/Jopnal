@@ -35,14 +35,13 @@
 class btMotionState;
 class btCollisionObject;
 
-namespace detail
-{
-    struct GhostCallback;
-    struct ContactListenerImpl;
-}
-
 namespace jop
 {
+    namespace detail
+    {
+        struct GhostCallback;
+        struct ContactListenerImpl;
+    }
     class World;
     class ContactListener;
 
@@ -52,9 +51,9 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Collider);
 
-        friend struct ::detail::GhostCallback;
+        friend struct detail::GhostCallback;
+        friend struct detail::ContactListenerImpl;
         friend class ContactListener;
-        friend struct ::detail::ContactListenerImpl;
 
     protected:
 

@@ -101,7 +101,6 @@ namespace jop
 
         if (ns_isDopplerEffect)
         {
-            glm::vec3 pos = getObject()->getGlobalPosition();
             m_lastPos -= glm::abs(pos);
             ALfloat speed[] = { m_lastPos.x, m_lastPos.y, m_lastPos.z };
             alTry(alSourcefv(m_source, AL_VELOCITY, speed));

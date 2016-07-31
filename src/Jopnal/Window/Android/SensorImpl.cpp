@@ -40,7 +40,7 @@ namespace
     ALooper* looper                     = nullptr;
     ASensorManager* sensorManager       = nullptr;
     ASensorEventQueue* sensorEventQueue = nullptr;
-    glm::vec3 m_data[jop::Sensor::Type::Count];
+    glm::vec3 m_data[static_cast<size_t>(jop::Sensor::Type::Count)];
 }
 
 namespace jop
@@ -132,7 +132,7 @@ namespace jop
 
     glm::vec3 SensorImpl::getData(const Sensor::Type sensorType) const
     {
-        return m_data[sensorType];
+        return m_data[static_cast<size_t>(sensorType)];
     }
 
     //////////////////////////////////////////////
@@ -157,7 +157,7 @@ namespace jop
         };
 
         // Retrieve the default android sensor matching the type
-        return ASensorManager_getDefaultSensor(sensorManager, types[sensorType]);
+        return ASensorManager_getDefaultSensor(sensorManager, types[static_cast<size_t>(sensorType)]);
     }
 
     //////////////////////////////////////////////
@@ -168,14 +168,14 @@ namespace jop
 
         while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0)
         {
-            unsigned int type = Sensor::Type::Count;
+            Sensor::Type type = Sensor::Type::Count;
             glm::vec3 data;
 
             switch (event.type)
             {
                 case ASENSOR_TYPE_ACCELEROMETER:
                 {
-                    type = Sensor::Accelerometer;
+                    type = Sensor::Type::Accelerometer;
                     data.x = event.acceleration.x;
                     data.y = event.acceleration.y;
                     data.z = event.acceleration.z;
@@ -184,7 +184,7 @@ namespace jop
                 }
                 case ASENSOR_TYPE_GYROSCOPE:
                 {
-                    type = Sensor::Gyroscope;
+                    type = Sensor::Type::Gyroscope;
                     data.x = event.vector.x;
                     data.y = event.vector.y;
                     data.z = event.vector.z;
@@ -193,7 +193,7 @@ namespace jop
                 }
                 case ASENSOR_TYPE_MAGNETIC_FIELD:
                 {
-                    type = Sensor::Magnetometer;
+                    type = Sensor::Type::Magnetometer;
                     data.x = event.magnetic.x;
                     data.y = event.magnetic.y;
                     data.z = event.magnetic.z;
@@ -202,7 +202,7 @@ namespace jop
                 }
                 case ASENSOR_TYPE_GRAVITY:
                 {
-                    type = Sensor::Gravity;
+                    type = Sensor::Type::Gravity;
                     data.x = event.vector.x;
                     data.y = event.vector.y;
                     data.z = event.vector.z;
@@ -211,7 +211,7 @@ namespace jop
                 }
                 case ASENSOR_TYPE_LINEAR_ACCELERATION:
                 {
-                    type = Sensor::LinearAcceleration;
+                    type = Sensor::Type::LinearAcceleration;
                     data.x = event.acceleration.x;
                     data.y = event.acceleration.y;
                     data.z = event.acceleration.z;
@@ -220,20 +220,20 @@ namespace jop
                 }
                 case ASENSOR_TYPE_ORIENTATION:
                 {
-                    type = Sensor::Orientation;
+                    type = Sensor::Type::Orientation;
                     data.x = event.vector.x;
                     data.y = event.vector.y;
                     data.z = event.vector.z;
                 }
             }
 
-            if (type == Sensor::Count)
+            if (type == Sensor::Type::Count)
             {
                 JOP_DEBUG_ERROR("Unknown sensor event detected");
                 continue;
             }
 
-            m_data[type] = data;
+            m_data[static_cast<size_t>(type)] = data;
         }
 
         return 1;

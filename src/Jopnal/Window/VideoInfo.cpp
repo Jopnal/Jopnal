@@ -23,9 +23,7 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
-
     #include <Jopnal/Window/VideoInfo.hpp>
-
 #endif
 
 #if defined(JOP_OS_DESKTOP)

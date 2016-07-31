@@ -25,6 +25,7 @@
 #ifdef JOP_OS_ANDROID
 
 #include <Jopnal/Utility/Assert.hpp>
+#include <Jopnal/Utility/Thread.hpp>
 #include <Jopnal/STL.hpp>
 #include <android/window.h>
 
@@ -42,38 +43,53 @@ namespace jop { namespace detail
         : nativeActivity        (NULL),
           nativeWindow          (NULL),
           pollFunc              (nullptr),
-          showVirtualKeyboard   (nullptr),
           window                (nullptr),
           screenSize            (0.f),
-          lastTouchPosition     (-1.f),
+          windowSize            (0.f),
           activeKey             (-1),
-          activeAxes            ()
+          focus                 (false)
     {
-
+        for (int i = 0; i < sizeof(lastTouchPosition) / sizeof(lastTouchPosition[0]); ++i)
+            lastTouchPosition[i] = glm::vec2(-1.f);
     }
 
     //////////////////////////////////////////////
 
     ActivityState* ActivityState::create(ANativeActivity* activity)
     {
-        JOP_ASSERT(ns_instance == nullptr, "There may only be one ActivityState!");
+        JOP_ASSERT(ns_instance == nullptr, "There must only be one ActivityState!");
 
-        ns_instance = std::make_unique<ActivityState>();
+        ns_instance.reset(new ActivityState);
         ns_instance->nativeActivity = activity;
 
         ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, AWINDOW_FLAG_KEEP_SCREEN_ON);
 
         // Get the screen size
         {
-            jclass displayMetricsClass = activity->env->FindClass("android/util/DisplayMetrics");
-            
-            jobject displayMetricsObject = activity->env->NewObject(displayMetricsClass, activity->env->GetMethodID(displayMetricsClass, "<init>", "()V"));
-            jobject displayObject = activity->env->CallObjectMethod(activity->env->CallObjectMethod(activity->clazz, activity->env->GetMethodID(activity->env->GetObjectClass(activity->clazz), /"getWindowManager", "()Landroid/view/WindowManager;")), activity->env->GetMethodID(activity->env->FindClass("android/view/WindowManager"), "getDefaultDisplay", "()Landroid/view////Display;"));
-            
-            activity->env->CallVoidMethod(displayObject, activity->env->GetMethodID(activity->env->FindClass("android/view/Display"), "getMetrics", "(Landroid/util/DisplayMetrics;)V"), displayMetricsObject);
-            
-            ns_instance->screenSize.x = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "widthPixels", "I")));
-            ns_instance->screenSize.y = static_cast<unsigned int>(activity->env->GetIntField(displayMetricsObject, activity->env->GetFieldID(displayMetricsClass, "heightPixels", "I")));
+            JNIEnv* env = Thread::getCurrentJavaEnv();
+
+            jclass activityClass = env->GetObjectClass(activity->clazz);
+
+            jclass displayMetricsClass = env->FindClass("android/util/DisplayMetrics");
+            jmethodID displayMetricsInit = env->GetMethodID(displayMetricsClass, "<init>", "()V");
+            jobject displayMetricsObject = env->NewObject(displayMetricsClass, displayMetricsInit);
+
+            jmethodID getWindowManagerMethod = env->GetMethodID(activityClass, "getWindowManager", "()Landroid/view/WindowManager;");
+            jobject windowManagerObject = env->CallObjectMethod(activity->clazz, getWindowManagerMethod);
+
+            jclass windowManagerClass = env->FindClass("android/view/WindowManager");
+            jmethodID getDefaultDisplayMethod = env->GetMethodID(windowManagerClass, "getDefaultDisplay", "()Landroid/view/Display;");
+            jobject displayObject = env->CallObjectMethod(windowManagerObject, getDefaultDisplayMethod);
+
+            jclass displayClass = env->FindClass("android/view/Display");
+            jmethodID getMetricsMethod = env->GetMethodID(displayClass, "getMetrics", "(Landroid/util/DisplayMetrics;)V");
+            env->CallVoidMethod(displayObject, getMetricsMethod, displayMetricsObject);
+
+            jfieldID pixelsWidth = env->GetFieldID(displayMetricsClass, "widthPixels", "I");
+            jfieldID pixelsHeight = env->GetFieldID(displayMetricsClass, "heightPixels", "I");
+
+            ns_instance->windowSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
+            ns_instance->windowSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
         }
     }
 
@@ -84,9 +100,28 @@ namespace jop { namespace detail
         return ns_instance.get();
     }
 
+    //////////////////////////////////////////////
+
     void ActivityState::reset()
     {
         ns_instance.reset();
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int ActivityState::getAPILevel()
+    {
+        auto env = Thread::getCurrentJavaEnv();
+
+        jclass versionClass = env->FindClass("android/os/Build$VERSION");
+        if (!versionClass)
+            return 0;
+
+        jfieldID IDField = env->GetStaticFieldID(versionClass, "SDK_INT", "I");
+        if (!IDField)
+            return 0;
+
+        return static_cast<unsigned int>(env->GetStaticIntField(versionClass, IDField));
     }
 }}
 

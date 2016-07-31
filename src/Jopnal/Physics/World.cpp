@@ -191,113 +191,6 @@ namespace detail
 
 #endif
 
-namespace detail
-{
-    struct GhostCallback : btGhostPairCallback
-    {
-        btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {    
-                for (auto& i : p0->m_listeners)
-                {
-                    i->beginOverlap(*p1);
-                }
-
-                for (auto& i : p1->m_listeners)
-                {
-                    i->beginOverlap(*p0);
-                }
-            }
-
-            return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
-        }
-
-        void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {
-                for (auto& i : p0->m_listeners)
-                {
-                    i->endOverlap(*p1);
-                }
-
-                for (auto& i : p1->m_listeners)
-                {
-                    i->endOverlap(*p0);
-                }
-            }
-
-            return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
-        }
-    };
-
-    struct ContactListenerImpl
-    {
-    private:
-
-        struct ContactData
-        {
-            jop::WeakReference<jop::Collider> A;
-            jop::WeakReference<jop::Collider> B;
-
-            ContactData(jop::Collider* a, jop::Collider* b):
-                A(*a),
-                B(*b)
-            {}
-        };
-
-    public:
-        static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
-        {
-            if (!body0 || !body1)
-                return false;
-
-            auto a = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
-            auto b = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
-
-            const auto& pos = cp.m_positionWorldOnB;
-            const auto& norm = cp.m_normalWorldOnB;
-
-            jop::ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
-
-            
-
-            cp.m_userPersistentData = new ContactData(a, b);
-
-            for (auto& i : a->m_listeners)
-            {
-                i->beginContact(*b, ci);
-            }
-
-            return true;
-        }
-
-        static bool contactDestroyedCallback(void* userPersistentData)
-        {
-            if (!userPersistentData)
-                return false;
-
-            ContactData* cd = static_cast<ContactData*>(userPersistentData);
-
-            for (auto& i : cd->A->m_listeners)
-            {
-                i->endContact(*cd->B);
-            }
-
-            delete cd;
-            return true;
-        }
-
-    };
-}
-
 #ifdef JOP_DEBUG_MODE
     #define CREATE_DRAWER new ::detail::DebugDrawer
 #else
@@ -306,20 +199,125 @@ namespace detail
 
 namespace jop
 {
+    namespace detail
+    {
+        struct GhostCallback : btGhostPairCallback
+        {
+            btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
+            {
+                auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+                auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+                if (p0 && p1)
+                {
+                    for (auto& i : p0->m_listeners)
+                        i->beginOverlap(*p1);
+
+                    for (auto& i : p1->m_listeners)
+                        i->beginOverlap(*p0);
+                }
+
+                return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+            }
+
+            void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
+            {
+                auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+                auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+                if (p0 && p1)
+                {
+                    for (auto& i : p0->m_listeners)
+                        i->endOverlap(*p1);
+
+                    for (auto& i : p1->m_listeners)
+                        i->endOverlap(*p0);
+                }
+
+                return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
+            }
+        };
+
+        struct ContactListenerImpl
+        {
+        private:
+
+            struct ContactData
+            {
+                Collider& A;
+                Collider& B;
+
+                ContactData(Collider& a, Collider& b)
+                    : A(a),
+                      B(b)
+                {}
+            };
+
+        public:
+
+            static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
+            {
+                if (!body0 || !body1)
+                    return false;
+
+                auto a = static_cast<Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
+                auto b = static_cast<Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
+
+                const auto& pos = cp.m_positionWorldOnB;
+                const auto& norm = cp.m_normalWorldOnB;
+
+                ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
+
+                cp.m_userPersistentData = new ContactData(*a, *b);
+
+                for (auto& i : a->m_listeners)
+                    i->beginContact(*b, ci);
+
+                return true;
+            }
+
+            static bool contactDestroyedCallback(void* userPersistentData)
+            {
+                ContactData* cd = static_cast<ContactData*>(userPersistentData);
+
+                for (auto& i : cd->A.m_listeners)
+                    i->endContact(cd->B);
+
+                delete cd;
+
+                return true;
+            }
+        };
+
+        struct BroadPhaseCallback : btOverlapFilterCallback
+        {
+            bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
+            {
+                return !(static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject() && static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject()) &&
+                    (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
+                    (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     World::World(Object& obj, Renderer& renderer)
         : Drawable          (obj, renderer, RenderPass::Pass::Forward, 0),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
-          m_ghostCallback   (std::make_unique<::detail::GhostCallback>()),
-          m_contactListener (std::make_unique<::detail::ContactListenerImpl>())
+          m_ghostCallback   (std::make_unique<detail::GhostCallback>()),
+          m_contactListener (std::make_unique<detail::ContactListenerImpl>()),
+          m_bpCallback      (std::make_unique<detail::BroadPhaseCallback>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
+        m_worldData->world->getPairCache()->setOverlapFilterCallback(m_bpCallback.get());
         m_worldData->world->setWorldUserInfo(this);
         gContactProcessedCallback = m_contactListener->contactProcessedCallback;
         gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
-
+        
         setDebugMode(false);
 
         setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
