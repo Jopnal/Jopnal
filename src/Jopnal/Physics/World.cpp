@@ -293,9 +293,14 @@ namespace jop
         {
             bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
             {
-                return !(static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject() && static_cast<btCollisionObject*>(proxy0->m_clientObject)->isStaticObject()) &&
-                    (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
-                    (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
+                auto btColl0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+                auto btColl1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+
+                return !(btColl0->isStaticObject() && btColl1->isStaticObject()) &&
+                        static_cast<Collider*>(btColl0->getUserPointer())->isActive() &&
+                        static_cast<Collider*>(btColl1->getUserPointer())->isActive() &&
+                        (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
+                        (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
             }
         };
     }
