@@ -440,7 +440,7 @@ namespace jop
         std::vector<RayInfo> objContainer;
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
-        for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
+        for (size_t i = 0; i < cb.m_collisionObjects.size(); ++i)
         {
             const auto& point = cb.m_hitPointWorld[i];
             const auto& normal = cb.m_hitNormalWorld[i];
