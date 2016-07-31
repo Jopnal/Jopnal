@@ -81,14 +81,20 @@ namespace jop
     namespace detail
     {
         BufferSwapper::BufferSwapper(Window& window)
-            : Subsystem(0),
-            m_windowRef(window)
+            : Subsystem     (0),
+              m_frameClock  (),
+              m_windowRef   (window)
         {}
 
         //////////////////////////////////////////////
 
         void BufferSwapper::draw()
         {
+            static DynamicSetting<unsigned int> frameLimit("engine@DefaultWindow|uFrameLimit", 0);
+
+            if (frameLimit.value > 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>((1.f / frameLimit.value - m_frameClock.reset().asSeconds()) * 1000.f)));
+
             if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
                 m_windowRef.m_impl->swapBuffers();
         }
@@ -104,7 +110,6 @@ namespace jop
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
           samples       (0),
-          maxFrameRate  (0),
           depthBits     (0),
           stencilBits   (0),
           visible       (false),
@@ -121,7 +126,6 @@ namespace jop
             title = SM::get<std::string>("engine@DefaultWindow|sTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine@DefaultWindow|uMode", 1)));
             samples = SM::get<unsigned int>("engine@DefaultWindow|uMultisampling", 0);
-            maxFrameRate = SM::get<unsigned int>("engine@DefaultWindow|uFrameLimit", 0);
             visible = SM::get<bool>("engine@DefaultWindow|bVisible", true);
             vSync = SM::get<bool>(ns_settingStr[2], true);
             debug = SM::get<bool>("engine@DefaultWindow|bDebugContext", false);
