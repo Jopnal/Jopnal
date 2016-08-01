@@ -41,7 +41,7 @@
 
 namespace
 {
-    jop::Window* ns_windowRef=nullptr;
+    jop::Window* ns_windowRef = nullptr;
 
     bool validateWindowRef()
     {
@@ -76,12 +76,7 @@ namespace jop
 
         #elif defined(JOP_OS_ANDROID)
 
-            auto state = detail::ActivityState::get();
-
-            const bool result = state->activeKey == key;
-            state->activeKey = 0;
-
-            return result;
+            return detail::ActivityState::get()->activeKey == key;
 
         #endif
         }
@@ -96,6 +91,9 @@ namespace jop
 
         auto state = detail::ActivityState::get();
         JNIEnv* env = Thread::getCurrentJavaEnv();
+
+        if (!env)
+            JOP_DEBUG_ERROR("No current JNIENV: " << __func__);
 
         jint flags = 0;
 

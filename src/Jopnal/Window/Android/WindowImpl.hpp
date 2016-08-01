@@ -78,7 +78,7 @@ namespace jop { namespace detail
         glm::uvec2 m_size;
     };
 
-    JOP_API void getUnicode(void* data, void* vm, void* env);
+    JOP_API void getUnicode(void* data);
     JOP_API int32_t onMotion(const int32_t& action, void* data);
     JOP_API int32_t onKey(const int32_t& action, void* data);
 }}

@@ -131,7 +131,7 @@ namespace jop
         ///
         /// \return glm::vec2
         ///
-        static float getAxisOffset(const int index);
+        static float getAxisOffset(const int index, const int axis);
     };
 }
 

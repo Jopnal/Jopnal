@@ -42,7 +42,11 @@ namespace jop
     #ifdef JOP_OS_ANDROID
 
         if (id < 10)
-            return detail::ActivityState::get()->lastTouchPosition[id].x>=0.f && detail::ActivityState::get()->lastTouchPosition[id].y>=0.f;
+        {
+            auto state = detail::ActivityState::get();
+
+            return state->lastTouchPosition[id].x >= 0.f && state->lastTouchPosition[id].y >= 0.f;
+        }
 
     #else
 

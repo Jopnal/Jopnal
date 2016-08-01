@@ -62,7 +62,7 @@ namespace jop
 	{
         if (validateWindowRef())
         {
-        #ifdef JOP_OS_DESKTOP
+        #if defined(JOP_OS_DESKTOP)
 
             const int max = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
 
@@ -75,10 +75,14 @@ namespace jop
 
             return count;
 
+        #elif defined(JOP_OS_ANDROID)
+
+            return detail::ActivityState::get()->activeController;
+
         #endif
         }
 
-		return 0;;
+		return 0;
 	}
 
 	//////////////////////////////////////////////
@@ -87,8 +91,14 @@ namespace jop
 	{
 		if (validateWindowRef())
 		{
-        #ifdef JOP_OS_DESKTOP
+        #if defined(JOP_OS_DESKTOP)
 			return glfwJoystickPresent(index) == GL_TRUE;
+
+        #elif defined(JOP_OS_ANDROID
+
+            if (index == 0)
+                return detail::ActivityState::get()->activeController;
+
         #endif
 		}
 
@@ -121,7 +131,7 @@ namespace jop
 
 	//////////////////////////////////////////////
 
-    float Controller::getAxisOffset(const int index)
+    float Controller::getAxisOffset(const int index, const int axis)
     {
         if (validateWindowRef())
         {
@@ -130,7 +140,7 @@ namespace jop
             int count = 0;
             const float* axes = glfwGetJoystickAxes(index, &count);
 
-            switch (index)
+            switch (axis)
             {
                 case XBox::Axis::LeftStickX:
                     return axes[0];
@@ -162,7 +172,6 @@ namespace jop
 
             auto state = detail::ActivityState::get();
 
-            switch (index)
             {
                 case XBox::Axis::LeftStickX:
                     return state->activeAxes[0];
@@ -182,7 +191,6 @@ namespace jop
                 case XBox::Axis::RTrigger:
                     return state->activeAxes[2];
             }
-
         #endif
         }
 

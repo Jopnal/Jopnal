@@ -65,8 +65,9 @@ namespace jop { namespace detail
 
         glm::vec2 lastTouchPosition[10];
         int activeKey; 
-        float activeAxes[4]; 
+        float activeAxes[6]; 
         bool focus;
+        int activeController;
     };
 }}
 
