@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
-#include <set>
+#include <map>
 #include <array>
 
 //////////////////////////////////////////////
@@ -41,6 +41,8 @@ namespace jop
     private:
 
         JOP_DISALLOW_COPY_MOVE(Renderer);
+
+        typedef std::array<std::map<uint32, std::unique_ptr<RenderPass>>, 2> PassContainer;
 
         friend class Camera;
         friend class LightSource;
@@ -69,37 +71,46 @@ namespace jop
         ///
         uint32 getMask() const;
 
+        template<typename T, typename ... Args>
+        T& createRenderPass(const RenderPass::Pass pass, const uint32 weight, Args&&... args);
+
+        template<typename T>
+        T* getRenderPass(const RenderPass::Pass pass, const uint32 weight);
+
+        void removeRenderPass(const RenderPass::Pass pass, const uint32 weight);
+
         void draw(const RenderPass::Pass pass);
 
     private:
 
-        void bind(const LightSource& light);
+        void bind(const LightSource* light);
 
-        void bind(const Camera& camera);
+        void bind(const Camera* camera);
 
-        void bind(const Drawable& drawable, const RenderPass::Pass pass);
+        void bind(const Drawable* drawable, const RenderPass::Pass pass);
 
-        void bind(EnvironmentRecorder& envRecorder);
+        void bind(const EnvironmentRecorder* envRecorder);
 
-        void unbind(const LightSource& light);
+        void unbind(const LightSource* light);
 
-        void unbind(const Camera& camera);
+        void unbind(const Camera* camera);
 
-        void unbind(const Drawable& drawable, const RenderPass::Pass pass);
+        void unbind(const Drawable* drawable, const RenderPass::Pass pass);
 
-        void unbind(EnvironmentRecorder& envRecorder);
+        void unbind(const EnvironmentRecorder* envRecorder);
 
     private:
 
         RenderPass::Lights m_lights;                        ///< The bound lights
         RenderPass::Cameras m_cameras;                      ///< The bound cameras
-        RenderPass m_prePass;
-        RenderPass m_forwardPass;
-        RenderPass m_postPass;
-        std::array<RenderPass*, 3> m_passes;
+        PassContainer m_passes;
         RenderPass::EnvironmentRecorders m_envRecorders;    ///< The bound environment recorders
         uint32 m_mask;                                      ///< The rendering mask
+        const RenderTarget& m_target;
     };
+
+    // Include template implementation file
+    #include <Jopnal/Graphics/Inl/Renderer.inl>
 }
 
 #endif

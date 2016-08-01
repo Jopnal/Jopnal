@@ -310,7 +310,6 @@ namespace jop
         static Engine* m_engineObject;                          ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems;   ///< A vector containing the subsystems
-        std::recursive_mutex m_mutex;                           ///< Mutex
         std::atomic<double> m_totalTime;                        ///< The total time
         std::unique_ptr<Scene> m_currentScene;                  ///< The current scene
         std::atomic<Scene*> m_newScene;                         ///< Temporary new scene pointer

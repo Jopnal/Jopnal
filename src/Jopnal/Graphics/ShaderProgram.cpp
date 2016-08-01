@@ -73,6 +73,20 @@ namespace jop
         // Create program
         m_programID = glCheck(glCreateProgram());
 
+    #ifdef JOP_OPENGL_ES
+
+        if (gl::getVersionMajor() < 3)
+        {
+            glCheck(glBindAttribLocation(m_programID, 0, "a_Position"));
+            glCheck(glBindAttribLocation(m_programID, 1, "a_TexCoords"));
+            glCheck(glBindAttribLocation(m_programID, 2, "a_Normal"));
+            glCheck(glBindAttribLocation(m_programID, 3, "a_Tangent"));
+            glCheck(glBindAttribLocation(m_programID, 4, "a_BiTangent"));
+            glCheck(glBindAttribLocation(m_programID, 5, "a_Color"));
+        }
+
+    #endif
+
         // Attach shaders
         for (auto& i : m_shaders)
         {
@@ -320,12 +334,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ShaderProgram::setAttribute(const std::string& name, const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer)
+    void ShaderProgram::setAttribute(const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer)
     {
-        const int loc = getAttributeLocation(name, location);
-
-        GlState::setVertexAttribute(true, loc);
-        glCheck(glVertexAttribPointer(loc, amount, type, GL_FALSE, stride, pointer));
+        glCheck(glVertexAttribPointer(location, amount, type, GL_FALSE, stride, pointer));
     }
 
     //////////////////////////////////////////////
@@ -395,46 +406,5 @@ namespace jop
         }
 
         return -1;
-    }
-
-    //////////////////////////////////////////////
-
-    int ShaderProgram::getAttributeLocation(const std::string& name, const unsigned int loc)
-    {
-    #ifndef JOP_OPENGL_ES
-
-        name;
-        return loc;
-
-    #else
-
-        if (gl::getGLSLVersion() >= 300)
-            return loc;
-
-        else if (bind())
-        {
-            auto itr = m_attribMap.find(name);
-
-            if (itr != m_attribMap.end())
-                return itr->second;
-
-            const int location = glCheck(glGetAttribLocation(m_programID, name.c_str()));
-
-            if (location == -1)
-            {
-                static DynamicSetting<bool> err("engine@Debug|bPrintShaderAttributeLocationErrors", true);
-
-                if (err.value)
-                    JOP_DEBUG_WARNING("Attribute named \"" << name << "\" not found in shader \"" << getName() << "\"");
-            }
-            else
-                m_unifMap[name] = location;
-
-            return location;
-        }
-
-        return -1;
-
-    #endif
     }
 }

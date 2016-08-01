@@ -42,10 +42,7 @@ namespace jop
     {
     private:
 
-        RigidBody2D(const RigidBody2D& other, Object& newObj);
-
         JOP_GENERIC_COMPONENT_CLONE(RigidBody2D);
-        JOP_DISALLOW_COPY_MOVE(RigidBody2D);
 
     public:
 

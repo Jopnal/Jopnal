@@ -19,47 +19,25 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PHANTOMBODY_HPP
-#define JOP_PHANTOMBODY_HPP
 
-// Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Collider.hpp>
-#include <vector>
-
-//////////////////////////////////////////////
-
-
-namespace jop
+template<typename T, typename ... Args>
+T& Renderer::createRenderPass(const RenderPass::Pass pass, const uint32 weight, Args&&... args)
 {
-    class CollisionShape;
+    auto ptr = std::make_unique<T>(*this, m_target, pass, weight, std::forward<Args>(args)...);
+    auto tempPtr = ptr.get();
 
-    class PhantomBody : public Collider
-    {
-    private:
+    m_passes[static_cast<int>(pass)][weight] = std::move(ptr);
 
-        JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
-
-    public:
-
-        enum class Type
-        {
-            Static,
-            Kinematic
-        };
-
-    public:
-    
-        PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type);
-
-
-        void update(const float deltaTime) override;
-    };
+    return *tempPtr;
 }
 
-#endif
+template<typename T>
+T* Renderer::getRenderPass(const RenderPass::Pass pass, const uint32 weight)
+{
+    auto itr = m_passes[static_cast<int>(pass)].find(weight);
 
-/// \class PhantomBody
-/// \ingroup physics
-///
-/// #TODO Detailed description
+    if (itr != m_passes.end())
+        return itr->second.get();
+
+    return nullptr;
+}

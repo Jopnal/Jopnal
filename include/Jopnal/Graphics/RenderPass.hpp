@@ -40,7 +40,7 @@ namespace jop
     class LightContainer;
     class RenderTarget;
 
-    class JOP_API RenderPass final
+    class JOP_API RenderPass
     {
     private:
 
@@ -51,41 +51,64 @@ namespace jop
 
     public:
 
-        typedef std::set<const LightSource*>    Lights;
-        typedef std::set<const Camera*>         Cameras;
-        typedef std::set<EnvironmentRecorder*>  EnvironmentRecorders;
-        typedef std::set<const Drawable*>       Drawables;
+        typedef std::set<const LightSource*>            Lights;
+        typedef std::set<const Camera*>                 Cameras;
+        typedef std::set<const EnvironmentRecorder*>    EnvironmentRecorders;
+        typedef std::set<const Drawable*>               Drawables;
+
+        static const uint32 DefaultWeight;
 
         enum class Pass
         {
-            Pre,
-            Forward,
-            Post
+            BeforePost,
+            AfterPost
         };
 
     public:
 
-        RenderPass(Renderer& renderer, const RenderTarget& target);
+        RenderPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight);
+
+        virtual ~RenderPass() = 0;
 
 
-        void draw(const unsigned int group);
+        virtual void draw() = 0;
 
-        void bind(const Drawable& drawable);
+        void bind(const Drawable* drawable);
 
-        void unbind(const Drawable& drawable);
+        void unbind(const Drawable* drawable);
 
-    private:
+        void setActive(const bool active);
 
-        /// \brief Select the lights that affect the drawable
-        ///
-        /// \param drawable The drawable
-        /// \param lights Reference to a light container to fill
-        ///
-        void chooseLights(const Drawable& drawable, LightContainer& lights) const;
+        bool isActive() const;
+
+        Renderer& getRenderer();
+
+        Pass whichPass() const;
+
+    protected:
 
         Drawables m_drawables;
         Renderer& m_rendererRef;
         const RenderTarget& m_target;
+        const uint32 m_weight;
+        const Pass m_pass;
+        bool m_active;
+    };
+
+    class JOP_API DefaultPrePass : public RenderPass
+    {
+    public:
+
+        DefaultPrePass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight);
+
+        void draw() override;
+    };
+
+    class JOP_API DefaultPostPass : public RenderPass
+    {
+        DefaultPostPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight);
+
+        void draw() override;
     };
 
     namespace detail

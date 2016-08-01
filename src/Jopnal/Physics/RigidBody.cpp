@@ -51,17 +51,17 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(RigidBody)
 
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularFactor");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorque, "applyTorque");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearVelocity, "setLinearVelocity");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularVelocity");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralForce, "applyCentralForce");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
-    JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorque, "applyTorque");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearVelocity, "setLinearVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralForce, "applyCentralForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
 
     JOP_END_COMMAND_HANDLER(RigidBody)
 }
@@ -69,23 +69,23 @@ namespace jop
 namespace jop
 {
     RigidBody::ConstructInfo::ConstructInfo(const CollisionShape& shape, const Type type, const float mass)
-        : group                 (1),
-        mask                    (1),
-        friction                (0.5f),
-        rollingFriction         (0.f),
-        restitution             (0.f),
-        m_shape                 (shape),
-        m_type                  (type),
-        m_mass                  ((type == Type::Dynamic) * mass)
+        : group             (1),
+          mask              (1),
+          friction          (0.5f),
+          rollingFriction   (0.f),
+          restitution       (0.f),
+          m_shape           (shape),
+          m_type            (type),
+          m_mass            ((type == Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
 
     RigidBody::RigidBody(Object& object, World& world, const ConstructInfo& info)
-        : Collider  (object, world, 0),
-        m_type      (info.m_type),
-        m_mass      (info.m_mass),
-        m_rigidBody (nullptr)
+        : Collider      (object, world, 0),
+          m_type        (info.m_type),
+          m_mass        (info.m_mass),
+          m_rigidBody   (nullptr)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -141,7 +141,7 @@ namespace jop
 
         m_rigidBody = rb.get();
         m_body = std::move(rb);
-
+        
         newObj.setIgnoreParent(other.getObject()->ignoresParent());
     }
 
@@ -312,6 +312,7 @@ namespace jop
         {
             auto& pos = getObject()->getGlobalPosition();
             auto& rot = getObject()->getGlobalRotation();
+
             m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
         }
         return *this;

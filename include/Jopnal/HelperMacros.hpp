@@ -59,6 +59,13 @@
 ///
 /// \param className The name of the component
 ///
-#define JOP_GENERIC_COMPONENT_CLONE(className) virtual className* clone(jop::Object& obj) const override{return new className(*this, obj);}
+#define JOP_GENERIC_COMPONENT_CLONE(className)                      \
+                                                                    \
+    JOP_DISALLOW_COPY_MOVE(className)                               \
+    className(const className & other, ::jop::Object& newObj);      \
+    virtual className* clone(::jop::Object& newObj) const override  \
+    {                                                               \
+        return new className(*this, newObj);                        \
+    }
 
 #endif

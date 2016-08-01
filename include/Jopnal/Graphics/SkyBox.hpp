@@ -39,14 +39,6 @@ namespace jop
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sky box to copy
-        /// \param newObj The new object
-        ///
-        SkyBox(const SkyBox& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(SkyBox);
         JOP_GENERIC_COMPONENT_CLONE(SkyBox);
 
     public:

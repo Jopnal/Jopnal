@@ -113,8 +113,6 @@ ExternalProject_Add(PhysFS
                     GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
                     GIT_TAG "master"
                     
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DPHYSFS_BUILD_SHARED=OFF
@@ -122,8 +120,6 @@ ExternalProject_Add(PhysFS
                                ${ANDROID_OPTIONS}
                             
                     BUILD_BYPRODUCTS ${PREFIX_DIR}/src/PhysFS-build/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}
-                    
-                    
 )
 add_dependencies(jopnal PhysFS)
 
@@ -149,8 +145,6 @@ ExternalProject_Add(Bullet
                     GIT_REPOSITORY "https://github.com/Jopnal/bullet3.git"
                     GIT_TAG "master"
                     
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DBUILD_BULLET2_DEMOS=OFF
@@ -182,14 +176,14 @@ if (NOT JOP_OS_ANDROID)
 endif()
 
 list(APPEND EXT_LIBS debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
+                     debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                     debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                     debug ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${BULLET_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 list(APPEND EXT_LIBS optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
-                             optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
+                     optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}
+                     optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}BulletSoftBody${CMAKE_STATIC_LIBRARY_SUFFIX}
+                     optimized ${BULLET_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # Because Bullet seems to build the libs in inconsistent directories
 if (NOT JOP_OS_WINDOWS)
@@ -199,8 +193,7 @@ if (NOT JOP_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletCollision/${BULLET_LIB_COLLISION} ${BINARY_DIR}/lib/${BULLET_LIB_COLLISION}
         COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletDynamics/${BULLET_LIB_DYNAMICS} ${BINARY_DIR}/lib/${BULLET_LIB_DYNAMICS}
         COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/BulletSoftBody/${BULLET_LIB_SOFTBODY} ${BINARY_DIR}/lib/${BULLET_LIB_SOFTBODY}
-        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/LinearMath/${BULLET_LIB_LINEARMATH} ${BINARY_DIR}/lib/${BULLET_LIB_LINEARMATH}
-    )
+        COMMAND ${CMAKE_COMMAND} -E copy ${BINARY_DIR}/src/LinearMath/${BULLET_LIB_LINEARMATH} ${BINARY_DIR}/lib/${BULLET_LIB_LINEARMATH})
     
 endif()
 
@@ -217,8 +210,6 @@ if (NOT JOP_OS_ANDROID)
                         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
                         GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
                         
-                        UPDATE_COMMAND ""
-                        PATCH_COMMAND ""
                         INSTALL_COMMAND ""
                         
                         CMAKE_ARGS -DGLFW_BUILD_DOCS=OFF
@@ -282,8 +273,6 @@ ExternalProject_Add(OpenAL
                     GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
                     GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
                     
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DALSOFT_INSTALL=OFF
@@ -346,8 +335,6 @@ ExternalProject_Add(Vorbis
                     GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
                     GIT_TAG "d8ffc480787fcd8b5bb7203d6e0acf3bbfb2dd02"
                     
-                    UPDATE_COMMAND ""
-                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
 
                     CMAKE_ARGS -DOGG_INCLUDE_DIRS=${SOURCE_DIR}/include

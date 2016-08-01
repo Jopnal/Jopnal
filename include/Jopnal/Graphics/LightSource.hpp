@@ -48,14 +48,6 @@ namespace jop
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other light to copy
-        /// \param newObj The new object
-        ///
-        LightSource(const LightSource& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(LightSource);
         JOP_GENERIC_COMPONENT_CLONE(LightSource);
 
     public:
@@ -175,7 +167,7 @@ namespace jop
         ///
         /// \return True if any objects were drawn
         ///
-        bool drawShadowMap(const RenderPass::Drawables& drawables) const;
+        bool drawShadowMap() const;
 
         /// \brief Get the shadow map
         ///
@@ -285,12 +277,6 @@ namespace jop
         /// \return The maximum range
         ///
         float getRange() const;
-
-        /// \brief Get the range of the light
-        ///
-        /// \return Range of the light
-        ///
-        bool checkRange(const Drawable& drawable) const;
 
 
         /// \brief Set the cutoff

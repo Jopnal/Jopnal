@@ -35,14 +35,6 @@ namespace jop
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other loader to copy
-        /// \param newObj The new object
-        ///
-        ModelLoader(const ModelLoader& other, Object& obj);
-
-        JOP_DISALLOW_COPY_MOVE(ModelLoader);
         JOP_GENERIC_COMPONENT_CLONE(ModelLoader);
 
     public:

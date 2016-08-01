@@ -37,7 +37,6 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(SoundEffect);
         JOP_GENERIC_COMPONENT_CLONE(SoundEffect);
 
     public:
@@ -47,13 +46,6 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         ///
         SoundEffect(Object& object);
-
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sound to be copied
-        /// \param newObj The new object
-        ///
-        SoundEffect(const SoundEffect& other, Object& newObj);
 
         /// \brief Destructor
         ///

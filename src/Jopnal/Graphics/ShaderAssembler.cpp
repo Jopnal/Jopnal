@@ -83,19 +83,14 @@ namespace jop
         if (ResourceManager::exists<ShaderProgram>(shaderName))
             return ResourceManager::getExisting<ShaderProgram>(shaderName);
 
-        
         std::string pp;
         getPreprocessDef(attributes, pp);
         ShaderProgram* s = nullptr;
 
         if ((attributes & Material::Attribute::__RecordEnv))
-        {
             s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
-        }
         else
-        {
             s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
-        }
 
         if (s != &ShaderProgram::getError())
         {
@@ -372,6 +367,16 @@ namespace jop
             if (!nested)
                 output.append(next);
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::setShaderSource(const Shader::Type type, const std::string& source)
+    {
+        if (!m_instance)
+            return;
+
+        m_instance->m_uber[static_cast<int>(type)] = source;
     }
 
     //////////////////////////////////////////////

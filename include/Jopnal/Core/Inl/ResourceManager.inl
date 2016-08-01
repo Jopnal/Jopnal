@@ -259,3 +259,19 @@ void ResourceManager::unload(const std::string& name)
         res.erase(itr);
     }
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+bool ResourceManager::isDefault(const T& resource)
+{
+    return &resource != &T::getDefault();
+}
+
+//////////////////////////////////////////////
+
+template<typename T>
+bool ResourceManager::isError(const T& resource)
+{
+    return &resource != &T::getError();
+}

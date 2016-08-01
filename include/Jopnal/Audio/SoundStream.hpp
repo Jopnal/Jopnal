@@ -51,7 +51,6 @@ namespace jop
             int sampleRate      = 0; ///< Samples per second
         };
 
-        JOP_DISALLOW_COPY_MOVE(SoundStream);
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
 
     public:
@@ -61,13 +60,6 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         ///
         SoundStream(Object& object);
-
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sound stream to be copied
-        /// \param newObj New object for this stream component
-        ///
-        SoundStream(const SoundStream& other, Object& newObj);
 
 
         /// \brief destructor

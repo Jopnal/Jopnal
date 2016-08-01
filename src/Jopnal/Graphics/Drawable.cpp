@@ -46,46 +46,36 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Drawable)
 
         JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setShader, "setShader");
 
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveLights, "setReceiveLights");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setReceiveShadows, "setReceiveShadows");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setCastShadows, "setCastShadows");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setReflected, "setReflected");
         JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
-        JOP_BIND_MEMBER_COMMAND(&Drawable::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Drawable)
-
-    bool jop__baseDrawableLoadFunc(JOP_COMPONENT_LOAD_ARGS)
-    {
-        // mesh & material
-
-        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Load>(Serializer::getSerializeID<Component>(), comp, val);
-    }
-    bool jop__baseDrawableSaveFunc(JOP_COMPONENT_SAVE_ARGS)
-    {
-        // mesh & material
-
-        return Serializer::callSingleFunc<Component, Serializer::FunctionID::Save>(Serializer::getSerializeID<Component>(), comp, val, alloc);
-    }
-
-    JOP_REGISTER_SERIALIZER_NO_FACTORY(jop, Drawable, jop__baseDrawableLoadFunc, jop__baseDrawableSaveFunc);
 }
 
 namespace jop
 {
-    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 ID)
-        : Component     (object, ID),
+    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
+        : Component     (object, 0),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (renderer),
           m_pass        (pass),
-          m_alphaMult   (1.f),
-          m_renderGroup (0),
-          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected)   
+          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup (0)  
     {
-        renderer.bind(*this, pass);
+        renderer.bind(this, pass);
+    }
+
+    Drawable::Drawable(Object& object, RenderPass& pass)
+        : Component     (object, 0),
+          m_model       (Mesh::getDefault(), Material::getDefault()),
+          m_shader      (),
+          m_rendererRef (pass.getRenderer()),
+          m_pass        (pass.whichPass()),
+          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup (0)
+    {
+        pass.bind(this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
@@ -94,25 +84,22 @@ namespace jop
           m_shader      (other.m_shader),
           m_rendererRef (other.m_rendererRef),
           m_pass        (other.m_pass),
-          m_alphaMult   (other.m_alphaMult),
           m_renderGroup (other.m_renderGroup),
           m_flags       (other.m_flags)
     {
-        m_rendererRef.bind(*this, m_pass);
+        m_rendererRef.bind(this, m_pass);
     }
 
     Drawable::~Drawable()
     {
-        m_rendererRef.unbind(*this, m_pass);
+        m_rendererRef.unbind(this, m_pass);
     }
 
     //////////////////////////////////////////////
 
-    void Drawable::draw(const Camera& camera, const LightContainer& lights) const
+    void Drawable::draw(const glm::mat4& view, const glm::mat4& proj, const LightContainer& lights) const
     {
-        auto shdr = ((m_model.getMaterial() == nullptr || !m_model.getMaterial()->getShader()) && m_shader.expired()) ? m_shader.get() : m_model.getMaterial()->getShader();
-
-        draw(&camera, lights, shdr == nullptr ? ShaderProgram::getDefault() : *shdr);
+        
     }
 
     //////////////////////////////////////////////
@@ -166,110 +153,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setShader(ShaderProgram& shader)
+    Drawable& Drawable::setFlags(const uint32 flags)
     {
-        m_shader = static_ref_cast<ShaderProgram>(shader.getReference());
-        return *this;
+        m_flags = flags;
     }
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::removeShader(const bool loadMaterialShader)
+    bool Drawable::hasFlag(const uint32 flag) const
     {
-        if (loadMaterialShader && m_model.getMaterial())
-            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(m_model.getMaterial()->getAttributeField()).getReference());
-        else
-            m_shader.reset();
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    ShaderProgram* Drawable::getShader() const
-    {
-        return m_shader.get();
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::setReceiveLights(const bool receive)
-    {
-        m_flags = (receive ? m_flags | ReceiveLights : m_flags & ~(ReceiveLights));
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::receiveLights() const
-    {
-        return (m_flags & ReceiveLights) != 0 && (m_model.getMaterial() != nullptr && m_model.getMaterial()->hasAttribute(Material::Attribute::__Lighting));
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::lightTouches(const LightSource& light) const
-    {
-        return light.checkRange(*this);
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::setReceiveShadows(const bool receive)
-    {
-        m_flags = (receive ? m_flags | ReceiveShadows : m_flags & ~(ReceiveShadows));
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::receiveShadows() const
-    {
-        return (m_flags & ReceiveShadows) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::setCastShadows(const bool cast)
-    {
-        m_flags = (cast ? m_flags | CastShadows : m_flags & ~(CastShadows));
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::castShadows() const
-    {
-        return (m_flags & CastShadows) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::setReflected(const bool reflected)
-    {
-        m_flags = (reflected ? m_flags | Reflected : m_flags & ~(Reflected));
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::isReflected() const
-    {
-        return (m_flags & Reflected) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    void Drawable::setAlphaMultiplier(const float mult)
-    {
-        m_alphaMult = mult;
-    }
-
-    //////////////////////////////////////////////
-
-    float Drawable::getAlphaMultiplier() const
-    {
-        return m_alphaMult;
+        return (m_flags & flag) != 0;
     }
 
     //////////////////////////////////////////////

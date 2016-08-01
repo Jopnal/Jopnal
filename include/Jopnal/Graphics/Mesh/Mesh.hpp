@@ -35,6 +35,7 @@
 namespace jop
 {
     class Material;
+    class ShaderProgram;
 
     class JOP_API Mesh : public Resource
     {
@@ -89,6 +90,7 @@ namespace jop
         ///
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
+        void sendToShader(ShaderProgram& shader) const;
 
         void destroy();
 
@@ -165,17 +167,6 @@ namespace jop
         /// \return Size of the vertex
         ///
         static uint16 getVertexSize(const uint32 components);
-
-        /// \brief Get the size of an element
-        ///
-        /// The returned value will be the size/precision requirement for an element
-        /// with the given amount of <b>vertices</b>
-        ///
-        /// \param amount Maximum amount of vertices
-        ///
-        /// \return Size of the element in bytes
-        ///
-        //static uint16 getElementSize(const uint32 amount);
 
         /// \brief Get the default mesh
         ///

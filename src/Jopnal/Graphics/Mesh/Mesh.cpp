@@ -75,6 +75,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Mesh::sendToShader(ShaderProgram& shader) const
+    {
+        if (!getVertexAmount())
+            return;
+
+        const auto vertSize = getVertexSize();
+
+        GlState::setVertexAttribute(true, 0);
+        GlState::setVertexAttribute(m_vertexComponents & TexCoords, 1);
+        GlState::setVertexAttribute(m_vertexComponents & Normal, 2);
+        GlState::setVertexAttribute(m_vertexComponents & Tangents, 3);
+        GlState::setVertexAttribute(m_vertexComponents & Tangents, 4);
+        GlState::setVertexAttribute(m_vertexComponents & Color, 5);
+
+        // Positions (should always be present)
+        shader.setAttribute(0, GL_FLOAT, 3, vertSize, getVertexOffset(Position));
+
+        // Texture coordinates
+        if (m_vertexComponents & TexCoords)
+            shader.setAttribute(1, GL_FLOAT, 2, vertSize, getVertexOffset(TexCoords));
+
+        // Normals
+        if (m_vertexComponents & Normal)
+            shader.setAttribute(2, GL_FLOAT, 3, vertSize, getVertexOffset(Normal));
+
+        // Tangents
+        if (m_vertexComponents & Tangents)
+        {
+            shader.setAttribute(3, GL_FLOAT, 3, vertSize, getVertexOffset(Tangents));
+            shader.setAttribute(4, GL_FLOAT, 3, vertSize, (void*)((size_t)getVertexOffset(Tangents) + sizeof(glm::vec3)));
+        }
+
+        // Colors
+        if (m_vertexComponents & Color)
+            shader.setAttribute(5, GL_FLOAT, 4, vertSize, getVertexOffset(Color));
+    }
+
+    //////////////////////////////////////////////
+
     void Mesh::destroy()
     {
         m_vertexbuffer.destroy();

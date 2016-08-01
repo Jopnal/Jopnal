@@ -90,7 +90,7 @@ namespace jop
           m_renderMask          (1),
           m_shadowMap           ()
     {
-        renderer.bind(*this);
+        renderer.bind(this);
     }
 
     LightSource::LightSource(const LightSource& other, Object& newObj)
@@ -105,12 +105,12 @@ namespace jop
           m_shadowMap           ()
     {
         setCastShadows(other.castsShadows());
-        m_rendererRef.bind(*this);
+        m_rendererRef.bind(this);
     }
 
     LightSource::~LightSource()
     {
-        m_rendererRef.unbind(*this);
+        m_rendererRef.unbind(this);
     }
 
     //////////////////////////////////////////////
@@ -189,7 +189,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool LightSource::drawShadowMap(const RenderPass::Drawables& drawables) const
+    bool LightSource::drawShadowMap() const
     {
         if (!castsShadows())
             return false;
@@ -392,35 +392,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool LightSource::checkRange(const Drawable& drawable) const
-    {
-        if (m_type == Type::Directional)
-            return true;
-
-        const float dist = glm::length(getObject()->getGlobalPosition() - drawable.getObject()->getGlobalPosition());
-        const float att = 1.0f / (m_attenuation.x + m_attenuation.y * dist + m_attenuation.z * (dist * dist));
-
-        static const struct Callback : SettingCallback<float>
-        {
-            const char* str;
-            float bias;
-            Callback()
-                : str("engine@Graphics|Shading|fLightCullThreshold"),
-                  bias(SettingManager::get<float>(str, 0.001f))
-            {
-                SettingManager::registerCallback(str, *this);
-            }
-            void valueChanged(const float& value) override
-            {
-                bias = value;
-            }
-        } cb;
-
-        return att > cb.bias;
-    }
-
-    //////////////////////////////////////////////
-
     LightSource& LightSource::setCutoff(const float inner, const float outer)
     {
         m_cutoff.x = inner; m_cutoff.y = outer;
@@ -508,12 +479,15 @@ namespace jop
 
     void LightContainer::sendToShader(ShaderProgram& shader, const Drawable& drawable) const
     {
-        shader.setUniform("u_ReceiveLights", drawable.receiveLights());
+        const bool receiveLights = drawable.hasFlag(Drawable::ReceiveLights);
+        const bool receiveShadows = drawable.hasFlag(Drawable::ReceiveShadows);
 
-        if (!drawable.receiveLights() || empty())
+        shader.setUniform("u_ReceiveLights", receiveLights);
+
+        if (!receiveLights || empty())
             return;
 
-        shader.setUniform("u_ReceiveShadows", drawable.receiveShadows());
+        shader.setUniform("u_ReceiveShadows", receiveShadows);
 
         typedef LightSource LS;
 
@@ -616,7 +590,7 @@ namespace jop
                 shader.setUniform(cache[4], li.getAttenuationVec());
 
                 // Shadow map
-                if (drawable.receiveShadows())
+                if (receiveShadows)
                 {
                     shader.setUniform(cache[5], li.castsShadows());
 
@@ -657,7 +631,7 @@ namespace jop
                 shader.setUniform(cache[6], glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));
 
                 // Shadow map
-                if (drawable.receiveShadows())
+                if (receiveShadows)
                 {
                     shader.setUniform(cache[7], li.castsShadows());
 
@@ -689,7 +663,7 @@ namespace jop
                 shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Shadow map
-                if (drawable.receiveShadows())
+                if (receiveShadows)
                 {
                     shader.setUniform(cache[4], li.castsShadows());
 

@@ -42,13 +42,13 @@ namespace jop
     Renderer::Renderer(const RenderTarget& mainTarget)
         : m_lights          (),
           m_cameras         (),
-          m_prePass         (*this, mainTarget),
-          m_forwardPass     (*this, mainTarget),
-          m_postPass        (*this, Engine::getMainWindow()),
-          m_passes          ({{&m_prePass, &m_forwardPass, &m_postPass}}),
           m_envRecorders    (),
-          m_mask            (1)
-    {}
+          m_mask            (1),
+          m_target          (mainTarget)
+    {
+        createRenderPass<DefaultPrePass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
+        createRenderPass<DefaultPostPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);
+    }
 
     //////////////////////////////////////////////
 
@@ -66,58 +66,65 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const LightSource& light)
+    void Renderer::bind(const LightSource* light)
     {
-        m_lights.insert(&light);
+        m_lights.insert(light);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const Camera& camera)
+    void Renderer::bind(const Camera* camera)
     {
-        m_cameras.insert(&camera);
+        m_cameras.insert(camera);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const Drawable& drawable, const RenderPass::Pass pass)
+    void Renderer::bind(const Drawable* drawable, const RenderPass::Pass pass)
     {
-        m_passes[static_cast<int>(pass)]->bind(drawable);
+        m_passes[static_cast<int>(pass)][RenderPass::DefaultWeight]->bind(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(EnvironmentRecorder& envRecorder)
+    void Renderer::bind(const EnvironmentRecorder* envRecorder)
     {
-        m_envRecorders.insert(&envRecorder);
+        m_envRecorders.insert(envRecorder);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const LightSource& light)
+    void Renderer::unbind(const LightSource* light)
     {
-        m_lights.erase(&light);
+        m_lights.erase(light);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const Camera& camera)
+    void Renderer::unbind(const Camera* camera)
     {
-        m_cameras.erase(&camera);
+        m_cameras.erase(camera);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const Drawable& drawable, const RenderPass::Pass pass)
+    void Renderer::unbind(const Drawable* drawable, const RenderPass::Pass pass)
     {
-        m_passes[static_cast<int>(pass)]->unbind(drawable);
+        m_passes[static_cast<int>(pass)][RenderPass::DefaultWeight]->unbind(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(EnvironmentRecorder& envRecorder)
+    void Renderer::unbind(const EnvironmentRecorder* envRecorder)
     {
-        m_envRecorders.erase(&envRecorder);
+        m_envRecorders.erase(envRecorder);
+    }
+
+    //////////////////////////////////////////////
+
+    void Renderer::removeRenderPass(const RenderPass::Pass pass, const uint32 weight)
+    {
+        m_passes[static_cast<int>(pass)].erase(weight);
     }
 
     //////////////////////////////////////////////
@@ -127,24 +134,19 @@ namespace jop
         // Render shadow maps
         for (auto light : m_lights)
         {
-            if (light->isActive() && (m_mask & light->getRenderMask()) != 0)
-                light->drawShadowMap(m_passes[1]->m_drawables);
+            if (light->isActive() && (m_mask & light->getRenderMask()))
+                light->drawShadowMap();
         }
 
         // Render environment maps
-        for (auto envmap : m_envRecorders)
+        /*for (auto envmap : m_envRecorders)
         {
-            if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
-                envmap->record();
-        }
+        if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
+        envmap->record();
+        }*/
 
         // Render objects
-        for (uint32 i = 1, done = 0; i != 0 && m_mask > done; i <<= 1, done |= i)
-        {
-            if ((m_mask & i) == 0)
-                continue;
-
-            m_passes[static_cast<int>(pass)]->draw(i);
-        }
+        for (auto& i : m_passes[static_cast<int>(pass)])
+            i.second->draw();
     }
 }

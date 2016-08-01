@@ -19,7 +19,6 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/Drawable.hpp
     ${__INCDIR_GRAPHICS}/EnvironmentRecorder.hpp
     ${__INCDIR_GRAPHICS}/Font.hpp
-    ${__INCDIR_GRAPHICS}/GenericDrawable.hpp
     ${__INCDIR_GRAPHICS}/Glyph.hpp
     ${__INCDIR_GRAPHICS}/Image.hpp
     ${__INCDIR_GRAPHICS}/LightSource.hpp
@@ -82,6 +81,7 @@ list(APPEND SRC ${__INC_GRAPHICS_OPENGL})
 
 # Inline - Graphics
 set(__INL_GRAPHICS
+    ${__INLDIR_GRAPHICS}/Renderer.inl
     ${__INLDIR_GRAPHICS}/ShaderProgram.inl
     ${__INLDIR_GRAPHICS}/TextureAtlas.inl
 )
@@ -98,7 +98,6 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/Drawable.cpp
     ${__SRCDIR_GRAPHICS}/EnvironmentRecorder.cpp
     ${__SRCDIR_GRAPHICS}/Font.cpp
-    ${__SRCDIR_GRAPHICS}/GenericDrawable.cpp
     ${__SRCDIR_GRAPHICS}/Glyph.cpp
     ${__SRCDIR_GRAPHICS}/Image.cpp
     ${__SRCDIR_GRAPHICS}/LightSource.cpp

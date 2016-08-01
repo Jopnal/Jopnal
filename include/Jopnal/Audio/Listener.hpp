@@ -36,7 +36,6 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(Listener);
         JOP_GENERIC_COMPONENT_CLONE(Listener);
 
     public:
@@ -47,16 +46,6 @@ namespace jop
         /// \param ID Unique component identifier
         ///
         Listener(Object& object);
-
-        /// \brief Copy constructor
-        ///
-        /// \warning Listener is not meant to be copied. To ensure that your sounds work correctly,
-        ///          there should be only one listener in existence at a time.
-        ///
-        /// \param other The other listener to be copied
-        /// \param newObj Object for the new listener
-        ///
-        Listener(const Listener& other, Object& newObj);
 
 
         /// \brief Update

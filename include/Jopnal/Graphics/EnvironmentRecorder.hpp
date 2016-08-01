@@ -24,32 +24,18 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
-#include <Jopnal/Graphics/RenderTexture.hpp>
-#include <memory>
-#include <vector>
-#include <set>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Drawable;
-    class Renderer;
+    /*class Renderer;
 
     class JOP_API EnvironmentRecorder final : public Component
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other recorder to copy
-        /// \param newObj The new object
-        ///
-        EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(EnvironmentRecorder);
         JOP_GENERIC_COMPONENT_CLONE(EnvironmentRecorder);
 
     public:
@@ -60,49 +46,7 @@ namespace jop
         /// \param renderer The renderer
         ///
         EnvironmentRecorder(Object& obj, Renderer& renderer);
-
-        /// \brief Destructor
-        ///
-        ~EnvironmentRecorder() override;
-
-
-        /// \brief Record/render the environment map
-        ///
-        /// This will fetch the drawables & lights straight from the renderer.
-        ///
-        void record();
-
-        /// \brief Set the render mask
-        ///
-        /// \param mask The new mask to set
-        ///
-        /// \comm setEnvRecorderRenderMask
-        ///
-        void setRenderMask(const uint32 mask);
-
-        /// \brief Get the render mask
-        ///
-        /// \return The render mask
-        ///
-        uint32 getRenderMask() const;
-
-        /// \brief Get the texture
-        ///
-        /// \return Const pointer to the texture, nullptr the creation of one failed
-        ///
-        const Texture* getTexture() const;
-
-    protected:
-
-        Message::Result receiveMessage(const Message& message) override;
-
-    private:
-
-        RenderTexture m_fbo;                ///< The frame buffer
-        std::vector<glm::mat4> m_matrices;  ///< Matrices for each cube face
-        uint32 m_mask;                      ///< Render mask
-        Renderer& m_rendererRef;            ///< Reference to the renderer
-    };
+    };*/
 }
 
 #endif

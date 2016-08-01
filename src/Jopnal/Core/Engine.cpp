@@ -202,9 +202,20 @@ namespace jop
         // Audio output
         createSubsystem<AudioDevice>();
 
+        const bool useWindow(SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", false));
+
         // Main window
-        m_mainWindow = &createSubsystem<Window>(Window::Settings(true));
-        printOpenGLInfo();
+        {
+            Window::Settings winSettings(true);
+            if (useWindow)
+            {
+                winSettings.depthBits = 24;
+                winSettings.stencilBits = 8;
+            }
+
+            m_mainWindow = &createSubsystem<Window>(winSettings);
+            printOpenGLInfo();
+        }
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -212,8 +223,11 @@ namespace jop
         // Shader manager
         createSubsystem<ShaderAssembler>();
 
+        // Pre-pass render proxy
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::BeforePost);
+
         // Main render target
-        if (!SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", false))
+        if (!useWindow)
         {
             m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
@@ -224,7 +238,7 @@ namespace jop
             m_mainTarget = m_mainWindow;
 
         // Post-pass render proxy
-        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::Post);
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::AfterPost);
 
         // Buffer swapper
         createSubsystem<detail::BufferSwapper>(*m_mainWindow);
@@ -250,7 +264,7 @@ namespace jop
         auto& eng = *m_engineObject;
 
         if (!eng.m_currentScene)
-            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used");
+            JOP_DEBUG_WARNING("No scene was loaded before entering main loop");
 
         Clock frameClock;
 
@@ -280,8 +294,6 @@ namespace jop
 
                 if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
                 {
-                    std::lock_guard<std::recursive_mutex> lock(eng.m_mutex);
-
                     if (hasCurrentScene())
                         eng.m_currentScene->updateBase(frameTime);
 
@@ -297,23 +309,10 @@ namespace jop
             }
 
             // Draw
+            for (auto& i : eng.m_subsystems)
             {
-                if (getState() != State::Frozen)
-                {
-                    std::lock_guard<std::recursive_mutex> lock(eng.m_mutex);
-
-                    if (hasCurrentScene())
-                        eng.m_currentScene->drawBase();
-
-                    if (hasSharedScene())
-                        eng.m_sharedScene->drawBase();
-                }
-
-                for (auto& i : eng.m_subsystems)
-                {
-                    if (i->isActive())
-                        i->draw();
-                }
+                if (i->isActive())
+                    i->draw();
             }
 
             eng.m_advanceFrame.store(false);
@@ -326,8 +325,6 @@ namespace jop
 
     Scene& Engine::getCurrentScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
     }
@@ -336,8 +333,6 @@ namespace jop
 
     Window& Engine::getCurrentWindow()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
         return *m_engineObject->m_mainWindow;
     }
@@ -367,6 +362,7 @@ namespace jop
         if (!exiting() && getState() != state)
         {
         #if JOP_CONSOLE_VERBOSITY >= 2
+
             static const char* const stateStr[] =
             {
                 "Running",
@@ -374,6 +370,7 @@ namespace jop
                 "RenderOnly",
                 "Frozen"
             };
+
         #endif
 
             JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
@@ -433,7 +430,6 @@ namespace jop
     {
         JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
 
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
         return *m_engineObject->m_sharedScene;
     }
 
@@ -442,10 +438,7 @@ namespace jop
     bool Engine::hasSharedScene()
     {
         if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
             return m_engineObject->m_sharedScene.operator bool();
-        }
 
         return false;
     }
@@ -465,10 +458,7 @@ namespace jop
     bool Engine::hasCurrentScene()
     {
         if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
             return m_engineObject->m_currentScene.operator bool();
-        }
 
         return false;
     }
@@ -478,10 +468,7 @@ namespace jop
     bool Engine::hasCurrentWindow()
     {
         if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-            return m_engineObject->m_mainWindow!=nullptr;
-        }
+            return m_engineObject->m_mainWindow != nullptr;
 
         return false;
     }

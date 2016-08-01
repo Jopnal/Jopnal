@@ -60,13 +60,8 @@ namespace jop
             {
                 None            = 0,
 
-                // Misc
-                DiffuseAlpha    = 1,
-                VertexColor     = DiffuseAlpha      << 1,
-                Alpha           = VertexColor       << 1,
-
                 // Maps
-                DiffuseMap      = 1                 << 3,
+                DiffuseMap      = 1                 << 1,
                 SpecularMap     = DiffuseMap        << 1,
                 EmissionMap     = SpecularMap       << 1,
                 EnvironmentMap  = EmissionMap       << 1,

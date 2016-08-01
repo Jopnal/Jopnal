@@ -39,14 +39,6 @@ namespace jop
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sky sphere to copy
-        /// \param newObj The new object
-        ///
-        SkySphere(const SkySphere& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(SkySphere);
         JOP_GENERIC_COMPONENT_CLONE(SkySphere);
 
     public:

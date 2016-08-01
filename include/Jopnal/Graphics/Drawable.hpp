@@ -45,9 +45,11 @@ namespace jop
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(Drawable);
+        JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
-        enum
+    public:
+    
+        enum Flag : uint32
         {
             ReceiveLights   = 1,
             ReceiveShadows  = 1 << 1,
@@ -55,31 +57,23 @@ namespace jop
             Reflected       = 1 << 3
         };
 
-    protected:
-
-        /// \brief Copy constructor
-        ///
-        /// \param other The other drawable to copy
-        /// \param newObj The new object
-        ///
-        Drawable(const Drawable& other, Object& newObj);
-
     public:
-    
+
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
         /// \param ID Component identifier
         ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 ID);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+
+        Drawable(Object& object, RenderPass& pass);
 
         /// \brief Virtual destructor
         ///
-        virtual ~Drawable() override = 0;
+        virtual ~Drawable() override;
 
 
-        
         /// \brief Base draw function
         ///
         /// This will use the shader bound to this drawable.
@@ -87,15 +81,7 @@ namespace jop
         /// \param camera The camera to use
         /// \param lights The light container
         ///
-        void draw(const Camera& camera, const LightContainer& lights) const;
-
-        /// \brief Draw function
-        ///
-        /// The camera pointer can be null some times. In these cases it means that the view & perspective
-        /// matrices have already been taken care of and you shouldn't try to set them.
-        ///
-        virtual void draw(const Camera*, const LightContainer&, ShaderProgram&) const = 0;
-
+        virtual void draw(const glm::mat4& view, const glm::mat4& proj, const LightContainer& lights) const;
 
         /// \brief Get the renderer this drawable is bound to
         ///
@@ -147,105 +133,9 @@ namespace jop
         ///
         const Model& getModel() const;
 
+        Drawable& setFlags(const uint32 flags);
 
-        /// \brief Set the shader
-        ///
-        /// This can be used to override the shader fetched from the bound material.
-        ///
-        /// \param shader Reference to the shader
-        ///
-        /// \comm setShader
-        ///
-        Drawable& setShader(ShaderProgram& shader);
-
-        /// \brief Remove the shader
-        ///
-        /// \param loadMaterialShader Set this to true to automatically fetch a new shader
-        ///                           from the bound material. If this is false, there won't
-        ///                           be a shader bound after this call, and thus, drawing
-        ///                           will fail.
-        ///
-        /// \return Reference to self 
-        ///
-        Drawable& removeShader(const bool loadMaterialShader = true);
-
-        /// \brief Get the shader
-        ///
-        /// \return Pointer to the shader. Empty if none bound
-        ///
-        ShaderProgram* getShader() const;
-
-
-        /// \brief Set whether or not this drawable receives lights
-        ///
-        /// \param receive True to receive lights
-        ///
-        /// \comm setReceiveLights
-        ///
-        Drawable& setReceiveLights(const bool receive);
-
-        /// \brief Check if this drawable receives lights
-        ///
-        /// \return True if receives lights
-        ///
-        bool receiveLights() const;
-
-
-        /// \brief Check if a light affects this drawable
-        /// 
-        /// \param light The light to check against
-        ///
-        /// \return True if the light affects
-        ///
-        bool lightTouches(const LightSource& light) const;
-
-
-        /// \brief Set the flag to receive shadows
-        ///
-        /// \param receive True to set this to receive shadows
-        ///
-        /// \comm setReceiveShadows
-        ///
-        Drawable& setReceiveShadows(const bool receive);
-
-        /// \brief Check if this drawable receives shadows
-        ///
-        /// \return True if this drawable receives shadows
-        ///
-        bool receiveShadows() const;
-
-        /// \brief Set the flag to cast shadows
-        /// 
-        /// \param cast True to set this to cast shadows
-        ///
-        /// \comm setCastShadows
-        ///
-        Drawable& setCastShadows(const bool cast);
-
-        /// \brief Check if this drawable casts shadows
-        ///
-        /// \return True if this drawable casts shadows
-        ///
-        bool castShadows() const;
-
-
-        /// \brief Set whether or not this drawable should be reflected in dynamic environment maps
-        ///
-        /// \param reflected True to set this to be reflected
-        ///
-        /// \comm setReflected
-        ///
-        Drawable& setReflected(const bool reflected);
-
-        /// \brief Check if this drawable is reflected in dynamic environment maps
-        ///
-        /// \return True if this is reflected
-        ///
-        bool isReflected() const;
-
-        void setAlphaMultiplier(const float mult);
-
-        float getAlphaMultiplier() const;
+        bool hasFlag(const uint32 flag) const;
 
     protected:
 
@@ -253,13 +143,12 @@ namespace jop
 
     private:
 
-        mutable Model m_model;                          ///< The bound model
-        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
-        Renderer& m_rendererRef;                        ///< Reference to the renderer
+        Model m_model;                          ///< The bound model
+        WeakReference<ShaderProgram> m_shader;  ///< The bound shader
+        Renderer& m_rendererRef;                ///< Reference to the renderer
         const RenderPass::Pass m_pass;
-        float m_alphaMult;
-        uint8 m_renderGroup;                            ///< The render group
-        unsigned char m_flags;                          ///< Property flags
+        uint32 m_flags;                         ///< Property flags
+        uint8 m_renderGroup;                    ///< The render group
     };
 }
 

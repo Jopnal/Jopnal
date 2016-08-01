@@ -35,7 +35,8 @@ set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 # Set toolchain to use
 jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
-             "arm-linux-androideabi-4.9")
+             "arm-linux-androideabi-4.9"
+             "arm-linux-androideabi-clang3.5")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)

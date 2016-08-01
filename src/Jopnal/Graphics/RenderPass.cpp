@@ -62,7 +62,7 @@ namespace jop
             bool operator ()(const Drawable* first, const Drawable* second) const
             {
                 return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) <
-                    glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
             }
         };
 
@@ -81,14 +81,14 @@ namespace jop
             bool operator ()(const Drawable* first, const Drawable* second) const
             {
                 return glm::distance2(m_camPos, first->getObject()->getGlobalPosition()) >
-                    glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
+                       glm::distance2(m_camPos, second->getObject()->getGlobalPosition());
             }
         };
 
         //////////////////////////////////////////////
 
         RenderPassProxy::RenderPassProxy(const RenderPass::Pass pass)
-            : Subsystem (0),
+            : Subsystem (static_cast<uint32>(pass)),
               m_pass    (pass)
         {}
 
@@ -96,124 +96,103 @@ namespace jop
 
         void RenderPassProxy::draw()
         {
-            if (Engine::hasCurrentScene())
-                Engine::getCurrentScene().getRenderer().draw(m_pass);
+            if (Engine::getState() != Engine::State::Frozen)
+            {
+                if (Engine::hasCurrentScene())
+                    Engine::getCurrentScene().getRenderer().draw(m_pass);
 
-            if (Engine::hasSharedScene())
-                Engine::getSharedScene().getRenderer().draw(m_pass);
+                if (Engine::hasSharedScene())
+                    Engine::getSharedScene().getRenderer().draw(m_pass);
+            }
         }
     }
 
     //////////////////////////////////////////////
 
-    RenderPass::RenderPass(Renderer& renderer, const RenderTarget& target)
+    const uint32 RenderPass::DefaultWeight = 0x88888888;
+
+    //////////////////////////////////////////////
+
+    RenderPass::RenderPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
         : m_drawables   (),
           m_rendererRef (renderer),
-          m_target      (target)
+          m_target      (target),
+          m_weight      (weight),
+          m_pass        (pass),
+          m_active      (true)
     {}
 
     //////////////////////////////////////////////
 
-    void RenderPass::draw(const unsigned int group)
+    void RenderPass::draw()
     {
-        // Dummy LightContainer to pass into drawables when no lights were selected
-        static const LightContainer dummyLightCont;
-
-        auto& rend = m_rendererRef;
-
-        m_target.bind();
-
-        for (auto cam : rend.m_cameras)
-        {
-            const uint32 camMask = cam->getRenderMask();
-            if (!cam->isActive() || (camMask & group) == 0)
-                continue;
-
-            cam->getRenderTexture().bind();
-            cam->applyViewport(m_target);
-
-            // 0 - Opaque
-            // 1 - Translucent
-            // 2 - Sky box/sphere
-            std::array<std::vector<const Drawable*>, 3> sorted;
-            sorted[0].reserve(m_drawables.size());
-            sorted[1].reserve(m_drawables.size() / 4);
-
-            for (auto drawable : m_drawables)
-            {
-                const uint32 groupBit = 1 << drawable->getRenderGroup();
-                if (drawable->isActive() && drawable->getModel().isValid() && (group & groupBit) > 0 && (camMask & groupBit) > 0)
-                {
-                    using M = Material::Attribute;
-                    auto& mat = *drawable->getModel().getMaterial();
-
-                    sorted[std::min(2, mat.hasAttributes(M::Alpha | M::DiffuseAlpha) + (mat.hasAttribute(M::__SkyBox | M::__SkySphere) * 2))].push_back(drawable);
-                }
-            }
-
-            std::sort(sorted[0].begin(), sorted[0].end(), detail::DrawableSorterOpaque(*cam));
-            std::sort(sorted[1].begin(), sorted[1].end(), detail::DrawableSorterTranslucent(*cam));
-
-            auto drawSet = [this](const std::vector<const Drawable*>& drawables, const Camera& cam)
-            {
-                for (auto drawable : drawables)
-                {
-                    if (drawable->receiveLights())
-                    {
-                        // Select lights
-                        LightContainer lights;
-                        chooseLights(*drawable, lights);
-                        drawable->draw(cam, lights);
-                    }
-                    else
-                        drawable->draw(cam, dummyLightCont);
-                }
-            };
-
-            // Opaque
-            drawSet(sorted[0], *cam);
-
-            // Sky boxes/spheres
-            drawSet(sorted[2], *cam);
-
-            // Translucent
-            GlState::setDepthWrite(false);
-            drawSet(sorted[1], *cam);
-            GlState::setDepthWrite(true);
-        }
+        if (!isActive())
+            return;
     }
 
     //////////////////////////////////////////////
 
-    void RenderPass::bind(const Drawable& drawable)
+    void RenderPass::bind(const Drawable* drawable)
     {
-        m_drawables.insert(&drawable);
+        m_drawables.insert(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void RenderPass::unbind(const Drawable& drawable)
+    void RenderPass::unbind(const Drawable* drawable)
     {
-        m_drawables.erase(&drawable);
+        m_drawables.erase(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void RenderPass::chooseLights(const Drawable& drawable, LightContainer& lights) const
+    void RenderPass::setActive(const bool active)
     {
-        for (auto l : m_rendererRef.m_lights)
-        {
-            auto& container = lights[l->getType()];
+        m_active = active;
+    }
 
-            if (!l->isActive() || LightSource::getMaximumLights(l->getType()) <= container.size())
-                continue;
+    //////////////////////////////////////////////
 
-            const uint32 lightMask = l->getRenderMask();
-            if ((m_rendererRef.m_mask & lightMask) == 0 || (lightMask & (1 << drawable.getRenderGroup())) == 0)
-                continue;
+    bool RenderPass::isActive() const
+    {
+        return m_active;
+    }
 
-            if (drawable.lightTouches(*l))
-                container.push_back(l);
-        }
+    //////////////////////////////////////////////
+
+    Renderer& RenderPass::getRenderer()
+    {
+        return m_rendererRef;
+    }
+
+    //////////////////////////////////////////////
+
+    RenderPass::Pass RenderPass::whichPass() const
+    {
+        return m_pass;
+    }
+
+
+    //////////////////////////////////////////////
+
+
+    DefaultPrePass::DefaultPrePass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
+        : RenderPass(renderer, target, pass, weight)
+    {}
+
+    void DefaultPrePass::draw()
+    {
+        
+    }
+
+    //////////////////////////////////////////////
+
+    DefaultPostPass::DefaultPostPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
+        : RenderPass(renderer, target, pass, weight)
+    {}
+
+    void DefaultPostPass::draw()
+    {
+
     }
 }

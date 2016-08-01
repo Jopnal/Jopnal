@@ -192,6 +192,11 @@ namespace jop
         ///
         static void endLoadPhase(const uint16 persistence);
 
+        template<typename T>
+        static bool isDefault(const T& resource);
+
+        template<typename T>
+        static bool isError(const T& resource);
 
     private:
 

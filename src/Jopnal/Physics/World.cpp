@@ -160,8 +160,8 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
 
-                shdr->setAttribute("a_Position", 0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                shdr->setAttribute("a_Color", 3, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
+                shdr->setAttribute(5, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 

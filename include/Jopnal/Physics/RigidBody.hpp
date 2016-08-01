@@ -39,10 +39,7 @@ namespace jop
     {
     private:
 
-        RigidBody(const RigidBody& other, Object& newObj);
-
         JOP_GENERIC_COMPONENT_CLONE(RigidBody);
-        JOP_DISALLOW_COPY_MOVE(RigidBody);
 
     public:
 

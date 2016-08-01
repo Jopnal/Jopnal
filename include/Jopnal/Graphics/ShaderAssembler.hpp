@@ -107,6 +107,8 @@ namespace jop
         ///
         static const ShaderMap& getShaderMap();
 
+        static void setShaderSource(const Shader::Type type, const std::string& source);
+
     private:
 
         static void preprocess(const std::vector<const char*>& input, std::string& output, const bool nested, std::unordered_set<const char*>& duplicateSet);
