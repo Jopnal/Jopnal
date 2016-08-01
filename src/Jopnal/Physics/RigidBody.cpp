@@ -112,10 +112,11 @@ namespace jop
             flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
 
         rb->setCollisionFlags(flags);
+        rb->setUserPointer(this);
+
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), info.group, info.mask);
 
         m_rigidBody = rb.get();
-        rb->setUserPointer(this);
         m_body = std::move(rb);
     }
 
@@ -131,13 +132,14 @@ namespace jop
         constInfo.m_restitution = other.m_body->getRestitution();
 
         auto rb = std::make_unique<btRigidBody>(constInfo);
+
         rb->setCollisionFlags(other.m_body->getCollisionFlags());
+        rb->setUserPointer(this);
 
         auto bpHandle = other.m_body->getBroadphaseHandle();
         m_worldRef.m_worldData->world->addRigidBody(rb.get(), bpHandle->m_collisionFilterGroup, bpHandle->m_collisionFilterMask);
 
         m_rigidBody = rb.get();
-        rb->setUserPointer(this);
         m_body = std::move(rb);
 
         newObj.setIgnoreParent(other.getObject()->ignoresParent());
