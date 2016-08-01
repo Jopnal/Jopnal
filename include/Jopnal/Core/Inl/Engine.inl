@@ -79,6 +79,8 @@ namespace detail
         template<typename ... Args>
         static void wait(Args&&... args)
         {
+            Thread::attachJavaThread(nullptr);
+
             Window win(getWindowSettings());
 
             auto newPtr = new T(std::forward<Args>(args)...);
@@ -90,6 +92,8 @@ namespace detail
             GlState::flush();
 
             waitSignal<WaitSignal>(Engine::m_engineObject->m_newSceneSignal, newPtr->getID());
+
+            Thread::detachJavaThread(nullptr);
         }
 
         template<typename ... Args>

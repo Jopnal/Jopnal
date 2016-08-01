@@ -23,7 +23,7 @@
 #include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Android/WindowImpl.hpp>
-#include <Jopnal/Core/DebugHandler.hpp>
+
 #ifdef JOP_OS_ANDROID
 
 #ifndef JOP_PRECOMPILED_HEADER
@@ -35,18 +35,22 @@
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
+    #include <android/window.h>
     #include <jni.h>
     #include <EGL/eglext.h>
     #include <unordered_map>
-    #include<glm/vec2.hpp>
+    #include <glm/vec2.hpp>
 
 #endif
 
+#define JOP_AXIS_TOLERANCE 0.005
+
 //////////////////////////////////////////////
+
 
 namespace
 {
-    std::unordered_map<EGLContext, jop::Window*> windowRefs;
+    std::unordered_map<EGLContext, jop::Window*> ns_windowRefs;
     EGLContext ns_shared = EGL_NO_CONTEXT;
     EGLSurface ns_sharedSurface = EGL_NO_SURFACE;
 
@@ -104,7 +108,7 @@ namespace
 
     void initialize()
     {
-        if (windowRefs.empty())
+        if (ns_windowRefs.empty())
         {
             eglCheck(eglInitialize(getDisplay(), NULL, NULL));
 
@@ -146,20 +150,67 @@ namespace
             eglCheck(eglTerminate(getDisplay()));
         }
     }
+
+    void goFullscreen()
+    {
+        auto state = jop::detail::ActivityState::get();
+        auto apiLevel = state->getAPILevel();
+
+        ANativeActivity_setWindowFlags(state->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
+
+        JNIEnv* env = jop::Thread::getCurrentJavaEnv();
+
+        jobject objectActivity = state->nativeActivity->clazz;
+        jclass classActivity = env->GetObjectClass(objectActivity);
+
+        jmethodID methodGetWindow = env->GetMethodID(classActivity, "getWindow", "()Landroid/view/Window;");
+        jobject objectWindow = env->CallObjectMethod(objectActivity, methodGetWindow);
+
+        jclass classWindow = env->FindClass("android/view/Window");
+        jmethodID methodGetDecorView = env->GetMethodID(classWindow, "getDecorView", "()Landroid/view/View;");
+        jobject objectDecorView = env->CallObjectMethod(objectWindow, methodGetDecorView);
+
+        jclass classView = env->FindClass("android/view/View");
+
+        jint flags = 0;
+
+        if (apiLevel >= 14)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_LOW_PROFILE", "I");
+            jint SYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_LOW_PROFILE);
+            flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
+        }
+
+        if (apiLevel >= 16)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_FULLSCREEN", "I");
+            jint SYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_FULLSCREEN);
+            flags |= SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        if (apiLevel >= 19)
+        {
+            jfieldID FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY  = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I");
+            jint SYSTEM_UI_FLAG_IMMERSIVE_STICKY = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            flags |= SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        jmethodID methodsetSystemUiVisibility = env->GetMethodID(classView, "setSystemUiVisibility", "(I)V");
+        env->CallVoidMethod(objectDecorView, methodsetSystemUiVisibility, flags);
+    }
 }
 
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
         : m_surface     (EGL_NO_SURFACE),
-          m_context     (EGL_NO_CONTEXT),
-          m_size        (0),
-          m_windowPtr   (&windowPtr)
+        m_context     (EGL_NO_CONTEXT),
+        m_size        (0),
+        m_windowPtr   (&windowPtr)
     {
         initialize();
 
         auto state = detail::ActivityState::get();
-        std::lock_guard<std::mutex> lock(state->mutex);
 
         if (!state->window)
         {
@@ -192,9 +243,6 @@ namespace jop { namespace detail
             EGLint format;
             eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
 
-            ANativeWindow_setBuffersGeometry(state->nativeWindow, 0, 0, format);
-
-
             m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, surfaceAttribs));
             JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
@@ -206,6 +254,9 @@ namespace jop { namespace detail
 
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+
+            if (settings.displayMode > Window::DisplayMode::Windowed)
+                goFullscreen();
 
             state->window = &windowPtr;
         }
@@ -240,16 +291,15 @@ namespace jop { namespace detail
             JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
         }
 
-        windowRefs[m_context] = &windowPtr;
+        ns_windowRefs[m_context] = &windowPtr;
     }
 
     WindowImpl::~WindowImpl()
     {
-        windowRefs.erase(m_context);
+        ns_windowRefs.erase(m_context);
 
         {
             auto state = detail::ActivityState::get();
-            std::lock_guard<std::mutex> lock(state->mutex);
 
             if (state->window == m_windowPtr)
                 state->window = nullptr;
@@ -291,10 +341,7 @@ namespace jop { namespace detail
 
     WindowHandle WindowImpl::getNativeHandle()
     {
-        auto state = ActivityState::get();
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
-
-        return state->nativeWindow;
+        return ActivityState::get()->nativeWindow;
     }
 
     //////////////////////////////////////////////
@@ -302,9 +349,9 @@ namespace jop { namespace detail
     void WindowImpl::pollEvents()
     {
         auto state = ActivityState::get();
-        std::lock_guard<decltype(state->mutex)> lock(state->mutex);
 
-        state->pollFunc();
+        if (state && state->focus)
+            state->pollFunc();
     }
 
     //////////////////////////////////////////////
@@ -340,6 +387,11 @@ namespace jop { namespace detail
 
     Window* WindowImpl::getCurrentContextWindow()
     {
+        auto itr = ns_windowRefs.find(eglGetCurrentContext());
+
+        if (itr != ns_windowRefs.end())
+            return itr->second;
+
         return nullptr;
     }
 
@@ -347,94 +399,123 @@ namespace jop { namespace detail
 
     int32_t motion(AInputEvent* event)
     {
-        Window* windowRef = &Engine::getCurrentWindow();
-        if (windowRef != nullptr)
+        auto& windowRef = &Engine::getCurrentWindow();
+
+        const int32_t device = AInputEvent_getSource(event);
+
+        const int pointerCount = AMotionEvent_getPointerCount(event);
+
+        for (int p = 0; p < pointerCount; ++p)
         {
-            int32_t device = AInputEvent_getSource(event);
-            int pointerCount = AMotionEvent_getPointerCount(event);
+            const int id = AMotionEvent_getPointerId(event, p);
 
-            for (int p = 0; p < pointerCount; p++)
+            if (id < 10)
             {
-                int id = AMotionEvent_getPointerId(event, p);
+                float x = AMotionEvent_getX(event, p);
+                const float y = AMotionEvent_getY(event, p);
 
-                if(id<10)
+                auto state = ActivityState::get();
+
+                if (device & AINPUT_SOURCE_TOUCHSCREEN)
                 {
-                    float x = AMotionEvent_getX(event, p);
-                    float y = AMotionEvent_getY(event, p);
+                    windowRef.getEventHandler()->touchMoved(id, x - state->lastTouchPosition[id].x, y - state->lastTouchPosition[id].y);
+                    windowRef.getEventHandler()->touchMovedAbsolute(id, x, y);
 
-                    if (device & AINPUT_SOURCE_TOUCHSCREEN)
+                    for (int info = 0; info < 4; ++info)
                     {
-                        windowRef->getEventHandler()->touchMoved(id, x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                        windowRef->getEventHandler()->touchMovedAbsolute(id, x, y);
+                        const float i = AMotionEvent_getAxisValue(event, ns_touchAxes[info], p);
 
-                        for(int info = 0;info<4;++info)
-                        {
-                            float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],p);
-                            if(i>JOP_AXIS_TOLERANCE)
-                            windowRef->getEventHandler()->touchInfo(id,Input::getJopTouchInfo(ns_touchAxes[info]) , i);
-                        }
+                        if (i > JOP_AXIS_TOLERANCE)
+                            windowRef.getEventHandler()->touchInfo(id, Input::getJopTouchInfo(ns_touchAxes[info]), i);
                     }
-                    else if (device & AINPUT_SOURCE_MOUSE)
-                    {
-                        windowRef->getEventHandler()->mouseMoved(x-ActivityState::get()->lastTouchPosition[id].x, y-ActivityState::get()->lastTouchPosition[id].y);
-                        windowRef->getEventHandler()->mouseMovedAbsolute(x, y);
-                    }
-                    else if (device & AINPUT_SOURCE_JOYSTICK )
-                    {
-                        for(int axis = 0;axis<15;++axis)
-                        {
-                            x = AMotionEvent_getAxisValue(event,ns_joystickAxes[axis],p);
-                            if(x>JOP_AXIS_TOLERANCE||x<-JOP_AXIS_TOLERANCE)
-                            {
-                                if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_HAT_X)
-                                {
-                                    if(x>0)
-                                        x=1;
-                                    else
-                                        x=-1;
-                                    int jopKey=Input::getJopControllerButton(x*ns_joystickAxes[axis]);
-                                    ActivityState::get()->activeKey=jopKey;
-                                    windowRef->getEventHandler()->controllerButtonPressed(id,jopKey);
-                                }
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y||ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
-                                {
-                                    x=-x;
-                                    if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
-                                        ActivityState::get()->activeAxes[1]=x;
-                                    else
-                                        ActivityState::get()->activeAxes[3]=x;
-
-                                    windowRef->getEventHandler()->controllerAxisShifted(id,Input::getJopControllerAxis(ns_joystickAxes[axis]),x);
-                                }
-                                else
-                                {
-                                    if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
-                                        ActivityState::get()->activeAxes[0]=x;
-                                    else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
-                                        ActivityState::get()->activeAxes[2]=x;
-
-                                    windowRef->getEventHandler()->controllerAxisShifted(id,Input::getJopControllerAxis(ns_joystickAxes[axis]),x);
-                                }
-                            }
-                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
-                                ActivityState::get()->activeAxes[0]=0.f;
-                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
-                                ActivityState::get()->activeAxes[1]=0.f;
-                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
-                                ActivityState::get()->activeAxes[2]=0.f;
-                            else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
-                                ActivityState::get()->activeAxes[3]=0.f;
-                        }
-
-                    }
-                    else
-                        return 0;
-
-                    ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
                 }
-                return 1;
+                else if (device & AINPUT_SOURCE_MOUSE)
+                {
+                    windowRef.getEventHandler()->mouseMoved(x - state->lastTouchPosition[id].x, y - state->lastTouchPosition[id].y);
+                    windowRef.getEventHandler()->mouseMovedAbsolute(x, y);
+                }
+                else if (device & AINPUT_SOURCE_JOYSTICK)
+                {
+                    for (int axis = 0; axis < 15; ++axis)
+                    {
+                        x = AMotionEvent_getAxisValue(event, ns_joystickAxes[axis], p);
+
+                        if (x > JOP_AXIS_TOLERANCE || x < -JOP_AXIS_TOLERANCE)
+                        {
+                            if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_HAT_Y || ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_HAT_X)
+                            {
+                                if (x > 0)
+                                    x = 1;
+                                else
+                                    x = -1;
+
+                                const int jopKey = Input::getJopControllerButton(x * ns_joystickAxes[axis]);
+                                state->activeKey = jopKey;
+
+                                windowRef.getEventHandler()->controllerButtonPressed(id, jopKey);
+                            }
+                            else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Y || ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RZ)
+                            {
+                                x = -x;
+
+                                if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Y)
+                                    state->activeAxes[1] = x;
+                                else
+                                    state->activeAxes[3] = x;
+
+                                windowRef.getEventHandler()->controllerAxisShifted(id, Input::getJopControllerAxis(ns_joystickAxes[axis]), x);
+                            }
+                            else
+                            {
+                                if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_X)
+                                    state->activeAxes[0] = x;
+
+                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                                    state->activeAxes[2] = x;
+
+                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                    state->activeAxes[4] = x;
+
+                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                    state->activeAxes[5] = x;
+
+                                windowRef.getEventHandler()->controllerAxisShifted(id, Input::getJopControllerAxis(ns_joystickAxes[axis]), x);
+                            }
+                        }
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
+                            state->activeAxes[0]=0.f;
+
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
+                            state->activeAxes[1]=0.f;
+
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                            state->activeAxes[2]=0.f;
+
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
+                            state->activeAxes[3]=0.f;
+
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                            state->activeAxes[4]=0.f;
+
+                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                            state->activeAxes[5]=0.f;
+
+                        else if (state->activeController == 0)
+                        {
+                            windowRef.getEventHandler()->controllerConnected(1, "Android_Controller");
+                            state->activeController = 1;
+                        }
+                    }
+                }
+                else
+                    return 0;
+
+                state->lastTouchPosition[id] = glm::vec2(x,y);
             }
+
+            return 1;
         }
+
         return 0;
     }
 
@@ -442,69 +523,68 @@ namespace jop { namespace detail
 
     int32_t scroll(AInputEvent* event)
     {
-        Window* windowRef = &Engine::getCurrentWindow();
-        if (windowRef != nullptr)
-        {
-            int32_t device = AInputEvent_getSource(event);
+        auto& windowRef = &Engine::getCurrentWindow();
 
-            float x = AMotionEvent_getX(event, 0);
-            float y = AMotionEvent_getY(event, 0);
+        const int32_t device = AInputEvent_getSource(event);
 
-            if (device & AINPUT_SOURCE_TOUCHSCREEN)
-            {
-                windowRef->getEventHandler()->touchScrolled(x, y);
-            }
-            else if (device & AINPUT_SOURCE_MOUSE)
-            {
-                windowRef->getEventHandler()->mouseScrolled(x, y);
-            }
-            else
-                return 0;
+        const float x = AMotionEvent_getX(event, 0);
+        const float y = AMotionEvent_getY(event, 0);
 
-            return 1;
-        }
-        return 0;
+        if (device & AINPUT_SOURCE_TOUCHSCREEN)
+            windowRef.getEventHandler()->touchScrolled(x, y);
+
+        else if (device & AINPUT_SOURCE_MOUSE)
+            windowRef.getEventHandler()->mouseScrolled(x, y);
+
+        else
+            return 0;
+
+        return 1;
     }
 
     //////////////////////////////////////////////
 
     int32_t touch(bool down, int32_t action, AInputEvent* event)
     {
-        Window* windowRef = &Engine::getCurrentWindow();
-        if (windowRef != nullptr)
+        auto& windowRef = Engine::getCurrentWindow();
+
+        const int32_t device = AInputEvent_getSource(event);
+
+        if (device & AINPUT_SOURCE_TOUCHSCREEN)
         {
-            int32_t device = AInputEvent_getSource(event);
-            if (device & AINPUT_SOURCE_TOUCHSCREEN)
+            const int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+            const int id = AMotionEvent_getPointerId(event, index);
+
+            if (id < 10)
             {
-                int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-                int id = AMotionEvent_getPointerId(event, index);
-                if(id<10)
+                const float x = AMotionEvent_getX(event, index);
+                const float y = AMotionEvent_getY(event, index);
+
+                auto state = ActivityState::get();
+
+                if (down)
                 {
-                    float x = AMotionEvent_getX(event, index);
-                    float y = AMotionEvent_getY(event, index);
-
-                    if (down)
-                    {
-                        ActivityState::get()->lastTouchPosition[id]=glm::vec2(x,y);
-                        windowRef->getEventHandler()->touchPressed(id, x, y);
-                    }
-                    else
-                    {
-                        windowRef->getEventHandler()->touchReleased(id, x, y);
-                        ActivityState::get()->lastTouchPosition[id]=glm::vec2(-1.f,-1.f);
-                    }
-
-                    for(int info = 0;info<4;++info)
-                    {
-                        float i = AMotionEvent_getAxisValue(event,ns_touchAxes[info],index);
-                        if(i>JOP_AXIS_TOLERANCE)
-                            windowRef->getEventHandler()->touchInfo(id,Input::getJopTouchInfo(ns_touchAxes[info]) , i);
-                    }
-
-                    return 1;
+                    state->lastTouchPosition[id] = glm::vec2(x, y);
+                    windowRef.getEventHandler()->touchPressed(id, x, y);
                 }
+                else
+                {
+                    state->lastTouchPosition[id] = glm::vec2(-1.f, -1.f);
+                    windowRef.getEventHandler()->touchReleased(id, x, y);
+                }
+
+                for (int info = 0; info < 4; ++info)
+                {
+                    const float i = AMotionEvent_getAxisValue(event, ns_touchAxes[info], index);
+
+                    if (i > JOP_AXIS_TOLERANCE)
+                        windowRef->getEventHandler()->touchInfo(id, Input::getJopTouchInfo(ns_touchAxes[info]), i);
+                }
+
+                return 1;
             }
         }
+
         return 0;
     }
 
@@ -512,7 +592,7 @@ namespace jop { namespace detail
 
     int32_t onKey(const int32_t& action, void* data)
     {
-        auto event= static_cast<AInputEvent*>(data);
+        auto event = static_cast<AInputEvent*>(data);
 
         int32_t metakey = AKeyEvent_getMetaState(event);
         int32_t key = AKeyEvent_getKeyCode(event);
@@ -526,69 +606,63 @@ namespace jop { namespace detail
 
         int32_t device = AInputEvent_getSource(event);
 
+        auto& windowRef = &Engine::getCurrentWindow();
+
         switch (action)
         {
-        case AKEY_EVENT_ACTION_DOWN:
-        {
-            Window* windowRef = &Engine::getCurrentWindow();
-            if (windowRef != nullptr)
-            {          
-                    if(jopKey!=0)
-                    {
-                        ActivityState::get()->activeKey=jopKey;
-                        windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
-                    }
-                    else
-                    {
-                        jopKey = Input::getJopControllerButton(key);
-                        ActivityState::get()->activeKey=jopKey;
-                        windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
-                    }
-                return 1;
-            }
-            return 0;
-        }
-        case AKEY_EVENT_ACTION_UP:
-        {           
-            Window* windowRef = &Engine::getCurrentWindow();
-            if (windowRef != nullptr)
-            {
-               if(jopKey!=0)
-               windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-               else
-               {
-                 jopKey = Input::getJopControllerButton(key);
-                 windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
-               } 
+            case AKEY_EVENT_ACTION_DOWN:
+            {      
+                auto state = ActivityState::get();
 
-                return 1;
-            }
-            return 0;
-        }
-        case AKEY_EVENT_ACTION_MULTIPLE:
-        {
-            Window* windowRef = &Engine::getCurrentWindow();
-            if (windowRef != nullptr)
-            {
-                if(jopKey!=0)
+                if (jopKey != 0)
                 {
-                    windowRef->getEventHandler()->keyPressed(jopKey, key, mod);
-                    windowRef->getEventHandler()->keyReleased(jopKey, key, mod);
-                } 
+                    state->activeKey = jopKey;
+                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
+                }
                 else
                 {
                     jopKey = Input::getJopControllerButton(key);
-                    windowRef->getEventHandler()->controllerButtonPressed(0, jopKey);
-                    windowRef->getEventHandler()->controllerButtonReleased(0, jopKey);
+                    state->activeKey = jopKey;
+
+                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
                 }
 
                 return 1;
             }
-            return 0;
+            case AKEY_EVENT_ACTION_UP:
+            {
+                if (jopKey != 0)
+                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+
+                else
+                {
+                    jopKey = Input::getJopControllerButton(key);
+                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                } 
+
+                ActivityState::get()->activeKey = -1;
+
+                return 1;
+            }
+            case AKEY_EVENT_ACTION_MULTIPLE:
+            {
+                if (jopKey != 0)
+                {
+                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
+                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+                } 
+                else
+                {
+                    jopKey = Input::getJopControllerButton(key);
+
+                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                }
+
+                return 1;
+            }
         }
-        default:
-            break;
-        }
+
         return 0;
     }
 
@@ -596,52 +670,38 @@ namespace jop { namespace detail
 
     int32_t onMotion(const int32_t& action, void* data)
     {
-        auto event= static_cast<AInputEvent*>(data);
+        auto event = static_cast<AInputEvent*>(data);
 
         switch (action & AMOTION_EVENT_ACTION_MASK)
         {
-        case AMOTION_EVENT_ACTION_SCROLL:
-        {
-            return scroll(event);
-            break;
-        }
-        case AMOTION_EVENT_ACTION_MOVE:
-        {
-            return motion(event);
-            break;
-        }
-        case AMOTION_EVENT_ACTION_POINTER_DOWN:
-        case AMOTION_EVENT_ACTION_DOWN:
-        {
-            return touch(true, action, event);
-            break;
+            case AMOTION_EVENT_ACTION_SCROLL:
+                return scroll(event);
+
+            case AMOTION_EVENT_ACTION_MOVE:
+                return motion(event);
+
+            case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            case AMOTION_EVENT_ACTION_DOWN:
+                return touch(true, action, event);
+
+            case AMOTION_EVENT_ACTION_POINTER_UP:
+            case AMOTION_EVENT_ACTION_UP:
+            case AMOTION_EVENT_ACTION_CANCEL:
+                return touch(false, action, event);
         }
 
-        case AMOTION_EVENT_ACTION_POINTER_UP:
-        case AMOTION_EVENT_ACTION_UP:
-        case AMOTION_EVENT_ACTION_CANCEL:
-        {
-            return touch(false, action, event);
-            break;
-        }
-        }
+        return 0;
     }
 
     //////////////////////////////////////////////
 
-    void getUnicode(void* data, void* vm, void* env, void* args)
+    void getUnicode(void* data, void*, void*)
     {        
         auto event = static_cast<AInputEvent*>(data);
-        auto virtualMachine = static_cast<JavaVM*>(vm);
-        auto environment = static_cast<JNIEnv*>(env);
-        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
 
-        jint error;
+        JNIEnv* env = Thread::getCurrentJavaEnv();
+
         jint flags = 0;
-        error=virtualMachine->AttachCurrentThread(&environment, &vmArgs);
-
-        if (error == JNI_ERR)
-            JOP_DEBUG_ERROR("Failed to initialize java interface to read unicode");
 
         jlong downTime = AKeyEvent_getDownTime(event);
         jlong eventTime = AKeyEvent_getEventTime(event);
@@ -654,91 +714,17 @@ namespace jop { namespace detail
         flags = AKeyEvent_getFlags(event);
         jint source = AInputEvent_getSource(event);
 
-        jclass ClassKeyEvent = environment->FindClass("android/view/KeyEvent");
-        jmethodID KeyEventConstructor = environment->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
-        jobject ObjectKeyEvent = environment->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
+        jclass ClassKeyEvent = env->FindClass("android/view/KeyEvent");
+        jmethodID KeyEventConstructor = env->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
+        jobject ObjectKeyEvent = env->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
 
-        jmethodID MethodGetUnicode = environment->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
-        unsigned int utf = environment->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
+        jmethodID MethodGetUnicode = env->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
+        const unsigned int utf = env->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
 
-        Window* windowRef = &Engine::getCurrentWindow();
-        if (windowRef != nullptr)
-            windowRef->getEventHandler()->textEntered(utf);
+        Engine::getCurrentWindow().getEventHandler()->textEntered(utf);
 
-        environment->DeleteLocalRef(ClassKeyEvent);
-        environment->DeleteLocalRef(ObjectKeyEvent);
-        virtualMachine->DetachCurrentThread();
-    }
-
-    //////////////////////////////////////////////
-
-    void showVirtualKeyboard(const bool show, void* vm, void* env, void* clazz, void* args)
-    {
-        auto virtualMachine = static_cast<JavaVM*>(vm);
-        auto environment = static_cast<JNIEnv*>(env);
-        auto nativeActivity = *static_cast<jobject*>(clazz);
-        auto vmArgs = *static_cast<JavaVMAttachArgs*>(args);
-
-        jint error;
-        jint flags = 0;
-        error = virtualMachine->AttachCurrentThread(&environment, &vmArgs);
-
-        if (error == JNI_ERR)
-            JOP_DEBUG_ERROR("Failed to initialize java interface to able opening virtual keyboard");
-
-        jclass classNativeActivity = environment->GetObjectClass(nativeActivity);
-        jclass ClassContext = environment->FindClass("android/content/Context");
-        jfieldID fieldInput = environment->GetStaticFieldID(ClassContext,
-            "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
-        jobject inputService = environment->GetStaticObjectField(ClassContext,
-            fieldInput);
-        environment->DeleteLocalRef(ClassContext);
-        jclass classInputManager =
-            environment->FindClass("android/view/inputmethod/InputMethodManager");
-        jmethodID systemService = environment->GetMethodID(classNativeActivity,
-            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-        jobject inputManager = environment->CallObjectMethod(nativeActivity,
-            systemService, inputService);
-        environment->DeleteLocalRef(inputService);
-
-        jmethodID javaWindow = environment->GetMethodID(classNativeActivity,
-            "getWindow", "()Landroid/view/Window;");
-        jobject javaWindowObject = environment->CallObjectMethod(nativeActivity, javaWindow);
-        jclass classWindow = environment->FindClass("android/view/Window");
-        jmethodID decorView = environment->GetMethodID(classWindow,
-            "getDecorView", "()Landroid/view/View;");
-        jobject decorViewObject = environment->CallObjectMethod(javaWindowObject, decorView);
-        environment->DeleteLocalRef(javaWindowObject);
-        environment->DeleteLocalRef(classWindow);
-
-        if (show)
-        {
-            jmethodID MethodShowSoftInput = environment->GetMethodID(classInputManager,
-                "showSoftInput", "(Landroid/view/View;I)Z");
-            jboolean result = environment->CallBooleanMethod(inputManager,
-                MethodShowSoftInput, decorViewObject, flags);
-        }
-        else
-        {
-            jclass classView = environment->FindClass("android/view/View");
-            jmethodID javaWindowToken = environment->GetMethodID(classView,
-                "getWindowToken", "()Landroid/os/IBinder;");
-            jobject binder = environment->CallObjectMethod(decorViewObject,
-                javaWindowToken);
-            environment->DeleteLocalRef(classView);
-
-
-            jmethodID MethodHideSoftInput = environment->GetMethodID(classInputManager,
-                "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
-            jboolean res = environment->CallBooleanMethod(inputManager,
-                MethodHideSoftInput, binder, flags);
-            environment->DeleteLocalRef(binder);
-        }
-
-        environment->DeleteLocalRef(classNativeActivity);
-        environment->DeleteLocalRef(classInputManager);
-        environment->DeleteLocalRef(decorViewObject);
-        virtualMachine->DetachCurrentThread();
+        env->DeleteLocalRef(ClassKeyEvent);
+        env->DeleteLocalRef(ObjectKeyEvent);
     }
 }}
 

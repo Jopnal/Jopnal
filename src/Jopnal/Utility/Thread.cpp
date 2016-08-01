@@ -28,7 +28,13 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Android/ActivityState.hpp>
-    #include <jni.h>
+
+    #ifdef JOP_OS_ANDROID
+
+        #include <jni.h>
+        #include <unordered_map>
+
+    #endif
 
 #endif
 
@@ -40,6 +46,15 @@
 
 //////////////////////////////////////////////
 
+
+#ifdef JOP_OS_ANDROID
+
+namespace
+{
+    std::unordered_map<std::thread::id, _JNIEnv*> ns_javaEnvs;
+}
+
+#endif
 
 namespace jop
 {
@@ -108,30 +123,66 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Thread::attachJavaThread()
+    void Thread::attachJavaThread(void* vm)
     {
     #ifdef JOP_OS_ANDROID
 
-        auto na = detail::ActivityState::get()->nativeActivity;
+        if (!vm)
+            vm = detail::ActivityState::get()->nativeActivity->vm;
+
+        JNIEnv* env;
 
         JavaVMAttachArgs args;
         args.version = JNI_VERSION_1_6;
         args.name = "NativeThread";
         args.group = NULL;
-        jint res = na->vm->AttachCurrentThread(&na->env, &args);
+        jint res = static_cast<JavaVM*>(vm)->AttachCurrentThread(&env, &args);
 
         if (res == JNI_ERR)
+        {
             JOP_DEBUG_ERROR("Failed to attach thread \"" << std::this_thread::get_id() << "\" to JNI");
+            return;
+        }
+
+        ns_javaEnvs[std::this_thread::get_id()] = env;
+
+    #else
+
+        vm;
 
     #endif
     }
 
     //////////////////////////////////////////////
 
-    void Thread::detachJavaThread()
+    void Thread::detachJavaThread(void* vm)
     {
     #ifdef JOP_OS_ANDROID
-        detail::ActivityState::get()->nativeActivity->vm->DetachCurrentThread();
+
+        static_cast<JavaVM*>(vm)->DetachCurrentThread();
+
+        ns_javaEnvs.erase(std::this_thread::get_id());
+
+    #else
+
+        vm;
+
     #endif
+    }
+
+    //////////////////////////////////////////////
+
+    _JNIEnv* Thread::getCurrentJavaEnv()
+    {
+    #ifdef JOP_OS_ANDROID
+
+        auto itr = ns_javaEnvs.find(std::this_thread::get_id());
+
+        if (itr != ns_javaEnvs.end())
+            return itr->second;
+
+    #endif
+
+        return nullptr;
     }
 }

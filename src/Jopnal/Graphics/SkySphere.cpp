@@ -46,7 +46,7 @@ namespace jop
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
     {
-        m_mesh.load(radius, 20, 20, true);
+        m_mesh.load(radius, 20, true);
 
         setModel(Model(m_mesh, m_material));
 

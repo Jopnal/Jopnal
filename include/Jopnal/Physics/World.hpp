@@ -32,17 +32,14 @@
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    struct GhostCallback;
-    struct ContactListenerImpl;
-}
-
 namespace jop
 {
     namespace detail
     {
         struct WorldImpl;
+        struct BroadPhaseCallback;
+        struct GhostCallback;
+        struct ContactListenerImpl;
     }
     class Camera;
 
@@ -142,8 +139,9 @@ namespace jop
 
 
         std::unique_ptr<detail::WorldImpl> m_worldData;                 ///< The world data
-        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;       ///< Internal ghost callback
-        std::unique_ptr<::detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
+        std::unique_ptr<detail::GhostCallback> m_ghostCallback;       ///< Internal ghost callback
+        std::unique_ptr<detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
+        std::unique_ptr<detail::BroadPhaseCallback> m_bpCallback;
     };
 }
 

@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
+#include <Jopnal/Utility/Clock.hpp>
 #include <Jopnal/Window/Mouse.hpp>
 #include <Jopnal/Window/WindowHandle.hpp>
 #include <Jopnal/STL.hpp>
@@ -59,6 +60,7 @@ namespace jop
 
         private:
 
+            Clock m_frameClock;
             Window& m_windowRef;
         };
     }
@@ -97,7 +99,6 @@ namespace jop
             std::string title;          ///< Window title
             DisplayMode displayMode;    ///< Display mode
             unsigned int samples;       ///< Sample count for multi sampling
-            unsigned int maxFrameRate;  ///< Maximum frames per second
             unsigned int depthBits;
             unsigned int stencilBits;
             bool visible;               ///< Is the window initially visible?
@@ -281,7 +282,7 @@ namespace jop
 
 #endif
 
-/// \class Window
+/// \class jop::Window
 /// \ingroup window
 ///
 /// #TODO Detailed description

@@ -57,12 +57,12 @@ namespace jop
     {
         using namespace Input;
 
+    #ifdef JOP_OS_DESKTOP
+
         if (validateWindowRef())
-        {
-        #ifdef JOP_OS_DESKTOP
             return glfwGetMouseButton(ns_windowRef->getLibraryHandle(), getGlMouseButton(button)) == GLFW_PRESS;
-        #endif
-        }
+
+    #endif
 
         return false;
     }

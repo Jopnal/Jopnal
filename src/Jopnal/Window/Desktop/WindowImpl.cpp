@@ -164,9 +164,6 @@ namespace jop { namespace detail
         // Depth & stencil exist in the renderer frame buffer
         glfwWindowHint(GLFW_DEPTH_BITS, settings.depthBits);
         glfwWindowHint(GLFW_STENCIL_BITS, settings.stencilBits);
-
-        // Frame rate limit
-        glfwWindowHint(GLFW_REFRESH_RATE, settings.maxFrameRate == 0 ? GLFW_DONT_CARE : settings.maxFrameRate);
         
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);

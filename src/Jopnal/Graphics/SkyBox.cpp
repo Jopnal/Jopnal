@@ -73,7 +73,8 @@ namespace jop
           m_mesh        (""),
           m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
     {
-        m_mesh.load(size, true);
+        obj.scale(-1.f);
+        m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
 

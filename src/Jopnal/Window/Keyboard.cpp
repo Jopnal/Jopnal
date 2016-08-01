@@ -41,7 +41,7 @@
 
 namespace
 {
-    jop::Window* ns_windowRef=nullptr;
+    jop::Window* ns_windowRef = nullptr;
 
     bool validateWindowRef()
     {
@@ -76,12 +76,7 @@ namespace jop
 
         #elif defined(JOP_OS_ANDROID)
 
-            auto state = detail::ActivityState::get();
-
-            const bool result = state->activeKey == key;
-            state->activeKey = 0;
-
-            return result;
+            return detail::ActivityState::get()->activeKey == key;
 
         #endif
         }
@@ -94,8 +89,66 @@ namespace jop
     {
     #ifdef JOP_OS_ANDROID
 
-        if (validateWindowRef())
-            detail::ActivityState::get()->showVirtualKeyboard(show);
+        auto state = detail::ActivityState::get();
+        JNIEnv* env = Thread::getCurrentJavaEnv();
+
+        if (!env)
+            JOP_DEBUG_ERROR("No current JNIENV: " << __func__);
+
+        jint flags = 0;
+
+        jclass classNativeActivity = env->GetObjectClass(state->nativeActivity->clazz);
+        jclass ClassContext = env->FindClass("android/content/Context");
+        jfieldID fieldInput = env->GetStaticFieldID(ClassContext,
+                                                    "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
+        jobject inputService = env->GetStaticObjectField(ClassContext,
+                                                         fieldInput);
+        env->DeleteLocalRef(ClassContext);
+        jclass classInputManager =
+            env->FindClass("android/view/inputmethod/InputMethodManager");
+        jmethodID systemService = env->GetMethodID(classNativeActivity,
+                                                   "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+        jobject inputManager = env->CallObjectMethod(state->nativeActivity->clazz,
+                                                     systemService, inputService);
+        env->DeleteLocalRef(inputService);
+
+        jmethodID javaWindow = env->GetMethodID(classNativeActivity,
+                                                "getWindow", "()Landroid/view/Window;");
+        jobject javaWindowObject = env->CallObjectMethod(state->nativeActivity->clazz, javaWindow);
+        jclass classWindow = env->FindClass("android/view/Window");
+        jmethodID decorView = env->GetMethodID(classWindow,
+                                               "getDecorView", "()Landroid/view/View;");
+        jobject decorViewObject = env->CallObjectMethod(javaWindowObject, decorView);
+        env->DeleteLocalRef(javaWindowObject);
+        env->DeleteLocalRef(classWindow);
+
+        if (show)
+        {
+            jmethodID MethodShowSoftInput = env->GetMethodID(classInputManager,
+                                                             "showSoftInput", "(Landroid/view/View;I)Z");
+            jboolean result = env->CallBooleanMethod(inputManager,
+                                                     MethodShowSoftInput, decorViewObject, flags);
+        }
+        else
+        {
+            jclass classView = env->FindClass("android/view/View");
+            jmethodID javaWindowToken = env->GetMethodID(classView,
+                                                         "getWindowToken", "()Landroid/os/IBinder;");
+            jobject binder = env->CallObjectMethod(decorViewObject,
+                                                   javaWindowToken);
+            env->DeleteLocalRef(classView);
+
+
+            jmethodID MethodHideSoftInput = env->GetMethodID(classInputManager,
+                                                             "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
+            jboolean res = env->CallBooleanMethod(inputManager,
+                                                  MethodHideSoftInput, binder, flags);
+            env->DeleteLocalRef(binder);
+        }
+
+        env->DeleteLocalRef(classNativeActivity);
+        env->DeleteLocalRef(classInputManager);
+        env->DeleteLocalRef(decorViewObject);
 
     #else
 
@@ -103,6 +156,4 @@ namespace jop
 
     #endif
     }
-
-    //////////////////////////////////////////////
 }

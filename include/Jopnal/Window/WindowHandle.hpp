@@ -49,11 +49,18 @@
 #ifdef JOP_OS_DESKTOP
 
     struct GLFWwindow;
-    typedef GLFWwindow* WindowLibHandle;
+
+    namespace jop
+    {
+        typedef GLFWwindow* WindowLibHandle;
+    }
 
 #else
 
-    typedef WindowHandle WindowLibHandle;
+    namespace jop
+    {
+        typedef WindowHandle WindowLibHandle;
+    }
 
 #endif
 

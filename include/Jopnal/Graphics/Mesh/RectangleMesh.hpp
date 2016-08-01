@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Jopnal.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
@@ -61,6 +62,14 @@ namespace jop
         ///
         bool load(const float size);
 
+        /// \brief Load this rectangle using differing dimensions
+        ///
+        /// \param size Size as vector
+        ///
+        /// \return True if successful
+        ///
+        bool load(const glm::vec2& size);
+
         /// \brief Load rectangle from specific part of texture
         ///
         /// \param min Minimum bounds
@@ -68,15 +77,19 @@ namespace jop
         ///
         bool load(const float size, const glm::vec2& min, const glm::vec2& max);
 
+        /// \copydoc load(const float, const glm::vec2&, const glm::vec2&)
+        ///
+        bool load(const glm::vec2& size, const glm::vec2& min, const glm::vec2& max);
+
         /// \brief Get the size
         ///
         /// \return The size
         ///
-        float getSize() const;
+        const glm::vec2& getSize() const;
 
     private:
 
-        float m_size;   ///< This rectangle's size
+        glm::vec2 m_size;   ///< This rectangle's size
     };
 }
 
