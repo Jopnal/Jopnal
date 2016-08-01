@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SPHEREMESH_HPP
-#define JOP_SPHEREMESH_HPP
+#ifndef JOP_CYLINDERMESH_HPP
+#define JOP_CYLINDERMESH_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
@@ -31,31 +31,32 @@
 
 namespace jop
 {
-    class JOP_API SphereMesh : public Mesh
+    class JOP_API CylinderMesh : public Mesh
     {
     public:
 
         /// \copydoc jop::BoxMesh::BoxMesh()
         ///
-        SphereMesh(const std::string& name);
+        CylinderMesh(const std::string& name);
 
         /// \brief Copy constructor
         ///
         /// \param other The other mesh to be copied
         /// \param newName Name of the new mesh
         ///
-        SphereMesh(const SphereMesh& other, const std::string& newName);
+        CylinderMesh(const CylinderMesh& other, const std::string& newName);
 
 
-        /// \brief Load a sphere
+        /// \brief Load a Cylinder
         ///
-        /// \param radius The radius of the sphere
-        /// \param rings How many rings will the sphere have
-        /// \param normalizedTexCoords Normalize the texture coordinates?
+        /// \param radius The radius of the Cylinder
+        /// \param height How tall will the Cylinder be
+        /// \param sectors How many blocks will form the exterior surface
+        /// \param dividedTexCoords If true side will use coordinates 0.25-0.75 from texture and rest is used for top and bottom
         ///
         /// \return True if successful
         ///
-        bool load(const float radius, const unsigned int rings, const bool normalizedTexCoords = true);
+		bool load(const float radius, const float height, const unsigned int sectors, const bool dividedTexCoords = true);
 
 
         /// \brief Get the radius
@@ -64,35 +65,36 @@ namespace jop
         ///
         float getRadius() const;
 
-        /// \brief Get the amount of rings
-        ///
-        /// \return The ring amount
-        ///
-        unsigned int getRings() const;
-
         /// \brief Get the amount of sectors
         ///
         /// \return The sector amount
         ///
         unsigned int getSectors() const;
 
-        /// \brief Check if this sphere uses normalized texture coordinates
+        /// \brief Get the size
+        ///
+        /// \return The size
+        ///
+        float getHeight() const;
+
+        /// \brief Check if this Cylinder uses normalized texture coordinates
         ///
         /// \return True if normalized
         ///
-        bool normalizedTexCoords() const;
+        bool dividedTexCoords() const;
 
     private:
 
-        float m_radius;         ///< The radius
-        unsigned int m_rings;   ///< Rings
-        bool m_normTexCoords;   ///< Normalized texture coordinates
+        float m_radius;             ///< The radius
+        float m_height;			    ///< The height
+        unsigned int m_sectors;     ///< Sectors
+		bool m_dividedTexCoords;    ///< Normalized texture coordinates
     };
 }
 
 #endif
 
-/// \class SphereMesh
+/// \class CylinderMesh
 /// \ingroup Graphics
 ///
 /// 

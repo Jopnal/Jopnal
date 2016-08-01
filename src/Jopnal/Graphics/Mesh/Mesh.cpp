@@ -27,10 +27,9 @@
     #include <Jopnal/Graphics/Mesh/Mesh.hpp>
     #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 
-#include <Jopnal/Core/ResourceManager.hpp>
-#include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
-#include <Jopnal/Utility/Assert.hpp>
-
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
 
 #endif
 
@@ -175,11 +174,8 @@ namespace jop
             + ((VertexComponent::TexCoords & components) != 0) *  sizeof(glm::vec2)
             + ((VertexComponent::Normal & components)    != 0) *  sizeof(glm::vec3)
             + ((VertexComponent::Tangents & components)  != 0) * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
-            + ((VertexComponent::Color & components)     != 0) *  sizeof(Color)
-            ;
+            + ((VertexComponent::Color & components)     != 0) *  sizeof(Color);
     }
-
-   
 
     //////////////////////////////////////////////
 
@@ -191,7 +187,7 @@ namespace jop
         {
             defMesh = static_ref_cast<BoxMesh>(ResourceManager::getEmpty<BoxMesh>("jop_default_mesh").getReference());
 
-            JOP_ASSERT_EVAL(defMesh->load(1.f), "Couldn't load default model!");
+            JOP_ASSERT_EVAL(defMesh->load(glm::vec3(1.f)), "Couldn't load default model!");
 
             defMesh->setPersistence(0);
         }

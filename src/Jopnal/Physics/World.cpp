@@ -244,12 +244,12 @@ namespace jop
 
             struct ContactData
             {
-                Collider& A;
-                Collider& B;
+                Collider* A;
+                Collider* B;
 
                 ContactData(Collider& a, Collider& b)
-                    : A(a),
-                      B(b)
+                    : A(&a),
+                      B(&b)
                 {}
             };
 
@@ -280,8 +280,8 @@ namespace jop
             {
                 ContactData* cd = static_cast<ContactData*>(userPersistentData);
 
-                for (auto& i : cd->A.m_listeners)
-                    i->endContact(cd->B);
+                for (auto& i : cd->A->m_listeners)
+                    i->endContact(*cd->B);
 
                 delete cd;
 

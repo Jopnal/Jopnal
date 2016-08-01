@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Texture/TextureAtlas.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -56,20 +57,11 @@ namespace jop
         ///
         /// This will set up the vertices and create the buffers
         ///
-        /// \param size Size of the box
+        /// \param size Size of the box as vector
         ///
         /// \return True if successful
         ///
-        bool load(const float size);
-
-        /// \brief Load this box
-        ///
-        /// \param size Size of the box
-        /// \param invert The cube is inside-out?
-        ///
-        /// \return True if successful
-        ///
-        bool load(const float size, const bool invert);
+        bool load(const glm::vec3& size);
 
         /// \brief Load this box with certain part of texture
         ///
@@ -78,7 +70,7 @@ namespace jop
         /// \param max Maximum bound of texture
         /// \param invert Is cube inside-out?
         ///
-        bool load(const float size, const glm::vec2& min, const glm::vec2& max, const bool invert);
+        bool load(const glm::vec3& size, const glm::vec2& min, const glm::vec2& max);
 
         /// \brief Load from atlas with different texture for each face
         ///
@@ -92,7 +84,14 @@ namespace jop
         /// \param bottom Index to the texture to be placed in to bottom face
         /// \param invert Is cube inside-out?
         ///
-        bool load(const float size, const TextureAtlas& atlas, const unsigned int front, const unsigned int left, const unsigned int back, const unsigned int right, const unsigned int top, const unsigned int bottom, const bool invert);
+        bool load(const glm::vec3& size,
+                  const TextureAtlas& atlas,
+                  const unsigned int front,
+                  const unsigned int left,
+                  const unsigned int back,
+                  const unsigned int right,
+                  const unsigned int top,
+                  const unsigned int bottom);
         
         /// \brief Load from atlas with different texture for each face
         ///
@@ -105,24 +104,23 @@ namespace jop
         /// \param bottom Coordinates of the texture to be placed in bottom face
         /// \param invert Is cube inside-out?
         ///
-        bool load(const float size, std::pair<glm::vec2, glm::vec2> front, std::pair<glm::vec2, glm::vec2> left, std::pair<glm::vec2, glm::vec2> back, std::pair<glm::vec2, glm::vec2> right, std::pair<glm::vec2, glm::vec2> top, std::pair<glm::vec2, glm::vec2> bottom, const bool invert);
+        bool load(const glm::vec3& size,
+                  const std::pair<glm::vec2, glm::vec2>& front,
+                  const std::pair<glm::vec2, glm::vec2>& left,
+                  const std::pair<glm::vec2, glm::vec2>& back,
+                  const std::pair<glm::vec2, glm::vec2>& right,
+                  const std::pair<glm::vec2, glm::vec2>& top,
+                  const std::pair<glm::vec2, glm::vec2>& bottom);
         
         /// \brief Get the size
         ///
         /// \return The size
         ///
-        float getSize() const;
-
-        /// \brief Check if this box is inverted
-        ///
-        /// \return True if inverted
-        ///
-        bool isInverted() const;
+        const glm::vec3& getSize() const;
 
     private:
 
-        float m_size;       ///< This box's size
-        bool m_inverted;    ///< Inverted?
+        glm::vec3 m_size;       ///< This box's size
     };
 }
 

@@ -27,8 +27,11 @@
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Buffer.hpp>
 #include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Graphics/Mesh/CapsuleMesh.hpp>
 #include <Jopnal/Graphics/Mesh/CircleMesh.hpp>
 #include <Jopnal/Graphics/Color.hpp>
+#include <Jopnal/Graphics/Mesh/ConeMesh.hpp>
+#include <Jopnal/Graphics/Mesh/CylinderMesh.hpp>
 #include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
