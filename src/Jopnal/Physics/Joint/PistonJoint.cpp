@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::quat& jRot) :
@@ -41,7 +40,7 @@ namespace jop
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();
-        glm::vec3& p = defaultCenter(jPos);
+        glm::vec3 p = defaultCenter(jPos);
         ctwt.setOrigin(btVector3(p.x, p.y, p.z));
         ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 
@@ -67,22 +66,22 @@ namespace jop
 
     std::pair<float, float> PistonJoint::getAngLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->getLowerAngLimit(), m_jointL->getUpperAngLimit());
+        return std::make_pair(m_jointL->getLowerAngLimit(), m_jointL->getUpperAngLimit());
     }
 
     std::pair<float, float> PistonJoint::getAngMotorForces() const
     {
-        return std::make_pair<float,float>(m_jointL->getTargetAngMotorVelocity(), m_jointL->getMaxAngMotorForce());
+        return std::make_pair(m_jointL->getTargetAngMotorVelocity(), m_jointL->getMaxAngMotorForce());
     }
 
     std::pair<float, float> PistonJoint::getMoveLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->getLowerLinLimit(), m_jointL->getUpperLinLimit());
+        return std::make_pair(m_jointL->getLowerLinLimit(), m_jointL->getUpperLinLimit());
     }
 
     std::pair<float, float> PistonJoint::getMoveMotorForces() const
     {
-        return std::make_pair<float, float>(m_jointL->getTargetLinMotorVelocity(), m_jointL->getMaxLinMotorForce());
+        return std::make_pair(m_jointL->getTargetLinMotorVelocity(), m_jointL->getMaxLinMotorForce());
     }
 
     PistonJoint& PistonJoint::setAngLimits(const float min, const float max)
@@ -112,5 +111,4 @@ namespace jop
         m_jointL->setMaxLinMotorForce(force);
         return *this;
     }
-
 }

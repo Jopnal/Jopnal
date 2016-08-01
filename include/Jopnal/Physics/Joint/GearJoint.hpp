@@ -58,7 +58,7 @@ namespace jop
         ///
         /// \return Returns reference to self.
         ///
-        GearJoint& setAxis(glm::vec3& axis, const bool bodyA = true);
+        GearJoint& setAxis(const glm::vec3& axis, const bool bodyA = true);
 
         /// \param ratio New ratio to use in the joint.
         ///

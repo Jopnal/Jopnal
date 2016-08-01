@@ -62,9 +62,9 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> PistonJoint2D::getLimits()
+    std::pair<float, float> PistonJoint2D::getLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+        return std::make_pair(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
     }
 
     PistonJoint2D& PistonJoint2D::enableMotor(const bool set)
@@ -82,7 +82,7 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> PistonJoint2D::getMotorForces()
+    std::pair<float, float> PistonJoint2D::getMotorForces() const
     {
         return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorForce());
     }

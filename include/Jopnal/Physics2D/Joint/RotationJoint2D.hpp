@@ -54,7 +54,7 @@ namespace jop
 
         /// \return Returns current rotation limits in radians: first = minimum angle, second = maximum angle.
         ///
-        std::pair<float, float> getLimits();
+        std::pair<float, float> getLimits() const;
 
         /// \param enable Enables/disables motor.
         ///
@@ -71,7 +71,7 @@ namespace jop
 
         /// \return Returns motor forces: first = current rotation speed, second = maximum torque.
         ///
-        std::pair<float, float> getMotorForces();
+        std::pair<float, float> getMotorForces() const;
 
     private:
         b2RevoluteJoint* m_jointL;

@@ -65,7 +65,7 @@ namespace jop
         m_jointL = static_cast<b2PulleyJoint*>(m_joint);
     }
 
-    std::pair<float, float> PulleyJoint2D::getRopeLengths()
+    std::pair<float, float> PulleyJoint2D::getRopeLengths() const
     {
         return std::make_pair(m_jointL->GetCurrentLengthA(), m_jointL->GetCurrentLengthB());
     }

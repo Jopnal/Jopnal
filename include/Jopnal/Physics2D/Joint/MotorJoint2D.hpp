@@ -47,11 +47,11 @@ namespace jop
 
         /// \return glm::vec2 Returns target linear offsets as a glm::vec2 with x and y components.
         ///
-        glm::vec2 getLinearOffset();
+        glm::vec2 getLinearOffset() const;
 
         /// \return float Returns target angular offset as radians.
         ///
-        float getAngularOffset();
+        float getAngularOffset() const;
 
         /// Set new target linear offsets for x and y components in relation to the other body.
         ///
@@ -73,7 +73,7 @@ namespace jop
 
         /// \return float Returns the current force with which the body tries to reach the target offsets.
         ///
-        float getForce();
+        float getForce() const;
 
         /// Set new torque with which the body tries to reach the target offsets.
         ///
@@ -83,7 +83,7 @@ namespace jop
 
         /// \return float Returns the current torque with which the body tries to reach the target offsets.
         ///
-        float getTorque();
+        float getTorque() const;
 
     private:
         b2MotorJoint* m_jointL;

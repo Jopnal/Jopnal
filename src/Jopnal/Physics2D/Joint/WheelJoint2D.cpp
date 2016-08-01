@@ -71,7 +71,7 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> WheelJoint2D::getMotorForces()
+    std::pair<float, float> WheelJoint2D::getMotorForces() const
     {
         return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
     }
@@ -83,8 +83,8 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> WheelJoint2D::getDamping()
+    std::pair<float, float> WheelJoint2D::getDamping() const
     {
-        return std::make_pair<float, float>(m_jointL->GetSpringFrequencyHz(), m_jointL->GetSpringDampingRatio());
+        return std::make_pair(m_jointL->GetSpringFrequencyHz(), m_jointL->GetSpringDampingRatio());
     }
 }

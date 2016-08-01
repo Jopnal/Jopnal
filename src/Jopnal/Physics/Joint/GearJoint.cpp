@@ -58,11 +58,12 @@ namespace jop
         return m_jointL->getRatio();
     }
 
-    GearJoint& GearJoint::setAxis(glm::vec3& axis, const bool bodyA)
+    GearJoint& GearJoint::setAxis(const glm::vec3& axis, const bool bodyA)
     {
+        btVector3 _axis(axis.x, axis.y, axis.z);
         bodyA ?
-            m_jointL->setAxisA(btVector3(axis.x, axis.y, axis.z)) :
-            m_jointL->setAxisB(btVector3(axis.x, axis.y, axis.z));
+            m_jointL->setAxisA(_axis) :
+            m_jointL->setAxisB(_axis);
 
         return *this;
     }

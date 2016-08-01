@@ -29,7 +29,6 @@
 //////////////////////////////////////////////
 
 class btFixedConstraint;
-// class btGeneric6DofConstraint; //expand to this?
 
 namespace jop
 {
@@ -40,7 +39,6 @@ namespace jop
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
         WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
 

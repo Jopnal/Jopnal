@@ -27,7 +27,7 @@
 #include <Jopnal/Physics/Joint/WheelJoint.hpp>
 
 #include <Jopnal/STL.hpp>
-#include <BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h>
 
 #endif
 
@@ -35,14 +35,12 @@
 
 namespace jop
 {
-    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::vec3& jPos, const glm::quat& jRot) :
+    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::quat& jRot, const glm::vec3& jPos) :
         Joint(worldRef, bodyA, bodyB),
         m_jointL(nullptr),
         m_maxAngle(maxSteering)
     {
         btTransform ctwt = btTransform::getIdentity();
-        glm::vec3& p = defaultCenter(jPos);
-        ctwt.setOrigin(btVector3(p.x, p.y, p.z));
 
         if (jRot == glm::quat(0.f, 0.f, 0.f, 0.f))
         {
@@ -54,19 +52,27 @@ namespace jop
         else
             ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 
+        if (jPos == glm::vec3(0.f, 0.f, FLT_MAX))
+            ctwt.setOrigin(getBody(bodyB)->getWorldTransform().getOrigin());
+        else
+        {
+            glm::vec3 p = defaultCenter(jPos);
+            ctwt.setOrigin(btVector3(p.x, p.y, p.z));
+        }
+
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
-        m_joint = std::make_unique<btGeneric6DofConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
+        m_joint = std::make_unique<btGeneric6DofSpringConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
-        m_jointL = static_cast<btGeneric6DofConstraint*>(m_joint.get());
+        m_jointL = static_cast<btGeneric6DofSpringConstraint*>(m_joint.get());
 
         //Axis locks
         {
             for (int i = 0; i < 6; ++i)
                 m_jointL->setLimit(i, 0.f, 0.f);
 
-            m_jointL->setLimit(static_cast<unsigned int>(Axis::X) + 3u, 1.f, 0.f); //X-rotation free
+            m_jointL->setLimit(static_cast<unsigned int>(Axis::R_X), 1.f, 0.f); //X-rotation free
         }
     }
 
@@ -92,22 +98,38 @@ namespace jop
 
     glm::vec3 WheelJoint::getTorque() const
     {
-        auto tq = m_jointL->getRigidBodyB().getTotalTorque();
+        btVector3 tq = m_jointL->getRigidBodyB().getTotalTorque();
         return glm::vec3(tq.m_floats[0], tq.m_floats[1], tq.m_floats[2]);
     }
 
     float WheelJoint::getAngle(const Axis axis) const
     {
-        btVector3 df(0.f, 0.f, 0.f);
-        m_jointL->getAngularLowerLimit(df);
+        btVector3 angles(0.f, 0.f, 0.f);
+        m_jointL->getAngularLowerLimit(angles);
 
-        return df[static_cast<unsigned int>(axis)];
+        return angles[static_cast<unsigned int>(axis)];
+    }
+
+    float WheelJoint::getStiffness(const Axis axis)
+    {
+        return m_jointL->getStiffness(static_cast<unsigned int>(axis));
     }
 
     WheelJoint& WheelJoint::setAngle(const float steeringAngle, const Axis axis)
     {
-        float newAngle = glm::clamp(steeringAngle, -m_maxAngle, m_maxAngle);
-        m_jointL->setLimit(static_cast<unsigned int>(axis)+3u, newAngle, newAngle);
+        unsigned int t_axis = static_cast<unsigned int>(axis);
+        t_axis = axis > Axis::T_Z ? t_axis : t_axis + 3u;
+
+        m_jointL->getRigidBodyB().activate();
+        float newAngle = std::min(std::max(steeringAngle, -m_maxAngle), m_maxAngle);
+        m_jointL->setLimit(t_axis, newAngle, newAngle);
+        return *this;
+    }
+
+    WheelJoint& WheelJoint::setStiffness(const float stiffness, const Axis axis)
+    {
+        m_jointL->enableSpring(static_cast<unsigned int>(axis), true);
+        m_jointL->setStiffness(static_cast<unsigned int>(axis), stiffness);
         return *this;
     }
 }

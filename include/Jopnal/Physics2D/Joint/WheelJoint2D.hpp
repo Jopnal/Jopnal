@@ -64,7 +64,7 @@ namespace jop
 
         /// \return Returns motor forces: first = current motor speed, second = maximum torque.
         ///
-        std::pair<float, float> getMotorForces();
+        std::pair<float, float> getMotorForces() const;
 
         /// Set new damping values.
         ///
@@ -77,7 +77,7 @@ namespace jop
 
         /// \return Returns current damping values: first = frequency, second = damping.
         ///
-        std::pair<float, float> getDamping();
+        std::pair<float, float> getDamping() const;
 
     private:
         b2WheelJoint* m_jointL;

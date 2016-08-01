@@ -64,9 +64,9 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> RotationJoint2D::getLimits()
+    std::pair<float, float> RotationJoint2D::getLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+        return std::make_pair(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
     }
 
     RotationJoint2D& RotationJoint2D::enableMotor(const bool enable)
@@ -82,9 +82,9 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> RotationJoint2D::getMotorForces()
+    std::pair<float, float> RotationJoint2D::getMotorForces() const
     {
-        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
+        return std::make_pair(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
     }
 
 }

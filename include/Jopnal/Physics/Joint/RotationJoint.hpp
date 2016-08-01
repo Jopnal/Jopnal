@@ -29,7 +29,6 @@
 //////////////////////////////////////////////
 
 class btHingeConstraint;
-// class btGeneric6DofConstraint; //expand to this?
 
 namespace jop
 {

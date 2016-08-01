@@ -59,7 +59,7 @@ namespace jop
         m_jointL = static_cast<b2GearJoint*>(m_joint);
     }
 
-    void GearJoint2D::setRatio(const float ratio)
+    GearJoint2D& GearJoint2D::setRatio(const float ratio)
     {
         m_jointL->SetRatio(ratio);
     }

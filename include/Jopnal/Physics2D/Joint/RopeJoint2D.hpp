@@ -53,8 +53,6 @@ namespace jop
 
     private:
         unsigned int m_type;
-
     };
 }
-
 #endif

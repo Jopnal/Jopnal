@@ -54,12 +54,10 @@ namespace jop
 
         /// \return Returns current rope lengths: first = bodyA, second = bodyB
         ///
-        std::pair<float, float> getRopeLengths();
+        std::pair<float, float> getRopeLengths() const;
 
     private:
         b2PulleyJoint* m_jointL;
-
     };
 }
-
 #endif

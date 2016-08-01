@@ -48,12 +48,12 @@ namespace jop
         m_jointL = static_cast<b2MotorJoint*>(m_joint);
     }
 
-    glm::vec2 MotorJoint2D::getLinearOffset()
+    glm::vec2 MotorJoint2D::getLinearOffset() const
     {
         return glm::vec2(m_jointL->GetLinearOffset().x, m_jointL->GetLinearOffset().y);
     }
 
-    float MotorJoint2D::getAngularOffset()
+    float MotorJoint2D::getAngularOffset() const
     {
         return m_jointL->GetAngularOffset();
     }
@@ -77,7 +77,7 @@ namespace jop
         return *this;
     }
 
-    float MotorJoint2D::getForce()
+    float MotorJoint2D::getForce() const
     {
         return m_jointL->GetMaxForce();
     }
@@ -89,7 +89,7 @@ namespace jop
         return *this;
     }
 
-    float MotorJoint2D::getTorque()
+    float MotorJoint2D::getTorque() const
     {
         return m_jointL->GetMaxTorque();
     }

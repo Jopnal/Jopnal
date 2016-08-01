@@ -28,7 +28,7 @@
 
 //////////////////////////////////////////////
 
-class btGeneric6DofConstraint;
+class btGeneric6DofSpringConstraint;
 
 namespace jop
 {
@@ -36,11 +36,17 @@ namespace jop
     {
     public:
 
+        /// T_ : Translation
+        /// R_ : Rotation
+        ///
         enum class Axis
         {
-            X,
-            Y,
-            Z
+            T_X,
+            T_Y,
+            T_Z,
+            R_X,
+            R_Y,
+            R_Z
         };
 
         /// \brief WheelJoint constructor.
@@ -51,11 +57,12 @@ namespace jop
         /// The vehicle wheels are then +/- of the chassis in X-axis.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
-        /// \param maxSteering Maximum steering angle of the wheel in radians. setAngle can not override this. Default is ~40 degrees.
-        /// \param jRot Rotation of the joint in a quaternion. Defaults the orientation of the joint based on global difference between the chassis and the wheel X-positions.
+        /// \param maxSteering Maximum steering angle of the wheel in radians. Function setAngle can not override this. Same value is set for both +/- rotations. Default is 0.7f ~ 40 degrees.
+        /// \param jRot Rotation of the joint in a quaternion. Defaults the orientation of the joint based on the difference between the chassis and the wheel positions in global X-dimension.
+        /// \param jPos Position of the joint in world coordinates. Default is in the middle of the wheel.
         ///
-        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering = 0.7f, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::fquat(0.f, 0.f, 0.f, 0.f));
+        WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering = 0.7f,
+            const glm::quat& jRot = glm::quat(0.f, 0.f, 0.f, 0.f), const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
 
         /// \brief Apply rotational force to the wheel's rigidbody.
         ///
@@ -64,7 +71,7 @@ namespace jop
         ///
         /// \return Returns reference to self
         ///
-        WheelJoint& applyTorque(const float torque, const Axis axis = Axis::Y);
+        WheelJoint& applyTorque(const float torque, const Axis axis = Axis::T_Y);
 
         /// \brief Apply rotational force to the wheel.
         ///
@@ -76,7 +83,7 @@ namespace jop
 
         /// \return Returns current torque affecting the joint in an axis.
         ///
-        float getTorque(const Axis axis = Axis::Y) const;
+        float getTorque(const Axis axis) const;
 
         /// \return Returns vector of torques affecting the joint.
         ///
@@ -84,8 +91,12 @@ namespace jop
 
         /// \return Returns angle of the joint in an axis in radians. Default Y-axis.
         ///
-        float getAngle(const Axis axis = Axis::Y) const;
-        
+        float getAngle(const Axis axis = Axis::T_Y) const;
+
+        /// \return Returns stiffness from the 
+        ///
+        float getStiffness(const Axis axis = Axis::T_Y);
+
         /// \brief Set new angle for the joint in an axis.
         ///
         /// This can not override the maxSteering of the joint.
@@ -95,11 +106,20 @@ namespace jop
         ///
         /// \return Returns reference to self.
         ///
-        WheelJoint& setAngle(const float steeringAngle, const Axis axis = Axis::Y);
+        WheelJoint& setAngle(const float steeringAngle, const Axis axis = Axis::T_Y);
+
+        /// Set spring stiffness.
+        ///
+        /// \param stiffness New stiffness to apply. Please use values between 0.f - 1.f.
+        /// \param axis Axis to apply the stiffness to. Default Y.
+        ///
+        /// \return Returns reference to self.
+        ///
+        WheelJoint& setStiffness(const float stiffness, const Axis axis = Axis::T_Y);
 
     private:
 
-        btGeneric6DofConstraint* m_jointL;
+        btGeneric6DofSpringConstraint* m_jointL;
         float m_maxAngle;
     };
 }

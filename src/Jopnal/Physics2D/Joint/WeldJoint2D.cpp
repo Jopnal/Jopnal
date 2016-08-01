@@ -60,8 +60,8 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> WeldJoint2D::getDamping()
+    std::pair<float, float> WeldJoint2D::getDamping() const
     {
-        return std::make_pair<float, float>(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
+        return std::make_pair(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
     }
 }

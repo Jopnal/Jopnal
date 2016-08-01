@@ -41,8 +41,8 @@ namespace jop
         /// \param jPos Position of the joint in world coordinates.
         /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
-        PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::fquat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
-
+        PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide,
+            const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
 
         /// \param enable Enables/disables angular motor.
         ///
@@ -115,5 +115,4 @@ namespace jop
 
     };
 }
-
 #endif
