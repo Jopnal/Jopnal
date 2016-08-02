@@ -10,7 +10,7 @@ extern const unsigned char defaultFont[10280];
 
 extern const unsigned char defaultSound[158848];
 
-extern const unsigned char defaultTexture[18901];
+extern const unsigned char defaultTexture[195];
 
 extern const unsigned char errorTexture[92086];
 

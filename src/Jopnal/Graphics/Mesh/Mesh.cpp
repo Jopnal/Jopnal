@@ -107,7 +107,10 @@ namespace jop
                 glCheck(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
             }
             else
+            {
                 GlState::setVertexAttribute(false, 2);
+                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals while material has lighting enabled");
+            }
 
             //if (materialAttribs & Material::Attribute::NormalMap)
             //{
@@ -123,6 +126,12 @@ namespace jop
             //        glCheck(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(BiTangent)));
             //    }
             //}
+        }
+        else
+        {
+            GlState::setVertexAttribute(false, 2);
+            GlState::setVertexAttribute(false, 3);
+            GlState::setVertexAttribute(false, 4);
         }
 
         // Colors

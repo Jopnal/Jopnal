@@ -44,12 +44,14 @@ namespace jop
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
         : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_mesh        (""),
-          m_material    ("", Material::Attribute::DiffuseMap, false)
+          m_material    ("", false)
     {
+        m_material.setAttributeField(Material::Attribute::DiffuseMap);
         m_mesh.load(radius, 20, true);
 
         setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
+        addAttributes(Attribute::__SkySphere);
     }
 
     SkySphere::SkySphere(const SkySphere& other, Object& newObj)
@@ -62,25 +64,23 @@ namespace jop
 
     void SkySphere::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-        /*if (!getModel().isValid())
+        if (!getModel().isValid())
             return;
 
-        auto& s = shader;
+        auto& shdr = getShader();
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        if (camera)
+        // Attributes
+        msh.updateVertexAttributes(mat.getAttributeField());
+
+        // Uniforms
         {
-            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
-            s.setUniform("u_VMatrix", camera->getViewMatrix());
+            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
+            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+
+            mat.sendToShader(shdr, proj.cameraPosition);
         }
-
-        msh.getVertexBuffer().bind();
-        const auto stride = msh.getVertexSize();
-        s.setAttribute("a_Position", 0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute("a_TexCoords", 1, GL_FLOAT, 2, stride, msh.getVertexOffset(Mesh::TexCoords));
-
-        mat.sendToShader(s, camera, getAlphaMultiplier());
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
@@ -88,15 +88,11 @@ namespace jop
         if (msh.getElementAmount())
         {
             msh.getIndexBuffer().bind();
-            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
-        }
-        else
-        {
-            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), 0));
         }
 
         GlState::setDepthTest(true);
-        GlState::setFaceCull(true);*/
+        GlState::setFaceCull(true);
     }
 
     //////////////////////////////////////////////

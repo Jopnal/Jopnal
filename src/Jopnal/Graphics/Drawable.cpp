@@ -66,6 +66,7 @@ namespace jop
         : Component     (object, 0),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
+          m_attributes  (0),
           m_rendererRef (renderer),
           m_pass        (pass),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
@@ -79,6 +80,7 @@ namespace jop
         : Component     (object, 0),
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
+          m_attributes  (0),
           m_rendererRef (pass.getRenderer()),
           m_pass        (pass.getPass()),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
@@ -95,7 +97,8 @@ namespace jop
           m_rendererRef (other.m_rendererRef),
           m_pass        (other.m_pass),
           m_renderGroup (other.m_renderGroup),
-          m_flags       (other.m_flags)
+          m_flags       (other.m_flags),
+          m_updateShader(other.m_updateShader)
     {
         m_rendererRef.bind(this, m_pass);
     }
@@ -115,18 +118,12 @@ namespace jop
         auto& mesh = *getModel().getMesh();
         auto& mat = *getModel().getMaterial();
 
-        if (m_updateShader)
-        {
-            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(mat).getReference());
-            m_updateShader = false;
-        }
-
         // Attributes
         mesh.updateVertexAttributes(mat.getAttributeField());
 
         // Uniforms
         {
-            auto& shdr = *m_shader;
+            auto& shdr = getShader();
             auto& modelMat = getObject()->getTransform().getMatrix();
 
             shdr.setUniform("u_PMatrix", proj.projectionMatrix);
@@ -198,6 +195,8 @@ namespace jop
     Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
+        m_updateShader = true;
+
         return *this;
     }
 
@@ -210,6 +209,7 @@ namespace jop
 
     Model& Drawable::getModel()
     {
+        m_updateShader = true;
         return m_model;
     }
 
@@ -230,11 +230,73 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Drawable& Drawable::setAttributeField(const uint64 attributes)
+    {
+        m_attributes = attributes;
+        m_updateShader = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    Drawable& Drawable::addAttributes(const uint64 attributes)
+    {
+        m_attributes |= attributes;
+        m_updateShader = true;
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    uint64 Drawable::getAttributeField() const
+    {
+        return m_attributes;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::hasAttribute(const uint64 attribute) const
+    {
+        return (m_attributes & attribute) != 0;
+    }
+
+    //////////////////////////////////////////////
+
+    void Drawable::getShaderPreprocessorDef(const uint64 attribs, std::string& str)
+    {
+        if (attribs & Attribute::__SkyBox)
+            str += "#define JDRW_SKYBOX\n";
+
+        if (attribs & Attribute::__SkySphere)
+            str += "#define JDRW_SKYSPHERE\n";
+    }
+
+    //////////////////////////////////////////////
+
     Message::Result Drawable::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(Drawable, message.getString(), this) == Message::Result::Escape)
             return Message::Result::Escape;
 
         return Component::receiveMessage(message);
+    }
+
+    //////////////////////////////////////////////
+
+    ShaderProgram& Drawable::getShader() const
+    {
+        if (m_updateShader)
+        {
+            if (!getModel().isValid())
+                m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getDefault().getReference());
+            else
+                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributeField(), getAttributeField()).getReference());
+
+            m_updateShader = false;
+        }
+
+        return *m_shader;
     }
 }

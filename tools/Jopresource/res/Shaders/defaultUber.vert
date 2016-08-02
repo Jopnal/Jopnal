@@ -69,7 +69,7 @@ void main()
 {
     vec4 pos = 
         
-    #if !defined(JMAT_SKYBOX) && !defined(JMAT_SKYSPHERE)
+    #if !defined(JDRW_SKYBOX) && !defined(JDRW_SKYSPHERE)
         u_MMatrix * 
     #endif
         vec4(a_Position, 1.0);
@@ -92,7 +92,7 @@ void main()
 
         u_PMatrix * 
         
-        #if defined(JMAT_SKYBOX) || defined(JMAT_SKYSPHERE)
+        #if defined(JDRW_SKYBOX) || defined(JDRW_SKYSPHERE)
             mat4(mat3(u_VMatrix))
         #else
             u_VMatrix
@@ -103,7 +103,7 @@ void main()
         
     pos)
     
-    #if (defined(JMAT_SKYBOX) || defined(JMAT_SKYSPHERE)) && !defined(JMAT_ENVIRONMENT_RECORD)
+    #if (defined(JDRW_SKYBOX) || defined(JDRW_SKYSPHERE)) && !defined(JMAT_ENVIRONMENT_RECORD)
         .xyww
     #endif
     ;

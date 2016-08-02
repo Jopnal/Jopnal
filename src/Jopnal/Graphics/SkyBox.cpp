@@ -44,8 +44,10 @@ namespace jop
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
         : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_mesh        (""),
-          m_material    ("", Material::Attribute::EnvironmentMap, false)
+          m_material    ("", false)
     {
+        m_material.setAttributeField(Material::Attribute::EnvironmentMap);
+
         obj.scale(-1.f);
         m_mesh.load(glm::vec3(size));
 

@@ -509,7 +509,7 @@ JOP_COLOR_OUT(0)
 
 void main() 
 {
-#ifdef JMAT_SKYBOX
+#ifdef JDRW_SKYBOX
 
     out_FinalColor = JOP_TEXTURE_CUBE(u_EnvironmentMap, OUT_POS);
     out_FinalColor.a *= u_Emission.a;

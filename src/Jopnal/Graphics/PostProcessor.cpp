@@ -208,7 +208,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !isLinear()));
+                    valueChanged(SettingManager::get<bool>(str, isLinear()));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
@@ -255,22 +255,24 @@ namespace jop
         if (gl::getVersionMajor() >= 3)
         {
             auto& blurShader = ResourceManager::getNamed<ShaderProgram>
-                (
+            (
                 "jop_blur_shader",
                 "",
                 Shader::Type::Vertex, m_shaderSources[0],
                 Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::gaussianBlurShaderFrag), sizeof(jopr::gaussianBlurShaderFrag))
-                );
+            );
+            blurShader.setPersistence(0);
 
             JOP_ASSERT(&blurShader != &ShaderProgram::getError(), "Failed to compile gaussian blur shader!");
 
             auto& brightShader = ResourceManager::getNamed<ShaderProgram>
-                (
+            (
                 "jop_bright_filter_shader",
                 "",
                 Shader::Type::Vertex, m_shaderSources[0],
                 Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::brightFilter), sizeof(jopr::brightFilter))
-                );
+            );
+            brightShader.setPersistence(0);
 
             JOP_ASSERT(&brightShader != &ShaderProgram::getError(), "Failed to compile bright filter shader!");
 

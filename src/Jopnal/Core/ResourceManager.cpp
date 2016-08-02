@@ -45,7 +45,11 @@ namespace std
 namespace jop
 {
     ResourceManager::ResourceManager()
-        : Subsystem(0)
+        : Subsystem             (0),
+          m_resources           (),
+          m_loadPhaseResources  (),
+          m_loadPhase           (false),
+          m_mutex               ()
     {
         JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist at a time!");
     

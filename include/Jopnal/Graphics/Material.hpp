@@ -157,15 +157,7 @@ namespace jop
         /// \param name Name of this material
         /// \param autoAttributes Set attributes automatically?
         ///
-        Material(const std::string& name, const bool autoAttributes = true);
-
-        /// \brief Overloaded constructor for initializing with attributes
-        ///
-        /// \param name Name of this material
-        /// \param attributes The initial attributes
-        /// \param autoAttributes Set attributes automatically
-        ///
-        Material(const std::string& name, const uint64 attributes, const bool autoAttributes = true);
+        Material(const std::string& name, const bool autoAttributes);
         
 
         /// \brief Send this material to a shader
@@ -175,7 +167,7 @@ namespace jop
         ///
         void sendToShader(ShaderProgram& shader, const glm::vec3& camPos) const;
 
-        void getShaderPreprocessorDef(std::string& str) const;
+        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 
 
         /// \brief Set a reflection value

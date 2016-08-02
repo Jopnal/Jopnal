@@ -58,17 +58,9 @@ namespace detail
             JOP_ASSERT(false, "Couldn't load resource and there's not error or default resource available: " + name);
             name; // Remove warning when not using assertions
 
-            int dummy = 0;
-
-            #pragma warning(push)
-            #pragma warning(disable: 4172)
-            #pragma GCC diagnostic push
-            #pragma GCC diagnostic ignored "-Wreturn-local-addr"
+            static int dummy = 0;
 
             return reinterpret_cast<T&>(dummy);
-
-            #pragma warning(pop)
-            #pragma GCC diagnostic pop
         }
     };
     template<typename T>

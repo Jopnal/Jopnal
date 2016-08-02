@@ -37,7 +37,7 @@ namespace jop
         : Drawable(object, renderer),
           m_atlas(),
           m_mesh(std::make_unique<RectangleMesh>("")),
-          m_material(""),
+          m_material("", true),
           m_animationRange(),
           m_frameTime(0),
           m_timer(0),

@@ -73,18 +73,7 @@ namespace jop
           m_maps                (),
           m_autoAttribs         (autoAttributes)
     {
-        setMap(Map::Diffuse, Texture2D::getDefault());
-    }
-
-    Material::Material(const std::string& name, const uint64 attributes, const bool autoAttributes)
-        : Resource              (name),
-          m_reflection          (getDefaultColors()),
-          m_attributes          (attributes),
-          m_shininess           (1.f),
-          m_maps                (),
-          m_autoAttribs         (autoAttributes)
-    {
-        if (hasAttribute(Attribute::DiffuseMap))
+        if (autoAttributes)
             setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
@@ -169,42 +158,40 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::getShaderPreprocessorDef(std::string& str) const
+    void Material::getShaderPreprocessorDef(const uint64 attribs, std::string& str)
     {
         using m = Material::Attribute;
 
-        const auto attrib = getAttributeField();
-
         // Diffuse map
-        if (attrib & m::DiffuseMap)
+        if (attribs & m::DiffuseMap)
             str += "#define JMAT_DIFFUSEMAP\n";
 
         // Specular map
-        if (attrib & m::SpecularMap)
+        if (attribs & m::SpecularMap)
             str += "#define JMAT_SPECULARMAP\n";
 
         // Emission map
-        if (attrib & m::EmissionMap)
+        if (attribs & m::EmissionMap)
             str += "#define JMAT_EMISSIONMAP\n";
 
         // Environment map
-        if (attrib & m::EnvironmentMap)
+        if (attribs & m::EnvironmentMap)
             str += "#define JMAT_ENVIRONMENTMAP\n";
 
         // Reflection map
-        if (attrib & m::ReflectionMap)
+        if (attribs & m::ReflectionMap)
             str += "#define JMAT_REFLECTIONMAP\n";
 
         // Reflection map
-        if (attrib & m::OpacityMap)
+        if (attribs & m::OpacityMap)
             str += "#define JMAT_OPACITYMAP\n";
 
         // Gloss map
-        if (attrib & m::GlossMap)
+        if (attribs & m::GlossMap)
             str += "#define JMAT_GLOSSMAP\n";
 
         // Lighting
-        if (attrib & m::__Lighting)
+        if (attribs & m::__Lighting)
         {
             str += "#define JMAT_LIGHTING\n";
 
@@ -214,7 +201,7 @@ namespace jop
                 "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
 
             // Phong model
-            if (attrib & m::Phong)
+            if (attribs & m::Phong)
                 str += "#define JMAT_PHONG\n" + maxLights;
         }
     }
@@ -414,7 +401,7 @@ namespace jop
         static WeakReference<Material> defMat;
 
         if (defMat.expired())
-            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material").getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material", true).getReference());
 
         return *defMat;
     }

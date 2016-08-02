@@ -74,14 +74,7 @@ namespace
 
         if (!init)
         {
-            const int result = ogl_LoadFunctions();
-
-            JOP_ASSERT(result != ogl_LOAD_FAILED, "Failed to load OpenGL extensions!");
-
-            const int failed = result - ogl_LOAD_SUCCEEDED;
-
-            if (failed > 0)
-                JOP_DEBUG_WARNING(failed << " requested OpenGL extensions failed to load");
+            JOP_ASSERT_EVAL(ogl_LoadFunctions() != ogl_LOAD_FAILED, "Failed to load OpenGL extensions!");
 
             init = true;
         }

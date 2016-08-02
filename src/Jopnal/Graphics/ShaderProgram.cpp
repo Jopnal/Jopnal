@@ -26,9 +26,13 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    unsigned int ns_currentProgram = 0;
+}
+
 namespace jop
 {
-
     namespace detail
     {
         bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source)
@@ -145,7 +149,9 @@ namespace jop
     {
         if (m_programID)
         {
-            unbind();
+            if (m_programID == ns_currentProgram)
+                unbind();
+
             glCheck(glDeleteProgram(m_programID));
         }
 
@@ -159,7 +165,12 @@ namespace jop
     {
         if (m_programID)
         {
-            glCheck(glUseProgram(m_programID));
+            if (ns_currentProgram != m_programID)
+            {
+                glCheck(glUseProgram(m_programID));
+                ns_currentProgram = m_programID;
+            }
+
             return true;
         }
 
@@ -171,6 +182,7 @@ namespace jop
     void ShaderProgram::unbind() const
     {
         glCheck(glUseProgram(0));
+        ns_currentProgram = 0;
     }
 
     //////////////////////////////////////////////
@@ -340,7 +352,7 @@ namespace jop
 
         if (defShader.expired())
         {
-            defShader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(Material::getDefault()).getReference());
+            defShader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(Material::Attribute::DiffuseMap, 0).getReference());
 
             JOP_ASSERT(defShader.get() != &getError(), "Failed to compile default shader!");
         }

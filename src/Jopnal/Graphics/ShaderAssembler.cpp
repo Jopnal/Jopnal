@@ -38,6 +38,18 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    template<typename T>
+    inline std::size_t combinedHash(const T& first, const T& second)
+    {
+        std::hash<T> hasher;
+        const std::size_t seed = hasher(first);
+
+        return seed ^ hasher(second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+}
+
 namespace jop
 {
     ShaderAssembler::ShaderAssembler()
@@ -65,27 +77,29 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    ShaderProgram& ShaderAssembler::getShader(const Material& material)
+    ShaderProgram& ShaderAssembler::getShader(const uint64 materialAttribs, const uint64 drawableAttribs)
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderAssembler instance!");
 
         std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);
 
         auto& cont = m_instance->m_shaders;
-        const auto attributes = material.getAttributeField();
 
-        auto itr = cont.find(attributes);
+        const std::size_t combinedAttribs = combinedHash(materialAttribs, drawableAttribs);
+
+        auto itr = cont.find(combinedAttribs);
         if (itr != cont.end() && !itr->second.expired())
             return *itr->second;
 
         const auto& uber = m_instance->m_uber;
-        const std::string shaderName = "jop_shader_" + std::to_string(attributes);
+        const std::string shaderName = "jop_shader_" + std::to_string(combinedAttribs);
 
         if (ResourceManager::exists<ShaderProgram>(shaderName))
             return ResourceManager::getExisting<ShaderProgram>(shaderName);
 
         std::string pp;
-        material.getShaderPreprocessorDef(pp);
+        Material::getShaderPreprocessorDef(materialAttribs, pp);
+        Drawable::getShaderPreprocessorDef(drawableAttribs, pp);
         
         ShaderProgram* s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
 
@@ -93,10 +107,10 @@ namespace jop
         {
             s->setShouldSerialize(false);
 
-            cont[attributes] = static_ref_cast<ShaderProgram>(s->getReference());
+            cont[combinedAttribs] = static_ref_cast<ShaderProgram>(s->getReference());
 
             // Needed so that different samplers don't all point to zero
-            if ((attributes & Material::Attribute::__Lighting) != 0)
+            if ((materialAttribs & Material::Attribute::__Lighting) != 0)
             {
                 static const int maxUnits = Texture::getMaxTextureUnits();
 
@@ -104,8 +118,6 @@ namespace jop
                     s->setUniform("u_PointLightShadowMaps[" + std::to_string(i) + "]", maxUnits - 1);
             }
         }
-        else
-            JOP_DEBUG_ERROR("Failed to load shader with attributes: " << attributes);
 
         return *s;
     }

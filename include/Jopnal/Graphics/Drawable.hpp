@@ -56,6 +56,17 @@ namespace jop
             Reflected       = 1 << 3
         };
 
+        struct Attribute
+        {
+            enum : uint64
+            {
+
+
+                __SkySphere = 1 << 10,
+                __SkyBox    = __SkySphere << 1
+            };
+        };
+
         struct JOP_API ProjectionInfo
         {
             ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
@@ -145,14 +156,27 @@ namespace jop
 
         bool hasFlag(const uint32 flag) const;
 
+        Drawable& setAttributeField(const uint64 attributes);
+
+        Drawable& addAttributes(const uint64 attributes);
+
+        uint64 getAttributeField() const;
+
+        bool hasAttribute(const uint64 attribute) const;
+
+        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
+
     protected:
 
         virtual Message::Result receiveMessage(const Message& message) override;
+
+        ShaderProgram& getShader() const;
 
     private:
 
         Model m_model;                          ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
+        uint64 m_attributes;
         Renderer& m_rendererRef;                ///< Reference to the renderer
         const RenderPass::Pass m_pass;
         uint32 m_flags;                         ///< Property flags
