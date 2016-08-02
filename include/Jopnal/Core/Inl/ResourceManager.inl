@@ -265,7 +265,7 @@ void ResourceManager::unload(const std::string& name)
 template<typename T>
 bool ResourceManager::isDefault(const T& resource)
 {
-    return &resource != &T::getDefault();
+    return &resource == &T::getDefault();
 }
 
 //////////////////////////////////////////////

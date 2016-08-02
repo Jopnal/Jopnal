@@ -80,6 +80,8 @@ namespace jop
         if (!getVertexAmount())
             return;
 
+        m_vertexbuffer.bind();
+
         const auto vertSize = getVertexSize();
 
         // Positions (should always be present)
