@@ -36,7 +36,7 @@
 namespace jop
 {
     RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_type(stiff ? b2JointType::e_distanceJoint : b2JointType::e_ropeJoint)
     {
         if (stiff)

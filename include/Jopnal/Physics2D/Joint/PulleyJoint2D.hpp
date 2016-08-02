@@ -39,7 +39,7 @@ namespace jop
         /// \brief PulleyJoint2D constructor
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param ratio Ratio for which the ropes move in relation to each other: ratio / 1.
+        /// \param ratio Ratio for which the ropes move in relation to each other.
         /// \param groundAnchor World coordinates for attachment point of the second end of the rope.
         /// \param localAnchor Local coordinates of each body to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
         ///

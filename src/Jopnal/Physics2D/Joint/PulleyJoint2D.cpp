@@ -41,7 +41,7 @@ namespace jop
         const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
         const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
         ) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         JOP_ASSERT(ratio > 0.f, "PulleyJoint2D ratio can not be exactly zero or negative!");

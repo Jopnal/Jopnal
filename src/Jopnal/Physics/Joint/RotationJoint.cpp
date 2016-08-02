@@ -37,11 +37,11 @@
 namespace jop
 {
     RotationJoint::RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::quat& jRot) :
-        Joint(worldRef, bodyA, bodyB),
+        Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();
-        glm::vec3& p = defaultCenter(jPos);
+        glm::vec3 p = defaultCenter(jPos);
         ctwt.setOrigin(btVector3(p.x, p.y, p.z));
         ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 

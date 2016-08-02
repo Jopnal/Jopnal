@@ -35,10 +35,12 @@
 namespace jop
 {
 
-    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB) :
+    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
         m_bodyA     (&bodyA),
         m_bodyB     (&bodyB),
         m_worldRef  (&worldRef),
+        m_collide   (collide),
+        m_joint     (nullptr),
         m_ID        (0)
     {
     }

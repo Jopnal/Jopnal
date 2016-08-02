@@ -35,11 +35,13 @@
 namespace jop
 {
 
-    Joint::Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB) :
-        m_bodyA(&bodyA),
-        m_bodyB(&bodyB),
-        m_worldRef(&worldRef),
-        m_ID(0)
+    Joint::Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
+        m_bodyA     (&bodyA),
+        m_bodyB     (&bodyB),
+        m_worldRef  (&worldRef),
+        m_collide   (collide),
+        m_joint     (nullptr),
+        m_ID        (0)
     {
     }
 

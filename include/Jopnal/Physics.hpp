@@ -24,6 +24,7 @@
 #include <Jopnal/Physics/Joint.hpp>
 #include <Jopnal/Physics/Joint/GearJoint.hpp>
 #include <Jopnal/Physics/Joint/PistonJoint.hpp>
+#include <Jopnal/Physics/Joint/PulleyJoint.hpp>
 #include <Jopnal/Physics/Joint/RotationJoint.hpp>
 #include <Jopnal/Physics/Joint/RopeJoint.hpp>
 #include <Jopnal/Physics/Joint/WeldJoint.hpp>

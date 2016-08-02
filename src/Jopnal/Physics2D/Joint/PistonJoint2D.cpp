@@ -37,7 +37,7 @@
 namespace jop
 {
     PistonJoint2D::PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2PrismaticJointDef jointDef;

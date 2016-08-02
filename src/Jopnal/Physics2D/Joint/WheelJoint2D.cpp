@@ -41,7 +41,7 @@ namespace jop
         const bool collide, const glm::vec2& axis,
         const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
         ) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2WheelJointDef jointDef;

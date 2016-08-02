@@ -46,7 +46,7 @@ namespace jop
         /// \param bodyA RigidBody where to attach this joint. Received automatically from the calling function.
         /// \param bodyB RigidBody in which to attach the second end of the joint. Given by user as the first argument.
         ///
-        Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB);
+        Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
         virtual ~Joint() = 0;
 
         unsigned int getID() const;
@@ -64,6 +64,7 @@ namespace jop
         glm::vec3 defaultCenter(const glm::vec3& jPos) const;
         glm::vec3 computeCenter() const;
 
+        bool m_collide;
         std::unique_ptr<btTypedConstraint> m_joint;
         unsigned int m_ID;
     };

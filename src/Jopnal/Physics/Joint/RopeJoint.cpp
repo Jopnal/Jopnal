@@ -38,7 +38,7 @@
 namespace jop
 {
     RopeJoint::RopeJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
-        Joint(worldRef, bodyA, bodyB),
+        Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();

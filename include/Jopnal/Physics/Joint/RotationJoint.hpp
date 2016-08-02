@@ -35,7 +35,7 @@ namespace jop
     class JOP_API RotationJoint : public Joint
     {
     public:
-        /// \brief RotationJoint (hinge) constructor.
+        /// \brief RotationJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.

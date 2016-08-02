@@ -42,7 +42,7 @@ namespace jop
         /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
         /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
         ///
-        Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB);
+        Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
         virtual ~Joint2D() = 0;
 
         unsigned int getID() const;
@@ -58,6 +58,7 @@ namespace jop
     protected:
         static b2Body* getBody(RigidBody2D& body); //(std::weak_ptr<RigidBody2D>& body);
 
+        bool m_collide;
         b2Joint* m_joint;
         unsigned int m_ID;
     };

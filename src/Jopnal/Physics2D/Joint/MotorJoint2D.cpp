@@ -36,7 +36,7 @@
 namespace jop
 {
     MotorJoint2D::MotorJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2MotorJointDef jointDef;

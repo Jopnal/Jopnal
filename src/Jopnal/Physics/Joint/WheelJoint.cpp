@@ -36,7 +36,7 @@
 namespace jop
 {
     WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::quat& jRot, const glm::vec3& jPos) :
-        Joint(worldRef, bodyA, bodyB),
+        Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr),
         m_maxAngle(maxSteering)
     {

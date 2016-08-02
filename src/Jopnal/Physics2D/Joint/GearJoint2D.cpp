@@ -37,7 +37,7 @@ namespace jop
 {
 
     GearJoint2D::GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2GearJointDef jointDef;
@@ -62,5 +62,6 @@ namespace jop
     GearJoint2D& GearJoint2D::setRatio(const float ratio)
     {
         m_jointL->SetRatio(ratio);
+        return *this;
     }
 }

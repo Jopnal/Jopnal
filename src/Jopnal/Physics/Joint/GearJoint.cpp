@@ -37,7 +37,7 @@
 namespace jop
 {
     GearJoint::GearJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& rotAxisA, const glm::vec3& rotAxisB, const float ratio) :
-        Joint(worldRef, bodyA, bodyB),
+        Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         m_joint = std::make_unique<btGearConstraint>(*getBody(bodyA), *getBody(bodyB), btVector3(rotAxisA.x, rotAxisA.y, rotAxisA.z), btVector3(rotAxisB.x, rotAxisB.y, rotAxisB.z), ratio);
