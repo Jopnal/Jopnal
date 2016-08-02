@@ -35,12 +35,11 @@ namespace jop
     class JOP_API WeldJoint : public Joint
     {
     public:
-        /// \brief WeldJoint (hinge) constructor.
+        /// \brief WeldJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
         ///
-        WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
+        WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
         /// \return Returns currently used damping.
         ///

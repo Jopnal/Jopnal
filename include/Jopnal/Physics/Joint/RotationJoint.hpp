@@ -28,7 +28,7 @@
 
 //////////////////////////////////////////////
 
-class btHingeConstraint;
+class btGeneric6DofConstraint;
 
 namespace jop
 {
@@ -39,41 +39,26 @@ namespace jop
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param jPos Position of the joint in world coordinates.
-        /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
-        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
+        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
 
-        /// \param enable Enables/disables the hinge motor.
+        /// \param lower True = return lower limits. False = return upper limits.
+        ///
+        /// \return Returns desired limits of the joint.
+        ///
+        glm::vec3 getAngLimits(const bool lower) const;
+
+        /// Set new rotational limits for the joint in radians.
+        ///
+        /// \param lower True = set lower limits. False = set upper limits.
+        /// \param limits New limits to set to the joint.
         ///
         /// \return Returns reference to self.
         ///
-        RotationJoint& enableMotor(const bool enable);
-
-        /// \return Returns current rotational limits of the hinge: first = minimum, second = maximum.
-        ///
-        std::pair<float, float> getAngLimits() const;
-
-        /// \return Returns current angular motor forces: first = speed, second = force
-        ///
-        std::pair<float, float> getAngForces() const;
-
-        /// Set new rotational limits for the hinge in radians.
-        ///
-        /// \return Returns reference to self.
-        ///
-        RotationJoint& setAngLimits(const float min, const float max);
-
-        /// Set new rotational forces for the hinge motor.
-        ///
-        /// \param speed New target speed to reach.
-        /// \param force New maximum motor force to exert to reach the target speed. Negative force causes the hinge to keep moving from one limit to the other.
-        /// 
-        /// \return Returns reference to self.
-        ///
-        RotationJoint& setAngForces(const float speed, const float force);
+        RotationJoint& setAngLimits(const bool lower, const glm::vec3& limits);
 
     private:
-        btHingeConstraint* m_jointL;
+        btGeneric6DofConstraint* m_jointL;
     };
 }
 #endif

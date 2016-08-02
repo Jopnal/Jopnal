@@ -36,17 +36,15 @@
 
 namespace jop
 {
-    WeldJoint::WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos) :
+    WeldJoint::WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
         Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr),
         m_damping(1.f)
     {
         btTransform ctwt = btTransform::getIdentity();
-        
-        glm::vec3 p = defaultCenter(jPos);
+        glm::vec3 p = defaultCenter(glm::vec3(0.f, 0.f, FLT_MAX));
         ctwt.setOrigin(btVector3(p.x, p.y, p.z));
-        
-        ctwt.setRotation(btQuaternion(0.f, 0.f, 0.f, 1.f));
+
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
