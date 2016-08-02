@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
-#include <Jopnal/Graphics/GenericDrawable.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Color.hpp>
@@ -37,11 +37,11 @@ namespace jop
 {
     class Font;
 
-    class JOP_API Text : public GenericDrawable
+    class JOP_API Text : public Drawable
     {
     private:
 
-        JOP_GENERIC_COMPONENT_CLONE(Text);
+        JOP_GENERIC_COMPONENT_CLONE(Text)
 
     public:
 
@@ -142,7 +142,7 @@ namespace jop
 
         /// \brief Draws text from given string
         ///
-        void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
+        void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
 
         Material m_material;                    ///< Material to be used

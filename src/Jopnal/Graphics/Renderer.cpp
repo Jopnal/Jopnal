@@ -43,7 +43,6 @@ namespace jop
         : m_lights          (),
           m_cameras         (),
           m_envRecorders    (),
-          m_mask            (1),
           m_target          (mainTarget)
     {
         createRenderPass<DefaultPrePass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
@@ -52,16 +51,23 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::setMask(const uint32 mask)
+    const RenderTarget& Renderer::getRenderTarget() const
     {
-        m_mask = mask;
+        return m_target;
     }
 
     //////////////////////////////////////////////
 
-    uint32 Renderer::getMask() const
+    const Renderer::CameraSet& Renderer::getCameras() const
     {
-        return m_mask;
+        return m_cameras;
+    }
+
+    //////////////////////////////////////////////
+
+    const Renderer::LightSet& Renderer::getLights() const
+    {
+        return m_lights;
     }
 
     //////////////////////////////////////////////
@@ -133,10 +139,7 @@ namespace jop
     {
         // Render shadow maps
         for (auto light : m_lights)
-        {
-            if (light->isActive() && (m_mask & light->getRenderMask()))
-                light->drawShadowMap();
-        }
+            light->drawShadowMap();
 
         // Render environment maps
         /*for (auto envmap : m_envRecorders)

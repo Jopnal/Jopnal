@@ -75,41 +75,62 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mesh::sendToShader(ShaderProgram& shader) const
+    void Mesh::updateVertexAttributes(const uint64 materialAttribs) const
     {
         if (!getVertexAmount())
             return;
 
         const auto vertSize = getVertexSize();
 
-        GlState::setVertexAttribute(true, 0);
-        GlState::setVertexAttribute(m_vertexComponents & TexCoords, 1);
-        GlState::setVertexAttribute(m_vertexComponents & Normal, 2);
-        GlState::setVertexAttribute(m_vertexComponents & Tangents, 3);
-        GlState::setVertexAttribute(m_vertexComponents & Tangents, 4);
-        GlState::setVertexAttribute(m_vertexComponents & Color, 5);
-
         // Positions (should always be present)
-        shader.setAttribute(0, GL_FLOAT, 3, vertSize, getVertexOffset(Position));
+        GlState::setVertexAttribute(true, 0);
+        glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Position)));
 
         // Texture coordinates
-        if (m_vertexComponents & TexCoords)
-            shader.setAttribute(1, GL_FLOAT, 2, vertSize, getVertexOffset(TexCoords));
-
-        // Normals
-        if (m_vertexComponents & Normal)
-            shader.setAttribute(2, GL_FLOAT, 3, vertSize, getVertexOffset(Normal));
-
-        // Tangents
-        if (m_vertexComponents & Tangents)
+        if ((m_vertexComponents & TexCoords))
         {
-            shader.setAttribute(3, GL_FLOAT, 3, vertSize, getVertexOffset(Tangents));
-            shader.setAttribute(4, GL_FLOAT, 3, vertSize, (void*)((size_t)getVertexOffset(Tangents) + sizeof(glm::vec3)));
+            GlState::setVertexAttribute(true, 1);
+            glCheck(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(TexCoords)));
+        }
+        else
+            GlState::setVertexAttribute(false, 1);
+
+        // Lighting
+        if (materialAttribs & Material::Attribute::__Lighting)
+        {
+            // Normals
+            if (m_vertexComponents & Normal)
+            {
+                GlState::setVertexAttribute(true, 2);
+                glCheck(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
+            }
+            else
+                GlState::setVertexAttribute(false, 2);
+
+            //if (materialAttribs & Material::Attribute::NormalMap)
+            //{
+            //    // Tangents
+            //    if (m_vertexComponents & Tangent)
+            //    {
+            //        GlState::setVertexAttribute(m_vertexComponents & Tangent, 3);
+            //        glCheck(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Tangent)));
+            //    }
+            //    if (m_vertexComponents & BiTangent)
+            //    {
+            //        GlState::setVertexAttribute(m_vertexComponents & BiTangent, 4);
+            //        glCheck(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(BiTangent)));
+            //    }
+            //}
         }
 
         // Colors
         if (m_vertexComponents & Color)
-            shader.setAttribute(5, GL_FLOAT, 4, vertSize, getVertexOffset(Color));
+        {
+            GlState::setVertexAttribute(true, 5);
+            glCheck(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Color)));
+        }
+        else
+            GlState::setVertexAttribute(false, 5);
     }
 
     //////////////////////////////////////////////
@@ -149,7 +170,8 @@ namespace jop
             ((m_vertexComponents & VC::Position)   != 0 && Position  < component) * sizeof(glm::vec3) +     // Position
             ((m_vertexComponents & VC::TexCoords)  != 0 && TexCoords < component) * sizeof(glm::vec2) +     // Texture coordinates
             ((m_vertexComponents & VC::Normal)     != 0 && Normal    < component) * sizeof(glm::vec3) +     // Normal
-            ((m_vertexComponents & VC::Tangents)   != 0 && Tangents  < component) * sizeof(glm::vec3) * 2   // Tangents
+            ((m_vertexComponents & VC::Tangent)    != 0 && Tangent   < component) * sizeof(glm::vec3) +     // Tangent
+            ((m_vertexComponents & VC::BiTangent)  != 0 && BiTangent < component) * sizeof(glm::vec3)       // BiTangent
         );
     }
 
@@ -210,10 +232,11 @@ namespace jop
     {
         return sizeof(glm::vec3) //< Positions always present
 
-            + ((VertexComponent::TexCoords & components) != 0) *  sizeof(glm::vec2)
-            + ((VertexComponent::Normal & components)    != 0) *  sizeof(glm::vec3)
-            + ((VertexComponent::Tangents & components)  != 0) * (sizeof(glm::vec3) * 2) //< Tangent + bitangent
-            + ((VertexComponent::Color & components)     != 0) *  sizeof(Color);
+            + ((VertexComponent::TexCoords  & components)   != 0) * sizeof(glm::vec2)
+            + ((VertexComponent::Normal     & components)   != 0) * sizeof(glm::vec3)
+            + ((VertexComponent::Tangent    & components)   != 0) * sizeof(glm::vec3)
+            + ((VertexComponent::BiTangent  & components)   != 0) * sizeof(glm::vec3)
+            + ((VertexComponent::Color      & components)   != 0) * sizeof(Color);
     }
 
     //////////////////////////////////////////////

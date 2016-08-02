@@ -34,9 +34,6 @@
 
 namespace jop
 {
-    class Material;
-    class ShaderProgram;
-
     class JOP_API Mesh : public Resource
     {
     private:
@@ -52,8 +49,9 @@ namespace jop
             Position    = 1,
             TexCoords   = 1 << 1,
             Normal      = 1 << 2,
-            Tangents    = 1 << 3,
-            Color       = 1 << 4
+            Tangent     = 1 << 3,
+            BiTangent   = 1 << 4,
+            Color       = 1 << 5
         };
 
     public:
@@ -90,7 +88,7 @@ namespace jop
         ///
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
-        void sendToShader(ShaderProgram& shader) const;
+        void updateVertexAttributes(const uint64 materialAttribs) const;
 
         void destroy();
 

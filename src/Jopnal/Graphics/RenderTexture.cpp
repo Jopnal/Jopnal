@@ -512,6 +512,7 @@ namespace jop
         {
             glCheck(glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_frameBuffer.first));
             glCheck(glViewport(0, 0, getSize().x, getSize().y));
+            glCheck(glScissor(0, 0, getSize().x, getSize().y));
         }
 
         return isValid();
@@ -525,6 +526,7 @@ namespace jop
         
         const auto size = Engine::getMainWindow().getSize();
         glCheck(glViewport(0, 0, size.x, size.y));
+        glCheck(glScissor(0, 0, size.x, size.y));
     }
 
     //////////////////////////////////////////////

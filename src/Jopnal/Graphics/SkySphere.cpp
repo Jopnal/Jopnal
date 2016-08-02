@@ -42,17 +42,14 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_mesh        (""),
-          m_material    ("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
+          m_material    ("", Material::Attribute::DiffuseMap, false)
     {
         m_mesh.load(radius, 20, true);
 
         setModel(Model(m_mesh, m_material));
-
-        setCastShadows(false);
-        setReceiveLights(false);
-        setReceiveShadows(false);
+        setFlags(Reflected);
     }
 
     SkySphere::SkySphere(const SkySphere& other, Object& newObj)
@@ -63,9 +60,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::draw(const Camera* camera, const LightContainer&, ShaderProgram& shader) const
+    void SkySphere::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-        if (!getModel().isValid())
+        /*if (!getModel().isValid())
             return;
 
         auto& s = shader;
@@ -99,7 +96,7 @@ namespace jop
         }
 
         GlState::setDepthTest(true);
-        GlState::setFaceCull(true);
+        GlState::setFaceCull(true);*/
     }
 
     //////////////////////////////////////////////

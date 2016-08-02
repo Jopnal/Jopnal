@@ -31,6 +31,7 @@
 
 //////////////////////////////////////////////
 
+
 class b2World;
 
 namespace jop
@@ -81,7 +82,7 @@ namespace jop
         ///
         /// \param camera Camera to use
         ///
-        void draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const override;
+        void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///

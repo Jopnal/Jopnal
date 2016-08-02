@@ -29,7 +29,6 @@
     #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
-    #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
@@ -72,20 +71,17 @@ namespace jop
           m_attributes          (),
           m_shininess           (1.f),
           m_maps                (),
-          m_shader              (),
-          m_attributesChanged   (false),
           m_autoAttribs         (autoAttributes)
     {
         setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
-    Material::Material(const std::string& name, const AttribType attributes, const bool autoAttributes)
+    Material::Material(const std::string& name, const uint64 attributes, const bool autoAttributes)
         : Resource              (name),
           m_reflection          (getDefaultColors()),
           m_attributes          (attributes),
           m_shininess           (1.f),
           m_maps                (),
-          m_attributesChanged   (true),
           m_autoAttribs         (autoAttributes)
     {
         if (hasAttribute(Attribute::DiffuseMap))
@@ -99,14 +95,12 @@ namespace jop
           m_attributes          (other.m_attributes),
           m_shininess           (other.m_shininess),
           m_maps                (other.m_maps),
-          m_shader              (other.m_shader),
-          m_attributesChanged   (other.m_attributesChanged),
           m_autoAttribs         (other.m_autoAttribs)
     {}
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(ShaderProgram& shader, const Camera* camera, const float alphaMult) const
+    void Material::sendToShader(ShaderProgram& shader, const glm::vec3& camPos) const
     {
         if (shader.bind())
         {
@@ -126,47 +120,42 @@ namespace jop
                 /* 11 */ "u_OpacityMap",
                 /* 12 */ "u_GlossMap",
                 /* 13 */ "u_EnvironmentMap",
-                /* 14 */ "u_ReflectionMap",
-                /* 15 */ "u_AlphaMult"
+                /* 14 */ "u_ReflectionMap"
             };
 
-            if (!hasAttribute(Attribute::__SkyBox))
+            // Send camera position to shader
+            if (hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
+                shader.setUniform(strCache[0], camPos);
+
+            if (hasAttribute(Attribute::__Lighting))
             {
-                // Send camera position to shader
-                if (camera && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
-                    shader.setUniform(strCache[0], camera->getObject()->getGlobalPosition());
+                shader.setUniform(strCache[1], m_reflection[castIndex(Reflection::Ambient)].asRGBAVector());
+                shader.setUniform(strCache[2], m_reflection[castIndex(Reflection::Diffuse)].asRGBAVector());
+                shader.setUniform(strCache[3], m_reflection[castIndex(Reflection::Specular)].asRGBAVector());
+                shader.setUniform(strCache[4], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
+                shader.setUniform(strCache[5], m_shininess);
 
-                if (hasAttribute(Attribute::__Lighting))
-                {
-                    shader.setUniform(strCache[1], m_reflection[castIndex(Reflection::Ambient)].asRGBAVector());
-                    shader.setUniform(strCache[2], m_reflection[castIndex(Reflection::Diffuse)].asRGBAVector());
-                    shader.setUniform(strCache[3], m_reflection[castIndex(Reflection::Specular)].asRGBAVector());
-                    shader.setUniform(strCache[4], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
-                    shader.setUniform(strCache[5], m_shininess);
-
-                    if (hasAttribute(Attribute::EnvironmentMap))
-                        shader.setUniform(strCache[6], m_reflectivity);
-                }
-                else
-                    shader.setUniform(strCache[7], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
-
-                if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                    shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
-
-                if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                    shader.setUniform(strCache[9], *getMap(Map::Specular), castIndex(Map::Specular));
-
-                if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                    shader.setUniform(strCache[10], *getMap(Map::Emission), castIndex(Map::Emission));
-
-                if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                    shader.setUniform(strCache[11], *getMap(Map::Opacity), castIndex(Map::Opacity));
-
-                if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
-                    shader.setUniform(strCache[12], *getMap(Map::Gloss), castIndex(Map::Gloss));
+                if (hasAttribute(Attribute::EnvironmentMap))
+                    shader.setUniform(strCache[6], m_reflectivity);
             }
+            else
+                shader.setUniform(strCache[7], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
 
-            shader.setUniform(strCache[15], alphaMult);
+            if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
+                shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
+
+            if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
+                shader.setUniform(strCache[9], *getMap(Map::Specular), castIndex(Map::Specular));
+
+            if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
+                shader.setUniform(strCache[10], *getMap(Map::Emission), castIndex(Map::Emission));
+
+            if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
+                shader.setUniform(strCache[11], *getMap(Map::Opacity), castIndex(Map::Opacity));
+
+            if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
+                shader.setUniform(strCache[12], *getMap(Map::Gloss), castIndex(Map::Gloss));
+
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
@@ -180,15 +169,54 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    ShaderProgram* Material::getShader() const
+    void Material::getShaderPreprocessorDef(std::string& str) const
     {
-        if (m_shader.expired() || m_attributesChanged)
-        {
-            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(m_attributes).getReference());
-            m_attributesChanged = false;
-        }
+        using m = Material::Attribute;
 
-        return m_shader.get();
+        const auto attrib = getAttributeField();
+
+        // Diffuse map
+        if (attrib & m::DiffuseMap)
+            str += "#define JMAT_DIFFUSEMAP\n";
+
+        // Specular map
+        if (attrib & m::SpecularMap)
+            str += "#define JMAT_SPECULARMAP\n";
+
+        // Emission map
+        if (attrib & m::EmissionMap)
+            str += "#define JMAT_EMISSIONMAP\n";
+
+        // Environment map
+        if (attrib & m::EnvironmentMap)
+            str += "#define JMAT_ENVIRONMENTMAP\n";
+
+        // Reflection map
+        if (attrib & m::ReflectionMap)
+            str += "#define JMAT_REFLECTIONMAP\n";
+
+        // Reflection map
+        if (attrib & m::OpacityMap)
+            str += "#define JMAT_OPACITYMAP\n";
+
+        // Gloss map
+        if (attrib & m::GlossMap)
+            str += "#define JMAT_GLOSSMAP\n";
+
+        // Lighting
+        if (attrib & m::__Lighting)
+        {
+            str += "#define JMAT_LIGHTING\n";
+
+            static const std::string maxLights =
+                "#define JMAT_MAX_POINT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
+                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
+                "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
+
+            // Phong model
+            if (attrib & m::Phong)
+                str += "#define JMAT_PHONG\n" + maxLights;
+        }
     }
 
     //////////////////////////////////////////////
@@ -331,52 +359,50 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material& Material::setAttributeField(const AttribType attribs)
+    Material& Material::setAttributeField(const uint64 attribs)
     {
-        m_attributesChanged = m_attributesChanged || m_attributes != attribs;
-
         m_attributes = attribs;
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    Material::AttribType jop::Material::getAttributeField() const
+    uint64 jop::Material::getAttributeField() const
     {
         return m_attributes;
     }
 
     //////////////////////////////////////////////
 
-    bool Material::hasAttribute(const AttribType attrib) const
+    bool Material::hasAttribute(const uint64 attrib) const
     {
         return (m_attributes & attrib) != 0;
     }
 
     //////////////////////////////////////////////
 
-    bool Material::hasAttributes(const AttribType attribs) const
+    bool Material::hasAttributes(const uint64 attribs) const
     {
         return (m_attributes & attribs) == attribs;
     }
 
     //////////////////////////////////////////////
 
-    bool Material::compareAttributes(const AttribType attribs) const
+    bool Material::compareAttributes(const uint64 attribs) const
     {
         return m_attributes == attribs;
     }
 
     //////////////////////////////////////////////
 
-    Material& Material::addAttributes(const AttribType attribs)
+    Material& Material::addAttributes(const uint64 attribs)
     {
         return setAttributeField(getAttributeField() | attribs);
     }
 
     //////////////////////////////////////////////
 
-    Material& Material::removeAttributes(const AttribType attribs)
+    Material& Material::removeAttributes(const uint64 attribs)
     {
         return setAttributeField(getAttributeField() & ~attribs);
     }

@@ -126,8 +126,6 @@ T& Engine::createSubsystem(Args&&... args)
 
     JOP_ASSERT(m_engineObject != nullptr, "Tried to create a sub system while the engine wasn't loaded!");
 
-    std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
 #pragma warning(suppress: 6011)
     m_engineObject->m_subsystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 
@@ -145,8 +143,6 @@ T* Engine::getSubsystem()
 
     if (m_engineObject)
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         const std::type_info& ti = typeid(T);
 
         for (auto& i : m_engineObject->m_subsystems)
@@ -168,8 +164,6 @@ T* Engine::getSubsystem(const uint32 ID)
 
     if (m_engineObject)
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         const std::type_info& ti = typeid(T);
 
         for (auto& i : m_engineObject->m_subsystems)
@@ -189,8 +183,6 @@ bool Engine::removeSubsystem(const uint32 ID)
 {
     if (m_engineObject)
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
         {
             if (typeid(*(*itr)) == typeid(T) && (*itr)->getID() == ID)
@@ -211,8 +203,6 @@ template<typename T, typename ... Args>
 T& Engine::setSharedScene(Args&&... args)
 {
     JOP_ASSERT(m_engineObject != nullptr, "Tried to set the shared scene when it or the engine wasn't loaded!");
-
-    std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
 
     m_engineObject->m_sharedScene = std::make_unique<T>(std::forward<Args>(args)...);
     return static_cast<T&>(*m_engineObject->m_sharedScene);

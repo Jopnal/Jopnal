@@ -191,7 +191,7 @@ namespace jop
 
     bool LightSource::drawShadowMap() const
     {
-        if (!castsShadows())
+        if (!castsShadows() || !isActive() || !getRenderMask())
             return false;
 
         static WeakReference<ShaderProgram> dirSpotShader, pointShader;
@@ -267,7 +267,7 @@ namespace jop
 
         bool drawn = false;
 
-        for (auto d : drawables)
+        /*for (auto d : drawables)
         {
             if (!d->isActive() || !d->castShadows() || (getRenderMask() & (1 << d->getRenderGroup())) == 0 || !d->lightTouches(*this))
                 continue;
@@ -289,7 +289,7 @@ namespace jop
             {
                 glCheck(glDrawArrays(GL_TRIANGLES, 0, mesh.getVertexAmount()));
             }
-        }
+        }*/
 
         return drawn;
     }

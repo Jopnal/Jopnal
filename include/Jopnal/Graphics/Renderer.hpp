@@ -43,13 +43,12 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(Renderer);
 
         typedef std::array<std::map<uint32, std::unique_ptr<RenderPass>>, 2> PassContainer;
+        typedef std::set<const Camera*> CameraSet;
+        typedef std::set<const LightSource*> LightSet;
 
         friend class Camera;
         friend class LightSource;
-        friend class Scene;
-        friend class World;
         friend class EnvironmentRecorder;
-        friend class RenderPass;
         friend class Drawable;
 
     public:
@@ -59,17 +58,11 @@ namespace jop
         Renderer(const RenderTarget& mainTarget);
 
 
-        /// \brief Set the render mask
-        ///
-        /// \param mask The new mask to set
-        ///
-        void setMask(const uint32 mask);
+        const RenderTarget& getRenderTarget() const;
 
-        /// \brief Get the render mask
-        ///
-        /// \return The render mask
-        ///
-        uint32 getMask() const;
+        const CameraSet& getCameras() const;
+
+        const LightSet& getLights() const;
 
         template<typename T, typename ... Args>
         T& createRenderPass(const RenderPass::Pass pass, const uint32 weight, Args&&... args);
@@ -101,11 +94,10 @@ namespace jop
 
     private:
 
-        RenderPass::Lights m_lights;                        ///< The bound lights
-        RenderPass::Cameras m_cameras;                      ///< The bound cameras
+        LightSet m_lights;                  ///< The bound lights
+        CameraSet m_cameras;                      ///< The bound cameras
         PassContainer m_passes;
-        RenderPass::EnvironmentRecorders m_envRecorders;    ///< The bound environment recorders
-        uint32 m_mask;                                      ///< The rendering mask
+        std::set<const EnvironmentRecorder*> m_envRecorders;    ///< The bound environment recorders
         const RenderTarget& m_target;
     };
 

@@ -32,7 +32,7 @@
 /// \param className The name of the class
 ///
 #define JOP_DISALLOW_COPY(className) className(const className &) = delete; \
-                                     void operator =(const className &) = delete;
+                                     void operator =(const className &) = delete
 
 /// \brief Easy move constructor removal
 ///
@@ -41,7 +41,7 @@
 /// \param className The name of the class
 ///
 #define JOP_DISALLOW_MOVE(className) className(className &&) = delete; \
-                                     void operator =(className &&) = delete;
+                                     void operator =(className &&) = delete
 
 /// \brief Easy copy & move constructor removal
 ///
@@ -49,7 +49,7 @@
 ///
 /// \param className The name of the class
 ///
-#define JOP_DISALLOW_COPY_MOVE(className) JOP_DISALLOW_COPY(className) \
+#define JOP_DISALLOW_COPY_MOVE(className) JOP_DISALLOW_COPY(className); \
                                           JOP_DISALLOW_MOVE(className)
 
 
@@ -61,8 +61,8 @@
 ///
 #define JOP_GENERIC_COMPONENT_CLONE(className)                      \
                                                                     \
-    JOP_DISALLOW_COPY_MOVE(className)                               \
-    className(const className & other, ::jop::Object& newObj);      \
+    JOP_DISALLOW_COPY_MOVE(className);                              \
+    className(const className& other, ::jop::Object& newObj);       \
     virtual className* clone(::jop::Object& newObj) const override  \
     {                                                               \
         return new className(*this, newObj);                        \

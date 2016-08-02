@@ -39,11 +39,10 @@ namespace jop
     class LightSource;
     class LightContainer;
     class Renderer;
-    class Camera;
 
     class JOP_API Drawable : public Component
     {
-    private:
+    protected:
 
         JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
@@ -55,6 +54,15 @@ namespace jop
             ReceiveShadows  = 1 << 1,
             CastShadows     = 1 << 2,
             Reflected       = 1 << 3
+        };
+
+        struct JOP_API ProjectionInfo
+        {
+            ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
+
+            const glm::mat4& viewMatrix;
+            const glm::mat4& projectionMatrix;
+            const glm::vec3& cameraPosition;
         };
 
     public:
@@ -81,7 +89,7 @@ namespace jop
         /// \param camera The camera to use
         /// \param lights The light container
         ///
-        virtual void draw(const glm::mat4& view, const glm::mat4& proj, const LightContainer& lights) const;
+        virtual void draw(const ProjectionInfo& proj, const LightContainer& lights) const;
 
         /// \brief Get the renderer this drawable is bound to
         ///
@@ -89,7 +97,7 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer
+        /// \copydoc getRenderer()
         ///
         const Renderer& getRenderer() const;
 
@@ -139,16 +147,17 @@ namespace jop
 
     protected:
 
-        Message::Result receiveMessage(const Message& message) override;
+        virtual Message::Result receiveMessage(const Message& message) override;
 
     private:
 
         Model m_model;                          ///< The bound model
-        WeakReference<ShaderProgram> m_shader;  ///< The bound shader
+        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
         Renderer& m_rendererRef;                ///< Reference to the renderer
         const RenderPass::Pass m_pass;
         uint32 m_flags;                         ///< Property flags
         uint8 m_renderGroup;                    ///< The render group
+        mutable bool m_updateShader;
     };
 }
 

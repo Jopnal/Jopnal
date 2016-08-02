@@ -68,7 +68,7 @@ namespace jop
     //////////////////////////////////////////////
 
     bool Shader::compile(const Type type, bool preprocess)
-    {     
+    {
         if (m_handle)
         {
             glCheck(glDeleteShader(m_handle));
@@ -260,10 +260,7 @@ namespace jop
         // Add sources
         addSource(*sources);
 
-        // For each type compile
-        bool success = compile(type, preprocess);
-
-        return success;
+        return compile(type, preprocess);
     }
 
     //////////////////////////////////////////////

@@ -11,8 +11,6 @@
 JOP_ATTRIBUTE(0) vec3 a_Position;
 JOP_ATTRIBUTE(1) vec2 a_TexCoords;
 JOP_ATTRIBUTE(2) vec3 a_Normal;
-//layout(location = 3) in vec3 a_Tangent;
-//layout(location = 4) in vec3 a_BiTangent;
 JOP_ATTRIBUTE(5) vec4 a_Color;
 
 // Matrices
@@ -49,8 +47,6 @@ uniform mat3 u_NMatrix; // Normal (is transpose(inverse(u_MMatrix)))
         vec3 Position;
         vec2 TexCoords;
         vec3 Normal;
-        //vec3 Tangent;
-        //vec3 BiTangent;
         vec4 Color;
     
     } OUTVERT_NAME;

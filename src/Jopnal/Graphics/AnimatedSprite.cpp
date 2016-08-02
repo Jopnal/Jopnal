@@ -34,7 +34,7 @@
 namespace jop
 {
     AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer)
-        : GenericDrawable(object, renderer),
+        : Drawable(object, renderer),
           m_atlas(),
           m_mesh(std::make_unique<RectangleMesh>("")),
           m_material(""),
@@ -131,5 +131,4 @@ namespace jop
     {
         return m_status;
     }
-
 }

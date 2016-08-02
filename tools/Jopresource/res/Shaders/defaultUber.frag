@@ -82,8 +82,6 @@
         vec3 Position;
         vec2 TexCoords;
         vec3 Normal;
-        //vec3 Tangent;
-        //vec3 BiTangent;
         vec4 Color;
     
     } outVert;
@@ -96,7 +94,7 @@
 #endif
 
 // Surface material
-#ifdef JMAT_MATERIAL
+#ifdef JMAT_LIGHTING
     struct Material
     {
         vec4 ambient;
@@ -113,9 +111,6 @@
 #else
     uniform vec4 u_Emission;
 #endif
-
-// Alpha multiplier
-uniform float u_AlphaMult;
 
 // Light info
 #ifdef JMAT_PHONG
@@ -216,10 +211,8 @@ uniform float u_AlphaMult;
         PointLightInfo l = u_PointLights[index];
 
         // Ambient impact
-        vec3 ambient = l.ambient
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.ambient)
-        #endif
+        vec3 ambient = l.ambient * vec3(u_Material.ambient)
+
         #ifdef JMAT_DIFFUSEMAP
             * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
@@ -233,10 +226,8 @@ uniform float u_AlphaMult;
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * l.diffuse
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.diffuse)
-        #endif
+        vec3 diffuse = diff * l.diffuse * vec3(u_Material.diffuse)
+
         #ifdef JMAT_DIFFUSEMAP
             * JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).rgb
         #endif
@@ -256,22 +247,14 @@ uniform float u_AlphaMult;
         );
 
         // Specular impact
-        float spec =
-        #ifdef JMAT_MATERIAL
-            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
-        #else
-            0.0
-        #endif
-        ;
+        float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
 
         #ifdef JMAT_OPACITYMAP
             specularComponent += spec;
         #endif
 
-        vec3 specular = l.specular * spec
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.specular)
-        #endif
+        vec3 specular = l.specular * spec * vec3(u_Material.specular)
+
         #ifdef JMAT_SPECULARMAP
             * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
@@ -379,10 +362,8 @@ uniform float u_AlphaMult;
         DirectionalLightInfo l = u_DirectionalLights[index];
 
         // Ambient impact
-        vec3 ambient = l.ambient
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.ambient)
-        #endif
+        vec3 ambient = l.ambient * vec3(u_Material.ambient)
+
         #ifdef JMAT_DIFFUSEMAP
             * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
@@ -398,10 +379,8 @@ uniform float u_AlphaMult;
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = l.diffuse * diff
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.diffuse)
-        #endif
+        vec3 diffuse = l.diffuse * diff * vec3(u_Material.diffuse)
+
         #ifdef JMAT_DIFFUSEMAP
             * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
@@ -421,22 +400,14 @@ uniform float u_AlphaMult;
         );
 
         // Specular impact
-        float spec =
-        #ifdef JMAT_MATERIAL
-            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
-        #else
-            0.0
-        #endif
-        ;
+        float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
 
         #ifdef JMAT_OPACITYMAP
             specularComponent += spec;
         #endif
 
-        vec3 specular = l.specular * spec
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.specular)
-        #endif
+        vec3 specular = l.specular * spec * vec3(u_Material.specular)
+
         #ifdef JMAT_SPECULARMAP
             * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
@@ -458,10 +429,8 @@ uniform float u_AlphaMult;
         SpotLightInfo l = u_SpotLights[index];
 
         // Ambient impact
-        vec3 ambient = l.ambient
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.ambient)
-        #endif
+        vec3 ambient = l.ambient * vec3(u_Material.ambient)
+
         #ifdef JMAT_DIFFUSEMAP
             * vec3(JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC))
         #endif
@@ -475,10 +444,8 @@ uniform float u_AlphaMult;
 
         // Diffuse impact
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = l.diffuse * diff
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.diffuse)
-        #endif
+        vec3 diffuse = l.diffuse * diff * vec3(u_Material.diffuse)
+
         #ifdef JMAT_DIFFUSEMAP
             * JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).rgb
         #endif
@@ -498,22 +465,14 @@ uniform float u_AlphaMult;
         );
 
         // Specular impact
-        float spec =
-        #ifdef JMAT_MATERIAL
-            (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess)
-        #else
-            0.0
-        #endif
-        ;
+        float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
 
         #ifdef JMAT_OPACITYMAP
             specularComponent += spec;
         #endif
 
-        vec3 specular = l.specular * spec
-        #ifdef JMAT_MATERIAL
-            * vec3(u_Material.specular)
-        #endif
+        vec3 specular = l.specular * spec * vec3(u_Material.specular)
+
         #ifdef JMAT_SPECULARMAP
             * vec3(JOP_TEXTURE_2D(u_SpecularMap, OUT_TC))
         #endif
@@ -589,7 +548,7 @@ void main()
         #else
             refl = vec3(JOP_TEXTURE_CUBE(u_EnvironmentMap, R))
         #endif
-        #ifdef JMAT_MATERIAL
+        #ifdef JMAT_LIGHTING
             * u_Material.reflectivity
         #endif
         ;
@@ -620,13 +579,13 @@ void main()
 
     // Emission
     #ifdef JMAT_EMISSIONMAP
-        #ifdef JMAT_MATERIAL
+        #ifdef JMAT_LIGHTING
             tempColor += u_Material.emission * vec3(JOP_TEXTURE_2D(u_EmissionMap, OUT_TC));
         #else
             tempColor += JOP_TEXTURE_2D(u_EmissionMap, OUT_TC);
         #endif
     #else
-        #ifdef JMAT_MATERIAL
+        #ifdef JMAT_LIGHTING
             tempColor += u_Material.emission;
         #else
             tempColor += u_Emission;
@@ -643,7 +602,7 @@ void main()
         1.0
     #endif
 
-    #ifdef JMAT_MATERIAL
+    #ifdef JMAT_LIGHTING
         * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a + u_Material.emission.a
     #else
         * u_Emission.a
@@ -653,8 +612,6 @@ void main()
         * OUT_COL.a
     #endif
     ;
-
-    alpha *= u_AlphaMult;
 
     // Finally assign to the fragment output
     JOP_FRAG_COLOR(0) = vec4(tempColor.rgb, alpha);

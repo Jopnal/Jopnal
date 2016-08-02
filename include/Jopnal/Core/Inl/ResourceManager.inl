@@ -273,5 +273,5 @@ bool ResourceManager::isDefault(const T& resource)
 template<typename T>
 bool ResourceManager::isError(const T& resource)
 {
-    return &resource != &T::getError();
+    return &resource == &T::getError();
 }

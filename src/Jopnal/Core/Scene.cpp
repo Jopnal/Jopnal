@@ -109,27 +109,11 @@ namespace jop
     {
         if (isActive())
         {
-            m_renderer->draw(RenderPass::Pass::Pre);
-
             const float dt = deltaTime * m_deltaScale;
 
             preUpdate(dt);
             Object::update(dt);
             postUpdate(dt);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void Scene::drawBase()
-    {
-        if (isActive())
-        {
-            preDraw();
-
-            m_renderer->draw(RenderPass::Pass::Forward);
-
-            postDraw();
         }
     }
 
@@ -141,16 +125,6 @@ namespace jop
     //////////////////////////////////////////////
 
     void Scene::postUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::preDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::postDraw()
     {}
 
     //////////////////////////////////////////////

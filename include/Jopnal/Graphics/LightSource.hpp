@@ -50,6 +50,8 @@ namespace jop
 
         JOP_GENERIC_COMPONENT_CLONE(LightSource);
 
+        friend class Renderer;
+
     public:
 
         /// The shadow map faces
@@ -157,17 +159,6 @@ namespace jop
         /// \return Reference to the matrix
         ///
         const glm::mat4& getLightspaceMatrix(const DepthFace face = DepthFace::First) const;
-
-
-        /// \brief Render the shadow map
-        ///
-        /// This is only meant to be called by Renderer.
-        /// 
-        /// \param drawables The drawables to render into the shadow map
-        ///
-        /// \return True if any objects were drawn
-        ///
-        bool drawShadowMap() const;
 
         /// \brief Get the shadow map
         ///
@@ -327,6 +318,9 @@ namespace jop
         Message::Result receiveMessage(const Message& message) override;
 
     private:
+
+        bool drawShadowMap() const;
+
 
         mutable RenderTexture m_shadowMap;                      ///< The shadow map
         mutable std::vector<glm::mat4> m_lightSpaceMatrices;    ///< Light space matrices. Used when rendering the shadow map

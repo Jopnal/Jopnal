@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/GenericDrawable.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/AnimationAtlas.hpp>
 #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
@@ -35,7 +35,7 @@
 namespace jop
 {
 
-    class JOP_API AnimatedSprite : public GenericDrawable
+    class JOP_API AnimatedSprite : public Drawable
     {
     public:
 

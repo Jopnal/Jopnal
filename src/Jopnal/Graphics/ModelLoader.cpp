@@ -239,7 +239,7 @@ namespace jop
                 for (auto& i : val["meshes"])
                 {
                     if (i.IsUint())
-                        object->createComponent<GenericDrawable>(rend).setModel(Model(*meshes[i.GetUint()].first, *mats[meshes[i.GetUint()].second]));
+                        object->createComponent<Drawable>(rend).setModel(Model(*meshes[i.GetUint()].first, *mats[meshes[i.GetUint()].second]));
                 }
             }
 

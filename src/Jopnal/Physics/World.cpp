@@ -82,7 +82,7 @@ namespace detail
         LineVec m_lines;
         LineVec m_points;
         int m_mode;
-        const jop::Camera* m_cam;
+        const jop::Drawable::ProjectionInfo* m_proj;
 
     public:
 
@@ -91,7 +91,7 @@ namespace detail
               m_lines   (),
               m_points  (),
               m_mode    (0),
-              m_cam     (nullptr)
+              m_proj    (nullptr)
         {}
 
         void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
@@ -131,7 +131,7 @@ namespace detail
         {
             using namespace jop;
 
-            if ((m_lines.empty() && m_points.empty()) || !m_cam)
+            if (m_lines.empty() && m_points.empty())
                 return;
 
             static WeakReference<ShaderProgram> shdr;
@@ -158,10 +158,10 @@ namespace detail
 
                 m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
-                shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
+                shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
-                shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                shdr->setAttribute(5, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(0)));
+                glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3))));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -308,7 +308,7 @@ namespace jop
     //////////////////////////////////////////////
 
     World::World(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, RenderPass::Pass::Forward, 0),
+        : Drawable          (obj, renderer, RenderPass::Pass::BeforePost),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<detail::GhostCallback>()),
           m_contactListener (std::make_unique<detail::ContactListenerImpl>()),
@@ -324,8 +324,7 @@ namespace jop
         gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
         
         setDebugMode(false);
-
-        setCastShadows(false).setReceiveLights(false).setReceiveShadows(false).setReflected(false);
+        setFlags(0);
     }
 
     World::~World()
@@ -363,13 +362,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World::draw(const Camera* camera, const LightContainer&, ShaderProgram&) const
+    void World::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
     #ifdef JOP_DEBUG_MODE
 
-        if (camera && m_worldData->world->getDebugDrawer()->getDebugMode())
+        if (m_worldData->world->getDebugDrawer()->getDebugMode())
         {
-            static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = camera;
+            static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_proj = &proj;
             m_worldData->world->debugDrawWorld();
         }
 

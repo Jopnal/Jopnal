@@ -334,20 +334,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ShaderProgram::setAttribute(const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer)
-    {
-        glCheck(glVertexAttribPointer(location, amount, type, GL_FALSE, stride, pointer));
-    }
-
-    //////////////////////////////////////////////
-
     ShaderProgram& ShaderProgram::getDefault()
     {
         static WeakReference<ShaderProgram> defShader;
 
         if (defShader.expired())
         {
-            defShader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(Material::Attribute::Default).getReference());
+            defShader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(Material::getDefault()).getReference());
 
             JOP_ASSERT(defShader.get() != &getError(), "Failed to compile default shader!");
         }

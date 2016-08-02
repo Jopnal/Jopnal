@@ -73,11 +73,11 @@ namespace
     #endif
     }
 
-    void drawQuad(const jop::RectangleMesh& mesh, jop::ShaderProgram& shdr)
+    void drawQuad(const jop::RectangleMesh& mesh)
     {
         mesh.getVertexBuffer().bind();
-        shdr.setAttribute("a_Position", 0, GL_FLOAT, 3, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position));
-        shdr.setAttribute("a_TexCoords", 1, GL_FLOAT, 2, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords));
+        glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position)));
+        glCheck(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords)));
 
         mesh.getIndexBuffer().bind();
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
@@ -92,7 +92,7 @@ namespace jop
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
-          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getNamed<RectangleMesh>("__jop_fs_quad", 2.f).getReference())),
+          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getEmpty<RectangleMesh>("__jop_fs_quad").getReference())),
           m_mainTarget          (mainTarget),
           m_functions           (),
           m_exposure            (1.f),
@@ -403,7 +403,7 @@ namespace jop
         RenderTexture::unbind();
         
         shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
-        drawQuad(m_quad, shdr);
+        drawQuad(m_quad);
     }
 
     //////////////////////////////////////////////
@@ -454,7 +454,7 @@ namespace jop
         m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
-        drawQuad(m_quad, m_brightShader);
+        drawQuad(m_quad);
 
         // Blur
         for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
@@ -470,7 +470,7 @@ namespace jop
                 m_blurShader->setUniform("u_Horizontal", horizontal);
                 m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getColorTexture(slot), 1);
 
-                drawQuad(m_quad, m_blurShader);
+                drawQuad(m_quad);
                 horizontal = !horizontal;
             }
 

@@ -44,7 +44,7 @@ namespace jop
     private:
 
         typedef std::unordered_map<std::string, std::string> PluginMap;
-        typedef std::unordered_map<Material::AttribType, WeakReference<ShaderProgram>> ShaderMap;
+        typedef std::unordered_map<uint64, WeakReference<ShaderProgram>> ShaderMap;
 
     public:
 
@@ -92,14 +92,7 @@ namespace jop
         ///
         /// \return Reference to the shader
         ///
-        static ShaderProgram& getShader(const Material::AttribType attributes);
-
-        /// \brief Get a preprocessor shader string
-        ///
-        /// \param attrib Material attributes
-        /// \param str The string to put the definitions into
-        ///
-        static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+        static ShaderProgram& getShader(const Material& material);
 
         /// \brief Get the shader map
         ///

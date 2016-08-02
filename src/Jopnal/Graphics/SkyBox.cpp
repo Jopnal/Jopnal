@@ -41,46 +41,17 @@
 
 namespace jop
 {
-    SkyBox& jop__skyBoxFactoryFunc(JOP_COMPONENT_FACTORY_ARGS)
-    {
-        float size = 2.f;
-        
-        if (val.HasMember("size") && val["size"].IsDouble())
-            size = static_cast<float>(val["size"].GetDouble());
-
-        return obj.createComponent<SkyBox>(scene.getRenderer(), size);
-    }
-    bool jop__skyBoxLoadFunc(JOP_COMPONENT_LOAD_ARGS)
-    {
-        // map
-
-        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Load>(Serializer::getSerializeID<Drawable>(), comp, val);
-    }
-    bool jop__skyBoxSaveFunc(JOP_COMPONENT_SAVE_ARGS)
-    {
-        // map
-
-        return Serializer::callSingleFunc<Drawable, Serializer::FunctionID::Save>(Serializer::getSerializeID<Drawable>(), comp, val, alloc);
-    }
-
-    JOP_REGISTER_SERIALIZER(jop, SkyBox, jop__skyBoxFactoryFunc, jop__skyBoxLoadFunc, jop__skyBoxSaveFunc);
-}
-
-namespace jop
-{
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_mesh        (""),
-          m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
+          m_material    ("", Material::Attribute::EnvironmentMap, false)
     {
         obj.scale(-1.f);
         m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
 
-        setCastShadows(false);
-        setReceiveLights(false);
-        setReceiveShadows(false);
+        setFlags(Reflected);
     }
 
     SkyBox::SkyBox(const SkyBox& other, Object& newObj)
@@ -91,9 +62,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkyBox::draw(const Camera* camera, const LightContainer&, ShaderProgram& shader) const
+    void SkyBox::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-        if (!getModel().isValid())
+        /*if (!getModel().isValid())
             return;
 
         auto& s = shader;
@@ -124,7 +95,7 @@ namespace jop
             glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
         }
 
-        GlState::setDepthTest(true);
+        GlState::setDepthTest(true);*/
     }
 
     //////////////////////////////////////////////

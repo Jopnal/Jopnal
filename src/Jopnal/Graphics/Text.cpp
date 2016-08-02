@@ -28,7 +28,7 @@
 namespace jop
 {
     Text::Text(Object& object, Renderer& renderer)
-        : GenericDrawable       (object, renderer),
+        : Drawable              (object, renderer),
           m_material            ("", Material::Attribute::OpacityMap, false),
           m_font                (),
           m_string              (),
@@ -39,11 +39,11 @@ namespace jop
           m_mesh                ("")
     {
         setFont(Font::getDefault());
-        GenericDrawable::setModel(Model(m_mesh, m_material));
+        setModel(Model(m_mesh, m_material));
     }
 
     Text::Text(const Text& other, Object& newObj)
-        : GenericDrawable       (other, newObj),
+        : Drawable              (other, newObj),
           m_material            (other.m_material, ""),
           m_font                (other.m_font),
           m_string              (other.m_string),
@@ -53,7 +53,7 @@ namespace jop
           m_bounds              (other.m_bounds),
           m_mesh                ("")
     {
-        GenericDrawable::setModel(Model(m_mesh, m_material));
+        setModel(Model(m_mesh, m_material));
     }
 
     //////////////////////////////////////////////
@@ -353,7 +353,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Text::draw(const Camera* camera, const LightContainer& lights, ShaderProgram& shader) const
+    void Text::draw(const ProjectionInfo& proj, const LightContainer& lights) const
     {
         if (m_font.expired())
             return;
@@ -368,9 +368,10 @@ namespace jop
         updateGeometry(); // Update geometry before drawing if necessary
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-
         GlState::setFaceCull(false);
-        GenericDrawable::draw(camera, lights, shader);
+
+        Drawable::draw(proj, lights);
+
         GlState::setFaceCull(true);
         GlState::setDepthTest(true);
     }

@@ -65,13 +65,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    ShaderProgram& ShaderAssembler::getShader(const Material::AttribType attributes)
+    ShaderProgram& ShaderAssembler::getShader(const Material& material)
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderAssembler instance!");
 
-        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+        std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);
 
         auto& cont = m_instance->m_shaders;
+        const auto attributes = material.getAttributeField();
 
         auto itr = cont.find(attributes);
         if (itr != cont.end() && !itr->second.expired())
@@ -84,15 +85,11 @@ namespace jop
             return ResourceManager::getExisting<ShaderProgram>(shaderName);
 
         std::string pp;
-        getPreprocessDef(attributes, pp);
-        ShaderProgram* s = nullptr;
+        material.getShaderPreprocessorDef(pp);
+        
+        ShaderProgram* s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
 
-        if ((attributes & Material::Attribute::__RecordEnv))
-            s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
-        else
-            s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
-
-        if (s != &ShaderProgram::getError())
+        if (!ResourceManager::isError(*s))
         {
             s->setShouldSerialize(false);
 
@@ -115,74 +112,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ShaderAssembler::getPreprocessDef(const Material::AttribType attrib, std::string& str)
-    {
-        using m = Material::Attribute;
-
-        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
-        // Material
-        if ((attrib & m::__Lighting) != 0)
-            str += "#define JMAT_MATERIAL\n";
-        
-        // Diffuse map
-        if ((attrib & m::DiffuseMap) != 0)
-        {
-            str += "#define JMAT_DIFFUSEMAP\n";
-
-            if ((attrib & m::DiffuseAlpha) != 0)
-                str += "#define JMAT_DIFFUSEALPHA\n";
-        }
-
-        // Specular map
-        if ((attrib & m::SpecularMap) != 0)
-            str += "#define JMAT_SPECULARMAP\n";
-
-        // Emission map
-        if ((attrib & m::EmissionMap) != 0)
-            str += "#define JMAT_EMISSIONMAP\n";
-
-        // Environment map
-        if ((attrib & m::EnvironmentMap) != 0)
-            str += "#define JMAT_ENVIRONMENTMAP\n";
-
-        // Reflection map
-        if ((attrib & m::ReflectionMap) != 0)
-            str += "#define JMAT_REFLECTIONMAP\n";
-
-        // Reflection map
-        if ((attrib & m::OpacityMap) != 0)
-            str += "#define JMAT_OPACITYMAP\n";
-
-        // Gloss map
-        if ((attrib & m::GlossMap) != 0)
-            str += "#define JMAT_GLOSSMAP\n";
-
-        // Lighting
-        {
-            static const std::string maxLights =
-                "#define JMAT_MAX_POINT_LIGHTS "            + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
-                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS "    + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
-                "\n#define JMAT_MAX_SPOT_LIGHTS "           + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
-
-            // Phong model
-            if ((attrib & m::Phong) != 0)
-                str += "#define JMAT_PHONG\n" + maxLights;
-        }
-
-        // Environment map record
-        if ((attrib & m::__RecordEnv) != 0)
-            str += "#define JMAT_ENVIRONMENT_RECORD\n";
-
-        // Skybox/sphere
-        if ((attrib & m::__SkyBox) != 0)
-            str += "#define JMAT_SKYBOX\n";
-        else if ((attrib & m::__SkySphere) != 0)
-            str += "#define JMAT_SKYSPHERE\n";
-    }
-
-    //////////////////////////////////////////////
-
     const ShaderAssembler::ShaderMap& ShaderAssembler::getShaderMap()
     {
         return m_instance->m_shaders;
@@ -194,6 +123,8 @@ namespace jop
     {
         if (!m_instance)
             return;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
     #ifdef JOP_DEBUG_MODE
 
@@ -262,6 +193,8 @@ namespace jop
     {
         if (!m_instance)
             return;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
         
         m_instance->m_plugins.erase(name);
     }
@@ -273,6 +206,8 @@ namespace jop
         if (!m_instance)
             return;
 
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         m_instance->m_plugins.clear();
     }
 
@@ -283,9 +218,23 @@ namespace jop
         if (!m_instance)
             return;
 
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         std::unordered_set<const char*> dupeSet;
 
         preprocess(input, output, false, dupeSet);
+    }
+
+    //////////////////////////////////////////////
+
+    void ShaderAssembler::setShaderSource(const Shader::Type type, const std::string& source)
+    {
+        if (!m_instance)
+            return;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        m_instance->m_uber[static_cast<int>(type)] = source;
     }
 
     //////////////////////////////////////////////
@@ -367,16 +316,6 @@ namespace jop
             if (!nested)
                 output.append(next);
         }
-    }
-
-    //////////////////////////////////////////////
-
-    void ShaderAssembler::setShaderSource(const Shader::Type type, const std::string& source)
-    {
-        if (!m_instance)
-            return;
-
-        m_instance->m_uber[static_cast<int>(type)] = source;
     }
 
     //////////////////////////////////////////////

@@ -52,6 +52,7 @@
 
 //////////////////////////////////////////////
 
+
 namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(World2D)
@@ -71,11 +72,11 @@ namespace jop
 
             typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
 
-            jop::VertexBuffer m_buffer;
+            VertexBuffer m_buffer;
             LineVec m_lines;
             LineVec m_points;
 
-            const jop::Camera* m_cam;
+            const Drawable::ProjectionInfo* m_proj;
 
         public:
 
@@ -161,7 +162,7 @@ namespace jop
             {
                 using namespace jop;
 
-                if ((m_lines.empty() && m_points.empty()) || !m_cam)
+                if (m_lines.empty() && m_points.empty())
                     return;
 
                 // Draw lines
@@ -171,10 +172,10 @@ namespace jop
 
                     m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
-                    shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
+                    shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
-                    shdr->setAttribute(0, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(0));
-                    shdr->setAttribute(5, GL_FLOAT, 3, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3)));
+                    glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(0)));
+                    glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3))));
 
                     glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -228,12 +229,12 @@ namespace jop
                 }
             }
         };
-
     }
 
+    //////////////////////////////////////////////
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable      (obj, renderer, RenderPass::Pass::Forward, 0),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
         m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
         m_step(0.f),
@@ -295,48 +296,44 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World2D::draw(const Camera* camera, const LightContainer&, ShaderProgram&) const
+    void World2D::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
 
-        if (camera && debugMode())
+        if (debugMode())
         {
-            m_dd->m_cam = camera;
+            m_dd->m_proj = &proj;
             m_worldData2D->DrawDebugData();
             m_dd->flushLines();
         }
 
-#else
+    #else
 
         camera;
 
-#endif
+    #endif
     }
 
     //////////////////////////////////////////////
 
     void World2D::setDebugMode(const bool enable)
     {
-#ifdef JOP_DEBUG_MODE
-
+    #ifdef JOP_DEBUG_MODE
         m_dd->SetFlags(enable * (b2Draw::e_shapeBit | b2Draw::e_aabbBit | b2Draw::e_jointBit | b2Draw::e_pairBit | b2Draw::e_centerOfMassBit));
-
-#else
-
+    #else
         enable;
-
-#endif
+    #endif
     }
 
     //////////////////////////////////////////////
 
     bool World2D::debugMode() const
     {
-#ifdef JOP_DEBUG_MODE
+    #ifdef JOP_DEBUG_MODE
         return m_dd->GetFlags() != 0;
-#else
+    #else
         return false;
-#endif
+    #endif
     }
 
     //////////////////////////////////////////////

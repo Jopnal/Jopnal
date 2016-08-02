@@ -84,7 +84,7 @@ namespace jop
             setSize(Engine::getMainRenderTarget().getSize());
         }
 
-        renderer.bind(*this);
+        renderer.bind(this);
     }
 
     Camera::Camera(const Camera& other, Object& newObj)
@@ -99,12 +99,12 @@ namespace jop
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
     {
-        m_rendererRef.bind(*this);
+        m_rendererRef.bind(this);
     }
     
     Camera::~Camera()
     {
-        m_rendererRef.unbind(*this);
+        m_rendererRef.unbind(this);
     }
 
     //////////////////////////////////////////////
@@ -275,6 +275,7 @@ namespace jop
         const auto s = glm::ivec2(m_viewPort.second * glm::vec2(mainSize)) - p;
 
         glCheck(glViewport(p.x, p.y, s.x, s.y));
+        glCheck(glScissor(p.x, p.y, s.x, s.y));
     }
 
     //////////////////////////////////////////////

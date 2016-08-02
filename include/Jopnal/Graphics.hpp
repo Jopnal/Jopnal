@@ -36,7 +36,7 @@
 #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
-#include <Jopnal/Graphics/GenericDrawable.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Graphics/LightSource.hpp>
 #include <Jopnal/Graphics/MainRenderTarget.hpp>

@@ -187,10 +187,6 @@ namespace jop
         /// \param deltaTime The delta time
         ///
         void updateBase(const float deltaTime);
-
-        /// \brief Method for drawing
-        ///
-        void drawBase();
         
 
         /// \brief Method for pre-updating
@@ -208,18 +204,6 @@ namespace jop
         /// \param deltaTime The delta time
         ///
         virtual void postUpdate(const float deltaTime);
-        
-        /// \brief Method for pre-drawing
-        ///
-        /// This will be called before objects are drawn.
-        ///
-        virtual void preDraw();
-
-        /// \brief Method for post drawing
-        ///
-        /// This will be called after objects are drawn.
-        ///
-        virtual void postDraw();
 
 
         /// \brief Get this scene as object

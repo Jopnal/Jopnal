@@ -60,5 +60,3 @@ bool jop::ShaderProgram::load(const std::string& pp,const Args&... shaders)
 {
     return detail::attacher(*this, pp, shaders...);
 }
-
-

@@ -36,7 +36,6 @@ namespace jop
 {
     class ShaderProgram;
     class Texture;
-    class Camera;
 
     class JOP_API Material final : public Resource
     {
@@ -48,15 +47,11 @@ namespace jop
 
     public:
 
-        /// Attribute data type
-        ///
-        typedef uint32 AttribType;
-
         /// Bit values to describe a material's attributes
         ///
         struct Attribute
         {
-            enum : AttribType
+            enum : uint64
             {
                 None            = 0,
 
@@ -70,7 +65,7 @@ namespace jop
                 GlossMap        = OpacityMap        << 1,
                 //NormalMap       = 1 << 7, // TODO: Implement
                 //ParallaxMap     = 1 << 8, // TODO: Implement
-                //AmbientMap    = 1 << 10, // TODO: Implement
+                //AmbienceMap    = 1 << 10, // TODO: Implement
                 //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
@@ -84,9 +79,7 @@ namespace jop
                 DefaultLighting = BlinnPhong,
 
                 // For internal functionality, do not use
-                __SkySphere     = 1  << 29,
-                __SkyBox        = 1  << 30,
-                __RecordEnv     = 1u << 31,
+                __Map           = 0,
                 __Lighting      = Phong | BlinnPhong | Gouraud | Flat
             };
         };
@@ -114,6 +107,8 @@ namespace jop
             Reflection,
             //Normal
             //Parallax
+            //Ambience
+            //Light
             Opacity,
             Gloss,
             
@@ -151,6 +146,10 @@ namespace jop
             YellowRubber
         };
 
+    private:
+
+        typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::Last) - 1> MapArray;
+
     public:
 
         /// \brief Default constructor
@@ -166,7 +165,7 @@ namespace jop
         /// \param attributes The initial attributes
         /// \param autoAttributes Set attributes automatically
         ///
-        Material(const std::string& name, const AttribType attributes, const bool autoAttributes = true);
+        Material(const std::string& name, const uint64 attributes, const bool autoAttributes = true);
         
 
         /// \brief Send this material to a shader
@@ -174,13 +173,9 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         /// \param camera The camera to use
         ///
-        void sendToShader(ShaderProgram& shader, const Camera* camera, const float alphaMult) const;
+        void sendToShader(ShaderProgram& shader, const glm::vec3& camPos) const;
 
-        /// \brief Get the shader
-        ///
-        /// \return Pointer to the shader
-        ///
-        ShaderProgram* getShader() const;
+        void getShaderPreprocessorDef(std::string& str) const;
 
 
         /// \brief Set a reflection value
@@ -286,13 +281,13 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setAttributeField(const AttribType attribs);
+        Material& setAttributeField(const uint64 attribs);
 
         /// \brief Get the attribute bit field
         ///
         /// \return The attribute bit field
         ///
-        AttribType getAttributeField() const;
+        uint64 getAttributeField() const;
 
         /// \brief Check if this material has a specific attribute
         ///
@@ -300,15 +295,15 @@ namespace jop
         ///
         /// \return True if does have the attribute
         ///
-        bool hasAttribute(const AttribType attrib) const;
+        bool hasAttribute(const uint64 attrib) const;
 
-        bool hasAttributes(const AttribType attribs) const;
+        bool hasAttributes(const uint64 attribs) const;
 
-        bool compareAttributes(const AttribType attribs) const;
+        bool compareAttributes(const uint64 attribs) const;
 
-        Material& addAttributes(const AttribType attribs);
+        Material& addAttributes(const uint64 attribs);
 
-        Material& removeAttributes(const AttribType attribs);
+        Material& removeAttributes(const uint64 attribs);
 
 
         /// \brief Get the default material
@@ -319,18 +314,12 @@ namespace jop
 
     private:
 
-        std::array<Color, 4> m_reflection;              ///< The reflection values
-        float m_reflectivity;                           ///< The reflectivity value
-        AttribType m_attributes;                        ///< The attribute bit field
-        float m_shininess;                              ///< The shininess factor
-        std::array
-        <
-            WeakReference<const Texture>,
-            static_cast<int>(Map::Last) - 1
-        > m_maps;                                       ///< An array with the bound maps
-        mutable WeakReference<ShaderProgram> m_shader;  ///< Shader fitting the attributes
-        mutable bool m_attributesChanged;               ///< Have the attributes been changed?
-        bool m_autoAttribs;                             ///< Use automatic attributes?
+        std::array<Color, 4> m_reflection;  ///< The reflection values
+        MapArray m_maps;                    ///< An array with the bound maps
+        uint64 m_attributes;                ///< The attribute bit field
+        float m_reflectivity;               ///< The reflectivity value
+        float m_shininess;                  ///< The shininess factor
+        bool m_autoAttribs;                 ///< Use automatic attributes?
     };
 }
 

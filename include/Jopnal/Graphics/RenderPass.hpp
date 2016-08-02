@@ -33,12 +33,7 @@
 namespace jop
 {
     class Renderer;
-    class LightSource;
-    class Camera;
-    class EnvironmentRecorder;
     class Drawable;
-    class LightContainer;
-    class RenderTarget;
 
     class JOP_API RenderPass
     {
@@ -47,14 +42,9 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(RenderPass);
 
         friend class Renderer;
-        friend class EnvironmentRecorder;
+        friend class Drawable;
 
     public:
-
-        typedef std::set<const LightSource*>            Lights;
-        typedef std::set<const Camera*>                 Cameras;
-        typedef std::set<const EnvironmentRecorder*>    EnvironmentRecorders;
-        typedef std::set<const Drawable*>               Drawables;
 
         static const uint32 DefaultWeight;
 
@@ -71,23 +61,23 @@ namespace jop
         virtual ~RenderPass() = 0;
 
 
-        virtual void draw() = 0;
-
-        void bind(const Drawable* drawable);
-
-        void unbind(const Drawable* drawable);
-
         void setActive(const bool active);
 
         bool isActive() const;
 
         Renderer& getRenderer();
 
-        Pass whichPass() const;
+        Pass getPass() const;
 
     protected:
 
-        Drawables m_drawables;
+        virtual void draw() = 0;
+
+        virtual void bind(const Drawable* drawable) = 0;
+
+        virtual void unbind(const Drawable* drawable) = 0;
+
+
         Renderer& m_rendererRef;
         const RenderTarget& m_target;
         const uint32 m_weight;
@@ -101,14 +91,36 @@ namespace jop
 
         DefaultPrePass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight);
 
+    protected:
+
         void draw() override;
+
+        void bind(const Drawable* drawable) override;
+
+        void unbind(const Drawable* drawable) override;
+
+    private:
+
+        std::set<const Drawable*> m_drawables;
     };
 
     class JOP_API DefaultPostPass : public RenderPass
     {
+    public:
+
         DefaultPostPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight);
 
+    protected:
+
         void draw() override;
+
+        void bind(const Drawable* drawable) override;
+
+        void unbind(const Drawable* drawable) override;
+
+    private:
+
+
     };
 
     namespace detail

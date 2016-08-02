@@ -189,16 +189,6 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const bool value);
 
-        /// \brief Set an attribute using the location
-        ///
-        /// \param loc Attribute location
-        /// \param type Data type, Use the appropriate OpenGL enum
-        /// \param amount Amount of variables per element
-        /// \param stride The stride. Refer to OpenGL documentation on what this is
-        /// \param pointer Pointer to the data or the offset in the buffer
-        ///
-        void setAttribute(const unsigned int location, unsigned int type, int amount, unsigned int stride, const void* pointer);
-
         /// \brief Get the default shader
         ///
         /// \return Reference to the default shader

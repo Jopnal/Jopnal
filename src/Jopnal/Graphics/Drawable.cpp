@@ -54,6 +54,14 @@ namespace jop
 
 namespace jop
 {
+    Drawable::ProjectionInfo::ProjectionInfo(const glm::mat4 & view, const glm::mat4& proj, const glm::vec3 & camPos)
+        : viewMatrix        (view),
+          projectionMatrix  (proj),
+          cameraPosition    (camPos)
+    {}
+
+    //////////////////////////////////////////////
+
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
         : Component     (object, 0),
           m_model       (Mesh::getDefault(), Material::getDefault()),
@@ -61,7 +69,8 @@ namespace jop
           m_rendererRef (renderer),
           m_pass        (pass),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup (0)  
+          m_renderGroup (0),
+          m_updateShader(true)
     {
         renderer.bind(this, pass);
     }
@@ -71,9 +80,10 @@ namespace jop
           m_model       (Mesh::getDefault(), Material::getDefault()),
           m_shader      (),
           m_rendererRef (pass.getRenderer()),
-          m_pass        (pass.whichPass()),
+          m_pass        (pass.getPass()),
           m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup (0)
+          m_renderGroup (0),
+          m_updateShader(true)
     {
         pass.bind(this);
     }
@@ -97,9 +107,61 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Drawable::draw(const glm::mat4& view, const glm::mat4& proj, const LightContainer& lights) const
+    void Drawable::draw(const ProjectionInfo& proj, const LightContainer& lights) const
     {
-        
+        if (!m_model.isValid())
+            return;
+
+        auto& mesh = *getModel().getMesh();
+        auto& mat = *getModel().getMaterial();
+
+        if (m_updateShader)
+        {
+            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(mat).getReference());
+            m_updateShader = false;
+        }
+
+        // Attributes
+        mesh.updateVertexAttributes(mat.getAttributeField());
+
+        // Uniforms
+        {
+            auto& shdr = *m_shader;
+            auto& modelMat = getObject()->getTransform().getMatrix();
+
+            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
+            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+            shdr.setUniform("u_MMatrix", modelMat);
+
+            if (mat.hasAttribute(Material::Attribute::__Lighting))
+            {
+                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
+                lights.sendToShader(shdr, *this);
+            }
+
+            mat.sendToShader(shdr, proj.cameraPosition);
+
+        #ifdef JOP_DEBUG_MODE
+
+            {
+                static DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
+
+                if (validateSetting.value && !shdr.validate())
+                    return;
+            }
+
+        #endif
+        }
+
+        if (mesh.getElementAmount())
+        {
+            mesh.getIndexBuffer().bind();
+            glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
+        }
+        else
+        {
+            glCheck(glDrawArrays(GL_TRIANGLES, 0, mesh.getVertexAmount()));
+        }
     }
 
     //////////////////////////////////////////////
@@ -156,6 +218,7 @@ namespace jop
     Drawable& Drawable::setFlags(const uint32 flags)
     {
         m_flags = flags;
+        return *this;
     }
 
     //////////////////////////////////////////////
