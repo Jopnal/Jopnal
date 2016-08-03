@@ -56,6 +56,8 @@ namespace jop
         ///
         std::pair<float, float> getLimits() const;
 
+        //OPEN TO PUBLIC IF NEEDED
+    private:
         /// \param enable Enables/disables motor.
         ///
         /// \return Returns reference to self.

@@ -38,6 +38,8 @@ namespace jop
     private: ///Destruction issues
         GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2);
 
+        float getRatio() const;
+
         GearJoint2D& setRatio(const float ratio);
 
     private:

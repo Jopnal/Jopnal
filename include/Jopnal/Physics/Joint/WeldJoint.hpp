@@ -45,7 +45,7 @@ namespace jop
         ///
         float getDamping() const;
 
-        /// \param damping Set new damping value. Please use values between 0 - 1.
+        /// \param damping Set new damping value. Please use values between 0.f - 1.f.
         ///
         /// \return Returns reference to self.
         ///

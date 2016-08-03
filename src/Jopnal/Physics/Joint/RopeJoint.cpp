@@ -34,7 +34,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     RopeJoint::RopeJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
@@ -50,5 +49,8 @@ namespace jop
         m_joint = std::make_unique<btGeneric6DofConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
         m_jointL = static_cast<btGeneric6DofConstraint*>(m_joint.get());
+
+       // for (unsigned int i = 0; i < 3; ++i)
+       //     m_jointL->setLimit(i, 1.f, 0.f);
     }
 }

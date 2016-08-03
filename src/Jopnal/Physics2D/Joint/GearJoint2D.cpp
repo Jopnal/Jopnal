@@ -35,7 +35,6 @@
 
 namespace jop
 {
-
     GearJoint2D::GearJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float ratio, const Joint2D& joint1, const Joint2D& joint2) :
         Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
@@ -58,6 +57,15 @@ namespace jop
         m_joint = static_cast<b2GearJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2GearJoint*>(m_joint);
     }
+
+    //////////////////////////////////////////////
+
+    float GearJoint2D::getRatio() const
+    {
+        return m_jointL->GetRatio();
+    }
+
+    //////////////////////////////////////////////
 
     GearJoint2D& GearJoint2D::setRatio(const float ratio)
     {

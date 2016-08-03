@@ -76,31 +76,7 @@ namespace jop
         }
     }
 
-    WheelJoint& WheelJoint::applyTorque(const float torque, const Axis axis)
-    {
-        glm::vec3 tq(0.f, 0.f, 0.f);
-        tq[static_cast<unsigned int>(axis)] = torque;
-
-        return applyTorque(tq);
-    }
-
-    WheelJoint& WheelJoint::applyTorque(glm::vec3 torque)
-    {
-        m_jointL->getRigidBodyB().activate();
-        m_jointL->getRigidBodyB().applyTorque(m_jointL->getRigidBodyB().getWorldTransform().getBasis() * btVector3(torque.x, torque.y, torque.z));
-        return *this;
-    }
-
-    float WheelJoint::getTorque(const Axis axis) const
-    {
-        return m_jointL->getRigidBodyB().getTotalTorque().m_floats[static_cast<unsigned int>(axis)];
-    }
-
-    glm::vec3 WheelJoint::getTorque() const
-    {
-        btVector3 tq = m_jointL->getRigidBodyB().getTotalTorque();
-        return glm::vec3(tq.m_floats[0], tq.m_floats[1], tq.m_floats[2]);
-    }
+    //////////////////////////////////////////////
 
     float WheelJoint::getAngle(const Axis axis) const
     {
@@ -110,10 +86,14 @@ namespace jop
         return angles[static_cast<unsigned int>(axis)];
     }
 
+    //////////////////////////////////////////////
+
     float WheelJoint::getStiffness(const Axis axis)
     {
         return m_jointL->getStiffness(static_cast<unsigned int>(axis));
     }
+
+    //////////////////////////////////////////////
 
     WheelJoint& WheelJoint::setAngle(const float steeringAngle, const Axis axis)
     {
@@ -125,6 +105,8 @@ namespace jop
         m_jointL->setLimit(t_axis, newAngle, newAngle);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     WheelJoint& WheelJoint::setStiffness(const float stiffness, const Axis axis)
     {

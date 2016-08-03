@@ -28,7 +28,7 @@
 
 //////////////////////////////////////////////
 
-class b2RopeJoint;
+class b2DistanceJoint;
 
 namespace jop
 {
@@ -39,10 +39,14 @@ namespace jop
         /// \brief RopeJoint2D constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param length Length of the rope.
-        /// \param stiff True: Bodies are connected like with a solid block. False: Bodies are connected like with a real rope.
+        /// \param anchorX Anchor point in local coordinates. Please use values between -1.f - +1.f. Defaults to the center.
         ///
-        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff);
+        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide,
+            const glm::vec2& anchorA = glm::vec2(0.f, 0.f), const glm::vec2& anchorB = glm::vec2(0.f, 0.f));
+
+        /// \return Returns damping values: first = frequency, second = damping.
+        ///
+        std::pair<float, float>getDamping() const;
 
         /// \param frequency Damping frequency in Hz.
         /// \param damping Damping ratio. Please use values between 0.f - 1.0f.
@@ -52,7 +56,7 @@ namespace jop
         RopeJoint2D& setDamping(const float frequency, const float damping);
 
     private:
-        unsigned int m_type;
+        b2DistanceJoint* m_jointL;
     };
 }
 #endif

@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
@@ -50,6 +49,8 @@ namespace jop
         m_jointL = static_cast<b2WeldJoint*>(m_joint);
     }
 
+    //////////////////////////////////////////////
+
     WeldJoint2D& WeldJoint2D::setDamping(const float frequency, const float damping)
     {
         JOP_ASSERT(frequency >= 0.f, "WeldJoint2D damping frequency can not be negative!");
@@ -59,6 +60,8 @@ namespace jop
         m_jointL->SetDampingRatio(damping);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     std::pair<float, float> WeldJoint2D::getDamping() const
     {

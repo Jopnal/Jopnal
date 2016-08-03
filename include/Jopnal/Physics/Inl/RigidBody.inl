@@ -42,6 +42,9 @@ bool RigidBody::breakJoint(RigidBody& other, unsigned int IDthis, unsigned int I
         {
             if (typeid(*(*itr)) == typeid(T) && IDthis == (*itr)->getID())
             {
+                //something like this but now not same place?
+                //itr->get()->m_bodyA->m_joints.erase(itr);
+                //itr->get()->m_bodyB->m_joints.erase(itr);
                 m_joints.erase(itr);
                 ++result;
                 break;

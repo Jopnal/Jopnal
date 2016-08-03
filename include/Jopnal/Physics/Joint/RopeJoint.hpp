@@ -38,7 +38,7 @@ namespace jop
         /// \brief RopeJoint constructor.
         ///
         /// Length of the rope is calculated from the difference in global coordinates between the two bodies.
-        /// Longer ropes, where accurate physics computations are needed, should be created by creating separate (rigid)bodies and attaching RopeJoint to them one after another.
+        /// Longer ropes, where accurate physics computations are needed, should be created by creating separate RigidBodies and attaching RopeJoint to them one after another.
         ///
         /// \param collide Joined bodies collide with each other.
         ///

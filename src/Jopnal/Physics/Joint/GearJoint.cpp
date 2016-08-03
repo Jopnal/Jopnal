@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
     GearJoint::GearJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& rotAxisA, const glm::vec3& rotAxisB, const float ratio) :
@@ -46,6 +45,8 @@ namespace jop
         m_jointL = static_cast<btGearConstraint*>(m_joint.get());
     }
 
+    //////////////////////////////////////////////
+
     glm::vec3 GearJoint::getAxis(const bool bodyA) const
     {
         return bodyA ?
@@ -53,10 +54,14 @@ namespace jop
             glm::vec3(m_jointL->getAxisB().m_floats[0], m_jointL->getAxisB().m_floats[1], m_jointL->getAxisB().m_floats[2]);
     }
 
+    //////////////////////////////////////////////
+
     float GearJoint::getRatio() const
     {
         return m_jointL->getRatio();
     }
+
+    //////////////////////////////////////////////
 
     GearJoint& GearJoint::setAxis(const glm::vec3& axis, const bool bodyA)
     {
@@ -68,10 +73,11 @@ namespace jop
         return *this;
     }
 
+    //////////////////////////////////////////////
+
     GearJoint& GearJoint::setRatio(const float ratio)
     {
         m_jointL->setRatio(ratio);
         return *this;
     }
-
 }

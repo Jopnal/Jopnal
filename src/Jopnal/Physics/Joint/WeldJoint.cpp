@@ -58,10 +58,14 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
     float WeldJoint::getDamping() const
     {
         return m_damping;
     }
+
+    //////////////////////////////////////////////
 
     WeldJoint& WeldJoint::setDamping(const float damping)
     {

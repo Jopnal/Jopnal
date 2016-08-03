@@ -54,6 +54,8 @@ namespace jop
             m_jointL->setLimit(i, 1.f, 0.f);
     }
 
+    //////////////////////////////////////////////
+
     glm::vec3 RotationJoint::getAngLimits(const bool lower) const
     {
         btVector3 temp;
@@ -64,6 +66,8 @@ namespace jop
 
         return glm::vec3(temp.m_floats[0], temp.m_floats[1], temp.m_floats[2]);
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint& RotationJoint::setAngLimits(const bool lower, const glm::vec3& limits)
     {

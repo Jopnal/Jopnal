@@ -33,7 +33,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
@@ -51,11 +50,15 @@ namespace jop
         m_jointL = static_cast<b2RevoluteJoint*>(m_joint);
     }
 
+    //////////////////////////////////////////////
+
     RotationJoint2D& RotationJoint2D::limit(const bool enable)
     {
         m_jointL->EnableLimit(enable);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint2D& RotationJoint2D::setLimits(const float minAngle, const float maxAngle)
     {
@@ -64,10 +67,14 @@ namespace jop
         return *this;
     }
 
+    //////////////////////////////////////////////
+
     std::pair<float, float> RotationJoint2D::getLimits() const
     {
         return std::make_pair(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint2D& RotationJoint2D::enableMotor(const bool enable)
     {
@@ -75,12 +82,16 @@ namespace jop
         return *this;
     }
 
+    //////////////////////////////////////////////
+
     RotationJoint2D& RotationJoint2D::setMotorForces(const float speed, const float torque)
     {
         m_jointL->SetMotorSpeed(speed);
         m_jointL->SetMaxMotorTorque(torque);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     std::pair<float, float> RotationJoint2D::getMotorForces() const
     {

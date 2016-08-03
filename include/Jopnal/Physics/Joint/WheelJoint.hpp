@@ -58,42 +58,17 @@ namespace jop
         ///
         /// \param collide Joined bodies collide with each other.
         /// \param maxSteering Maximum steering angle of the wheel in radians. Function setAngle can not override this. Same value is set for both +/- rotations. Default is 0.7f ~ 40 degrees.
-        /// \param jRot Rotation of the joint in a quaternion. Defaults the orientation of the joint based on the difference between the chassis and the wheel positions in global X-dimension.
+        /// \param jRot Rotation of the joint in a quaternion. By default aligns the wheel by X- or Z-axis, depending on the global positions of the wheel and chassis.
         /// \param jPos Position of the joint in world coordinates. Default is in the middle of the wheel.
         ///
         WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering = 0.7f,
             const glm::quat& jRot = glm::quat(0.f, 0.f, 0.f, 0.f), const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
 
-        /// \brief Apply rotational force to the wheel's rigidbody.
-        ///
-        /// \param torque Torque to be applied to the wheel. Negative value rotates the wheel in opposite direction.
-        /// \param axis Axis to apply the force to. Default is Y-axis.
-        ///
-        /// \return Returns reference to self
-        ///
-        WheelJoint& applyTorque(const float torque, const Axis axis = Axis::T_Y);
-
-        /// \brief Apply rotational force to the wheel.
-        ///
-        /// \param torque Torque to be applied to the wheel. Negative value rotates the wheel in opposite direction.
-        ///
-        /// \return Returns reference to self.
-        ///
-        WheelJoint& applyTorque(glm::vec3 torque);
-
-        /// \return Returns current torque affecting the joint in an axis.
-        ///
-        float getTorque(const Axis axis) const;
-
-        /// \return Returns vector of torques affecting the joint.
-        ///
-        glm::vec3 getTorque() const;
-
         /// \return Returns angle of the joint in an axis in radians. Default Y-axis.
         ///
         float getAngle(const Axis axis = Axis::T_Y) const;
 
-        /// \return Returns stiffness from the 
+        /// \return Returns currently used stiffness in desired axis. Default Y-axis.
         ///
         float getStiffness(const Axis axis = Axis::T_Y);
 

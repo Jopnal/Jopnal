@@ -35,44 +35,40 @@
 
 namespace jop
 {
-    RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const float length, const bool stiff) :
+    RopeJoint2D::RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide,
+        const glm::vec2& localAnchorA, const glm::vec2& localAnchorB) :
         Joint2D(worldRef, bodyA, bodyB, collide),
-        m_type(stiff ? b2JointType::e_distanceJoint : b2JointType::e_ropeJoint)
+        m_jointL(nullptr)
     {
-        if (stiff)
-        {
-            b2DistanceJointDef jointDef;
-            jointDef.bodyA = getBody(bodyA);
-            jointDef.bodyB = getBody(bodyB);
-            jointDef.collideConnected = collide;
-            jointDef.length = length;
-            jointDef.userData = this;
+        b2Vec2 ancA(localAnchorA.x, localAnchorA.y);
+        b2Vec2 ancB(localAnchorB.x, localAnchorB.y);
 
-            m_joint = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
-        }
-        else
-        {
-            b2RopeJointDef jointDef;
-            jointDef.bodyA = getBody(bodyA);
-            jointDef.bodyB = getBody(bodyB);
-            jointDef.collideConnected = collide;
-            jointDef.maxLength = length;
-            jointDef.userData = this;
+        b2DistanceJointDef jointDef;
+        jointDef.bodyA = getBody(bodyA);
+        jointDef.bodyB = getBody(bodyB);
+        jointDef.collideConnected = collide;
+        jointDef.length = abs(b2Distance(getBody(bodyA)->GetWorldPoint(ancA), getBody(bodyB)->GetWorldPoint(ancB)));
+        jointDef.localAnchorA = ancA;
+        jointDef.localAnchorB = ancB;
+        jointDef.userData = this;
 
-            m_joint = static_cast<b2RopeJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
-        }
+        m_joint = static_cast<b2DistanceJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
+        m_jointL = static_cast<b2DistanceJoint*>(m_joint);
     }
+
+    //////////////////////////////////////////////
+
+    std::pair<float, float> RopeJoint2D::getDamping() const
+    {
+        return std::make_pair(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
+    }
+
+    //////////////////////////////////////////////
 
     RopeJoint2D& RopeJoint2D::setDamping(const float frequency, const float damping)
     {
-        JOP_ASSERT(m_type == b2JointType::e_distanceJoint, "Softness of a soft RopeJoint2D can not be changed.");
-        JOP_ASSERT(frequency >= 0.f, "RopeJoint2D damping frequency can not be negative!");
-        JOP_ASSERT(damping >= 0.f, "RopeJoint2D damping ratio can not be negative!");
-
-        auto j = static_cast<b2DistanceJoint*>(m_joint);
-        j->SetFrequency(frequency);
-        j->SetDampingRatio(damping);
-
+        m_jointL->SetFrequency(frequency);
+        m_jointL->SetDampingRatio(damping);
         return *this;
     }
 }

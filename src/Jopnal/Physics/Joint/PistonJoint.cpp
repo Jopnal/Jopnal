@@ -52,37 +52,21 @@ namespace jop
         m_jointL = static_cast<btSliderConstraint*>(m_joint.get());
     }
 
-    PistonJoint& PistonJoint::enableAngMotor(const bool enable)
-    {
-        m_jointL->setPoweredAngMotor(enable);
-        return *this;
-    }
-
-    PistonJoint& PistonJoint::enableMoveMotor(const bool enable)
-    {
-        m_jointL->setPoweredLinMotor(enable);
-        return *this;
-    }
+    //////////////////////////////////////////////
 
     std::pair<float, float> PistonJoint::getAngLimits() const
     {
         return std::make_pair(m_jointL->getLowerAngLimit(), m_jointL->getUpperAngLimit());
     }
 
-    std::pair<float, float> PistonJoint::getAngMotorForces() const
-    {
-        return std::make_pair(m_jointL->getTargetAngMotorVelocity(), m_jointL->getMaxAngMotorForce());
-    }
+    //////////////////////////////////////////////
 
     std::pair<float, float> PistonJoint::getMoveLimits() const
     {
         return std::make_pair(m_jointL->getLowerLinLimit(), m_jointL->getUpperLinLimit());
     }
 
-    std::pair<float, float> PistonJoint::getMoveMotorForces() const
-    {
-        return std::make_pair(m_jointL->getTargetLinMotorVelocity(), m_jointL->getMaxLinMotorForce());
-    }
+    //////////////////////////////////////////////
 
     PistonJoint& PistonJoint::setAngLimits(const float min, const float max)
     {
@@ -91,12 +75,7 @@ namespace jop
         return *this;
     }
 
-    PistonJoint& PistonJoint::setAngMotorForces(const float speed, const float force)
-    {
-        m_jointL->setTargetAngMotorVelocity(speed);
-        m_jointL->setMaxAngMotorForce(force);
-        return *this;
-    }
+    //////////////////////////////////////////////
 
     PistonJoint& PistonJoint::setMoveLimits(const float min, const float max)
     {
@@ -104,6 +83,47 @@ namespace jop
         m_jointL->setUpperLinLimit(max);
         return *this;
     }
+
+    //////////////////////////////////////////////
+
+    PistonJoint& PistonJoint::enableAngMotor(const bool enable)
+    {
+        m_jointL->setPoweredAngMotor(enable);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    PistonJoint& PistonJoint::enableMoveMotor(const bool enable)
+    {
+        m_jointL->setPoweredLinMotor(enable);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    std::pair<float, float> PistonJoint::getAngMotorForces() const
+    {
+        return std::make_pair(m_jointL->getTargetAngMotorVelocity(), m_jointL->getMaxAngMotorForce());
+    }
+
+    //////////////////////////////////////////////
+
+    std::pair<float, float> PistonJoint::getMoveMotorForces() const
+    {
+        return std::make_pair(m_jointL->getTargetLinMotorVelocity(), m_jointL->getMaxLinMotorForce());
+    }
+
+    //////////////////////////////////////////////
+
+    PistonJoint& PistonJoint::setAngMotorForces(const float speed, const float force)
+    {
+        m_jointL->setTargetAngMotorVelocity(speed);
+        m_jointL->setMaxAngMotorForce(force);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
 
     PistonJoint& PistonJoint::setMoveMotorForces(const float speed, const float force)
     {
