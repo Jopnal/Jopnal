@@ -603,7 +603,7 @@ void main()
     #endif
 
     #ifdef JMAT_LIGHTING
-        * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a + u_Material.emission.a
+        * u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a
     #else
         * u_Emission.a
     #endif

@@ -120,8 +120,6 @@ T& ResourceManager::get(Args&&... args)
 template<typename T, typename ... Args> 
 T& ResourceManager::getNamed(const std::string& name, Args&&... args)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
     if (exists<T>(name))
         return getExisting<T>(name);
 
@@ -136,10 +134,15 @@ T& ResourceManager::getNamed(const std::string& name, Args&&... args)
         if (res->load(std::forward<Args>(args)...))
         {
             T& ptr = *res;
-            m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
 
-            if (m_instance->m_loadPhase.load())
-                m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+            {
+                std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+                m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
+
+                if (m_instance->m_loadPhase.load())
+                    m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
+            }
 
             JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") loaded, took " << clk.getElapsedTime().asSeconds() << "s");
 
@@ -155,8 +158,6 @@ T& ResourceManager::getNamed(const std::string& name, Args&&... args)
 template<typename T, typename ... Args>
 T& ResourceManager::getEmpty(Args&&... args)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
     const std::string name = detail::getStringArg(args...);
 
     if (exists<T>(name))
@@ -166,7 +167,12 @@ T& ResourceManager::getEmpty(Args&&... args)
     {
         auto res = std::make_unique<T>(args...);
         T& ptr = *res;
-        m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
+
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+            m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
+        }
 
         JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") created");
 
@@ -177,10 +183,10 @@ T& ResourceManager::getEmpty(Args&&... args)
 template<typename T>
 T& ResourceManager::getExisting(const std::string& name)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
     if (exists<T>(name))
     {
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
         if (m_instance->m_loadPhase.load())
             m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
 
@@ -207,8 +213,6 @@ bool ResourceManager::exists(const std::string& name)
 template<typename T>
 T& ResourceManager::copy(const std::string& name, const std::string& newName)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
     if (exists<T>(name))
     {
     #if JOP_CONSOLE_VERBOSITY >= 3
@@ -220,7 +224,11 @@ T& ResourceManager::copy(const std::string& name, const std::string& newName)
         auto res = std::make_unique<T>(oldRes, newName);
         T& ptr = *res;
 
-        m_instance->m_resources[std::make_pair(newName, std::type_index(typeid(T)))] = std::move(res);
+        {
+            std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+            m_instance->m_resources[std::make_pair(newName, std::type_index(typeid(T)))] = std::move(res);
+        }
 
         JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") copied, took " << clk.getElapsedTime().asSeconds() << "s");
 
@@ -237,18 +245,20 @@ T& ResourceManager::copy(const std::string& name, const std::string& newName)
 template<typename T>
 void ResourceManager::unload(const std::string& name)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
     detail::basicErrorCheck<T>(m_instance);
 
     auto& res = m_instance->m_resources;
 
-    auto itr = res.find(std::make_pair(name, std::type_index(typeid(T))));
-
-    if (itr != res.end() && itr->second->getPersistence())
     {
-        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
-        res.erase(itr);
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
+
+        auto itr = res.find(std::make_pair(name, std::type_index(typeid(T))));
+
+        if (itr != res.end() && itr->second->getPersistence())
+        {
+            JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
+            res.erase(itr);
+        }
     }
 }
 

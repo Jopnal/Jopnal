@@ -98,7 +98,7 @@ namespace jop
 
     void DefaultPrePass::draw()
     {
-        if (!isActive())
+        if (!isActive() || m_drawables.empty())
             return;
 
         const auto& rend = getRenderer();
@@ -120,23 +120,66 @@ namespace jop
 
             cam->applyViewport(target);
 
+            // 0 - Opaque
+            // 1 - Translucent
+            // 2 - Skybox & skysphere
+            //
+            std::vector<const Drawable*> sorted[3];
+            sorted[0].reserve(m_drawables.size());
+
             for (auto d : m_drawables)
             {
-                if (d->hasFlag(Drawable::ReceiveLights))
-                {
-                    LightContainer lightCont;
+                if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask))
+                    continue;
 
-                    for (auto l : lights)
-                        lightCont[l->getType()].push_back(l);
-                    
-                    d->draw(projInfo, lightCont);
-                }
-                else
-                {
-                    static const LightContainer dummyLightCont;
-                    d->draw(projInfo, dummyLightCont);
-                }
+                static const uint64 skyAttrib = Drawable::Attribute::__SkyBox | Drawable::Attribute::__SkySphere;
+
+                sorted[std::min(2, /* has transparency? */ 0 + d->hasAttribute(skyAttrib) * 2)].push_back(d);
             }
+
+            std::sort(sorted[0].begin(), sorted[0].end(), [&projInfo](const Drawable* left, const Drawable* right) -> bool
+            {
+                return glm::distance2(left->getObject()->getGlobalPosition(), projInfo.cameraPosition) <
+                       glm::distance2(right->getObject()->getGlobalPosition(), projInfo.cameraPosition);
+            });
+
+            std::sort(sorted[1].begin(), sorted[1].end(), [&projInfo](const Drawable* left, const Drawable* right) -> bool
+            {
+                return glm::distance2(left->getObject()->getGlobalPosition(), projInfo.cameraPosition) >
+                       glm::distance2(right->getObject()->getGlobalPosition(), projInfo.cameraPosition);
+            });
+
+            auto drawSet = [&projInfo, &lights](const std::vector<const Drawable*>& set) -> void
+            {
+                for (auto d : set)
+                {
+                    if (d->hasFlag(Drawable::ReceiveLights))
+                    {
+                        LightContainer lightCont;
+
+                        for (auto l : lights)
+                            lightCont[l->getType()].push_back(l);
+
+                        d->draw(projInfo, lightCont);
+                    }
+                    else
+                    {
+                        static const LightContainer dummyLightCont;
+                        d->draw(projInfo, dummyLightCont);
+                    }
+                }
+            };
+
+            GlState::setDepthTest(true);
+            GlState::setBlendFunc(false);
+            drawSet(sorted[0]);
+
+            GlState::setBlendFunc(true);
+            drawSet(sorted[2]);
+
+            GlState::setDepthWrite(false);
+            drawSet(sorted[1]);
+            GlState::setDepthWrite(true);
         }
     }
 
@@ -152,24 +195,72 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    DefaultPostPass::DefaultPostPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
-        : RenderPass(renderer, target, pass, weight)
+    DefaultPostPass::DefaultPostPass(Renderer& renderer, const RenderTarget&, const Pass pass, const uint32 weight)
+        : RenderPass(renderer, Engine::getMainWindow(), pass, weight)
     {}
 
     void DefaultPostPass::draw()
     {
-        if (!isActive())
+        if (!isActive() || m_drawables.empty())
             return;
+
+        const auto& rend = getRenderer();
+
+        const auto& target = m_target;
+        const auto& cameras = rend.getCameras();
+        const auto& lights = rend.getLights();
+
+        for (auto cam : cameras)
+        {
+            const auto camMask = cam->getRenderMask();
+            if (!cam->isActive() || !cam->getRenderMask())
+                continue;
+
+            const Drawable::ProjectionInfo projInfo(cam->getViewMatrix(), cam->getProjectionMatrix(), cam->getObject()->getGlobalPosition());
+
+            if (!cam->getRenderTexture().bind())
+                target.bind();
+
+            cam->applyViewport(target);
+
+            for (auto d : m_drawables)
+            {
+                if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask))
+                    continue;
+
+                if (d->hasFlag(Drawable::ReceiveLights))
+                {
+                    LightContainer lightCont;
+
+                    for (auto l : lights)
+                        lightCont[l->getType()].push_back(l);
+
+                    d->draw(projInfo, lightCont);
+                }
+                else
+                {
+                    static const LightContainer dummyLightCont;
+                    d->draw(projInfo, dummyLightCont);
+                }
+            }
+        }
     }
 
     void DefaultPostPass::bind(const Drawable* drawable)
     {
-        
+        m_drawables.push_back(drawable);
     }
 
     void DefaultPostPass::unbind(const Drawable* drawable)
     {
-        
+        for (auto itr = m_drawables.begin(); itr != m_drawables.end(); ++itr)
+        {
+            if (*itr == drawable)
+            {
+                m_drawables.erase(itr);
+                return;
+            }
+        }
     }
 
 

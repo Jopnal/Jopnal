@@ -81,21 +81,20 @@ namespace jop
     {
         JOP_ASSERT(m_instance != nullptr, "Couldn't load shader, no ShaderAssembler instance!");
 
-        std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);
-
         auto& cont = m_instance->m_shaders;
 
         const std::size_t combinedAttribs = combinedHash(materialAttribs, drawableAttribs);
 
-        auto itr = cont.find(combinedAttribs);
-        if (itr != cont.end() && !itr->second.expired())
-            return *itr->second;
+        {
+            std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);
+
+            auto itr = cont.find(combinedAttribs);
+            if (itr != cont.end() && !itr->second.expired())
+                return *itr->second;
+        }
 
         const auto& uber = m_instance->m_uber;
         const std::string shaderName = "jop_shader_" + std::to_string(combinedAttribs);
-
-        if (ResourceManager::exists<ShaderProgram>(shaderName))
-            return ResourceManager::getExisting<ShaderProgram>(shaderName);
 
         std::string pp;
         Material::getShaderPreprocessorDef(materialAttribs, pp);
@@ -107,7 +106,11 @@ namespace jop
         {
             s->setShouldSerialize(false);
 
-            cont[combinedAttribs] = static_ref_cast<ShaderProgram>(s->getReference());
+            {
+                std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);
+
+                cont[combinedAttribs] = static_ref_cast<ShaderProgram>(s->getReference());
+            }
 
             // Needed so that different samplers don't all point to zero
             if ((materialAttribs & Material::Attribute::__Lighting) != 0)
@@ -230,9 +233,9 @@ namespace jop
         if (!m_instance)
             return;
 
-        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
-
         std::unordered_set<const char*> dupeSet;
+
+        std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
         preprocess(input, output, false, dupeSet);
     }

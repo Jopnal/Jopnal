@@ -129,22 +129,25 @@ namespace jop
         {
             auto& inst = *m_instance;
 
-            std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
-
             std::size_t count = 0;
-            for (auto itr = inst.m_resources.begin(); itr != inst.m_resources.end();)
             {
-                if (inst.m_loadPhaseResources.find(itr->first) == inst.m_loadPhaseResources.end() && itr->second->getPersistence() >= persistence)
+                std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
+
+                for (auto itr = inst.m_resources.begin(); itr != inst.m_resources.end();)
                 {
-                    itr = inst.m_resources.erase(itr);
-                    ++count;
-                    continue;
+                    if (inst.m_loadPhaseResources.find(itr->first) == inst.m_loadPhaseResources.end() && itr->second->getPersistence() >= persistence)
+                    {
+                        itr = inst.m_resources.erase(itr);
+                        ++count;
+                        continue;
+                    }
+
+                    ++itr;
                 }
 
-                ++itr;
+                inst.m_loadPhaseResources.clear();
             }
 
-            inst.m_loadPhaseResources.clear();
             inst.m_loadPhase.store(false);
 
             JOP_DEBUG_INFO("Resource load phase ended, " << count << " resources removed");

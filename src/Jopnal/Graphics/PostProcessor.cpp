@@ -106,14 +106,15 @@ namespace jop
         m_instance = this;
 
         m_quad->load(2.f, glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f));
+        m_quad->setPersistence(0);
 
         static const unsigned char pattern[] = 
         {
-            0,  32, 8,  40, 2,  34, 10, 42,   
+            0,  32, 8,  40, 2,  34, 10, 42,
             48, 16, 56, 24, 50, 18, 58, 26,
-            12, 44, 4,  36, 14, 46, 6,  38,  
+            12, 44, 4,  36, 14, 46, 6,  38,
             60, 28, 52, 20, 62, 30, 54, 22,
-            3,  35, 11, 43, 1,  33, 9,  41,   
+            3,  35, 11, 43, 1,  33, 9,  41,
             51, 19, 59, 27, 49, 17, 57, 25,
             15, 47, 7,  39, 13, 45, 5,  37,
             63, 31, 55, 23, 61, 29, 53, 21
@@ -500,8 +501,10 @@ namespace jop
     #ifdef JOP_ENABLE_BLOOM
 
     #ifdef JOP_OPENGL_ES
+
         if (jop::gl::getVersionMajor() < 3)
             return;
+
     #endif
 
         using CAS = RenderTexture::ColorAttachmentSlot;
@@ -516,7 +519,9 @@ namespace jop
                 glm::uvec2 size(glm::uvec2((16 << m_bloomTextures.size()) >> i));
                 size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
 
-                j.addColorAttachment(CAS::_1, CA::RGB2D, size);
+                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::isES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
+
+                j.addColorAttachment(CAS::_1, hdr ? CA::RGB2DFloat16 : CA::RGB2D, size);
                 j.getColorTexture(CAS::_1)->setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
             }
         }

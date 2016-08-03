@@ -143,9 +143,9 @@ namespace detail
                 if (!shdr->isValid())
                 {
                     Shader vertex("");
-                    vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex, true);
+                    vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex);
                     Shader frag("");
-                    frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment, true);
+                    frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment);
 
                     JOP_ASSERT_EVAL(shdr->load("", vertex, frag), "Failed to compile physics debug shader!");
                 }
@@ -154,14 +154,14 @@ namespace detail
             // Draw lines
             if (!m_lines.empty())
             {
-                GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-
                 m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
                 shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
-                glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(0)));
-                glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3))));
+                GlState::setVertexAttribute(true, 0);
+                GlState::setVertexAttribute(true, 5);
+                glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), 0));
+                glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), (void*)sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
@@ -169,13 +169,11 @@ namespace detail
             }
 
             // Draw points
-            if (m_points.empty())
+            if (!m_points.empty())
             {
             #ifndef JOP_OPENGL_ES
                 glCheck(glPointSize(3));
             #endif
-
-                GlState::setDepthTest(true, GlState::DepthFunc::Always);
 
                 m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
@@ -183,8 +181,6 @@ namespace detail
 
                 m_points.clear();
             }
-
-            GlState::setDepthTest(true);
         }
     };
 }
@@ -308,7 +304,7 @@ namespace jop
     //////////////////////////////////////////////
 
     World::World(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, RenderPass::Pass::BeforePost),
+        : Drawable          (obj, renderer, RenderPass::Pass::AfterPost),
           m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
           m_ghostCallback   (std::make_unique<detail::GhostCallback>()),
           m_contactListener (std::make_unique<detail::ContactListenerImpl>()),

@@ -168,12 +168,12 @@ namespace jop
                 // Draw lines
                 if (!m_lines.empty())
                 {
-                    GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-
                     m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
                     shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
+                    GlState::setVertexAttribute(true, 0);
+                    GlState::setVertexAttribute(true, 5);
                     glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(0)));
                     glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), reinterpret_cast<void*>(sizeof(btVector3))));
 
@@ -183,13 +183,11 @@ namespace jop
                 }
 
                 // Draw points
-                if (m_points.empty())
+                if (!m_points.empty())
                 {
-#ifndef JOP_OPENGL_ES
+                #ifndef JOP_OPENGL_ES
                     glCheck(glPointSize(3));
-#endif
-
-                    GlState::setDepthTest(true, GlState::DepthFunc::Always);
+                #endif
 
                     m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
@@ -197,8 +195,6 @@ namespace jop
 
                     m_points.clear();
                 }
-
-                GlState::setDepthTest(true);
             }
         };
 
@@ -212,21 +208,18 @@ namespace jop
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
 
                 for (auto& i : a->m_listeners)
-                {
                     i->beginContact(*b, ci);
-                }
             }
 
             void EndContact(b2Contact* contact) override
             {
                 ContactInfo2D ci(glm::vec2(contact->GetManifold()->localPoint.x, contact->GetManifold()->localPoint.y), glm::vec2(contact->GetManifold()->localNormal.x, contact->GetManifold()->localNormal.y));
+
                 auto a = static_cast<Collider2D*>(contact->GetFixtureA()->GetBody()->GetUserData());
                 auto b = static_cast<Collider2D*>(contact->GetFixtureB()->GetBody()->GetUserData());
 
                 for (auto& i : a->m_listeners)
-                {
                     i->endContact(*b);
-                }
             }
         };
     }
@@ -234,11 +227,11 @@ namespace jop
     //////////////////////////////////////////////
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
-          m_contactListener(std::make_unique<detail::ContactListener2DImpl>()),
-        m_worldData2D(std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
-        m_step(0.f),
-        m_dd(std::make_unique<detail::DebugDraw>())
+        : Drawable          (obj, renderer, RenderPass::Pass::BeforePost),
+          m_contactListener (std::make_unique<detail::ContactListener2DImpl>()),
+          m_worldData2D     (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
+          m_step            (0.f),
+          m_dd              (std::make_unique<detail::DebugDraw>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 

@@ -170,7 +170,6 @@ namespace jop
 
         m_worldRef.m_worldData->world->contactPairTest(m_body.get(), other.m_body.get(), cb);
         
-        
         return cb.hit;
     }
 
@@ -223,15 +222,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-
     void Collider::registerListener(ContactListener& listener)
     {
         if (listener.m_collider != this)
         {
             if (listener.m_collider)
-            {
                 listener.m_collider->m_listeners.erase(&listener);
-            }
+
             // Replace old collider with this
             listener.m_collider = this;
 

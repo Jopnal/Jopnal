@@ -10,7 +10,7 @@ extern const unsigned char defaultFont[10280];
 
 extern const unsigned char defaultSound[158848];
 
-extern const unsigned char defaultTexture[195];
+extern const unsigned char defaultTexture[194];
 
 extern const unsigned char errorTexture[92086];
 
@@ -18,7 +18,7 @@ extern const unsigned char defaultShaderFrag[266];
 
 extern const unsigned char defaultShaderVert[466];
 
-extern const unsigned char defaultUberShaderFrag[17766];
+extern const unsigned char defaultUberShaderFrag[17742];
 
 extern const unsigned char defaultUberShaderVert[2662];
 

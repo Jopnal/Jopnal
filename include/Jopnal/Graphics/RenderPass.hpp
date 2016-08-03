@@ -120,7 +120,7 @@ namespace jop
 
     private:
 
-
+        std::vector<const Drawable*> m_drawables;
     };
 
     namespace detail

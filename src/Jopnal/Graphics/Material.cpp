@@ -219,11 +219,11 @@ namespace jop
 
     Material& Material::setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission)
     {
-        m_reflection[0] = ambient;
         m_reflection[1] = diffuse;
         m_reflection[2] = specular;
+        m_reflection[3] = emission;
 
-        return setReflection(Reflection::Emission, emission);
+        return setReflection(Reflection::Ambient, ambient);
     }
 
     //////////////////////////////////////////////
