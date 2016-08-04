@@ -77,7 +77,6 @@ namespace jop
         ///
         virtual void draw();
 
-
         /// \brief Function to handle messages
         ///
         /// \param message The message
@@ -85,7 +84,6 @@ namespace jop
         /// \return The message result
         ///
         Message::Result sendMessage(const Message& message);
-
 
         /// \brief Set this sub system active
         ///
@@ -98,7 +96,6 @@ namespace jop
         /// \return True if active
         ///
         bool isActive() const;
-
 
         /// \brief Get the ID
         ///

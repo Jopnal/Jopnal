@@ -399,7 +399,7 @@ namespace jop { namespace detail
 
     int32_t motion(AInputEvent* event)
     {
-        auto& windowRef = &Engine::getCurrentWindow();
+        auto& windowRef = &Engine::getMainWindow();
 
         const int32_t device = AInputEvent_getSource(event);
 
@@ -523,7 +523,7 @@ namespace jop { namespace detail
 
     int32_t scroll(AInputEvent* event)
     {
-        auto& windowRef = &Engine::getCurrentWindow();
+        auto& windowRef = &Engine::getMainWindow();
 
         const int32_t device = AInputEvent_getSource(event);
 
@@ -546,7 +546,7 @@ namespace jop { namespace detail
 
     int32_t touch(bool down, int32_t action, AInputEvent* event)
     {
-        auto& windowRef = Engine::getCurrentWindow();
+        auto& windowRef = Engine::getMainWindow();
 
         const int32_t device = AInputEvent_getSource(event);
 
@@ -606,7 +606,7 @@ namespace jop { namespace detail
 
         int32_t device = AInputEvent_getSource(event);
 
-        auto& windowRef = &Engine::getCurrentWindow();
+        auto& windowRef = &Engine::getMainWindow();
 
         switch (action)
         {
@@ -721,7 +721,7 @@ namespace jop { namespace detail
         jmethodID MethodGetUnicode = env->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
         const unsigned int utf = env->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
 
-        Engine::getCurrentWindow().getEventHandler()->textEntered(utf);
+        Engine::getMainWindow().getEventHandler()->textEntered(utf);
 
         env->DeleteLocalRef(ClassKeyEvent);
         env->DeleteLocalRef(ObjectKeyEvent);

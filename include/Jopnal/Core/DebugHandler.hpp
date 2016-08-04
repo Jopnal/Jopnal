@@ -91,8 +91,6 @@ namespace jop
 
         friend class detail::FileSystemInitializer;
 
-        /// Private constructor since this is a singleton class
-        ///
         DebugHandler();
 
     public:
@@ -101,10 +99,10 @@ namespace jop
         ///
         enum class Severity
         {
-            Error,
-            Warning,
-            Info,
-            Diagnostic,
+            Error,      ///< Error severity (0)
+            Warning,    ///< Warning severity (1)
+            Info,       ///< Info severity (2)
+            Diagnostic, ///< Diagnostic severity (3)
 
             __Always
         };
@@ -116,7 +114,6 @@ namespace jop
         /// \return Reference to the instance
         ///
         static DebugHandler& getInstance();
-
 
         /// \brief Check if the console is enabled
         ///
@@ -150,11 +147,17 @@ namespace jop
 
         /// \brief Set debugger logger attachment
         ///
+        /// When debugger output is enabled, all debug messages will be forwarded
+        /// to the debugger console, e.g. the Visual Studio output window.
+        ///
         /// \param set True to enable debugger output
         ///
         void setDebuggerOutput(const bool set);
 
         /// \brief Enable/disable file logging
+        ///
+        /// When file logging is enabled, text files will be created for all severity
+        /// levels separately in the user directory.
         ///
         /// \param set True to enable
         ///
@@ -166,11 +169,15 @@ namespace jop
         ///
         bool fileLoggingEnabled() const;
 
-
+        /// \brief Get the debug handler mutex
+        ///
+        /// You need to use this only if you're not using the pre-defined debug macros.
+        ///
+        /// \return Reference to the internal mutex
+        ///
         std::recursive_mutex& getMutex();
 
-
-        /// \brief Operator for setting the severity level for the next text object
+        /// \brief Operator for setting the severity level for the next output string
         ///
         /// \param severity The severity level
         ///
@@ -186,7 +193,7 @@ namespace jop
 
         /// \brief An operator for inputting data into the stream
         ///
-        /// \param data The data to be output
+        /// \param data The data to be inserted
         ///
         /// \return Reference to self
         ///
@@ -217,7 +224,30 @@ namespace jop
 
 #endif
 
-/// \class DebugHandler
-/// \ingroup core
+/// \def JOP_DEBUG_ERROR(stream)
+/// \brief Print an error debug message
 ///
-/// 
+/// The debug message macros utilize the same operators as a standard ostringstream.
+///
+/// \code C++
+/// glm::vec2 vec(0.f);
+/// JOP_DEBUG_ERROR("Values: " << vec.x << ", " << vec.y);
+/// \endcode
+
+/// \def JOP_DEBUG_WARNING(stream)
+/// \brief Print a warning debug message
+///
+/// \copydetails JOP_DEBUG_ERROR(stream)
+
+/// \def JOP_DEBUG_INFO(stream)
+/// \brief Print an info debug message
+///
+/// \copydetails JOP_DEBUG_ERROR(stream)
+
+/// \def JOP_DEBUG_DIAG(stream)
+/// \brief Print a diagnostic debug message
+///
+/// \copydetails JOP_DEBUG_ERROR(stream)
+
+/// \class jop::DebugHandler
+/// \ingroup core

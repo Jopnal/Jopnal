@@ -331,14 +331,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Window& Engine::getCurrentWindow()
-    {
-        JOP_ASSERT(hasCurrentWindow(), "Tried to get the current window when it didn't exist!");
-        return *m_engineObject->m_mainWindow;
-    }
-
-    //////////////////////////////////////////////
-
     bool Engine::exiting()
     {
         return (m_engineObject == nullptr ? true : m_engineObject->m_exit.load());
@@ -465,16 +457,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Engine::hasCurrentWindow()
-    {
-        if (m_engineObject)
-            return m_engineObject->m_mainWindow != nullptr;
-
-        return false;
-    }
-
-    //////////////////////////////////////////////
-
     void Engine::advanceFrame()
     {
         if (!exiting())
@@ -506,7 +488,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const RenderTarget& Engine::getMainRenderTarget()
+    RenderTarget& Engine::getMainRenderTarget()
     {
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 
@@ -515,11 +497,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Window& Engine::getMainWindow()
+    Window& Engine::getMainWindow()
     {
-        JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainWindow != nullptr, "Tried to get the main window ehn it didn't exist!");
+        JOP_ASSERT(m_engineObject != nullptr && hasMainWindow(), "Tried to get the main window ehn it didn't exist!");
 
         return *m_engineObject->m_mainWindow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::hasMainWindow()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_mainWindow != nullptr;
+
+        return false;
     }
 
     //////////////////////////////////////////////

@@ -70,7 +70,6 @@ namespace jop
         ///
         const std::string& getName() const;
 
-
         /// \brief Set the persistence level
         ///
         /// \param level The persistence level
@@ -92,7 +91,7 @@ namespace jop
 
 #endif
 
-/// \class Resource
+/// \class jop::Resource
 /// \ingroup core
 ///
-/// This is the base class for all resources that are loaded from files
+/// This is the base class for all resources.

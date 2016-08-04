@@ -460,7 +460,7 @@ namespace jop
 
         bool findChildLoose(const std::string& childID, const std::string& findID)
         {
-            return childID.find(findID) != std::string::npos;
+            return findID.empty() || childID.find(findID) != std::string::npos;
         }
     }
 
@@ -484,7 +484,6 @@ namespace jop
 
         return WeakReference<Object>();
     }
-
 
     /////////////////////////////////////////////
 
@@ -696,7 +695,14 @@ namespace jop
     Object& Object::setID(const std::string& ID)
     {
         m_ID = ID;
-        std::replace(m_ID.begin(), m_ID.end(), '>', '-');
+
+    #ifdef JOP_DEBUG_MODE   
+    
+        if (ID.find('>') != std::string::npos)
+            JOP_DEBUG_WARNING_ONCE("Forbidden character '>' found in object ID \"" << ID << "\". Object searches might not work correctly");
+
+    #endif
+
         return *this;
     }
 

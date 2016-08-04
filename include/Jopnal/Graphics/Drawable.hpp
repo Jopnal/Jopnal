@@ -69,6 +69,8 @@ namespace jop
 
         struct JOP_API ProjectionInfo
         {
+            JOP_DISALLOW_COPY_MOVE(ProjectionInfo);
+
             ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
 
             const glm::mat4& viewMatrix;

@@ -322,7 +322,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int64 FileLoader::tell()
+    int64 FileLoader::tell() const
     {
         if (isValid())
         {
@@ -341,7 +341,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    int64 FileLoader::getSize()
+    int64 FileLoader::getSize() const
     {
         if (isValid())
         {

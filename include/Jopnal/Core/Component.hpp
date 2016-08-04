@@ -66,6 +66,11 @@ namespace jop
 
         /// \brief Copy constructor
         ///
+        /// This copy constructor differs in signature from the standard. Cloned components
+        /// often need to know their objects during construction, and thus needs to be
+        /// passed in here. Your own components' copy constructors should be defined
+        /// the same way. See clone(Object&).
+        ///
         /// \param other The other component to be copied
         /// \param newObj The new object
         ///
@@ -78,15 +83,7 @@ namespace jop
         virtual ~Component() = 0;
 
 
-        /// \brief Function to handle messages
-        ///
-        /// \param message String holding the message
-        ///
-        /// \return Message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Function to handle messages
+        /// \brief Send a message to this component
         ///
         /// \param message The message
         ///
@@ -94,7 +91,7 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-        /// \brief Update function for component
+        /// \brief Update function
         ///
         /// \param deltaTime The delta time
         ///
@@ -102,7 +99,7 @@ namespace jop
 
         /// \brief Get the identifier
         ///
-        /// \return Reference to the identifier
+        /// \return The identifier
         ///
         uint32 getID() const;
 
@@ -120,7 +117,7 @@ namespace jop
         ///
         WeakReference<Object> getObject();
 
-        /// \copydoc jop::Component::getObject()
+        /// \copydoc getObject()
         ///
         WeakReference<const Object> getObject() const;
 
@@ -152,6 +149,7 @@ namespace jop
         ///
         virtual Message::Result receiveMessage(const Message& message);
 
+    private:
 
         uint32 m_ID;                        ///< Identifier
         WeakReference<Object> m_objectRef;  ///< Reference to the object this component is bound to
@@ -162,5 +160,3 @@ namespace jop
 
 /// \class jop::Component
 /// \ingroup core
-///
-///

@@ -50,7 +50,7 @@ namespace
 	bool validateWindowRef()
 	{
 		if (!ns_windowRef)
-			ns_windowRef = &jop::Engine::getCurrentWindow();
+			ns_windowRef = &jop::Engine::getMainWindow();
 
 		return ns_windowRef != nullptr;
 	}

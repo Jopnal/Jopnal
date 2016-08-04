@@ -198,7 +198,6 @@ namespace jop
         ///
         unsigned int componentCount() const;
 
-
         /// \brief Create a new child
         ///
         /// \comm createChild
@@ -249,7 +248,6 @@ namespace jop
         /// \param newTransform New transform for the cloned child
         /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform::Variables& newTransform);
-
 
         /// \brief Remove children with the given id
         ///
@@ -340,7 +338,6 @@ namespace jop
         ///
         unsigned int childCountRecursive() const;
 
-
         /// \brief Get this object's parent
         ///
         /// If the result is empty, it means that this is a scene.
@@ -360,7 +357,6 @@ namespace jop
         /// \return Reference to this. The old reference will become invalid
         ///
         WeakReference<Object> setParent(Object& newParent);
-
 
         /// \brief Get the scene this objects is bound to
         ///
@@ -393,9 +389,11 @@ namespace jop
         ///
         WeakReference<Object> findChild(const std::string& ID, const bool recursive = false, const bool strict = true) const;
 
-        /// \brief Function to find all child objects 
+        /// \brief Function to find all child objects
+        ///
+        /// When ID is empty and strict is false, all children will be returned.
         /// 
-        /// \param ID Unique object identifier
+        /// \param ID Object identifier
         /// \param recursive Tells if search is recursive
         /// \param strict Tells if search is strict, meaning the ID has to match exactly
         ///
@@ -444,7 +442,6 @@ namespace jop
         ///
         bool isActive() const;
 
-
         /// \brief Get this object's id
         ///
         /// \return Reference to the internal id string
@@ -454,8 +451,7 @@ namespace jop
         /// \brief Set the identifier
         ///
         /// The character '>' in an object identifier is
-        /// forbidden. These characters, if found, will be replaced
-        /// with '-'.
+        /// forbidden.
         ///
         /// \param ID Object identifier
         ///
@@ -464,7 +460,6 @@ namespace jop
         /// \comm setID
         /// 
         Object& setID(const std::string& ID);
-
 
         /// \brief Add a tag
         ///
@@ -502,7 +497,6 @@ namespace jop
         ///
         bool hasTag(const std::string& tag) const;
 
-
         /// \brief Update method for object
         ///
         /// This is for internal use.
@@ -511,13 +505,11 @@ namespace jop
         ///
         void update(const float deltaTime);
 
-
         /// \brief Print the tree of objects into the console, this as root
         ///
         /// \param spacing For internal use, leave this as the default
         ///
         void printDebugTree() const;
-
 
         ////////////////////////////////////////////////////////////////////////////////
         // Transformations
@@ -537,7 +529,6 @@ namespace jop
         ///
         const Transform& getInverseTransform() const;
 
-
         /// \brief Get the local transformation variables
         ///
         /// \return Reference to the internal variables
@@ -549,7 +540,6 @@ namespace jop
         /// \return Reference to the internal variables
         ///
         const Transform::Variables& getGlobalTransformVars() const;
-
 
         /// \brief Set the rotation
         ///
@@ -600,7 +590,6 @@ namespace jop
         ///
         const glm::quat& getGlobalRotation() const;
 
-
         /// \brief Get the global front vector
         ///
         /// \return The global front vector
@@ -636,7 +625,6 @@ namespace jop
         /// \return The local up vector
         ///
         glm::vec3 getLocalUp() const;
-
 
         /// \brief Set the scale
         ///
@@ -680,7 +668,6 @@ namespace jop
         ///
         const glm::vec3& getGlobalScale() const;
 
-
         /// \brief Set the position
         ///
         /// \param x The X component
@@ -710,7 +697,6 @@ namespace jop
         /// \return The global position
         ///
         const glm::vec3& getGlobalPosition() const;
-
 
         /// \brief Set this transform to look at a certain point
         ///
@@ -744,7 +730,6 @@ namespace jop
         ///
         Object& lookAt(const float x, const float y, const float z);
 
-
         /// \brief Move this object
         ///
         /// \param x The X component
@@ -762,7 +747,6 @@ namespace jop
         /// \return Reference to self
         ///
         Object& move(const glm::vec3& offset);
-
 
         /// \brief Rotate this object
         ///
@@ -795,7 +779,6 @@ namespace jop
         ///
         Object& rotate(const float angle, const glm::vec3& axis);
 
-
         /// \brief Scale this object
         ///
         /// \param x The X component
@@ -824,7 +807,6 @@ namespace jop
         ///
         Object& scale(const float delta);
 
-
         /// \brief Set this node to ignore its parent
         ///
         /// Nodes that ignore their parent will not take
@@ -841,7 +823,6 @@ namespace jop
         /// \return True if ignores parent
         ///
         bool ignoresParent() const;
-
 
         /// \brief Set transform restriction flags
         ///
@@ -904,5 +885,5 @@ namespace jop
 
 #endif
 
-/// \class Object 
-/// \ingroup graphics
+/// \class jop::Object 
+/// \ingroup core
