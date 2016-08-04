@@ -35,8 +35,13 @@ namespace jop
     class JOP_API RotationJoint2D : public Joint2D
     {
     public:
-        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
-    
+        /// \brief RotationJoint2D constructor
+        ///
+        /// \param localAnchorA Anchor point in the bodyA to start the connection from. Local coordinates: -1.f - +1.f. Default is center.
+        /// Anchor point for bodyB can not changed. It is at the center of bodyB.
+        ///
+        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& localAnchorA = glm::vec2(0.f, 0.f));
+
         /// \param enable Enables/disables obeying rotation limits.
         ///
         /// \return Returns reference to self.

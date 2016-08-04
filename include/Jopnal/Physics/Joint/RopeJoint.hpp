@@ -43,7 +43,16 @@ namespace jop
         /// \param collide Joined bodies collide with each other.
         ///
         RopeJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
-        
+
+        /// \brief Lock/Unlock specific rotation axis.
+        ///
+        /// \param lock True to lock. False to free.
+        /// \param axis Rotation axis to target. 0 = X, 1 = Y, 2 = Z.
+        ///
+        /// \return Returns reference to self.
+        ///
+        RopeJoint& lockAxis(const bool lock, const unsigned int axis);
+
     private:
         btGeneric6DofConstraint* m_jointL;
     };

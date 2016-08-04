@@ -42,15 +42,24 @@ namespace jop
     {
         btTransform ctwt = btTransform::getIdentity();
         ctwt.setOrigin(getBody(bodyA)->getWorldTransform().getOrigin());
-
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
 
         m_joint = std::make_unique<btGeneric6DofConstraint>(*getBody(bodyA), *getBody(bodyB), tInA, tInB, false);
         getWorld(worldRef).addConstraint(m_joint.get(), !collide);
         m_jointL = static_cast<btGeneric6DofConstraint*>(m_joint.get());
-
-       // for (unsigned int i = 0; i < 3; ++i)
-       //     m_jointL->setLimit(i, 1.f, 0.f);
     }
+
+    RopeJoint& RopeJoint::lockAxis(const bool lock, const unsigned int axis)
+    {
+        JOP_ASSERT(axis < 3u, "RopeJoint::lockAxis: Invalid axis value.");
+
+        if (lock)
+            m_jointL->setLimit(axis + 3u, 0.f, 0.f);
+        else
+            m_jointL->setLimit(axis + 3u, 1.f, 0.f);
+        return *this;
+    }
+
+
 }

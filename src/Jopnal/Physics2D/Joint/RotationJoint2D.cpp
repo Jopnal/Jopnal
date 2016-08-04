@@ -36,14 +36,14 @@
 namespace jop
 {
 
-    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
+    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& localAnchorA) :
         Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
-        b2DistanceJointDef jd;
-
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter());
+        jointDef.localAnchorA += b2Vec2(localAnchorA.x, localAnchorA.y);
+        //localAnchorB is always at the center of the body.
         jointDef.collideConnected = collide;
 
         m_joint = static_cast<b2RevoluteJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
