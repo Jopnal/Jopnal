@@ -22,10 +22,7 @@
 namespace detail
 {
     template<typename Last>
-    bool attach(ShaderProgram& program, const Last& currentShader)
-    {
-        return program.attachShader(currentShader);
-    }
+    bool attach(ShaderProgram& program, const Last& currentShader);
 
     template<typename First, typename ...Rest>
     bool attach(ShaderProgram& program, const First& first, const Rest&... rest)
@@ -56,7 +53,7 @@ namespace detail
 }
 
 template<typename... Args>
-bool jop::ShaderProgram::load(const std::string& pp,const Args&... shaders)
+bool ShaderProgram::load(const std::string& pp,const Args&... shaders)
 {
     return detail::attacher(*this, pp, shaders...);
 }

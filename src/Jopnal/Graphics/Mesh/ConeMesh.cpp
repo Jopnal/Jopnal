@@ -70,7 +70,7 @@ namespace jop
         float texCoord = dividedTexCoords ? 1.f - texMulti : 0.f;
 
         float width[2];
-        float depth[2] = { radius, radius };
+        float depth[2] = {radius, radius};
 
         const float alfa = glm::two_pi<float>() * radius / sectors / radius;
         width[1] = glm::sqrt((radius * radius + radius * radius) - (2.f * radius * radius * glm::cos(alfa)));
@@ -123,6 +123,8 @@ namespace jop
             *ind++ = 4 + (s * 6);
             *ind++ = 5 + (s * 6);
         }
+
+        updateBounds(glm::vec3(-radius, -half, -radius), glm::vec3(radius, half, radius));
 
         return Mesh::load(vertexArray, indices);
     }

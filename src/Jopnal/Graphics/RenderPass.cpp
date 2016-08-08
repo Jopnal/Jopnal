@@ -96,6 +96,8 @@ namespace jop
         : RenderPass(renderer, target, pass, weight)
     {}
 
+    //////////////////////////////////////////////
+
     void DefaultPrePass::draw()
     {
         if (!isActive() || m_drawables.empty())
@@ -183,6 +185,8 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
     void DefaultPrePass::bind(const Drawable* drawable)
     {
         m_drawables.insert(drawable);
@@ -198,6 +202,8 @@ namespace jop
     DefaultPostPass::DefaultPostPass(Renderer& renderer, const RenderTarget&, const Pass pass, const uint32 weight)
         : RenderPass(renderer, Engine::getMainWindow(), pass, weight)
     {}
+
+    //////////////////////////////////////////////
 
     void DefaultPostPass::draw()
     {
@@ -245,6 +251,8 @@ namespace jop
             }
         }
     }
+
+    //////////////////////////////////////////////
 
     void DefaultPostPass::bind(const Drawable* drawable)
     {

@@ -50,8 +50,11 @@ namespace jop
 
         /// \brief Load shaders
         ///
-        /// Attaches a variable number of shaders to shader program
-        /// NOTE: Can load some shaders as objects and others as source codes simultaneously
+        /// Attaches a variable number of shaders to shader program.
+        /// NOTE: Can load some shaders as objects and others as source codes simultaneously.
+        ///
+        /// Invalid shader objects or empty sources will be silently ignored and won't be used
+        /// in the final link operation.
         /// 
         /// \param pp Preprocessor string
         /// \param args Variable amount of shaders objects or shader sources

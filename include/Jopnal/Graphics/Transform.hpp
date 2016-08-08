@@ -93,6 +93,8 @@ namespace jop
         ///
         void translate(const glm::vec3& translation);
 
+        void transformBounds(glm::vec3& min, glm::vec3& max) const;
+
 
         /// \brief Multiply this transform by another
         ///

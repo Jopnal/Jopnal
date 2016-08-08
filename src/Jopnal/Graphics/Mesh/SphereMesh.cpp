@@ -113,6 +113,8 @@ namespace jop
             }
         }
 
+        updateBounds(glm::vec3(-radius), glm::vec3(radius));
+
         return Mesh::load(vertexArray, indices);
     }
 

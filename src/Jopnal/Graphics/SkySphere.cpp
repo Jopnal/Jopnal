@@ -79,7 +79,7 @@ namespace jop
             shdr.setUniform("u_PMatrix", proj.projectionMatrix);
             shdr.setUniform("u_VMatrix", proj.viewMatrix);
 
-            mat.sendToShader(shdr, proj.cameraPosition);
+            mat.sendToShader(shdr, &proj.cameraPosition);
         }
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);

@@ -35,8 +35,19 @@ namespace jop
 {
     namespace detail
     {
+        bool attach(ShaderProgram& program, const Shader& currentShader)
+        {
+            if (!currentShader.getHandle())
+                return true;
+
+            return program.attachShader(currentShader);
+        }
+
         bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source)
         {
+            if (source.empty())
+                return true;
+
             shaders.emplace_back(std::make_unique<Shader>(""));
             shaders.back()->addSource(pp.c_str());
             return shaders.back()->load(source, type, true) && program.attachShader(*shaders.back());

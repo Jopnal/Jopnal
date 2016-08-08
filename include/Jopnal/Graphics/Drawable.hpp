@@ -154,6 +154,10 @@ namespace jop
         ///
         const Model& getModel() const;
 
+        const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
+
+        const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
+
         Drawable& setFlags(const uint32 flags);
 
         bool hasFlag(const uint32 flag) const;
@@ -182,8 +186,10 @@ namespace jop
         Renderer& m_rendererRef;                ///< Reference to the renderer
         const RenderPass::Pass m_pass;
         uint32 m_flags;                         ///< Property flags
+        mutable std::pair<glm::vec3, glm::vec3> m_globalBounds;
         uint8 m_renderGroup;                    ///< The render group
         mutable bool m_updateShader;
+        mutable bool m_updateBounds;
     };
 }
 

@@ -63,42 +63,48 @@ namespace jop
     //////////////////////////////////////////////
 
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Component     (object, 0),
-          m_model       (Mesh::getDefault(), Material::getDefault()),
-          m_shader      (),
-          m_attributes  (0),
-          m_rendererRef (renderer),
-          m_pass        (pass),
-          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup (0),
-          m_updateShader(true)
+        : Component         (object, 0),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (renderer),
+          m_pass            (pass),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_globalBounds    (),
+          m_renderGroup     (0),
+          m_updateShader    (true),
+          m_updateBounds    (true)
     {
         renderer.bind(this, pass);
     }
 
     Drawable::Drawable(Object& object, RenderPass& pass)
-        : Component     (object, 0),
-          m_model       (Mesh::getDefault(), Material::getDefault()),
-          m_shader      (),
-          m_attributes  (0),
-          m_rendererRef (pass.getRenderer()),
-          m_pass        (pass.getPass()),
-          m_flags       (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup (0),
-          m_updateShader(true)
+        : Component         (object, 0),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (pass.getRenderer()),
+          m_pass            (pass.getPass()),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_globalBounds    (),
+          m_renderGroup     (0),
+          m_updateShader    (true),
+          m_updateBounds    (true)
     {
         pass.bind(this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component     (other, newObj),
-          m_model       (other.m_model),
-          m_shader      (other.m_shader),
-          m_rendererRef (other.m_rendererRef),
-          m_pass        (other.m_pass),
-          m_renderGroup (other.m_renderGroup),
-          m_flags       (other.m_flags),
-          m_updateShader(other.m_updateShader)
+        : Component         (other, newObj),
+          m_model           (other.m_model),
+          m_shader          (other.m_shader),
+          m_rendererRef     (other.m_rendererRef),
+          m_pass            (other.m_pass),
+          m_renderGroup     (other.m_renderGroup),
+          m_flags           (other.m_flags),
+          m_globalBounds    (other.m_globalBounds),
+          m_updateShader    (other.m_updateShader),
+          m_updateBounds    (other.m_updateBounds)
     {
         m_rendererRef.bind(this, m_pass);
     }
@@ -136,7 +142,7 @@ namespace jop
                 lights.sendToShader(shdr, *this);
             }
 
-            mat.sendToShader(shdr, proj.cameraPosition);
+            mat.sendToShader(shdr, &proj.cameraPosition);
 
         #ifdef JOP_DEBUG_MODE
 
@@ -196,6 +202,7 @@ namespace jop
     {
         m_model = model;
         m_updateShader = true;
+        m_updateBounds = true;
 
         return *this;
     }
@@ -210,7 +217,34 @@ namespace jop
     Model& Drawable::getModel()
     {
         m_updateShader = true;
+        m_updateBounds = true;
+
         return m_model;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::pair<glm::vec3, glm::vec3>& Drawable::getLocalBounds() const
+    {
+        if (getModel().getMesh())
+            return getModel().getMesh()->getBounds();
+
+        static const auto dummy = std::make_pair(glm::vec3(), glm::vec3());
+
+        return dummy;
+    }
+
+    const std::pair<glm::vec3, glm::vec3>& Drawable::getGlobalBounds() const
+    {
+        if (m_updateBounds && getModel().getMesh())
+        {
+            m_globalBounds = getLocalBounds();
+            getObject()->getTransform().transformBounds(m_globalBounds.first, m_globalBounds.second);
+
+            m_updateBounds = false;
+        }
+
+        return m_globalBounds;
     }
 
     //////////////////////////////////////////////

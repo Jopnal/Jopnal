@@ -263,9 +263,11 @@ namespace jop
         return m_isCompressed;
     }
 
+    //////////////////////////////////////////////
+
     void Image::flipVertically()
     {
-        if (!m_pixels.empty())
+        if (!m_pixels.empty() && !m_isCompressed)
         {
             std::size_t rowSize = m_size.x * m_bytesPerPixel;
 
@@ -282,9 +284,11 @@ namespace jop
         }
     }
 
+    //////////////////////////////////////////////
+
     void Image::flipHorizontally()
     {
-        if (!m_pixels.empty())
+        if (!m_pixels.empty() && !m_isCompressed)
         {
             std::size_t rowSize = m_size.x * m_bytesPerPixel;
 
@@ -311,7 +315,7 @@ namespace jop
         int size = 0;
         unsigned char* buf = nullptr;
 
-        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", true);
+        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", !gl::isES());
 
         if (!allowCompressionGlobal || !allowCompression)
             return true;

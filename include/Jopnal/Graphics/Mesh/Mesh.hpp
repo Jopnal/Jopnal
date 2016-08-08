@@ -77,7 +77,7 @@ namespace jop
         ///
         /// \return True if loaded successfully
         /// 
-        bool load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const unsigned short indexSize = 0, const unsigned int indexAmount = 0);
+        bool load(const void* vertexData, const uint32 vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const uint16 indexSize = 0, const uint32 indexAmount = 0);
 
         /// \brief Load mesh from memory using default vertex format
         ///
@@ -91,6 +91,8 @@ namespace jop
         void updateVertexAttributes(const uint64 materialAttribs) const;
 
         void destroy();
+
+        const std::pair<glm::vec3, glm::vec3>& getBounds() const;
 
         /// \brief Get the vertex amount
         ///
@@ -123,7 +125,6 @@ namespace jop
         ///
         bool hasVertexComponent(const uint32 component) const;
 
-
         /// \brief Get the element (index) amount
         ///
         /// \return The element amount
@@ -144,7 +145,6 @@ namespace jop
         ///
         unsigned int getElementEnum() const;
 
-
         /// \brief Returns index buffer
         ///
         /// \return Reference to the index buffer
@@ -156,6 +156,8 @@ namespace jop
         /// \return Reference to the index buffer
         ///
         const VertexBuffer& getVertexBuffer() const;
+
+        void updateBounds(const glm::vec3& min, const glm::vec3& max);
 
 
         /// \brief Get the size of a vertex with the given format
@@ -176,16 +178,14 @@ namespace jop
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer
+        std::pair<glm::vec3, glm::vec3> m_bounds;
         uint32 m_vertexComponents;      ///< Vertex components this mesh has
         uint16 m_elementSize;           ///< Element size
         uint16 m_vertexSize;            ///< Vertex size
-
     };
 }
 
 #endif
 
-/// \class Model
+/// \class jop::Mesh
 /// \ingroup graphics
-///
-/// NOTE: Currently only supports .obj format.

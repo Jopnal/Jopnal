@@ -165,7 +165,7 @@ namespace jop
         /// \param shader Reference to the shader to send this material to
         /// \param camera The camera to use
         ///
-        void sendToShader(ShaderProgram& shader, const glm::vec3& camPos) const;
+        void sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const;
 
         static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 

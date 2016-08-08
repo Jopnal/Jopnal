@@ -88,6 +88,8 @@ namespace jop
 
         m_radius = radius;
 
+        updateBounds(glm::vec3(-radius, -radius, 0.f), glm::vec3(radius, radius, 0.f));
+
         return Mesh::load(vertexarray, indices);
     }
 

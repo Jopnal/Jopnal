@@ -172,6 +172,9 @@ T& ResourceManager::getEmpty(Args&&... args)
             std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
             m_instance->m_resources[std::make_pair(name, std::type_index(typeid(T)))] = std::move(res);
+
+            if (m_instance->m_loadPhase.load())
+                m_instance->m_loadPhaseResources.emplace(name, std::type_index(typeid(T)));
         }
 
         JOP_DEBUG_DIAG("\"" << name << "\" (" << typeid(T).name() << ") created");
@@ -256,7 +259,7 @@ void ResourceManager::unload(const std::string& name)
 
         if (itr != res.end() && itr->second->getPersistence())
         {
-            JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
+            JOP_DEBUG_DIAG("\"" << itr->first.first << "\" (" << typeid(T).name() << ") unloaded");
             res.erase(itr);
         }
     }

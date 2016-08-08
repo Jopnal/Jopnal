@@ -42,6 +42,7 @@ namespace jop
         : Resource              (name),
           m_vertexbuffer        (Buffer::Type::ArrayBuffer),
           m_indexbuffer         (Buffer::Type::ElementArrayBuffer),
+          m_bounds              (),
           m_vertexComponents    (0),
           m_elementSize         (0),
           m_vertexSize          (0)
@@ -158,6 +159,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const std::pair<glm::vec3, glm::vec3>& Mesh::getBounds() const
+    {
+        return m_bounds;
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Mesh::getVertexAmount() const
     {
         return m_vertexbuffer.getAllocatedSize() / getVertexSize();
@@ -248,6 +256,14 @@ namespace jop
             + ((VertexComponent::Tangent    & components)   != 0) * sizeof(glm::vec3)
             + ((VertexComponent::BiTangent  & components)   != 0) * sizeof(glm::vec3)
             + ((VertexComponent::Color      & components)   != 0) * sizeof(Color);
+    }
+
+    //////////////////////////////////////////////
+
+    void Mesh::updateBounds(const glm::vec3& min, const glm::vec3& max)
+    {
+        m_bounds.first = min;
+        m_bounds.second = max;
     }
 
     //////////////////////////////////////////////

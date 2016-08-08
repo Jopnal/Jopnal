@@ -57,9 +57,16 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
+
+        const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
+
     private:
 
         std::string m_path; ///< Path to model file
+        std::pair<glm::vec3, glm::vec3> m_localBounds;
+        mutable std::pair<glm::vec3, glm::vec3> m_globalBounds;
+        mutable bool m_updateBounds;
     };
 }
 

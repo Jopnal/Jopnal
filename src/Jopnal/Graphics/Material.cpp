@@ -89,7 +89,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(ShaderProgram& shader, const glm::vec3& camPos) const
+    void Material::sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const
     {
         if (shader.bind())
         {
@@ -113,8 +113,8 @@ namespace jop
             };
 
             // Send camera position to shader
-            if (hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
-                shader.setUniform(strCache[0], camPos);
+            if (camPos && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
+                shader.setUniform(strCache[0], *camPos);
 
             if (hasAttribute(Attribute::__Lighting))
             {
@@ -401,7 +401,10 @@ namespace jop
         static WeakReference<Material> defMat;
 
         if (defMat.expired())
+        {
             defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material", true).getReference());
+            defMat->setPersistence(0);
+        }
 
         return *defMat;
     }

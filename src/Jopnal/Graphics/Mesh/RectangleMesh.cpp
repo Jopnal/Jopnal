@@ -86,6 +86,8 @@ namespace jop
             2, 3, 0,
         });
 
+        updateBounds(glm::vec3(-half, 0.f), glm::vec3(half, 0.f));
+
         return Mesh::load(vertexarray, indices);
     }
 

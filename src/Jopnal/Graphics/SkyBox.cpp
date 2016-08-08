@@ -47,13 +47,11 @@ namespace jop
           m_material    ("", false)
     {
         m_material.setAttributeField(Material::Attribute::EnvironmentMap);
-
-        obj.scale(-1.f);
         m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
-
         setFlags(Reflected);
+        addAttributes(Attribute::__SkyBox);
     }
 
     SkyBox::SkyBox(const SkyBox& other, Object& newObj)
@@ -66,38 +64,35 @@ namespace jop
 
     void SkyBox::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-        /*if (!getModel().isValid())
+        if (!getModel().isValid())
             return;
 
-        auto& s = shader;
+        auto& shdr = getShader();
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        if (camera)
+        // Attributes
+        msh.updateVertexAttributes(mat.getAttributeField());
+
+        // Uniforms
         {
-            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
-            s.setUniform("u_VMatrix", camera->getViewMatrix());
+            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
+            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+
+            mat.sendToShader(shdr, nullptr);
         }
 
-        msh.getVertexBuffer().bind();
-        const auto stride = msh.getVertexSize();
-        s.setAttribute("a_Position", 0, GL_FLOAT, 3, stride, msh.getVertexOffset(Mesh::Position));
-
-        mat.sendToShader(s, camera, getAlphaMultiplier());
-
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
+        GlState::setFaceCull(true, GlState::FaceCull::Front);
 
         if (msh.getElementAmount())
         {
             msh.getIndexBuffer().bind();
-            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
-        }
-        else
-        {
-            glCheck(glDrawArrays(GL_TRIANGLES, 0, msh.getVertexAmount()));
+            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), 0));
         }
 
-        GlState::setDepthTest(true);*/
+        GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
     }
 
     //////////////////////////////////////////////

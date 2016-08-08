@@ -63,7 +63,6 @@ namespace jop
         m_instance = this;
 
         m_uber[0].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderVert), sizeof(jopr::defaultUberShaderVert));
-        m_uber[1].assign(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom));
         m_uber[2].assign(reinterpret_cast<const char*>(jopr::defaultUberShaderFrag), sizeof(jopr::defaultUberShaderFrag));
 
         // Load plugins
@@ -100,11 +99,12 @@ namespace jop
         Material::getShaderPreprocessorDef(materialAttribs, pp);
         Drawable::getShaderPreprocessorDef(drawableAttribs, pp);
         
-        ShaderProgram* s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Fragment, uber[2]);
+        ShaderProgram* s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
 
         if (!ResourceManager::isError(*s))
         {
             s->setShouldSerialize(false);
+            s->setPersistence(5);
 
             {
                 std::unique_lock<std::recursive_mutex> lock(m_instance->m_mutex);

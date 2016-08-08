@@ -511,8 +511,8 @@ void main()
 {
 #ifdef JDRW_SKYBOX
 
-    out_FinalColor = JOP_TEXTURE_CUBE(u_EnvironmentMap, OUT_POS);
-    out_FinalColor.a *= u_Emission.a;
+    JOP_FRAG_COLOR(0) = JOP_TEXTURE_CUBE(u_EnvironmentMap, OUT_POS);
+    JOP_FRAG_COLOR(0).a *= u_Emission.a;
 
 #else
 

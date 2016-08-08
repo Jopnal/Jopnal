@@ -34,8 +34,11 @@
 namespace jop
 {
     ModelLoader::ModelLoader(Object& obj)
-        : Component (obj, 0),
-          m_path    ()
+        : Component         (obj, 0),
+          m_path            (),
+          m_localBounds     (),
+          m_globalBounds    (),
+          m_updateBounds    (true)
     {}
 
     ModelLoader::ModelLoader(const ModelLoader& other, Object& obj)
@@ -332,5 +335,25 @@ namespace jop
         m_path = path;
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::pair<glm::vec3, glm::vec3>& ModelLoader::getLocalBounds() const
+    {
+        return m_localBounds;
+    }
+
+    const std::pair<glm::vec3, glm::vec3>& ModelLoader::getGlobalBounds() const
+    {
+        if (m_updateBounds)
+        {
+            m_globalBounds = getLocalBounds();
+            getObject()->getTransform().transformBounds(m_globalBounds.first, m_globalBounds.second);
+
+            m_updateBounds = false;
+        }
+
+        return m_globalBounds;
     }
 }

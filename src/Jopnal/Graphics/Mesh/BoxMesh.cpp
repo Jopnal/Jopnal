@@ -138,6 +138,8 @@ namespace jop
             22, 21, 23
         });
 
+        updateBounds(-half, half);
+
         return Mesh::load(vertices, indices);
     }
 
