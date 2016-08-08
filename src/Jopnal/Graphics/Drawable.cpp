@@ -26,6 +26,7 @@
 
     #include <Jopnal/Graphics/Drawable.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/Serializer.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
     #include <Jopnal/Graphics/Material.hpp>
@@ -34,6 +35,8 @@
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
 
 #endif

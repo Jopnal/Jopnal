@@ -142,7 +142,7 @@ namespace
 
     void deInitialize()
     {
-        if (windowRefs.empty())
+        if (ns_windowRefs.empty())
         {
             eglCheck(eglDestroyContext(getDisplay(), ns_shared));
             eglCheck(eglDestroySurface(getDisplay(), ns_sharedSurface));
@@ -350,7 +350,7 @@ namespace jop { namespace detail
     {
         auto state = ActivityState::get();
 
-        if (state && state->focus)
+        if (state && state->pollFunc)
             state->pollFunc();
     }
 
@@ -399,7 +399,7 @@ namespace jop { namespace detail
 
     int32_t motion(AInputEvent* event)
     {
-        auto& windowRef = &Engine::getMainWindow();
+        auto& windowRef = Engine::getMainWindow();
 
         const int32_t device = AInputEvent_getSource(event);
 
@@ -523,7 +523,7 @@ namespace jop { namespace detail
 
     int32_t scroll(AInputEvent* event)
     {
-        auto& windowRef = &Engine::getMainWindow();
+        auto& windowRef = Engine::getMainWindow();
 
         const int32_t device = AInputEvent_getSource(event);
 
@@ -578,7 +578,7 @@ namespace jop { namespace detail
                     const float i = AMotionEvent_getAxisValue(event, ns_touchAxes[info], index);
 
                     if (i > JOP_AXIS_TOLERANCE)
-                        windowRef->getEventHandler()->touchInfo(id, Input::getJopTouchInfo(ns_touchAxes[info]), i);
+                        windowRef.getEventHandler()->touchInfo(id, Input::getJopTouchInfo(ns_touchAxes[info]), i);
                 }
 
                 return 1;
@@ -606,7 +606,7 @@ namespace jop { namespace detail
 
         int32_t device = AInputEvent_getSource(event);
 
-        auto& windowRef = &Engine::getMainWindow();
+        auto& windowRef = Engine::getMainWindow();
 
         switch (action)
         {
@@ -670,6 +670,14 @@ namespace jop { namespace detail
 
     int32_t onMotion(const int32_t& action, void* data)
     {
+        auto env = Thread::getCurrentJavaEnv();
+
+        if (!env)
+        {
+            JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+            return 0;
+        }
+
         auto event = static_cast<AInputEvent*>(data);
 
         switch (action & AMOTION_EVENT_ACTION_MASK)
@@ -695,11 +703,17 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void getUnicode(void* data, void*, void*)
-    {        
-        auto event = static_cast<AInputEvent*>(data);
+    void getUnicode(void* data)
+    {
+        auto env = Thread::getCurrentJavaEnv();
 
-        JNIEnv* env = Thread::getCurrentJavaEnv();
+        //if (!env)
+        //{
+        //    JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+            return;
+        //}
+
+        auto event = static_cast<AInputEvent*>(data);
 
         jint flags = 0;
 

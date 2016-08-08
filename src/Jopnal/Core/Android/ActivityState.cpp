@@ -24,6 +24,7 @@
 
 #ifdef JOP_OS_ANDROID
 
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Utility/Assert.hpp>
 #include <Jopnal/Utility/Thread.hpp>
 #include <Jopnal/STL.hpp>
@@ -70,7 +71,13 @@ namespace jop { namespace detail
 
         // Get the screen size
         {
-            JNIEnv* env = Thread::getCurrentJavaEnv();
+            auto env = Thread::getCurrentJavaEnv();
+
+            if (!env)
+            {
+                JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+                return get();
+            }
 
             jclass activityClass = env->GetObjectClass(activity->clazz);
 
@@ -95,6 +102,8 @@ namespace jop { namespace detail
             ns_instance->windowSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
             ns_instance->windowSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
         }
+
+        return get();
     }
 
     //////////////////////////////////////////////
@@ -116,6 +125,12 @@ namespace jop { namespace detail
     unsigned int ActivityState::getAPILevel()
     {
         auto env = Thread::getCurrentJavaEnv();
+
+        if (!env)
+        {
+            JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+            return 0;
+        }
 
         jclass versionClass = env->FindClass("android/os/Build$VERSION");
         if (!versionClass)

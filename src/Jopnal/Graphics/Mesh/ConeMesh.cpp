@@ -24,10 +24,10 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Graphics/Mesh/ConeMesh.hpp>
+    #include <Jopnal/Graphics/Mesh/ConeMesh.hpp>
 
-#include <glm/gtc/constants.hpp>
-#include <cmath>
+    #include <glm/gtc/constants.hpp>
+    #include <cmath>
 
 #endif
 
@@ -73,11 +73,11 @@ namespace jop
         float depth[2] = {radius, radius};
 
         const float alfa = glm::two_pi<float>() * radius / sectors / radius;
-        width[1] = glm::sqrt((radius * radius + radius * radius) - (2.f * radius * radius * glm::cos(alfa)));
+        width[1] = std::sqrt((radius * radius + radius * radius) - (2.f * radius * radius * std::cos(alfa)));
         width[0] = width[1];
 
-        width[1] = width[0] * glm::cos(alfa) - radius * glm::sin(alfa);
-        depth[1] = width[0] * glm::sin(alfa) + radius * glm::cos(alfa);
+        width[1] = width[0] * std::cos(alfa) - radius * std::sin(alfa);
+        depth[1] = width[0] * std::sin(alfa) + radius * std::cos(alfa);
 
         std::vector<Vertex> vertexArray((6 * sectors) + 1);
 
@@ -86,8 +86,8 @@ namespace jop
         {
             float lenght[2] =
             {
-                glm::sqrt((width[0] * width[0]) + 1.f + (depth[0] * depth[0])),
-                glm::sqrt((width[1] * width[1]) + 1.f + (depth[1] * depth[1]))
+                std::sqrt((width[0] * width[0]) + 1.f + (depth[0] * depth[0])),
+                std::sqrt((width[1] * width[1]) + 1.f + (depth[1] * depth[1]))
             };
 
             *itr++ = Vertex(glm::vec3(0.f, -half, 0.f),           glm::vec2(texCoord + texMulti, 1.f),       glm::vec3(0.f, -norm, 0.f));                       // 0, middle, Bottom    
@@ -103,8 +103,8 @@ namespace jop
             const float x = width[1];
             const float z = depth[1];
 
-            width[1] = x * glm::cos(alfa) - z * glm::sin(alfa);
-            depth[1] = x * glm::sin(alfa) + z * glm::cos(alfa);
+            width[1] = x * std::cos(alfa) - z * std::sin(alfa);
+            depth[1] = x * std::sin(alfa) + z * std::cos(alfa);
 
             width[0] = x;
             depth[0] = z;

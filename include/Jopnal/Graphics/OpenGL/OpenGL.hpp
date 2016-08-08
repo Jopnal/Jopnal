@@ -35,26 +35,18 @@
 
     #if __ANDROID_API__ >= 18
 
-        //#include <GLES3/gl3.h>
-        //#define __gl2_h_ // Workaround for broken gl headers
-        //#include <GLES2/gl2ext.h>
-        //#include <GLES3/gl3platform.h>
-
-#include <GL_ES/gl3.h>
-#define __gl2_h_ // Workaround for broken gl headers
-#include <GL_ES/gl2ext.h>
-#include <GL_ES/gl3platform.h>
+        #include <GLES3/gl3.h>
+        #define __gl2_h_ // Workaround for broken gl headers
+        #include <GL_ES/gl2ext.h>
+        #include <GLES3/gl3platform.h>
 
         #define JOP_OPENGL_ES3
 
     #else
 
-        //#include <GLES2/gl2.h>
-        //#include <GLES2/gl2ext.h>
-//#include <GLES2/gl2platform.h>
-#include <GL_ES/gl2.h>
-#include <GL_ES/gl2ext.h>
-#include <GL_ES/gl2platform.h>
+        #include <GLES2/gl2.h>
+        #include <GL_ES/gl2ext.h>
+        #include <GLES2/gl2platform.h>
 
     #endif
 
@@ -64,15 +56,6 @@
 
     #if __ANDROID_API__ >= 24
         #include <GLES3/gl32.h>
-        #define JOP_GEOMETRY_SHADERS
-
-    #elif defined(GL_EXT_geometry_shader)
-        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-        #define JOP_GEOMETRY_SHADERS
-
-    #else
-        #define GL_GEOMETRY_SHADER 0
-
     #endif
 
     namespace jop { namespace detail
@@ -83,16 +66,13 @@
     }}
 
     #define JOP_CHECK_GL_EXTENSION(extension) (::jop::detail::checkGLESExtension(#extension))
-
     #define JOP_CHECK_EGL_EXTENSION(extension) (::jop::detail::checkEGLExtension(#extension))
 
 #else
 
     #include <Jopnal/Graphics/OpenGL/gl_4.5.h>
-    #define JOP_GEOMETRY_SHADERS
 
-    #define JOP_CHECK_GL_EXTENSION(extension) ((ogl_ext_##extension)  != ogl_LOAD_FAILED)
-
+    #define JOP_CHECK_GL_EXTENSION(extension) ((ogl_ext_##extension) != ogl_LOAD_FAILED)
     #define JOP_CHECK_EGL_EXTENSION(extension) false
 
 #endif

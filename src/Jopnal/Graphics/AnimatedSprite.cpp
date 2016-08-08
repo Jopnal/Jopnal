@@ -24,7 +24,9 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Graphics/AnimatedSprite.hpp>
+    #include <Jopnal/Graphics/AnimatedSprite.hpp>
+
+    #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 #endif
 
@@ -34,15 +36,15 @@
 namespace jop
 {
     AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer)
-        : Drawable(object, renderer),
-          m_atlas(),
-          m_mesh(std::make_unique<RectangleMesh>("")),
-          m_material("", true),
-          m_animationRange(),
-          m_frameTime(0),
-          m_timer(0),
-          m_status(Status::Stopped),
-          m_currentFrame(0)
+        : Drawable          (object, renderer),
+          m_atlas           (),
+          m_mesh            (std::make_unique<RectangleMesh>("")),
+          m_material        ("", true),
+          m_animationRange  (),
+          m_frameTime       (0),
+          m_timer           (0),
+          m_status          (Status::Stopped),
+          m_currentFrame    (0)
     {
         setModel(Model(*m_mesh, m_material));
     }
@@ -55,9 +57,9 @@ namespace jop
     void AnimatedSprite::update(const float deltaTime)
     {
         m_timer += deltaTime * (m_status == Status::Playing);
+
         if (m_timer >= m_frameTime)
         {  
-
             if (++m_currentFrame > m_animationRange.second)
             {
                 m_currentFrame = m_animationRange.first;
@@ -67,7 +69,6 @@ namespace jop
             m_mesh->load(m_atlas->getFrameSize().x, coords.first, coords.second);
 
             m_timer -= m_frameTime;
-
         } 
     }
 

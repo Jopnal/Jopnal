@@ -54,6 +54,8 @@ endif()
 # Project name
 project(Jopnal)
 
+# Ignore CMP0058
+cmake_policy(SET CMP0058 NEW)
 
 # Include modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")

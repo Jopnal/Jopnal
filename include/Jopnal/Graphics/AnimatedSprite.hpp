@@ -26,14 +26,14 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Material.hpp>
-#include <Jopnal/Graphics/AnimationAtlas.hpp>
-#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class AnimationAtlas;
+    class RectangleMesh;
 
     class JOP_API AnimatedSprite : public Drawable
     {
@@ -102,16 +102,15 @@ namespace jop
 
     private:
 
-        WeakReference<const AnimationAtlas> m_atlas; ///< Reference to the animation atlas
-        std::unique_ptr<RectangleMesh> m_mesh; ///< Mesh to be drawn on
-        Material m_material; ///< Material to be drawn with
-        std::pair<uint32, uint32> m_animationRange; ///< Animation range (Start - End)
-        float m_frameTime; ///< Time taken for each frame
+        WeakReference<const AnimationAtlas> m_atlas;    ///< Reference to the animation atlas
+        std::unique_ptr<RectangleMesh> m_mesh;          ///< Mesh to be drawn on
+        Material m_material;                            ///< Material to be drawn with
+        std::pair<uint32, uint32> m_animationRange;     ///< Animation range (Start - End)
+        float m_frameTime;                              ///< Time taken for each frame
         float m_timer; 
-        Status m_status; ///< Animation status
+        Status m_status;                                ///< Animation status
         unsigned int m_currentFrame;
     };
-
 }
 
 #endif

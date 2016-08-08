@@ -22,6 +22,16 @@
 // Headers
 #include <Jopnal/Precompiled/Precompiled.hpp>
 
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Shader.hpp>
+
+    #if defined(JOP_OPENGL_ES) && !defined(GL_GEOMETRY_SHADER)
+        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
+    #endif
+
+#endif
+
 //////////////////////////////////////////////
 
 
@@ -67,8 +77,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Shader::compile(const Type type, bool preprocess)
+    bool Shader::compile(const Type type, const bool preprocess)
     {
+        #ifdef JOP_OPENGL_ES
+
+        if (type == Type::Geometry && (gl::getVersionMajor() < 3 || gl::getVersionMinor() < 2) && !JOP_CHECK_GL_EXTENSION(GL_EXT_geometry_shader))
+        {
+            JOP_DEBUG_ERROR("Geometry shaders are not supported on this platform");
+            return false;
+        }
+
+        #endif
+
         if (m_handle)
         {
             glCheck(glDeleteShader(m_handle));

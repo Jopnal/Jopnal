@@ -36,7 +36,7 @@ T* Renderer::getRenderPass(const RenderPass::Pass pass, const uint32 weight)
 {
     auto itr = m_passes[static_cast<int>(pass)].find(weight);
 
-    if (itr != m_passes.end())
+    if (itr != m_passes[static_cast<int>(pass)].end())
         return itr->second.get();
 
     return nullptr;

@@ -75,11 +75,9 @@ namespace
 
     void drawQuad(const jop::RectangleMesh& mesh)
     {
-        mesh.getVertexBuffer().bind();
-        glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::Position)));
-        glCheck(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, mesh.getVertexSize(), mesh.getVertexOffset(jop::Mesh::TexCoords)));
-
+        mesh.updateVertexAttributes(0);
         mesh.getIndexBuffer().bind();
+
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
@@ -502,7 +500,7 @@ namespace jop
 
     #ifdef JOP_OPENGL_ES
 
-        if (jop::gl::getVersionMajor() < 3)
+        if (gl::getVersionMajor() < 3)
             return;
 
     #endif
@@ -519,7 +517,12 @@ namespace jop
                 glm::uvec2 size(glm::uvec2((16 << m_bloomTextures.size()) >> i));
                 size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
 
-                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::isES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
+                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::isES()
+
+                #ifdef JOP_OPENGL_ES                 
+                    || JOP_CHECK_GL_EXTENSION(GL_EXT_color_buffer_half_float)
+                #endif
+                );
 
                 j.addColorAttachment(CAS::_1, hdr ? CA::RGB2DFloat16 : CA::RGB2D, size);
                 j.getColorTexture(CAS::_1)->setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);

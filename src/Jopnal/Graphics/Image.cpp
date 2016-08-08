@@ -28,6 +28,7 @@
 
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
 
 #endif
 

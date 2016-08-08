@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/STL.hpp>
 #include <map>
 #include <array>
 
@@ -33,6 +34,9 @@
 
 namespace jop
 {
+    class LightSource;
+    class Camera;
+    class EnvironmentRecorder;
     class LightContainer;
     class RenderTarget;
 

@@ -21,30 +21,29 @@
 
 namespace detail
 {
-    template<typename Last>
-    bool attach(ShaderProgram& program, const Last& currentShader);
+    JOP_API bool attach(ShaderProgram& program, const Shader& currentShader);
 
-    template<typename First, typename ...Rest>
+    template<typename First, typename ... Rest>
     bool attach(ShaderProgram& program, const First& first, const Rest&... rest)
     {      
         return attach(program, first) && attach(program, rest...);
     }
 
-    bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source);
+    JOP_API bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>>& shaders, const Shader::Type& type, const std::string& source);
 
-    template<typename ...Rest>
-    bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>> &shaders, const Shader::Type& type, const std::string& source, const Rest& ...rest)
+    template<typename ... Rest>
+    bool attachSingle(ShaderProgram& program, const std::string& pp, std::vector<std::unique_ptr<Shader>>& shaders, const Shader::Type& type, const std::string& source, const Rest&... rest)
     {
         return attachSingle(program, pp, shaders, type, source) && attachSingle(program, pp, shaders, rest...);
     }
 
-    template<typename ...Rest>
+    template<typename ... Rest>
     bool attacher(ShaderProgram& program, const std::string&, const Shader& shader, const Rest&... rest)
     {
         return attach(program, shader, rest...) && program.link();
     }
 
-    template<typename ...Rest>
+    template<typename ... Rest>
     bool attacher(ShaderProgram& program, const std::string& pp, const Shader::Type& type, const Rest&... rest)
     {
         std::vector<std::unique_ptr<Shader>> shaders;
@@ -52,8 +51,8 @@ namespace detail
     }
 }
 
-template<typename... Args>
-bool ShaderProgram::load(const std::string& pp,const Args&... shaders)
+template<typename ... Args>
+bool ShaderProgram::load(const std::string& pp, const Args&... shaders)
 {
     return detail::attacher(*this, pp, shaders...);
 }

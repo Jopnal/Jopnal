@@ -29,6 +29,7 @@
     #include <Jopnal/Audio/AlTry.hpp>
     #include <Jopnal/Audio/AudioReader.hpp>
     #include <Jopnal/Audio/SoundEffect.hpp>
+    #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <AL/al.h>
@@ -83,7 +84,7 @@ namespace jop
 
     SoundBuffer::~SoundBuffer()
     {
-        if (!m_sounds.empty())
+        if (!m_sounds.empty() && !Engine::exiting())
         {
             for (unsigned int it = 0; it < m_sounds.size(); ++it)
                 static_cast<SoundEffect*>(m_sounds[it])->setBuffer(getDefault());

@@ -69,7 +69,7 @@ namespace jop
         /// \param type Shader Type:: (Vertex / Geometry / Fragment)
         /// \param preprocess Should shader be preprocessed? (True by default)
         ///
-        bool compile(const Type type, bool preprocess = true);
+        bool compile(const Type type, const bool preprocess = true);
 
         /// \brief Load shader
         ///
@@ -77,7 +77,7 @@ namespace jop
         /// \param type Shader Type:: (Vertex / Geometry / Fragment)
         /// \param preprocess Should shader be preprocessed? (True by default)
         ///
-        bool load(const std::string& path, Type type, bool preprocess = true);
+        bool load(const std::string& path, Type type, const bool preprocess = true);
 
         /// \brief Get shader type (Vertex / Geometry / Fragment)
         ///

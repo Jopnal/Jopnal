@@ -146,6 +146,8 @@ namespace jop
 
         ns_javaEnvs[std::this_thread::get_id()] = env;
 
+        JOP_DEBUG_DIAG("Thread " << std::this_thread::get_id() << " attached to JVM");
+
     #else
 
         vm;
@@ -159,9 +161,14 @@ namespace jop
     {
     #ifdef JOP_OS_ANDROID
 
+        if (!vm)
+            vm = detail::ActivityState::get()->nativeActivity->vm;
+
         static_cast<JavaVM*>(vm)->DetachCurrentThread();
 
         ns_javaEnvs.erase(std::this_thread::get_id());
+
+        JOP_DEBUG_DIAG("Thread " << std::this_thread::get_id() << " detached from JVM");
 
     #else
 

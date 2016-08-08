@@ -142,7 +142,7 @@ namespace jop
         {
             if (castShadows)
             {
-            #ifndef JOP_GEOMETRY_SHADERS
+            #ifdef JOP_OPENGL_ES
 
                 if (m_type == Type::Point)
                     return *this;
@@ -202,7 +202,8 @@ namespace jop
             dirSpotShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader").getReference());
             dirSpotShader->setPersistence(0);
 
-            JOP_ASSERT_EVAL(dirSpotShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
+            JOP_ASSERT_EVAL(dirSpotShader->load("",
+                Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
                 Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag))),
                 "Failed to compile depth record shader!");
         }
@@ -213,7 +214,8 @@ namespace jop
             pointShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader_point").getReference());
             pointShader->setPersistence(0);
 
-            JOP_ASSERT_EVAL(pointShader->load("", Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
+            JOP_ASSERT_EVAL(pointShader->load("",
+                Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
                 Shader::Type::Geometry, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
                 Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag))),
                 "Failed to compile point depth record shader!");

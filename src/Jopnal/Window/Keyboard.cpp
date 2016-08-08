@@ -90,10 +90,13 @@ namespace jop
     #ifdef JOP_OS_ANDROID
 
         auto state = detail::ActivityState::get();
-        JNIEnv* env = Thread::getCurrentJavaEnv();
+        auto env = Thread::getCurrentJavaEnv();
 
         if (!env)
-            JOP_DEBUG_ERROR("No current JNIENV: " << __func__);
+        {
+            JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+            return;
+        }
 
         jint flags = 0;
 

@@ -81,9 +81,9 @@ namespace jop
 				static const float pi1 = glm::pi<float>();
 				static const float pi2 = glm::half_pi<float>();
 
-				float y = sin(-pi2 + pi1 * r * R);
-				const float x = cos(2 * pi1 * s * S) * sin(pi1 * r * R);
-				const float z = sin(2 * pi1 * s * S) * sin(pi1 * r * R);
+				float y = std::sin(-pi2 + pi1 * r * R);
+                const float x = std::cos(2 * pi1 * s * S) * std::sin(pi1 * r * R);
+                const float z = std::sin(2 * pi1 * s * S) * std::sin(pi1 * r * R);
 
 				if (y >= stretch)
 					y += half;

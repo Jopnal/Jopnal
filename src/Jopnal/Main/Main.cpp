@@ -81,7 +81,7 @@ extern int main(int argc, char* argv[]);
                 {
 
                 }
-
+                
                 case APP_CMD_TERM_WINDOW:
                 {
 
@@ -95,12 +95,18 @@ extern int main(int argc, char* argv[]);
                 case APP_CMD_DESTROY:
                 {
                     Engine::exit();
-                    ANativeActivity_finish(app->activity);
+
+                    app->onAppCmd = nullptr;
+                    app->onInputEvent = nullptr;
+
+                    break;
                 }
                 case APP_CMD_GAINED_FOCUS:
                 {
                     ActivityState::get()->focus = true;
                     SensorManager::getInstance().gainedFocus();
+
+                    break;
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
@@ -152,9 +158,9 @@ extern int main(int argc, char* argv[]);
                 pollFunc();
             }
 
-            app->onAppCmd               = onAppCmdRunning;
-            app->onInputEvent           = onInputEvent;
-            state->pollFunc             = pollFunc;
+            app->onAppCmd       = onAppCmdRunning;
+            app->onInputEvent   = onInputEvent;
+            state->pollFunc     = pollFunc;
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 
@@ -178,6 +184,8 @@ extern int main(int argc, char* argv[]);
         jop::detail::main(app);
 
         jop::Thread::detachJavaThread(app->activity->vm);
+
+        ANativeActivity_finish(app->activity);
     }
 
 #endif

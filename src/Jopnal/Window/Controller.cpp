@@ -26,13 +26,10 @@
 
     #include <Jopnal/Window/Controller.hpp>
 
-    #ifdef JOP_OS_ANDROID
-        #include <Jopnal/Core/Android/ActivityState.hpp>
-    #endif
-
+    #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/Engine.hpp>
-    #include<Jopnal/Window/InputEnumsImpl.hpp>
+    #include <Jopnal/Window/InputEnumsImpl.hpp>
 
     #ifdef JOP_OS_DESKTOP
         #include <GLFW/glfw3.h>
@@ -94,7 +91,7 @@ namespace jop
         #if defined(JOP_OS_DESKTOP)
 			return glfwJoystickPresent(index) == GL_TRUE;
 
-        #elif defined(JOP_OS_ANDROID
+        #elif defined(JOP_OS_ANDROID)
 
             if (index == 0)
                 return detail::ActivityState::get()->activeController;
@@ -172,6 +169,7 @@ namespace jop
 
             auto state = detail::ActivityState::get();
 
+            switch (axis)
             {
                 case XBox::Axis::LeftStickX:
                     return state->activeAxes[0];
