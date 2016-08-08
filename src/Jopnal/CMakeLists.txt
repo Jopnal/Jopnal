@@ -113,6 +113,8 @@ ExternalProject_Add(PhysFS
                     GIT_REPOSITORY "https://github.com/Jopnal/physfs.git"
                     GIT_TAG "master"
                     
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DPHYSFS_BUILD_SHARED=OFF
@@ -145,6 +147,8 @@ ExternalProject_Add(Bullet
                     GIT_REPOSITORY "https://github.com/Jopnal/bullet3.git"
                     GIT_TAG "master"
                     
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DBUILD_BULLET2_DEMOS=OFF
@@ -210,6 +214,8 @@ if (NOT JOP_OS_ANDROID)
                         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
                         GIT_TAG "3bb5c459d63d7cf9c990213e39303d9ba5eaebcc"
                         
+                        UPDATE_COMMAND ""
+                        PATCH_COMMAND ""
                         INSTALL_COMMAND ""
                         
                         CMAKE_ARGS -DGLFW_BUILD_DOCS=OFF
@@ -273,6 +279,8 @@ ExternalProject_Add(OpenAL
                     GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
                     GIT_TAG "0189b923a233e269b4c8f9d17f6475ace5e2e4de"
                     
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
                     
                     CMAKE_ARGS -DALSOFT_INSTALL=OFF
@@ -335,6 +343,8 @@ ExternalProject_Add(Vorbis
                     GIT_REPOSITORY "https://git.xiph.org/vorbis.git"
                     GIT_TAG "d8ffc480787fcd8b5bb7203d6e0acf3bbfb2dd02"
                     
+                    UPDATE_COMMAND ""
+                    PATCH_COMMAND ""
                     INSTALL_COMMAND ""
 
                     CMAKE_ARGS -DOGG_INCLUDE_DIRS=${SOURCE_DIR}/include

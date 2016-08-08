@@ -32,6 +32,7 @@
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>

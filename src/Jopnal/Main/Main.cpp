@@ -115,12 +115,10 @@ extern int main(int argc, char* argv[]);
             int32_t type = AInputEvent_getType(event);
             int32_t action = AKeyEvent_getAction(event);
 
-            auto state = static_cast<detail::ActivityState*>(app->userData);
-
             if (type == AINPUT_EVENT_TYPE_KEY)
             { 
                 if (action == AKEY_EVENT_ACTION_DOWN)
-                    getUnicode(event, state->nativeActivity->vm, state->nativeActivity->env);
+                    getUnicode(event);
 
                 return onKey(action, event);
             }

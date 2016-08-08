@@ -28,7 +28,9 @@
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Utility/Json.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
+#include <utility>
 
 //////////////////////////////////////////////
 

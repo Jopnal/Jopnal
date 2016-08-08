@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <set>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -34,6 +35,7 @@ namespace jop
 {
     class Renderer;
     class Drawable;
+    class RenderTarget;
 
     class JOP_API RenderPass
     {
