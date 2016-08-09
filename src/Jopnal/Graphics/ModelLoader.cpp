@@ -198,14 +198,28 @@ namespace jop
                     if (error)
                         continue;
 
-                    meshes.push_back(std::make_pair
-                    (
-                        &ResourceManager::getNamed<Mesh>("jop_mesh_" + getHex(), &data.at(info[2]), data[3], data[1], &data.at(data[4]), data[7], data[5] / data[7]),
-                        data[6]
-                    ));
+                    float bounds[6] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+
+                    if (mes.HasMember("aabb") && mes["aabb"].IsArray() && mes["aabb"].Size() >= 6u)
+                    {
+                        for (unsigned int i = 0; i < 6; ++i)
+                        {
+                            if (mes["aabb"][i].IsDouble())
+                                bounds[i] = static_cast<float>(mes["aabb"][i].GetDouble());
+                            else
+                                JOP_DEBUG_ERROR("Failed to load mesh from model, aabb corrupt index: " << i << " using a default value.");
+                        }
+                    }
+                    else
+                        JOP_DEBUG_ERROR("Failed to load mesh from model, missing aabb. Using default values.");
+
+                    auto meshPtr = &ResourceManager::getNamed<Mesh>("jop_mesh_" + getHex(), &data.at(info[2]), info[3], info[1], &data.at(info[4]), info[7], info[5] / info[7]);
+
+                    meshPtr->updateBounds(glm::vec3(bounds[0], bounds[1], bounds[2]), glm::vec3(bounds[3], bounds[4], bounds[5]));
+
+                    meshes.push_back(std::make_pair(meshPtr, info[6]));
                 }
             }
-
             return meshes;
         }
 
@@ -328,6 +342,17 @@ namespace jop
             JOP_DEBUG_ERROR("Failed to load nodes from model \"" << path << "\"");
             return false;
         }
+
+        float bounds[6] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+        if (doc.HasMember("globalbb") && doc["globalbb"].IsArray() && doc["globalbb"].Size() >= 6u)
+        {
+            for (unsigned int i = 0; i < 6; ++i)
+                bounds[i] = static_cast<float>(doc["globalbb"][i].GetDouble());
+        }
+        else
+            JOP_DEBUG_ERROR("Model \"" << path << "\" has no global bounding box. Using default values.");
+
+        m_localBounds = std::make_pair(glm::vec3(bounds[0], bounds[1], bounds[2]), glm::vec3(bounds[3], bounds[4], bounds[5]));
 
         m_path = path;
 

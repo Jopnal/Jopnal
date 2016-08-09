@@ -61,9 +61,9 @@ namespace jop
         return *this;
     }
 
-    b2Body* Joint2D::getBody(RigidBody2D& body) //(std::weak_ptr<RigidBody2D>& body)
+    b2Body* Joint2D::getBody(RigidBody2D& body)
     {
-        return body./*lock()->*/m_body;
+        return body.m_body;
     }
 
 }
