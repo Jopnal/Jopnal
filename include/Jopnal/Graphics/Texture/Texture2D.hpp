@@ -111,7 +111,7 @@ namespace jop
 
         /// \brief Returns textures bytes per pixel value
         ///
-        unsigned int getDepth() const;
+        unsigned int getDepth() const override;
 
         /// \brief Copies the texture into an image and returns it
         ///

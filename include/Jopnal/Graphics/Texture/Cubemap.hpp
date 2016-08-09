@@ -95,6 +95,8 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+        unsigned int getDepth() const override;
+
         /// \brief Get the error texture
         ///
         /// \return Reference to the texture

@@ -101,6 +101,13 @@ namespace jop { namespace detail
 
             ns_instance->windowSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
             ns_instance->windowSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
+
+            env->DeleteLocalRef(activityClass);
+            env->DeleteLocalRef(displayMetricsObject);
+            env->DeleteLocalRef(windowManagerObject);
+            env->DeleteLocalRef(windowManagerClass);
+            env->DeleteLocalRef(displayObject);
+            env->DeleteLocalRef(displayClass);
         }
 
         return get();
@@ -132,15 +139,32 @@ namespace jop { namespace detail
             return 0;
         }
 
-        jclass versionClass = env->FindClass("android/os/Build$VERSION");
-        if (!versionClass)
-            return 0;
+        static unsigned int api = 0;
 
-        jfieldID IDField = env->GetStaticFieldID(versionClass, "SDK_INT", "I");
-        if (!IDField)
-            return 0;
+        if (!api)
+        {
+            jclass versionClass = env->FindClass("android/os/Build$VERSION");
+            if (!versionClass)
+            {
+                JOP_DEBUG_ERROR("Failed to get Android API level");
+                return 0;
+            }
 
-        return static_cast<unsigned int>(env->GetStaticIntField(versionClass, IDField));
+            jfieldID IDField = env->GetStaticFieldID(versionClass, "SDK_INT", "I");
+            if (!IDField)
+            {
+                JOP_DEBUG_ERROR("Failed to get Android API level");
+
+                env->DeleteLocalRef(versionClass);
+                return 0;
+            }
+
+            api = static_cast<unsigned int>(env->GetStaticIntField(versionClass, IDField));
+
+            env->DeleteLocalRef(versionClass);
+        }
+
+        return api;
     }
 }}
 

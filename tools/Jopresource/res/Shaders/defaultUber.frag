@@ -596,7 +596,7 @@ void main()
 
     #if defined(JMAT_OPACITYMAP)
         (JOP_TEXTURE_2D(u_OpacityMap, OUT_TC).r + specularComponent)
-    #elif defined(JMAT_DIFFUSEALPHA)
+    #elif defined(JMAT_DIFFUSEMAP)
         JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).a
     #else
         1.0

@@ -397,6 +397,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Material::hasAlpha() const
+    {
+        auto& ref = m_reflection;
+
+        return ref[0].alpha < 1.f || ref[1].alpha < 1.f || ref[2].alpha < 1.f || ref[3].alpha < 1.f                             ||
+               hasAttributes(Attribute::OpacityMap)                                                                             ||
+              (hasAttributes(Attribute::DiffuseMap)     && getMap(Map::Diffuse)     && getMap(Map::Diffuse)->getDepth() > 3)    ||
+              (hasAttributes(Attribute::EmissionMap)    && getMap(Map::Emission)    && getMap(Map::Emission)->getDepth() > 3);
+    }
+
+    //////////////////////////////////////////////
+
     Material& Material::getDefault()
     {
         static WeakReference<Material> defMat;

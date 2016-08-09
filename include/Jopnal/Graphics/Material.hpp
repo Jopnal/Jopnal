@@ -297,6 +297,8 @@ namespace jop
 
         Material& removeAttributes(const uint64 attribs);
 
+        bool hasAlpha() const;
+
 
         /// \brief Get the default material
         ///

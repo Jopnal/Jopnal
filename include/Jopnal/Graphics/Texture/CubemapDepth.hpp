@@ -58,6 +58,8 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+        unsigned int getDepth() const override;
+
     private:
 
         glm::uvec2 m_size;      ///< Size

@@ -132,7 +132,7 @@ namespace jop
         std::thread::id getId() const;
 
 
-        static void attachJavaThread(void* vm);
+        static void attachJavaThread(void* vm, void* mainEnv);
 
         static void detachJavaThread(void* vm);
 

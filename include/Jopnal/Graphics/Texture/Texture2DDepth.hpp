@@ -58,6 +58,8 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
+        unsigned int getDepth() const override;
+
 
         /// \brief Get the OpenGL format enum for the given pixel depth
         ///

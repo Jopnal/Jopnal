@@ -340,6 +340,20 @@ namespace jop
 
     void Engine::exit()
     {
+    #ifdef JOP_OS_ANDROID
+
+        static bool calledOnce = false;
+
+        if (!calledOnce)
+        {
+            ANativeActivity_finish(detail::ActivityState::get()->nativeActivity);
+            calledOnce = true;
+
+            return;
+        }
+
+    #endif
+
         if (m_engineObject)
         {
             JOP_DEBUG_INFO("Exit signal received, exiting...");

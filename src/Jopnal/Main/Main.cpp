@@ -94,10 +94,11 @@ extern int main(int argc, char* argv[]);
 
                 case APP_CMD_DESTROY:
                 {
-                    Engine::exit();
-
                     app->onAppCmd = nullptr;
                     app->onInputEvent = nullptr;
+                    ActivityState::get()->pollFunc = nullptr;
+
+                    Engine::exit();
 
                     break;
                 }
@@ -176,16 +177,18 @@ extern int main(int argc, char* argv[]);
 
         //jop::GooglePlayService::init(app, app->activity);
 
-        jop::Thread::attachJavaThread(app->activity->vm);
+        auto vm = app->activity->vm;
+
+        jop::Thread::attachJavaThread(vm, app->activity->env);
 
         app->onAppCmd = jop::detail::onAppCmd;
         app->userData = jop::detail::ActivityState::create(app->activity);
 
         jop::detail::main(app);
 
-        jop::Thread::detachJavaThread(app->activity->vm);
+        jop::Thread::detachJavaThread(vm);
 
-        ANativeActivity_finish(app->activity);
+        jop::detail::ActivityState::reset();
     }
 
 #endif

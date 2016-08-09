@@ -75,4 +75,11 @@ namespace jop
     {
         return m_size;
     }
+
+    //////////////////////////////////////////////
+
+    unsigned int CubemapDepth::getDepth() const
+    {
+        return m_bytes;
+    }
 }

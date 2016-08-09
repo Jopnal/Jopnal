@@ -83,6 +83,8 @@ namespace jop
         ///
         virtual glm::uvec2 getSize() const = 0;
 
+        virtual unsigned int getDepth() const = 0;
+
 
         Texture& setFilterMode(const TextureSampler::Filter mode, const float param = 1.f);
 

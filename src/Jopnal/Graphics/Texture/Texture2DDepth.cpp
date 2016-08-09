@@ -84,6 +84,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Texture2DDepth::getDepth() const
+    {
+        return m_bytes;
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int Texture2DDepth::getFormatEnum(const unsigned int bytes)
     {
         switch (bytes)

@@ -123,14 +123,16 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Thread::attachJavaThread(void* vm)
+    void Thread::attachJavaThread(void* vm, void* mainEnv)
     {
     #ifdef JOP_OS_ANDROID
+
+        JOP_DEBUG_DIAG("Attaching thread " << std::this_thread::get_id() << " to JVM...");
 
         if (!vm)
             vm = detail::ActivityState::get()->nativeActivity->vm;
 
-        JNIEnv* env;
+        JNIEnv* env = static_cast<JNIEnv*>(mainEnv);
 
         JavaVMAttachArgs args;
         args.version = JNI_VERSION_1_6;
@@ -140,7 +142,7 @@ namespace jop
 
         if (res == JNI_ERR)
         {
-            JOP_DEBUG_ERROR("Failed to attach thread \"" << std::this_thread::get_id() << "\" to JNI");
+            JOP_DEBUG_ERROR("Failed to attach thread \"" << std::this_thread::get_id() << "\" to JVM");
             return;
         }
 
@@ -151,6 +153,7 @@ namespace jop
     #else
 
         vm;
+        mainEnv;
 
     #endif
     }
@@ -160,6 +163,8 @@ namespace jop
     void Thread::detachJavaThread(void* vm)
     {
     #ifdef JOP_OS_ANDROID
+
+        JOP_DEBUG_DIAG("Detaching thread " << std::this_thread::get_id() << " from JVM...");
 
         if (!vm)
             vm = detail::ActivityState::get()->nativeActivity->vm;

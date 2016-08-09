@@ -79,7 +79,7 @@ namespace detail
         template<typename ... Args>
         static void wait(Args&&... args)
         {
-            Thread::attachJavaThread(nullptr);
+            Thread::attachJavaThread(nullptr, nullptr);
 
             Window win(getWindowSettings());
 

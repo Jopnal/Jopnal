@@ -18,7 +18,7 @@ extern const unsigned char defaultShaderFrag[266];
 
 extern const unsigned char defaultShaderVert[466];
 
-extern const unsigned char defaultUberShaderFrag[17748];
+extern const unsigned char defaultUberShaderFrag[17746];
 
 extern const unsigned char defaultUberShaderVert[2662];
 

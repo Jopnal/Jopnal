@@ -187,6 +187,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    unsigned int Cubemap::getDepth() const
+    {
+        return m_bytesPerPixel;
+    }
+
+    //////////////////////////////////////////////
+
     Cubemap& Cubemap::getError()
     {
         static WeakReference<Cubemap> errTex;

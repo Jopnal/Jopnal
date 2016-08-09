@@ -154,49 +154,59 @@ namespace
     void goFullscreen()
     {
         auto state = jop::detail::ActivityState::get();
-        auto apiLevel = state->getAPILevel();
 
         ANativeActivity_setWindowFlags(state->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
 
-        JNIEnv* env = jop::Thread::getCurrentJavaEnv();
-
-        jobject objectActivity = state->nativeActivity->clazz;
-        jclass classActivity = env->GetObjectClass(objectActivity);
-
-        jmethodID methodGetWindow = env->GetMethodID(classActivity, "getWindow", "()Landroid/view/Window;");
-        jobject objectWindow = env->CallObjectMethod(objectActivity, methodGetWindow);
-
-        jclass classWindow = env->FindClass("android/view/Window");
-        jmethodID methodGetDecorView = env->GetMethodID(classWindow, "getDecorView", "()Landroid/view/View;");
-        jobject objectDecorView = env->CallObjectMethod(objectWindow, methodGetDecorView);
-
-        jclass classView = env->FindClass("android/view/View");
-
-        jint flags = 0;
-
-        if (apiLevel >= 14)
-        {
-            jfieldID FieldSYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_LOW_PROFILE", "I");
-            jint SYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_LOW_PROFILE);
-            flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
-        }
-
-        if (apiLevel >= 16)
-        {
-            jfieldID FieldSYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_FULLSCREEN", "I");
-            jint SYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_FULLSCREEN);
-            flags |= SYSTEM_UI_FLAG_FULLSCREEN;
-        }
-
-        if (apiLevel >= 19)
-        {
-            jfieldID FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY  = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I");
-            jint SYSTEM_UI_FLAG_IMMERSIVE_STICKY = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-            flags |= SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
-
-        jmethodID methodsetSystemUiVisibility = env->GetMethodID(classView, "setSystemUiVisibility", "(I)V");
-        env->CallVoidMethod(objectDecorView, methodsetSystemUiVisibility, flags);
+        // const unsigned int apiLevel = state->getAPILevel();
+        //
+        // if (!apiLevel)
+        //     return;
+        //
+        // JNIEnv* env = jop::Thread::getCurrentJavaEnv();
+        //
+        // jobject objectActivity = state->nativeActivity->clazz;
+        // jclass classActivity = env->GetObjectClass(objectActivity);
+        //
+        // jmethodID methodGetWindow = env->GetMethodID(classActivity, "getWindow", "()Landroid/view/Window;");
+        // jobject objectWindow = env->CallObjectMethod(objectActivity, methodGetWindow);
+        //
+        // jclass classWindow = env->FindClass("android/view/Window");
+        // jmethodID methodGetDecorView = env->GetMethodID(classWindow, "getDecorView", "()Landroid/view/View;");
+        // jobject objectDecorView = env->CallObjectMethod(objectWindow, methodGetDecorView);
+        //
+        // jclass classView = env->FindClass("android/view/View");
+        //
+        // jint flags = 0;
+        //
+        // if (apiLevel >= 14)
+        // {
+        //     jfieldID FieldSYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_LOW_PROFILE", "I");
+        //     jint SYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_LOW_PROFILE);
+        //     flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
+        // }
+        //
+        // if (apiLevel >= 16)
+        // {
+        //     jfieldID FieldSYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_FULLSCREEN", "I");
+        //     jint SYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_FULLSCREEN);
+        //     flags |= SYSTEM_UI_FLAG_FULLSCREEN;
+        // }
+        //
+        // if (apiLevel >= 19)
+        // {
+        //     jfieldID FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY  = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I");
+        //     jint SYSTEM_UI_FLAG_IMMERSIVE_STICKY = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        //     flags |= SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        // }
+        //
+        // jmethodID methodsetSystemUiVisibility = env->GetMethodID(classView, "setSystemUiVisibility", "(I)V");
+        // env->CallVoidMethod(objectDecorView, methodsetSystemUiVisibility, flags);
+        //
+        // env->DeleteLocalRef(classActivity);
+        // env->DeleteLocalRef(objectWindow);
+        // env->DeleteLocalRef(classWindow);
+        // env->DeleteLocalRef(objectDecorView);
+        // env->DeleteLocalRef(classView);
     }
 }
 
@@ -204,9 +214,9 @@ namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
         : m_surface     (EGL_NO_SURFACE),
-        m_context     (EGL_NO_CONTEXT),
-        m_size        (0),
-        m_windowPtr   (&windowPtr)
+          m_context     (EGL_NO_CONTEXT),
+          m_size        (0),
+          m_windowPtr   (&windowPtr)
     {
         initialize();
 
@@ -670,14 +680,6 @@ namespace jop { namespace detail
 
     int32_t onMotion(const int32_t& action, void* data)
     {
-        auto env = Thread::getCurrentJavaEnv();
-
-        if (!env)
-        {
-            JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
-            return 0;
-        }
-
         auto event = static_cast<AInputEvent*>(data);
 
         switch (action & AMOTION_EVENT_ACTION_MASK)
@@ -707,38 +709,38 @@ namespace jop { namespace detail
     {
         auto env = Thread::getCurrentJavaEnv();
 
-        //if (!env)
-        //{
-        //    JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
+        if (!env)
+        {
+            JOP_DEBUG_ERROR("No current java environment, function \"" << __func__ << "\"");
             return;
-        //}
+        }
 
-        auto event = static_cast<AInputEvent*>(data);
-
-        jint flags = 0;
-
-        jlong downTime = AKeyEvent_getDownTime(event);
-        jlong eventTime = AKeyEvent_getEventTime(event);
-        jint action = AKeyEvent_getAction(event);
-        jint code = AKeyEvent_getKeyCode(event);
-        jint repeat = AKeyEvent_getRepeatCount(event);
-        jint metaState = AKeyEvent_getMetaState(event);
-        jint deviceId = AInputEvent_getDeviceId(event);
-        jint scancode = AKeyEvent_getScanCode(event);
-        flags = AKeyEvent_getFlags(event);
-        jint source = AInputEvent_getSource(event);
-
-        jclass ClassKeyEvent = env->FindClass("android/view/KeyEvent");
-        jmethodID KeyEventConstructor = env->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
-        jobject ObjectKeyEvent = env->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
-
-        jmethodID MethodGetUnicode = env->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
-        const unsigned int utf = env->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
-
-        Engine::getMainWindow().getEventHandler()->textEntered(utf);
-
-        env->DeleteLocalRef(ClassKeyEvent);
-        env->DeleteLocalRef(ObjectKeyEvent);
+        //auto event = static_cast<AInputEvent*>(data);
+        //
+        //jint flags = 0;
+        //
+        //jlong downTime = AKeyEvent_getDownTime(event);
+        //jlong eventTime = AKeyEvent_getEventTime(event);
+        //jint action = AKeyEvent_getAction(event);
+        //jint code = AKeyEvent_getKeyCode(event);
+        //jint repeat = AKeyEvent_getRepeatCount(event);
+        //jint metaState = AKeyEvent_getMetaState(event);
+        //jint deviceId = AInputEvent_getDeviceId(event);
+        //jint scancode = AKeyEvent_getScanCode(event);
+        //flags = AKeyEvent_getFlags(event);
+        //jint source = AInputEvent_getSource(event);
+        //
+        //jclass ClassKeyEvent = env->FindClass("android/view/KeyEvent");
+        //jmethodID KeyEventConstructor = env->GetMethodID(ClassKeyEvent, "<init>", "(JJIIIIIIII)V");
+        //jobject ObjectKeyEvent = env->NewObject(ClassKeyEvent, KeyEventConstructor, downTime, eventTime, action, code, repeat, metaState, deviceId, scancode, flags, source);
+        //
+        //jmethodID MethodGetUnicode = env->GetMethodID(ClassKeyEvent, "getUnicodeChar", "(I)I");
+        //const unsigned int utf = env->CallIntMethod(ObjectKeyEvent, MethodGetUnicode, metaState);
+        //
+        //Engine::getMainWindow().getEventHandler()->textEntered(utf);
+        //
+        //env->DeleteLocalRef(ClassKeyEvent);
+        //env->DeleteLocalRef(ObjectKeyEvent);
     }
 }}
 
