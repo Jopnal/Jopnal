@@ -35,7 +35,6 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
@@ -43,7 +42,7 @@ namespace jop
         const bool collide, const glm::vec2& axis,
         const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
         ) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2WheelJointDef jointDef;
@@ -60,23 +59,7 @@ namespace jop
         m_jointL = static_cast<b2WheelJoint*>(m_joint);
     }
 
-    WheelJoint2D& WheelJoint2D::enableMotor(const bool enable)
-    {
-        m_jointL->EnableMotor(enable);
-        return *this;
-    }
-
-    WheelJoint2D& WheelJoint2D::setMotorForces(const float speed, const float torque)
-    {
-        m_jointL->SetMotorSpeed(speed);
-        m_jointL->SetMaxMotorTorque(torque);
-        return *this;
-    }
-
-    std::pair<float, float> WheelJoint2D::getMotorForces()
-    {
-        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
-    }
+    //////////////////////////////////////////////
 
     WheelJoint2D& WheelJoint2D::setDamping(const float frequency, const float damping)
     {
@@ -85,8 +68,34 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> WheelJoint2D::getDamping()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> WheelJoint2D::getDamping() const
     {
-        return std::make_pair<float, float>(m_jointL->GetSpringFrequencyHz(), m_jointL->GetSpringDampingRatio());
+        return std::make_pair(m_jointL->GetSpringFrequencyHz(), m_jointL->GetSpringDampingRatio());
+    }
+
+    //////////////////////////////////////////////
+
+    WheelJoint2D& WheelJoint2D::enableMotor(const bool enable)
+    {
+        m_jointL->EnableMotor(enable);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    WheelJoint2D& WheelJoint2D::setMotorForces(const float speed, const float torque)
+    {
+        m_jointL->SetMotorSpeed(speed);
+        m_jointL->SetMaxMotorTorque(torque);
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    std::pair<float, float> WheelJoint2D::getMotorForces() const
+    {
+        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
     }
 }

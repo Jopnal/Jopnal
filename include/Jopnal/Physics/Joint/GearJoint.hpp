@@ -19,47 +19,57 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_ROPEJOINT2D_HPP
-#define JOP_ROPEJOINT2D_HPP
+#ifndef JOP_GEARJOINT_HPP
+#define JOP_GEARJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Joint2D.hpp>
-#include <glm/vec2.hpp>
-#include <utility>
+#include <Jopnal/Physics/Joint/Joint.hpp>
 
 //////////////////////////////////////////////
 
 
-class b2DistanceJoint;
+class btGearConstraint;
 
 namespace jop
 {
-    class JOP_API RopeJoint2D : public Joint2D
+    class JOP_API GearJoint : public Joint
     {
     public:
-
-        /// \brief RopeJoint2D constructor.
+        /// \brief GearJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param anchorX Anchor point in local coordinates. Please use values between -1.f - +1.f. Defaults to the center.
+        /// \param rotAxisX Local axis of body X in which to apply and observe rotation.
+        /// \param ratio Ratio in which to affect bodies.
         ///
-        RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide,
-            const glm::vec2& anchorA = glm::vec2(0.f, 0.f), const glm::vec2& anchorB = glm::vec2(0.f, 0.f));
+        GearJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& rotAxisA, const glm::vec3& rotAxisB, const float ratio = 1.f);
 
-        /// \return Returns damping values: first = frequency, second = damping.
+        /// \param bodyA Body which axis to get. True for bodyA, false for bodyB. Default true.
         ///
-        std::pair<float, float>getDamping() const;
+        /// \return Returns current target vector
+        ///
+        glm::vec3 getAxis(const bool bodyA = true) const;
 
-        /// \param frequency Damping frequency in Hz.
-        /// \param damping Damping ratio. Please use values between 0.f - 1.0f.
+        /// \return Returns current ratio of the joint.
+        ///
+        float getRatio() const;
+
+        /// \param axis Axis to use 
+        /// \param bodyA Body which axis to get. True for bodyA, false for bodyB. Default true.
         ///
         /// \return Returns reference to self.
         ///
-        RopeJoint2D& setDamping(const float frequency, const float damping);
+        GearJoint& setAxis(const glm::vec3& axis, const bool bodyA = true);
+
+        /// \param ratio New ratio to use in the joint.
+        ///
+        /// \return Returns reference to self.
+        ///
+        GearJoint& setRatio(const float ratio);
 
     private:
-        b2DistanceJoint* m_jointL;
+        btGearConstraint* m_jointL;
+
     };
 }
 #endif

@@ -381,7 +381,10 @@ namespace jop
     #ifdef JOP_DEBUG_MODE
 
         static const int debugField = btIDebugDraw::DBG_DrawAabb
-                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
+                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE
+                                    | btIDebugDraw::DBG_DrawConstraints
+                                    | btIDebugDraw::DBG_DrawConstraintLimits
+                                    ;
 
         m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
 

@@ -19,40 +19,58 @@
 
 //////////////////////////////////////////////
 
-
 template<typename T>
 T* RigidBody::getJoint(unsigned int id)
 {
-    /*for (auto& i : m_joints)
+    for (auto& i : m_joints)
     {
-    if (typeid(*i) == typeid(T) && id == i->getID())
-    return static_cast<T*>(i.get());
-    }*/
+        if (typeid(*i) == typeid(T) && id == i->getID())
+            return static_cast<T*>(i.get());
+    }
     return nullptr;
 }
 
 template<typename T>
-bool RigidBody::breakJoint(unsigned int id)
+bool RigidBody::breakJoint(RigidBody& other, unsigned int IDthis, unsigned int IDother)
 {
-    /*for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
+    unsigned int result = 0;
+
+    if ((!m_joints.empty()) && (!other.m_joints.empty()))
     {
-        if (typeid(*(*itr)) == typeid(T) && id == (*itr)->getID())
+        //this
+        for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
         {
-            m_joints.erase(itr);
-            return true;
+            if (typeid(*(*itr)) == typeid(T) && IDthis == (*itr)->getID())
+            {
+                //something like this but now not same place?
+                //itr->get()->m_bodyA->m_joints.erase(itr);
+                //itr->get()->m_bodyB->m_joints.erase(itr);
+                m_joints.erase(itr);
+                ++result;
+                break;
+            }
         }
-    }*/
+
+        //other
+        for (auto itr = other.m_joints.begin(); itr != other.m_joints.end(); ++itr)
+        {
+            if (typeid(*(*itr)) == typeid(T) && IDother == (*itr)->getID())
+            {
+                other.m_joints.erase(itr);
+                return ++result == 2;
+            }
+        }
+    }
     return false;
 }
 
 template<typename T, typename ... Args>
 T& RigidBody::link(RigidBody& other, Args&&... args)
 {
-    //auto joint = std::make_shared<T>(m_worldRef2D, *this, other, std::forward<Args>(args)...);
+    auto joint = std::make_shared<T>(m_worldRef, *this, other, std::forward<Args>(args)...);
 
-    //m_joints.emplace(joint);
-    //other.m_joints.emplace(joint);
+    m_joints.emplace(joint);
+    other.m_joints.emplace(joint);
 
-    //return static_cast<T&>(*joint);
-    return T();
+    return static_cast<T&>(*joint);
 }

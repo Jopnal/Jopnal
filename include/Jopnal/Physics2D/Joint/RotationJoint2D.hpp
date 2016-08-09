@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics2D/Joint2D.hpp>
+#include <glm/vec2.hpp>
 #include <utility>
 
 //////////////////////////////////////////////
@@ -37,8 +38,13 @@ namespace jop
     class JOP_API RotationJoint2D : public Joint2D
     {
     public:
-        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
-    
+        /// \brief RotationJoint2D constructor
+        ///
+        /// \param localAnchorA Anchor point in the bodyA to start the connection from. Local coordinates: -1.f - +1.f. Default is center.
+        /// Anchor point for bodyB can not changed. It is at the center of bodyB.
+        ///
+        RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& localAnchorA = glm::vec2(0.f, 0.f));
+
         /// \param enable Enables/disables obeying rotation limits.
         ///
         /// \return Returns reference to self.
@@ -56,8 +62,10 @@ namespace jop
 
         /// \return Returns current rotation limits in radians: first = minimum angle, second = maximum angle.
         ///
-        std::pair<float, float> getLimits();
+        std::pair<float, float> getLimits() const;
 
+        //OPEN TO PUBLIC IF NEEDED
+    private:
         /// \param enable Enables/disables motor.
         ///
         /// \return Returns reference to self.
@@ -73,7 +81,7 @@ namespace jop
 
         /// \return Returns motor forces: first = current rotation speed, second = maximum torque.
         ///
-        std::pair<float, float> getMotorForces();
+        std::pair<float, float> getMotorForces() const;
 
     private:
         b2RevoluteJoint* m_jointL;

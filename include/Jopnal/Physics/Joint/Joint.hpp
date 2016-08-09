@@ -19,51 +19,57 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_JOINT2D_HPP
-#define JOP_JOINT2D_HPP
+#ifndef JOP_JOINT_HPP
+#define JOP_JOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec3.hpp>
+#include <memory>
 
 //////////////////////////////////////////////
 
 
-class b2Joint;
-class b2Body;
+class btCollisionObject;
+class btDiscreteDynamicsWorld;
+class btRigidBody;
+class btTypedConstraint;
 
 namespace jop
 {
-    class RigidBody2D;
-    class World2D;
+    class RigidBody;
+    class World;
 
-    class JOP_API Joint2D
+    class JOP_API Joint
     {
-        friend class RigidBody2D;
-        friend class GearJoint2D;
+        friend class RigidBody;
+        //friend class GearJoint;
 
     public:
-        /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
-        /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
+        /// \param bodyA RigidBody where to attach this joint. Received automatically from the calling function.
+        /// \param bodyB RigidBody in which to attach the second end of the joint. Given by user as the first argument.
         ///
-        Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
-        virtual ~Joint2D() = 0;
+        Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
+        virtual ~Joint() = 0;
 
         unsigned int getID() const;
-        Joint2D& setID(const unsigned int id);
+        Joint& setID(const unsigned int id);
 
-        World2D* m_worldRef;
+        World* m_worldRef;
 
-        RigidBody2D* m_bodyA;
-        RigidBody2D* m_bodyB;
-        //std::weak_ptr<RigidBody2D> m_bodyA;
-        //std::weak_ptr<RigidBody2D> m_bodyB;
+        RigidBody* m_bodyA;
+        RigidBody* m_bodyB;
 
     protected:
 
-        static b2Body* getBody(RigidBody2D& body); //(std::weak_ptr<RigidBody2D>& body);
+        btRigidBody* getBody(RigidBody& body) const; 
+        btDiscreteDynamicsWorld& getWorld(World& world) const;
+
+        glm::vec3 defaultCenter(const glm::vec3& jPos) const;
+        glm::vec3 computeCenter() const;
 
         bool m_collide;
-        b2Joint* m_joint;
+        std::unique_ptr<btTypedConstraint> m_joint;
         unsigned int m_ID;
     };
 }

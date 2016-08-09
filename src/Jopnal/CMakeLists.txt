@@ -100,7 +100,12 @@ if (JOP_OS_ANDROID)
 
 endif()
 
-set(PREFIX_DIR "${PROJECT_BINARY_DIR}/extlibs")
+if (JOP_OS_ANDROID)
+    set(PREFIX_DIR "${PROJECT_BINARY_DIR}/extlibs/${ANDROID_ABI}-${ANDROID_API_MIN}")
+else ()
+    set(PREFIX_DIR "${PROJECT_BINARY_DIR}/extlibs")
+endif()
+
 set(DL_DIR "${PROJECT_SOURCE_DIR}/extlibs/temp")
 
 # PhysFS

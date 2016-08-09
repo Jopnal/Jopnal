@@ -40,7 +40,7 @@
 namespace jop
 {
     PistonJoint2D::PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2PrismaticJointDef jointDef;
@@ -52,11 +52,15 @@ namespace jop
         m_jointL = static_cast<b2PrismaticJoint*>(m_joint);
     }
 
+    //////////////////////////////////////////////
+
     PistonJoint2D& PistonJoint2D::limit(const bool enable)
     {
         m_jointL->EnableLimit(enable);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     PistonJoint2D& PistonJoint2D::setLimits(const float min, const float max)
     {
@@ -65,16 +69,22 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> PistonJoint2D::getLimits()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> PistonJoint2D::getLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+        return std::make_pair(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
     }
+
+    //////////////////////////////////////////////
 
     PistonJoint2D& PistonJoint2D::enableMotor(const bool set)
     {
         m_jointL->EnableMotor(set);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     PistonJoint2D& PistonJoint2D::setMotorForces(const float speed, const float force)
     {
@@ -85,9 +95,10 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> PistonJoint2D::getMotorForces()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> PistonJoint2D::getMotorForces() const
     {
         return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorForce());
     }
-
 }

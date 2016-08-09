@@ -24,12 +24,13 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Physics2D/Joint2D.hpp>
+    #include <Jopnal/Physics/Joint/Joint.hpp>
 
-    #include <Jopnal/Physics2D/RigidBody2D.hpp>
-    #include <Jopnal/Physics2D/World2D.hpp>
-    #include <Box2D/Dynamics/Joints/b2Joint.h>
-    #include <Box2D/Dynamics/b2World.h>
+#include <Jopnal/Core/Object.hpp>
+#include <Jopnal/Physics/World.hpp>
+#include <Jopnal/Physics/RigidBody.hpp>
+#include <Jopnal/Physics/Detail/WorldImpl.hpp>
+#include <Jopnal/STL.hpp>
 
 #endif
 
@@ -38,7 +39,7 @@
 namespace jop
 {
 
-    Joint2D::Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
+    Joint::Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide) :
         m_bodyA     (&bodyA),
         m_bodyB     (&bodyB),
         m_worldRef  (&worldRef),
@@ -48,24 +49,43 @@ namespace jop
     {
     }
 
-    Joint2D::~Joint2D()
+    Joint::~Joint()
     {
-        m_worldRef->m_worldData2D->DestroyJoint(m_joint);
+        m_worldRef->m_worldData->world->removeConstraint(m_joint.get());
     }
 
-    unsigned int Joint2D::getID() const
+    unsigned int Joint::getID() const
     {
         return m_ID;
     }
 
-    Joint2D& Joint2D::setID(const unsigned int id)
+    Joint& Joint::setID(const unsigned int id)
     {
         m_ID = id;
         return *this;
     }
 
-    b2Body* Joint2D::getBody(RigidBody2D& body)
+    btRigidBody* Joint::getBody(RigidBody& body) const
     {
-        return body.m_body;
+        return body.m_rigidBody;
     }
+
+    btDiscreteDynamicsWorld& Joint::getWorld(World& world) const
+    {
+        return *world.m_worldData->world;
+    }
+
+    glm::vec3 Joint::defaultCenter(const glm::vec3& jPos) const
+    {
+        return jPos == glm::vec3(0.f, 0.f, FLT_MAX) ?
+            computeCenter() : jPos;
+    }
+
+    glm::vec3 Joint::computeCenter() const
+    {
+        return (m_bodyA->getObject()->getGlobalPosition() + m_bodyB->getObject()->getGlobalPosition()) * 0.5f;
+    }
+
+
+
 }

@@ -246,7 +246,7 @@ namespace jop
         /// \return Returns true if successful.
         ///
         template<typename T>
-        bool breakJoint(RigidBody2D&, unsigned int IDthis = 0, unsigned int IDother = 0);
+        bool breakJoint(unsigned int ID = 0);
 
         /// \brief Creates a joint between this RigidBody2D and another RigidBody2D.
         ///

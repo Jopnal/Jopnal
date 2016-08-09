@@ -21,11 +21,11 @@
 
 
 template<typename T>
-T* RigidBody2D::getJoint(unsigned int id)
+T* RigidBody2D::getJoint(unsigned int ID)
 {
     for (auto& i : m_joints)
     {
-        if (typeid(*i) == typeid(T) && id == i->getID())
+        if (typeid(*i) == typeid(T) && ID == i->getID())
             return static_cast<T*>(i.get());
     }
     return nullptr;
@@ -34,31 +34,15 @@ T* RigidBody2D::getJoint(unsigned int id)
 //////////////////////////////////////////////
 
 template<typename T>
-bool RigidBody2D::breakJoint(RigidBody2D& other, unsigned int IDthis, unsigned int IDother)
+bool RigidBody2D::breakJoint(unsigned int ID)
 {
-    unsigned int result = 0;
-    
-    if ((!m_joints.empty()) && (!other.m_joints.empty()))
+    for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
     {
-        //this
-        for (auto itr = m_joints.begin(); itr != m_joints.end(); ++itr)
+        if (typeid(*(*itr)) == typeid(T) && ID == (*itr)->getID())
         {
-            if (typeid(*(*itr)) == typeid(T) && IDthis == (*itr)->getID())
-            {
-                m_joints.erase(itr);
-                ++result;
-                break;
-            }
-        }
-
-        //other
-        for (auto itr = other.m_joints.begin(); itr != other.m_joints.end(); ++itr)
-        {
-            if (typeid(*(*itr)) == typeid(T) && IDother == (*itr)->getID())
-            {
-                other.m_joints.erase(itr);
-                return ++result == 2;
-            }
+            itr->get()->m_bodyA->m_joints.erase(*itr);
+            itr->get()->m_bodyB->m_joints.erase(*itr);
+            return true;
         }
     }
 

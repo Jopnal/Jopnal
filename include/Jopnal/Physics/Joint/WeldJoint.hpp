@@ -19,48 +19,41 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PULLEYJOINT2D_HPP
-#define JOP_PULLEYJOINT2D_HPP
+#ifndef JOP_WELDJOINT_HPP
+#define JOP_WELDJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Joint2D.hpp>
-#include <glm/vec2.hpp>
-#include <utility>
+#include <Jopnal/Physics/Joint/Joint.hpp>
 
 //////////////////////////////////////////////
 
-
-class b2PulleyJoint;
+class btFixedConstraint;
 
 namespace jop
 {
-    class JOP_API PulleyJoint2D : public Joint2D
+    class JOP_API WeldJoint : public Joint
     {
     public:
-
-        /// \brief PulleyJoint2D constructor
+        /// \brief WeldJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param ratio Ratio for which the ropes move in relation to each other.
-        /// \param groundAnchor World coordinates for attachment point of the second end of the rope.
-        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
         ///
-        /// \return PulleyJoint2D
-        ///
-        PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
-            const bool collide, const float ratio,
-            const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
-            const glm::vec2& localAnchorA = glm::vec2(0.f, 0.f),
-            const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
-            );
+        WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
-        /// \return Returns current rope lengths: first = bodyA, second = bodyB
+        /// \return Returns currently used damping.
         ///
-        std::pair<float, float> getRopeLengths() const;
+        float getDamping() const;
+
+        /// \param damping Set new damping value. Please use values between 0.f - 1.f.
+        ///
+        /// \return Returns reference to self.
+        ///
+        WeldJoint& setDamping(const float damping);
 
     private:
-        b2PulleyJoint* m_jointL;
+        btFixedConstraint* m_jointL;
+        float m_damping;
     };
 }
 #endif

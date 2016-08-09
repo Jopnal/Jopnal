@@ -85,7 +85,8 @@ namespace jop
         : Collider      (object, world, 0),
           m_type        (info.m_type),
           m_mass        (info.m_mass),
-          m_rigidBody   (nullptr)
+        m_rigidBody (nullptr),
+        m_allowSleep(true)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -147,6 +148,19 @@ namespace jop
 
     RigidBody::~RigidBody()
     {
+        for (auto& i : m_joints)
+        {
+            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+
+            //if (!body.expired())
+            body/*.lock()*/->m_joints.erase(i);
+            {
+                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                thisBody = nullptr;
+            }
+        }
+        m_joints.clear();
+
         m_worldRef.m_worldData->world->removeRigidBody(btRigidBody::upcast(m_body.get()));
     }
 
@@ -316,6 +330,20 @@ namespace jop
             m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
         }
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    void RigidBody::setAllowSleep(const bool allow)
+    {
+        m_allowSleep = allow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool RigidBody::getAllowSleep() const
+    {
+        return m_allowSleep;
     }
 
     //////////////////////////////////////////////

@@ -13,13 +13,26 @@ set(__INC_PHYSICS
     ${__INCDIR_PHYSICS}/Collider.hpp
     ${__INCDIR_PHYSICS}/ContactInfo.hpp
     ${__INCDIR_PHYSICS}/ContactListener.hpp
-    ${__INCDIR_PHYSICS}/PhantomBody.hpp
+	${__INCDIR_PHYSICS}/PhantomBody.hpp
     ${__INCDIR_PHYSICS}/RayInfo.hpp
     ${__INCDIR_PHYSICS}/RigidBody.hpp
     ${__INCDIR_PHYSICS}/World.hpp
 )
 source_group("Physics\\Headers" FILES ${__INC_PHYSICS})
 list(APPEND SRC ${__INC_PHYSICS})
+
+# Include - Joint
+set(__INC_PHYSICS_JOINT
+	${__INCDIR_PHYSICS}/Joint/GearJoint.hpp
+    ${__INCDIR_PHYSICS}/Joint/Joint.hpp
+	${__INCDIR_PHYSICS}/Joint/PistonJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/RotationJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/RopeJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/WeldJoint.hpp
+	${__INCDIR_PHYSICS}/Joint/WheelJoint.hpp
+)
+source_group("Physics\\Headers\\Joint" FILES ${__INC_PHYSICS_JOINT})
+list(APPEND SRC ${__INC_PHYSICS_JOINT})
 
 # Include - Shape
 set(__INC_PHYSICS_SHAPE
@@ -51,13 +64,26 @@ set(__SRC_PHYSICS
     ${__SRCDIR_PHYSICS}/Collider.cpp
     ${__SRCDIR_PHYSICS}/ContactInfo.cpp
     ${__SRCDIR_PHYSICS}/ContactListener.cpp
-    ${__SRCDIR_PHYSICS}/PhantomBody.cpp
+	${__SRCDIR_PHYSICS}/PhantomBody.cpp
     ${__SRCDIR_PHYSICS}/RayInfo.cpp
     ${__SRCDIR_PHYSICS}/RigidBody.cpp
     ${__SRCDIR_PHYSICS}/World.cpp
 )
 source_group("Physics\\Source" FILES ${__SRC_PHYSICS})
 list(APPEND SRC ${__SRC_PHYSICS})
+
+# Source - Joint
+set(__SRC_PHYSICS_JOINT
+	${__SRCDIR_PHYSICS}/Joint/GearJoint.cpp
+    ${__SRCDIR_PHYSICS}/Joint/Joint.cpp
+	${__SRCDIR_PHYSICS}/Joint/PistonJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/RotationJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/RopeJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/WeldJoint.cpp
+	${__SRCDIR_PHYSICS}/Joint/WheelJoint.cpp
+)
+source_group("Physics\\Source\\Joint" FILES ${__SRC_PHYSICS_JOINT})
+list(APPEND SRC ${__SRC_PHYSICS_JOINT})
 
 # Source - Shape
 set(__SRC_PHYSICS_SHAPE

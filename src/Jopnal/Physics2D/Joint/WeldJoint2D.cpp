@@ -36,12 +36,11 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
     WeldJoint2D::WeldJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2WeldJointDef jointDef;
@@ -53,6 +52,8 @@ namespace jop
         m_jointL = static_cast<b2WeldJoint*>(m_joint);
     }
 
+    //////////////////////////////////////////////
+
     WeldJoint2D& WeldJoint2D::setDamping(const float frequency, const float damping)
     {
         JOP_ASSERT(frequency >= 0.f, "WeldJoint2D damping frequency can not be negative!");
@@ -63,8 +64,10 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> WeldJoint2D::getDamping()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> WeldJoint2D::getDamping() const
     {
-        return std::make_pair<float, float>(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
+        return std::make_pair(m_jointL->GetFrequency(), m_jointL->GetDampingRatio());
     }
 }

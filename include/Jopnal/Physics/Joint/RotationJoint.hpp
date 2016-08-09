@@ -19,48 +19,46 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_PULLEYJOINT2D_HPP
-#define JOP_PULLEYJOINT2D_HPP
+#ifndef JOP_ROTATIONJOINT_HPP
+#define JOP_ROTATIONJOINT_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics2D/Joint2D.hpp>
-#include <glm/vec2.hpp>
-#include <utility>
+#include <Jopnal/Physics/Joint/Joint.hpp>
 
 //////////////////////////////////////////////
 
-
-class b2PulleyJoint;
+class btGeneric6DofConstraint;
 
 namespace jop
 {
-    class JOP_API PulleyJoint2D : public Joint2D
+    class JOP_API RotationJoint : public Joint
     {
     public:
-
-        /// \brief PulleyJoint2D constructor
+        /// \brief RotationJoint constructor.
         ///
         /// \param collide Joined bodies collide with each other.
-        /// \param ratio Ratio for which the ropes move in relation to each other.
-        /// \param groundAnchor World coordinates for attachment point of the second end of the rope.
-        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
+        /// \param jPos Position of the joint in world coordinates.
         ///
-        /// \return PulleyJoint2D
-        ///
-        PulleyJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB,
-            const bool collide, const float ratio,
-            const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
-            const glm::vec2& localAnchorA = glm::vec2(0.f, 0.f),
-            const glm::vec2& localAnchorB = glm::vec2(0.f, 0.f)
-            );
+        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
 
-        /// \return Returns current rope lengths: first = bodyA, second = bodyB
+        /// \param lower True = return lower limits. False = return upper limits.
         ///
-        std::pair<float, float> getRopeLengths() const;
+        /// \return Returns desired limits of the joint.
+        ///
+        glm::vec3 getAngLimits(const bool lower) const;
+
+        /// Set new rotational limits for the joint in radians.
+        ///
+        /// \param lower True = set lower limits. False = set upper limits.
+        /// \param limits New limits to set to the joint.
+        ///
+        /// \return Returns reference to self.
+        ///
+        RotationJoint& setAngLimits(const bool lower, const glm::vec3& limits);
 
     private:
-        b2PulleyJoint* m_jointL;
+        btGeneric6DofConstraint* m_jointL;
     };
 }
 #endif

@@ -25,6 +25,13 @@
 
 // Headers
 #include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Physics/Joint/Joint.hpp>
+#include <Jopnal/Physics/Joint/GearJoint.hpp>
+#include <Jopnal/Physics/Joint/PistonJoint.hpp>
+#include <Jopnal/Physics/Joint/RotationJoint.hpp>
+#include <Jopnal/Physics/Joint/RopeJoint.hpp>
+#include <Jopnal/Physics/Joint/WeldJoint.hpp>
+#include <Jopnal/Physics/Joint/WheelJoint.hpp>
 #include <Jopnal/Physics/PhantomBody.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>

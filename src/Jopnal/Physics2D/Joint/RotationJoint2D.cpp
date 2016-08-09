@@ -34,27 +34,32 @@
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
 
-    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide) :
-        Joint2D(worldRef, bodyA, bodyB),
+    RotationJoint2D::RotationJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& localAnchorA) :
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(getBody(bodyA), getBody(bodyB), getBody(bodyA)->GetWorldCenter());
+        jointDef.localAnchorA += b2Vec2(localAnchorA.x, localAnchorA.y);
+        //localAnchorB is always at the center of the body.
         jointDef.collideConnected = collide;
 
         m_joint = static_cast<b2RevoluteJoint*>(getBody(bodyA)->GetWorld()->CreateJoint(&jointDef));
         m_jointL = static_cast<b2RevoluteJoint*>(m_joint);
     }
 
+    //////////////////////////////////////////////
+
     RotationJoint2D& RotationJoint2D::limit(const bool enable)
     {
         m_jointL->EnableLimit(enable);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint2D& RotationJoint2D::setLimits(const float minAngle, const float maxAngle)
     {
@@ -63,16 +68,22 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> RotationJoint2D::getLimits()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> RotationJoint2D::getLimits() const
     {
-        return std::make_pair<float, float>(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
+        return std::make_pair(m_jointL->GetLowerLimit(), m_jointL->GetUpperLimit());
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint2D& RotationJoint2D::enableMotor(const bool enable)
     {
         m_jointL->EnableMotor(enable);
         return *this;
     }
+
+    //////////////////////////////////////////////
 
     RotationJoint2D& RotationJoint2D::setMotorForces(const float speed, const float torque)
     {
@@ -81,9 +92,11 @@ namespace jop
         return *this;
     }
 
-    std::pair<float, float> RotationJoint2D::getMotorForces()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> RotationJoint2D::getMotorForces() const
     {
-        return std::make_pair<float, float>(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
+        return std::make_pair(m_jointL->GetMotorSpeed(), m_jointL->GetMaxMotorTorque());
     }
 
 }

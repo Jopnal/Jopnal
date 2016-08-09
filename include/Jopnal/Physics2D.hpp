@@ -26,7 +26,6 @@
 // Headers
 #include <Jopnal/Physics2D/Collider2D.hpp>
 #include <Jopnal/Physics2D/Joint/GearJoint2D.hpp>
-#include <Jopnal/Physics2D/Joint/MotorJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/PistonJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/PulleyJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/RopeJoint2D.hpp>

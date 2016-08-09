@@ -42,8 +42,10 @@ namespace jop
         struct GhostCallback;
         struct ContactListenerImpl;
     }
-    class World;
     class ContactListener;
+    class Joint;
+    class World;
+    
 
     class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
@@ -54,6 +56,8 @@ namespace jop
         friend struct detail::GhostCallback;
         friend struct detail::ContactListenerImpl;
         friend class ContactListener;
+        friend class Joint;
+        
 
     protected:
 

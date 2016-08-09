@@ -53,7 +53,7 @@ namespace jop
 
         /// \return Returns current damping: first = frequency, second = damping.
         ///
-        std::pair<float, float> getDamping();
+        std::pair<float, float> getDamping() const;
 
     private:
         b2WeldJoint* m_jointL;

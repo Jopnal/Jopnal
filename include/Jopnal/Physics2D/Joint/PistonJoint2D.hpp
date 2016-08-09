@@ -60,8 +60,10 @@ namespace jop
 
         /// \return Returns current movement limits of the piston: first = minimum, second = maximum.
         ///
-        std::pair<float, float> getLimits();
+        std::pair<float, float> getLimits() const;
 
+        //OPEN TO PUBLIC IF NEEDED
+    private:
         /// \param enable Enables/disables motor.
         ///
         /// \return Returns reference to self.
@@ -76,7 +78,7 @@ namespace jop
 
         /// \return Returns current motor forces: first = speed, second = force.
         ///
-        std::pair<float, float> getMotorForces();
+        std::pair<float, float> getMotorForces() const;
 
     private:
         b2PrismaticJoint* m_jointL;

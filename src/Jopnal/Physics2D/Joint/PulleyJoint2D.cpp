@@ -44,7 +44,7 @@ namespace jop
         const glm::vec2& groundAnchorA, const glm::vec2& groundAnchorB,
         const glm::vec2& localAnchorA, const glm::vec2& localAnchorB
         ) :
-        Joint2D(worldRef, bodyA, bodyB),
+        Joint2D(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         JOP_ASSERT(ratio > 0.f, "PulleyJoint2D ratio can not be exactly zero or negative!");
@@ -68,7 +68,9 @@ namespace jop
         m_jointL = static_cast<b2PulleyJoint*>(m_joint);
     }
 
-    std::pair<float, float> PulleyJoint2D::getRopeLengths()
+    //////////////////////////////////////////////
+
+    std::pair<float, float> PulleyJoint2D::getRopeLengths() const
     {
         return std::make_pair(m_jointL->GetCurrentLengthA(), m_jointL->GetCurrentLengthB());
     }
