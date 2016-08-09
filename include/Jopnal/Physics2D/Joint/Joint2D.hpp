@@ -42,29 +42,47 @@ namespace jop
         friend class GearJoint2D;
 
     public:
+        
+        /// \brief Joint2D constructor
+        ///
         /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
         /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
         ///
         Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
+
         virtual ~Joint2D() = 0;
 
+        ///\brief Get joint ID.
+        ///
+        /// \return Returns ID of the joint.
+        ///
         unsigned int getID() const;
+
+        /// \brief Set new ID for the joint.
+        ///
+        /// \param id New ID to set.
+        ///
+        /// \return Returns reference to self.
+        ///
         Joint2D& setID(const unsigned int id);
 
-        World2D* m_worldRef;
-
-        RigidBody2D* m_bodyA;
-        RigidBody2D* m_bodyB;
-        //std::weak_ptr<RigidBody2D> m_bodyA;
-        //std::weak_ptr<RigidBody2D> m_bodyB;
+        World2D* m_worldRef; ///< Pointer to the world.
+        RigidBody2D* m_bodyA; ///< Pointer to bodyA.
+        RigidBody2D* m_bodyB; ///< Pointer to bodyB.
 
     protected:
 
-        static b2Body* getBody(RigidBody2D& body); //(std::weak_ptr<RigidBody2D>& body);
+        /// \brief Return engine internal pointer to body.
+        ///
+        /// \param body RigidBody2D.
+        ///
+        /// \return Returns pointer to Box2D body.
+        ///
+        static b2Body* getBody(RigidBody2D& body); 
 
-        bool m_collide;
-        b2Joint* m_joint;
-        unsigned int m_ID;
+        bool m_collide; ///< Should the linked bodies collide.
+        b2Joint* m_joint; ///< Pointer to Box2D joint.
+        unsigned int m_ID; ///< Joint ID.
     };
 }
 #endif

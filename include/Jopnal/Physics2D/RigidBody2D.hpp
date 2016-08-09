@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics2D/Collider2D.hpp>
-#include <Jopnal/Physics2D/Joint2D.hpp>
+#include <Jopnal/Physics2D/Joint/Joint2D.hpp>
 #include <unordered_set>
 #include <memory>
 

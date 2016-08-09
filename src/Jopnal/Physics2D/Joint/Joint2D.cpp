@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Physics2D/Joint2D.hpp>
+    #include <Jopnal/Physics2D/Joint/Joint2D.hpp>
 
     #include <Jopnal/Physics2D/RigidBody2D.hpp>
     #include <Jopnal/Physics2D/World2D.hpp>

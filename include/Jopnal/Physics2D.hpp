@@ -32,7 +32,7 @@
 #include <Jopnal/Physics2D/Joint/RotationJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/WeldJoint2D.hpp>
 #include <Jopnal/Physics2D/Joint/WheelJoint2D.hpp>
-#include <Jopnal/Physics2D/Joint2D.hpp>
+#include <Jopnal/Physics2D/Joint/Joint2D.hpp>
 #include <Jopnal/Physics2D/RayInfo2D.hpp>
 #include <Jopnal/Physics2D/RigidBody2D.hpp>
 #include <Jopnal/Physics2D/Shape/CapsuleShape2D.hpp>
