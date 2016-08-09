@@ -37,6 +37,8 @@
 
 namespace jop { namespace detail
 {
+    class WindowImpl;
+
     struct JOP_API ActivityState
     {
     private:
@@ -44,6 +46,8 @@ namespace jop { namespace detail
         ActivityState();
 
     public:
+
+        ~ActivityState();
 
         static ActivityState* create(ANativeActivity* activity);
 
@@ -58,8 +62,10 @@ namespace jop { namespace detail
         ANativeWindow* nativeWindow;
 
         void (*pollFunc)();
+        void (*handleSurfaceCreation)();
+        void (*handleSurfaceDestruction)();
 
-        Window* window;
+        WindowImpl* window;
         glm::uvec2 screenSize;
         glm::uvec2 windowSize;
 

@@ -61,7 +61,7 @@ namespace jop
         {
         #if defined(JOP_OS_DESKTOP)
 
-            const int max = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
+            static const int max = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
 
             int count = 0;
             for (int i = 0; i < max; ++i)
@@ -130,7 +130,7 @@ namespace jop
 
     float Controller::getAxisOffset(const int index, const int axis)
     {
-        if (validateWindowRef())
+        if (validateWindowRef() && isControllerPresent(index))
         {
         #if defined(JOP_OS_DESKTOP)
 

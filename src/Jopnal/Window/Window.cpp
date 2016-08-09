@@ -95,8 +95,13 @@ namespace jop
             if (frameLimit.value > 0)
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>((1.f / frameLimit.value - m_frameClock.reset().asSeconds()) * 1000.f)));
 
-            if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
-                m_windowRef.m_impl->swapBuffers();
+            if (m_windowRef.isOpen())
+            {
+                if (Engine::getState() != Engine::State::Frozen)
+                    m_windowRef.m_impl->swapBuffers();
+                else
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
         }
     }
 

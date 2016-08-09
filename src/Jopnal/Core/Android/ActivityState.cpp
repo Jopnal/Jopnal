@@ -41,21 +41,28 @@ namespace
 namespace jop { namespace detail
 {
     ActivityState::ActivityState()
-        : nativeActivity        (NULL),
-          nativeWindow          (NULL),
-          pollFunc              (nullptr),
-          window                (nullptr),
-          screenSize            (0.f),
-          windowSize            (0.f),
-          activeKey             (-1),
-          focus                 (false),
-          activeController      (0)
+        : nativeActivity            (NULL),
+          nativeWindow              (NULL),
+          pollFunc                  (nullptr),
+          handleSurfaceCreation     (nullptr),
+          handleSurfaceDestruction  (nullptr),
+          window                    (nullptr),
+          screenSize                (0.f),
+          windowSize                (0.f),
+          activeKey                 (-1),
+          focus                     (false),
+          activeController          (0)
     {
         for (int i = 0; i < sizeof(lastTouchPosition) / sizeof(lastTouchPosition[0]); ++i)
             lastTouchPosition[i] = glm::vec2(-1.f);
 
         for (int i = 0; i < sizeof(activeAxes) / sizeof(activeAxes[0]); ++i)
             activeAxes[i] = 0.f;
+    }
+
+    ActivityState::~ActivityState()
+    {
+        Thread::detachJavaThread(nativeActivity->vm);
     }
 
     //////////////////////////////////////////////
@@ -68,6 +75,8 @@ namespace jop { namespace detail
         ns_instance->nativeActivity = activity;
 
         ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, AWINDOW_FLAG_KEEP_SCREEN_ON);
+
+        Thread::attachJavaThread(activity->vm, activity->env);
 
         // Get the screen size
         {

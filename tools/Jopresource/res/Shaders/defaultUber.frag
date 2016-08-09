@@ -595,7 +595,7 @@ void main()
     float alpha =
 
     #if defined(JMAT_OPACITYMAP)
-        (JOP_TEXTURE_2D(u_OpacityMap, OUT_TC).r + specularComponent)
+        (JOP_TEXTURE_2D(u_OpacityMap, OUT_TC).a + specularComponent)
     #elif defined(JMAT_DIFFUSEMAP)
         JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC).a
     #else

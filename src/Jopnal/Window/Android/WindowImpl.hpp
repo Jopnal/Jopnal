@@ -71,11 +71,16 @@ namespace jop { namespace detail
 
     private:
 
+        static void handleSurfaceCreation();
+
+        static void handleSurfaceDestruction();
+
+        EGLConfig m_config;
         EGLSurface m_surface;
         EGLContext m_context;
 
-        Window* m_windowPtr;
         glm::uvec2 m_size;
+        bool m_fullScreen;
     };
 
     JOP_API void getUnicode(void* data);
