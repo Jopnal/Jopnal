@@ -256,8 +256,6 @@ namespace jop
 
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
-
-        glCheck(glDisable(GL_DITHER));
     }
 
     //////////////////////////////////////////////

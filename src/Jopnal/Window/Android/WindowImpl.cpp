@@ -29,10 +29,12 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
     #include <android/window.h>
@@ -112,6 +114,9 @@ namespace
         {
             eglCheck(eglInitialize(getDisplay(), NULL, NULL));
 
+            if (jop::SettingManager::get<bool>("engine@Debug|bPrintEGLExtensions", false))
+                JOP_DEBUG_INFO("Available OpenGL extensions:\n\n" << eglQueryString(getDisplay(), EGL_EXTENSIONS));
+
             const EGLint attribs[] =
             {
                 EGL_WIDTH,  1,
@@ -130,7 +135,6 @@ namespace
             EGLint numConfigs = 0;
 
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
-
 
             ns_sharedSurface = eglCheck(eglCreatePbufferSurface(getDisplay(), config, attribs));
             JOP_ASSERT(ns_sharedSurface != EGL_NO_SURFACE, "Failed to create shared context surface!");
@@ -153,60 +157,7 @@ namespace
 
     void goFullscreen()
     {
-        auto state = jop::detail::ActivityState::get();
-
-        ANativeActivity_setWindowFlags(state->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
-
-        // const unsigned int apiLevel = state->getAPILevel();
-        //
-        // if (!apiLevel)
-        //     return;
-        //
-        // JNIEnv* env = jop::Thread::getCurrentJavaEnv();
-        //
-        // jobject objectActivity = state->nativeActivity->clazz;
-        // jclass classActivity = env->GetObjectClass(objectActivity);
-        //
-        // jmethodID methodGetWindow = env->GetMethodID(classActivity, "getWindow", "()Landroid/view/Window;");
-        // jobject objectWindow = env->CallObjectMethod(objectActivity, methodGetWindow);
-        //
-        // jclass classWindow = env->FindClass("android/view/Window");
-        // jmethodID methodGetDecorView = env->GetMethodID(classWindow, "getDecorView", "()Landroid/view/View;");
-        // jobject objectDecorView = env->CallObjectMethod(objectWindow, methodGetDecorView);
-        //
-        // jclass classView = env->FindClass("android/view/View");
-        //
-        // jint flags = 0;
-        //
-        // if (apiLevel >= 14)
-        // {
-        //     jfieldID FieldSYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_LOW_PROFILE", "I");
-        //     jint SYSTEM_UI_FLAG_LOW_PROFILE = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_LOW_PROFILE);
-        //     flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
-        // }
-        //
-        // if (apiLevel >= 16)
-        // {
-        //     jfieldID FieldSYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_FULLSCREEN", "I");
-        //     jint SYSTEM_UI_FLAG_FULLSCREEN = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_FULLSCREEN);
-        //     flags |= SYSTEM_UI_FLAG_FULLSCREEN;
-        // }
-        //
-        // if (apiLevel >= 19)
-        // {
-        //     jfieldID FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY  = env->GetStaticFieldID(classView, "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "I");
-        //     jint SYSTEM_UI_FLAG_IMMERSIVE_STICKY = env->GetStaticIntField(classView, FieldSYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        //     flags |= SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        // }
-        //
-        // jmethodID methodsetSystemUiVisibility = env->GetMethodID(classView, "setSystemUiVisibility", "(I)V");
-        // env->CallVoidMethod(objectDecorView, methodsetSystemUiVisibility, flags);
-        //
-        // env->DeleteLocalRef(classActivity);
-        // env->DeleteLocalRef(objectWindow);
-        // env->DeleteLocalRef(classWindow);
-        // env->DeleteLocalRef(objectDecorView);
-        // env->DeleteLocalRef(classView);
+        ANativeActivity_setWindowFlags(jop::detail::ActivityState::get()->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
     }
 }
 
@@ -302,6 +253,11 @@ namespace jop { namespace detail
         }
 
         ns_windowRefs[m_context] = &windowPtr;
+
+        if (settings.depthBits && JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB_write_control))
+        {
+            glCheck(glEnable(GL_FRAMEBUFFER_SRGB_EXT));
+        }
     }
 
     WindowImpl::~WindowImpl()

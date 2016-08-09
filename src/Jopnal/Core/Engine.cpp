@@ -109,7 +109,7 @@ namespace
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
         {
-            deb << "\n\n    Available extensions:\n\n";
+            deb << "\n\n    Available OpenGL extensions:\n\n";
 
         #ifdef JOP_OS_DESKTOP
 

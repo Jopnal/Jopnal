@@ -19,8 +19,8 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_GLCHECK_HPP
-#define JOP_GLCHECK_HPP
+#ifndef JOP_EGLCHECK_HPP
+#define JOP_EGLCHECK_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
