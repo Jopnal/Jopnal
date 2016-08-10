@@ -42,6 +42,32 @@ namespace jop
 
     public:
 
+        struct Flag
+        {
+            enum : uint32
+            {
+                sRGB,
+                GenMipmaps,
+                AllowCompression
+            };
+        };
+
+        enum class Format
+        {
+            Alpha_UB_8,
+            RGB_UB_8,
+            RGBA_UB_8,
+
+            RGB_F_16,
+            RGBA_F_16,
+
+            Depth_US_16,
+            Depth_UI_24,
+            Depth_F_32
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         Texture(const std::string& name, const unsigned int glTarget);
@@ -74,7 +100,7 @@ namespace jop
 
         void setSampler(const TextureSampler& sampler);
 
-        const TextureSampler& getSampler() const;
+        const TextureSampler* getSampler() const;
 
 
         /// \brief Get the texture size
@@ -150,9 +176,7 @@ namespace jop
         ///
         /// \param depth The pixel byte depth
         ///
-        static void setPixelStore(const unsigned int depth);
-
-        static void setAllowSRGB(const bool allow);
+        static void setUnpackAlignment(const Format format);
 
         static bool allowSRGB();
 
@@ -174,7 +198,5 @@ namespace jop
 
 #endif
 
-/// \class Texture
+/// \class jop::Texture
 /// \ingroup graphics
-
-/// stores and creates image data

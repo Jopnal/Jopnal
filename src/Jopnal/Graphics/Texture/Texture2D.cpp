@@ -44,9 +44,9 @@
 namespace jop
 {
     Texture2D::Texture2D(const std::string& name)
-        : Texture           (name, GL_TEXTURE_2D),
-          m_size            (0),
-          m_bytesPerPixel   (0)
+        : Texture   (name, GL_TEXTURE_2D),
+          m_size    (0),
+          m_format  (Format::Alpha_UB_8)
     {}
 
     //////////////////////////////////////////////
@@ -83,9 +83,8 @@ namespace jop
         bind();
 
         m_size = size;
-        m_bytesPerPixel = bytesPerPixel;
 
-        setPixelStore(bytesPerPixel);
+        setUnpackAlignment(bytesPerPixel);
 
         const GLenum depthEnum = getFormatEnum(bytesPerPixel, srgb);
         glCheck(glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormatEnum(bytesPerPixel, srgb), size.x, size.y, 0, depthEnum, getTypeEnum(bytesPerPixel), pixels));
@@ -93,6 +92,12 @@ namespace jop
         if (allowGenMipmaps(m_size, srgb) && genMipmaps)
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_2D));
+        }
+
+        // Swizzle R to A in GLES >=3.0 and GL >=3.3
+        if ((!gl::isES() || gl::getVersionMajor() >= 3) && Texture2D::getDepth() == 1)
+        {
+            glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED));
         }
 
         return true;
@@ -111,7 +116,7 @@ namespace jop
             bind();
 
             m_size = image.getSize();
-            setPixelStore(1);
+            setUnpackAlignment(1);
 
             // 8 bytes for DXT1 and 16 bytes for DXT3/5
             const unsigned int blockSize = (image.getFormat() <= Image::Format::DXT1RGBA) ? 8 : 16;
@@ -171,7 +176,7 @@ namespace jop
         }
 
         bind();
-        setPixelStore(bytesPerPixel);
+        setUnpackAlignment(bytesPerPixel);
         glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, getFormatEnum(m_bytesPerPixel, false), GL_UNSIGNED_BYTE, pixels));
     }
 

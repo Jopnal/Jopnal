@@ -61,10 +61,8 @@ list(APPEND SRC ${__INC_GRAPHICS_MESH})
 # Include - Texture
 set(__INC_GRAPHICS_TEXTURE    
     ${__INCDIR_GRAPHICS}/Texture/Cubemap.hpp
-    ${__INCDIR_GRAPHICS}/Texture/CubemapDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture.hpp
     ${__INCDIR_GRAPHICS}/Texture/Texture2D.hpp
-    ${__INCDIR_GRAPHICS}/Texture/Texture2DDepth.hpp
     ${__INCDIR_GRAPHICS}/Texture/TextureAtlas.hpp
     ${__INCDIR_GRAPHICS}/Texture/TextureSampler.hpp
 )
@@ -140,10 +138,8 @@ list(APPEND SRC ${__SRC_GRAPHICS_MESH})
 # Source - Texture
 set(__SRC_GRAPHICS_TEXTURE
     ${__SRCDIR_GRAPHICS}/Texture/Cubemap.cpp
-    ${__SRCDIR_GRAPHICS}/Texture/CubemapDepth.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Texture.cpp
     ${__SRCDIR_GRAPHICS}/Texture/Texture2D.cpp
-    ${__SRCDIR_GRAPHICS}/Texture/Texture2DDepth.cpp
     ${__SRCDIR_GRAPHICS}/Texture/TextureAtlas.cpp
     ${__SRCDIR_GRAPHICS}/Texture/TextureSampler.cpp
 )

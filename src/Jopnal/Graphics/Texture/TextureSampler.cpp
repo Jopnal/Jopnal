@@ -97,6 +97,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void TextureSampler::unbind(const unsigned int textureUnit)
+    {
+        glCheck(glBindSampler(textureUnit, 0));
+    }
+
+    //////////////////////////////////////////////
+
     TextureSampler& TextureSampler::reset()
     {
     #ifdef JOP_ENABLE_SAMPLERS

@@ -143,7 +143,7 @@ namespace jop
         destroy();
         bind();
 
-        setPixelStore(1);
+        setUnpackAlignment(1);
 
         const unsigned int mipMapCount = image.getMipMapCount();
         unsigned int offset = 0;

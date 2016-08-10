@@ -115,7 +115,7 @@ jopSetOption(BUILD_SHARED_LIBS TRUE BOOL "TRUE to build Jopnal as shared, FALSE 
 jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "TRUE to use an OpenGL ES, FALSE to use a desktop OpenGL")
 
 # Choose debug verbosity
-jopSetOption(JOP_CONSOLE_VERBOSITY "2" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
+jopSetOption(JOP_CONSOLE_VERBOSITY "1" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
 set_property(CACHE JOP_CONSOLE_VERBOSITY PROPERTY STRINGS
              "-1" "0" "1" "2" "3")
 add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
@@ -166,6 +166,10 @@ if (JOP_OS_ANDROID)
         add_definitions("-DSTL_LIBRARY=${ANDROID_STL}")
     endif()
 
+	# Force OpenGL ES
+	unset(JOP_OPENGL_ES CACHE)
+    set(JOP_OPENGL_ES TRUE)
+
     # Workaround to compile activity without the stl library as a dependency
     set(CMAKE_CXX_CREATE_SHARED_LIBRARY_WITH_STL ${CMAKE_CXX_CREATE_SHARED_LIBRARY})
     set(CMAKE_CXX_CREATE_SHARED_LIBRARY_WITHOUT_STL "<CMAKE_CXX_COMPILER> <CMAKE_SHARED_LIBRARY_CXX_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
@@ -210,6 +214,27 @@ if (JOP_OPENGL_ES)
     add_definitions(-DJOP_OPENGL_ES)
     add_definitions(-DGL_GLEXT_PROTOTYPES)
 
+	jopSetOption(JOP_MIN_OPENGL_ES_VERSION 200 STRING, "Select the minimum supported GLES version. Forcing a greater version will improve features, stability and performance but limit the amount of supported devices")
+	set_property(CACHE JOP_MIN_OPENGL_ES_VERSION PROPERTY STRINGS
+				 "200" "300" "310" "320")
+	
+	if (JOP_OS_ANDROID)
+	
+		if (${JOP_MIN_OPENGL_ES_VERSION} GREATER 200 AND ${ANDROID_API_MIN} LESS 18)
+			message(FATAL_ERROR "OpenGL ES 3.0 requires API level 18 or greater")
+		
+		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+			message(FATAL_ERROR "OpenGL ES 3.1 requires API level 23 or greater")
+			
+		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+			message(FATAL_ERROR "OpenGL ES 3.2 requires API level 24 or greater")
+
+        endif()
+	
+	endif()
+
+    add_definitions("-DJOP_MIN_OPENGL_ES_VERSION=${JOP_MIN_OPENGL_ES_VERSION}")
+	
 endif()
 
 # Force inclusion of available c++11 features

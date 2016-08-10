@@ -33,7 +33,6 @@
 #include <Jopnal/Graphics/Mesh/ConeMesh.hpp>
 #include <Jopnal/Graphics/Mesh/CylinderMesh.hpp>
 #include <Jopnal/Graphics/Texture/Cubemap.hpp>
-#include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
@@ -55,7 +54,6 @@
 #include <Jopnal/Graphics/SkySphere.hpp>
 #include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
-#include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
 #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>

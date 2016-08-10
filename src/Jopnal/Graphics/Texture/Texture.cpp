@@ -38,8 +38,6 @@
 
 namespace
 {
-    bool ns_allowSRGB = true;
-
     void setGLFilterMode(const GLenum target, const jop::TextureSampler::Filter mode, const float param)
     {
         using Filter = jop::TextureSampler::Filter;
@@ -170,11 +168,8 @@ namespace jop
 
     void Texture::destroy()
     {
-        if (m_texture)
-        {
-            glCheck(glDeleteTextures(1, &m_texture));
-            m_texture = 0;
-        }
+        glCheck(glDeleteTextures(1, &m_texture));
+        m_texture = 0;
     }
 
     //////////////////////////////////////////////
@@ -192,8 +187,11 @@ namespace jop
         glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
         glCheck(glBindTexture(m_target, m_texture));
 
+        
         if (!m_sampler.expired())
             m_sampler->bind(texUnit);
+        else
+            TextureSampler::unbind(texUnit);
 
         return isValid();
     }
@@ -214,9 +212,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const TextureSampler& Texture::getSampler() const
+    const TextureSampler* Texture::getSampler() const
     {
-        return *m_sampler;
+        return m_sampler.get();
     }
 
     //////////////////////////////////////////////
@@ -241,7 +239,6 @@ namespace jop
         if (bind())
         {
             setGLRepeatMode(m_target, repeat);
-
             m_repeat = repeat;
         }
 
@@ -301,8 +298,11 @@ namespace jop
     unsigned int Texture::getMaximumSize()
     {
         static unsigned int size = 0;
+
         if (!size)
+        {
             glCheck(glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint*>(&size)));
+        }
 
         return size;
     }
@@ -312,29 +312,34 @@ namespace jop
     unsigned int Texture::getMaxTextureUnits()
     {
         static unsigned int maxUnits = 0;
+
         if (!maxUnits)
+        {
             glCheck(glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint*>(&maxUnits)));
+        }
 
         return maxUnits;
     }
 
     //////////////////////////////////////////////
 
-    void Texture::setPixelStore(const unsigned int depth)
+    void Texture::setUnpackAlignment(const Format format)
     {
         GLint param = 4;
         
-        switch (depth)
+        switch (format)
         {
-            case 1:
+            case Format::Alpha_UB_8:
                 param = 1;
                 break;
 
-            case 2:
+            case Format::Depth_US_16:
                 param = 2;
                 break;
 
-            case 8:
+            case Format::RGB_F_16:
+            case Format::RGBA_F_16:
+            case Format::Depth_F_32:
                 param = 8;
         }
 
@@ -343,50 +348,48 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Texture::setAllowSRGB(const bool allow)
-    {
-        ns_allowSRGB = allow;
-    }
-
-    //////////////////////////////////////////////
-
     bool Texture::allowSRGB()
     {
+        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowSRGB", true);
+
     #ifdef JOP_OPENGL_ES
 
-        #if !defined(JOP_OPENGL_ES3) && !defined(GL_EXT_sRGB)
-            return false;
-
-        #else
-
-            if (jop::gl::getVersionMajor() < 3)
-                return JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB) && ns_allowSRGB;
-
-        #endif
+        return allow
+        
+        #if JOP_MIN_OPENGL_ES_VERSION < 300
+            && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB))
+        #endif;
 
     #endif
 
-        return ns_allowSRGB;
+        return allow;
     }
 
     //////////////////////////////////////////////
 
     bool Texture::allowGenMipmaps(const glm::uvec2& size, const bool srgb)
     {
+        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowMipmapGeneration", true);
+
     #ifdef JOP_OPENGL_ES
 
-        bool npot = ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0) || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot);
-        //static bool decode = JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode);
+        static const bool srgbMip = JOP_CHECK_GL_EXTENSION(GL_NV_generate_mipmap_sRGB);
 
+        return allow && (!srgb || srgbMip)
 
-        return (!srgb/* || decode*/) && npot;
+        #if JOP_MIN_OPENGL_ES_VERSION < 300
+
+            // Check NPOT
+            && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot) || ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0))
+
+        #endif;
 
     #else
 
         size;
         srgb;
 
-        return true;
+        return allow;
 
     #endif
     }
@@ -398,14 +401,5 @@ namespace jop
         setGLFilterMode(m_target, m_filter, m_anisotropic);
         setGLRepeatMode(m_target, m_repeat);
         setGLBorderColor(m_target, m_borderColor);
-
-    #ifdef JOP_OPENGL_ES
-
-        //if (JOP_CHECK_GL_EXTENSION(GL_EXT_texture_sRGB_decode))
-        //{
-        //    glCheck(glTexParameteri(m_target, GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT));
-        //}
-
-    #endif
     }
 }

@@ -31,31 +31,33 @@
 
 #ifdef JOP_OPENGL_ES
 
-    #include <android/api-level.h>
+    #ifdef JOP_OS_ANDROID
 
-    #if __ANDROID_API__ >= 18
+        #include <android/api-level.h>
 
-        #include <GLES3/gl3.h>
+        #if __ANDROID_API__ >= 18
 
-        #if __ANDROID_API__ >= 23
-            #include <GLES3/gl31.h>
+            #include <GLES3/gl3.h>
+
+            #if __ANDROID_API__ >= 23
+                #include <GLES3/gl31.h>
+            #endif
+
+            #if __ANDROID_API__ >= 24
+                #include <GLES3/gl32.h>
+            #endif
+
+            #define __gl2_h_ // Workaround for broken gl headers
+            #include <GL_ES/gl2ext.h>
+            #include <GLES3/gl3platform.h>
+
+        #else
+
+            #include <GL_ES/gl2.h>
+            #include <GL_ES/gl2ext.h>
+            #include <GLES2/gl2platform.h>
+
         #endif
-
-        #if __ANDROID_API__ >= 24
-            #include <GLES3/gl32.h>
-        #endif
-
-        #define __gl2_h_ // Workaround for broken gl headers
-        #include <GL_ES/gl2ext.h>
-        #include <GLES3/gl3platform.h>
-
-        #define JOP_OPENGL_ES3
-
-    #else
-
-        #include <GL_ES/gl2.h>
-        #include <GL_ES/gl2ext.h>
-        #include <GLES2/gl2platform.h>
 
     #endif
 

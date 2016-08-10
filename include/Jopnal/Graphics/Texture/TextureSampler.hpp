@@ -88,6 +88,8 @@ namespace jop
         ///
         void bind(const unsigned int textureUnit) const;
 
+        static void unbind(const unsigned int textureUnit);
+
         /// \brief Delete and recreate this sampler, clearing all the settings
         ///
         /// \return Reference to self
