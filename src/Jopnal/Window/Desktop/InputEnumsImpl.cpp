@@ -284,12 +284,12 @@ namespace jop
 
             switch (button)
             {
-                case  0:                    return a::LeftStickX;
-                case  1:                    return a::LeftStickY;
-                case  2:                    return a::RightStickX;
-                case  3:                    return a::RightStickY;
-                case  4:                    return a::LTrigger;
-                case  5:                    return a::RTrigger;
+                case  0:    return a::LeftStickX;
+                case  1:    return a::LeftStickY;
+                case  2:    return a::RightStickX;
+                case  3:    return a::RightStickY;
+                case  4:    return a::LTrigger;
+                case  5:    return a::RTrigger;
             }
             return button;
         }

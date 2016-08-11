@@ -36,108 +36,285 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-    void setGLFilterMode(const GLenum target, const jop::TextureSampler::Filter mode, const float param)
-    {
-        using Filter = jop::TextureSampler::Filter;
-
-        switch (mode)
-        {
-            case Filter::None:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-                break;
-            }
-            case Filter::Bilinear:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                break;
-            }
-            case Filter::Trilinear:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-                glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                break;
-            }
-            case Filter::Anisotropic:
-            {
-                if (jop::TextureSampler::getMaxAnisotropy() > 0.f)
-                {
-                    glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, jop::TextureSampler::getMaxAnisotropy())));
-                }
-                else
-                    // Should never happen but just to be sure.
-                    JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
-            }
-        }
-    }
-
-    void setGLRepeatMode(const GLenum target, const jop::TextureSampler::Repeat repeat)
-    {
-        using Repeat = jop::TextureSampler::Repeat;
-
-        switch (repeat)
-        {
-            case Repeat::Basic:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
-
-            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
-            #endif
-
-                break;
-            }
-            case Repeat::Mirrored:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
-
-            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
-            #endif
-
-                break;
-            }
-            case Repeat::ClampEdge:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-            #endif
-
-                break;
-            }
-
-        #ifndef JOP_OPENGL_ES
-
-            case Repeat::ClampBorder:
-            {
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
-                glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
-            }
-
-        #endif
-        }
-    }
-
-    void setGLBorderColor(const GLenum target, const jop::Color& color)
-    {
-    #ifndef JOP_OPENGL_ES
-        glCheck(glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, &color.colors[0]));
-    #endif
-    }
-}
-
 namespace jop
 {
+    namespace detail
+    {
+        void setGLFilterMode(const GLenum target, const TextureSampler::Filter mode, const float param)
+        {
+            using Filter = TextureSampler::Filter;
+
+            switch (mode)
+            {
+                case Filter::None:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                    break;
+                }
+                case Filter::Bilinear:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    break;
+                }
+                case Filter::Trilinear:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    break;
+                }
+                case Filter::Anisotropic:
+                {
+                    if (TextureSampler::getMaxAnisotropy() > 0.f)
+                    {
+                        glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, TextureSampler::getMaxAnisotropy())));
+                    }
+                    else
+                        JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
+                }
+            }
+        }
+
+        //////////////////////////////////////////////
+
+        void setGLRepeatMode(const GLenum target, const TextureSampler::Repeat repeat)
+        {
+            using Repeat = TextureSampler::Repeat;
+
+            switch (repeat)
+            {
+                case Repeat::Basic:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
+                #endif
+
+                    break;
+                }
+                case Repeat::Mirrored:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
+
+                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
+                #endif
+
+                    break;
+                }
+                case Repeat::ClampEdge:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+                #endif
+
+                    break;
+                }
+
+            #ifndef JOP_OPENGL_ES
+
+                case Repeat::ClampBorder:
+                {
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
+                }
+
+            #endif
+            }
+        }
+
+        //////////////////////////////////////////////
+
+        void setGLBorderColor(const GLenum target, const Color& color)
+        {
+        #ifndef JOP_OPENGL_ES
+            glCheck(glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, &color.colors[0]));
+        #endif
+        }
+
+        //////////////////////////////////////////////
+
+        GLenum getFormatEnum(const Texture::Format format, const bool srgb)
+        {
+        #ifdef JOP_OPENGL_ES
+
+
+
+        #else
+
+        #endif
+        };
+
+        //////////////////////////////////////////////
+
+        GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb)
+        {
+            using F = Texture::Format;
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            static const bool sizedSupport = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(OES_required_internalformat);
+            static const bool hdrSupport = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(OES_texture_half_float);
+        #endif
+
+            const bool allowSRGB = srgb && Texture::allowSRGB();
+
+            switch (format)
+            {
+                // 8 bit alpha texture, internal formats differ
+                case F::Alpha_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_R8 :
+
+                    #endif
+
+                    // If version < 3.0
+                    (sizedSupport ? GL_ALPHA8_OES : GL_ALPHA);
+
+                #else
+                    GL_R8;
+
+                #endif
+                }
+
+                // 24 bit RGB texture
+                // Sized internal format & srgb only with extensions on GLES 2.0
+                case F::RGB_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? (allowSRGB ? GL_SRGB8 : GL_RGB8) :
+
+                    #endif
+
+                    // If version < 3.0
+                    (allowSRGB ? GL_SRGB_EXT : (sizedSupport ? GL_RGB8_OES : GL_RGB));
+
+                #else
+                    allowSRGB ? GL_SRGB8 : GL_RGB8;
+
+                #endif
+                }
+
+                // 32 bit RGBA texture
+                // Sized internal format & srgb only with extensions in GLES 2.0
+                case F::RGBA_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? (allowSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8) :
+
+                    #endif
+
+                    // If version < 3.0
+                    (allowSRGB ? GL_SRGB_ALPHA_EXT : (sizedSupport ? GL_RGBA8_OES : GL_RGBA));
+
+                #else
+                    allowSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+
+                #endif
+                }
+
+                // 48 bit RGB floating point texture
+                // Only with extensions in GLES 2.0
+                case F::RGB_F_16:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_RGB16F :
+
+                    #endif
+
+                    // If version < 3.0
+                    // "Floatness" or the texture will be driven
+                    // by the <type> parameter
+                    GL_RGB;
+
+                #else
+                    GL_RGB16F;
+
+                #endif
+                }
+
+                // 64 bit RGBA floating point texture
+                // Only with extensions in GLES 2.0
+                case F::RGBA_F_16:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_RGBA16F :
+
+                    #endif
+
+                    // If version < 3.0
+                    // See comment for RGB_F_16
+                    GL_RGB;
+
+                #else
+                    GL_RGBA16F;
+
+                #endif
+                }
+
+                // 16 bit depth texture
+                case F::Depth_US_16:
+                {
+
+                }
+            }
+        };
+
+        //////////////////////////////////////////////
+
+        GLenum getTypeEnum(const Texture::Format format)
+        {
+
+        }
+
+        //////////////////////////////////////////////
+
+        GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb)
+        {
+
+        }
+    }
+
+    //////////////////////////////////////////////
+
     Texture::Texture(const std::string& name, const unsigned int glTarget)
         : Resource          (name),
           m_sampler         (),
@@ -223,7 +400,7 @@ namespace jop
     {
         if (bind())
         {
-            setGLFilterMode(m_target, mode, param);
+            detail::setGLFilterMode(m_target, mode, param);
 
             m_filter = mode;
             m_anisotropic = param;
@@ -238,7 +415,7 @@ namespace jop
     {
         if (bind())
         {
-            setGLRepeatMode(m_target, repeat);
+            detail::setGLRepeatMode(m_target, repeat);
             m_repeat = repeat;
         }
 
@@ -251,7 +428,7 @@ namespace jop
     {
         if (bind())
         {
-            setGLBorderColor(m_target, color);
+            detail::setGLBorderColor(m_target, color);
             m_borderColor = color;
         }
 
@@ -295,20 +472,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int Texture::getMaximumSize()
-    {
-        static unsigned int size = 0;
-
-        if (!size)
-        {
-            glCheck(glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint*>(&size)));
-        }
-
-        return size;
-    }
-
-    //////////////////////////////////////////////
-
     unsigned int Texture::getMaxTextureUnits()
     {
         static unsigned int maxUnits = 0;
@@ -339,7 +502,6 @@ namespace jop
 
             case Format::RGB_F_16:
             case Format::RGBA_F_16:
-            case Format::Depth_F_32:
                 param = 8;
         }
 
@@ -396,10 +558,60 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Texture::Format Texture::getFormatFromDepth(const uint32 depth)
+    {
+        switch (depth)
+        {
+            case 1:
+                return Format::Alpha_UB_8;
+
+            case 3:
+                return Format::RGB_UB_8;
+            case 4:
+                return Format::RGBA_UB_8;
+
+            case 6:
+                return Format::RGB_F_16;
+            case 8:
+                return Format::RGBA_F_16;
+        }
+
+        return Format::None;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int Texture::getDepthFromFormat(const Format format)
+    {
+        switch (format)
+        {
+            case Format::Alpha_UB_8:
+                return 1;
+
+            case Format::Depth_US_16:
+                return 2;
+
+            case Format::RGB_UB_8:
+            case Format::Depth_UI_24:
+                return 3;
+            case Format::RGBA_UB_8:
+                return 4;
+
+            case Format::RGB_F_16:
+                return 6;
+            case Format::RGBA_F_16:
+                return 8;
+        }
+
+        return 0;
+    }
+
+    //////////////////////////////////////////////
+
     void Texture::updateSampling() const
     {
-        setGLFilterMode(m_target, m_filter, m_anisotropic);
-        setGLRepeatMode(m_target, m_repeat);
-        setGLBorderColor(m_target, m_borderColor);
+        detail::setGLFilterMode(m_target, m_filter, m_anisotropic);
+        detail::setGLRepeatMode(m_target, m_repeat);
+        detail::setGLBorderColor(m_target, m_borderColor);
     }
 }

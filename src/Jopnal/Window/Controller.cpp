@@ -40,97 +40,61 @@
 //////////////////////////////////////////////
 
 
-namespace
-{
-	jop::Window* ns_windowRef = nullptr;
-
-	bool validateWindowRef()
-	{
-		if (!ns_windowRef)
-			ns_windowRef = &jop::Engine::getMainWindow();
-
-		return ns_windowRef != nullptr;
-	}
-}
-
 namespace jop
 {
-	int Controller::controllersPresent()
-	{
-        if (validateWindowRef())
-        {
-        #if defined(JOP_OS_DESKTOP)
+    int Controller::controllersPresent()
+    {
+    #if defined(JOP_OS_DESKTOP)
 
-            static const int max = static_cast<int>(std::min(static_cast<unsigned int>(GLFW_JOYSTICK_LAST), SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1u)));
+        static int count = 0;
 
-            int count = 0;
-            for (int i = 0; i < max; ++i)
-            {
-                if (glfwJoystickPresent(i) == GL_TRUE)
-                    count += 1;
-            }
+        if (!count)
+            for (int i = 0; i < GLFW_JOYSTICK_LAST && glfwJoystickPresent(i) == GLFW_TRUE; ++i, count += 1);
 
-            return count;
+        return count;
 
-        #elif defined(JOP_OS_ANDROID)
+    #elif defined(JOP_OS_ANDROID)
+        return detail::ActivityState::get()->controllerPresent;
 
-            return detail::ActivityState::get()->activeController;
-
-        #endif
-        }
-
-		return 0;
-	}
+    #endif
+    }
 
 	//////////////////////////////////////////////
 
-	bool Controller::isControllerPresent(const int index)
-	{
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
-			return glfwJoystickPresent(index) == GL_TRUE;
+    bool Controller::isControllerPresent(const int index)
+    {
+    #if defined(JOP_OS_DESKTOP)
+        return glfwJoystickPresent(index) == GL_TRUE;
 
-        #elif defined(JOP_OS_ANDROID)
+    #elif defined(JOP_OS_ANDROID)
 
-            if (index == 0)
-                return detail::ActivityState::get()->activeController;
+        return index == 0 && detail::ActivityState::get()->controllerPresent;
 
-        #endif
-		}
-
-		return false;
-	}
+    #endif
+    }
 
 	//////////////////////////////////////////////
 
-	bool Controller::isButtonDown(const int index, const int button)
-	{
-		if (validateWindowRef())
-		{
-        #if defined(JOP_OS_DESKTOP)
+    bool Controller::isButtonDown(const int index, const int button)
+    {
+    #if defined(JOP_OS_DESKTOP)
 
-			int count = 0;
-			const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
+        int count = 0;
+        const unsigned char* buttons = glfwGetJoystickButtons(index, &count);
 
-			if (button < count)
-				return buttons[button] == GLFW_PRESS;
+        return (button < count) ? buttons[button] == GLFW_PRESS : false;
 
-        #elif defined(JOP_OS_ANDROID)
+    #elif defined(JOP_OS_ANDROID)
+        return detail::ActivityState::get()->activeControllerButtons[button];
 
-            return detail::ActivityState::get()->activeKey == button;
-
-        #endif
-		}
-
-		return false;
-	}
+    #endif
+    }
 
 	//////////////////////////////////////////////
 
     float Controller::getAxisOffset(const int index, const int axis)
     {
-        if (validateWindowRef() && isControllerPresent(index))
+        if (isControllerPresent(index))
         {
         #if defined(JOP_OS_DESKTOP)
 
@@ -153,7 +117,7 @@ namespace jop
 
                 case XBox::Axis::LTrigger:
                 {
-                    if (count >= 6)
+                    if (count >= 5)
                         return ((axes[4] + 1.f) / 2.f);
 
                     break;
@@ -187,8 +151,9 @@ namespace jop
                     return state->activeAxes[4];
 
                 case XBox::Axis::RTrigger:
-                    return state->activeAxes[2];
+                    return state->activeAxes[5];
             }
+
         #endif
         }
 

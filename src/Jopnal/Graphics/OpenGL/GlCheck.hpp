@@ -49,4 +49,9 @@ namespace jop { namespace detail
 #endif
 }}
 
+namespace jop { namespace gl
+{
+    JOP_API bool hasError();
+}}
+
 #endif

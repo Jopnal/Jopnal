@@ -341,7 +341,7 @@ namespace jop { namespace detail
 
     glm::uvec2 WindowImpl::getSize() const
     {
-        return m_size;
+        return ActivityState::get()->windowSize;
     }
 
     //////////////////////////////////////////////
@@ -477,40 +477,40 @@ namespace jop { namespace detail
                                 if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_X)
                                     state->activeAxes[0] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Z)
                                     state->activeAxes[2] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_LTRIGGER)
                                     state->activeAxes[4] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RTRIGGER)
                                     state->activeAxes[5] = x;
 
                                 windowRef.getEventHandler()->controllerAxisShifted(id, Input::getJopControllerAxis(ns_joystickAxes[axis]), x);
                             }
                         }
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
-                            state->activeAxes[0]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_X)
+                            state->activeAxes[0] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
-                            state->activeAxes[1]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Y)
+                            state->activeAxes[1] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
-                            state->activeAxes[2]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Z)
+                            state->activeAxes[2] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
-                            state->activeAxes[3]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RZ)
+                            state->activeAxes[3] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
-                            state->activeAxes[4]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_LTRIGGER)
+                            state->activeAxes[4] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
-                            state->activeAxes[5]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RTRIGGER)
+                            state->activeAxes[5] = 0.f;
 
-                        else if (state->activeController == 0)
+                        else if (!state->controllerPresent)
                         {
                             windowRef.getEventHandler()->controllerConnected(1, "Android_Controller");
-                            state->activeController = 1;
+                            state->controllerPresent = true;
                         }
                     }
                 }
@@ -601,15 +601,15 @@ namespace jop { namespace detail
     {
         auto event = static_cast<AInputEvent*>(data);
 
-        int32_t metakey = AKeyEvent_getMetaState(event);
-        int32_t key = AKeyEvent_getKeyCode(event);
-        int jopKey = Input::getJopKey(key);
+        const int32_t metakey = AKeyEvent_getMetaState(event);
+        const int32_t key = AKeyEvent_getKeyCode(event);
+        const int32_t scanCode = AKeyEvent_getScanCode(event);
 
-        int mod = 0x0000;
-        if (metakey & AMETA_ALT_ON)
-            mod = 0x0001;
-        else if (metakey & AMETA_SHIFT_ON)
-            mod = 0x0004;
+        const int jopKey = Input::getJopKey(key);
+
+        const int mod = ((metakey & AMETA_SHIFT_ON) != 0) * Keyboard::Modifier::Shift
+                      | ((metakey & AMETA_ALT_ON)   != 0) * Keyboard::Modifier::Alt
+                      | ((metakey & AMETA_CTRL_ON)  != 0) * Keyboard::Modifier::Control;
 
         int32_t device = AInputEvent_getSource(event);
 
@@ -621,33 +621,45 @@ namespace jop { namespace detail
             {      
                 auto state = ActivityState::get();
 
-                if (jopKey != 0)
+                if (jopKey != Keyboard::Unknown)
                 {
                     state->activeKey = jopKey;
-                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
+                    windowRef.getEventHandler()->keyPressed(jopKey, scanCode, mod);
                 }
-                else
+                
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
-                    state->activeKey = jopKey;
 
-                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        state->activeControllerButtons[jopKey] = true;
+                        windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                    }
                 }
 
                 return 1;
             }
             case AKEY_EVENT_ACTION_UP:
             {
-                if (jopKey != 0)
-                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+                auto state = ActivityState::get();
 
-                else
+                if (jopKey != Keyboard::Unknown)
+                {
+                    state->activeKey = -1;
+                    windowRef.getEventHandler()->keyReleased(jopKey, scanCode, mod);
+                }
+
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
-                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
-                } 
 
-                ActivityState::get()->activeKey = -1;
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        state->activeControllerButtons[jopKey] = false;
+                        windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    }
+                } 
 
                 return 1;
             }
@@ -655,15 +667,19 @@ namespace jop { namespace detail
             {
                 if (jopKey != 0)
                 {
-                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
-                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+                    windowRef.getEventHandler()->keyPressed(jopKey, scanCode, mod);
+                    windowRef.getEventHandler()->keyReleased(jopKey, scanCode, mod);
                 } 
-                else
+
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
 
-                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
-                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                        windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    }
                 }
 
                 return 1;

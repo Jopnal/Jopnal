@@ -51,13 +51,16 @@ namespace jop { namespace detail
           windowSize                (0.f),
           activeKey                 (-1),
           focus                     (false),
-          activeController          (0)
+          controllerPresent         (false)
     {
         for (int i = 0; i < sizeof(lastTouchPosition) / sizeof(lastTouchPosition[0]); ++i)
             lastTouchPosition[i] = glm::vec2(-1.f);
 
         for (int i = 0; i < sizeof(activeAxes) / sizeof(activeAxes[0]); ++i)
             activeAxes[i] = 0.f;
+
+        for (int i = 0; i < sizeof(activeControllerButtons) / sizeof(activeControllerButtons[0]); ++i)
+            activeControllerButtons[i] = false;
     }
 
     ActivityState::~ActivityState()

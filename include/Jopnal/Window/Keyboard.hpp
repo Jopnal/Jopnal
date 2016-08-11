@@ -118,6 +118,8 @@ namespace jop
             };
         };
 
+    public:
+
         /// \brief Get the key name in the current locale
         ///
         /// \param scanCode The scan code

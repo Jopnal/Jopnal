@@ -33,6 +33,12 @@
 
 //////////////////////////////////////////////
 
+
+namespace
+{
+    bool ns_error = false;
+}
+
 #ifdef JOP_OPENGL_ERROR_CHECKS
 
 namespace jop { namespace detail
@@ -43,6 +49,7 @@ namespace jop { namespace detail
 
         if (errCode != GL_NO_ERROR)
         {
+            ns_error = true;
             const char* errorS = "unknown error";
 
             switch (errCode)
@@ -77,7 +84,17 @@ namespace jop { namespace detail
 
             JOP_DEBUG_ERROR("An OpenGL error occurred after a call to \"" << func << ": " << errorS << " (on line " << line << " in " << file);
         }
+        else
+            ns_error = false;
     }
 }}
 
 #endif
+
+namespace jop { namespace gl
+{
+    bool gl::hasError()
+    {
+        return ns_error;
+    }
+}}

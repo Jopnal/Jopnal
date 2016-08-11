@@ -71,9 +71,10 @@ namespace jop { namespace detail
 
         glm::vec2 lastTouchPosition[10];
         int activeKey; 
-        float activeAxes[6]; 
+        float activeAxes[6];
+        bool activeControllerButtons[Controller::XBox::__Count];
         bool focus;
-        int activeController;
+        bool controllerPresent;
     };
 }}
 

@@ -48,14 +48,13 @@ namespace jop
 
         const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::isES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
 
-        using Slot = ColorAttachmentSlot;
-        using CA = ColorAttachment;
+        using CA = Texture::Format;
 
-        addColorAttachment(Slot::_1, hdr ? CA::RGBA2DFloat16 : CA::RGBA2D, scaledRes);
-        //addDepthStencilAttachment(DepthStencilAttachment::Renderbuffer24_8, scaledRes);
-        addDepthAttachment(DepthAttachment::Renderbuffer24, scaledRes);
+        setSize(scaledRes);
+        addTextureAttachment(Slot::Color0, hdr ? CA::RGBA_F_16 : CA::RGBA_UB_8);
+        addRenderbufferAttachment(Slot::DepthStencil, CA::DepthStencil_UI_24_B_8);
 
-        getColorTexture(Slot::_1)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
+        getTextureAttachment(Slot::Color0)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
 
         setClearColor(Color(SettingManager::get<std::string>("engine@Graphics|MainRenderTarget|sClearColor", "000000FF")));
     }

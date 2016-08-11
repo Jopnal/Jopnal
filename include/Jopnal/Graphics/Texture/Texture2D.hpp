@@ -50,7 +50,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path, const uint32 flags);
+        bool load(const std::string& path, const uint32 flags = 0);
 
         /// \brief Load from memory
         ///
@@ -58,7 +58,7 @@ namespace jop
         /// \param size Size of the data to be loaded
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const void* ptr, const uint32 size, const uint32 flags);
+        bool load(const void* ptr, const uint32 size, const uint32 flags = 0);
 
         /// \brief Creates flat/empty texture
         ///
@@ -68,7 +68,7 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const Format format, const uint32 flags);
+        bool load(const glm::uvec2& size, const Format format, const uint32 flags = 0);
 
         /// \brief Create a texture from an array of pixels
         ///
@@ -79,14 +79,14 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const Format format, const uint32 flags, const void* pixels);
+        bool load(const glm::uvec2& size, const Format format, const void* pixels, const uint32 flags = 0);
 
         /// \brief Load texture from compressed image
         ///
         /// \param image Image to load into the texture
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const Image& image, const uint32 flags);
+        bool load(const Image& image, const uint32 flags = 0);
 
         /// \brief Set a subset of pixels
         ///
@@ -108,11 +108,15 @@ namespace jop
 
         /// \brief Returns textures bytes per pixel value
         ///
-        unsigned int getDepth() const override;
+        unsigned int getPixelDepth() const override;
 
         /// \brief Copies the texture into an image and returns it
         ///
         Image getImage() const;
+
+        /// \brief Get the maximum supported texture size of this system
+        ///
+        static unsigned int getMaximumSize();
 
         /// \brief Get the error texture
         ///

@@ -166,7 +166,7 @@ namespace jop
 
     bool Image::load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels)
     {
-        if (pixels && size.x > 0 && size.y > 0 && checkDepthValid(bytesPerPixel))
+        if (pixels && size.x > 0 && size.y > 0)
         {
             // Clear array
             m_pixels.clear();
@@ -194,7 +194,7 @@ namespace jop
         int bpp = 0;
         unsigned char* colorData = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(ptr), size, &imageSize.x, &imageSize.y, &bpp, 0);
 
-        const bool success = colorData != nullptr && checkDepthValid(bpp) && load(imageSize, bpp, colorData);
+        const bool success = colorData != nullptr && load(imageSize, bpp, colorData);
 
         stbi_image_free(colorData);
 
@@ -227,13 +227,6 @@ namespace jop
     const uint8* Image::getPixels() const
     {
         return m_pixels.data();
-    }
-
-    //////////////////////////////////////////////
-
-    bool Image::checkDepthValid(const uint32 depth)
-    {
-        return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
     }
 
     //////////////////////////////////////////////

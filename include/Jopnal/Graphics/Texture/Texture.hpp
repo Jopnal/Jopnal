@@ -46,14 +46,16 @@ namespace jop
         {
             enum : uint32
             {
-                sRGB,
-                GenMipmaps,
-                AllowCompression
+                DisallowSRGB,
+                DisallowMipmapGeneration,
+                DisallowCompression
             };
         };
 
         enum class Format
         {
+            None, ///< For internal functionality, do not use
+
             Alpha_UB_8,
             RGB_UB_8,
             RGBA_UB_8,
@@ -63,7 +65,10 @@ namespace jop
 
             Depth_US_16,
             Depth_UI_24,
-            Depth_F_32
+
+            Stencil_UB_8,
+
+            DepthStencil_UI_24_B_8
         };
 
     public:
@@ -109,7 +114,7 @@ namespace jop
         ///
         virtual glm::uvec2 getSize() const = 0;
 
-        virtual unsigned int getDepth() const = 0;
+        virtual unsigned int getPixelDepth() const = 0;
 
 
         Texture& setFilterMode(const TextureSampler::Filter mode, const float param = 1.f);
@@ -159,10 +164,6 @@ namespace jop
         ///
         unsigned int getHandle() const;
 
-        /// \brief Get the maximum supported texture size of this system
-        ///
-        static unsigned int getMaximumSize();
-
         /// \brief Get the maximum texture unit value
         ///
         /// \return The maximum texture unit value. Sampler cannot be bound to
@@ -182,17 +183,23 @@ namespace jop
 
         static bool allowGenMipmaps(const glm::uvec2& size, const bool srgb);
 
+    protected:
+
+        static Format getFormatFromDepth(const uint32 depth);
+
+        static unsigned int getDepthFromFormat(const Format format);
+
     private:
 
         void updateSampling() const;
 
-        WeakReference<const TextureSampler> m_sampler;       ///< Texture sampler
-        mutable unsigned int m_texture; ///< The OpenGL handle
-        const unsigned int m_target;    ///< The OpenGL texture target
-        TextureSampler::Filter m_filter;        ///< The filtering mode
-        TextureSampler::Repeat m_repeat;        ///< The repeating mode
-        float m_anisotropic;    ///< The anisotropic level
-        Color m_borderColor;    ///< The border color
+        WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
+        mutable unsigned int m_texture;                 ///< The OpenGL handle
+        const unsigned int m_target;                    ///< The OpenGL texture target
+        TextureSampler::Filter m_filter;                ///< The filtering mode
+        TextureSampler::Repeat m_repeat;                ///< The repeating mode
+        float m_anisotropic;                            ///< The anisotropic level
+        Color m_borderColor;                            ///< The border color
     };
 }
 

@@ -115,7 +115,7 @@ namespace jop
             static const unsigned int initialSize = std::max(64u, SettingManager::get<unsigned int>("engine@Graphics|Font|uTextureInitialSize", 256));
 
             // Create texture and context for glyph atlas;
-            m_texture.load(glm::uvec2(initialSize, initialSize), 1, false, false);
+            m_texture.load(glm::uvec2(initialSize, initialSize), Texture::Format::Alpha_UB_8, Texture::Flag::DisallowSRGB | Texture::Flag::DisallowMipmapGeneration);
 
             m_data->packers.emplace_back();
             m_data->packers.back().nodes.resize(initialSize);
@@ -126,7 +126,7 @@ namespace jop
             // Create default glyph
             const unsigned char data[4] = {255, 255, 255, 255};
 
-            m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), 1, data);
+            m_texture.setPixels(glm::uvec2(0, 0), glm::uvec2(2, 2), data);
 
             Rect bounds{0, 0, 2, 2};
 
@@ -238,7 +238,7 @@ namespace jop
             // Pass pixel data to texture
             if (pixelData)
             {
-                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), 1, pixelData);
+                m_texture.setPixels(glm::uvec2(rectangle.x, rectangle.y) + orig, glm::uvec2(width, height), pixelData);
                 stbtt_FreeBitmap(pixelData, nullptr);
             }
 
@@ -265,7 +265,7 @@ namespace jop
         {
             const unsigned int oldSize = m_texture.getSize().x;
 
-            if (Texture::getMaximumSize() < oldSize * 2)
+            if (Texture2D::getMaximumSize() < oldSize * 2)
                 return false;
 
             {
@@ -298,9 +298,9 @@ namespace jop
             // Get size and increase it
             glm::uvec2 size(image.getSize() * 2u);
             // Load texture with new size
-            m_texture.load(size, 1, false, false);
+            m_texture.load(size, Texture::Format::Alpha_UB_8, Texture::Flag::DisallowSRGB | Texture::Flag::DisallowMipmapGeneration);
             // Copy images pixels to new texture
-            m_texture.setPixels(glm::uvec2(0, 0), size / 2u, 1, image.getPixels());
+            m_texture.setPixels(glm::uvec2(0, 0), size / 2u, image.getPixels());
         }
 
         ++m_packerIndex;

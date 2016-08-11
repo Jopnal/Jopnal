@@ -43,6 +43,7 @@ namespace jop
             ///
             enum Button
             {
+                Unknown,
                 A,
                 B,
                 X,
@@ -57,6 +58,8 @@ namespace jop
                 PadRight,
                 PadDown,
                 PadLeft,
+
+                __Count ///< For internal functionality, do not use
             };
 
             /// Axes
@@ -77,6 +80,7 @@ namespace jop
         {
             enum Button
             {
+                Unknown,
                 X,
                 O,
                 Square,
@@ -90,7 +94,7 @@ namespace jop
                 PadUp,
                 PadRight,
                 PadDown,
-                PadLeft,
+                PadLeft
             };
 
             /// Axes
