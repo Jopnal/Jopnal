@@ -430,13 +430,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool LightSource::allowShadows()
-    {
-
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result LightSource::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(LightSource, message.getString(), this) == Message::Result::Escape)
@@ -447,14 +440,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-
-    LightContainer::LightContainer()
-        : m_container()
-    {
-        clear();
-    }
-
-    //////////////////////////////////////////////
 
     bool LightContainer::empty() const
     {
@@ -473,10 +458,6 @@ namespace jop
     {
         for (auto& i : m_container)
             i.clear();
-
-        (*this)[LightSource::Type::Point].reserve(LightSource::getMaximumLights(LightSource::Type::Point));
-        (*this)[LightSource::Type::Directional].reserve(LightSource::getMaximumLights(LightSource::Type::Directional));
-        (*this)[LightSource::Type::Spot].reserve(LightSource::getMaximumLights(LightSource::Type::Spot));
     }
 
     //////////////////////////////////////////////

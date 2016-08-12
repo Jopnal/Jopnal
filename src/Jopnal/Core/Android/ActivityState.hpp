@@ -73,8 +73,8 @@ namespace jop { namespace detail
         int activeKey; 
         float activeAxes[6];
         bool activeControllerButtons[Controller::XBox::__Count];
-        bool focus;
         bool controllerPresent;
+        bool destroyRequested;
     };
 }}
 

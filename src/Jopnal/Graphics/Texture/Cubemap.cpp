@@ -49,6 +49,22 @@ namespace jop
         extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
         extern GLenum getTypeEnum(const Texture::Format format);
         extern GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
+
+        bool errorCheckCube(const glm::uvec2& size)
+        {
+            if (size.x != size.y)
+            {
+                JOP_DEBUG_ERROR("Couldn't load cube map, dimensions not identical");
+                return false;
+            }
+            else if (size.x > Cubemap::getMaximumSize())
+            {
+                JOP_DEBUG_ERROR("Couldn't load cube map, maximum size is " << Cubemap::getMaximumSize());
+                return false;
+            }
+
+            return true;
+        }
     }
 
     //////////////////////////////////////////////
@@ -70,9 +86,10 @@ namespace jop
             &back, &front
         };
 
+        destroy();
         bind();
 
-        glm::ivec2 size;
+        glm::uvec2 size;
         int bytes;
         const bool srgb = (flags & Flag::DisallowSRGB) == 0;
 
@@ -86,7 +103,7 @@ namespace jop
                 return false;
             }
 
-            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), &size.x, &size.y, &bytes, 0);
+            unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), reinterpret_cast<int*>(&size.x), reinterpret_cast<int*>(&size.y), &bytes, 0);
 
             if (!pix)
             {
@@ -95,10 +112,19 @@ namespace jop
                 return false;
             }
 
-            m_format = getFormatFromDepth(bytes);
+            if (size.x != size.y)
+                JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", dimensions not identical")
 
-            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(m_format, srgb),
-                                 size.x, size.y, 0, detail::getFormatEnum(m_format, srgb), detail::getTypeEnum(m_format), pix));
+            else if (size.x > getMaximumSize())
+                JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", maximum size is " << getMaximumSize())
+
+            else
+            {
+                m_format = getFormatFromDepth(bytes);
+
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(m_format, srgb),
+                                     size.x, size.y, 0, detail::getFormatEnum(m_format, srgb), detail::getTypeEnum(m_format), pix));
+            }
 
             stbi_image_free(pix);
         }
@@ -110,7 +136,7 @@ namespace jop
 
         unbind();
 
-        m_size = glm::uvec2(size);
+        m_size = size;
 
         return true;
     }
@@ -119,6 +145,10 @@ namespace jop
 
     bool Cubemap::load(const glm::uvec2& size, const Format format, const uint32 flags)
     {
+        if (!detail::errorCheckCube(size))
+            return false;
+
+        destroy();
         bind();
 
         const bool srgb = (flags & Flag::DisallowSRGB) == 0;
@@ -154,7 +184,7 @@ namespace jop
     bool Cubemap::load(const Image& image, const uint32 flags)
     {
         // Check if image is cubemap and that extensions are valid
-        if (!image.isCubemap() || !JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
+        if (!image.isCubemap() || !JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc) || !detail::errorCheckCube(image.getSize()))
             return false;
 
         destroy();

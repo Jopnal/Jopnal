@@ -49,6 +49,17 @@ namespace jop
         extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
         extern GLenum getTypeEnum(const Texture::Format format);
         extern GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
+
+        bool errorCheck(const glm::uvec2& size)
+        {
+            if (size.x > Texture2D::getMaximumSize() || size.y > Texture2D::getMaximumSize())
+            {
+                JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << Texture2D::getMaximumSize());
+                return false;
+            }
+
+            return true;
+        }
     }
 
     //////////////////////////////////////////////
@@ -86,11 +97,8 @@ namespace jop
 
     bool Texture2D::load(const glm::uvec2& size, const Format format, const void* pixels, const uint32 flags)
     {
-        if (size.x > getMaximumSize() || size.y > getMaximumSize())
-        {
-            JOP_DEBUG_ERROR("Couldn't load texture. Maximum size is " << getMaximumSize());
+        if (!detail::errorCheck(size))
             return false;
-        }
 
         destroy();
         bind();
@@ -128,6 +136,9 @@ namespace jop
 
         else if (JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc))
         {
+            if (!detail::errorCheck(image.getSize()))
+                return false;
+
             destroy();
             bind();
 

@@ -281,7 +281,6 @@ namespace jop
             float frameTime = static_cast<float>(frameClock.reset().asSeconds());
             eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
 
-            frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
 
             // Update
@@ -292,14 +291,11 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
-                {
-                    if (hasCurrentScene())
-                        eng.m_currentScene->updateBase(frameTime);
+                if (hasCurrentScene())
+                    eng.m_currentScene->updateBase(frameTime);
 
-                    if (hasSharedScene())
-                        eng.m_sharedScene->updateBase(frameTime);
-                }
+                if (hasSharedScene())
+                    eng.m_sharedScene->updateBase(frameTime);
 
                 for (auto& i : eng.m_subsystems)
                 {
@@ -342,11 +338,13 @@ namespace jop
     {
     #ifdef JOP_OS_ANDROID
 
-        static bool calledOnce = false;
+        auto state = detail::ActivityState::get();
+
+        static bool calledOnce = state->destroyRequested;
 
         if (!calledOnce)
         {
-            ANativeActivity_finish(detail::ActivityState::get()->nativeActivity);
+            ANativeActivity_finish(state->nativeActivity);
             calledOnce = true;
 
             return;
@@ -372,7 +370,6 @@ namespace jop
             static const char* const stateStr[] =
             {
                 "Running",
-                "ZeroDelta",
                 "RenderOnly",
                 "Frozen"
             };
@@ -389,7 +386,7 @@ namespace jop
 
     Engine::State Engine::getState()
     {
-        return exiting() ? State::Frozen : m_engineObject->m_state.load();
+        return exiting() ? State::Frozen : (m_engineObject->m_advanceFrame.load() ? State::Running : m_engineObject->m_state.load());
     }
 
     //////////////////////////////////////////////

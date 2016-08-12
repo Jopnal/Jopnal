@@ -36,7 +36,8 @@ set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
              "arm-linux-androideabi-4.9"
-             "arm-linux-androideabi-clang3.5")
+             "mipsel-linux-android-4.9"
+             "x86_4.9")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
@@ -46,9 +47,29 @@ jopSetOption(ANDROID_NDK "$ENV{ANDROID_NDK}" PATH "Path to the Android NDK")
 # STL implementation
 jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
-# Default to v7a for harware floating point
-if(NOT ANDROID_ABI)
+# Default ABI
+if (NOT ANDROID_ABI)
     set(ANDROID_ABI "armeabi-v7a")
+endif()
+
+# Change the default ABI setting if toolchain has changed
+string(SUBSTRING ${ANDROID_ABI} 0 3 ANDROID_ABI_SHORT)
+
+if (NOT ${ANDROID_TOOLCHAIN_MAKE} MATCHES ${ANDROID_ABI_SHORT})
+
+    unset(ANDROID_ABI CACHE)
+
+    if (${ANDROID_TOOLCHAIN_MAKE} MATCHES "arm")
+        set(ANDROID_ABI "armeabi-v7a")
+    
+    elseif (${ANDROID_TOOLCHAIN_MAKE} MATCHES "mips")
+        set(ANDROID_ABI "mips")
+        
+    elseif (${ANDROID_TOOLCHAIN_MAKE} MATCHES "x86")
+        set(ANDROID_ABI "x86")
+        
+    endif()
+
 endif()
 
 # Project name

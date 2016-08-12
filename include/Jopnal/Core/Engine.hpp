@@ -66,7 +66,6 @@ namespace jop
         enum class State
         {
             Running,    ///< Run normally
-            ZeroDelta,  ///< Run normally, except delta time is always zero
             RenderOnly, ///< Only render, don't update
             Frozen      ///< No rendering or updating
         };

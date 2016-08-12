@@ -141,6 +141,7 @@ extern int main(int argc, char* argv[]);
                     state->pollFunc                     = nullptr;
                     state->handleSurfaceCreation        = nullptr;
                     state->handleSurfaceDestruction     = nullptr;
+                    state->destroyRequested             = true;
 
                     Engine::exit();
 
@@ -148,14 +149,12 @@ extern int main(int argc, char* argv[]);
                 }
                 case APP_CMD_GAINED_FOCUS:
                 {
-                    state->focus = true;
                     //SensorManager::getInstance().gainedFocus();
 
                     break;
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
-                    state->focus = false;
                     //SensorManager::getInstance().lostFocus();
                 }
             }
