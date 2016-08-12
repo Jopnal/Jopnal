@@ -68,21 +68,26 @@ namespace jop
             {
                 Texture2D* tex = nullptr;
 
+                using F = Texture::Flag;
+
+                const char* const srgb = "srgb";
+                const char* const mip = "genmipmaps";
+
+                const uint32 flags =
+                    
+                    (!(itr->value.HasMember(srgb) && itr->value[srgb].IsBool() ? itr->value[srgb].GetBool() : false) * F::DisallowSRGB) |
+                    (!(itr->value.HasMember(mip) && itr->value[mip].IsBool() ? itr->value[mip].GetBool() : true) * F::DisallowMipmapGeneration);
+
                 if (itr->value.HasMember("path") && itr->value["path"].IsString())
                     tex = &ResourceManager::get<Texture2D>
                     (
-                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(),
-                        itr->value.HasMember("srgb") && itr->value["srgb"].IsBool() ? itr->value["srgb"].GetBool() : false,
-                        itr->value.HasMember("genmipmaps") && itr->value["genmipmaps"].IsBool() ? itr->value["genmipmaps"].GetBool() : true
+                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), flags
                     );
 
-                else if (itr->value.HasMember("start") && itr->value["start"].IsUint() &&
-                         itr->value.HasMember("length") && itr->value["length"].IsUint())
+                else if (itr->value.HasMember("start") && itr->value["start"].IsUint() && itr->value.HasMember("length") && itr->value["length"].IsUint())
                     tex = &ResourceManager::getNamed<Texture2D>
                     (
-                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), &data.at(itr->value["start"].GetUint()), itr->value["length"].GetUint(),
-                        itr->value.HasMember("srgb") && itr->value["srgb"].IsBool() ? itr->value["srgb"].GetBool() : false,
-                        itr->value.HasMember("genmipmaps") && itr->value["genmipmaps"].IsBool() ? itr->value["genmipmaps"].GetBool() : true
+                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), &data.at(itr->value["start"].GetUint()), itr->value["length"].GetUint(), flags
                     );
 
                 else

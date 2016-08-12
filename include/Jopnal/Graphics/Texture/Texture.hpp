@@ -40,6 +40,23 @@ namespace jop
 
         JOP_DISALLOW_COPY_MOVE(Texture);
 
+    protected:
+
+        class FormatBundle
+        {
+            JOP_DISALLOW_COPY_MOVE(FormatBundle);
+
+        public:
+
+            FormatBundle(const uint32 iForm, const uint32 form, const uint32 t);
+
+            bool check() const;
+
+            const uint32 intFormat;
+            const uint32 format;
+            const uint32 type;
+        };
+
     public:
 
         struct Flag
@@ -94,6 +111,8 @@ namespace jop
         /// \return True if successful
         ///
         bool bind(const unsigned int texUnit = 0) const;
+
+        void unbind(const unsigned int texUnit = 0) const;
 
 
         /// \brief Check if this texture is valid

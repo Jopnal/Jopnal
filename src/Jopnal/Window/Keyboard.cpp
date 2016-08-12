@@ -74,8 +74,10 @@ namespace jop
         if (validateWindowRef())
             return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
 
+        return false;
+
     #elif defined(JOP_OS_ANDROID)
-            return detail::ActivityState::get()->activeKey == key;
+        return detail::ActivityState::get()->activeKey == key;
 
     #endif
     }

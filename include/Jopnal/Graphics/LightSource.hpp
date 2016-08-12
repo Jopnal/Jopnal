@@ -312,6 +312,8 @@ namespace jop
         /// \param viewMats Reference to a vector with the matrices. This must have a size of at least 6
         ///
         static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
+
+        static bool allowShadows();
         
     protected:
 

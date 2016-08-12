@@ -82,6 +82,7 @@ namespace jop
             if (!FileLoader::readBinaryfile(*paths[i], buf))
             {
                 JOP_DEBUG_ERROR("Couldn't read cube map texture, face " << i << ", path " << paths[i]);
+                unbind();
                 return false;
             }
 
@@ -90,6 +91,7 @@ namespace jop
             if (!pix)
             {
                 JOP_DEBUG_ERROR("Couldn't load cube map texture, face " << i << ", path " << paths[i]);
+                unbind();
                 return false;
             }
 
@@ -105,6 +107,8 @@ namespace jop
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
         }
+
+        unbind();
 
         m_size = glm::uvec2(size);
 
@@ -129,6 +133,8 @@ namespace jop
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
         }
+
+        unbind();
 
         m_size = size;
 
@@ -189,6 +195,13 @@ namespace jop
             }
         }
 
+        if (allowGenMipmaps(m_size, srgb) && !(flags & Flag::DisallowMipmapGeneration) && image.getMipMapCount() <= 1)
+        {
+            glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
+        }
+
+        unbind();
+
         return true;
     }
 
@@ -234,6 +247,7 @@ namespace jop
             unsigned char* pix = stbi_load_from_memory(jopr::errorTexture, sizeof(jopr::errorTexture), &x, &y, &bpp, 3);
 
             errTex->load(glm::uvec2(x, y), Format::RGB_UB_8);
+            errTex->bind();
 
             const Format format = getFormatFromDepth(bpp);
 
@@ -246,6 +260,8 @@ namespace jop
             {
                 glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
             }
+
+            errTex->unbind();
 
             stbi_image_free(pix);
         }
@@ -267,6 +283,7 @@ namespace jop
             unsigned char* pix = stbi_load_from_memory(jopr::defaultTexture, sizeof(jopr::defaultTexture), &x, &y, &bpp, 3);
 
             defTex->load(glm::uvec2(x, y), Format::RGB_UB_8);
+            defTex->bind();
 
             const Format format = getFormatFromDepth(bpp);
 
@@ -279,6 +296,8 @@ namespace jop
             {
                 glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
             }
+
+            defTex->unbind();
 
             stbi_image_free(pix);
         }

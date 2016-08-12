@@ -89,10 +89,6 @@ namespace jop
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT));
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT));
-                #endif
-
                     break;
                 }
                 case Repeat::Mirrored:
@@ -100,20 +96,12 @@ namespace jop
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT));
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT));
 
-                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT));
-                #endif
-
                     break;
                 }
                 case Repeat::ClampEdge:
                 {
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-                #endif
 
                     break;
                 }
@@ -124,7 +112,6 @@ namespace jop
                 {
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
-                    glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER));
                 }
 
             #endif
@@ -144,13 +131,107 @@ namespace jop
 
         GLenum getFormatEnum(const Texture::Format format, const bool srgb)
         {
-        #ifdef JOP_OPENGL_ES
+            using F = Texture::Format;
 
-
-
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            const bool allowSRGB = srgb && Texture::allowSRGB();
         #else
-
+            srgb;
         #endif
+
+            switch (format)
+            {
+                // 8 bit alpha texture
+                case F::Alpha_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_RED :
+
+                    #endif
+
+                    // If version < 3.0
+                    GL_ALPHA;
+
+                #else
+                    GL_RED;
+
+                #endif
+                }
+
+                // 24 bit RGB texture
+                case F::RGB_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+                    
+                    // If version >= 3.0                  // If version < 3.0
+                    gl::getVersionMajor() >= 3 ? GL_RGB : (allowSRGB ? GL_SRGB_EXT : GL_RGB);
+
+                #else
+                    GL_RGB;
+
+                #endif
+                }
+                    
+                // 32 bit RGB texture
+                case F::RGBA_UB_8:
+                {
+                    return
+
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+                    
+                    // If version >= 3.0                  // If version < 3.0
+                    gl::getVersionMajor() >= 3 ? GL_RGBA : (allowSRGB ? GL_SRGB_ALPHA_EXT : GL_RGBA);
+
+                #else
+                    GL_RGBA;
+
+                #endif
+                }
+
+                // 48 bit RGB float texture
+                case F::RGB_F_16:
+                    return GL_RGB;
+
+                // 64 bit RGB float texture
+                case F::RGBA_F_16:
+                    return GL_RGBA;
+
+                // 16 bit and 24 bit depth textures
+                // Support will be checked elsewhere
+                case F::Depth_US_16:
+                case F::Depth_UI_24:
+                    return GL_DEPTH_COMPONENT;
+
+                // 8 bit stencil texture
+                // Support will be checked elsewhere
+                case F::Stencil_UB_8:
+                    return GL_STENCIL_INDEX;
+
+                // 24 bit depth, 8 bit stencil interleaved
+                // Support will be checked elsewhere
+                case F::DepthStencil_UI_24_B_8:
+                {
+                    return
+
+                #ifdef JOP_OPENGL_ES
+                    GL_DEPTH_STENCIL_OES;
+
+                #else
+                    GL_DEPTH_STENCIL;
+
+                #endif
+                }
+            }
+
+            return 0;
         };
 
         //////////////////////////////////////////////
@@ -160,8 +241,10 @@ namespace jop
             using F = Texture::Format;
 
         #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
-            static const bool sizedSupport = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(OES_required_internalformat);
-            static const bool hdrSupport = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(OES_texture_half_float);
+            static const bool sizedSupport = JOP_CHECK_GL_EXTENSION(OES_required_internalformat);
+            static const bool depthSupport = JOP_CHECK_GL_EXTENSION(GL_OES_depth_texture);
+            static const bool stencilSupport = JOP_CHECK_GL_EXTENSION(OES_texture_stencil8);
+            static const bool depthStencilSupport = JOP_CHECK_GL_EXTENSION(OES_packed_depth_stencil);
         #endif
 
             const bool allowSRGB = srgb && Texture::allowSRGB();
@@ -290,30 +373,241 @@ namespace jop
                 #endif
                 }
 
-                // 16 bit depth texture
+                // 16 and 24 bit depth textures
+                // Only with extension in GLES 2.0
                 case F::Depth_US_16:
+                case F::Depth_UI_24:
                 {
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 
+                    if (gl::getVersionMajor() < 3 && !depthSupport)
+                        JOP_DEBUG_ERROR_ONCE("Depth textures are not supported");
+
+                    return
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? (format == F::Depth_US_16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24) : 
+
+                    #endif
+
+                    // If version < 3.0
+                    (depthSupport ? GL_DEPTH_COMPONENT : 0);
+
+                #else
+                    return (format == F::Depth_US_16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24);
+
+                #endif
+                }
+
+                // 8 bit stencil texture
+                // Only supported on GL and GLES >=3.2
+                // On GLES 3.1 with extension
+                case F::Stencil_UB_8:
+                {
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 320
+
+                    if ((gl::getVersionMajor() < 3 || gl::getVersionMinor() < 2) && !stencilSupport)
+                        JOP_DEBUG_ERROR_ONCE("Stencil textures are not supported");
+
+                    return
+
+                    #ifdef GL_ES_VERSION_3_1
+
+                        // If version >= 3.1
+                        stencilSupport ? GL_STENCIL_INDEX8 :
+
+                    #endif
+
+                    // If version < 3.1
+                    0;
+
+                #else
+                    return GL_STENCIL_INDEX8;
+
+                #endif
+                }
+
+                // 24 bit depth, 8 bit stencil interleaved
+                // Only with extension in GLES 2.0
+                case F::DepthStencil_UI_24_B_8:
+                {
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    if (gl::getVersionMajor() < 3 && !depthStencilSupport)
+                        JOP_DEBUG_ERROR_ONCE("Depth-stencil textures are not supported");
+
+                    return
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_DEPTH24_STENCIL8 :
+
+                    #endif
+
+                    // If version < 3.0
+                    (depthStencilSupport ? GL_DEPTH24_STENCIL8_OES : 0);
+
+                #else
+                    return GL_DEPTH24_STENCIL8;
+
+                #endif
                 }
             }
+
+            return 0;
         };
 
         //////////////////////////////////////////////
 
         GLenum getTypeEnum(const Texture::Format format)
         {
+            using F = Texture::Format;
 
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            static const bool hdrSupport = JOP_CHECK_GL_EXTENSION(OES_texture_half_float);
+        #endif
+
+            switch (format)
+            {
+                // Unsigned byte textures
+                case F::Alpha_UB_8:
+                case F::RGB_UB_8:
+                case F::RGBA_UB_8:
+                    return GL_UNSIGNED_BYTE;
+
+                // RGB and RGBA float textures
+                // Only with extension in GLES 2.0
+                case F::RGB_F_16:
+                case F::RGBA_F_16:
+                {
+                #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                    if (gl::getVersionMajor() < 3 && !hdrSupport)
+                        JOP_DEBUG_WARNING_ONCE("HDR textures are not supported, using LDR textures where HDR is requested");
+
+                    return
+
+                    #ifdef GL_ES_VERSION_3_0
+
+                        // If version >= 3.0
+                        gl::getVersionMajor() >= 3 ? GL_HALF_FLOAT :
+
+                    #endif
+
+                    // If version < 3.0
+                    (hdrSupport ? GL_HALF_FLOAT_OES : GL_UNSIGNED_BYTE);
+
+                #else
+                    return GL_HALF_FLOAT;
+
+                #endif
+                }
+
+                // 16 bit depth texture
+                // Support is checked elsewhere
+                case F::Depth_US_16:
+                {
+                    return GL_UNSIGNED_SHORT;
+                }
+
+                // 24 bit depth texture
+                // Support is checked elsewhere
+                case F::Depth_UI_24:
+                {
+                    return GL_UNSIGNED_INT;
+                }
+
+                // 8 bit stencil texture
+                // Support is checked elsewhere
+                case F::Stencil_UB_8:
+                {
+                    return GL_UNSIGNED_BYTE;
+                }
+
+                // 24 bit depth, 8 bit stencil interleaved
+                // Support is checked elsewhere
+                case F::DepthStencil_UI_24_B_8:
+                {
+                    return
+
+                #ifdef JOP_OPENGL_ES
+                    GL_UNSIGNED_INT_24_8_OES;
+
+                #else
+                    GL_UNSIGNED_INT_24_8;
+
+                #endif
+                }
+            }
+
+            return 0;
         }
 
         //////////////////////////////////////////////
 
         GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb)
         {
+            using F = Image::Format;
 
+            static const bool srgbSupport =
+
+        #ifdef JOP_OPENGL_ES
+            JOP_CHECK_GL_EXTENSION(NV_sRGB_formats);
+            #define SRGB_EXT NV
+        #else
+            true;
+            #define SRGB_EXT EXT
+        #endif
+
+            #define PPCAT_NX(A, B) A##B
+            #define PPCAT(A, B) PPCAT_NX(A, B)
+
+            const bool allowSRGB = Texture::allowSRGB() && srgb && srgbSupport;
+
+            switch (format)
+            {
+                case F::DXT1RGB:
+                    return allowSRGB ? PPCAT(GL_COMPRESSED_SRGB_S3TC_DXT1_, SRGB_EXT) : GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+
+                case F::DXT1RGBA:
+                    return allowSRGB ? PPCAT(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_, SRGB_EXT) : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+
+                case F::DXT3RGBA:
+                    return allowSRGB ? PPCAT(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_, SRGB_EXT) : GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                    
+                case F::DXT5RGBA:
+                    return allowSRGB ? PPCAT(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_, SRGB_EXT) : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            }
+
+            #undef SRGB_EXT
+            #undef PPCAT_NX
+            #undef PPCAT
+
+            return 0;
         }
     }
 
+
     //////////////////////////////////////////////
+
+
+    Texture::FormatBundle::FormatBundle(const uint32 iForm, const uint32 form, const uint32 t)
+        : intFormat (iForm),
+          format    (form),
+          type      (t)
+    {}
+
+    bool Texture::FormatBundle::check() const
+    {
+        return intFormat > 0 && format > 0 && type > 0;
+    }
+
+
+    //////////////////////////////////////////////
+
 
     Texture::Texture(const std::string& name, const unsigned int glTarget)
         : Resource          (name),
@@ -364,13 +658,20 @@ namespace jop
         glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
         glCheck(glBindTexture(m_target, m_texture));
 
-        
         if (!m_sampler.expired())
             m_sampler->bind(texUnit);
         else
             TextureSampler::unbind(texUnit);
 
         return isValid();
+    }
+
+    //////////////////////////////////////////////
+
+    void Texture::unbind(const unsigned int texUnit) const
+    {
+        glCheck(glActiveTexture(GL_TEXTURE0 + texUnit));
+        glCheck(glBindTexture(m_target, 0));
     }
 
     //////////////////////////////////////////////
@@ -404,6 +705,8 @@ namespace jop
 
             m_filter = mode;
             m_anisotropic = param;
+
+            unbind();
         }
 
         return *this;
@@ -417,6 +720,8 @@ namespace jop
         {
             detail::setGLRepeatMode(m_target, repeat);
             m_repeat = repeat;
+
+            unbind();
         }
 
         return *this;
@@ -430,6 +735,8 @@ namespace jop
         {
             detail::setGLBorderColor(m_target, color);
             m_borderColor = color;
+
+            unbind();
         }
 
         return *this;
@@ -522,9 +829,11 @@ namespace jop
             && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB))
         #endif;
 
-    #endif
+    #else
 
         return allow;
+
+    #endif
     }
 
     //////////////////////////////////////////////

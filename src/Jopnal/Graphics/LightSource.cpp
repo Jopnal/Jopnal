@@ -430,6 +430,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool LightSource::allowShadows()
+    {
+
+    }
+
+    //////////////////////////////////////////////
+
     Message::Result LightSource::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(LightSource, message.getString(), this) == Message::Result::Escape)

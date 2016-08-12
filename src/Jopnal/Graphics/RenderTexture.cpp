@@ -57,7 +57,7 @@ namespace jop
 
                 switch (status)
                 {
-                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+                #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
 
                     case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
@@ -65,7 +65,7 @@ namespace jop
                         errorS = "GL_FRAMEBUFFER_UNDEFINED";
                         break;
 
-                #elif !defined(JOP_OPENGL_ES3)
+                #elif !defined(GL_ES_VERSION_3_0)
 
                     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
@@ -97,7 +97,7 @@ namespace jop
                         break;
                 }
 
-                JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer: " << errorS);
+                JOP_DEBUG_ERROR("Failed to create render texture: " << errorS);
 
                 return false;
             }
@@ -124,11 +124,16 @@ namespace jop
 
     RenderTexture& RenderTexture::addTextureAttachment(const Slot slot, const Texture::Format format)
     {
+        auto& att = m_attachments[static_cast<int>(slot)];
+        auto& tex = att.second;
+
+        glCheck(glDeleteRenderbuffers(1, &att.first));
+        att.first = 0;
+        tex.reset();
+
         if (format == Texture::Format::None)
-        {
-            m_attachments[static_cast<int>(slot)].second.reset();
             return *this;
-        }
+
         if (m_size == glm::uvec2(0))
         {
             JOP_DEBUG_ERROR("Failed to add render texture attachment, size is 0");
@@ -139,37 +144,91 @@ namespace jop
 
     #ifdef JOP_OPENGL_ES
 
+        static const bool hdrSupport = JOP_CHECK_GL_EXTENSION(GL_EXT_color_buffer_half_float);
+
+        if (format == F::RGB_F_16 && !hdrSupport && gl::getVersionMajor() >= 3 && gl::getVersionMinor() >= 2)
+        {
+            JOP_DEBUG_WARNING("HDR RGB frame buffer texture is not supported, attempting to create a HDR RGBA texture...");
+            return addTextureAttachment(slot, F::RGBA_F_16);
+        }
+
+        #if JOP_MIN_OPENGL_ES_VERSION < 320
+
+            if (format == F::RGB_F_16 || format == F::RGBA_F_16)
+            {
+                if (!(format == F::RGBA_F_16 && gl::getVersionMajor() >= 3 && gl::getVersionMinor() >= 2) && !hdrSupport)
+                {
+                    JOP_DEBUG_WARNING("HDR frame buffer textures are not supported, attempting to create respective LDR texture...");
+                    return addTextureAttachment(slot, format == F::RGB_F_16 ? F::RGB_UB_8 : F::RGBA_UB_8);
+                }
+            }
+
+            if (format == F::Stencil_UB_8 && !JOP_CHECK_GL_EXTENSION(GL_OES_texture_stencil8))
+            {
+                JOP_DEBUG_WARNING("Stancil frame buffer texture attachment is not supported, attempting to create respective render buffer...");
+                return addRenderbufferAttachment(slot, format);
+            }
+
+        #endif
+
+        #if JOP_MIN_OPENGL_ES_VERSION < 300
+
+            if (gl::getVersionMajor() < 3)
+            {
+                if ((format == F::Depth_US_16 || format == F::Depth_UI_24) && !JOP_CHECK_GL_EXTENSION(OES_depth_texture))
+                {
+                    JOP_DEBUG_ERROR("Depth frame buffer texture is not supported");
+                    return *this;
+                }
+
+                if (format == F::DepthStencil_UI_24_B_8 && !JOP_CHECK_GL_EXTENSION(OES_packed_depth_stencil))
+                {
+                    JOP_DEBUG_ERROR("Depth-stencil frame buffer texture is not supported");
+                    return *this;
+                }
+            }
+
+        #endif
+
     #endif
 
-    #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+        auto newTex = std::make_unique<Texture2D>("");
 
-    #endif
-
-        auto& tex = m_attachments[static_cast<int>(slot)].second;
+        using TF = Texture::Flag;
+        
+        if (newTex->load(m_size, format, TF::DisallowCompression | TF::DisallowMipmapGeneration | TF::DisallowSRGB))
+            tex = std::move(newTex);
+        else
+            JOP_DEBUG_ERROR("Failed to add render texture attachment, failed to load texture (possibly invalid or unsupported format)");
 
         return *this;
     }
 
     //////////////////////////////////////////////
 
+#ifndef JOP_OPENGL_ES
+
     namespace detail
     {
         extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
     }
 
+#endif
+
     //////////////////////////////////////////////
 
     RenderTexture& RenderTexture::addRenderbufferAttachment(const Slot slot, const Texture::Format format)
     {
+        auto& att = m_attachments[static_cast<int>(slot)];
+        auto& rendBuf = att.first;
+
+        glCheck(glDeleteRenderbuffers(1, &rendBuf));
+        rendBuf = 0;
+        att.second.reset();
+
         if (format == Texture::Format::None)
-        {
-            auto& rendBuf = m_attachments[static_cast<int>(slot)].first;
-
-            glCheck(glDeleteRenderbuffers(1, &rendBuf));
-            rendBuf = 0;
-
             return *this;
-        }
+
         if (m_size == glm::uvec2(0))
         {
             JOP_DEBUG_ERROR("Failed to add render render buffer attachment, size is 0");
@@ -199,8 +258,8 @@ namespace jop
         {
             if (slot == Slot::DepthStencil && !JOP_CHECK_GL_EXTENSION(OES_packed_depth_stencil))
             {
-                JOP_DEBUG_WARNING("Packed depth-stencil render buffer is not supported, attempting to create texture attachment...");
-                return addTextureAttachment(slot, format);
+                JOP_DEBUG_WARNING("Packed depth-stencil render buffer is not supported");
+                return *this;
             }
             else if (slot == Slot::Depth && format == F::Depth_UI_24 && !JOP_CHECK_GL_EXTENSION(OES_depth24))
             {
@@ -209,6 +268,11 @@ namespace jop
             }
             else if (slot == Slot::Color0)
             {
+                if (format == F::Alpha_UB_8)
+                {
+                    JOP_DEBUG_ERROR("Alpha render buffer attachment is not supported");
+                    return *this;
+                }
                 if (format == F::RGB_UB_8 && !JOP_CHECK_GL_EXTENSION(OES_rgb8_rgba8))
                 {
                     JOP_DEBUG_WARNING("RGB render buffer attachment is not supported, attempting to create texture attachment...");
@@ -224,8 +288,6 @@ namespace jop
 
     #endif
 
-        auto& rendBuf = m_attachments[static_cast<int>(slot)].first;
-
         glCheck(glDeleteRenderbuffers(1, &rendBuf));
         glCheck(glGenRenderbuffers(1, &rendBuf));
 
@@ -235,8 +297,53 @@ namespace jop
             return *this;
         }
 
-        glCheck(glBindRenderbuffer(GL_RENDERBUFFER, rendBuf));
-        glCheck(glRenderbufferStorage(GL_RENDERBUFFER, detail::getInternalFormatEnum(format, false), m_size.x, m_size.y));
+        GLenum intFormat;
+
+    #ifdef JOP_OPENGL_ES
+
+        switch (format)
+        {
+            case F::Alpha_UB_8:
+                intFormat = GL_R8;
+
+            case F::RGB_UB_8:
+                intFormat = GL_RGB8_OES;
+
+            case F::RGBA_UB_8:
+                intFormat = GL_RGBA8_OES;
+
+            case F::Depth_US_16:
+                intFormat = GL_DEPTH_COMPONENT16;
+
+            case F::Depth_UI_24:
+                intFormat = GL_DEPTH_COMPONENT24_OES;
+
+            case F::Stencil_UB_8:
+                intFormat = GL_STENCIL_INDEX8;
+
+            case F::DepthStencil_UI_24_B_8:
+                intFormat = GL_DEPTH24_STENCIL8_OES;
+
+            default:
+                intFormat = 0;
+        }
+
+    #else
+        intFormat = detail::getInternalFormatEnum(format, false);
+
+    #endif
+
+        if (intFormat)
+        {
+            glCheck(glBindRenderbuffer(GL_RENDERBUFFER, rendBuf));
+            glCheck(glRenderbufferStorage(GL_RENDERBUFFER, intFormat, m_size.x, m_size.y));
+            glCheck(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+        }
+        else
+        {
+            JOP_DEBUG_ERROR("Failed to create render buffer storage, unsupported format");
+            glCheck(glDeleteRenderbuffers(1, &rendBuf));
+        }
 
         return *this;
     }
@@ -400,6 +507,50 @@ namespace jop
                 return false;
             }
 
+            const GLenum attachmentPoint[] =
+            {
+                GL_DEPTH_ATTACHMENT,
+                GL_STENCIL_ATTACHMENT,
+
+            #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+                GL_DEPTH_STENCIL_ATTACHMENT,
+            #else
+                0,
+            #endif
+
+                GL_COLOR_ATTACHMENT0
+            };
+
+            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer));
+
+            for (std::size_t i = 0; i < m_attachments.size(); ++i)
+            {
+                auto att = &m_attachments[i];
+
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                if (gl::getVersionMajor() < 3)
+                {
+                    const auto s = static_cast<Slot>(i);
+
+                    if (s == Slot::DepthStencil)
+                        continue;
+
+                    if (s == Slot::Depth || s == Slot::Stencil)
+                        att = m_attachments[static_cast<int>(Slot::DepthStencil)];
+                }
+
+            #endif
+
+                if (att->first)
+                {
+                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentPoint[i], GL_RENDERBUFFER, att->first));
+                }
+                else if (att->second && att->second->isValid())
+                {
+                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint[i], GL_TEXTURE_2D, att->second->getHandle(), 0));
+                }
+            }
 
             return detail::checkFrameBufferStatus();
         }

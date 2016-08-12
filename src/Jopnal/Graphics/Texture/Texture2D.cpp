@@ -114,6 +114,8 @@ namespace jop
             glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED));
         }
 
+        unbind();
+
         return true;
     }
 
@@ -162,6 +164,8 @@ namespace jop
                 glCheck(glGenerateMipmap(GL_TEXTURE_2D));
             }
 
+            unbind();
+
             return true;
         }
 
@@ -186,6 +190,8 @@ namespace jop
         bind();
         setUnpackAlignment(m_format);
         glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, detail::getFormatEnum(m_format, false), detail::getTypeEnum(m_format), pixels));
+
+        unbind();
     }
 
     //////////////////////////////////////////////
@@ -246,6 +252,9 @@ namespace jop
 
         Image image;
         image.load(m_size, Texture2D::getPixelDepth(), &pixels[0]);
+
+        unbind();
+
         return image;
     }
 
