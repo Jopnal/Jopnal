@@ -49,9 +49,9 @@ namespace jop
 
         const std::array<glm::vec2, 3> points =
         {
-            glm::vec2(0.f, height),
-            glm::vec2(-width * 0.5f, 0.f),
-            glm::vec2(width * 0.5f, 0.f)
+            glm::vec2(0.f, height*0.5f),
+            glm::vec2(-width * 0.5f, -height*0.5f),
+            glm::vec2(width * 0.5f, -height*0.5f)
         };
 
         temp->Set(reinterpret_cast<const b2Vec2*>(points.data()), points.size());

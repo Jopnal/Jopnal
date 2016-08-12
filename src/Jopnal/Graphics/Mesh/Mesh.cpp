@@ -258,7 +258,7 @@ namespace jop
             + ((VertexComponent::Normal     & components)   != 0) * sizeof(glm::vec3)
             + ((VertexComponent::Tangent    & components)   != 0) * sizeof(glm::vec3)
             + ((VertexComponent::BiTangent  & components)   != 0) * sizeof(glm::vec3)
-            + ((VertexComponent::Color      & components)   != 0) * sizeof(Color);
+            + ((VertexComponent::Color      & components)   != 0) * sizeof(::jop::Color);
     }
 
     //////////////////////////////////////////////

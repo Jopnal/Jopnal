@@ -522,15 +522,9 @@ void main()
     #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
         JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC)
 
-        #ifdef JMAT_VERTEXCOLOR
-            * OUT_COL
-        #endif
+            + OUT_COL
     #else
-        #if defined(JMAT_VERTEXCOLOR)
             OUT_COL
-        #else
-            vec4(0.0, 0.0, 0.0, 1.0)
-        #endif
     #endif
     ;
 
@@ -608,9 +602,7 @@ void main()
         * u_Emission.a
     #endif
 
-    #ifdef JMAT_VERTEXCOLOR
         * OUT_COL.a
-    #endif
     ;
 
     // Finally assign to the fragment output

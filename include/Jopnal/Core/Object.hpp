@@ -272,6 +272,16 @@ namespace jop
         ///
         Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
 
+        /// \brief Reserve memory for children.
+        ///
+        /// Reallocates children if param size is greater than currentnly reserved size.
+        ///
+        /// \param size Size to reserve.
+        ///
+        /// \return Reference to self.
+        ///
+        Object& reserveChildren(const uint32 size);
+
         /// \brief Remove all children
         ///
         /// \comm clearChild

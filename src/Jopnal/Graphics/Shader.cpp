@@ -309,7 +309,7 @@ namespace jop
             versionString += std::to_string(gl::getGLSLVersion());
 
         #ifdef JOP_OPENGL_ES
-            versionString += (gl::getGLSLVersion() > 100 ? " es\n" : "\n");
+            versionString += (gl::getGLSLVersion() > 100 ? " es\n" : "\nprecision mediump float;\n");
         #else
             versionString += " core\n";
         #endif

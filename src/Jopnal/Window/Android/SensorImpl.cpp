@@ -70,20 +70,20 @@ namespace jop
     {
         m_sensor = getDefault(sensorType);
 
-        const std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
+        //const std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
 
         // Check if sensor is available
         if (!available(sensorType))
         {
-            JOP_DEBUG_ERROR("Sensor: (" <<  name << ") not available.");
+          //  JOP_DEBUG_ERROR("Sensor: (" <<  name << ") not available.");
             return false;
         }
         
         // Set rate (60 events / second) use ASensor_getMinDelay() instead? - This affects precision & power usage
         int status = ASensorEventQueue_setEventRate(sensorEventQueue, m_sensor, (1000 / 60) * 1000);
 
-        if (status < 0)
-            JOP_DEBUG_WARNING("Setting event rate on sensor \"" << name << "\" failed");
+        //if (status < 0)
+            //JOP_DEBUG_WARNING("Setting event rate on sensor \"" << name << "\" failed");
 
         return true;
     }

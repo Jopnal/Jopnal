@@ -66,6 +66,8 @@ namespace jop
     {
     public:
 
+        using Object::getReference;
+
         using Object::createComponent;
         using Object::getComponent;
         using Object::getComponents;

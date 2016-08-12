@@ -105,14 +105,14 @@ extern int main(int argc, char* argv[]);
                 case APP_CMD_GAINED_FOCUS:
                 {
                     ActivityState::get()->focus = true;
-                    SensorManager::getInstance().gainedFocus();
+                  //  SensorManager::getInstance().gainedFocus();
 
                     break;
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
                     ActivityState::get()->focus = false;
-                    SensorManager::getInstance().lostFocus();
+                   // SensorManager::getInstance().lostFocus();
                 }
             }
         }

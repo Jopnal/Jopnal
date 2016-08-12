@@ -313,6 +313,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Object& Object::reserveChildren(const uint32 size)
+    {
+        m_children.reserve(size);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
     Object& Object::clearChildren()
     {
         m_children.clear();
