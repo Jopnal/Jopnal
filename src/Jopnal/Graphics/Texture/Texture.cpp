@@ -40,6 +40,10 @@ namespace jop
 {
     namespace detail
     {
+    #ifdef JOP_OPENGL_ES
+        extern bool checkBorderSupport();
+    #endif
+
         void setGLFilterMode(const GLenum target, const TextureSampler::Filter mode, const float param)
         {
             using Filter = TextureSampler::Filter;
@@ -70,8 +74,6 @@ namespace jop
                     {
                         glCheck(glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, glm::clamp(param, 1.f, TextureSampler::getMaxAnisotropy())));
                     }
-                    else
-                        JOP_DEBUG_WARNING_ONCE("Anisotropic filtering is not supported on this system");
                 }
             }
         }
@@ -106,15 +108,23 @@ namespace jop
                     break;
                 }
 
-            #ifndef JOP_OPENGL_ES
-
                 case Repeat::ClampBorder:
                 {
+                #ifdef JOP_OPENGL_ES
+
+                    if (detail::checkBorderSupport())
+                    {
+                        glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_EXT));
+                        glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_EXT));
+                    }
+
+                #else
+
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
                     glCheck(glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
-                }
 
-            #endif
+                #endif
+                }
             }
         }
 
@@ -122,8 +132,16 @@ namespace jop
 
         void setGLBorderColor(const GLenum target, const Color& color)
         {
-        #ifndef JOP_OPENGL_ES
+        #ifdef JOP_OPENGL_ES
+
+            if (detail::checkBorderSupport())
+            {
+                glCheck(glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR_EXT, &color.colors[0]));
+            }
+
+        #else
             glCheck(glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, &color.colors[0]));
+
         #endif
         }
 

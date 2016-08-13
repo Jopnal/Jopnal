@@ -110,6 +110,75 @@ macro(jopAddLibrary target)
 
 endmacro()
 
+# Add example
+macro(jopAddExample target)
+
+    # Parse the arguments
+    cmake_parse_arguments(THIS "" "" "SOURCES" ${ARGN})
+
+    # Set a source group for the sources
+    source_group("src" FILES ${THIS_SOURCES})
+
+    # Create the executable target
+    if (JOP_OS_WINDOWS)
+    
+        add_executable(${target} WIN32 ${THIS_SOURCES})
+        target_link_libraries(${target} jopnal-main)
+        
+    else ()
+        add_executable(${target} ${THIS_SOURCES})
+        
+    endif()
+
+    # Set the target's folder
+    set_target_properties(${target} PROPERTIES FOLDER "examples")
+
+    # Link the target to Jopnal
+    target_link_libraries(${target} jopnal)
+    
+    # Add Jopnal as a dependency
+    add_dependencies(${target} jopnal)
+
+    # Add the install rule
+    install(TARGETS ${target}
+            RUNTIME DESTINATION ${INSTALL_MISC_DIR}/examples/${target} COMPONENT examples
+            BUNDLE DESTINATION ${INSTALL_MISC_DIR}/examples/${target} COMPONENT examples)
+
+    # Install the example's sources
+    install(FILES ${THIS_SOURCES}
+            DESTINATION ${INSTALL_MISC_DIR}/examples/${target}
+            COMPONENT examples)
+
+    # Copy the example's resources
+    set(EXAMPLE_RESOURCES "${CMAKE_SOURCE_DIR}/examples/${target}/Resources")
+    if (EXISTS ${EXAMPLE_RESOURCES})
+    
+        add_custom_command(TARGET ${target} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory
+                           ${EXAMPLE_RESOURCES} $<TARGET_FILE_DIR:${target}>/Resources)
+        
+    endif()
+    
+    # Copy dll's on Windows
+    if (JOP_OS_WINDOWS)
+    
+        if (BUILD_SHARED_LIBS)
+        
+            add_custom_command(TARGET ${target} POST_BUILD
+                               DEPENDS ALL
+                               COMMAND ${CMAKE_COMMAND} -E copy_directory
+                               ${PROJECT_BINARY_DIR}/lib/${CMAKE_CFG_INTDIR} $<TARGET_FILE_DIR:${target}>)
+        
+        endif()
+        
+        add_custom_command(TARGET ${target} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory
+                           ${PROJECT_BINARY_DIR}/extlibs/dll $<TARGET_FILE_DIR:${target}>)
+    
+    endif()
+
+endmacro()
+
 
 # Macro to find packages on the host OS
 # This is the same as in the toolchain file, here for Nsight Tegra VS

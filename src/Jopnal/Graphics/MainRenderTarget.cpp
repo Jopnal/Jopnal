@@ -46,7 +46,7 @@ namespace jop
     {
         const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(window.getSize()));
 
-        const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::isES() || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
+        const bool hdr = SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bHDR", !gl::es || JOP_CHECK_EGL_EXTENSION(GL_EXT_color_buffer_half_float));
 
         using CA = Texture::Format;
 

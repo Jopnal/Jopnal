@@ -117,7 +117,7 @@ namespace jop
         }
 
         // Swizzle R to A in GLES >=3.0 and GL >=3.3
-        if ((!gl::isES() || gl::getVersionMajor() >= 3) && Texture2D::getPixelDepth() == 1)
+        if ((!gl::es || gl::getVersionMajor() >= 3) && Texture2D::getPixelDepth() == 1)
         {
             glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED));
         }

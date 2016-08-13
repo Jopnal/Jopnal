@@ -113,8 +113,6 @@ namespace jop
         ///
         /// When state is Running, this function has no effect.
         ///
-        /// \comm advanceFrame
-        ///
         static void advanceFrame();
 
         /// \brief Create a new scene
@@ -196,8 +194,6 @@ namespace jop
         ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        /// \comm removeSubsystem
-        ///
         template<typename T>
         static bool removeSubsystem(const uint32 ID);
 
@@ -215,15 +211,11 @@ namespace jop
         /// time of the call. The main loop returns only after the current
         /// frame has been processed.
         ///
-        /// \comm exit
-        ///
         static void exit();
 
         /// \brief Set the engine state
         ///
         /// \param state The new state to set
-        ///
-        /// \comm setState
         ///
         static void setState(const State state);
 
@@ -305,12 +297,15 @@ namespace jop
         ///
         static double getTotalTime();
 
+        static float getDeltaTimeUnscaled();
+
     private:
 
         static Engine* m_engineObject;                          ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems;   ///< A vector containing the subsystems
         std::atomic<double> m_totalTime;                        ///< The total time
+        std::atomic<float> m_deltaTimeUnscaled;
         std::unique_ptr<Scene> m_currentScene;                  ///< The current scene
         std::atomic<Scene*> m_newScene;                         ///< Temporary new scene pointer
         std::atomic<bool> m_newSceneSignal;                     ///< Was the new scene signaled?

@@ -147,13 +147,11 @@ namespace jop
 
         //////////////////////////////////////////////
 
-        bool isES()
-        {
+        const bool es =
         #ifdef JOP_OPENGL_ES
-            return true;
+            true;
         #else
-            return false;
+            false;
         #endif
-        }
     }
 }

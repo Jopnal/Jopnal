@@ -206,12 +206,11 @@ namespace jop
         fBegin = fBegin == std::string::npos ? endPos - 1 : fBegin - 1;
         if (filter[fBegin] != '[' && filter.find_last_of("-*=(<", 1) == std::string::npos)
         {
-            static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Engine | Subsystem | SharedScene | Scene | Object | Component));
+            static const unsigned short systemBitsInv = static_cast<unsigned short>(~(Subsystem | SharedScene | Scene | Object | Component));
             m_filterBits &= systemBitsInv;
 
             static const char* symbols[]
             {
-                "En",
                 "Su",
                 "Sh",
                 "Sc",
@@ -222,7 +221,7 @@ namespace jop
             for (int i = 0; i < sizeof(symbols) / sizeof(symbols[0]); ++i)
             {
                 if (filter.rfind(symbols[i], fBegin) != std::string::npos)
-                    m_filterBits |= (Filter::Engine << i);
+                    m_filterBits |= (Filter::Subsystem << i);
             }
         }
 

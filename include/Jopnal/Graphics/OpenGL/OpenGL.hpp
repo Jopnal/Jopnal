@@ -88,7 +88,7 @@ namespace jop { namespace gl
 
     JOP_API unsigned int getGLSLVersion();
 
-    JOP_API bool isES();
+    JOP_API extern const bool es;
 }}
 
 #endif

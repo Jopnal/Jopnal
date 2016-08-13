@@ -309,7 +309,7 @@ namespace jop
         int size = 0;
         unsigned char* buf = nullptr;
 
-        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", !gl::isES());
+        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", !gl::es);
 
         if (!allowCompressionGlobal || !allowCompression)
             return true;

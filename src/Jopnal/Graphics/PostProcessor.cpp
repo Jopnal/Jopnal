@@ -81,7 +81,7 @@ namespace
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
-    const float ns_defBloomThreshold = 2.f - 1.1f * jop::gl::isES();
+    const float ns_defBloomThreshold = 2.f - 1.1f * jop::gl::es;
 }
 
 namespace jop
@@ -133,7 +133,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -162,7 +162,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -236,7 +236,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
@@ -517,7 +517,7 @@ namespace jop
                 glm::uvec2 size(glm::uvec2((16 << m_bloomTextures.size()) >> i));
                 size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
 
-                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::isES()
+                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::es
 
                 #ifdef JOP_OPENGL_ES                 
                     || JOP_CHECK_GL_EXTENSION(GL_EXT_color_buffer_half_float)

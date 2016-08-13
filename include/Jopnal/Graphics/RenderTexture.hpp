@@ -75,9 +75,9 @@ namespace jop
         ~RenderTexture() override;
 
 
-        RenderTexture& addTextureAttachment(const Slot slot, const Texture::Format format);
+        bool addTextureAttachment(const Slot slot, const Texture::Format format);
 
-        RenderTexture& addRenderbufferAttachment(const Slot slot, const Texture::Format format);
+        bool addRenderbufferAttachment(const Slot slot, const Texture::Format format);
 
         /// \brief Destroy this frame buffer
         ///
