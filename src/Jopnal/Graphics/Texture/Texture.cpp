@@ -621,10 +621,10 @@ namespace jop
     //////////////////////////////////////////////
 
 
-    Texture::FormatBundle::FormatBundle(const uint32 iForm, const uint32 form, const uint32 t)
-        : intFormat (iForm),
-          format    (form),
-          type      (t)
+    Texture::FormatBundle::FormatBundle(const Format format, const bool srgb)
+        : intFormat (detail::getInternalFormatEnum(format, srgb)),
+          format    (detail::getFormatEnum(format, srgb)),
+          type      (detail::getTypeEnum(format))
     {}
 
     bool Texture::FormatBundle::check() const

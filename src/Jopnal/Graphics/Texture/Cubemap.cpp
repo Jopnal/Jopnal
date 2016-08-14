@@ -45,9 +45,6 @@ namespace jop
 {
     namespace detail
     {
-        extern GLenum getFormatEnum(const Texture::Format format, const bool srgb);
-        extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
-        extern GLenum getTypeEnum(const Texture::Format format);
         extern GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
 
         bool errorCheckCube(const glm::uvec2& size)
@@ -92,6 +89,7 @@ namespace jop
         glm::uvec2 size;
         int bytes;
         const bool srgb = (flags & Flag::DisallowSRGB) == 0;
+        bool error = false;
 
         for (std::size_t i = 0; i < 6; ++i)
         {
@@ -99,8 +97,8 @@ namespace jop
             if (!FileLoader::readBinaryfile(*paths[i], buf))
             {
                 JOP_DEBUG_ERROR("Couldn't read cube map texture, face " << i << ", path " << paths[i]);
-                unbind();
-                return false;
+                error = true;
+                break;
             }
 
             unsigned char* pix = stbi_load_from_memory(buf.data(), buf.size(), reinterpret_cast<int*>(&size.x), reinterpret_cast<int*>(&size.y), &bytes, 0);
@@ -108,11 +106,17 @@ namespace jop
             if (!pix)
             {
                 JOP_DEBUG_ERROR("Couldn't load cube map texture, face " << i << ", path " << paths[i]);
-                unbind();
-                return false;
+                error = true;
+                break;
             }
 
-            if (size.x != size.y)
+            m_format = getFormatFromDepth(bytes);
+            const FormatBundle f(m_format, srgb);
+
+            if (!f.check())
+                JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", invalid format")
+
+            else if (size.x != size.y)
                 JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", dimensions not identical")
 
             else if (size.x > getMaximumSize())
@@ -120,16 +124,14 @@ namespace jop
 
             else
             {
-                m_format = getFormatFromDepth(bytes);
-
-                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(m_format, srgb),
-                                     size.x, size.y, 0, detail::getFormatEnum(m_format, srgb), detail::getTypeEnum(m_format), pix));
+                setUnpackAlignment(m_format);
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, f.intFormat, size.x, size.y, 0, f.format, f.type, pix));
             }
 
             stbi_image_free(pix);
         }
 
-        if (allowGenMipmaps(size, srgb) && !(flags & Flag::DisallowMipmapGeneration))
+        if (!error && allowGenMipmaps(size, srgb) && !(flags & Flag::DisallowMipmapGeneration))
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
         }

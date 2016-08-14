@@ -45,9 +45,6 @@ namespace jop
 {
     namespace detail
     {
-        extern GLenum getFormatEnum(const Texture::Format format, const bool srgb);
-        extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
-        extern GLenum getTypeEnum(const Texture::Format format);
         extern GLenum getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
 
         bool errorCheck(const glm::uvec2& size)
@@ -102,9 +99,6 @@ namespace jop
 
         destroy();
         bind();
-
-        m_size = size;
-        m_format = format;
         const bool srgb = (flags & Flag::DisallowSRGB) == 0;
 
         setUnpackAlignment(format);
@@ -116,13 +110,20 @@ namespace jop
             glCheck(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
+    #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+
         // Swizzle R to A in GLES >=3.0 and GL >=3.3
         if ((!gl::es || gl::getVersionMajor() >= 3) && Texture2D::getPixelDepth() == 1)
         {
             glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED));
         }
 
+    #endif
+
         unbind();
+
+        m_size = size;
+        m_format = format;
 
         return true;
     }
