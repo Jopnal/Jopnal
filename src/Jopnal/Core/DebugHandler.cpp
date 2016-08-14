@@ -41,6 +41,8 @@
 
     #elif defined(JOP_OS_WINDOWS)
 
+        #include <Jopnal/Graphics/Color.hpp>
+        #include <glm/vec2.hpp>
         #include <io.h>
         #include <fcntl.h>
 

@@ -25,17 +25,19 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Window/WindowEventHandler.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Window/Window.hpp>
+    #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <array>
     #include <vector>
 
     #ifdef JOP_OS_DESKTOP
-    #include <GLFW/glfw3.h>
+        #include <GLFW/glfw3.h>
     #endif
 
 #endif
-
-#include <Jopnal/Window/InputEnumsImpl.hpp>
 
 //////////////////////////////////////////////
 

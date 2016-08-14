@@ -26,7 +26,15 @@
 
 #ifdef JOP_OS_DESKTOP
 
-#include <GLFW/glfw3.h>
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/Controller.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
+    #include <Jopnal/Window/Mouse.hpp>
+
+    #include <GLFW/glfw3.h>
+
+#endif
 
 //////////////////////////////////////////////
 

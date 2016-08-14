@@ -79,6 +79,7 @@ namespace jop { namespace detail
         EGLSurface m_surface;
         EGLContext m_context;
 
+        glm::uvec2 m_size;
         bool m_fullScreen;
     };
 

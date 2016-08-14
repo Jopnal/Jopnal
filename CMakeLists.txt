@@ -1,6 +1,6 @@
 # Jopnal Engine CMakeLists
 
-# 3.1 is the minimum for pdb file generation
+# 3.1 is the minimum for pdb file generation and forcing C++11
 cmake_minimum_required(VERSION 3.1.0)
 
 # Helper for defining options
@@ -33,11 +33,7 @@ set_property(CACHE ANDROID_API_MIN PROPERTY STRINGS
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 
 # Set toolchain to use
-jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
-set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
-             "arm-linux-androideabi-4.9"
-             "mipsel-linux-android-4.9"
-             "x86_4.9")
+jopSetOption(ANDROID_TOOLCHAIN_NAME "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
@@ -49,27 +45,7 @@ jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
 # Default ABI
 if (NOT ANDROID_ABI)
-    set(ANDROID_ABI "armeabi-v7a")
-endif()
-
-# Change the default ABI setting if toolchain has changed
-string(SUBSTRING ${ANDROID_ABI} 0 3 ANDROID_ABI_SHORT)
-
-if (NOT ${ANDROID_TOOLCHAIN_MAKE} MATCHES ${ANDROID_ABI_SHORT})
-
-    unset(ANDROID_ABI CACHE)
-
-    if (${ANDROID_TOOLCHAIN_MAKE} MATCHES "arm")
-        set(ANDROID_ABI "armeabi-v7a")
-    
-    elseif (${ANDROID_TOOLCHAIN_MAKE} MATCHES "mips")
-        set(ANDROID_ABI "mips")
-        
-    elseif (${ANDROID_TOOLCHAIN_MAKE} MATCHES "x86")
-        set(ANDROID_ABI "x86")
-        
-    endif()
-
+    set(ANDROID_ABI "armeabi-v7a with NEON")
 endif()
 
 # Project name
@@ -143,15 +119,24 @@ add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
 
 # Option to enable/disable assertions
 jopSetOption(JOP_ASSERTS TRUE BOOL "True to enable assertions, false to strip them away. It's recommended to disable assertions for release builds")
-add_definitions("-DJOP_ENABLE_ASSERTS=${JOP_ASSERTS}")
+
+if (JOP_ASSERTS)
+    add_definitions("-DJOP_ENABLE_ASSERTS")
+endif()
 
 # Option to enable/disable OpenGL error checks
 jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away. It's recommended to disable these checks for release builds")
-add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
+
+if (JOP_OPENGL_ERROR_CHECKS)
+    add_definitions("-DJOP_OPENGL_ERROR_CHECKS")
+endif()
 
 # Option to enable/disable OpenAL error checks
 jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away. It's recommended to disable these checks for release builds")
-add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
+
+if (JOP_OPENAL_ERROR_CHECKS)
+    add_definitions("-DJOP_OPENAL_ERROR_CHECKS")
+endif()
 
 # Generate documentation
 jopSetOption(JOP_GENERATE_DOCS FALSE BOOL "True to generate documentation, false otherwise")
@@ -265,6 +250,8 @@ endif()
 
 # Force inclusion of available c++11 features
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

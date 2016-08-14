@@ -35,6 +35,7 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
     #include <android/window.h>
@@ -341,7 +342,7 @@ namespace jop { namespace detail
 
     glm::uvec2 WindowImpl::getSize() const
     {
-        return ActivityState::get()->windowSize;
+        return m_size;
     }
 
     //////////////////////////////////////////////
@@ -605,7 +606,7 @@ namespace jop { namespace detail
         const int32_t key = AKeyEvent_getKeyCode(event);
         const int32_t scanCode = AKeyEvent_getScanCode(event);
 
-        const int jopKey = Input::getJopKey(key);
+        int jopKey = Input::getJopKey(key);
 
         const int mod = ((metakey & AMETA_SHIFT_ON) != 0) * Keyboard::Modifier::Shift
                       | ((metakey & AMETA_ALT_ON)   != 0) * Keyboard::Modifier::Alt

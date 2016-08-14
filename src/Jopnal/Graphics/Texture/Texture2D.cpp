@@ -248,7 +248,7 @@ namespace jop
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer));
             glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getHandle(), 0));
-            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, getFormatEnum(m_format, false), GL_UNSIGNED_BYTE, &pixels[0]));
+            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, detail::getFormatEnum(m_format, false), GL_UNSIGNED_BYTE, &pixels[0]));
             glCheck(glDeleteFramebuffers(1, &frameBuffer));
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer));

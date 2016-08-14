@@ -344,10 +344,7 @@ namespace jop
 
     public:
 
-        /// \brief Default constructor
-        ///
-        LightContainer() = default;
-
+        LightContainer();
 
         /// \brief Check is this container is empty
         ///

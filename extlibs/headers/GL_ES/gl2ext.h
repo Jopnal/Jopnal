@@ -91,7 +91,7 @@ GL_APICALL void GL_APIENTRY glBlendBarrierKHR (void);
 #endif /* GL_KHR_context_flush_control */
 
 //#ifndef GL_KHR_debug
-#if 0
+#ifndef GL_KHR_debug
 #define GL_KHR_debug 1
 typedef void (GL_APIENTRY  *GLDEBUGPROCKHR)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 #define GL_SAMPLER                        0x82E6

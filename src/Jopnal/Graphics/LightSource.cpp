@@ -438,8 +438,15 @@ namespace jop
         return Component::receiveMessage(message);
     }
 
+
     //////////////////////////////////////////////
 
+
+    LightContainer::LightContainer()
+        : m_container()
+    {}
+
+    //////////////////////////////////////////////
 
     bool LightContainer::empty() const
     {

@@ -28,6 +28,7 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Image.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
@@ -231,7 +232,15 @@ namespace jop
                 // 8 bit stencil texture
                 // Support will be checked elsewhere
                 case F::Stencil_UB_8:
+                {
+                #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_1)
                     return GL_STENCIL_INDEX;
+
+                #else
+                    return 0;
+
+                #endif
+                }
 
                 // 24 bit depth, 8 bit stencil interleaved
                 // Support will be checked elsewhere
@@ -845,7 +854,8 @@ namespace jop
         
         #if JOP_MIN_OPENGL_ES_VERSION < 300
             && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB))
-        #endif;
+        #endif
+        ;
 
     #else
 
@@ -871,7 +881,8 @@ namespace jop
             // Check NPOT
             && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot) || ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0))
 
-        #endif;
+        #endif
+        ;
 
     #else
 

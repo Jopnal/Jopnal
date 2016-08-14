@@ -29,15 +29,14 @@
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <algorithm>
 
 #endif
 
 #pragma warning(push)
 #pragma GCC diagnostic push
 
-#pragma warning(disable: 4244)
-#pragma warning(disable: 4100)
-#pragma warning(disable: 4127)
+#pragma warning(disable: 4244 4100 4127 4457 4456 4838)
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wnarrowing"
 

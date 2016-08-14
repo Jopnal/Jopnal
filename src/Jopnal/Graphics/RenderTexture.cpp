@@ -30,9 +30,7 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
-    #include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
     #include <Jopnal/Graphics/Texture/Cubemap.hpp>
-    #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Window/Window.hpp>
@@ -545,7 +543,7 @@ namespace jop
                         continue;
 
                     if (s == Slot::Depth || s == Slot::Stencil)
-                        att = m_attachments[static_cast<int>(Slot::DepthStencil)];
+                        att = &m_attachments[static_cast<int>(Slot::DepthStencil)];
                 }
 
             #endif

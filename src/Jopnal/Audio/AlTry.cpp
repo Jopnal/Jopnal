@@ -22,9 +22,11 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifndef JOP_PRECOMPILED_HEADER
+#include <Jopnal/Audio/AlTry.hpp>
 
-    #include <Jopnal/Audio/AlTry.hpp>
+#ifdef JOP_OPENAL_ERROR_CHECKS
+
+#ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <AL/al.h>
@@ -52,9 +54,21 @@ namespace jop { namespace detail
 {
     void openAlCheck(const char* func, const char* file, const unsigned int line)
     {
-        auto error = alcGetError(alcGetContextsDevice(alcGetCurrentContext()));
+    #if JOP_CONSOLE_VERBOSITY < 0
+
+        func;
+        file;
+        line;
+
+    #else
+
+        const ALCenum error = alcGetError(alcGetContextsDevice(alcGetCurrentContext()));
         
         if (error != ALC_NO_ERROR)
             JOP_DEBUG_ERROR("Audio device error " << ns_deviceErrors[error] << " in function " << func << ", in file " << file << ", on line " << line);
+
+    #endif
     }
 }}
+
+#endif

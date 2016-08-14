@@ -27,6 +27,7 @@
 
 #ifdef JOP_OS_ANDROID
 
+#include <Jopnal/Window/Controller.hpp>
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <glm/vec2.hpp>
 #include <android/native_activity.h>

@@ -50,7 +50,6 @@ namespace jop { namespace detail
           screenSize                (0.f),
           windowSize                (0.f),
           activeKey                 (-1),
-          focus                     (false),
           controllerPresent         (false),
           destroyRequested          (false)
     {

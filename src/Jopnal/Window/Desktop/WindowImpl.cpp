@@ -31,6 +31,7 @@
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <GLFW/glfw3.h>
 
     #define GLFW_EXPOSE_NATIVE_WIN32
