@@ -205,6 +205,8 @@ namespace jop { namespace detail
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &m_config, 1, &numConfigs));
 
             state->window = this;
+            state->handleSurfaceCreation = &handleSurfaceCreation;
+            state->handleSurfaceDestruction = &handleSurfaceDestruction;
 
             handleSurfaceCreation();
 
@@ -269,7 +271,11 @@ namespace jop { namespace detail
             auto state = detail::ActivityState::get();
 
             if (state->window == this)
+            {
                 state->window = nullptr;
+                state->handleSurfaceCreation    = nullptr;
+                state->handleSurfaceDestruction = nullptr;
+            }
         }
 
         eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
@@ -380,11 +386,13 @@ namespace jop { namespace detail
             win->m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), win->m_config, state->nativeWindow, surfaceAttribs));
             JOP_ASSERT(win->m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
-            //if (win->m_context != EGL_NO_CONTEXT)
-            //{
-            //    EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), win->m_surface, win->m_surface, win>m_context));
-            //    JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
-            //}
+            if (win->m_context != EGL_NO_CONTEXT)
+            {
+                EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), win->m_surface, win->m_surface, win->m_context));
+                JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+            }
+
+            JOP_DEBUG_INFO("Surface recreated");
 
             if (win->m_fullScreen)
                 goFullscreen();
@@ -405,10 +413,7 @@ namespace jop { namespace detail
             eglCheck(eglDestroySurface(getDisplay(), win->m_surface));
             win->m_surface = EGL_NO_SURFACE;
 
-            //if (win->m_context != EGL_NO_CONTEXT)
-            //{
-            //    eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
-            //}
+            JOP_DEBUG_INFO("Surface destroyed");
         }
     }
 

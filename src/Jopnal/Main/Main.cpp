@@ -53,45 +53,10 @@ extern int main(int argc, char* argv[]);
 
     namespace jop { namespace detail
     {
-        enum BeginState
-        {
-            Resume  = 1,
-            Focus   = 1 << 1,
-            Window  = 1 << 2,
-
-            Ready   = Resume | Focus | Window
-        };
-
         android_app* ns_app = nullptr;
         unsigned int ns_readyState = 0;
    
-        void onAppCmdPaused(struct android_app* app, int32_t cmd)
-        { 
-            auto state = ActivityState::get();
-
-            switch (cmd)
-            {
-                case APP_CMD_RESUME:
-                {
-                    ns_readyState |= BeginState::Resume;
-                    break;
-                }
-
-                case APP_CMD_GAINED_FOCUS:
-                {
-                    ns_readyState |= BeginState::Focus;
-                    break;
-                }
-
-                case APP_CMD_INIT_WINDOW:
-                {
-                    state->nativeWindow = app->window;
-                    ns_readyState |= BeginState::Window;
-                }
-            }
-        }
-
-        void onAppCmdRunning(struct android_app* app, int32_t cmd)
+        void onAppCmd(struct android_app* app, int32_t cmd)
         {
             static auto lastRunningState = Engine::getState();
             auto state = ActivityState::get();
@@ -100,38 +65,43 @@ extern int main(int argc, char* argv[]);
             {
                 case APP_CMD_INIT_WINDOW:
                 {
-                    Engine::setState(lastRunningState);
-
+                    ns_readyState |= ActivityState::FocusState::Window;
                     state->nativeWindow = app->window;
-                    state->handleSurfaceCreation();
 
                     break;
                 }
                 
                 case APP_CMD_TERM_WINDOW:
                 {
-                    lastRunningState = Engine::getState();
-                    Engine::setState(Engine::State::Frozen);
+                    ns_readyState &= ~ActivityState::FocusState::Window;
+                    state->fullFocus = false;
 
                     state->nativeWindow = nullptr;
-                    state->handleSurfaceDestruction();
+
+                    if (state->handleSurfaceDestruction)
+                        state->handleSurfaceDestruction();
 
                     break;
                 }
 
                 case APP_CMD_WINDOW_RESIZED:
                 {
-                    
+                    break;   
+                }
+
+                case APP_CMD_RESUME:
+                {
+                    ns_readyState |= ActivityState::FocusState::Running;
+                    break;
                 }
 
                 case APP_CMD_PAUSE:
-                {
-
-                }
-
                 case APP_CMD_STOP:
                 {
+                    ns_readyState &= ~ActivityState::FocusState::Running;
+                    state->fullFocus = false;
 
+                    break;
                 }
 
                 case APP_CMD_DESTROY:
@@ -140,21 +110,37 @@ extern int main(int argc, char* argv[]);
                     app->onInputEvent       = nullptr;
                     state->pollFunc         = nullptr;
                     state->destroyRequested = true;
+                    state->fullFocus        = false;
 
                     Engine::exit();
 
                     break;
                 }
+
                 case APP_CMD_GAINED_FOCUS:
                 {
-
+                    ns_readyState |= ActivityState::FocusState::Focus;
                     //SensorManager::getInstance().gainedFocus();
 
                     break;
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
+                    ns_readyState &= ~ActivityState::FocusState::Focus;
                     //SensorManager::getInstance().lostFocus();
+                }
+            }
+
+            if (!state->fullFocus && ns_readyState == ActivityState::FullFocus)
+            {
+                state->fullFocus = true;
+                JOP_DEBUG_INFO("Regained full focus");
+
+                if (state->window)
+                {
+                    JOP_DEBUG_INFO("Recreating surface");
+                    state->nativeWindow = app->window;
+                    state->handleSurfaceCreation();
                 }
             }
         }
@@ -195,20 +181,19 @@ extern int main(int argc, char* argv[]);
 
             JOP_DEBUG_INFO("Android activity started, waiting for window...");
 
-            while (ns_readyState != BeginState::Ready)
+            while (!state->fullFocus)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 pollFunc();
             }
 
-            ns_readyState = 0;
-
-            app->onAppCmd       = onAppCmdRunning;
             app->onInputEvent   = onInputEvent;
             state->pollFunc     = pollFunc;
 
             JOP_DEBUG_INFO("Android activity is ready, entering application main()");
 
+            // Dummy command line arguments. Can't be null
+            // because PhysFS wants the first one
             char v = '\0';
             char* argv[] = {&v};
             ::main(1, argv);
@@ -221,7 +206,7 @@ extern int main(int argc, char* argv[]);
 
         //jop::GooglePlayService::init(app, app->activity);
 
-        app->onAppCmd = jop::detail::onAppCmdPaused;
+        app->onAppCmd = jop::detail::onAppCmd;
         app->userData = jop::detail::ActivityState::create(app->activity);
 
         jop::detail::main(app);

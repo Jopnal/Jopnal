@@ -111,10 +111,10 @@ namespace jop
         if (m_body->isActive() != active)
         {
             if (m_body->isKinematicObject())
-                m_body->forceActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
+                m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
 
             else
-                m_body->forceActivationState(active ? ACTIVE_TAG : DISABLE_SIMULATION);
+                m_body->setActivationState(active ? ACTIVE_TAG : DISABLE_SIMULATION);
         }
     }
 

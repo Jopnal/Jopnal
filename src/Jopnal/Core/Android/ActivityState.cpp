@@ -50,7 +50,8 @@ namespace jop { namespace detail
           screenSize                (0.f),
           activeKey                 (-1),
           controllerPresent         (false),
-          destroyRequested          (false)
+          destroyRequested          (false),
+          fullFocus                 (false)
     {
         for (int i = 0; i < sizeof(lastTouchPosition) / sizeof(lastTouchPosition[0]); ++i)
             lastTouchPosition[i] = glm::vec2(-1.f);

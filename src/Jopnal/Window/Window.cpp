@@ -29,11 +29,13 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/RenderTexture.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
     #include <Jopnal/Window/WindowEventHandler.hpp>
     #include <Jopnal/Window/VideoInfo.hpp>
     #include <Jopnal/STL.hpp>
@@ -73,6 +75,16 @@ namespace
     {
         explicit jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
         void closed() override {jop::Engine::exit();}
+
+    #ifdef JOP_OS_ANDROID
+
+        void keyPressed(const int key, const int, const int)
+        {
+            if (key == jop::Keyboard::Escape)
+                closed();
+        }
+
+    #endif
     };
 
     const char* const ns_settingStr[] =
@@ -105,9 +117,21 @@ namespace jop
             if (m_windowRef.isOpen())
             {
                 if (Engine::getState() != Engine::State::Frozen)
+
+            #ifdef JOP_OS_ANDROID
+
+                {
+                    if (ActivityState::get()->fullFocus)
+                        m_windowRef.m_impl->swapBuffers();
+                    else
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+
+            #else
+
                     m_windowRef.m_impl->swapBuffers();
-                else
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+            #endif
             }
         }
     }

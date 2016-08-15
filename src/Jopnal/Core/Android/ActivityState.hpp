@@ -48,6 +48,17 @@ namespace jop { namespace detail
 
     public:
 
+        enum FocusState
+        {
+            Running     = 1,
+            Focus       = 1 << 1,
+            Window      = 1 << 2,
+
+            FullFocus   = Running | Focus | Window
+        };
+
+    public:
+
         ~ActivityState();
 
         static ActivityState* create(ANativeActivity* activity);
@@ -75,6 +86,7 @@ namespace jop { namespace detail
         bool activeControllerButtons[Controller::XBox::__Count];
         bool controllerPresent;
         bool destroyRequested;
+        bool fullFocus;
     };
 }}
 

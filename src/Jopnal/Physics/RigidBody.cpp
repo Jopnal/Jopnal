@@ -24,22 +24,22 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Physics/RigidBody.hpp>
-
-#include <Jopnal/Core/Object.hpp>
-#include <Jopnal/Physics/World.hpp>
-#include <Jopnal/Physics/Detail/WorldImpl.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Utility/CommandHandler.hpp>
-#include <Jopnal/STL.hpp>
-
-#pragma warning(push)
-#pragma warning(disable: 4127)
-
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-
-#pragma warning(pop)
+    #include <Jopnal/Physics/RigidBody.hpp>
+    
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/STL.hpp>
+    
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+    
+    #include <btBulletCollisionCommon.h>
+    #include <btBulletDynamicsCommon.h>
+    
+    #pragma warning(pop)
 
 #endif
 
@@ -85,8 +85,8 @@ namespace jop
         : Collider      (object, world, 0),
           m_type        (info.m_type),
           m_mass        (info.m_mass),
-        m_rigidBody (nullptr),
-        m_allowSleep(true)
+          m_rigidBody   (nullptr),
+          m_allowSleep  (true)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -122,10 +122,10 @@ namespace jop
     }
 
     RigidBody::RigidBody(const RigidBody& other, Object& newObj)
-        : Collider  (other, newObj),
-        m_type      (other.m_type),
-        m_mass      (other.m_mass),
-        m_rigidBody (nullptr)
+        : Collider      (other, newObj),
+          m_type        (other.m_type),
+          m_mass        (other.m_mass),
+          m_rigidBody   (nullptr)
     {
         btRigidBody::btRigidBodyConstructionInfo constInfo(m_mass, m_motionState.get(), other.m_body->getCollisionShape(), other.m_rigidBody->getLocalInertia());
         constInfo.m_friction = other.m_body->getFriction();
@@ -150,14 +150,12 @@ namespace jop
     {
         for (auto& i : m_joints)
         {
-            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+            auto& body = i->m_bodyA == this ? i->m_bodyB : i->m_bodyA;
 
-            //if (!body.expired())
-            body/*.lock()*/->m_joints.erase(i);
-            {
-                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
-                thisBody = nullptr;
-            }
+            body->m_joints.erase(i);
+
+            auto& thisBody = i->m_bodyA == this ? i->m_bodyA : i->m_bodyB;
+            thisBody = nullptr;
         }
         m_joints.clear();
 
