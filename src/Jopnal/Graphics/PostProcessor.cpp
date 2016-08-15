@@ -481,7 +481,7 @@ namespace jop
                 auto& dst = (*++itr)[0];
 
                 dst.bind();
-                src.bind(true);
+                src.bindRead();
 
                 glCheck(glBlitFramebuffer(0, 0, src.getSize().x, src.getSize().y,
                                           0, 0, dst.getSize().x, dst.getSize().y,

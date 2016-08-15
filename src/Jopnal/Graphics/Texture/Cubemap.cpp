@@ -68,8 +68,7 @@ namespace jop
 
     Cubemap::Cubemap(const std::string& name)
         : Texture           (name, GL_TEXTURE_CUBE_MAP),
-          m_size            (),
-          m_format          (Format::None)
+          m_size            ()
     {}
 
     //////////////////////////////////////////////
@@ -84,6 +83,8 @@ namespace jop
         };
 
         destroy();
+        m_size = glm::uvec2(0);
+
         bind();
 
         glm::uvec2 size;
@@ -110,11 +111,14 @@ namespace jop
                 break;
             }
 
-            m_format = getFormatFromDepth(bytes);
-            const FormatBundle f(m_format, srgb);
+            const auto format = getFormatFromDepth(bytes);
+            const FormatBundle f(format, srgb);
 
             if (!f.check())
                 JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", invalid format")
+
+            else if (m_format != Format::None && m_format != format)
+                JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", different format compared to previous face")
 
             else if (size.x != size.y)
                 JOP_DEBUG_ERROR("Couldn't load cube map face " << i << ", path " << paths[i] << ", dimensions not identical")
@@ -124,8 +128,10 @@ namespace jop
 
             else
             {
-                setUnpackAlignment(m_format);
+                setUnpackAlignment(format);
                 glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, f.intFormat, size.x, size.y, 0, f.format, f.type, pix));
+
+                m_format = format;
             }
 
             stbi_image_free(pix);
@@ -147,18 +153,26 @@ namespace jop
 
     bool Cubemap::load(const glm::uvec2& size, const Format format, const uint32 flags)
     {
+        destroy();
+        m_size = glm::uvec2(0);
+
+        const bool srgb = (flags & Flag::DisallowSRGB) == 0;
+        const FormatBundle f(format, srgb);
+
         if (!detail::errorCheckCube(size))
             return false;
 
-        destroy();
-        bind();
+        else if (!f.check())
+        {
+            JOP_DEBUG_ERROR("Failed to load empty cube map, invalid format");
+            return false;
+        }
 
-        const bool srgb = (flags & Flag::DisallowSRGB) == 0;
+        bind();
 
         for (std::size_t i = 0; i < 6; ++i)
         {
-            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(format, srgb),
-                                 size.x, size.y, 0, detail::getFormatEnum(format, srgb), detail::getTypeEnum(format), NULL));
+            glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, f.intFormat, size.x, size.y, 0, f.format, f.type, NULL));
         }
 
         if (allowGenMipmaps(size, srgb) && !(flags & Flag::DisallowMipmapGeneration))
@@ -169,6 +183,7 @@ namespace jop
         unbind();
 
         m_size = size;
+        m_format = format;
 
         return true;
     }
@@ -282,10 +297,11 @@ namespace jop
             errTex->bind();
 
             const Format format = getFormatFromDepth(bpp);
+            const FormatBundle f(format, true);
 
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(format, true), x, y, 0, detail::getFormatEnum(format, true), detail::getTypeEnum(format), pix));
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, f.intFormat, x, y, 0, f.format, f.type, pix));
             }
 
             if (allowGenMipmaps(glm::uvec2(x, y), true))
@@ -294,6 +310,7 @@ namespace jop
             }
 
             errTex->unbind();
+            errTex->setPersistence(0);
 
             stbi_image_free(pix);
         }
@@ -318,10 +335,11 @@ namespace jop
             defTex->bind();
 
             const Format format = getFormatFromDepth(bpp);
+            const FormatBundle f(format, true);
 
             for (std::size_t i = 0; i < 6; ++i)
             {
-                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, detail::getInternalFormatEnum(format, true), x, y, 0, detail::getFormatEnum(format, true), detail::getTypeEnum(format), pix));
+                glCheck(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, f.intFormat, x, y, 0, f.format, f.type, pix));
             }
 
             if (allowGenMipmaps(glm::uvec2(x, y), true))
@@ -330,6 +348,7 @@ namespace jop
             }
 
             defTex->unbind();
+            defTex->setPersistence(0);
 
             stbi_image_free(pix);
         }

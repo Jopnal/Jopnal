@@ -114,7 +114,6 @@ namespace jop
     private:
 
         glm::uvec2 m_size;  ///< Size
-        Format m_format;
     };
 }
 

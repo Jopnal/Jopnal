@@ -65,7 +65,7 @@ extern int main(int argc, char* argv[]);
         android_app* ns_app = nullptr;
         unsigned int ns_readyState = 0;
    
-        void onAppCmd(struct android_app* app, int32_t cmd)
+        void onAppCmdPaused(struct android_app* app, int32_t cmd)
         { 
             auto state = ActivityState::get();
 
@@ -86,9 +86,6 @@ extern int main(int argc, char* argv[]);
                 case APP_CMD_INIT_WINDOW:
                 {
                     state->nativeWindow = app->window;
-                    state->windowSize.x = ANativeWindow_getWidth(app->window);
-                    state->windowSize.y = ANativeWindow_getHeight(app->window);
-
                     ns_readyState |= BeginState::Window;
                 }
             }
@@ -106,11 +103,7 @@ extern int main(int argc, char* argv[]);
                     Engine::setState(lastRunningState);
 
                     state->nativeWindow = app->window;
-                    state->windowSize.x = ANativeWindow_getWidth(app->window);
-                    state->windowSize.y = ANativeWindow_getHeight(app->window);
-
-                    if (state->handleSurfaceCreation)
-                        state->handleSurfaceCreation();
+                    state->handleSurfaceCreation();
 
                     break;
                 }
@@ -121,9 +114,7 @@ extern int main(int argc, char* argv[]);
                     Engine::setState(Engine::State::Frozen);
 
                     state->nativeWindow = nullptr;
-
-                    if (state->handleSurfaceDestruction)
-                        state->handleSurfaceDestruction();
+                    state->handleSurfaceDestruction();
 
                     break;
                 }
@@ -133,15 +124,22 @@ extern int main(int argc, char* argv[]);
                     
                 }
 
+                case APP_CMD_PAUSE:
+                {
+
+                }
+
+                case APP_CMD_STOP:
+                {
+
+                }
 
                 case APP_CMD_DESTROY:
                 {
-                    app->onAppCmd                       = nullptr;
-                    app->onInputEvent                   = nullptr;
-                    state->pollFunc                     = nullptr;
-                    state->handleSurfaceCreation        = nullptr;
-                    state->handleSurfaceDestruction     = nullptr;
-                    state->destroyRequested             = true;
+                    app->onAppCmd           = nullptr;
+                    app->onInputEvent       = nullptr;
+                    state->pollFunc         = nullptr;
+                    state->destroyRequested = true;
 
                     Engine::exit();
 
@@ -149,6 +147,7 @@ extern int main(int argc, char* argv[]);
                 }
                 case APP_CMD_GAINED_FOCUS:
                 {
+
                     //SensorManager::getInstance().gainedFocus();
 
                     break;
@@ -222,7 +221,7 @@ extern int main(int argc, char* argv[]);
 
         //jop::GooglePlayService::init(app, app->activity);
 
-        app->onAppCmd = jop::detail::onAppCmd;
+        app->onAppCmd = jop::detail::onAppCmdPaused;
         app->userData = jop::detail::ActivityState::create(app->activity);
 
         jop::detail::main(app);

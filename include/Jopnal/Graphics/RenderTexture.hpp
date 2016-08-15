@@ -89,7 +89,9 @@ namespace jop
         ///
         bool bind() const override;
 
-        bool bind(const bool read) const;
+        bool bindRead() const;
+
+        bool bindDraw() const;
 
         /// \brief Unbind the currently bound frame buffer
         ///

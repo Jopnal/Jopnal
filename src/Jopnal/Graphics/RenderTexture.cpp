@@ -310,8 +310,12 @@ namespace jop
         {
             switch (format)
             {
+            #ifdef GL_ES_VERSION_3_0
+
                 case F::Alpha_UB_8:
                     return GL_R8;
+
+            #endif
 
                 case F::RGB_UB_8:
                     return GL_RGB8_OES;
@@ -394,22 +398,46 @@ namespace jop
 
     bool RenderTexture::bind() const
     {
-        return bind(false);
+        return bindDraw();
     }
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::bind(const bool read) const
+    namespace detail
+    {
+        void bindFBOBase(const GLuint fb, const glm::uvec2& size, const GLenum binding)
+        {
+            glCheck(glBindFramebuffer(binding, fb));
+
+            glCheck(glViewport(0, 0, size.x, size.y));
+            glCheck(glScissor (0, 0, size.x, size.y));
+        }
+    }
+
+    bool RenderTexture::bindRead() const
+    {
+    #if defined(JOP_OPENGL_ES) && !defined(GL_ES_VERSION_3_0)
+
+        return bindDraw();
+
+    #else
+
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+        if (attach() && isValid())
+            detail::bindFBOBase(m_frameBuffer, m_size, GL_READ_FRAMEBUFFER);
+
+        return isValid();
+
+    #endif
+    }
+
+    bool RenderTexture::bindDraw() const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (attach() && isValid())
-        {
-            glCheck(glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-
-            glCheck(glViewport(0, 0, getSize().x, getSize().y));
-            glCheck(glScissor(0, 0, getSize().x, getSize().y));
-        }
+            detail::bindFBOBase(m_frameBuffer, m_size, GL_FRAMEBUFFER);
 
         return isValid();
     }

@@ -644,7 +644,8 @@ namespace jop
           m_filter          (TextureSampler::Filter::None),
           m_repeat          (TextureSampler::Repeat::Basic),
           m_anisotropic     (1.f),
-          m_borderColor     ()
+          m_borderColor     (),
+          m_format          (Format::None)
     {
         static const TextureSampler::Filter defFilter = static_cast<TextureSampler::Filter>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultFilterMode", 0));
         static const TextureSampler::Repeat defRepeat = static_cast<TextureSampler::Repeat>(SettingManager::get<unsigned int>("engine@Graphics|Texture|uDefaultRepeatMode", 0));
@@ -668,6 +669,7 @@ namespace jop
     {
         glCheck(glDeleteTextures(1, &m_texture));
         m_texture = 0;
+        m_format = Format::None;
     }
 
     //////////////////////////////////////////////

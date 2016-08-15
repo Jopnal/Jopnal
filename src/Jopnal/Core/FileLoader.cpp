@@ -66,14 +66,14 @@ namespace
     void createNeededDirs()
     {
         const std::string prefDir = jop::FileLoader::getDirectory(jop::FileLoader::Directory::User);
-        const std::string resDir = (PHYSFS_getBaseDir() + std::string(PHYSFS_getDirSeparator()) + std::string(ns_resourceDir));
+        const std::string resDir = (PHYSFS_getBaseDir() + std::string(ns_resourceDir));
 
         if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log") || !PHYSFS_mkdir("Config"))
         {
             checkError("Create user dir");
             JOP_ASSERT(false, "Failed to create user directory!");
         }
-
+        
     #ifndef JOP_OS_ANDROID
 
         if (!PHYSFS_setWriteDir(PHYSFS_getBaseDir()) || !PHYSFS_mkdir(ns_resourceDir))
@@ -82,7 +82,7 @@ namespace
             JOP_ASSERT(false, "Failed to create resource directory!");
         }
 
-        if (!PHYSFS_mount(resDir.c_str(), NULL, true))
+        if (!PHYSFS_mount(ns_resourceDir, NULL, false) || !PHYSFS_mount(resDir.c_str(), NULL, false))
         {
             checkError("Mount resource directory");
             JOP_ASSERT(false, "Failed to mount resource directory!");

@@ -63,8 +63,7 @@ namespace jop
 
     Texture2D::Texture2D(const std::string& name)
         : Texture   (name, GL_TEXTURE_2D),
-          m_size    (0),
-          m_format  (Format::None)
+          m_size    (0)
     {}
 
     //////////////////////////////////////////////
@@ -98,12 +97,18 @@ namespace jop
             return false;
 
         destroy();
+        m_size = glm::uvec2(0);
+
         bind();
         const bool srgb = (flags & Flag::DisallowSRGB) == 0;
+        const FormatBundle f(format, srgb);
+
+        if (!f.check())
+            JOP_DEBUG_ERROR("Couldn't load empty texture, invalid format");
 
         setUnpackAlignment(format);
 
-        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, detail::getInternalFormatEnum(format, srgb), size.x, size.y, 0, detail::getFormatEnum(format, srgb), detail::getTypeEnum(format), pixels));
+        glCheck(glTexImage2D(GL_TEXTURE_2D, 0, f.intFormat, size.x, size.y, 0, f.format, f.type, pixels));
 
         if (allowGenMipmaps(m_size, srgb) && !(flags & Flag::DisallowMipmapGeneration))
         {
@@ -199,9 +204,11 @@ namespace jop
             return;
         }
 
+        const FormatBundle f(m_format, false);
+
         bind();
         setUnpackAlignment(m_format);
-        glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, detail::getFormatEnum(m_format, false), detail::getTypeEnum(m_format), pixels));
+        glCheck(glTexSubImage2D(GL_TEXTURE_2D, 0, start.x, start.y, size.x, size.y, f.format, f.type, pixels));
 
         unbind();
     }
@@ -237,6 +244,8 @@ namespace jop
 
         std::vector<uint8> pixels(m_size.x * m_size.y * Texture2D::getPixelDepth());
 
+        const FormatBundle f(m_format, false);
+
     #ifdef JOP_OPENGL_ES   
 
         GLuint frameBuffer = 0;
@@ -249,16 +258,16 @@ namespace jop
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer));
             glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getHandle(), 0));
-            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, detail::getFormatEnum(m_format, false), GL_UNSIGNED_BYTE, &pixels[0]));
+            glCheck(glReadPixels(0, 0, m_size.x, m_size.y, f.format, f.type, &pixels[0]));
             glCheck(glDeleteFramebuffers(1, &frameBuffer));
 
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer));
         }
 
-    #else        
+    #else
 
         bind();
-        glCheck(glGetTexImage(GL_TEXTURE_2D, 0, detail::getFormatEnum(m_format, false), GL_UNSIGNED_BYTE, &pixels[0]));
+        glCheck(glGetTexImage(GL_TEXTURE_2D, 0, f.format, f.type, &pixels[0]));
         
     #endif
 

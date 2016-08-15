@@ -162,6 +162,12 @@ namespace
     {
         ANativeActivity_setWindowFlags(jop::detail::ActivityState::get()->nativeActivity, AWINDOW_FLAG_FULLSCREEN, AWINDOW_FLAG_FULLSCREEN);
     }
+
+    void updateSize(glm::uvec2& size, EGLSurface surface)
+    {
+        eglCheck(eglQuerySurface(getDisplay(), surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&size.x)));
+        eglCheck(eglQuerySurface(getDisplay(), surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&size.y)));
+    }
 }
 
 namespace jop { namespace detail
@@ -208,8 +214,7 @@ namespace jop { namespace detail
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
             JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
 
-            eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
-            eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
+            updateSize(m_size, m_surface);
 
             if (settings.displayMode != Window::DisplayMode::Windowed)
             {
@@ -368,20 +373,23 @@ namespace jop { namespace detail
         };
 
         auto state = detail::ActivityState::get();
+        auto win = state->window;
 
-        if (state->window->m_surface == EGL_NO_SURFACE)
+        if (win && win->m_surface == EGL_NO_SURFACE)
         {
-            state->window->m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), state->window->m_config, state->nativeWindow, surfaceAttribs));
-            JOP_ASSERT(state->window->m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
+            win->m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), win->m_config, state->nativeWindow, surfaceAttribs));
+            JOP_ASSERT(win->m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
 
-            if (state->window->m_context != EGL_NO_CONTEXT)
-            {
-                EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), state->window->m_surface, state->window->m_surface, state->window->m_context));
-                JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
-            }
+            //if (win->m_context != EGL_NO_CONTEXT)
+            //{
+            //    EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), win->m_surface, win->m_surface, win>m_context));
+            //    JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+            //}
 
-            if (state->window->m_fullScreen)
+            if (win->m_fullScreen)
                 goFullscreen();
+
+            updateSize(win->m_size, win->m_surface);
         }
     }
 
@@ -390,16 +398,17 @@ namespace jop { namespace detail
     void WindowImpl::handleSurfaceDestruction()
     {
         auto state = detail::ActivityState::get();
+        auto win = state->window;
 
-        if (state->window->m_surface != EGL_NO_SURFACE)
+        if (win && win->m_surface != EGL_NO_SURFACE)
         {
-            eglCheck(eglDestroySurface(getDisplay(), state->window->m_surface));
-            state->window->m_surface = EGL_NO_SURFACE;
+            eglCheck(eglDestroySurface(getDisplay(), win->m_surface));
+            win->m_surface = EGL_NO_SURFACE;
 
-            if (state->window->m_context != EGL_NO_CONTEXT)
-            {
-                eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
-            }
+            //if (win->m_context != EGL_NO_CONTEXT)
+            //{
+            //    eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+            //}
         }
     }
 

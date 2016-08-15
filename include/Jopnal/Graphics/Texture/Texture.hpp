@@ -219,6 +219,10 @@ namespace jop
         TextureSampler::Repeat m_repeat;                ///< The repeating mode
         float m_anisotropic;                            ///< The anisotropic level
         Color m_borderColor;                            ///< The border color
+
+    protected:
+
+        Format m_format;    ///< Must be filled by derived classes during load()
     };
 }
 

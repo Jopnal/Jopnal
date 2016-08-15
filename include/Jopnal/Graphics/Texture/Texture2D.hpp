@@ -132,8 +132,7 @@ namespace jop
 
     private:
 
-        glm::uvec2  m_size;             ///< Size
-        Format      m_format;    ///< Byte depth of the texture
+        glm::uvec2  m_size; ///< Size
     };
 }
 

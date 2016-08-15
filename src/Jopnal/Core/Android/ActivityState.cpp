@@ -48,7 +48,6 @@ namespace jop { namespace detail
           handleSurfaceDestruction  (nullptr),
           window                    (nullptr),
           screenSize                (0.f),
-          windowSize                (0.f),
           activeKey                 (-1),
           controllerPresent         (false),
           destroyRequested          (false)
@@ -111,8 +110,8 @@ namespace jop { namespace detail
             jfieldID pixelsWidth = env->GetFieldID(displayMetricsClass, "widthPixels", "I");
             jfieldID pixelsHeight = env->GetFieldID(displayMetricsClass, "heightPixels", "I");
 
-            ns_instance->windowSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
-            ns_instance->windowSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
+            ns_instance->screenSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
+            ns_instance->screenSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
 
             env->DeleteLocalRef(activityClass);
             env->DeleteLocalRef(displayMetricsObject);

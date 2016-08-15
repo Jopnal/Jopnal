@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Utility/Json.hpp>
