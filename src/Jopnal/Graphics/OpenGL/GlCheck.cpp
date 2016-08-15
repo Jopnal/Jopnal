@@ -22,9 +22,11 @@
 // Headers
 #include JOP_PRECOMPILED_HEADER_FILE
 
-#ifndef JOP_PRECOMPILED_HEADER
+#include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
-    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+#ifdef JOP_OPENGL_ERROR_CHECKS
+
+#ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
@@ -33,16 +35,29 @@
 
 //////////////////////////////////////////////
 
-#ifdef JOP_OPENGL_ERROR_CHECKS
+
+namespace
+{
+    bool ns_error = false;
+}
 
 namespace jop { namespace detail
 {
     void openGlCheck(const char* func, const char* file, const unsigned int line)
     {
+    #if JOP_CONSOLE_VERBOSITY < 0
+
+        func;
+        file;
+        line;
+
+    #else
+
         GLenum errCode = glGetError();
 
         if (errCode != GL_NO_ERROR)
         {
+            ns_error = true;
             const char* errorS = "unknown error";
 
             switch (errCode)
@@ -77,7 +92,23 @@ namespace jop { namespace detail
 
             JOP_DEBUG_ERROR("An OpenGL error occurred after a call to \"" << func << ": " << errorS << " (on line " << line << " in " << file);
         }
+        else
+            ns_error = false;
+
+    #endif
     }
 }}
 
 #endif
+
+namespace jop { namespace gl
+{
+    bool hasError()
+    {
+    #ifdef JOP_OPENGL_ERROR_CHECKS
+        return ns_error;
+    #else
+        return false;
+    #endif
+    }
+}}

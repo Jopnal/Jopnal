@@ -41,6 +41,8 @@
 
     #elif defined(JOP_OS_WINDOWS)
 
+        #include <Jopnal/Graphics/Color.hpp>
+        #include <glm/vec2.hpp>
         #include <io.h>
         #include <fcntl.h>
 
@@ -82,12 +84,21 @@ namespace
                 JOP_ASSERT(false, "Failed to allocate console window!");
                 return;
             }
+
+            _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
+
+            {
+                FILE* pCout = nullptr;
+                freopen_s(&pCout, "CONOUT$", "w", stdout);
+            }
         }
+        else
+        {
+            DWORD processID = 0;
+            GetWindowThreadProcessId(GetConsoleWindow(), &processID);
 
-        _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
-
-        FILE* pCout = nullptr;
-        freopen_s(&pCout, "CONOUT$", "w", stdout);
+            AttachConsole(processID);
+        }
 
         std::cout.clear();
 
@@ -127,8 +138,8 @@ namespace
         std::memset(&font, 0, sizeof(font));
         font.cbSize = sizeof(font);
 
-        if (!GetConsoleScreenBufferInfoEx(consoleHandle, &info) || !GetCurrentConsoleFontEx(consoleHandle, FALSE, &font))
-            return;
+        GetConsoleScreenBufferInfoEx(consoleHandle, &info);
+        GetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
 
         std::memcpy(info.ColorTable, table, sizeof(table));
 
@@ -184,6 +195,21 @@ namespace
 
                 MoveWindow(GetConsoleWindow(), pos.x + 5 - (IsWindows8OrGreater() * 10), pos.y + 5, consoleSize.right - consoleSize.left - (IsWindows8OrGreater() * 6), consoleSize.bottom - consoleSize.top - 25, TRUE);
             }
+        }
+
+        // Scroll the console up
+        // On Windows 8 and later the console seems to
+        // scroll down a bit by itself
+        if (IsWindows8OrGreater())
+        {
+            CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbiInfo);
+
+            SMALL_RECT srctWindow = csbiInfo.srWindow;
+            srctWindow.Bottom -= srctWindow.Top;
+            srctWindow.Top = 0;
+
+            SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srctWindow);
         }
 
     #endif

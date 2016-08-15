@@ -259,9 +259,9 @@ namespace jop
                 case AMOTION_EVENT_AXIS_HAT_X:      return m::PadRight;
                 case AMOTION_EVENT_AXIS_HAT_Y:      return m::PadDown;
                 case -AMOTION_EVENT_AXIS_HAT_X:     return m::PadLeft;
-            }
 
-            return button;
+                default:                            return m::Unknown;
+            }
         }
         int getJopControllerAxis(const int button)
         {
@@ -277,7 +277,7 @@ namespace jop
                 case AMOTION_EVENT_AXIS_Z:          return a::RightStickX;
             }
 
-            return button;
+            return 0;
         }
 
         int getGlControllerButton(const int button)

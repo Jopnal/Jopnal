@@ -81,7 +81,7 @@ namespace
         glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
     }
 
-    const float ns_defBloomThreshold = 1.f - 0.1f * jop::gl::isES();
+    const float ns_defBloomThreshold = 2.f - 1.1f * jop::gl::es;
 }
 
 namespace jop
@@ -118,7 +118,7 @@ namespace jop
             63, 31, 55, 23, 61, 29, 53, 21
         };
 
-        m_ditherMatrix.load(glm::uvec2(8, 8), 1, pattern, false, false);
+        m_ditherMatrix.load(glm::uvec2(8, 8), Texture::Format::Alpha_UB_8, pattern, Texture::Flag::DisallowSRGB | Texture::Flag::DisallowMipmapGeneration);
         m_ditherMatrix.setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
 
         // Bloom
@@ -133,7 +133,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
@@ -162,7 +162,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
@@ -236,7 +236,7 @@ namespace jop
                 EnabledCallback()
                     : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
                 {
-                    valueChanged(SettingManager::get<bool>(str, !gl::isES()));
+                    valueChanged(SettingManager::get<bool>(str, !gl::es));
                     SettingManager::registerCallback(str, *this);
                 }
                 void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
@@ -389,7 +389,7 @@ namespace jop
             #ifdef JOP_ENABLE_BLOOM
 
                 for (unsigned int i = 0; i < m_bloomTextures.size(); ++i)
-                    shdr.setUniform("u_Bloom[" + std::to_string(i) + "]", *m_bloomTextures[i][1].getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 3 + i);
+                    shdr.setUniform("u_Bloom[" + std::to_string(i) + "]", *m_bloomTextures[i][1].getTextureAttachment(RenderTexture::Slot::Color0), 3 + i);
 
             #endif
             }
@@ -403,7 +403,7 @@ namespace jop
 
         RenderTexture::unbind();
         
-        shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(RenderTexture::ColorAttachmentSlot::_1), 1);
+        shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(RenderTexture::Slot::Color0), 1);
         drawQuad(m_quad);
     }
 
@@ -446,13 +446,13 @@ namespace jop
             return;
     #endif
 
-        const auto slot = RenderTexture::ColorAttachmentSlot::_1;
+        const auto slot = RenderTexture::Slot::Color0;
 
         // Brightness pass
         m_bloomTextures[0][0].bind();
         m_bloomTextures[0][0].clear(RenderTarget::ColorBit);
 
-        m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getColorTexture(slot), 1);
+        m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
         drawQuad(m_quad);
@@ -460,7 +460,7 @@ namespace jop
         // Blur
         for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
         {
-            m_blurShader->setUniform("u_Buffer", *(*itr)[0].getColorTexture(slot), 1);
+            m_blurShader->setUniform("u_Buffer", *(*itr)[0].getTextureAttachment(slot), 1);
             bool horizontal = true;
 
             static DynamicSetting<unsigned int> kernelSize("engine@Graphics|Postprocessor|Bloom|uKernelSize", 5);
@@ -469,7 +469,7 @@ namespace jop
             {
                 (*itr)[horizontal].bind();
                 m_blurShader->setUniform("u_Horizontal", horizontal);
-                m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getColorTexture(slot), 1);
+                m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getTextureAttachment(slot), 1);
 
                 drawQuad(m_quad);
                 horizontal = !horizontal;
@@ -505,8 +505,8 @@ namespace jop
 
     #endif
 
-        using CAS = RenderTexture::ColorAttachmentSlot;
-        using CA = RenderTexture::ColorAttachment;
+        using CAS = RenderTexture::Slot;
+        using CA = Texture::Format;
         using TSR = TextureSampler::Repeat;
         using TSF = TextureSampler::Filter;
 
@@ -517,15 +517,16 @@ namespace jop
                 glm::uvec2 size(glm::uvec2((16 << m_bloomTextures.size()) >> i));
                 size.y = static_cast<glm::uvec2::value_type>(size.y * (m_mainTarget.getSize().y / static_cast<float>(m_mainTarget.getSize().x)));
 
-                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::isES()
+                static const bool hdr = SettingManager::get<bool>("engine@Graphics|Postprocessor|Bloom|bHDR", !gl::es
 
                 #ifdef JOP_OPENGL_ES                 
                     || JOP_CHECK_GL_EXTENSION(GL_EXT_color_buffer_half_float)
                 #endif
                 );
 
-                j.addColorAttachment(CAS::_1, hdr ? CA::RGB2DFloat16 : CA::RGB2D, size);
-                j.getColorTexture(CAS::_1)->setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
+                j.setSize(size);
+                j.addTextureAttachment(CAS::Color0, hdr ? CA::RGB_F_16 : CA::RGB_UB_8);
+                j.getTextureAttachment(CAS::Color0)->setRepeatMode(TSR::ClampEdge).setFilterMode(TSF::Bilinear);
             }
         }
 

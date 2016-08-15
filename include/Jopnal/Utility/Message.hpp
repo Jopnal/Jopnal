@@ -47,8 +47,7 @@ namespace jop
         ///
         enum Filter : unsigned short
         {
-            Engine      = 1,
-            Subsystem   = Engine << 1,
+            Subsystem   = 1,
             SharedScene = Subsystem << 1,
             Scene       = SharedScene << 1,
             Object      = Scene << 1,

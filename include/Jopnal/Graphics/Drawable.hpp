@@ -157,6 +157,10 @@ namespace jop
         ///
         const Model& getModel() const;
 
+        Drawable& setColor(const Color& color);
+
+        const Color& getColor() const;
+
         const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
 
         const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
@@ -165,11 +169,11 @@ namespace jop
 
         bool hasFlag(const uint32 flag) const;
 
-        Drawable& setAttributeField(const uint64 attributes);
+        Drawable& setAttributes(const uint64 attributes);
 
         Drawable& addAttributes(const uint64 attributes);
 
-        uint64 getAttributeField() const;
+        uint64 getAttributes() const;
 
         bool hasAttribute(const uint64 attribute) const;
 
@@ -183,6 +187,7 @@ namespace jop
 
     private:
 
+        Color m_color;
         Model m_model;                          ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
         uint64 m_attributes;

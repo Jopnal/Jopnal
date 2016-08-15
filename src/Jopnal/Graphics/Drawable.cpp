@@ -67,6 +67,7 @@ namespace jop
 
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
         : Component         (object, 0),
+          m_color           (),
           m_model           (Mesh::getDefault(), Material::getDefault()),
           m_shader          (),
           m_attributes      (0),
@@ -83,6 +84,7 @@ namespace jop
 
     Drawable::Drawable(Object& object, RenderPass& pass)
         : Component         (object, 0),
+          m_color           (),
           m_model           (Mesh::getDefault(), Material::getDefault()),
           m_shader          (),
           m_attributes      (0),
@@ -227,6 +229,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Drawable& Drawable::setColor(const Color& color)
+    {
+        m_color = color;
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    const Color& Drawable::getColor() const
+    {
+        return m_color;
+    }
+
+    //////////////////////////////////////////////
+
     const std::pair<glm::vec3, glm::vec3>& Drawable::getLocalBounds() const
     {
         if (getModel().getMesh())
@@ -267,7 +284,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setAttributeField(const uint64 attributes)
+    Drawable& Drawable::setAttributes(const uint64 attributes)
     {
         m_attributes = attributes;
         m_updateShader = true;
@@ -287,7 +304,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    uint64 Drawable::getAttributeField() const
+    uint64 Drawable::getAttributes() const
     {
         return m_attributes;
     }
@@ -329,7 +346,7 @@ namespace jop
             if (!getModel().isValid())
                 m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getDefault().getReference());
             else
-                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributeField(), getAttributeField()).getReference());
+                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributeField(), getAttributes()).getReference());
 
             m_updateShader = false;
         }

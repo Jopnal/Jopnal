@@ -111,9 +111,17 @@ namespace jop
         {
             const float dt = deltaTime * m_deltaScale;
 
-            preUpdate(dt);
-            Object::update(dt);
-            postUpdate(dt);
+            // Have to check every step since engine state
+            // might be changed at any time
+
+            if (Engine::getState() == Engine::State::Running)
+                preUpdate(dt);
+
+            if (Engine::getState() == Engine::State::Running)
+                Object::update(dt);
+
+            if (Engine::getState() == Engine::State::Running)
+                postUpdate(dt);
         }
     }
 

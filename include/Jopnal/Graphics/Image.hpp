@@ -53,6 +53,7 @@ namespace jop
         ///
         Image();
 
+
         /// \brief Method for using file loader to load new resource from file
         ///
         /// \param path The file path
@@ -117,15 +118,6 @@ namespace jop
         /// brief Flip image horizontally
         ///
         void flipHorizontally();
-
-        /// \brief Check if the pixel depth value is supported
-        ///
-        /// \param depth The pixel depth in bytes
-        ///
-        /// \return True if the depth is supported
-        ///
-        static bool checkDepthValid(const uint32 depth);
-
 
     private:
 

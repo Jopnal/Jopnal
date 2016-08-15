@@ -341,16 +341,10 @@ namespace jop
     public:
 
         typedef std::vector<const LightSource*> ContainerType;
-        typedef std::vector<const Texture*> ShadowContainerType;
 
     public:
 
-        /// \brief Default constructor
-        ///
-        /// Reserves storage according to the maximum light amounts
-        ///
         LightContainer();
-
 
         /// \brief Check is this container is empty
         ///
@@ -377,7 +371,7 @@ namespace jop
         ///
         ContainerType& operator [](const LightSource::Type type);
 
-        /// \copydoc operator[]
+        /// \copydoc operator[]()
         ///
         const ContainerType& operator [](const LightSource::Type type) const;
 
@@ -389,7 +383,5 @@ namespace jop
 
 #endif
 
-/// \class LightSource
-/// \ingroup Graphics
-///
-/// Do explanation about the class
+/// \class jop::LightSource
+/// \ingroup graphics

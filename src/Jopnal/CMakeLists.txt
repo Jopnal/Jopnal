@@ -466,7 +466,7 @@ if (JOP_GENERATE_DOCS)
         
         add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
                            COMMAND ${DOXYGEN_EXECUTABLE}
-                           COMMAND cmake -E touch ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
+                           COMMAND ${CMAKE_ROOT}/../../bin/cmake -E touch ${CMAKE_SOURCE_DIR}/doc/doxygen.stamp
                            DEPENDS ${PROJECT_SOURCE_DIR}/doc/Doxyfile ${SRC}
                            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc)
                            

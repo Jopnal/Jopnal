@@ -27,6 +27,7 @@
 
 #ifdef JOP_OS_ANDROID
 
+#include <Jopnal/Window/Controller.hpp>
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <glm/vec2.hpp>
 #include <android/native_activity.h>
@@ -37,6 +38,8 @@
 
 namespace jop { namespace detail
 {
+    class WindowImpl;
+
     struct JOP_API ActivityState
     {
     private:
@@ -44,6 +47,8 @@ namespace jop { namespace detail
         ActivityState();
 
     public:
+
+        ~ActivityState();
 
         static ActivityState* create(ANativeActivity* activity);
 
@@ -58,16 +63,19 @@ namespace jop { namespace detail
         ANativeWindow* nativeWindow;
 
         void (*pollFunc)();
+        void (*handleSurfaceCreation)();
+        void (*handleSurfaceDestruction)();
 
-        Window* window;
+        WindowImpl* window;
         glm::uvec2 screenSize;
         glm::uvec2 windowSize;
 
         glm::vec2 lastTouchPosition[10];
         int activeKey; 
-        float activeAxes[6]; 
-        bool focus;
-        int activeController;
+        float activeAxes[6];
+        bool activeControllerButtons[Controller::XBox::__Count];
+        bool controllerPresent;
+        bool destroyRequested;
     };
 }}
 

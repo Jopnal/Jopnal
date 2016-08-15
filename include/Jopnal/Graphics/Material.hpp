@@ -157,7 +157,7 @@ namespace jop
         /// \param name Name of this material
         /// \param autoAttributes Set attributes automatically?
         ///
-        Material(const std::string& name, const bool autoAttributes);
+        Material(const std::string& name, const bool autoAttributes = true);
         
 
         /// \brief Send this material to a shader

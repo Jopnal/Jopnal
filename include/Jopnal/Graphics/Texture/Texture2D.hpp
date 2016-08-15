@@ -42,16 +42,15 @@ namespace jop
         ///
         Texture2D(const std::string& name);
 
+
         /// \brief Method for using file loader to load new resource from file
-        ///
-        /// Creates an image and calls images load method and load(image, srgb)
         ///
         /// \param path The file path
         /// \param srgb Use SRGB color space?
         ///
         /// \return True if loading was successful
         ///
-        bool load(const std::string& path, const bool srgb, const bool genMipmaps, const bool allowCompression = true);
+        bool load(const std::string& path, const uint32 flags = 0);
 
         /// \brief Load from memory
         ///
@@ -59,7 +58,7 @@ namespace jop
         /// \param size Size of the data to be loaded
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const void* ptr, const uint32 size, const bool srgb, const bool genMipmaps);
+        bool load(const void* ptr, const uint32 size, const uint32 flags = 0);
 
         /// \brief Creates flat/empty texture
         ///
@@ -69,11 +68,9 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const bool srgb, const bool genMipmaps);
+        bool load(const glm::uvec2& size, const Format format, const uint32 flags = 0);
 
         /// \brief Create a texture from an array of pixels
-        ///
-        /// The accepted pixel depth values are 1, 3 and 4.
         ///
         /// \param size The size
         /// \param bytesPerPixel The byte depth of the image
@@ -82,14 +79,14 @@ namespace jop
         ///
         /// \return True if loading was successful
         ///
-        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels, const bool srgb, const bool genMipmaps);
+        bool load(const glm::uvec2& size, const Format format, const void* pixels, const uint32 flags = 0);
 
         /// \brief Load texture from compressed image
         ///
         /// \param image Image to load into the texture
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const Image& image, const bool srgb, const bool genMipmaps);
+        bool load(const Image& image, const uint32 flags = 0);
 
         /// \brief Set a subset of pixels
         ///
@@ -99,7 +96,7 @@ namespace jop
         /// \param size The size of the area
         /// \param pixels Pointer to the pixels
         ///
-        void setPixels(const glm::uvec2& start, const glm::uvec2& size,const uint32 bytesPerPixel , const unsigned char* pixels);
+        void setPixels(const glm::uvec2& start, const glm::uvec2& size, const void* pixels);
 
         void setPixels(const glm::uvec2& start, const Image& image);
 
@@ -111,32 +108,15 @@ namespace jop
 
         /// \brief Returns textures bytes per pixel value
         ///
-        unsigned int getDepth() const override;
+        unsigned int getPixelDepth() const override;
 
         /// \brief Copies the texture into an image and returns it
         ///
         Image getImage() const;
 
-        /// \brief Get the OpenGL format enum
+        /// \brief Get the maximum supported texture size of this system
         ///
-        /// \param bytesPerPixel Bytes per pixel
-        ///
-        /// \return The OpenGL format enum
-        ///
-        static unsigned int getFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
-
-        static unsigned int getTypeEnum(const unsigned int bytesPerPixel);
-
-        /// \brief Get the OpenGL internal format enum
-        ///
-        /// \param formatEnum The external format enum fetched with getFormatEnum()
-        /// \param srgb Use SRGB color space?
-        ///
-        /// \return The OpenGL internal format enum
-        ///
-        static unsigned int getInternalFormatEnum(const unsigned int bytesPerPixel, const bool srgb);
-
-        static unsigned int getCompressedInternalFormatEnum(const Image::Format format, const bool srgb);
+        static unsigned int getMaximumSize();
 
         /// \brief Get the error texture
         ///
@@ -153,7 +133,7 @@ namespace jop
     private:
 
         glm::uvec2  m_size;             ///< Size
-        uint32      m_bytesPerPixel;    ///< Byte depth of the texture
+        Format      m_format;    ///< Byte depth of the texture
     };
 }
 

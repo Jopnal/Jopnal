@@ -29,15 +29,14 @@
     #include <Jopnal/Core/FileLoader.hpp>
     #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <algorithm>
 
 #endif
 
 #pragma warning(push)
 #pragma GCC diagnostic push
 
-#pragma warning(disable: 4244)
-#pragma warning(disable: 4100)
-#pragma warning(disable: 4127)
+#pragma warning(disable: 4244 4100 4127 4457 4456 4838)
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
@@ -166,7 +165,7 @@ namespace jop
 
     bool Image::load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels)
     {
-        if (pixels && size.x > 0 && size.y > 0 && checkDepthValid(bytesPerPixel))
+        if (pixels && size.x > 0 && size.y > 0)
         {
             // Clear array
             m_pixels.clear();
@@ -194,7 +193,7 @@ namespace jop
         int bpp = 0;
         unsigned char* colorData = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(ptr), size, &imageSize.x, &imageSize.y, &bpp, 0);
 
-        const bool success = colorData != nullptr && checkDepthValid(bpp) && load(imageSize, bpp, colorData);
+        const bool success = colorData != nullptr && load(imageSize, bpp, colorData);
 
         stbi_image_free(colorData);
 
@@ -227,13 +226,6 @@ namespace jop
     const uint8* Image::getPixels() const
     {
         return m_pixels.data();
-    }
-
-    //////////////////////////////////////////////
-
-    bool Image::checkDepthValid(const uint32 depth)
-    {
-        return (depth >= 1 && depth <= 4) || (depth <= 12 && depth % 3 == 0) || (depth <= 16 && depth % 4 == 0);
     }
 
     //////////////////////////////////////////////
@@ -316,7 +308,7 @@ namespace jop
         int size = 0;
         unsigned char* buf = nullptr;
 
-        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", !gl::isES());
+        static const bool allowCompressionGlobal = SettingManager::get<bool>("engine@Graphics|Texture|bAllowCompression", !gl::es);
 
         if (!allowCompressionGlobal || !allowCompression)
             return true;

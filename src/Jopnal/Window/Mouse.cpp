@@ -27,7 +27,8 @@
     #include <Jopnal/Window/Mouse.hpp>
 
     #include <Jopnal/Core/Engine.hpp>
-    #include<Jopnal/Window/InputEnumsImpl.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <Jopnal/Window/InputEnumsImpl.hpp>
 
     #ifdef JOP_OS_DESKTOP
         #include <GLFW/glfw3.h>

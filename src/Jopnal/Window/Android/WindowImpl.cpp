@@ -35,6 +35,7 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
     #include <Jopnal/Window/InputEnumsImpl.hpp>
     #include <android/native_window.h>
     #include <android/window.h>
@@ -56,13 +57,13 @@ namespace
     EGLContext ns_shared = EGL_NO_CONTEXT;
     EGLSurface ns_sharedSurface = EGL_NO_SURFACE;
 
-    int ns_touchAxes[4]=
+    const int ns_touchAxes[] =
     {
         AMOTION_EVENT_AXIS_PRESSURE, AMOTION_EVENT_AXIS_SIZE,
         AMOTION_EVENT_AXIS_TOUCH_MAJOR, AMOTION_EVENT_AXIS_TOOL_MAJOR
     };
 
-    int ns_joystickAxes[15]=
+    const int ns_joystickAxes[] =
     {
         AMOTION_EVENT_AXIS_X, AMOTION_EVENT_AXIS_Y, AMOTION_EVENT_AXIS_Z,
         AMOTION_EVENT_AXIS_RX, AMOTION_EVENT_AXIS_RY, AMOTION_EVENT_AXIS_RZ,
@@ -115,7 +116,7 @@ namespace
             eglCheck(eglInitialize(getDisplay(), NULL, NULL));
 
             if (jop::SettingManager::get<bool>("engine@Debug|bPrintEGLExtensions", false))
-                JOP_DEBUG_INFO("Available OpenGL extensions:\n\n" << eglQueryString(getDisplay(), EGL_EXTENSIONS));
+                JOP_DEBUG_INFO("Available EGL extensions:\n\n" << eglQueryString(getDisplay(), EGL_EXTENSIONS));
 
             const EGLint attribs[] =
             {
@@ -152,6 +153,8 @@ namespace
             eglCheck(eglDestroySurface(getDisplay(), ns_sharedSurface));
 
             eglCheck(eglTerminate(getDisplay()));
+
+            ns_shared = EGL_NO_CONTEXT;
         }
     }
 
@@ -164,10 +167,11 @@ namespace
 namespace jop { namespace detail
 {
     WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
-        : m_surface     (EGL_NO_SURFACE),
+        : m_config      (NULL),
+          m_surface     (EGL_NO_SURFACE),
           m_context     (EGL_NO_CONTEXT),
           m_size        (0),
-          m_windowPtr   (&windowPtr)
+          m_fullScreen  (false)
     {
         initialize();
 
@@ -190,24 +194,15 @@ namespace jop { namespace detail
                 EGL_NONE
             };
 
-            const EGLint surfaceAttribs[] =
-            {
-                JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
-                EGL_NONE
-            };
-
-            EGLConfig config;
             EGLint numConfigs = 0;
 
-            eglCheck(eglChooseConfig(getDisplay(), configAttribs, &config, 1, &numConfigs));
+            eglCheck(eglChooseConfig(getDisplay(), configAttribs, &m_config, 1, &numConfigs));
 
-            EGLint format;
-            eglCheck(eglGetConfigAttrib(getDisplay(), config, EGL_NATIVE_VISUAL_ID, &format));
+            state->window = this;
 
-            m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), config, state->nativeWindow, surfaceAttribs));
-            JOP_ASSERT(m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
+            handleSurfaceCreation();
 
-            m_context = createContext(config);
+            m_context = createContext(m_config);
             JOP_ASSERT(m_context != EGL_NO_CONTEXT, "Failed to create context!");
 
             EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), m_surface, m_surface, m_context));
@@ -216,10 +211,11 @@ namespace jop { namespace detail
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_WIDTH, reinterpret_cast<EGLint*>(&m_size.x)));
             eglCheck(eglQuerySurface(getDisplay(), m_surface, EGL_HEIGHT, reinterpret_cast<EGLint*>(&m_size.y)));
 
-            if (settings.displayMode > Window::DisplayMode::Windowed)
+            if (settings.displayMode != Window::DisplayMode::Windowed)
+            {
+                m_fullScreen = true;
                 goFullscreen();
-
-            state->window = &windowPtr;
+            }
         }
         else
         {
@@ -267,7 +263,7 @@ namespace jop { namespace detail
         {
             auto state = detail::ActivityState::get();
 
-            if (state->window == m_windowPtr)
+            if (state->window == this)
                 state->window = nullptr;
         }
 
@@ -363,6 +359,52 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
+    void WindowImpl::handleSurfaceCreation()
+    {
+        const EGLint surfaceAttribs[] =
+        {
+            JOP_CHECK_EGL_EXTENSION(EGL_KHR_gl_colorspace) ? EGL_VG_COLORSPACE : EGL_NONE, EGL_VG_COLORSPACE_sRGB,
+            EGL_NONE
+        };
+
+        auto state = detail::ActivityState::get();
+
+        if (state->window->m_surface == EGL_NO_SURFACE)
+        {
+            state->window->m_surface = eglCheck(eglCreateWindowSurface(getDisplay(), state->window->m_config, state->nativeWindow, surfaceAttribs));
+            JOP_ASSERT(state->window->m_surface != EGL_NO_SURFACE, "Failed to create window surface!");
+
+            if (state->window->m_context != EGL_NO_CONTEXT)
+            {
+                EGLBoolean success = eglCheck(eglMakeCurrent(getDisplay(), state->window->m_surface, state->window->m_surface, state->window->m_context));
+                JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
+            }
+
+            if (state->window->m_fullScreen)
+                goFullscreen();
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::handleSurfaceDestruction()
+    {
+        auto state = detail::ActivityState::get();
+
+        if (state->window->m_surface != EGL_NO_SURFACE)
+        {
+            eglCheck(eglDestroySurface(getDisplay(), state->window->m_surface));
+            state->window->m_surface = EGL_NO_SURFACE;
+
+            if (state->window->m_context != EGL_NO_CONTEXT)
+            {
+                eglCheck(eglMakeCurrent(getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+            }
+        }
+    }
+
+    //////////////////////////////////////////////
+
     int32_t motion(AInputEvent* event)
     {
         auto& windowRef = Engine::getMainWindow();
@@ -436,40 +478,40 @@ namespace jop { namespace detail
                                 if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_X)
                                     state->activeAxes[0] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Z)
                                     state->activeAxes[2] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_LTRIGGER)
                                     state->activeAxes[4] = x;
 
-                                else if(ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
+                                else if(ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RTRIGGER)
                                     state->activeAxes[5] = x;
 
                                 windowRef.getEventHandler()->controllerAxisShifted(id, Input::getJopControllerAxis(ns_joystickAxes[axis]), x);
                             }
                         }
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_X)
-                            state->activeAxes[0]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_X)
+                            state->activeAxes[0] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Y)
-                            state->activeAxes[1]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Y)
+                            state->activeAxes[1] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_Z)
-                            state->activeAxes[2]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_Z)
+                            state->activeAxes[2] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RZ)
-                            state->activeAxes[3]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RZ)
+                            state->activeAxes[3] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_LTRIGGER)
-                            state->activeAxes[4]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_LTRIGGER)
+                            state->activeAxes[4] = 0.f;
 
-                        else if (ns_joystickAxes[axis]==AMOTION_EVENT_AXIS_RTRIGGER)
-                            state->activeAxes[5]=0.f;
+                        else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RTRIGGER)
+                            state->activeAxes[5] = 0.f;
 
-                        else if (state->activeController == 0)
+                        else if (!state->controllerPresent)
                         {
                             windowRef.getEventHandler()->controllerConnected(1, "Android_Controller");
-                            state->activeController = 1;
+                            state->controllerPresent = true;
                         }
                     }
                 }
@@ -560,15 +602,15 @@ namespace jop { namespace detail
     {
         auto event = static_cast<AInputEvent*>(data);
 
-        int32_t metakey = AKeyEvent_getMetaState(event);
-        int32_t key = AKeyEvent_getKeyCode(event);
+        const int32_t metakey = AKeyEvent_getMetaState(event);
+        const int32_t key = AKeyEvent_getKeyCode(event);
+        const int32_t scanCode = AKeyEvent_getScanCode(event);
+
         int jopKey = Input::getJopKey(key);
 
-        int mod = 0x0000;
-        if (metakey & AMETA_ALT_ON)
-            mod = 0x0001;
-        else if (metakey & AMETA_SHIFT_ON)
-            mod = 0x0004;
+        const int mod = ((metakey & AMETA_SHIFT_ON) != 0) * Keyboard::Modifier::Shift
+                      | ((metakey & AMETA_ALT_ON)   != 0) * Keyboard::Modifier::Alt
+                      | ((metakey & AMETA_CTRL_ON)  != 0) * Keyboard::Modifier::Control;
 
         int32_t device = AInputEvent_getSource(event);
 
@@ -580,33 +622,45 @@ namespace jop { namespace detail
             {      
                 auto state = ActivityState::get();
 
-                if (jopKey != 0)
+                if (jopKey != Keyboard::Unknown)
                 {
                     state->activeKey = jopKey;
-                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
+                    windowRef.getEventHandler()->keyPressed(jopKey, scanCode, mod);
                 }
-                else
+                
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
-                    state->activeKey = jopKey;
 
-                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        state->activeControllerButtons[jopKey] = true;
+                        windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                    }
                 }
 
                 return 1;
             }
             case AKEY_EVENT_ACTION_UP:
             {
-                if (jopKey != 0)
-                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+                auto state = ActivityState::get();
 
-                else
+                if (jopKey != Keyboard::Unknown)
+                {
+                    state->activeKey = -1;
+                    windowRef.getEventHandler()->keyReleased(jopKey, scanCode, mod);
+                }
+
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
-                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
-                } 
 
-                ActivityState::get()->activeKey = -1;
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        state->activeControllerButtons[jopKey] = false;
+                        windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    }
+                } 
 
                 return 1;
             }
@@ -614,15 +668,19 @@ namespace jop { namespace detail
             {
                 if (jopKey != 0)
                 {
-                    windowRef.getEventHandler()->keyPressed(jopKey, key, mod);
-                    windowRef.getEventHandler()->keyReleased(jopKey, key, mod);
+                    windowRef.getEventHandler()->keyPressed(jopKey, scanCode, mod);
+                    windowRef.getEventHandler()->keyReleased(jopKey, scanCode, mod);
                 } 
-                else
+
+                if (Controller::controllersPresent())
                 {
                     jopKey = Input::getJopControllerButton(key);
 
-                    windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
-                    windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    if (jopKey != Controller::XBox::Unknown)
+                    {
+                        windowRef.getEventHandler()->controllerButtonPressed(0, jopKey);
+                        windowRef.getEventHandler()->controllerButtonReleased(0, jopKey);
+                    }
                 }
 
                 return 1;

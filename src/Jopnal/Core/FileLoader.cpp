@@ -63,14 +63,15 @@ namespace
         }
     }
 
-    bool createNeededDirs()
+    void createNeededDirs()
     {
         const std::string prefDir = jop::FileLoader::getDirectory(jop::FileLoader::Directory::User);
+        const std::string resDir = (PHYSFS_getBaseDir() + std::string(PHYSFS_getDirSeparator()) + std::string(ns_resourceDir));
 
         if (!PHYSFS_setWriteDir(prefDir.c_str()) || !PHYSFS_mkdir("Saves") || !PHYSFS_mkdir("Log") || !PHYSFS_mkdir("Config"))
         {
             checkError("Create user dir");
-            return false;
+            JOP_ASSERT(false, "Failed to create user directory!");
         }
 
     #ifndef JOP_OS_ANDROID
@@ -78,13 +79,13 @@ namespace
         if (!PHYSFS_setWriteDir(PHYSFS_getBaseDir()) || !PHYSFS_mkdir(ns_resourceDir))
         {
             checkError("Create resource dir");
-            return false;
+            JOP_ASSERT(false, "Failed to create resource directory!");
         }
 
-        if (!PHYSFS_mount(ns_resourceDir, NULL, true))
+        if (!PHYSFS_mount(resDir.c_str(), NULL, true))
         {
             checkError("Mount resource directory");
-            return false;
+            JOP_ASSERT(false, "Failed to mount resource directory!");
         }
 
     #endif
@@ -92,10 +93,8 @@ namespace
         if (!PHYSFS_mount(jop::FileLoader::getDirectory(jop::FileLoader::Directory::User).c_str(), NULL, true))
         {
             checkError("Mount user directory");
-            return false;
+            JOP_ASSERT(false, "Failed to mount user directory!");
         }
-
-        return true;
     }
 }
 
@@ -109,7 +108,7 @@ namespace jop
             JOP_ASSERT(!PHYSFS_isInit(), "You can only have a single jop::FileSystemInitializer sub system instance!");
 
             JOP_ASSERT_EVAL(PHYSFS_init(arg) != 0, "Failed to initialize file system!");
-            JOP_ASSERT_EVAL(createNeededDirs(), "Failed to create user directory!");
+            createNeededDirs();
 
             checkError("Init");
 

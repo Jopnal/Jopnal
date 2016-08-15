@@ -142,20 +142,15 @@ namespace jop
         {
             if (castShadows)
             {
-            #ifdef JOP_OPENGL_ES
-
                 if (m_type == Type::Point)
                     return *this;
 
-            #endif
-
                 static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
-                
-                using CA = RenderTexture::ColorAttachment;
 
-                m_shadowMap.addColorAttachment(RenderTexture::ColorAttachmentSlot::_1, m_type == Type::Point ? CA::DepthCube16 : CA::Depth2D16, glm::uvec2(mapSize));
+                m_shadowMap.setSize(glm::uvec2(mapSize));
+                m_shadowMap.addTextureAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16);
 
-                m_lightSpaceMatrices.resize(m_type == Type::Point ? 6 : 1);
+                m_lightSpaceMatrices.resize(1);
             }
             else
             {
@@ -300,7 +295,7 @@ namespace jop
 
     const Texture* LightSource::getShadowMap() const
     {
-        return m_shadowMap.getDepthTexture();
+        return m_shadowMap.getTextureAttachment(RenderTexture::Slot::Depth);
     }
 
     ///////////////////////////////////////////
@@ -443,14 +438,13 @@ namespace jop
         return Component::receiveMessage(message);
     }
 
+
     //////////////////////////////////////////////
 
 
     LightContainer::LightContainer()
         : m_container()
-    {
-        clear();
-    }
+    {}
 
     //////////////////////////////////////////////
 
@@ -471,10 +465,6 @@ namespace jop
     {
         for (auto& i : m_container)
             i.clear();
-
-        (*this)[LightSource::Type::Point].reserve(LightSource::getMaximumLights(LightSource::Type::Point));
-        (*this)[LightSource::Type::Directional].reserve(LightSource::getMaximumLights(LightSource::Type::Directional));
-        (*this)[LightSource::Type::Spot].reserve(LightSource::getMaximumLights(LightSource::Type::Spot));
     }
 
     //////////////////////////////////////////////

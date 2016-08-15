@@ -69,18 +69,17 @@ namespace jop
     {
         using namespace Input;
 
+    #if defined(JOP_OS_DESKTOP)
+
         if (validateWindowRef())
-        {
-        #if defined(JOP_OS_DESKTOP)
             return glfwGetKey(ns_windowRef->getLibraryHandle(), getGlKey(key)) == GLFW_PRESS;
 
-        #elif defined(JOP_OS_ANDROID)
-
-            return detail::ActivityState::get()->activeKey == key;
-
-        #endif
-        }
         return false;
+
+    #elif defined(JOP_OS_ANDROID)
+        return detail::ActivityState::get()->activeKey == key;
+
+    #endif
     }
 
     //////////////////////////////////////////////

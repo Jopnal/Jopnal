@@ -30,33 +30,11 @@
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
-    #include <Jopnal/Graphics/Texture/Texture2DDepth.hpp>
     #include <Jopnal/Graphics/Texture/Cubemap.hpp>
-    #include <Jopnal/Graphics/Texture/CubemapDepth.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Window/Window.hpp>
     #include <vector>
-
-    #ifdef JOP_OPENGL_ES
-
-        #ifndef JOP_OPENGL_ES3
-
-            #define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT16
-            #define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
-            #define GL_DEPTH32F_STENCIL8 GL_DEPTH24_STENCIL8
-            #define GL_DRAW_FRAMEBUFFER GL_FRAMEBUFFER
-            #define GL_READ_FRAMEBUFFER GL_DRAW_FRAMEBUFFER
-
-        #endif
-
-        #define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT
-        #define GL_STENCIL_INDEX GL_STENCIL_INDEX8
-        #define GL_STENCIL_INDEX16 GL_STENCIL_INDEX
-
-        #define glFramebufferTexture(target, attachment, texture, level) glFramebufferTexture2D((target), (attachment), GL_TEXTURE_2D, (texture), (level))
-
-    #endif
 
 #endif
 
@@ -77,7 +55,7 @@ namespace jop
 
                 switch (status)
                 {
-                #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+                #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
 
                     case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
@@ -85,7 +63,7 @@ namespace jop
                         errorS = "GL_FRAMEBUFFER_UNDEFINED";
                         break;
 
-                #elif !defined(JOP_OPENGL_ES3)
+                #elif !defined(GL_ES_VERSION_3_0)
 
                     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
                         errorS = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
@@ -117,7 +95,7 @@ namespace jop
                         break;
                 }
 
-                JOP_DEBUG_ERROR("Failed to create RenderTexture. Failed to complete frame buffer: " << errorS);
+                JOP_DEBUG_ERROR("Failed to create render texture: " << errorS);
 
                 return false;
             }
@@ -130,11 +108,9 @@ namespace jop
 
     RenderTexture::RenderTexture()
         : RenderTarget          (),
-          m_depthBuffer         (0),
-          m_stencilBuffer       (0),
-          m_depthStencilBuffer  (0),
-          m_frameBuffer         (0, nullptr),
-          m_colorAttachments    ()
+          m_frameBuffer         (0),
+          m_attachments         (),
+          m_size                (0)
     {}
 
     RenderTexture::~RenderTexture()
@@ -144,304 +120,239 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::addColorAttachment(const ColorAttachmentSlot slot, const ColorAttachment attachment, const glm::uvec2& size)
+    bool RenderTexture::addTextureAttachment(const Slot slot, const Texture::Format format)
     {
-        using CA = ColorAttachment;
+        auto& att = m_attachments[static_cast<int>(slot)];
+        auto& tex = att.second;
 
-        auto getColorBytes = [](const ColorAttachment att) -> unsigned int
+        glCheck(glDeleteRenderbuffers(1, &att.first));
+        att.first = 0;
+        tex.reset();
+
+        if (format == Texture::Format::None)
+            return true;
+
+        if (m_size == glm::uvec2(0))
         {
-            switch (att)
-            {
-                case CA::Depth2D16:
-                case CA::DepthCube16:
-                    return 2;
-
-                case CA::RGB2D:
-                case CA::RGBCube:
-                case CA::Depth2D24:
-                case CA::DepthCube24:
-                    return 3;
-
-                case CA::RGBA2D:
-                case CA::RGBACube:
-                case CA::Depth2D32:
-                case CA::DepthCube32:
-                    return 4;
-
-                case CA::RGB2DFloat16:
-                case CA::RGBCubeFloat16:
-                    return 6;
-
-                case CA::RGB2DFloat32:
-                case CA::RGBCubeFloat32:
-                    return 12;
-
-                case CA::RGBA2DFloat16:
-                case CA::RGBACubeFloat16:
-                    return 8;
-
-                case CA::RGBA2DFloat32:
-                case CA::RGBACubeFloat32:
-                    return 16;
-
-                default:
-                    return 0;
-            }
-        };
-
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        auto& texture = m_colorAttachments[(attachment < CA::Depth2D16) * static_cast<int>(slot)];
-
-        switch (attachment)
-        {
-            case CA::RGB2D:
-            case CA::RGBA2D:
-            case CA::RGB2DFloat16:
-            case CA::RGB2DFloat32:
-            case CA::RGBA2DFloat16:
-            case CA::RGBA2DFloat32:
-            {
-                auto tex = std::make_unique<Texture2D>("");
-                if (!tex->load(size, getColorBytes(attachment), false, false))
-                    return false;
-
-                texture = std::move(tex);
-
-                break;
-            }
-
-            case CA::RGBCube:
-            case CA::RGBACube:
-            case CA::RGBCubeFloat16:
-            case CA::RGBCubeFloat32:
-            case CA::RGBACubeFloat16:
-            case CA::RGBACubeFloat32:
-            {
-                auto tex = std::make_unique<Cubemap>("");
-                if (!tex->load(size, getColorBytes(attachment), false, false))
-                    return false;
-
-                texture = std::move(tex);
-
-                break;
-            }
-
-            case CA::Depth2D16:
-            case CA::Depth2D24:
-            case CA::Depth2D32:
-            {
-                auto tex = std::make_unique<Texture2DDepth>("");
-                if (!tex->load(size, getColorBytes(attachment)))
-                    return false;
-
-                texture = std::move(tex);
-
-                break;
-            }
-
-            case CA::DepthCube16:
-            case CA::DepthCube24:
-            case CA::DepthCube32:
-            {
-                auto tex = std::make_unique<CubemapDepth>("");
-                if (!tex->load(size, getColorBytes(attachment)))
-                    return false;
-
-                texture = std::move(tex);
-            }
+            JOP_DEBUG_ERROR("Failed to add render texture attachment, size is 0");
+            return false;
         }
 
-        destroy(true, false);
+        using F = Texture::Format;
+
+    #ifdef JOP_OPENGL_ES
+
+        static const bool hdrSupport = JOP_CHECK_GL_EXTENSION(GL_EXT_color_buffer_half_float);
+
+        if (format == F::RGB_F_16 && !hdrSupport && gl::getVersionMajor() >= 3 && gl::getVersionMinor() >= 2)
+        {
+            JOP_DEBUG_WARNING("HDR RGB frame buffer texture is not supported, attempting to create a HDR RGBA texture...");
+            return addTextureAttachment(slot, F::RGBA_F_16);
+        }
+
+        #if JOP_MIN_OPENGL_ES_VERSION < 320
+
+            if (format == F::RGB_F_16 || format == F::RGBA_F_16)
+            {
+                if (!(format == F::RGBA_F_16 && gl::getVersionMajor() >= 3 && gl::getVersionMinor() >= 2) && !hdrSupport)
+                {
+                    JOP_DEBUG_WARNING("HDR frame buffer textures are not supported, attempting to create respective LDR texture...");
+                    return addTextureAttachment(slot, format == F::RGB_F_16 ? F::RGB_UB_8 : F::RGBA_UB_8);
+                }
+            }
+
+            if (format == F::Stencil_UB_8 && !JOP_CHECK_GL_EXTENSION(GL_OES_texture_stencil8))
+            {
+                JOP_DEBUG_WARNING("Stancil frame buffer texture attachment is not supported, attempting to create respective render buffer...");
+                return addRenderbufferAttachment(slot, format);
+            }
+
+        #endif
+
+        #if JOP_MIN_OPENGL_ES_VERSION < 300
+
+            if (gl::getVersionMajor() < 3)
+            {
+                if ((format == F::Depth_US_16 || format == F::Depth_UI_24) && !JOP_CHECK_GL_EXTENSION(OES_depth_texture))
+                {
+                    JOP_DEBUG_ERROR("Depth frame buffer texture is not supported");
+                    return false;
+                }
+
+                if (format == F::DepthStencil_UI_24_B_8 && !JOP_CHECK_GL_EXTENSION(OES_packed_depth_stencil))
+                {
+                    JOP_DEBUG_ERROR("Depth-stencil frame buffer texture is not supported");
+                    return false;
+                }
+            }
+
+        #endif
+
+    #endif
+
+        auto newTex = std::make_unique<Texture2D>("");
+
+        using TF = Texture::Flag;
+        
+        if (newTex->load(m_size, format, TF::DisallowCompression | TF::DisallowMipmapGeneration | TF::DisallowSRGB))
+            tex = std::move(newTex);
+
+        else
+        {
+            JOP_DEBUG_ERROR("Failed to add render texture attachment, failed to load texture (possibly invalid or unsupported format)");
+            return false;
+        }
 
         return true;
     }
 
     //////////////////////////////////////////////
 
-    bool RenderTexture::addDepthAttachment(const DepthAttachment attachment, const glm::uvec2& size)
-    {
-        using DA = DepthAttachment;
+#ifndef JOP_OPENGL_ES
 
-        auto getDepthEnum = [](const DepthAttachment depth) -> GLenum
+    namespace detail
+    {
+        extern GLenum getInternalFormatEnum(const Texture::Format format, const bool srgb);
+    }
+
+#endif
+
+    //////////////////////////////////////////////
+
+    bool RenderTexture::addRenderbufferAttachment(const Slot slot, const Texture::Format format)
+    {
+        auto& att = m_attachments[static_cast<int>(slot)];
+        auto& rendBuf = att.first;
+
+        glCheck(glDeleteRenderbuffers(1, &rendBuf));
+        rendBuf = 0;
+        att.second.reset();
+
+        if (format == Texture::Format::None)
+            return true;
+
+        if (m_size == glm::uvec2(0))
         {
-            switch (depth)
+            JOP_DEBUG_ERROR("Failed to add render render buffer attachment, size is 0");
+            return false;
+        }
+        else if (m_size.x > getMaximumRenderbufferSize() || m_size.y > getMaximumRenderbufferSize())
+        {
+            // Already warned in setSize()
+            return addTextureAttachment(slot, format);
+        }
+
+        using F = Texture::Format;
+
+    #ifdef JOP_OPENGL_ES
+
+        if ((format == F::RGB_F_16 || format == F::RGBA_F_16) && !JOP_CHECK_GL_EXTENSION(EXT_color_buffer_half_float))
+        {
+            JOP_DEBUG_WARNING("HDR render buffers are not supported, attempting to create respective LDR render buffer...");
+            return addRenderbufferAttachment(slot, format == F::RGB_F_16 ? F::RGB_UB_8 : F::RGBA_UB_8);
+        }
+
+    #endif
+
+    #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+        if (gl::getVersionMajor() < 300)
+        {
+            if (slot == Slot::DepthStencil && !JOP_CHECK_GL_EXTENSION(OES_packed_depth_stencil))
             {
-                case DA::Renderbuffer16:
-                case DA::Texture16:
-                case DA::TextureCube16:
+                JOP_DEBUG_ERROR("Packed depth-stencil render buffer is not supported");
+                return false;
+            }
+            else if (slot == Slot::Depth && format == F::Depth_UI_24 && !JOP_CHECK_GL_EXTENSION(OES_depth24))
+            {
+                JOP_DEBUG_WARNING("24 bit depth render buffer attachment is not supported, attempting to create texture attachment...");
+                return addTextureAttachment(slot, format);
+            }
+            else if (slot == Slot::Color0)
+            {
+                if (format == F::Alpha_UB_8)
+                {
+                    JOP_DEBUG_ERROR("Alpha render buffer attachment is not supported");
+                    return false;
+                }
+                if (format == F::RGB_UB_8 && !JOP_CHECK_GL_EXTENSION(OES_rgb8_rgba8))
+                {
+                    JOP_DEBUG_WARNING("RGB render buffer attachment is not supported, attempting to create texture attachment...");
+                    return addTextureAttachment(slot, format);
+                }
+                else if (format == F::RGBA_UB_8 && !JOP_CHECK_GL_EXTENSION(OES_rgb8_rgba8) && !JOP_CHECK_GL_EXTENSION(ARM_rgba8))
+                {
+                    JOP_DEBUG_WARNING("RGBA render buffer attachment is not supported, attempting to create texture attachment...");
+                    return addTextureAttachment(slot, format);
+                }
+            }
+        }
+
+    #endif
+
+        glCheck(glDeleteRenderbuffers(1, &rendBuf));
+        glCheck(glGenRenderbuffers(1, &rendBuf));
+
+        if (!rendBuf)
+        {
+            JOP_DEBUG_ERROR("Failed to add render buffer attachment, failed to generate render buffer");
+            return false;
+        }
+
+
+    #ifndef JOP_OPENGL_ES
+
+        const GLenum intFormat = detail::getInternalFormatEnum(format, false);
+
+    #else
+
+        const GLenum intFormat = [](const Texture::Format format)
+        {
+            switch (format)
+            {
+                case F::Alpha_UB_8:
+                    return GL_R8;
+
+                case F::RGB_UB_8:
+                    return GL_RGB8_OES;
+
+                case F::RGBA_UB_8:
+                    return GL_RGBA8_OES;
+
+                case F::Depth_US_16:
                     return GL_DEPTH_COMPONENT16;
 
-                case DA::Renderbuffer24:
-                case DA::Texture24:
-                case DA::TextureCube24:
-                    return GL_DEPTH_COMPONENT24;
+                case F::Depth_UI_24:
+                    return GL_DEPTH_COMPONENT24_OES;
 
-                case DA::Renderbuffer32:
-                case DA::Texture32:
-                case DA::TextureCube32:
-                    return GL_DEPTH_COMPONENT32;
+                case F::Stencil_UB_8:
+                    return GL_STENCIL_INDEX8;
 
-                default:
-                    return GL_DEPTH_COMPONENT;
+                case F::DepthStencil_UI_24_B_8:
+                    return GL_DEPTH24_STENCIL8_OES;
             }
-        };
 
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+            return 0;
 
-        if (m_depthBuffer)
+        }(format);
+
+    #endif
+
+        if (intFormat)
         {
-            glCheck(glDeleteRenderbuffers(1, &m_depthBuffer));
-            m_depthBuffer = 0;
+            glCheck(glBindRenderbuffer(GL_RENDERBUFFER, rendBuf));
+            glCheck(glRenderbufferStorage(GL_RENDERBUFFER, intFormat, m_size.x, m_size.y));
+            glCheck(glBindRenderbuffer(GL_RENDERBUFFER, 0));
         }
-
-        if (attachment != DA::None)
+        else
         {
-            if (attachment < DA::Texture16)
-            {
-                glCheck(glGenRenderbuffers(1, &m_depthBuffer));
-
-                if (!m_depthBuffer)
-                {
-                    JOP_DEBUG_ERROR("Failed to create depth buffer");
-                    return false;
-                }
-
-                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer));
-                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, getDepthEnum(attachment), size.x, size.y));
-            }
-            else
-            {
-                unsigned int bytes = 0;
-                switch (attachment)
-                {
-                    case DA::Texture16:
-                    case DA::TextureCube16:
-                        bytes = 2;
-                        break;
-
-                    case DA::Texture24:
-                    case DA::TextureCube24:
-                        bytes = 3;
-                        break;
-
-                    case DA::Texture32:
-                    case DA::TextureCube32:
-                        bytes = 4;
-                }
-
-                auto& texture = m_colorAttachments[0];
-
-                if (attachment >= DepthAttachment::TextureCube16)
-                {
-                    auto tex = std::make_unique<CubemapDepth>("");
-                    if (!tex->load(size, bytes))
-                        return false;
-
-                    texture = std::move(tex);
-                }
-                else
-                {
-                    auto tex = std::make_unique<Texture2DDepth>("");
-                    if (!tex->load(size, bytes))
-                        return false;
-
-                    texture = std::move(tex);
-                }
-            }
+            JOP_DEBUG_ERROR("Failed to create render buffer storage, unsupported format");
+            glCheck(glDeleteRenderbuffers(1, &rendBuf));
+            return false;
         }
-
-        destroy(true, false);
 
         return true;
     }
-
-    //////////////////////////////////////////////
-
-    bool RenderTexture::addStencilAttachment(const StencilAttachment attachment, const glm::uvec2& size)
-    {
-        auto getStencilEnum = [](const StencilAttachment stencil) -> GLenum
-        {
-            switch (stencil)
-            {
-                case StencilAttachment::Renderbuffer8:  return GL_STENCIL_INDEX8;
-                case StencilAttachment::Renderbuffer16: return GL_STENCIL_INDEX16;
-                default:                                return GL_STENCIL_INDEX;
-            }
-        };
-
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        if (m_stencilBuffer)
-        {
-            glCheck(glDeleteRenderbuffers(1, &m_stencilBuffer));
-            m_stencilBuffer = 0;
-        }
-
-        if (attachment != StencilAttachment::None)
-        {
-            if (attachment < StencilAttachment::Texture8)
-            {
-                glCheck(glGenRenderbuffers(1, &m_stencilBuffer));
-
-                if (!m_stencilBuffer)
-                {
-                    JOP_DEBUG_ERROR("Failed to create stencil buffer");
-                    return false;
-                }
-
-                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_stencilBuffer));
-                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, getStencilEnum(attachment), size.x, size.y));
-            }
-            else
-            {
-                // TODO
-            }
-        }
-
-        destroy(true, false);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    bool RenderTexture::addDepthStencilAttachment(const DepthStencilAttachment attachment, const glm::uvec2& size)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        if (m_depthStencilBuffer)
-        {
-            glCheck(glDeleteRenderbuffers(1, &m_depthStencilBuffer));
-            m_depthStencilBuffer = 0;
-        }
-
-        if (attachment != DepthStencilAttachment::None)
-        {
-            if (attachment < DepthStencilAttachment::Texture24_8)
-            {
-                glCheck(glGenRenderbuffers(1, &m_depthStencilBuffer));
-
-                if (!m_depthStencilBuffer)
-                {
-                    JOP_DEBUG_ERROR("Failed to create depth-stencil buffer");
-                    return false;
-                }
-
-                glCheck(glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilBuffer));
-                glCheck(glRenderbufferStorage(GL_RENDERBUFFER, attachment == DepthStencilAttachment::Renderbuffer24_8 ? GL_DEPTH24_STENCIL8 : GL_DEPTH32F_STENCIL8, size.x, size.y));
-            }
-            else
-            {
-                // TODO
-            }
-        }
-
-        destroy(true, false);
-
-        return true;
-    }
-
 
     //////////////////////////////////////////////
 
@@ -454,44 +365,28 @@ namespace jop
 
     void RenderTexture::destroy(const bool framebuffer, const bool attachments) const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
         if (!framebuffer && !attachments)
             return;
 
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
         unbind();
 
-        if (framebuffer && m_frameBuffer.first)
+        if (framebuffer)
         {
-            JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow(), "Tried to destroy frame buffer within different context!");
-
-            glCheck(glDeleteFramebuffers(1, &m_frameBuffer.first));
-            m_frameBuffer.first = 0;
-            m_frameBuffer.second = nullptr;
+            glCheck(glDeleteFramebuffers(1, &m_frameBuffer));
+            m_frameBuffer = 0;
         }
 
         if (attachments)
         {
-            if (m_depthStencilBuffer)
+            for (auto& i : m_attachments)
             {
-                glCheck(glDeleteRenderbuffers(1, &m_depthStencilBuffer));
-                m_depthStencilBuffer = 0;
+                glCheck(glDeleteRenderbuffers(1, &i.first));
+                i.second.reset();
             }
 
-            if (m_depthBuffer)
-            {
-                glCheck(glDeleteRenderbuffers(1, &m_depthBuffer));
-                m_depthBuffer = 0;
-            }
-
-            if (m_stencilBuffer)
-            {
-                glCheck(glDeleteRenderbuffers(1, &m_stencilBuffer));
-                m_stencilBuffer = 0;
-            }
-
-            for (auto& i : m_colorAttachments)
-                i.reset();
+            m_size = glm::uvec2(0);
         }
     }
 
@@ -510,7 +405,8 @@ namespace jop
 
         if (attach() && isValid())
         {
-            glCheck(glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_frameBuffer.first));
+            glCheck(glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_frameBuffer));
+
             glCheck(glViewport(0, 0, getSize().x, getSize().y));
             glCheck(glScissor(0, 0, getSize().x, getSize().y));
         }
@@ -531,17 +427,30 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void RenderTexture::setSize(const glm::uvec2& size)
+    {
+        if (!m_size.x && !m_size.y)
+        {
+            if (!size.x || !size.y)
+            {
+                JOP_DEBUG_ERROR("Both frame buffer dimensions must be greater than 0");
+                return;
+            }
+
+            else if (size.x > getMaximumRenderbufferSize() || size.y > getMaximumRenderbufferSize())
+                JOP_DEBUG_WARNING("Maximum render buffer size is " << getMaximumRenderbufferSize() << ", render texture will use texture attachments only");
+
+            m_size = size;
+        }
+    }
+
+    //////////////////////////////////////////////
+
     glm::uvec2 RenderTexture::getSize() const
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        for (auto& i : m_colorAttachments)
-        {
-            if (i)
-                return i->getSize();
-        }
-
-        return glm::uvec2();
+        return m_size;
     }
 
     //////////////////////////////////////////////
@@ -550,142 +459,117 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        return m_frameBuffer.first != 0 || m_colorAttachments[0] || m_colorAttachments[2];
+        for (auto& i : m_attachments)
+        {
+            if (i.first || i.second)
+                return true;
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////
 
-    Texture* RenderTexture::getColorTexture(const ColorAttachmentSlot slot)
+    Texture* RenderTexture::getTextureAttachment(const Slot slot)
     {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        return m_colorAttachments[static_cast<int>(slot)].get();
+        return m_attachments[static_cast<int>(slot)].second.get();
     }
 
     //////////////////////////////////////////////
 
-    const Texture* RenderTexture::getColorTexture(const ColorAttachmentSlot slot) const
+    const Texture* RenderTexture::getTextureAttachment(const Slot slot) const
     {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        return m_colorAttachments[static_cast<int>(slot)].get();
+        return m_attachments[static_cast<int>(slot)].second.get();
     }
 
     //////////////////////////////////////////////
 
-    const Texture* RenderTexture::getDepthTexture() const
+    unsigned int RenderTexture::getMaximumRenderbufferSize()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        static unsigned int size = 0;
 
-        return m_colorAttachments[0].get();
-    }
+        if (!size)
+        {
+            glCheck(glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, reinterpret_cast<GLint*>(&size)));
+        }
 
-    //////////////////////////////////////////////
-
-    const Texture* RenderTexture::getStencilTexture() const
-    {
-        return m_colorAttachments[1].get();
+        return size;
     }
 
     //////////////////////////////////////////////
 
     bool RenderTexture::attach() const
     {
-        JOP_ASSERT(m_frameBuffer.second == Window::getCurrentContextWindow() || m_frameBuffer.second == nullptr, "Tried to compile a frame buffer created in another context! You must destroy the frame buffer in its context of creation before using it in another");
-
-        if (!m_frameBuffer.second && !m_frameBuffer.first)
+        if (!m_frameBuffer)
         {
             if (!isValid())
                 return true;
 
-            glCheck(glGenFramebuffers(1, &m_frameBuffer.first));
+            glCheck(glGenFramebuffers(1, &m_frameBuffer));
 
-            if (!m_frameBuffer.first)
+            if (!m_frameBuffer)
             {
                 JOP_DEBUG_ERROR("Failed to attach RenderTexture. Couldn't generate frame buffer");
                 return false;
             }
 
-            m_frameBuffer.second = Window::getCurrentContextWindow();
-
-            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer.first));
-
-            if (m_depthStencilBuffer)
+            const GLenum attachmentPoint[] =
             {
-            #if defined(JOP_OPENGL_ES) && !defined(JOP_OPENGL_ES3)
+                GL_DEPTH_ATTACHMENT,
+                GL_STENCIL_ATTACHMENT,
 
-                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
-                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
-
+            #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+                GL_DEPTH_STENCIL_ATTACHMENT,
             #else
-                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilBuffer));
-
+                0,
             #endif
-            }
-            else if (m_depthBuffer)
+
+                GL_COLOR_ATTACHMENT0
+            };
+
+            glCheck(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer));
+
+            for (std::size_t i = 0; i < m_attachments.size(); ++i)
             {
-                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer));
-            }
-            else if (m_stencilBuffer)
-            {
-                glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_stencilBuffer));
-            }
-            
-            bool hasColor = false;
-            for (std::size_t i = 2; i < m_colorAttachments.size(); ++i)
-            {
-                if (m_colorAttachments[i])
+                auto att = &m_attachments[i];
+
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                if (gl::getVersionMajor() < 3)
                 {
-                    hasColor = true;
-                    break;
-                }
-            }
+                    const auto s = static_cast<Slot>(i);
 
-            if (m_colorAttachments[0] && !m_depthBuffer)
-            {
-                glCheck(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_colorAttachments[0]->getHandle(), 0));
-
-                if (!hasColor)
-                {
-                #ifdef JOP_OPENGL_ES
-
-                    #ifdef JOP_OPENGL_ES3
-
-                        glCheck(glDrawBuffers(1, GL_NONE));
-                        glCheck(glReadBuffer(GL_NONE));
-
-                    #endif
-
-                #else
-
-                    glCheck(glDrawBuffer(GL_NONE));
-                    glCheck(glReadBuffer(GL_NONE));
-
-                #endif
-                }
-            }
-            
-            if (hasColor)
-            {
-                std::vector<GLenum> colorAtt;
-                for (std::size_t i = 2; i < m_colorAttachments.size(); ++i)
-                {
-                    if (!m_colorAttachments[i])
+                    if (s == Slot::DepthStencil)
                         continue;
 
-                    glCheck(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i - 2, m_colorAttachments[i]->getHandle(), 0));
-                    colorAtt.push_back(GL_COLOR_ATTACHMENT0 + i - 2);
-                }
-
-            #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
-
-                if (!colorAtt.empty())
-                {
-                    glCheck(glDrawBuffers(colorAtt.size(), colorAtt.data()));
+                    if (s == Slot::Depth || s == Slot::Stencil)
+                        att = &m_attachments[static_cast<int>(Slot::DepthStencil)];
                 }
 
             #endif
+
+                if (att->first)
+                {
+                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentPoint[i], GL_RENDERBUFFER, att->first));
+                }
+                else if (att->second && att->second->isValid())
+                {
+                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint[i], GL_TEXTURE_2D, att->second->getHandle(), 0));
+                }
             }
+
+        #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+
+            // Enable disable writing to specific
+            // color buffers
+            std::vector<GLenum> colorAttachments;
+
+            for (std::size_t i = static_cast<int>(Slot::Color0); i < m_attachments.size(); ++i)
+                colorAttachments.push_back((m_attachments[i].first || m_attachments[i].second) ? attachmentPoint[i] : GL_NONE);
+
+            glCheck(glDrawBuffers(colorAttachments.size(), colorAttachments.data()));
+
+        #endif
 
             return detail::checkFrameBufferStatus();
         }

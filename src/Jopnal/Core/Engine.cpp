@@ -52,17 +52,6 @@
 //////////////////////////////////////////////
 
 
-namespace jop
-{
-    JOP_REGISTER_COMMAND_HANDLER(Engine)
-    
-        JOP_BIND_COMMAND(&Engine::exit, "exit");
-        JOP_BIND_COMMAND(&Engine::setState, "setState");
-        JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
-
-    JOP_END_COMMAND_HANDLER(Engine)
-}
-
 namespace
 {
     std::string ns_projectName;
@@ -98,13 +87,13 @@ namespace
             glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attr));
             glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
 
-            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()               << "\n"
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()                 << "\n"
                 <<   "    Maximum: \n"
-                <<   "      Texture size:                  " << Texture::getMaximumSize() << "\n"
-                <<   "      GLSL vertex uniform vectors:   " << unifVert                  << "\n"
-                <<   "      GLSL fragment uniform vectors: " << unifFrag                  << "\n"
-                <<   "      GLSL attribute vectors:        " << attr                      << "\n"
-                <<   "      GLSL varying vectors:          " << var                       << "\n";
+                <<   "      Texture size:                  " << Texture2D::getMaximumSize() << "\n"
+                <<   "      GLSL vertex uniform vectors:   " << unifVert                    << "\n"
+                <<   "      GLSL fragment uniform vectors: " << unifFrag                    << "\n"
+                <<   "      GLSL attribute vectors:        " << attr                        << "\n"
+                <<   "      GLSL varying vectors:          " << var                         << "\n";
         }
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
@@ -146,17 +135,18 @@ namespace
 namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
-        : m_sharedScene     (),
-          m_totalTime       (0.0),
-          m_subsystems      (),
-          m_currentScene    (),
-          m_newScene        (nullptr),
-          m_newSceneSignal  (false),
-          m_exit            (false),
-          m_state           (State::Running),
-          m_advanceFrame    (false),
-          m_mainTarget      (nullptr),
-          m_mainWindow      (nullptr)
+        : m_sharedScene         (),
+          m_totalTime           (0.0),
+          m_deltaTimeUnscaled   (0.f),
+          m_subsystems          (),
+          m_currentScene        (),
+          m_newScene            (nullptr),
+          m_newSceneSignal      (false),
+          m_exit                (false),
+          m_state               (State::Running),
+          m_advanceFrame        (false),
+          m_mainTarget          (nullptr),
+          m_mainWindow          (nullptr)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -281,8 +271,8 @@ namespace jop
             float frameTime = static_cast<float>(frameClock.reset().asSeconds());
             eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
 
-            frameTime *= (getState() != State::ZeroDelta || eng.m_advanceFrame.load());
             frameTime = std::min(0.1f, frameTime);
+            eng.m_deltaTimeUnscaled.store(frameTime);
 
             // Update
             {
@@ -292,14 +282,11 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
-                {
-                    if (hasCurrentScene())
-                        eng.m_currentScene->updateBase(frameTime);
+                if (hasCurrentScene())
+                    eng.m_currentScene->updateBase(frameTime);
 
-                    if (hasSharedScene())
-                        eng.m_sharedScene->updateBase(frameTime);
-                }
+                if (hasSharedScene())
+                    eng.m_sharedScene->updateBase(frameTime);
 
                 for (auto& i : eng.m_subsystems)
                 {
@@ -342,11 +329,13 @@ namespace jop
     {
     #ifdef JOP_OS_ANDROID
 
-        static bool calledOnce = false;
+        auto state = detail::ActivityState::get();
+
+        static bool calledOnce = state->destroyRequested;
 
         if (!calledOnce)
         {
-            ANativeActivity_finish(detail::ActivityState::get()->nativeActivity);
+            ANativeActivity_finish(state->nativeActivity);
             calledOnce = true;
 
             return;
@@ -372,7 +361,6 @@ namespace jop
             static const char* const stateStr[] =
             {
                 "Running",
-                "ZeroDelta",
                 "RenderOnly",
                 "Frozen"
             };
@@ -389,7 +377,7 @@ namespace jop
 
     Engine::State Engine::getState()
     {
-        return exiting() ? State::Frozen : m_engineObject->m_state.load();
+        return exiting() ? State::Frozen : (m_engineObject->m_advanceFrame.load() ? State::Running : m_engineObject->m_state.load());
     }
 
     //////////////////////////////////////////////
@@ -398,12 +386,6 @@ namespace jop
     {
         if (m_engineObject)
         {
-            if (message.passFilter(Message::Engine))
-            {
-                if (JOP_EXECUTE_COMMAND(Engine, message.getString(), m_engineObject) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-
             const unsigned short sceneField = Message::SharedScene | Message::Scene | Message::Object | Message::Component;
 
             if (hasSharedScene() && message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
@@ -526,6 +508,16 @@ namespace jop
             return m_engineObject->m_mainWindow != nullptr;
 
         return false;
+    }
+
+    //////////////////////////////////////////////
+
+    float Engine::getDeltaTimeUnscaled()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_deltaTimeUnscaled.load();
+
+        return 0.f;
     }
 
     //////////////////////////////////////////////

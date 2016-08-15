@@ -42,6 +42,54 @@ namespace jop
 
     public:
 
+        struct Flag
+        {
+            enum : uint32
+            {
+                DisallowSRGB,
+                DisallowMipmapGeneration,
+                DisallowCompression
+            };
+        };
+
+        enum class Format
+        {
+            None, ///< For internal functionality, do not use
+
+            Alpha_UB_8,
+            RGB_UB_8,
+            RGBA_UB_8,
+
+            RGB_F_16,
+            RGBA_F_16,
+
+            Depth_US_16,
+            Depth_UI_24,
+
+            Stencil_UB_8,
+
+            DepthStencil_UI_24_B_8
+        };
+
+    protected:
+
+        class FormatBundle
+        {
+            JOP_DISALLOW_COPY_MOVE(FormatBundle);
+
+        public:
+
+            FormatBundle(const Format format, const bool srgb);
+
+            bool check() const;
+
+            const uint32 intFormat;
+            const uint32 format;
+            const uint32 type;
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         Texture(const std::string& name, const unsigned int glTarget);
@@ -64,6 +112,8 @@ namespace jop
         ///
         bool bind(const unsigned int texUnit = 0) const;
 
+        void unbind(const unsigned int texUnit = 0) const;
+
 
         /// \brief Check if this texture is valid
         ///
@@ -74,7 +124,7 @@ namespace jop
 
         void setSampler(const TextureSampler& sampler);
 
-        const TextureSampler& getSampler() const;
+        const TextureSampler* getSampler() const;
 
 
         /// \brief Get the texture size
@@ -83,7 +133,7 @@ namespace jop
         ///
         virtual glm::uvec2 getSize() const = 0;
 
-        virtual unsigned int getDepth() const = 0;
+        virtual unsigned int getPixelDepth() const = 0;
 
 
         Texture& setFilterMode(const TextureSampler::Filter mode, const float param = 1.f);
@@ -133,10 +183,6 @@ namespace jop
         ///
         unsigned int getHandle() const;
 
-        /// \brief Get the maximum supported texture size of this system
-        ///
-        static unsigned int getMaximumSize();
-
         /// \brief Get the maximum texture unit value
         ///
         /// \return The maximum texture unit value. Sampler cannot be bound to
@@ -150,31 +196,33 @@ namespace jop
         ///
         /// \param depth The pixel byte depth
         ///
-        static void setPixelStore(const unsigned int depth);
-
-        static void setAllowSRGB(const bool allow);
+        static void setUnpackAlignment(const Format format);
 
         static bool allowSRGB();
 
         static bool allowGenMipmaps(const glm::uvec2& size, const bool srgb);
 
+    protected:
+
+        static Format getFormatFromDepth(const uint32 depth);
+
+        static unsigned int getDepthFromFormat(const Format format);
+
     private:
 
         void updateSampling() const;
 
-        WeakReference<const TextureSampler> m_sampler;       ///< Texture sampler
-        mutable unsigned int m_texture; ///< The OpenGL handle
-        const unsigned int m_target;    ///< The OpenGL texture target
-        TextureSampler::Filter m_filter;        ///< The filtering mode
-        TextureSampler::Repeat m_repeat;        ///< The repeating mode
-        float m_anisotropic;    ///< The anisotropic level
-        Color m_borderColor;    ///< The border color
+        WeakReference<const TextureSampler> m_sampler;  ///< Texture sampler
+        mutable unsigned int m_texture;                 ///< The OpenGL handle
+        const unsigned int m_target;                    ///< The OpenGL texture target
+        TextureSampler::Filter m_filter;                ///< The filtering mode
+        TextureSampler::Repeat m_repeat;                ///< The repeating mode
+        float m_anisotropic;                            ///< The anisotropic level
+        Color m_borderColor;                            ///< The border color
     };
 }
 
 #endif
 
-/// \class Texture
+/// \class jop::Texture
 /// \ingroup graphics
-
-/// stores and creates image data

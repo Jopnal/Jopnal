@@ -57,7 +57,7 @@ namespace jop
         bool load(const std::string& right, const std::string& left,
                   const std::string& top, const std::string& bottom,
                   const std::string& back, const std::string& front,
-                  const bool srgb, const bool genMipmaps);
+                  const uint32 flags = 0);
 
         /// \brief Load an empty cube map
         ///
@@ -67,7 +67,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-        bool load(const glm::uvec2& size, const unsigned int bpp, const bool srgb, const bool genMipmaps);
+        bool load(const glm::uvec2& size, const Format format, const uint32 flags = 0);
 
         /// \brief Load from .dds file
         ///
@@ -77,7 +77,7 @@ namespace jop
         /// \param path Path to file
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const std::string& path, bool srgb);
+        bool load(const std::string& path, const uint32 flags = 0);
 
         /// \brief Load cubemap from compressed image containing a cubemap (DXT1/3/5)
         ///
@@ -87,7 +87,7 @@ namespace jop
         /// \param image Image containing a cubemap
         /// \param srgb Use SRGB color space?
         ///
-        bool load(const Image& image, bool srgb);
+        bool load(const Image& image, const uint32 flags = 0);
 
         /// \brief Get the texture size
         ///
@@ -95,7 +95,9 @@ namespace jop
         ///
         glm::uvec2 getSize() const override;
 
-        unsigned int getDepth() const override;
+        unsigned int getPixelDepth() const override;
+
+        static unsigned int getMaximumSize();
 
         /// \brief Get the error texture
         ///
@@ -111,8 +113,8 @@ namespace jop
 
     private:
 
-        glm::uvec2 m_size;              ///< Size
-        unsigned int m_bytesPerPixel;   ///< Pixel depth in bytes
+        glm::uvec2 m_size;  ///< Size
+        Format m_format;
     };
 }
 

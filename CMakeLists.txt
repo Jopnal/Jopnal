@@ -1,6 +1,6 @@
 # Jopnal Engine CMakeLists
 
-# 3.1 is the minimum for pdb file generation
+# 3.1 is the minimum for pdb file generation and forcing C++11
 cmake_minimum_required(VERSION 3.1.0)
 
 # Helper for defining options
@@ -33,10 +33,7 @@ set_property(CACHE ANDROID_API_MIN PROPERTY STRINGS
 set(ANDROID_NATIVE_API_LEVEL ${ANDROID_API_MIN})
 
 # Set toolchain to use
-jopSetOption(ANDROID_TOOLCHAIN_MAKE "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
-set_property(CACHE ANDROID_TOOLCHAIN_MAKE PROPERTY STRINGS
-             "arm-linux-androideabi-4.9"
-             "arm-linux-androideabi-clang3.5")
+jopSetOption(ANDROID_TOOLCHAIN_NAME "arm-linux-androideabi-4.9" STRING "Choose the android toolchain to use")
 
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
@@ -46,9 +43,9 @@ jopSetOption(ANDROID_NDK "$ENV{ANDROID_NDK}" PATH "Path to the Android NDK")
 # STL implementation
 jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
-# Default to v7a for harware floating point
-if(NOT ANDROID_ABI)
-    set(ANDROID_ABI "armeabi-v7a")
+# Default ABI
+if (NOT ANDROID_ABI)
+    set(ANDROID_ABI "armeabi-v7a with NEON")
 endif()
 
 # Project name
@@ -95,7 +92,7 @@ if (JOP_OS_ANDROID OR (JOP_OS_WINDOWS AND JOP_COMPILER_GCC))
     set(USE_PRECOMPILED_HEADER_DEFAULT FALSE)
 endif() 
    
-jopSetOption(JOP_USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "TRUE to use precompiled header")
+jopSetOption(JOP_USE_PRECOMPILED_HEADER ${USE_PRECOMPILED_HEADER_DEFAULT} BOOL "True to use precompiled header")
 
 if (JOP_USE_PRECOMPILED_HEADER AND JOP_COMPILER_GCC)
     message(WARNING "Using precompiled header may crash GCC. Keep this in mind")
@@ -109,31 +106,45 @@ set(VERSION_MINOR 3)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Option for choosing a shared build
-jopSetOption(BUILD_SHARED_LIBS TRUE BOOL "TRUE to build Jopnal as shared, FALSE to build as static")
+jopSetOption(BUILD_SHARED_LIBS TRUE BOOL "True to build Jopnal as shared, false to build as static")
 
 # Option for choosing the OpenGL implementation
-jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "TRUE to use an OpenGL ES, FALSE to use a desktop OpenGL")
+jopSetOption(JOP_OPENGL_ES ${OPENGL_ES} BOOL "True to use an OpenGL ES, false to use a desktop OpenGL")
 
 # Choose debug verbosity
-jopSetOption(JOP_CONSOLE_VERBOSITY "2" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output")
+jopSetOption(JOP_CONSOLE_VERBOSITY "1" STRING "Select the compile-time console verbosity. -1 to disable, 3 for most verbose output. It's recommended to set this to 0 or -1 for release builds")
 set_property(CACHE JOP_CONSOLE_VERBOSITY PROPERTY STRINGS
              "-1" "0" "1" "2" "3")
 add_definitions("-DJOP_CONSOLE_VERBOSITY=${JOP_CONSOLE_VERBOSITY}")
 
 # Option to enable/disable assertions
-jopSetOption(JOP_ASSERTS TRUE BOOL "True to enable assertions, false to strip them away")
-add_definitions("-DJOP_ENABLE_ASSERTS=${JOP_ASSERTS}")
+jopSetOption(JOP_ASSERTS TRUE BOOL "True to enable assertions, false to strip them away. It's recommended to disable assertions for release builds")
+
+if (JOP_ASSERTS)
+    add_definitions("-DJOP_ENABLE_ASSERTS")
+endif()
 
 # Option to enable/disable OpenGL error checks
-jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away")
-add_definitions("-DJOP_OPENGL_ERROR_CHECKS=${JOP_OPENGL_ERROR_CHECKS}")
+jopSetOption(JOP_OPENGL_ERROR_CHECKS TRUE BOOL "True to enable OpenGL error checks, false to strip them away. It's recommended to disable these checks for release builds")
+
+if (JOP_OPENGL_ERROR_CHECKS)
+    add_definitions("-DJOP_OPENGL_ERROR_CHECKS")
+endif()
 
 # Option to enable/disable OpenAL error checks
-jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away")
-add_definitions("-DJOP_OPENAL_ERROR_CHECKS=${JOP_OPENAL_ERROR_CHECKS}")
+jopSetOption(JOP_OPENAL_ERROR_CHECKS TRUE BOOL "True to enable OpenAL error checks, false to strip them away. It's recommended to disable these checks for release builds")
+
+if (JOP_OPENAL_ERROR_CHECKS)
+    add_definitions("-DJOP_OPENAL_ERROR_CHECKS")
+endif()
 
 # Generate documentation
 jopSetOption(JOP_GENERATE_DOCS FALSE BOOL "True to generate documentation, false otherwise")
+
+# Build examples
+if (NOT JOP_OS_ANDROID)
+    jopSetOption(JOP_BUILD_EXAMPLES FALSE BOOL "True to build examples, false otherwise")
+endif()
 
 # Android options
 if (JOP_OS_ANDROID)
@@ -165,6 +176,10 @@ if (JOP_OS_ANDROID)
     if (ANDROID_STL MATCHES "_shared")
         add_definitions("-DSTL_LIBRARY=${ANDROID_STL}")
     endif()
+
+	# Force OpenGL ES
+	unset(JOP_OPENGL_ES CACHE)
+    set(JOP_OPENGL_ES TRUE)
 
     # Workaround to compile activity without the stl library as a dependency
     set(CMAKE_CXX_CREATE_SHARED_LIBRARY_WITH_STL ${CMAKE_CXX_CREATE_SHARED_LIBRARY})
@@ -210,10 +225,33 @@ if (JOP_OPENGL_ES)
     add_definitions(-DJOP_OPENGL_ES)
     add_definitions(-DGL_GLEXT_PROTOTYPES)
 
+	jopSetOption(JOP_MIN_OPENGL_ES_VERSION 200 STRING, "Select the minimum supported GLES version. Forcing a greater version will improve features, stability and performance but limit the amount of supported devices")
+	set_property(CACHE JOP_MIN_OPENGL_ES_VERSION PROPERTY STRINGS
+				 "200" "300" "310" "320")
+	
+	if (JOP_OS_ANDROID)
+	
+		if (${JOP_MIN_OPENGL_ES_VERSION} GREATER 200 AND ${ANDROID_API_MIN} LESS 18)
+			message(FATAL_ERROR "OpenGL ES 3.0 requires API level 18 or greater")
+		
+		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+			message(FATAL_ERROR "OpenGL ES 3.1 requires API level 23 or greater")
+			
+		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+			message(FATAL_ERROR "OpenGL ES 3.2 requires API level 24 or greater")
+
+        endif()
+	
+	endif()
+
+    add_definitions("-DJOP_MIN_OPENGL_ES_VERSION=${JOP_MIN_OPENGL_ES_VERSION}")
+	
 endif()
 
 # Force inclusion of available c++11 features
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -221,6 +259,11 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
 # Add the subdirectories
 add_subdirectory(src/Jopnal)
+
+# Examples
+if (JOP_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 # Setup the install rules
 install(DIRECTORY include

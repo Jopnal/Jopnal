@@ -112,7 +112,7 @@ namespace detail
 
         void reportErrorWarning(const char* warningString) override
         {
-        #ifndef JOP_DEBUG_MODE
+        #if JOP_CONSOLE_VERBOSITY < 1
             warningString;
         #endif
             JOP_DEBUG_WARNING(warningString);

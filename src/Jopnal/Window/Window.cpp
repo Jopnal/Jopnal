@@ -38,6 +38,13 @@
     #include <Jopnal/Window/VideoInfo.hpp>
     #include <Jopnal/STL.hpp>
 
+    #ifdef JOP_OPENGL_ES
+
+        #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+        #include <EGL/egl.h>
+
+    #endif
+
 #endif
 
 #if defined(JOP_OS_DESKTOP)
@@ -95,8 +102,13 @@ namespace jop
             if (frameLimit.value > 0)
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>((1.f / frameLimit.value - m_frameClock.reset().asSeconds()) * 1000.f)));
 
-            if (m_windowRef.isOpen() && Engine::getState() != Engine::State::Frozen)
-                m_windowRef.m_impl->swapBuffers();
+            if (m_windowRef.isOpen())
+            {
+                if (Engine::getState() != Engine::State::Frozen)
+                    m_windowRef.m_impl->swapBuffers();
+                else
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
         }
     }
 
@@ -152,25 +164,51 @@ namespace jop
         open(settings);
         setDefaultEventHandler();
 
-    #if defined(JOP_DEBUG_MODE) && defined(GL_KHR_debug)
+    #if JOP_CONSOLE_VERBOSITY >= 0
 
         if (JOP_CHECK_GL_EXTENSION(KHR_debug) && settings.debug)
         {
-            glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+        #ifdef JOP_OPENGL_ES
+
+            #define GL_DEBUG_SEVERITY_HIGH GL_DEBUG_SEVERITY_HIGH_KHR
+            #define GL_DEBUG_SEVERITY_MEDIUM GL_DEBUG_SEVERITY_MEDIUM_KHR
+            #define GL_DEBUG_SEVERITY_LOW GL_DEBUG_SEVERITY_LOW_KHR
+            #define GL_DEBUG_SEVERITY_NOTIFICATION GL_DEBUG_SEVERITY_NOTIFICATION_KHR
+
+            auto voidCallback = eglCheck(eglGetProcAddress("glDebugMessageCallbackKHR"));
+            auto glDebugMessageCallback = reinterpret_cast<void(*)(GLDEBUGPROCKHR, const void*)>(voidCallback);
+
+            if (!voidCallback)
+                JOP_DEBUG_ERROR("Failed to load function glDebugMessageCallbackKHR")
+            
+            else
+
+        #endif
             {
-                if (severity == GL_DEBUG_SEVERITY_HIGH)
-                    JOP_DEBUG_ERROR(msg)
+                glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+                {
+                #if JOP_CONSOLE_VERBOSITY >= 0
+                    if (severity == GL_DEBUG_SEVERITY_HIGH)
+                        JOP_DEBUG_ERROR(msg)
+                #endif
 
-                else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
-                    JOP_DEBUG_WARNING(msg)
+                #if JOP_CONSOLE_VERBOSITY >= 1
+                    else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+                        JOP_DEBUG_WARNING(msg)
+                #endif
 
-                else if (severity == GL_DEBUG_SEVERITY_LOW)
-                    JOP_DEBUG_INFO(msg)
+                #if JOP_CONSOLE_VERBOSITY >= 2
+                    else if (severity == GL_DEBUG_SEVERITY_LOW)
+                        JOP_DEBUG_INFO(msg)
+                #endif
 
-                else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-                    JOP_DEBUG_DIAG(msg);
+                #if JOP_CONSOLE_VERBOSITY >= 3
+                    else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+                        JOP_DEBUG_DIAG(msg)
+                #endif
 
-            }, NULL);
+                }, NULL);
+            }
         }
 
     #endif

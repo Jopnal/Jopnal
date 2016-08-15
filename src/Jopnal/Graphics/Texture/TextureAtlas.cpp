@@ -68,7 +68,7 @@ namespace jop
     bool TextureAtlas::load(const glm::uvec2& atlasSize)
     {
         // Check if size is ok and load texture
-        if (16 <= atlasSize.x && 16 <= atlasSize.y && m_texture.load(atlasSize, 4, true, false))
+        if (16 <= atlasSize.x && 16 <= atlasSize.y && m_texture.load(atlasSize, Texture::Format::RGBA_UB_8, Texture::Flag::DisallowMipmapGeneration))
         {
             // Initialize packer
             m_packer->nodes.resize(atlasSize.x);
@@ -95,7 +95,7 @@ namespace jop
     bool TextureAtlas::load(const std::string& path, LoadMode mode)
     {
         if (mode == LoadMode::TextureOnly)
-            return m_texture.load(path, true, true, false);
+            return m_texture.load(path, Texture::Flag::DisallowCompression);
 
         std::string file;
 
@@ -123,7 +123,7 @@ namespace jop
         {
             if (doc.HasMember("path") && doc["path"].IsString() && doc.HasMember("textures") && doc["textures"].IsArray())
             {
-                if (!m_texture.load(rootPath + doc["path"].GetString(), true, false))
+                if (!m_texture.load(rootPath + doc["path"].GetString(), Texture::Flag::DisallowMipmapGeneration))
                 {
                     JOP_DEBUG_ERROR("Texture being loaded into atlas has invalid path");
                     return false;

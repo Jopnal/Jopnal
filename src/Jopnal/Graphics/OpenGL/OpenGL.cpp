@@ -25,9 +25,12 @@
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
-    #include <EGL/egl.h>
     #include <unordered_map>
     #include <cstring>
+
+    #ifdef JOP_OPENGL_ES
+        #include <EGL/egl.h>
+    #endif
 
 #endif
 
@@ -147,13 +150,11 @@ namespace jop
 
         //////////////////////////////////////////////
 
-        bool isES()
-        {
+        const bool es =
         #ifdef JOP_OPENGL_ES
-            return true;
+            true;
         #else
-            return false;
+            false;
         #endif
-        }
     }
 }
