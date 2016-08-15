@@ -166,7 +166,7 @@ namespace jop
         /// \param x The vertical offset
         /// \param y The horizontal offset
         ///
-        virtual    void mouseScrolled(const float x, const float y);
+        virtual void mouseScrolled(const float x, const float y);
 
         /// \brief Controller connected callback
         ///

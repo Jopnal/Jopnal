@@ -85,13 +85,26 @@ extern int main(int argc, char* argv[]);
                 }
 
                 case APP_CMD_WINDOW_RESIZED:
+                case APP_CMD_CONFIG_CHANGED:
                 {
+                    static int lastOrient = -1;
+
+                    if (state->window && lastOrient != AConfiguration_getOrientation(app->config))
+                    {
+                        state->window->handleResize();
+                        lastOrient = AConfiguration_getOrientation(app->config);
+                    }
+
                     break;   
                 }
 
                 case APP_CMD_RESUME:
                 {
                     ns_readyState |= ActivityState::FocusState::Running;
+
+                    if (state->window)
+                        state->window->getEventHandler()->lostFocus();
+
                     break;
                 }
 
@@ -100,6 +113,9 @@ extern int main(int argc, char* argv[]);
                 {
                     ns_readyState &= ~ActivityState::FocusState::Running;
                     state->fullFocus = false;
+
+                    if (state->window)
+                        state->window->getEventHandler()->lostFocus();
 
                     break;
                 }
@@ -122,11 +138,18 @@ extern int main(int argc, char* argv[]);
                     ns_readyState |= ActivityState::FocusState::Focus;
                     //SensorManager::getInstance().gainedFocus();
 
+                    if (state->window)
+                        state->window->getEventHandler()->mouseEntered();
+
                     break;
                 }
                 case APP_CMD_LOST_FOCUS:
                 {
                     ns_readyState &= ~ActivityState::FocusState::Focus;
+
+                    if (state->window)
+                        state->window->getEventHandler()->mouseLeft();
+
                     //SensorManager::getInstance().lostFocus();
                 }
             }
@@ -134,11 +157,9 @@ extern int main(int argc, char* argv[]);
             if (!state->fullFocus && ns_readyState == ActivityState::FullFocus)
             {
                 state->fullFocus = true;
-                JOP_DEBUG_INFO("Regained full focus");
 
                 if (state->window)
                 {
-                    JOP_DEBUG_INFO("Recreating surface");
                     state->nativeWindow = app->window;
                     state->handleSurfaceCreation();
                 }

@@ -176,6 +176,7 @@ namespace jop { namespace detail
         : m_config      (NULL),
           m_surface     (EGL_NO_SURFACE),
           m_context     (EGL_NO_CONTEXT),
+          m_windowRef   (windowPtr),
           m_size        (0),
           m_fullScreen  (false)
     {
@@ -205,7 +206,7 @@ namespace jop { namespace detail
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &m_config, 1, &numConfigs));
 
             state->window = this;
-            state->handleSurfaceCreation = &handleSurfaceCreation;
+            state->handleSurfaceCreation    = &handleSurfaceCreation;
             state->handleSurfaceDestruction = &handleSurfaceDestruction;
 
             handleSurfaceCreation();
@@ -358,6 +359,26 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
+    WindowEventHandler* WindowImpl::getEventHandler()
+    {
+        return m_windowRef.getEventHandler();
+    }
+
+    //////////////////////////////////////////////
+
+    void WindowImpl::handleResize()
+    {
+        auto state = ActivityState::get();
+
+        if (state->nativeWindow)
+        {
+            std::swap(m_size.x, m_size.y);
+            getEventHandler()->resized(m_size.x, m_size.y);
+        }
+    }
+
+    //////////////////////////////////////////////
+
     Window* WindowImpl::getCurrentContextWindow()
     {
         auto itr = ns_windowRefs.find(eglGetCurrentContext());
@@ -392,8 +413,6 @@ namespace jop { namespace detail
                 JOP_ASSERT(success == EGL_TRUE, "Failed to make context current!");
             }
 
-            JOP_DEBUG_INFO("Surface recreated");
-
             if (win->m_fullScreen)
                 goFullscreen();
 
@@ -412,8 +431,6 @@ namespace jop { namespace detail
         {
             eglCheck(eglDestroySurface(getDisplay(), win->m_surface));
             win->m_surface = EGL_NO_SURFACE;
-
-            JOP_DEBUG_INFO("Surface destroyed");
         }
     }
 

@@ -36,7 +36,7 @@
 
 namespace jop { namespace detail
 {
-    class WindowImpl
+    class JOP_API WindowImpl
     {
     private:
 
@@ -67,6 +67,10 @@ namespace jop { namespace detail
 
         glm::uvec2 getSize() const;
 
+        WindowEventHandler* getEventHandler();
+
+        void handleResize();
+
         static Window* getCurrentContextWindow();
 
     private:
@@ -78,6 +82,8 @@ namespace jop { namespace detail
         EGLConfig m_config;
         EGLSurface m_surface;
         EGLContext m_context;
+
+        Window& m_windowRef;
 
         glm::uvec2 m_size;
         bool m_fullScreen;
