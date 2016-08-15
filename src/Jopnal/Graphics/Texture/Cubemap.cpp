@@ -142,6 +142,8 @@ namespace jop
             glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
         }
 
+        setAlphaSwizzle(m_format);
+
         unbind();
 
         m_size = size;
@@ -179,6 +181,8 @@ namespace jop
         {
             glCheck(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
         }
+
+        setAlphaSwizzle(format);
 
         unbind();
 

@@ -208,6 +208,8 @@ namespace jop
 
         static unsigned int getDepthFromFormat(const Format format);
 
+        void setAlphaSwizzle(const Format format);
+
     private:
 
         void updateSampling() const;

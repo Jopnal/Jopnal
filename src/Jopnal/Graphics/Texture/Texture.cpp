@@ -948,6 +948,21 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Texture::setAlphaSwizzle(const Format format)
+    {
+    #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+
+        // Swizzle R to A in GLES >=3.0 and GL >=3.3
+        if (gl::getVersionMajor() >= 3 && format == Format::Alpha_UB_8)
+        {
+            glCheck(glTexParameteri(m_target, GL_TEXTURE_SWIZZLE_A, GL_RED));
+        }
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
     void Texture::updateSampling() const
     {
         detail::setGLFilterMode(m_target, m_filter, m_anisotropic);
