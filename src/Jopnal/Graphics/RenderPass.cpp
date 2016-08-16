@@ -160,7 +160,10 @@ namespace jop
                         LightContainer lightCont;
 
                         for (auto l : lights)
-                            lightCont[l->getType()].push_back(l);
+                        {
+                            if (lightCont[l->getType()].size() < LightSource::getMaximumLights(l->getType()))
+                                lightCont[l->getType()].push_back(l);
+                        }
 
                         d->draw(projInfo, lightCont);
                     }
@@ -175,10 +178,9 @@ namespace jop
             GlState::setDepthTest(true);
             GlState::setBlendFunc(false);
             drawSet(sorted[0]);
-
-            GlState::setBlendFunc(true);
             drawSet(sorted[2]);
 
+            GlState::setBlendFunc(true);
             GlState::setDepthWrite(false);
             drawSet(sorted[1]);
             GlState::setDepthWrite(true);
@@ -191,6 +193,8 @@ namespace jop
     {
         m_drawables.insert(drawable);
     }
+
+    //////////////////////////////////////////////
 
     void DefaultPrePass::unbind(const Drawable* drawable)
     {
@@ -245,6 +249,8 @@ namespace jop
     {
         m_drawables.push_back(drawable);
     }
+
+    //////////////////////////////////////////////
 
     void DefaultPostPass::unbind(const Drawable* drawable)
     {

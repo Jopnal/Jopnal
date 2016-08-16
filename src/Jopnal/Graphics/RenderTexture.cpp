@@ -418,7 +418,7 @@ namespace jop
     {
     #if defined(JOP_OPENGL_ES) && !defined(GL_ES_VERSION_3_0)
 
-        return bindDraw();
+        return false;
 
     #else
 
@@ -588,14 +588,16 @@ namespace jop
 
         #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
 
-            // Enable disable writing to specific
-            // color buffers
-            std::vector<GLenum> colorAttachments;
+            if (gl::getVersionMajor() >= 3)
+            {
+                // Enable/disable writing to specific color buffers
+                std::vector<GLenum> colorAttachments;
 
-            for (std::size_t i = static_cast<int>(Slot::Color0); i < m_attachments.size(); ++i)
-                colorAttachments.push_back((m_attachments[i].first || m_attachments[i].second) ? attachmentPoint[i] : GL_NONE);
+                for (std::size_t i = static_cast<int>(Slot::Color0); i < m_attachments.size(); ++i)
+                    colorAttachments.push_back((m_attachments[i].first || m_attachments[i].second) ? attachmentPoint[i] : GL_NONE);
 
-            glCheck(glDrawBuffers(colorAttachments.size(), colorAttachments.data()));
+                glCheck(glDrawBuffers(colorAttachments.size(), colorAttachments.data()));
+            }
 
         #endif
 

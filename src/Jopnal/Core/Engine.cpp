@@ -192,14 +192,14 @@ namespace jop
         // Audio output
         createSubsystem<AudioDevice>();
 
-        const bool useWindow(SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", false));
+        const bool useWindow(SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", gl::es));
 
         // Main window
         {
             Window::Settings winSettings(true);
             if (useWindow)
             {
-                winSettings.depthBits = 24;
+                winSettings.depthBits = 16;
                 winSettings.stencilBits = 8;
             }
 

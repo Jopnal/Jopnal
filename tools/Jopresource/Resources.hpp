@@ -18,9 +18,9 @@ extern const unsigned char defaultShaderFrag[266];
 
 extern const unsigned char defaultShaderVert[466];
 
-extern const unsigned char defaultUberShaderFrag[17499];
+extern const unsigned char defaultUberShaderFrag[17229];
 
-extern const unsigned char defaultUberShaderVert[2662];
+extern const unsigned char defaultUberShaderVert[1598];
 
 extern const unsigned char depthRecordShaderFrag[177];
 
@@ -28,7 +28,7 @@ extern const unsigned char depthRecordShaderVert[411];
 
 extern const unsigned char depthRecordShaderPointFrag[593];
 
-extern const unsigned char depthRecordShaderPointGeom[1475];
+extern const unsigned char depthRecordShaderPointGeom[723];
 
 extern const unsigned char depthRecordShaderPointVert[328];
 

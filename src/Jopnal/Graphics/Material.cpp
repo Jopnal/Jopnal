@@ -56,7 +56,7 @@ namespace
             Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultAmbient", "000000FF")),
             Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultDiffuse", "FFFFFFFF")),
             Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultSpecular", "000000FF")),
-            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "000000FF"))
+            Color(SettingManager::get<std::string>("engine@Graphics|Shading|Material|sDefaultEmission", "00000000"))
         };
 
         return colors;
@@ -103,14 +103,13 @@ namespace jop
                 /* 4 */  "u_Material.emission",
                 /* 5 */  "u_Material.shininess",
                 /* 6 */  "u_Material.reflectivity",
-                /* 7 */  "u_Emission",
-                /* 8 */  "u_DiffuseMap",
-                /* 9 */  "u_SpecularMap",
-                /* 10 */ "u_EmissionMap",
-                /* 11 */ "u_OpacityMap",
-                /* 12 */ "u_GlossMap",
-                /* 13 */ "u_EnvironmentMap",
-                /* 14 */ "u_ReflectionMap"
+                /* 7 */  "u_DiffuseMap",
+                /* 8 */  "u_SpecularMap",
+                /* 9 */  "u_EmissionMap",
+                /* 10 */ "u_OpacityMap",
+                /* 11 */ "u_GlossMap",
+                /* 12 */ "u_EnvironmentMap",
+                /* 13 */ "u_ReflectionMap"
             };
 
             // Send camera position to shader
@@ -128,31 +127,28 @@ namespace jop
                 if (hasAttribute(Attribute::EnvironmentMap))
                     shader.setUniform(strCache[6], m_reflectivity);
             }
-            else
-                shader.setUniform(strCache[7], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
 
             if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                shader.setUniform(strCache[8], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
+                shader.setUniform(strCache[7], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
 
             if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                shader.setUniform(strCache[9], *getMap(Map::Specular), castIndex(Map::Specular));
+                shader.setUniform(strCache[8], *getMap(Map::Specular), castIndex(Map::Specular));
 
             if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                shader.setUniform(strCache[10], *getMap(Map::Emission), castIndex(Map::Emission));
+                shader.setUniform(strCache[9], *getMap(Map::Emission), castIndex(Map::Emission));
 
             if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                shader.setUniform(strCache[11], *getMap(Map::Opacity), castIndex(Map::Opacity));
+                shader.setUniform(strCache[10], *getMap(Map::Opacity), castIndex(Map::Opacity));
 
             if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
-                shader.setUniform(strCache[12], *getMap(Map::Gloss), castIndex(Map::Gloss));
-
+                shader.setUniform(strCache[11], *getMap(Map::Gloss), castIndex(Map::Gloss));
 
             if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
             {
-                shader.setUniform(strCache[13], *getMap(Material::Map::Environment), castIndex(Map::Environment));
+                shader.setUniform(strCache[12], *getMap(Material::Map::Environment), castIndex(Map::Environment));
 
                 if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
-                    shader.setUniform(strCache[14], *getMap(Material::Map::Reflection), castIndex(Map::Reflection));
+                    shader.setUniform(strCache[13], *getMap(Material::Map::Reflection), castIndex(Map::Reflection));
             }
         }
     }
@@ -212,8 +208,7 @@ namespace jop
     Material& Material::setReflection(const Reflection reflection, const Color color)
     {
         m_reflection[static_cast<int>(reflection)] = color;
-
-        return addAttributes(Attribute::DefaultLighting * m_autoAttribs * (reflection != Reflection::Emission));
+        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
     }
 
     //////////////////////////////////////////////

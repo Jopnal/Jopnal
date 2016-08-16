@@ -270,7 +270,7 @@ namespace jop
             else
             {
                 GlState::setVertexAttribute(false, 2);
-                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals while material has lighting enabled");
+                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals, although material has lighting enabled");
             }
 
             //if (materialAttribs & Material::Attribute::NormalMap)

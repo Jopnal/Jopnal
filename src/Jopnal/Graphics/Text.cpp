@@ -173,22 +173,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Text& Text::setColor(const Color& color)
-    {
-        m_material.setReflection(Material::Reflection::Solid, color);
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    const Color& Text::getColor() const
-    {
-        return m_material.getReflection(Material::Reflection::Solid);
-    }
-
-    //////////////////////////////////////////////
-
     Text& Text::setStyle(const uint32 style)
     {
         if (m_style != style)
@@ -386,12 +370,8 @@ namespace jop
         }
         updateGeometry(); // Update geometry before drawing if necessary
 
-        GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(false);
-
         Drawable::draw(proj, lights);
-
         GlState::setFaceCull(true);
-        GlState::setDepthTest(true);
     }
 }

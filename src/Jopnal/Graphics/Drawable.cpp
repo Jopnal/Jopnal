@@ -149,7 +149,7 @@ namespace jop
 
             // Default vertex color
             // Used if the mesh itself doesn't have colors
-            glCheck(glVertexAttrib4fv(5, &m_color.colors[0]));
+            glCheck(glVertexAttrib4fv(5, &getColor().colors[0]));
 
         #ifdef JOP_DEBUG_MODE
 

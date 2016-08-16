@@ -71,15 +71,14 @@ namespace jop
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        // Attributes
-//        msh.updateVertexAttributes(mat.getAttributes());
-
         // Uniforms
         {
             shdr.setUniform("u_PMatrix", proj.projectionMatrix);
             shdr.setUniform("u_VMatrix", proj.viewMatrix);
 
             mat.sendToShader(shdr, &proj.cameraPosition);
+
+            glCheck(glVertexAttrib4fv(5, &getColor().colors[0]));
         }
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);

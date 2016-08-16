@@ -100,16 +100,6 @@ namespace jop
         ///
         const Font& getFont() const;
 
-        /// \brief Set color
-        ///
-        Text& setColor(const Color& color);
-
-        /// \brief Get the color
-        ///
-        /// \return The color
-        ///
-        const Color& getColor() const;
-
         /// \brief Set text style
         ///
         /// \param style jop::Text::Style (Default, Italic, Underlined, Strikethrough)

@@ -848,7 +848,7 @@ namespace jop
 
     bool Texture::allowSRGB()
     {
-        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowSRGB", true);
+        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowSRGB", false);
 
     #ifdef JOP_OPENGL_ES
 
@@ -870,7 +870,7 @@ namespace jop
 
     bool Texture::allowGenMipmaps(const glm::uvec2& size, const bool srgb)
     {
-        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowMipmapGeneration", true);
+        static const bool allow = SettingManager::get<bool>("engine@Graphics|Texture|bAllowMipmapGeneration", false);
 
     #ifdef JOP_OPENGL_ES
 

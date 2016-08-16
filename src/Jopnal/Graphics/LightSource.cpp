@@ -406,11 +406,18 @@ namespace jop
 
     unsigned int LightSource::getMaximumLights(const Type type)
     {
+        static const unsigned int defLimits[] =
+        {
+            gl::getGLSLVersion() >= 300 ? 8u : 2u,
+            gl::getGLSLVersion() >= 300 ? 2u : 1u,
+            gl::getGLSLVersion() >= 300 ? 2u : 1u,
+        };
+
         static const unsigned int maxLights[] =
         {
-            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxPointLights", 8),
-            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxDirectionalLights", 2),
-            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxSpotLights", 2)
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxPointLights", defLimits[0]),
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxDirectionalLights", defLimits[1]),
+            SettingManager::get<unsigned int>("engine@Graphics|Shading|uMaxSpotLights", defLimits[2])
         };
 
         return maxLights[static_cast<int>(type)];
@@ -476,8 +483,14 @@ namespace jop
 
         shader.setUniform("u_ReceiveLights", receiveLights);
 
-        if (!receiveLights || empty())
-            return;
+    #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+        if (gl::getGLSLVersion() >= 300)
+    #endif
+
+        {
+            if (!receiveLights || empty())
+                return;
+        }
 
         shader.setUniform("u_ReceiveShadows", receiveShadows);
 
@@ -563,10 +576,28 @@ namespace jop
         // Point lights
         {
             auto& points = (*this)[LS::Type::Point];
-            shader.setUniform("u_NumPointLights", static_cast<int>(points.size()));
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            if (gl::getGLSLVersion() >= 300)
+        #endif
+            if (!points.empty())
+            {
+                shader.setUniform("u_NumPointLights", static_cast<int>(points.size()));
+            }
 
             for (std::size_t i = 0; i < points.size(); ++i)
             {
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                if (gl::getGLSLVersion() < 300)
+                {
+                    const bool enabled = receiveLights && !empty();
+
+                    shader.setUniform("u_PointLights[" + std::to_string(i) + "].enabled", enabled);
+                }
+
+            #endif
+
                 auto& li = *points[i];
                 auto& cache = strCache[static_cast<int>(LS::Type::Point)][i];
 
@@ -598,10 +629,28 @@ namespace jop
         // Spot lights
         {
             auto& spots = (*this)[LS::Type::Spot];
-            shader.setUniform("u_NumSpotLights", static_cast<int>(spots.size()));
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            if (gl::getGLSLVersion() >= 300)
+        #endif
+            if (!spots.empty())
+            {
+                shader.setUniform("u_NumSpotLights", static_cast<int>(spots.size()));
+            }
 
             for (std::size_t i = 0; i < spots.size(); ++i)
             {
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                if (gl::getGLSLVersion() < 300)
+                {
+                    const bool enabled = receiveLights && !empty();
+
+                    shader.setUniform("u_SpotLights[" + std::to_string(i) + "].enabled", enabled);
+                }
+
+            #endif
+
                 auto& li = *spots[i];
                 auto& cache = strCache[static_cast<int>(LS::Type::Spot)][i];
 
@@ -639,10 +688,28 @@ namespace jop
         // Directional lights
         {
             auto& dirs = (*this)[LS::Type::Directional];
-            shader.setUniform("u_NumDirectionalLights", static_cast<int>(dirs.size()));
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+            if (gl::getGLSLVersion() >= 300)
+        #endif
+            if (!dirs.empty())
+            {
+                shader.setUniform("u_NumDirectionalLights", static_cast<int>(dirs.size()));
+            }
 
             for (std::size_t i = 0; i < dirs.size(); ++i)
             {
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+                if (gl::getGLSLVersion() < 300)
+                {
+                    const bool enabled = receiveLights && !empty();
+
+                    shader.setUniform("u_DirectionalLights[" + std::to_string(i) + "].enabled", enabled);
+                }
+
+            #endif
+
                 auto& li = *dirs[i];
                 auto& cache = strCache[static_cast<int>(LS::Type::Directional)][i];
 

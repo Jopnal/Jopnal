@@ -91,9 +91,7 @@ namespace jop
             Ambient,
             Diffuse,
             Specular,
-            Emission,
-
-            Solid = Emission
+            Emission
         };
 
         /// The map attribute

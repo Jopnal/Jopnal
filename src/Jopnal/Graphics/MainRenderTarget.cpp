@@ -52,7 +52,11 @@ namespace jop
 
         setSize(scaledRes);
         addTextureAttachment(Slot::Color0, hdr ? CA::RGBA_F_16 : CA::RGBA_UB_8);
-        addRenderbufferAttachment(Slot::DepthStencil, CA::DepthStencil_UI_24_B_8);
+        
+        if (!addRenderbufferAttachment(Slot::DepthStencil, CA::DepthStencil_UI_24_B_8))
+        {
+            addRenderbufferAttachment(Slot::Depth, CA::Depth_US_16);
+        }
 
         getTextureAttachment(Slot::Color0)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
 
