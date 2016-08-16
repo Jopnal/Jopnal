@@ -34,45 +34,36 @@ namespace jop
     void SensorImpl::init()
     {}
 
-    //////////////////////////////////////////////
-
-    void SensorImpl::uninit()
+    void SensorImpl::deInit()
     {}
 
     //////////////////////////////////////////////
 
-    bool SensorImpl::available(const Sensor::Type) const
+    SensorImpl::SensorImpl(const Sensor::Type)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::isAvailable() const
     {
         return false;
     }
 
     //////////////////////////////////////////////
 
-    bool SensorImpl::use(const Sensor::Type)
-    {
-        return false;
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorImpl::disable(const bool)
-    {}
-
-    //////////////////////////////////////////////
-
-    void SensorImpl::enable(const bool)
-    {}
-
-    //////////////////////////////////////////////
-
-    glm::vec3 SensorImpl::getData(const Sensor::Type) const
+    glm::vec3 SensorImpl::getData() const
     {
         return glm::vec3(0.f);
     }
 
     //////////////////////////////////////////////
 
-    bool SensorImpl::getStatus() const
+    void SensorImpl::setEnabled(const bool)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::isEnabled() const
     {
         return false;
     }

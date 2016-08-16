@@ -37,114 +37,90 @@
 
 namespace
 {
-    ALooper* looper                     = nullptr;
-    ASensorManager* sensorManager       = nullptr;
-    ASensorEventQueue* sensorEventQueue = nullptr;
-    glm::vec3 m_data[static_cast<size_t>(jop::Sensor::Type::Count)];
-}
+    ALooper* ns_looper                     = nullptr;
+    ASensorManager* ns_sensorManager       = nullptr;
+    ASensorEventQueue* ns_sensorEventQueue = nullptr;
+    glm::vec3 ns_data[static_cast<size_t>(jop::Sensor::Type::__Count)];
 
-namespace jop
-{
-    void SensorImpl::init()
+    int getSensorEvents(int fd, int events, void* data)
     {
-        // looper for threading
-        looper = ALooper_forThread();
+        ASensorEvent event;
 
-        // get sensor manager
-        sensorManager = ASensorManager_getInstance();
-
-        // create sensor event queue & attach to looper
-        sensorEventQueue = ASensorManager_createEventQueue(sensorManager, looper, 1, &getSensorEvents, nullptr);
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorImpl::uninit()
-    {
-        ASensorManager_destroyEventQueue(sensorManager, sensorEventQueue);
-    }
-
-    //////////////////////////////////////////////
-
-    bool SensorImpl::use(const Sensor::Type sensorType)
-    {
-        m_sensor = getDefault(sensorType);
-
-        //const std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
-
-        // Check if sensor is available
-        if (!available(sensorType))
+        while (ASensorEventQueue_getEvents(ns_sensorEventQueue, &event, 1) > 0)
         {
-          //  JOP_DEBUG_ERROR("Sensor: (" <<  name << ") not available.");
-            return false;
+            using T = jop::Sensor::Type;
+
+            T type = T::__Count;
+            glm::vec3 data(0.f);
+
+            switch (event.type)
+            {
+                case ASENSOR_TYPE_ACCELEROMETER:
+                {
+                    type = T::Accelerometer;
+                    data.x = event.acceleration.x;
+                    data.y = event.acceleration.y;
+                    data.z = event.acceleration.z;
+
+                    break;
+                }
+                case ASENSOR_TYPE_GYROSCOPE:
+                {
+                    type = T::Gyroscope;
+                    data.x = event.vector.x;
+                    data.y = event.vector.y;
+                    data.z = event.vector.z;
+
+                    break;
+                }
+                case ASENSOR_TYPE_MAGNETIC_FIELD:
+                {
+                    type = T::Magnetometer;
+                    data.x = event.magnetic.x;
+                    data.y = event.magnetic.y;
+                    data.z = event.magnetic.z;
+
+                    break;
+                }
+                case ASENSOR_TYPE_GRAVITY:
+                {
+                    type = T::Gravity;
+                    data.x = event.vector.x;
+                    data.y = event.vector.y;
+                    data.z = event.vector.z;
+
+                    break;
+                }
+                case ASENSOR_TYPE_LINEAR_ACCELERATION:
+                {
+                    type = T::LinearAcceleration;
+                    data.x = event.acceleration.x;
+                    data.y = event.acceleration.y;
+                    data.z = event.acceleration.z;
+
+                    break;
+                }
+                case ASENSOR_TYPE_ORIENTATION:
+                {
+                    type = T::Orientation;
+                    data.x = event.vector.x;
+                    data.y = event.vector.y;
+                    data.z = event.vector.z;
+                }
+
+                default:
+                    continue;
+            }
+
+            ns_data[static_cast<size_t>(type)] = data;
         }
-        
-        // Set rate (60 events / second) use ASensor_getMinDelay() instead? - This affects precision & power usage
-        int status = ASensorEventQueue_setEventRate(sensorEventQueue, m_sensor, (1000 / 60) * 1000);
 
-        //if (status < 0)
-            //JOP_DEBUG_WARNING("Setting event rate on sensor \"" << name << "\" failed");
-
-        return true;
+        return 1;
     }
 
     //////////////////////////////////////////////
 
-    bool SensorImpl::available(const Sensor::Type sensorType) const
-    {
-        if (!getDefault(sensorType))
-            return false;
-
-        return true;
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorImpl::disable(const bool updateStatus)
-    {
-        const int status = ASensorEventQueue_disableSensor(sensorEventQueue, m_sensor);
-
-        const std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
-
-        if (status < 0)
-            JOP_DEBUG_WARNING("Disabling sensor \"" << name << "\" failed");
-
-        if (updateStatus)
-            m_enabled = false;
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorImpl::enable(const bool updateStatus)
-    {
-        const int status = ASensorEventQueue_enableSensor(sensorEventQueue, m_sensor);
-
-        const std::string name = std::string(ASensor_getName(m_sensor), sizeof(ASensor_getName(m_sensor)));
-
-        if (status < 0)
-            JOP_DEBUG_WARNING("Enabling sensor \"" << name << "\" failed");
-
-        if (updateStatus)
-            m_enabled = true;
-    }
-
-    //////////////////////////////////////////////
-
-    glm::vec3 SensorImpl::getData(const Sensor::Type sensorType) const
-    {
-        return m_data[static_cast<size_t>(sensorType)];
-    }
-
-    //////////////////////////////////////////////
-
-    bool SensorImpl::getStatus() const
-    {
-        return m_enabled;
-    }
-
-    //////////////////////////////////////////////
-
-    const ASensor* SensorImpl::getDefault(const Sensor::Type sensorType)
+    const ASensor* getDefault(const jop::Sensor::Type type)
     {
         static int types[] = 
         {
@@ -157,86 +133,79 @@ namespace jop
         };
 
         // Retrieve the default android sensor matching the type
-        return ASensorManager_getDefaultSensor(sensorManager, types[static_cast<size_t>(sensorType)]);
+        return ASensorManager_getDefaultSensor(ns_sensorManager, types[static_cast<size_t>(type)]);
+    }
+}
+
+namespace jop
+{
+    void SensorImpl::init()
+    {
+        // looper for threading
+        ns_looper = ALooper_forThread();
+
+        // get sensor manager
+        ns_sensorManager = ASensorManager_getInstance();
+
+        // create sensor event queue & attach to looper
+        ns_sensorEventQueue = ASensorManager_createEventQueue(ns_sensorManager, ns_looper, 1, &getSensorEvents, nullptr);
+    }
+
+    void SensorImpl::deInit()
+    {
+        ASensorManager_destroyEventQueue(ns_sensorManager, ns_sensorEventQueue);
     }
 
     //////////////////////////////////////////////
 
-    int SensorImpl::getSensorEvents(int fd, int events, void* data)
+    SensorImpl::SensorImpl(const Sensor::Type type)
+        : m_type    (type),
+          m_sensor  (NULL)
+    {}
+
+    //////////////////////////////////////////////
+
+    bool SensorImpl::isAvailable() const
     {
-        ASensorEvent event;
+        return getDefault(m_type) != NULL;
+    }
 
-        while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0)
+    //////////////////////////////////////////////
+
+    glm::vec3 SensorImpl::getData() const
+    {
+        return ns_data[static_cast<size_t>(m_type)];
+    }
+
+    //////////////////////////////////////////////
+
+    void SensorImpl::setEnabled(const bool enabled)
+    {
+        if (enabled == isEnabled() || !isAvailable())
+            return;
+
+        if (enabled)
         {
-            Sensor::Type type = Sensor::Type::Count;
-            glm::vec3 data;
-
-            switch (event.type)
+            if (ASensorEventQueue_enableSensor(ns_sensorEventQueue, getDefault(m_type)) >= 0)
             {
-                case ASENSOR_TYPE_ACCELEROMETER:
-                {
-                    type = Sensor::Type::Accelerometer;
-                    data.x = event.acceleration.x;
-                    data.y = event.acceleration.y;
-                    data.z = event.acceleration.z;
+                m_sensor = getDefault(m_type);
 
-                    break;
-                }
-                case ASENSOR_TYPE_GYROSCOPE:
-                {
-                    type = Sensor::Type::Gyroscope;
-                    data.x = event.vector.x;
-                    data.y = event.vector.y;
-                    data.z = event.vector.z;
-
-                    break;
-                }
-                case ASENSOR_TYPE_MAGNETIC_FIELD:
-                {
-                    type = Sensor::Type::Magnetometer;
-                    data.x = event.magnetic.x;
-                    data.y = event.magnetic.y;
-                    data.z = event.magnetic.z;
-
-                    break;
-                }
-                case ASENSOR_TYPE_GRAVITY:
-                {
-                    type = Sensor::Type::Gravity;
-                    data.x = event.vector.x;
-                    data.y = event.vector.y;
-                    data.z = event.vector.z;
-
-                    break;
-                }
-                case ASENSOR_TYPE_LINEAR_ACCELERATION:
-                {
-                    type = Sensor::Type::LinearAcceleration;
-                    data.x = event.acceleration.x;
-                    data.y = event.acceleration.y;
-                    data.z = event.acceleration.z;
-
-                    break;
-                }
-                case ASENSOR_TYPE_ORIENTATION:
-                {
-                    type = Sensor::Type::Orientation;
-                    data.x = event.vector.x;
-                    data.y = event.vector.y;
-                    data.z = event.vector.z;
-                }
+                if (auto rate = ASensor_getMinDelay(m_sensor))
+                    ASensorEventQueue_setEventRate(ns_sensorEventQueue, m_sensor, rate);
             }
-
-            if (type == Sensor::Type::Count)
-            {
-                JOP_DEBUG_ERROR("Unknown sensor event detected");
-                continue;
-            }
-
-            m_data[static_cast<size_t>(type)] = data;
         }
+        else
+        {
+            ASensorEventQueue_disableSensor(ns_sensorEventQueue, m_sensor);
+            m_sensor = NULL;
+        }
+    }
 
-        return 1;
+    //////////////////////////////////////////////
+
+    bool SensorImpl::isEnabled() const
+    {
+        return m_sensor != NULL;
     }
 }
 

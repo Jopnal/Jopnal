@@ -41,55 +41,25 @@ namespace jop
     {
     public:
 
-        /// \brief Initialize sensor implementation
-        ///
         static void init();
-            
-        /// \brief After we are done with sensor - detach sensor event queue and destroy it
-        ///
-        static void uninit();
+        
+        static void deInit();
 
-        /// \brief Use this sensor
-        ///
-        /// Checks if its available and sets event ratio afterwards
-        ///
-        /// \return True if successfully taken use, false if it is not available!
-        ///
-        bool use(const Sensor::Type sensorType);
+    public:
 
-        /// \brief Is sensor available or not
-        ///
-        bool available(const Sensor::Type sensorType) const;
+        SensorImpl(const Sensor::Type type);
 
-        /// \brief Disable sensor
-        ///
-        void disable(const bool updateStatus = true);
+        bool isAvailable() const;
 
-        /// \brief Enable sensor
-        ///
-        /// Used to enable sensor if it has been disabled
-        ///
-        void enable(const bool updateStatus = true);
+        glm::vec3 getData() const;
 
-        /// \brief Get data from sensor
-        ///
-        glm::vec3 getData(const Sensor::Type sensorType) const;
+        void setEnabled(const bool enabled);
 
-        /// \brief Get sensor status (True = Enabled, False = Disabled)
-        ///
-        bool getStatus() const;
+        bool isEnabled() const;
 
     private:
 
-        /// \brief Get default sensor of a type
-        ///
-        static const ASensor* getDefault(const Sensor::Type sensorType);
-
-        /// \brief Process events and save data
-        ///
-        static int getSensorEvents(int fd, int events, void* data);
-
-        bool m_enabled;             ///< Sensor status
+        const Sensor::Type m_type;  ///< Type
         const ASensor* m_sensor;    ///< Sensor
     };
 }

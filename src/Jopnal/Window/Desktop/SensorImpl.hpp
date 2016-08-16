@@ -39,39 +39,21 @@ namespace jop
     {
     public:
 
-        /// \brief Initialize
-        ///
         static void init();
 
-        /// \brief After we are done with sensor - detach sensor event queue and destroy it
-        ///
-        static void uninit();
+        static void deInit();
 
-        bool available(Sensor::Type sensorType) const;
+    public:
 
-        /// \brief Start sensor
-        ///
-        /// Checks if its available and enables it if so
-        ///
-        bool use(const Sensor::Type sensorType);
+        SensorImpl(const Sensor::Type type);
 
-        /// \brief Disable a single sensor
-        ///
-        void disable(const bool updateStatus = true);
+        bool isAvailable() const;
 
-        /// \brief Enable single sensor
-        ///
-        /// Used to enable sensor if it has been disabled
-        ///
-        void enable(const bool updateStatus = true);
+        glm::vec3 getData() const;
 
-        /// \brief Get data from sensor
-        ///
-        glm::vec3 getData(const Sensor::Type sensorType) const;
+        void setEnabled(const bool);
 
-        /// \brief Get sensor status (True = Enabled, False = Disabled)
-        ///
-        bool getStatus() const;
+        bool isEnabled() const;
     };
 }
 

@@ -36,44 +36,29 @@
 
 namespace jop
 {
-    bool Sensor::use(const Type sensorType)
+    bool Sensor::isAvailable(const Type type)
     {
-        if (SensorManager::getInstance().isAvailable(sensorType))
-        {
-            enable(sensorType);
-            return true;
-        }
-
-        JOP_DEBUG_ERROR("Sensor with type ID (" << static_cast<size_t>(sensorType) << ") is not available for use!");
-
-        return false;
+        return SensorManager::getInstance().isAvailable(type);
     }
 
     //////////////////////////////////////////////
 
-    void Sensor::enable(const Type sensorType)
+    bool Sensor::isEnabled(const Type type)
     {
-        SensorManager::getInstance().enable(sensorType);
+        return SensorManager::getInstance().isEnabled(type);
     }
 
     //////////////////////////////////////////////
 
-    void Sensor::disable(const Type sensorType)
+    void Sensor::setEnabled(const Type type, const bool enabled)
     {
-        SensorManager::getInstance().disable(sensorType);
+        SensorManager::getInstance().setEnabled(type, enabled);
     }
 
     //////////////////////////////////////////////
 
-    glm::vec3 Sensor::getData(const Type sensorType)
+    glm::vec3 Sensor::getData(const Type type)
     {
-        return SensorManager::getInstance().getData(sensorType);
-    }
-
-    //////////////////////////////////////////////
-
-    bool Sensor::getStatus(const Type sensorType)
-    {
-        return SensorManager::getInstance().getStatus(sensorType);
+        return SensorManager::getInstance().getData(type);
     }
 }

@@ -35,93 +35,49 @@
 namespace jop
 {
     SensorManager::SensorManager()
+        : m_sensors()
     {
-        // Sensor initialization
+        const auto count = static_cast<std::size_t>(Sensor::Type::__Count);
+
+        m_sensors.reserve(count);
+        for (std::size_t i = 0; i < count; ++i)
+            m_sensors.emplace_back(static_cast<Sensor::Type>(i));
+
         SensorImpl::init();
-
-        // Check which sensors are available and take them to use
-        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
-            m_sensors[i].use(static_cast<Sensor::Type>(i));
-
-        // Disable all after they are in memory
-        disableAll();
     }
 
     SensorManager::~SensorManager()
     {
-        SensorImpl::uninit();
+        m_sensors.clear();
+        SensorImpl::deInit();
     }
 
     //////////////////////////////////////////////
 
-    bool SensorManager::isAvailable(const Sensor::Type sensorType) const
+    bool SensorManager::isAvailable(const Sensor::Type type) const
     {
-        return m_sensors[static_cast<size_t>(sensorType)].available(sensorType);
+        return m_sensors[static_cast<size_t>(type)].isAvailable();
     }
 
     //////////////////////////////////////////////
 
-    void SensorManager::update()
+    void SensorManager::setEnabled(const Sensor::Type type, const bool enabled)
     {
-        // NO need if ALooper_pollAll is in use somewhere else?
+        m_sensors[static_cast<size_t>(type)].setEnabled(enabled);
     }
 
     //////////////////////////////////////////////
 
-    void SensorManager::enable(const Sensor::Type sensorType)
+    bool SensorManager::isEnabled(const Sensor::Type type) const
     {
-        m_sensors[static_cast<size_t>(sensorType)].enable();
+        return m_sensors[static_cast<size_t>(type)].isEnabled();
     }
 
     //////////////////////////////////////////////
 
-    void SensorManager::disable(const Sensor::Type sensorType)
+    glm::vec3 SensorManager::getData(const Sensor::Type type) const
     {
-        m_sensors[static_cast<size_t>(sensorType)].disable();
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorManager::disableAll()
-    {
-        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
-            disable(static_cast<Sensor::Type>(i));
-    }
-
-    //////////////////////////////////////////////
-
-    bool SensorManager::getStatus(const Sensor::Type sensorType) const
-    {
-        return m_sensors[static_cast<size_t>(sensorType)].getStatus();
-    }
-
-    //////////////////////////////////////////////
-
-    glm::vec3 SensorManager::getData(const Sensor::Type sensorType) const
-    {
-        return m_sensors[static_cast<size_t>(sensorType)].getData(sensorType);
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorManager::lostFocus()
-    {
-        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
-        {
-            if (m_sensors[i].getStatus())
-                m_sensors[i].disable(false);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void SensorManager::gainedFocus()
-    {
-        for (size_t i = 0; i < static_cast<size_t>(Sensor::Type::Count); ++i)
-        {
-            if (m_sensors[i].getStatus())
-                m_sensors[i].enable(false);
-        }
+        return m_sensors[static_cast<size_t>(type)].getData();
     }
 
     //////////////////////////////////////////////

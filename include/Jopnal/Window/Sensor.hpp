@@ -44,34 +44,42 @@ namespace jop
             LinearAcceleration, ///< Measures the direction and intensity of device acceleration, independent of the gravity (meter/second^2)
             Orientation,        ///< Measures the absolute 3D orientation (degrees)
 
-            Count               ///< Total number of sensor types
+            __Count             ///< For internal functionality, do not use
         };
 
     public:
 
-        /// \brief Use this sensor
+        /// \brief Check if a sensor is available
         ///
-        /// \return True if successfully taken in to use, false if not
+        /// \param type The sensor type
         ///
-        static bool use(const Type sensorType);
+        /// \return True if the sensor is available and usable
+        ///
+        static bool isAvailable(const Type type);
 
-        /// \brief Enable sensor of a type
+        /// \brief Check if a sensor is currently enabled
         ///
-        static void enable(const Type sensorType);
+        /// \param type The sensor type
+        ///
+        /// \return True if the sensor is currently enabled
+        ///
+        static bool isEnabled(const Type type);
 
-        /// \brief Disable sensor of a type
+        /// \brief Set a sensor enabled
         ///
-        static void disable(const Type sensorType);
+        /// \param type The sensor type
+        /// \param enabled True to enable, false to disable. For all sensors, the default state
+        ///                is disabled
+        ///
+        static void setEnabled(const Type type, const bool enabled);
 
-        /// \brief Get data from sensor
+        /// \brief Get data from a sensor
         ///
-        static glm::vec3 getData(const Type sensorType);
-
-        /// \brief Get sensor status
+        /// \param type The sensor type
         ///
-        /// \return True if enabled
+        /// \return The sensor data, as a 3-dimensional vector
         ///
-        static bool getStatus(const Type sensorType);
+        static glm::vec3 getData(const Type type);
     };
 }
 

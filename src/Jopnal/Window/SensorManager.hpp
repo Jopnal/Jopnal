@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Window/Sensor.hpp>
+#include <vector>
 
 #if defined(JOP_OS_ANDROID)
     #include <Jopnal/Window/Android/SensorImpl.hpp>
@@ -37,48 +38,18 @@
 
 namespace jop
 {
-    class JOP_API SensorManager
+    class SensorManager
     {
     public:
         
-        /// \brief Is sensor available or not?
-        ///
-        bool isAvailable(const Sensor::Type sensorType) const;
+        bool isAvailable(const Sensor::Type type) const;
 
-        /// \brief Process sensor events and update their data
-        ///
-        void update();
+        void setEnabled(const Sensor::Type type, const bool enabled);
 
-        /// \brief Enable sensor of a type
-        ///
-        void enable(const Sensor::Type sensorType);
+        bool isEnabled(const Sensor::Type type) const;
 
-        /// \brief Disable sensor of a type
-        ///
-        void disable(const Sensor::Type sensorType);
+        glm::vec3 getData(const Sensor::Type type) const;
 
-        /// \brief Disable all sensors
-        ///
-        void disableAll();
-
-        /// \brief Get sensor status (True = enabled, False = disabled)
-        ///
-        bool getStatus(const Sensor::Type) const;
-
-        /// \brief Get sensor data
-        ///
-        glm::vec3 getData(const Sensor::Type sensorType) const;
-
-        /// \brief If application loses focus - call this to disable sensors
-        ///
-        void lostFocus();
-
-        /// \brief After losing focus - call this to enable the sensors that were in use prior to that
-        ///
-        void gainedFocus();
-
-        /// \brief Get instance
-        ///
         static SensorManager& getInstance();
 
     private:
@@ -87,7 +58,7 @@ namespace jop
 
         ~SensorManager();
 
-        SensorImpl m_sensors[static_cast<std::size_t>(Sensor::Type::Count)]; ///< Sensors
+        std::vector<SensorImpl> m_sensors; ///< Sensors
     };
 }
 

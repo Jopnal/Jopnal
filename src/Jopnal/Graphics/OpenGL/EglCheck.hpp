@@ -32,7 +32,7 @@ namespace jop { namespace detail
 {
 #ifdef JOP_OPENGL_ERROR_CHECKS
 
-    #define eglCheck(eglFunction) eglFunction; ::jop::detail::esglCheck(#eglFunction, __FILE__, __LINE__)
+    #define eglCheck(eglFunction) eglFunction; ::jop::detail::checkEGLError(#eglFunction, __FILE__, __LINE__)
 
     /// \brief Check an egl function call for errors
     ///
