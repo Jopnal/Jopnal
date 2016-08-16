@@ -377,6 +377,15 @@ namespace jop
 
     Engine::State Engine::getState()
     {
+    #ifdef JOP_OS_ANDROID
+
+        using detail::ActivityState;
+
+        if (ActivityState::get() && !ActivityState::get()->fullFocus)
+            return State::Frozen;
+
+    #endif
+
         return exiting() ? State::Frozen : (m_engineObject->m_advanceFrame.load() ? State::Running : m_engineObject->m_state.load());
     }
 

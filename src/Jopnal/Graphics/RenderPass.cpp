@@ -214,7 +214,6 @@ namespace jop
 
         const auto& target = m_target;
         const auto& cameras = rend.getCameras();
-        const auto& lights = rend.getLights();
 
         for (auto cam : cameras)
         {
@@ -234,20 +233,8 @@ namespace jop
                 if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask))
                     continue;
 
-                if (d->hasFlag(Drawable::ReceiveLights))
-                {
-                    LightContainer lightCont;
-
-                    for (auto l : lights)
-                        lightCont[l->getType()].push_back(l);
-
-                    d->draw(projInfo, lightCont);
-                }
-                else
-                {
-                    static const LightContainer dummyLightCont;
-                    d->draw(projInfo, dummyLightCont);
-                }
+                static const LightContainer dummyLightCont;
+                d->draw(projInfo, dummyLightCont);
             }
         }
     }

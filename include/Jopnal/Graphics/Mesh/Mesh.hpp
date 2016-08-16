@@ -88,7 +88,8 @@ namespace jop
         ///
         bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
 
-        void updateVertexAttributes(const uint64 materialAttribs) const;
+
+        void draw(const uint64 materialAttributes) const;
 
         void destroy();
 
@@ -175,6 +176,9 @@ namespace jop
         static Mesh& getDefault();
 
     private:
+
+        bool updateVertexAttributes(const uint64 materialAttribs) const;
+
 
         VertexBuffer m_vertexbuffer;    ///< The vertex buffer
         VertexBuffer m_indexbuffer;     ///< The index buffer

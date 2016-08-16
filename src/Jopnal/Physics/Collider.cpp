@@ -106,6 +106,9 @@ namespace jop
 
     void Collider::update(const float)
     {
+        if (m_detached)
+            return;
+
         const bool active = isActive();
 
         if (m_body->isActive() != active)
@@ -122,6 +125,9 @@ namespace jop
 
     bool Collider::checkOverlap(const Collider& other) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btBroadphaseAabbCallback
         {
             const void* m_against;
@@ -152,6 +158,9 @@ namespace jop
 
     bool Collider::checkContact(const Collider& other) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btCollisionWorld::ContactResultCallback
         {
             bool hit;
@@ -177,6 +186,9 @@ namespace jop
 
     bool Collider::checkRay(const glm::vec3& start, const glm::vec3& ray) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btCollisionWorld::RayResultCallback
         {
             const void* m_against;
@@ -247,6 +259,28 @@ namespace jop
         {
             JOP_DEBUG_INFO("Could not register listener for Collider2D: Listener is already registered for collider");
             return;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::detachFromWorld()
+    {
+        if (!m_detached)
+        {
+            m_worldRef.m_worldData->world->removeCollisionObject(m_body.get());
+            m_detached = true;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::attachToWorld()
+    {
+        if (m_detached)
+        {
+            m_worldRef.m_worldData->world->addCollisionObject(m_body.get());
+            m_detached = false;
         }
     }
 }

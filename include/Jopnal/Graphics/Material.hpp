@@ -273,13 +273,13 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setAttributeField(const uint64 attribs);
+        Material& setAttributes(const uint64 attribs);
 
         /// \brief Get the attribute bit field
         ///
         /// \return The attribute bit field
         ///
-        uint64 getAttributeField() const;
+        uint64 getAttributes() const;
 
         /// \brief Check if this material has a specific attribute
         ///

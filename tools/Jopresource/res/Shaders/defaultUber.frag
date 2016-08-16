@@ -521,10 +521,8 @@ void main()
 
     #if !defined(JMAT_PHONG) && defined(JMAT_DIFFUSEMAP)
         JOP_TEXTURE_2D(u_DiffuseMap, OUT_TC)
-
-            + OUT_COL
-    #else
-            OUT_COL
+	#else
+		vec4(0.0)
     #endif
     ;
 
@@ -601,12 +599,10 @@ void main()
     #else
         * u_Emission.a
     #endif
-
-        * OUT_COL.a
     ;
 
     // Finally assign to the fragment output
-    JOP_FRAG_COLOR(0) = vec4(tempColor.rgb, alpha);
+    JOP_FRAG_COLOR(0) = vec4(tempColor.rgb, alpha) * OUT_COL;
 
 #endif // Sky box
 }

@@ -46,7 +46,7 @@ namespace jop
           m_mesh        (""),
           m_material    ("", false)
     {
-        m_material.setAttributeField(Material::Attribute::EnvironmentMap);
+        m_material.setAttributes(Material::Attribute::EnvironmentMap);
         m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
@@ -72,7 +72,7 @@ namespace jop
         auto& msh = *getModel().getMesh();
 
         // Attributes
-        msh.updateVertexAttributes(mat.getAttributeField());
+        //msh.updateVertexAttributes(mat.getAttributeField());
 
         // Uniforms
         {
@@ -85,11 +85,7 @@ namespace jop
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
 
-        if (msh.getElementAmount())
-        {
-            msh.getIndexBuffer().bind();
-            glCheck(glDrawElements(GL_TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), 0));
-        }
+        msh.draw(mat.getAttributes());
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);

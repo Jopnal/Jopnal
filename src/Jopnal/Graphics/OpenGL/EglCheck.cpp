@@ -38,7 +38,7 @@
 
 namespace jop { namespace detail
 {
-    void esglCheck(const char* func, const char* file, const unsigned int line)
+    void checkEGLError(const char* func, const char* file, const unsigned int line)
     {
         EGLint errCode = eglGetError();
 

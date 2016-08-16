@@ -131,12 +131,17 @@ namespace jop
         ///
         const World& getWorld() const;
 
+        void detachFromWorld();
+
+        void attachToWorld();
+
     protected:
 
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
         std::set<ContactListener*> m_listeners;          ///< Listeners registered for this collider
+        bool m_detached;
     };
 }
 

@@ -60,7 +60,9 @@ namespace jop
         /// \param object Parent
         /// \param renderer Renderer
         ///
-        Text(Object& object, Renderer& renderer);
+        Text(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::AfterPost);
+
+        Text(Object& object, RenderPass& pass);
 
         /// \brief Set string that is displayed
         ///

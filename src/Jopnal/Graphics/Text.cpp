@@ -27,8 +27,8 @@
 
 namespace jop
 {
-    Text::Text(Object& object, Renderer& renderer)
-        : Drawable              (object, renderer),
+    Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass)
+        : Drawable              (object, renderer, pass),
           m_material            ("", false),
           m_font                (),
           m_string              (),
@@ -38,7 +38,24 @@ namespace jop
           m_bounds              ({ 0, 0, 0, 0 }),
           m_mesh                ("")
     {
-        m_material.setAttributeField(Material::Attribute::OpacityMap);
+        m_material.setAttributes(Material::Attribute::OpacityMap);
+
+        setFont(Font::getDefault());
+        setModel(Model(m_mesh, m_material));
+    }
+
+    Text::Text(Object& object, RenderPass& pass)
+        : Drawable              (object, pass),
+          m_material            ("", false),
+          m_font                (),
+          m_string              (),
+          m_style               (jop::Text::Default),
+          m_lastFontSize        (0),
+          m_geometryNeedsUpdate (false),
+          m_bounds              ({ 0, 0, 0, 0 }),
+          m_mesh                ("")
+    {
+        m_material.setAttributes(Material::Attribute::OpacityMap);
 
         setFont(Font::getDefault());
         setModel(Model(m_mesh, m_material));

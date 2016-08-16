@@ -62,19 +62,20 @@
 namespace jop
 {
     RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
-        : group(1),
-        mask(1),
-        friction(0.2f),
-        restitution(0.5f),
-        m_shape(shape),
-        m_type(type),
-        m_mass((type == Type::Dynamic) * mass)
+        : group         (1),
+          mask          (1),
+          friction      (0.2f),
+          restitution   (0.5f),
+          m_shape       (shape),
+          m_type        (type),
+          m_mass        ((type == Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
 
     RigidBody2D::RigidBody2D(Object& object, World2D& world, const ConstructInfo2D& info)
-        : Collider2D(object, world, 0)
+        : Collider2D    (object, world, 0),
+          m_joints      ()
     {
         b2BodyDef bd;
 
@@ -88,24 +89,24 @@ namespace jop
 
         switch (info.m_type)
         {
-        case Type::StaticSensor:
-        {
-            bd.type = b2BodyType::b2_staticBody;
-            object.setIgnoreParent(true);
-            break;
-        }
+            case Type::StaticSensor:
+            {
+                bd.type = b2BodyType::b2_staticBody;
+                object.setIgnoreParent(true);
+                break;
+            }
 
-        case Type::KinematicSensor:
-        {
-            bd.type = b2BodyType::b2_kinematicBody;
-            break;
-        }
+            case Type::KinematicSensor:
+            {
+                bd.type = b2BodyType::b2_kinematicBody;
+                break;
+            }
 
-        default:
-        {
-            bd.type = Types[static_cast<int>(info.m_type)];
-            object.setIgnoreParent(true);
-        }
+            default:
+            {
+                bd.type = Types[static_cast<int>(info.m_type)];
+                object.setIgnoreParent(true);
+            }
         }
 
         bd.allowSleep = bd.type != b2_kinematicBody;
@@ -115,10 +116,9 @@ namespace jop
         if (info.m_shape.m_isCompound)
         {
             auto& shape = static_cast<const CompoundShape2D&>(info.m_shape);
+
             for (auto i : shape.m_shapes)
-            {
                 createCollidable(info, *i);
-            }
         }
         else
             createCollidable(info, *info.m_shape.m_shape);

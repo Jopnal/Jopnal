@@ -102,7 +102,7 @@ namespace
             --version[1];
         }
 
-        jop::detail::esglCheck("eglCreateContext", __FILE__, __LINE__);
+        jop::detail::checkEGLError("eglCreateContext", __FILE__, __LINE__);
 
         return context;
     }

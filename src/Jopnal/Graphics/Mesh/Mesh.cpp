@@ -79,73 +79,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mesh::updateVertexAttributes(const uint64 materialAttribs) const
+    void Mesh::draw(const uint64 materialAttributes) const
     {
-        if (!getVertexAmount())
-            return;
-
-        m_vertexbuffer.bind();
-
-        const auto vertSize = getVertexSize();
-
-        // Positions (should always be present)
-        GlState::setVertexAttribute(true, 0);
-        glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Position)));
-
-        // Texture coordinates
-        if ((m_vertexComponents & TexCoords))
+        if (updateVertexAttributes(materialAttributes))
         {
-            GlState::setVertexAttribute(true, 1);
-            glCheck(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(TexCoords)));
-        }
-        else
-            GlState::setVertexAttribute(false, 1);
-
-        // Lighting
-        if (materialAttribs & Material::Attribute::__Lighting)
-        {
-            // Normals
-            if (m_vertexComponents & Normal)
+            if (getElementAmount())
             {
-                GlState::setVertexAttribute(true, 2);
-                glCheck(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
+                getIndexBuffer().bind();
+                glCheck(glDrawElements(GL_TRIANGLES, getElementAmount(), getElementEnum(), 0));
             }
             else
             {
-                GlState::setVertexAttribute(false, 2);
-                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals while material has lighting enabled");
+                glCheck(glDrawArrays(GL_TRIANGLES, 0, getVertexAmount()));
             }
-
-            //if (materialAttribs & Material::Attribute::NormalMap)
-            //{
-            //    // Tangents
-            //    if (m_vertexComponents & Tangent)
-            //    {
-            //        GlState::setVertexAttribute(m_vertexComponents & Tangent, 3);
-            //        glCheck(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Tangent)));
-            //    }
-            //    if (m_vertexComponents & BiTangent)
-            //    {
-            //        GlState::setVertexAttribute(m_vertexComponents & BiTangent, 4);
-            //        glCheck(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(BiTangent)));
-            //    }
-            //}
         }
-        else
-        {
-            GlState::setVertexAttribute(false, 2);
-            GlState::setVertexAttribute(false, 3);
-            GlState::setVertexAttribute(false, 4);
-        }
-
-        // Colors
-        if (m_vertexComponents & Color)
-        {
-            GlState::setVertexAttribute(true, 5);
-            glCheck(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Color)));
-        }
-        else
-            GlState::setVertexAttribute(false, 5);
     }
 
     //////////////////////////////////////////////
@@ -285,5 +232,78 @@ namespace jop
         }
 
         return *defMesh;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Mesh::updateVertexAttributes(const uint64 materialAttribs) const
+    {
+        if (!getVertexAmount())
+            return false;
+
+        m_vertexbuffer.bind();
+
+        const auto vertSize = getVertexSize();
+
+        // Positions (should always be present)
+        GlState::setVertexAttribute(true, 0);
+        glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Position)));
+
+        // Texture coordinates
+        if ((m_vertexComponents & TexCoords))
+        {
+            GlState::setVertexAttribute(true, 1);
+            glCheck(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(TexCoords)));
+        }
+        else
+            GlState::setVertexAttribute(false, 1);
+
+        // Lighting
+        if (materialAttribs & Material::Attribute::__Lighting)
+        {
+            // Normals
+            if (m_vertexComponents & Normal)
+            {
+                GlState::setVertexAttribute(true, 2);
+                glCheck(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
+            }
+            else
+            {
+                GlState::setVertexAttribute(false, 2);
+                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals while material has lighting enabled");
+            }
+
+            //if (materialAttribs & Material::Attribute::NormalMap)
+            //{
+            //    // Tangents
+            //    if (m_vertexComponents & Tangent)
+            //    {
+            //        GlState::setVertexAttribute(m_vertexComponents & Tangent, 3);
+            //        glCheck(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Tangent)));
+            //    }
+            //    if (m_vertexComponents & BiTangent)
+            //    {
+            //        GlState::setVertexAttribute(m_vertexComponents & BiTangent, 4);
+            //        glCheck(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(BiTangent)));
+            //    }
+            //}
+        }
+        else
+        {
+            GlState::setVertexAttribute(false, 2);
+            GlState::setVertexAttribute(false, 3);
+            GlState::setVertexAttribute(false, 4);
+        }
+
+        // Colors
+        if (m_vertexComponents & Color)
+        {
+            GlState::setVertexAttribute(true, 5);
+            glCheck(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Color)));
+        }
+        else
+            GlState::setVertexAttribute(false, 5);
+
+        return true;
     }
 }

@@ -101,6 +101,7 @@ namespace jop
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
         : Component         (other, newObj),
+          m_color           (other.m_color),
           m_model           (other.m_model),
           m_shader          (other.m_shader),
           m_rendererRef     (other.m_rendererRef),
@@ -129,9 +130,6 @@ namespace jop
         auto& mesh = *getModel().getMesh();
         auto& mat = *getModel().getMaterial();
 
-        // Attributes
-        mesh.updateVertexAttributes(mat.getAttributeField());
-
         // Uniforms
         {
             auto& shdr = getShader();
@@ -149,6 +147,10 @@ namespace jop
 
             mat.sendToShader(shdr, &proj.cameraPosition);
 
+            // Default vertex color
+            // Used if the mesh itself doesn't have colors
+            glCheck(glVertexAttrib4fv(5, &m_color.colors[0]));
+
         #ifdef JOP_DEBUG_MODE
 
             {
@@ -161,15 +163,7 @@ namespace jop
         #endif
         }
 
-        if (mesh.getElementAmount())
-        {
-            mesh.getIndexBuffer().bind();
-            glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
-        }
-        else
-        {
-            glCheck(glDrawArrays(GL_TRIANGLES, 0, mesh.getVertexAmount()));
-        }
+        mesh.draw(mat.getAttributes());
     }
 
     //////////////////////////////////////////////
@@ -346,7 +340,7 @@ namespace jop
             if (!getModel().isValid())
                 m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getDefault().getReference());
             else
-                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributeField(), getAttributes()).getReference());
+                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributes(), getAttributes()).getReference());
 
             m_updateShader = false;
         }

@@ -75,10 +75,12 @@ namespace
 
     void drawQuad(const jop::RectangleMesh& mesh)
     {
-        mesh.updateVertexAttributes(0);
-        mesh.getIndexBuffer().bind();
+        //mesh.updateVertexAttributes(0);
+        //mesh.getIndexBuffer().bind();
 
-        glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
+        //glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
+
+        mesh.draw(0);
     }
 
     const float ns_defBloomThreshold = 2.f - 1.1f * jop::gl::es;

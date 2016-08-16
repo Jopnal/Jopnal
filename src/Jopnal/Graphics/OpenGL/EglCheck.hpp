@@ -40,7 +40,7 @@ namespace jop { namespace detail
     /// \param file The file in which the function was called
     /// \param line The line number where the function was called
     ///
-    void esglCheck(const char* func, const char* file, const unsigned int line);
+    void checkEGLError(const char* func, const char* file, const unsigned int line);
 
 #else
 

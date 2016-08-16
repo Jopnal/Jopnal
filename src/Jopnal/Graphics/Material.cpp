@@ -347,7 +347,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material& Material::setAttributeField(const uint64 attribs)
+    Material& Material::setAttributes(const uint64 attribs)
     {
         m_attributes = attribs;
         return *this;
@@ -355,7 +355,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    uint64 jop::Material::getAttributeField() const
+    uint64 jop::Material::getAttributes() const
     {
         return m_attributes;
     }
@@ -385,14 +385,14 @@ namespace jop
 
     Material& Material::addAttributes(const uint64 attribs)
     {
-        return setAttributeField(getAttributeField() | attribs);
+        return setAttributes(getAttributes() | attribs);
     }
 
     //////////////////////////////////////////////
 
     Material& Material::removeAttributes(const uint64 attribs)
     {
-        return setAttributeField(getAttributeField() & ~attribs);
+        return setAttributes(getAttributes() & ~attribs);
     }
 
     //////////////////////////////////////////////
