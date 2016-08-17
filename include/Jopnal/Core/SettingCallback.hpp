@@ -65,29 +65,31 @@ namespace jop
         unsigned int fetchVariable<unsigned int>(const json::Value& val);
         template<>
         std::string fetchVariable<std::string>(const json::Value& val);
+
+        /// Base-base class for a setting change callback
+        ///
+        /// This is for internal use only.
+        ///
+        class JOP_API SettingCallbackBase
+        {
+            friend class SettingManager;
+            std::string m_path;
+
+        public:
+
+            virtual ~SettingCallbackBase() = 0;
+            virtual void valueChangedBase(const json::Value& val) = 0;
+        };
     }
-
-    /// Base-base class for a setting change callback
-    ///
-    /// This is for internal use only
-    ///
-    class JOP_API SettingCallbackBase
-    {
-        friend class SettingManager;
-        std::string m_path;
-
-    public:
-
-        virtual ~SettingCallbackBase() = 0;
-        virtual void valueChangedBase(const json::Value& val) = 0;
-    };
 
     /// \brief Base class For a setting change callback
     ///
     /// Inherit from this class to create a setting change callback.
+    /// 
+    /// \see SettingManager::registerCallback()
     ///
     template<typename T>
-    class SettingCallback : public SettingCallbackBase
+    class SettingCallback : public detail::SettingCallbackBase
     {
     private:
 
@@ -96,6 +98,9 @@ namespace jop
     protected:
 
         /// \brief The setting change callback function
+        ///
+        /// This will be automatically called when the associated
+        /// setting has been changed.
         ///
         /// \param value The new setting value
         /// 

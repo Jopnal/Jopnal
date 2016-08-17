@@ -60,7 +60,7 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Component identifier
+        /// \param ID Identifier. If you don't plan on using this for anything, pass 0
         ///
         Component(Object& object, const uint32 ID);
 
@@ -123,7 +123,7 @@ namespace jop
 
         /// \brief Check if this component is active
         ///
-        /// This is the same as calling getObject()->isActive().
+        /// This is the same as calling %getObject()->%isActive().
         ///
         /// \return True if active
         ///
@@ -140,8 +140,8 @@ namespace jop
         /// \brief Receive a message
         ///
         /// Override this to handle messages sent to this.
-        /// <b>Don't forget to call the base class' method as well
-        /// to ensure that the message gets forwarded correctly.</b>
+        /// **Don't forget to call the base class' method as well
+        /// to ensure that the message gets forwarded correctly.**
         ///
         /// \param message The message
         ///

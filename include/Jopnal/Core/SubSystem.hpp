@@ -65,15 +65,14 @@ namespace jop
         /// \brief Post-update
         ///
         /// This will be called after the engine calls the scene's update.
-        /// This function can also be used as a pre-draw function.
         ///
         /// \param deltaTime Delta time
         ///
         virtual void postUpdate(const float deltaTime);
 
-        /// \brief Post-draw
+        /// \brief Draw
         ///
-        /// This will be called after the engine calls the scene's draw.
+        /// This will be called during rendering.
         ///
         virtual void draw();
 
@@ -89,6 +88,8 @@ namespace jop
         ///
         /// \param active True to set active
         ///
+        /// \return Reference to self
+        ///
         Subsystem& setActive(const bool active);
 
         /// \brief Check if this sub system is active
@@ -99,7 +100,7 @@ namespace jop
 
         /// \brief Get the ID
         ///
-        /// \return Reference to the ID string
+        /// \return The ID
         ///
         uint32 getID() const;
 

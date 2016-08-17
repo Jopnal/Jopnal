@@ -73,7 +73,7 @@ namespace jop
         {
             return val.IsString();
         }
-    #pragma endregion VariableQueries
+        #pragma endregion VariableQueries
 
         #pragma region VariableFetchers
         template<>
@@ -111,13 +111,16 @@ namespace jop
         {
             return std::string(val.GetString());
         }
-#pragma endregion VariableFetchers
+        #pragma endregion VariableFetchers
     }
 
     //////////////////////////////////////////////
 
-    SettingCallbackBase::~SettingCallbackBase()
+    namespace detail
     {
-        SettingManager::unregisterCallback(*this);
+        SettingCallbackBase::~SettingCallbackBase()
+        {
+            SettingManager::unregisterCallback(*this);
+        }
     }
 }

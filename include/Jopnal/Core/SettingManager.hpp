@@ -43,12 +43,12 @@ namespace jop
     {
     public:
 
-        typedef std::unordered_multimap<std::string, SettingCallbackBase*> UpdaterMap;
+        typedef std::unordered_multimap<std::string, detail::SettingCallbackBase*> UpdaterMap;
         typedef std::unordered_map<std::string, std::pair<json::Document, bool>> SettingMap;
 
     private:
 
-        friend class SettingCallbackBase;
+        friend class detail::SettingCallbackBase;
 
     public:
 
@@ -64,6 +64,7 @@ namespace jop
         ///
         ~SettingManager() override;
 
+
         /// \brief Update function
         ///
         /// Whenever any setting changes occur via file modification, the change
@@ -76,7 +77,6 @@ namespace jop
         ///
         void preUpdate(const float deltaTime) override;
 
-
         /// \brief Check if a certain setting exists
         ///
         /// \param path The setting path
@@ -84,7 +84,6 @@ namespace jop
         /// \return True if the setting exists
         ///
         static bool settingExists(const std::string& path);
-
 
         /// \brief Get a setting value
         ///
@@ -122,19 +121,18 @@ namespace jop
         template<typename T>
         static T get(const std::string& path, const T& defaultValue);
 
-        ///// \brief Set a setting value
-        /////
-        ///// The entry will be created if it doesn't exist.
-        ///// 
-        ///// The value will be updated only if it differs from the existing one,
-        ///// as is the requirement for invoking any corresponding callbacks.
-        ///// 
-        ///// \param path The setting path
-        ///// \param value The value to set
-        /////
+        /// \brief Set a setting value
+        ///
+        /// The entry will be created if it doesn't exist.
+        /// 
+        /// The value will be updated only if it differs from the existing one,
+        /// as is the requirement for invoking any corresponding callbacks.
+        /// 
+        /// \param path The setting path
+        /// \param value The value to set
+        ///
         template<typename T>
         static void set(const std::string& path, const T& value);
-
 
         /// \brief Register a setting change callback
         ///
@@ -151,8 +149,7 @@ namespace jop
         ///
         /// \return The number of callbacks that exist for the same setting, includes the one being registered
         ///
-        static unsigned int registerCallback(const std::string& path, SettingCallbackBase& callback);
-
+        static unsigned int registerCallback(const std::string& path, detail::SettingCallbackBase& callback);
 
         /// \brief Reload the settings from file
         ///
@@ -169,15 +166,38 @@ namespace jop
         ///
         static void save();
 
+        /// \brief Set a directory with any default setting files
+        ///
+        /// If set before engine initialization, the directory will be used
+        /// to look for existing setting files, meant to contain custom default
+        /// values. Call this if you need an initial configuration different
+        /// from the engine's default.
+        ///
+        /// \param directory The setting file directory, relative to the
+        ///                  *Resources* folder
+        ///
+        /// \see setOverrideWithDefaults()
+        ///
         static void setDefaultDirectory(const std::string& directory);
 
+        /// \brief Override existing settings with the defaults
+        ///
+        /// If setDefaultDirectory() hasn't been called, this function is
+        /// no-op.
+        ///
+        /// Calling this function after setting the default setting directory
+        /// will cause any pre-existing settings found in the user folder
+        /// to be replaced with the defaults. This function is meant
+        /// for debugging purposes mainly.
+        ///
         static void setOverrideWithDefaults();
 
     private:
 
-        static void unregisterCallback(SettingCallbackBase& callback);
+        static void unregisterCallback(detail::SettingCallbackBase& callback);
 
-        static SettingManager* m_instance;
+
+        static SettingManager* m_instance;  ///< Setting manager instance
 
         SettingMap m_settings;              ///< Setting map
         std::recursive_mutex m_mutex;       ///< Mutex
@@ -185,19 +205,30 @@ namespace jop
         std::atomic<bool> m_filesUpdated;   ///< Has any file been externally modified?
         std::string m_defaultRoot;          ///< Default setting file
         UpdaterMap m_updaters;              ///< Change callback map
-        std::atomic<bool> m_wasSaved;
+        std::atomic<bool> m_wasSaved;       ///< Was the setting file recently saved? Used by preUpdate()
     };
 
-    namespace detail
-    {
-        json::Value* getJsonValue(const std::string& path, json::Document& root, const bool create);
-
-        json::Document& findRoot(const std::string& name, SettingManager::SettingMap& settings, const std::string& defRoot);
-    }
-
+    /// \brief Dynamically updated setting value
+    ///
+    /// This is a helper struct for using the setting callback
+    /// system. It contains a value which will be automatically
+    /// updated if the associated setting's value ever changes.
+    /// Using this struct you won't necessarily have to define your
+    /// own callback or do continuous checks to see if an
+    /// individual setting has changed.
+    ///
+    /// \see SettingManager
+    ///
     template<typename T>
     struct DynamicSetting : SettingCallback<T>
     {
+        /// \brief Constructor
+        ///
+        /// \param path The setting path
+        /// \param defaultValue The default value
+        ///
+        /// \see SettingManager::get()
+        ///
         DynamicSetting(const std::string& path, const T& defaultValue);
 
     private:
@@ -206,9 +237,10 @@ namespace jop
 
     public:
 
-        T value;
+        T value; ///< The current value, automatically updated
     };
 
+    // Include the template implementation file
     #include <Jopnal/Core/Inl/SettingManager.inl>
 }
 

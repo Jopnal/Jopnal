@@ -172,6 +172,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    std::vector<std::unique_ptr<jop::Component>>& Object::getComponents()
+    {
+        return m_components;
+    }
+
+    //////////////////////////////////////////////
+
     const std::vector<std::unique_ptr<Component>>& Object::getComponents() const
     {
         return m_components;

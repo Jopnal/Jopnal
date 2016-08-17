@@ -104,7 +104,7 @@ namespace jop
             Info,       ///< Info severity (2)
             Diagnostic, ///< Diagnostic severity (3)
 
-            __Always
+            __Always    ///< For internal functionality, do not use
         };
 
     public:
@@ -206,6 +206,7 @@ namespace jop
 
         void closeFileHandles();
 
+
         std::stringstream m_stream;                 ///< The stream object
         Severity m_displaySeverity;                 ///< The current severity
         Severity m_lastSeverity;                    ///< The last set severity
@@ -237,17 +238,17 @@ namespace jop
 /// \def JOP_DEBUG_WARNING(stream)
 /// \brief Print a warning debug message
 ///
-/// \copydetails JOP_DEBUG_ERROR(stream)
+/// \see JOP_DEBUG_ERROR(stream)
 
 /// \def JOP_DEBUG_INFO(stream)
 /// \brief Print an info debug message
 ///
-/// \copydetails JOP_DEBUG_ERROR(stream)
+/// \see JOP_DEBUG_ERROR(stream)
 
 /// \def JOP_DEBUG_DIAG(stream)
 /// \brief Print a diagnostic debug message
 ///
-/// \copydetails JOP_DEBUG_ERROR(stream)
+/// \see JOP_DEBUG_ERROR(stream)
 
 /// \class jop::DebugHandler
 /// \ingroup core

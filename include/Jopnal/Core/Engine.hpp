@@ -60,8 +60,7 @@ namespace jop
 
         /// \brief Engine state
         ///
-        /// No matter the state, sub systems will always be running normally, except
-        /// in ZeroDelta state, the delta time passed to sub systems is still zero.
+        /// No matter the state, sub systems will always be running normally.
         ///
         enum class State
         {
@@ -124,6 +123,9 @@ namespace jop
         /// left running. If WaitSignal is false, the new scene will be set current as soon as it's loaded.
         /// If WaitSignal is true, you'll need to call signalNewScene to set it active.
         ///
+        /// \warning When creating a scene in a thread, exit() must not be called before the scene 
+        ///          has finished loading.
+        ///
         /// \param args The arguments to be used in the scene's construction
         ///
         /// \see signalNewScene()
@@ -178,14 +180,16 @@ namespace jop
 
         /// \brief Get a subsystem using type info
         ///
-        /// \return Pointer to the subsystem. Nullptr if not found
+        /// \return Pointer to the subsystem. nullptr if not found
         ///
         template<typename T>
         static T* getSubsystem();
 
         /// \brief Get a subsystem using subsystem ID and type info
         ///
-        /// \return Pointer to the subsystem. Nullptr if not found
+        /// \param ID The identifier to search with
+        ///
+        /// \return Pointer to the subsystem. nullptr if not found
         ///
         template<typename T>
         static T* getSubsystem(const uint32 ID);
@@ -193,6 +197,8 @@ namespace jop
         /// \brief Remove a subsystem
         ///
         /// \param ID Identifier of the subsystem to be removed
+        ///
+        /// \return True if the subsystem was found and removed
         ///
         template<typename T>
         static bool removeSubsystem(const uint32 ID);
@@ -227,7 +233,7 @@ namespace jop
 
         /// \brief Get the main render target
         ///
-        /// This can be either MainRenderTarget or a Window.
+        /// This can be either MainRenderTarget or Window.
         ///
         /// \return Reference to the main render target
         ///
@@ -244,9 +250,9 @@ namespace jop
         ///
         static Window& getMainWindow();
 
-        /// \brief Check if there's a current window
+        /// \brief Check if there's a main window
         ///
-        /// \return True if there's a current window
+        /// \return True if there's a main window
         ///
         static bool hasMainWindow();
 
@@ -282,7 +288,7 @@ namespace jop
         /// \brief Set the shared scene
         ///
         /// This will immediately replace the previous shared scene with a new one of the
-        /// given type.
+        /// given type. Threaded loading is not supported at this time.
         ///
         /// \param args Arguments to use in the scene's construction
         ///
@@ -297,6 +303,13 @@ namespace jop
         ///
         static double getTotalTime();
 
+        /// \brief Get the current actual/unscaled delta time
+        ///
+        /// Use this if you need the real delta time value, which
+        /// is unaffected by the scene's delta scale.
+        ///
+        /// \return The unscaled delta time
+        ///
         static float getDeltaTimeUnscaled();
 
     private:
@@ -305,7 +318,7 @@ namespace jop
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems;   ///< A vector containing the subsystems
         std::atomic<double> m_totalTime;                        ///< The total time
-        std::atomic<float> m_deltaTimeUnscaled;
+        std::atomic<float> m_deltaTimeUnscaled;                 ///< Current delta time
         std::unique_ptr<Scene> m_currentScene;                  ///< The current scene
         std::atomic<Scene*> m_newScene;                         ///< Temporary new scene pointer
         std::atomic<bool> m_newSceneSignal;                     ///< Was the new scene signaled?
@@ -350,7 +363,7 @@ namespace jop
 
 /// \brief Run the main loop
 ///
-/// Must be called <b>after</b> JOP_ENGINE_INIT.
+/// Must be called **after** JOP_ENGINE_INIT.
 ///
 #define JOP_MAIN_LOOP ::jop::Engine::runMainLoop()
 

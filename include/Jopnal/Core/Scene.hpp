@@ -130,30 +130,41 @@ namespace jop
         template<typename T, typename ... Args>
         T& setRenderer(Args&&... args);
 
-
         /// \brief Get the physics world
         ///
-        /// If a world hasn't been created yet, it will be created by the function
+        /// The template argument D must be either 2 or 3.
+        /// If a world hasn't been enabled yet, it will be created by this function.
         ///
         /// \return Reference to the world
         ///
         template<int D>
         typename detail::WorldType<D>::type& getWorld();
 
-
-        /// \brief Enable a world
+        /// \brief Check if a world is enabled
         ///
-        /// \return True if world has been enabled, false if not
+        /// The template argument D must be either 2 or 3.
+        ///
+        /// \return True if world has been enabled
         ///
         template <int D>
-        bool worldEnabled();
+        bool worldEnabled() const;
 
         /// \brief Disable a world
+        ///
+        /// The template argument D must be either 2 or 3.
+        /// The world will be deleted immediately. You shouldn't
+        /// need to ever call this in typical situations, but
+        /// should you, you'll need to ensure that all colliders
+        /// that exist within the world are destroyed beforehand.
+        ///
+        /// After this call returns, getWorld() will create the
+        /// world again once called.
+        ///
+        /// \see getWorld()
         ///
         template<int D>
         void disableWorld();
         
-
         /// \brief Get the renderer
         ///
         /// \return Reference to the renderer
@@ -163,8 +174,14 @@ namespace jop
         /// \brief Set the delta time scalar
         ///
         /// The delta time value will be multiplied by this value every frame.
+        /// This makes it possible to create slow-down or fast-forward effects.
+        ///
+        /// \warning The delta scale is allowed to be zero. You should ensure
+        ///          that divisions by zero won't occur because of this.
         /// 
         /// \param scale The scale to set
+        ///
+        /// \see Engine::getDeltaTimeUnscaled()
         ///
         void setDeltaScale(const float scale);
 
@@ -174,8 +191,10 @@ namespace jop
         ///
         float getDeltaScale() const;
 
-
-        /// \brief Function to handle messages
+        /// \brief Send a message to this scene
+        ///
+        /// The message will be forwarded to the objects, should it
+        /// pass the filter.
         ///
         /// \param message The message
         ///
@@ -183,15 +202,15 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-
-        /// \brief Update method for scene
+        /// \brief Base update
+        ///
+        /// This will call preUpdate() and postUpdate().
         ///
         /// \param deltaTime The delta time
         ///
         void updateBase(const float deltaTime);
         
-
-        /// \brief Method for pre-updating
+        /// \brief Pre-update
         ///
         /// This will be called before objects are updated.
         ///
@@ -199,7 +218,7 @@ namespace jop
         ///
         virtual void preUpdate(const float deltaTime);
 
-        /// \brief Method for post-updating
+        /// \brief Post-update
         ///
         /// This will be called after objects are updated.
         ///
@@ -207,11 +226,10 @@ namespace jop
         ///
         virtual void postUpdate(const float deltaTime);
 
-
         /// \brief Get this scene as object
         ///
         /// This can be used to work around the privately inherited jop::Object.
-        /// <b>Do not</b> ever call this unless you know what you're doing.
+        /// **Do not** ever call this unless you know what you're doing.
         ///
         /// \return Reference to this as Object
         ///
@@ -223,14 +241,14 @@ namespace jop
 
     private:
 
-        /// \brief Virtual sendMessage
+        /// \copydoc Component::receiveMessage()
         ///
         virtual Message::Result receiveMessage(const Message& message);
 
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
         float m_deltaScale;                     ///< Delta time scalar
-        std::tuple<World2D*, World*> m_worlds;
+        std::tuple<World2D*, World*> m_worlds;  ///< 2D and 3D worlds
     };
 
     // Include the template implementation file

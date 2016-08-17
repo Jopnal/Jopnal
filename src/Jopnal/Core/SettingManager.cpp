@@ -479,7 +479,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<std::unique_ptr<SettingCallbackBase>> ns_callbacks;
+    std::vector<std::unique_ptr<detail::SettingCallbackBase>> ns_callbacks;
 
     SettingManager::SettingManager()
         : Subsystem         (0),
@@ -680,7 +680,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    unsigned int SettingManager::registerCallback(const std::string& path, SettingCallbackBase& callback)
+    unsigned int SettingManager::registerCallback(const std::string& path, detail::SettingCallbackBase& callback)
     {
         if (!m_instance)
             return 0;
@@ -699,7 +699,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SettingManager::unregisterCallback(SettingCallbackBase& callback)
+    void SettingManager::unregisterCallback(detail::SettingCallbackBase& callback)
     {
         if (!m_instance)
             return;

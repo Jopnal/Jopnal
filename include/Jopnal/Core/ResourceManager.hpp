@@ -79,7 +79,7 @@ namespace jop
         /// \brief Get a named resource
         ///
         /// This is primarily used when the resource is not loaded from a file. After the resource
-        /// has been loaded once, it can be retrieved by using getResource().
+        /// has been loaded once, it can be retrieved by using getExisting().
         ///
         /// \param name Name for the resource
         /// \param args Arguments passed to resource's constructor
@@ -91,7 +91,7 @@ namespace jop
 
         /// \brief Get an empty resource
         ///
-        /// This function will replace the resource if one already exists with the same name.
+        /// This function will not call the resource's load function.
         ///
         /// \param args Arguments to pass to the resource's constructor
         ///
@@ -123,7 +123,6 @@ namespace jop
         template<typename T>
         static bool exists(const std::string& name);
 
-
         /// \brief Copy a resource
         ///
         /// This function requires that the resource has a valid copy constructor.
@@ -135,15 +134,16 @@ namespace jop
         ///
         /// \return Reference to the resource
         ///
+        /// \see Resource::Resource(const Resource&, const std::string&)
+        ///
         template<typename T>
         static T& copy(const std::string& name, const std::string& newName);
 
-
-        /// \brief Deletes resources from memory
+        /// \brief Delete resources
         ///
         /// This will delete all the resources with the given name, regardless of type.
         ///
-        /// The resources, if found, will be deleted regardless of the persistence flag.
+        /// The resources, if found, will be deleted regardless of the persistence level.
         /// Resources with the persistence level of 0 will not be removed, however.
         ///
         /// \param name Name of the resources to unload
@@ -151,6 +151,9 @@ namespace jop
         static void unload(const std::string& name);
 
         /// \brief Delete a resource from memory
+        ///
+        /// The resource, if found, will be deleted regardless of the persistence level.
+        /// Resources with the persistence level of 0 will not be removed, however.
         ///
         /// When possible, you should prefer this overload.
         /// It's possibly magnitudes faster.
@@ -160,18 +163,17 @@ namespace jop
         template<typename T>
         static void unload(const std::string& name);
 
-        /// \brief Deletes all resources from memory
+        /// \brief Delete all resources
         ///
         /// \param persistence The persistence of the resources to unload
-        /// \param descending Set true to unload all resources with the given and below persistence levels
+        /// \param descending Set true to unload all resources with the given and greater persistence levels
         ///
         static void unload(const unsigned short persistence = 0xFFFF, const bool descending = true);
-
 
         /// \brief Mark the beginning of a resource loading phase
         ///
         /// This function is provided to make it easier to manage big amounts of resources. When called, every resource
-        /// that is referenced after, will become flagged. When the load phase is ended, all resources <b>not</b> flagged
+        /// that is referenced after, will become flagged. When the load phase is ended, all resources **not** flagged
         /// will be removed, provided they pass the persistence test.
         ///
         /// \warning It's very important to call endLoadPhase() after this, right after all the needed resources are loaded
@@ -192,9 +194,21 @@ namespace jop
         ///
         static void endLoadPhase(const uint16 persistence);
 
+        /// \brief Check is a resource is the default resource
+        ///
+        /// \param resource Reference to the resource
+        ///
+        /// \return True if the resource is the default resource
+        ///
         template<typename T>
         static bool isDefault(const T& resource);
 
+        /// \brief Check is a resource is the error resource
+        ///
+        /// \param resource Reference to the resource
+        ///
+        /// \return True if the resource is the error resource
+        ///
         template<typename T>
         static bool isError(const T& resource);
 

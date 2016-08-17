@@ -367,7 +367,7 @@ namespace jop
 
         #endif
 
-            JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
+            JOP_DEBUG_DIAG("Engine state changed: " << stateStr[static_cast<int>(state)]);
 
             m_engineObject->m_state.store(state);
         }

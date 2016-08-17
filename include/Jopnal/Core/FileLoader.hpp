@@ -141,10 +141,9 @@ namespace jop
         ///
         void flush();
 
-        /// \brief Close the file handle if open
+        /// \brief Close the file handle
         ///
         /// If no file handle is open, this will have no effect.
-        ///
         /// When writing, calling this means saving the file.
         ///
         void close();
@@ -185,7 +184,7 @@ namespace jop
 
         /// \brief Get the current position of the cursor
         ///
-        /// \return Current position of the file read/write cursor
+        /// \return Current position of the file read/write cursor. -1 in case of failure
         ///
         int64 tell() const;
 
@@ -218,7 +217,7 @@ namespace jop
 
         /// \brief Enumerate all files within a directory recursively
         ///
-        /// \warning On Android, files cannot be enumerated recursively from the .apk,
+        /// \warning On Android, files cannot be enumerated recursively from the .apk.
         ///
         /// \param path Path to a directory
         /// \param list Reference to a list to fill with the file paths found
@@ -229,9 +228,10 @@ namespace jop
 
         /// \brief Delete a file
         ///
+        /// \param dir The base write directory
         /// \param file Path to the file
         ///
-        /// \return True if file was deleted
+        /// \return True if file was successfully deleted
         ///
         static bool deleteFile(const Directory dir, const std::string& file);
 

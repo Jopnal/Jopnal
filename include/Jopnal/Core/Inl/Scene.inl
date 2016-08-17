@@ -40,8 +40,8 @@ typename detail::WorldType<D>::type& Scene::getWorld()
 
 //////////////////////////////////////////////
 
-template <int D>
-bool Scene::worldEnabled()
+template<int D>
+bool Scene::worldEnabled() const
 {
     return std::get<D - 2>(m_worlds) != nullptr;
 }

@@ -46,6 +46,11 @@ namespace jop
 
         /// \brief Copy constructor
         ///
+        /// This differs from the standard copy constructor signature.
+        /// Should you wish your custom resources to be copyable via
+        /// the resource manager, you should define a copy constructor
+        /// with an similar signature.
+        ///
         /// \param other The other resource to copy
         /// \param newName New name for this resource
         ///
@@ -64,7 +69,7 @@ namespace jop
         virtual ~Resource() = 0;
 
 
-        /// \brief Get the name
+        /// \brief Get the name of this resource
         ///
         /// \return Reference to the name
         ///
@@ -72,13 +77,20 @@ namespace jop
 
         /// \brief Set the persistence level
         ///
+        /// The persistence level controls how resources are unloaded
+        /// by the \ref ResourceManager "resource manager".
+        ///
         /// \param level The persistence level
+        ///
+        /// \see ResourceManager
         ///
         void setPersistence(const unsigned short level);
 
         /// \brief Get the persistence level
         ///
         /// \return The persistence level
+        ///
+        /// \see setPersistence()
         ///
         unsigned short getPersistence() const;
 
@@ -89,9 +101,24 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Resource
 /// \ingroup core
 ///
-/// This is the base class for all resources.
+/// \brief Base class for resources.
+///
+/// ## Default & error resources
+///
+/// It's possible to define special resources in case of load failure, to be
+/// returned instead by jop::ResourceManager. To do so, define one or both of
+/// the following functions for your derived resource class:
+///
+/// \code{.cpp}
+/// static ResourceType& getDefault();
+/// static ResourceType& getError();
+/// \endcode
+/// 
+/// If at least one of these exists, the resource manager will use them to fetch
+/// a fallback resource if the load() method fails. Make sure that these functions
+/// always succeed, so that they don't cause an infinite recursive loop.
+
+#endif
