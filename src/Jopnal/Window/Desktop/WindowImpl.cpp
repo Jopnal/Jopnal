@@ -180,9 +180,11 @@ namespace jop { namespace detail
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
 
-        // No intermediate frame buffer
-        if (settings.depthBits)
+        static const bool srgbConversion = SettingManager::get<bool>("engine@DefaultWindow|bSRGBConversion", false);
+
+        if (srgbConversion)
         {
+            // No intermediate frame buffer
             glCheck(glEnable(GL_FRAMEBUFFER_SRGB));
         }
     }

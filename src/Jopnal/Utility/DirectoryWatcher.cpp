@@ -54,6 +54,13 @@
 
 namespace jop
 {
+    bool DirectoryWatcher::Info::operator ==(const Info& right) const
+    {
+        return (datetime == right.datetime) && (filename == right.filename);
+    }
+
+    //////////////////////////////////////////////
+
     DirectoryWatcher::DirectoryWatcher()
         : m_impl(nullptr)
     {}

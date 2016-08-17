@@ -205,6 +205,8 @@ namespace jop { namespace detail
 
             eglCheck(eglChooseConfig(getDisplay(), configAttribs, &m_config, 1, &numConfigs));
 
+            JOP_ASSERT(numConfigs > 0, "Failed to choose EGL config!");
+
             state->window = this;
             state->handleSurfaceCreation    = &handleSurfaceCreation;
             state->handleSurfaceDestruction = &handleSurfaceDestruction;
@@ -258,9 +260,14 @@ namespace jop { namespace detail
 
         ns_windowRefs[m_context] = &windowPtr;
 
-        if (settings.depthBits && JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB_write_control))
+        if (JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB_write_control))
         {
-            glCheck(glEnable(GL_FRAMEBUFFER_SRGB_EXT));
+            static const bool srgbConversion = SettingManager::get<bool>("engine@DefaultWindow|bSRGBConversion", false);
+
+            if (srgbConversion)
+            {
+                glCheck(glEnable(GL_FRAMEBUFFER_SRGB_EXT));
+            }
         }
     }
 
@@ -539,9 +546,9 @@ namespace jop { namespace detail
                         else if (ns_joystickAxes[axis] == AMOTION_EVENT_AXIS_RTRIGGER)
                             state->activeAxes[5] = 0.f;
 
-                        else if (!state->controllerPresent)
+                        if (!state->controllerPresent)
                         {
-                            windowRef.getEventHandler()->controllerConnected(1, "Android_Controller");
+                            windowRef.getEventHandler()->controllerConnected(0, "Android_Controller");
                             state->controllerPresent = true;
                         }
                     }

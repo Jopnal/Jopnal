@@ -48,10 +48,10 @@ namespace jop
         enum Filter : unsigned short
         {
             Subsystem   = 1,
-            SharedScene = Subsystem << 1,
-            Scene       = SharedScene << 1,
-            Object      = Scene << 1,
-            Component   = Object << 1,
+            SharedScene = 1 << 1,
+            Scene       = 1 << 2,
+            Object      = 1 << 3,
+            Component   = 1 << 4,
             Global      = 0xFFFF
         };
 
@@ -67,10 +67,8 @@ namespace jop
 
         /// \brief Constructor
         /// 
-        /// \param message The message. Can include just a filter or be empty,
-        ///                             in which case you must push the command & arguments
-        ///                             in a separate context.
-        /// \param ptr The return value pointer
+        /// \param message The message. May include just a filter or be empty,
+        ///                in which case you must push the command & arguments separately
         ///
         Message(const std::string& message);
 
@@ -79,7 +77,7 @@ namespace jop
         ///
         /// \param arg The argument to push
         ///
-        /// \return Reference to this
+        /// \return Reference to self
         ///
         template<typename T>
         Message& push(const T& arg);
@@ -90,7 +88,7 @@ namespace jop
         ///
         /// \param str The argument to push
         ///
-        /// \return Reference to this
+        /// \return Reference to self
         ///
         Message& push(const std::string& str);
 
@@ -120,13 +118,11 @@ namespace jop
         template<typename T>
         Message& pushReference(const T& ref);
 
-
         /// \brief Get a string with the command and arguments
         ///
         /// \return A new string with the internal buffer's contents
         ///
         const std::string& getString() const;
-
 
         /// \brief Check if the given bit field should pass the filter
         ///
@@ -183,4 +179,5 @@ namespace jop
 
 /// \class jop::Message
 /// \ingroup utility
+
 #endif

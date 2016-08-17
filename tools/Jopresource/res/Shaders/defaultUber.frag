@@ -545,5 +545,5 @@ void main()
     // Finally assign to the fragment output
     JOP_FRAG_COLOR(0) = tempColor;
 
-    #endif // Sky box
+#endif // Sky box
 }

@@ -109,4 +109,5 @@ namespace jop
 /// \ingroup utility
 ///
 /// #TODO Detailed description
+
 #endif

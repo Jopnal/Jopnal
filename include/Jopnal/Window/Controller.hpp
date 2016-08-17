@@ -119,21 +119,27 @@ namespace jop
 
         /// \brief Check if specific controller is connected
         ///
+        /// \param index The index of the controller to check
+        ///
         /// \return True if connected
         ///
         static bool isControllerPresent(const int index);
 
-        /// \brief Get boolean is button pressed
+        /// \brief Check if a controller button is currently pressed
         ///
-        /// \param Button's code
+        /// \param index The controller index
+        /// \param button The controller button
         ///
-        /// \return True if pressed
+        /// \return True if currently pressed
         ///
         static bool isButtonDown(const int index, const int button);
 
-        /// \brief Get Vector of left stick's offset
+        /// \brief Get an axis offset
         ///
-        /// \return glm::vec2
+        /// \param index The index if the controller
+        /// \param axis The axis
+        ///
+        /// \return The axis offsed, between -1 and 1
         ///
         static float getAxisOffset(const int index, const int axis);
     };

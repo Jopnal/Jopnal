@@ -51,4 +51,21 @@ namespace jop
     JOP_API void assertion(const bool expression, const std::string& file, unsigned int line, const std::string& message);
 }
 
+/// \def JOP_ASSERT
+/// \ingroup utility
+///
+/// \brief Custom assertion macro
+///
+/// \param expression The expression to evaluate, which is required to be true
+///                   if the program is to continue
+/// \param message The error message to print in case of assertion failure
+
+/// \def JOP_ASSERT_EVAL
+/// \ingroup utility
+///
+/// This version of the assertion macro will evaluete the expression even when
+/// assertions have been turned off.
+///
+/// \copydoc JOP_ASSERT
+
 #endif

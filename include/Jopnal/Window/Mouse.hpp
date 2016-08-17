@@ -51,82 +51,63 @@ namespace jop
             X5
         };
 
-        /// Mouse modes (Visible, Hidden, Frozen)
+        /// Mouse modes
         ///
         enum class Mode
         {
-            Visible,    ///< Visible makes cursor visible and behave normally.
-            Hidden,     ///< Hidden makes cursor invisible when its not over the client area of the window, but does not restrict it from leaving.
-            Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement.
+            Visible,    ///< Visible makes cursor visible and behave normally
+            Hidden,     ///< Hidden makes cursor invisible when its not over the client area of the window, but does not restrict it from leaving
+            Frozen      ///< Frozen hides and grabs the cursor, providing virtual and unlimited cursor movement
         };
 
     public:
 
-        /// \brief Get boolean is button down
+        /// \brief Check if a mouse button is down
         ///
-        /// \param Button's code
+        /// \param button The mouse button
         ///
-        /// \return True if down
+        /// \return True if button is down
         ///
         static bool isButtonDown(const Button button);
 
-        /// \brief Get mouse position
+        /// \brief Get the mouse cursor position
         ///
-        /// \return Glm vector of mouse position
+        /// \return The mouse position
         ///
         static glm::vec2 getPosition();
 
-        /// \brief Sets mouse mode
+        /// \brief Set the mouse mode
         ///
-        /// Mouse modes: Visible, Hidden, Frozen (Defined in mouse class)
-        ///
-        /// \param mode Enum mouse mode.
+        /// \param mode The mouse mode
         ///
         static void setMouseMode(const Mode mode);
 
-        /// \brief Restricts mouse into user defined retangle shaped area inside window
-        ///
-        /// \default Size of context window
+        /// \brief Restricts the mouse cursor inside the main window
         ///
         static void setClipping();
 
-        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        /// \brief Restricts mouse into a rectangular area inside the main window
         ///
-        /// \param Center position x,y and size of clipping area
+        /// The coordinates are relative to the main window.
         ///
-        static void setClipping(const int x, const int y, const int size);
+        /// \param min The minimum coordinates of the restriction rectangle (left, top)
+        /// \param min The maximum coordinates of the restriction rectangle (right, bottom)
+        ///
+        static void setClipping(const glm::ivec2& min, const glm::ivec2& max);
 
-        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        /// \brief Get clipping coordinates of the mouse cursor
         ///
-        /// \param Coordinates of clipping area (int minX, int maxX, int minY, int maxY)
+        /// \return The clipping coordinates (first = minimum, second = maximum)
         ///
-        static void setClipping(const int minX, const int maxX, const int minY, const int maxY);
+        static const std::pair<glm::ivec2, glm::ivec2>& getClipping();
 
-        /// \brief Restricts mouse into user defined retangle shaped area inside window
+        /// \brief Check if the mouse cursor has been clipped
         ///
-        /// \param Coordinates of clipping area as two min-max vector (glm::ivec2 x, glm::ivec2 y)
-        ///
-        static void setClipping(const glm::ivec2 x, const glm::ivec2 y);
-
-        /// \brief Restricts mouse into user defined retangle shaped area inside window
-        ///
-        /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
-        ///
-        static void setClipping(const glm::ivec4 clipping);
-
-        /// \brief Get clipping coordinates of mouse
-        ///
-        /// \param Coordinates of clipping area as vector (glm::ivec4(int minX, int maxX, int minY, int maxY))
-        ///
-        static const glm::ivec4& getClipping();
-
-        /// \brief Does mouse have movement restrictions
-        ///
-        /// \return True if mouse has clipping area
+        /// \return True if the mouse cursor is clipped
         ///
         static bool isClipping();
 
-        /// \brief Releases mouse if it's resrticted into clipping area
+        /// \brief Release the mouse cursor if it was previously clipped
         ///
         static void releaseClipping();
     };

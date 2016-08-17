@@ -35,13 +35,15 @@ namespace jop
     {
     public:
 
-        /// \brief Vibrate for given time (in milliseconds)
+        /// \brief Vibrate for a given period
         ///
-        /// \param time_ms Time to vibrate in milliseconds
+        /// \param time Time to vibrate, in milliseconds
         ///
-        static void vibrate(const unsigned int time_ms);
+        static void vibrate(const unsigned int time);
 
         /// \brief Vibrate indefinitely
+        ///
+        /// \see stop()
         ///
         static void vibrate();
 

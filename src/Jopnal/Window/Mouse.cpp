@@ -41,7 +41,7 @@
 namespace
 {
     jop::Window* ns_windowRef = nullptr;
-    glm::ivec4 ns_restrictions(-1);
+    std::pair<glm::ivec2, glm::ivec2> ns_restrictions(glm::ivec2(-1), glm::ivec2(-1));
 
     bool validateWindowRef()
     {
@@ -72,17 +72,18 @@ namespace jop
 
     glm::vec2 Mouse::getPosition()
     {
+    #ifdef JOP_OS_DESKTOP
+
         if (validateWindowRef())
         {
-        #ifdef JOP_OS_DESKTOP
-
             double x, y; 
             glfwGetCursorPos(ns_windowRef->getLibraryHandle(), &x, &y);
 
             return glm::vec2(x, y);
 
-        #endif
         }
+
+    #endif
 
         return glm::vec2(0, 0);
     }
@@ -111,10 +112,10 @@ namespace jop
                 glm::ivec2 winSize;
                 glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
-                ns_restrictions = glm::ivec4(0, winSize.x, 0, winSize.y);
+                ns_restrictions = std::make_pair(glm::ivec2(0, winSize.x), glm::ivec2(0, winSize.y));
             }
 
-            RECT res{winPos.x + ns_restrictions.x, winPos.y + ns_restrictions.z, winPos.x + ns_restrictions.y, winPos.y + ns_restrictions.w};
+            RECT res{winPos.x + ns_restrictions.first.x, winPos.y + ns_restrictions.second.x, winPos.x + ns_restrictions.first.y, winPos.y + ns_restrictions.second.y};
             ClipCursor(&res);
         }
 
@@ -123,30 +124,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mouse::setClipping(const int x, const int y, const int size)
-    {
-        const int s = size / 2;
-
-        setClipping(glm::ivec4(x - s, x + s, y - s, y + s));
-    }
-
-    //////////////////////////////////////////////
-
-    void Mouse::setClipping(const int minX, const int maxX, const int minY, const int maxY)
-    {
-        setClipping(glm::ivec4(minX, maxX, minY, maxY));
-    }
-
-    //////////////////////////////////////////////
-
-    void Mouse::setClipping(const glm::ivec2 x, const glm::ivec2 y)
-    {
-        setClipping(glm::ivec4(x.x, x.y, y.x, y.y));
-    }
-
-    //////////////////////////////////////////////
-
-    void Mouse::setClipping(const glm::ivec4 clipping)
+    void Mouse::setClipping(const glm::ivec2& min, const glm::ivec2& max)
     {
     #ifdef JOP_OS_WINDOWS
 
@@ -155,16 +133,16 @@ namespace jop
             glm::ivec2 winSize = glm::ivec2(0);
             glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
-            ns_restrictions = clipping;
+            ns_restrictions = std::make_pair(min, max);
 
-            if (ns_restrictions.y > winSize.x)
-                ns_restrictions.y = winSize.x;
-            if (ns_restrictions.x > winSize.x)
-                ns_restrictions.x = winSize.x;
-            if (ns_restrictions.w > winSize.y)
-                ns_restrictions.w = winSize.y;
-            if (ns_restrictions.z > winSize.y)
-                ns_restrictions.z = winSize.y;
+            if (ns_restrictions.first.y > winSize.x)
+                ns_restrictions.first.y = winSize.x;
+            if (ns_restrictions.first.x > winSize.x)
+                ns_restrictions.first.x = winSize.x;
+            if (ns_restrictions.second.y > winSize.y)
+                ns_restrictions.second.y = winSize.y;
+            if (ns_restrictions.second.x > winSize.y)
+                ns_restrictions.second.x = winSize.y;
 
             setClipping();
         }
@@ -174,7 +152,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::ivec4& Mouse::getClipping()
+    const std::pair<glm::ivec2, glm::ivec2>& Mouse::getClipping()
     {
         return ns_restrictions;
     }
@@ -185,7 +163,7 @@ namespace jop
     {
     #ifdef JOP_OS_WINDOWS
 
-        if (ns_restrictions.x != -1 && ns_restrictions.y != -1 && ns_restrictions.z != -1 && ns_restrictions.w != -1)
+        if (ns_restrictions.first != glm::ivec2(-1) && ns_restrictions.second != glm::ivec2(-1))
             return true;
 
     #endif
@@ -200,7 +178,7 @@ namespace jop
     #ifdef JOP_OS_WINDOWS
 
         ClipCursor(NULL);
-        ns_restrictions = glm::ivec4(-1, -1, -1, -1);
+        ns_restrictions = std::make_pair(glm::ivec2(-1), glm::ivec2(-1));
 
     #endif
     }

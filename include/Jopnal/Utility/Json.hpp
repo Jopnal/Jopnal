@@ -24,13 +24,16 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+
 #pragma warning(push)
 #pragma warning(disable: 4244)
+
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+
 #pragma warning(pop)
 
 //////////////////////////////////////////////
@@ -40,7 +43,7 @@ namespace rapidjson
 {
     /// \brief Check if the document has a parse error
     ///
-    /// This will also print the error.
+    /// This will also print the error into the console.
     ///
     /// \param doc The document to check
     ///
@@ -50,25 +53,29 @@ namespace rapidjson
 
     /// \brief Json array iterator begin
     ///
-    /// Enables the use of range iterators
+    /// Enables the use of range iterators.
     ///
-    JOP_API Value::ValueIterator begin(Value&);
+    /// \return Array iterator to the beginning
+    ///
+    JOP_API Value::ValueIterator begin(Value& val);
 
     /// \brief Json array iterator begin
     ///
-    /// Enables the use of range iterators
+    /// Enables the use of range iterators.
+    ///
+    /// \return Array iterator to the end
     ///
     /// \see begin()
     ///
-    JOP_API Value::ValueIterator end(Value&);
+    JOP_API Value::ValueIterator end(Value& val);
 
     /// \copydoc begin(Value&)
     ///
-    JOP_API Value::ConstValueIterator begin(const Value&);
+    JOP_API Value::ConstValueIterator begin(const Value& val);
 
     /// \copydoc end(Value&)
     ///
-    JOP_API Value::ConstValueIterator end(const Value&);
+    JOP_API Value::ConstValueIterator end(const Value& val);
 }
 
 namespace jop
