@@ -52,13 +52,12 @@ namespace jop
 
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
-        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setFixedRotation, "setFixedRotation");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorque, "applyTorque");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearVelocity, "setLinearVelocity");
-        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularVelocity");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralForce, "applyCentralForce");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
@@ -196,18 +195,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RigidBody& RigidBody::setAngularFactor(const glm::vec3& angularFactor)
+    RigidBody& RigidBody::setFixedRotation(const glm::vec3& axis)
     {
-        m_rigidBody->setAngularFactor(btVector3(angularFactor.x, angularFactor.y, angularFactor.z));
+        m_rigidBody->setAngularFactor(btVector3(
+            axis.x == 1.f ? 1.f : 0.f,
+            axis.y == 1.f ? 1.f : 0.f,
+            axis.z == 1.f ? 1.f : 0.f
+            ));
+
         return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    glm::vec3 RigidBody::getAngularFactor()const
-    {
-        auto& gaf = m_rigidBody->getAngularFactor();
-        return glm::vec3(gaf.x(), gaf.y(), gaf.z());
     }
 
     //////////////////////////////////////////////

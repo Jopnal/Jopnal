@@ -148,11 +148,10 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Font
+/// \class jop::Font
 /// \ingroup graphics
 ///
 /// Font manager class, which loads fonts from file and packs them to textures.
 /// Supports .ttf format.
 ///
+#endif

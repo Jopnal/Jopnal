@@ -53,4 +53,6 @@ namespace jop
     };
 }
 
+/// \class jop::CylinderShape
+/// \ingroup physics
 #endif

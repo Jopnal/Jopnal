@@ -64,10 +64,9 @@ namespace jop
         static glm::vec2 getPosition(const int id = 0);
     };
 }
-
-#endif
-
 /// \class jop::Touch
 /// \ingroup window
 ///
 /// #TODO Detailed description
+
+#endif

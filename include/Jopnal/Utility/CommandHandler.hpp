@@ -176,10 +176,8 @@ namespace jop
 ///
 #define JOP_EXECUTE_COMMAND(handlerName, command, instance) ns_##handlerName##_commandHandler.execute(command, instance)
 
-
-#endif
-
-/// \class CommandHandler
+/// \class jop::CommandHandler
 /// \ingroup utility
 ///
 /// #TODO Detailed description
+#endif

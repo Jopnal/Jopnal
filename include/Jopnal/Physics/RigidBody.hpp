@@ -137,19 +137,15 @@ namespace jop
         ///
         glm::vec3 getLinearFactor() const;
 
-        /// \brief Sets the angular factor for rigid body
+        /// \brief Sets/unsets the body to constantly rotate
         ///
-        /// \comm setAngularFactor
+        /// \comm setFixedRotation
         ///
-        /// \param angularFactor Unique vector for angular factor
+        /// \param axis Axes to disable rotations. Axis is free if 1.f, locked if anything else.
         ///
         /// \return Reference to self
         ///
-        RigidBody& setAngularFactor(const glm::vec3& angularFactor);
-
-        /// \brief Gets the angular factor as glm::vec3 
-        ///
-        glm::vec3 getAngularFactor() const;
+        RigidBody& setFixedRotation(const glm::vec3& axis);
 
         /// \brief Applies constant force to rigid bodies relative position
         ///
@@ -303,4 +299,6 @@ namespace jop
 #include <Jopnal/Physics/Inl/RigidBody.inl>
 }
 
+/// \class jop::RigidBody
+/// \ingroup physics
 #endif

@@ -92,9 +92,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class ConeMesh
-/// \ingroup Graphics
+/// \class jop::ConeMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

@@ -145,4 +145,6 @@ namespace jop
     };
 }
 
+/// \class jop::Collider
+/// \ingroup physics
 #endif

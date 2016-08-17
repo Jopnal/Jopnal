@@ -73,4 +73,6 @@ namespace jop
     };
 }
 
+/// \class jop::ConvexHullShape
+/// \ingroup physics
 #endif

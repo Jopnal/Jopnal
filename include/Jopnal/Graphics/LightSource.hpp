@@ -381,7 +381,6 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::LightSource
 /// \ingroup graphics
+#endif

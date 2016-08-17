@@ -290,9 +290,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Camera
+/// \class jop::Camera
 /// \ingroup graphics
 ///
 /// 
+#endif

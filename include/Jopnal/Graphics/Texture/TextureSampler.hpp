@@ -175,5 +175,5 @@ namespace jop
 
 #endif
 
-/// \class TextureSampler
+/// \class jop::TextureSampler
 /// \ingroup graphics

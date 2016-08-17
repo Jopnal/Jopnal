@@ -78,4 +78,6 @@ namespace jop
     };
 }
 
+/// \class jop::AnimationAtlas
+/// \ingroup graphics
 #endif

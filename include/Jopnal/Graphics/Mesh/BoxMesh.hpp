@@ -124,9 +124,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class BoxMesh
-/// \ingroup Graphics
+/// \class jop::BoxMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

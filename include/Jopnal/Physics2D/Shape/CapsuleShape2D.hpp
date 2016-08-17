@@ -57,4 +57,6 @@ namespace jop
         CircleShape2D m_ball2;
     };
 }
+/// \class jop::CapsuleShape2D
+/// \ingroup physics2d
 #endif

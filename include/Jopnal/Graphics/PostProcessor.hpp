@@ -118,4 +118,6 @@ namespace jop
     };
 }
 
+/// \class jop::PostProcessor
+/// \ingroup graphics
 #endif

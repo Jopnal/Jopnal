@@ -237,9 +237,10 @@ namespace jop
     };
 }
 
-#endif
 
-/// \class SoundSource
-/// \ingroup Audio
+/// \class jop::SoundSource
+/// \ingroup audio
 ///
 /// Base class for audio component
+
+#endif

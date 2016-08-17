@@ -85,4 +85,6 @@ namespace jop
         unsigned int m_ID; ///< Joint ID.
     };
 }
+/// \class jop::Joint2D
+/// \ingroup physics2d
 #endif

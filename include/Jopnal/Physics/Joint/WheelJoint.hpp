@@ -100,4 +100,6 @@ namespace jop
         float m_maxAngle;
     };
 }
+/// \class jop::WheelJoint
+/// \ingroup physics
 #endif

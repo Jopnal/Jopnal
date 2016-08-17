@@ -181,7 +181,6 @@ namespace jop
     #include <Jopnal/Utility/Inl/Message.inl>
 }
 
-#endif
-
-/// \class Resource
+/// \class jop::Message
 /// \ingroup utility
+#endif

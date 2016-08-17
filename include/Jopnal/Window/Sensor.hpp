@@ -83,9 +83,8 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Sensor
 /// \ingroup window
 ///
 ///
+#endif

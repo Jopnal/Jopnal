@@ -86,9 +86,8 @@ namespace jop
     #include <Jopnal/Utility/Inl/Randomizer.inl>
 }
 
-#endif
-
-/// \class Randomizer
-/// \ingroup core
+/// \class jop::Randomizer
+/// \ingroup utility
 ///
 /// Class for picking random values from given distribution
+#endif

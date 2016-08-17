@@ -73,9 +73,10 @@ namespace jop
         glm::vec3 normalVector;   ///< Normal vector of the vertex 
     };
 }
-#endif
 
-/// \class Vertex
-/// \ingroup Graphics
+/// \class jop::Vertex
+/// \ingroup graphics
 ///
 /// 
+
+#endif

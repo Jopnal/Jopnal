@@ -93,9 +93,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class RectangleMesh
-/// \ingroup Graphics
+/// \class jop::RectangleMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

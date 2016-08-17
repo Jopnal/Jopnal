@@ -85,4 +85,6 @@ namespace jop
     };
 }
 
+/// \class jop::DirectoryWatcher
+/// \ingroup utility
 #endif

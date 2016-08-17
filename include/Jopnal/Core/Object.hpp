@@ -912,7 +912,6 @@ namespace jop
     #include <Jopnal/Core/Inl/Object.inl>
 }
 
-#endif
-
 /// \class jop::Object 
 /// \ingroup core
+#endif

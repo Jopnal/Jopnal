@@ -136,3 +136,6 @@ namespace jop
 }
 
 #endif
+
+/// \class jop::TextureAtlas
+/// \ingroup graphics

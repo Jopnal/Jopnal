@@ -109,4 +109,6 @@ namespace jop
     #include <Jopnal/Graphics/Inl/Renderer.inl>
 }
 
+/// \class jop::Renderer
+/// \ingroup graphics
 #endif

@@ -48,4 +48,6 @@ namespace jop
 
     };
 }
+/// \class jop::GearJoint2D
+/// \ingroup physics2d
 #endif

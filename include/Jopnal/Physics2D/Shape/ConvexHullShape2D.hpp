@@ -69,4 +69,6 @@ namespace jop
         static ConvexHullShape2D& getDefault();
     };
 }
+/// \class jop::ConvexHullShape2D
+/// \ingroup physics2d
 #endif

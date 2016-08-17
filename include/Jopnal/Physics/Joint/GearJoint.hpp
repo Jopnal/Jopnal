@@ -72,4 +72,6 @@ namespace jop
 
     };
 }
+/// \class jop::GearJoint
+/// \ingroup physics
 #endif

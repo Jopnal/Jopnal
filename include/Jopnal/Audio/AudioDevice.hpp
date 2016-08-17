@@ -72,9 +72,9 @@ namespace jop
         static ALCcontext_struct& getContext();
     };
 }
-#endif
-
-/// \class AudioDevice
-/// \ingroup Audio
+/// \class jop::AudioDevice
+/// \ingroup audio
 ///
 /// Handle to operating system's audio management application
+
+#endif

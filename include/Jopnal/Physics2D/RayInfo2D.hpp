@@ -51,4 +51,6 @@ namespace jop
         glm::vec2 normal;   ///< Local ray hit normal
     };
 }
+/// \class jop::RayInfo2D
+/// \ingroup physics2d
 #endif

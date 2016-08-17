@@ -65,4 +65,6 @@ namespace jop
         bool load(const std::vector<glm::vec2>& points, const std::vector<unsigned int>& indices);
     };
 }
+/// \class jop::TerrainShape2D
+/// \ingroup physics2d
 #endif

@@ -244,9 +244,8 @@ namespace jop
     #include <Jopnal/Core/Inl/SettingManager.inl>
 }
 
-#endif
-
-/// \class SettingManager
+/// \class jop::SettingManager
 /// \ingroup core
 ///
 /// #TODO Detailed description
+#endif

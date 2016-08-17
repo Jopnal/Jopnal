@@ -60,5 +60,7 @@ namespace jop
         std::set<b2Shape*> m_shapes;
     };
 }
+/// \class jop::CompoundShape2D
+/// \ingroup physics2d
 
 #endif

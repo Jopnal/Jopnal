@@ -146,4 +146,6 @@ namespace jop
     };
 }
 
+/// \class jop::World
+/// \ingroup physics
 #endif

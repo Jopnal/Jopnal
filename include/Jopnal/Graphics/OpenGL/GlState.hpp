@@ -178,9 +178,9 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class GlStateManager
+/// \class jop::GlStateManager
 /// \ingroup graphics
 ///
 /// 
+#endif
+

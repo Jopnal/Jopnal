@@ -53,4 +53,6 @@ namespace jop
     };
 }
 
+/// \class jop::InfinitePlaneShape
+/// \ingroup physics
 #endif

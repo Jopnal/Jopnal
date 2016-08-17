@@ -61,9 +61,9 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class SerializeInfo
+/// \class jop::SerializeInfo
 /// \ingroup core
 ///
 /// #TODO Detailed description
+
+#endif

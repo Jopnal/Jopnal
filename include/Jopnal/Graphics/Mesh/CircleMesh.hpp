@@ -75,9 +75,9 @@ namespace jop
         int m_points;   ///How many points does this circle have; triangle, pentagon, circle
     };
 }
-#endif
 
-/// \class CircleMesh
-/// \ingroup Graphics
+/// \class jop::CircleMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

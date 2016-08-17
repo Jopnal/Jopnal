@@ -367,7 +367,6 @@ namespace jop
 ///
 #define JOP_MAIN_LOOP ::jop::Engine::runMainLoop()
 
-#endif
-
 /// \class jop::Engine
 /// \ingroup core
+#endif

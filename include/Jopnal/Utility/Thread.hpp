@@ -147,4 +147,6 @@ namespace jop
     #include <Jopnal/Utility/Inl/Thread.inl>
 }
 
+/// \class jop::Thread
+/// \ingroup utility
 #endif

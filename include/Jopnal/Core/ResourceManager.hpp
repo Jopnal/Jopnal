@@ -233,7 +233,6 @@ namespace jop
     #include <Jopnal/Core/Inl/ResourceManager.inl>
 }
 
-#endif
-
-/// \class ResourceManager
+/// \class jop::ResourceManager
 /// \ingroup core
+#endif

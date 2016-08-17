@@ -92,9 +92,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class CylinderMesh
-/// \ingroup Graphics
+/// \class jop::CylinderMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

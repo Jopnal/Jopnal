@@ -63,4 +63,6 @@ namespace jop
         b2PulleyJoint* m_jointL;
     };
 }
+/// \class jop::PulleyJoint2D
+/// \ingroup physics2d
 #endif

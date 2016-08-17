@@ -87,4 +87,6 @@ namespace jop
         b2RevoluteJoint* m_jointL;
     };
 }
+/// \class jop::RotationJoint2D
+/// \ingroup physics2d
 #endif

@@ -121,4 +121,7 @@ namespace jop
 
     };
 }
+
+/// \class jop::PistonJoint
+/// \ingroup physics
 #endif

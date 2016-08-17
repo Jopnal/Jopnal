@@ -111,4 +111,6 @@ namespace jop
     #include <Jopnal/Core/Inl/SettingCallback.inl>
 }
 
+/// \class jop::SettingCallback
+/// \ingroup core
 #endif

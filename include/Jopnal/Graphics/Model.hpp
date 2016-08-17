@@ -112,4 +112,6 @@ namespace jop
     };
 }
 
+/// \class jop::Model
+/// \ingroup graphics
 #endif

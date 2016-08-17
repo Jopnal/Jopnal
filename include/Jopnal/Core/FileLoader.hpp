@@ -324,7 +324,6 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::FileLoader
 /// \ingroup core
+#endif

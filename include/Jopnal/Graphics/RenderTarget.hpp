@@ -142,9 +142,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class RenderTarget
+/// \class jop::RenderTarget
 /// \ingroup graphics
 ///
 /// #TODO Detailed description
+#endif

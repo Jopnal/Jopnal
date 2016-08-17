@@ -216,4 +216,7 @@ namespace jop
     #include <Jopnal/Utility/Inl/SafeReferenceable.inl>
 }
 
+
+/// \class jop::SafeReferenceable
+/// \ingroup utility
 #endif

@@ -280,9 +280,8 @@ namespace jop
     #include <Jopnal/Window/Inl/Window.inl>
 }
 
-#endif
-
 /// \class jop::Window
 /// \ingroup window
 ///
 /// #TODO Detailed description
+#endif

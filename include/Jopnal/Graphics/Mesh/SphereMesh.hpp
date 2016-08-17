@@ -90,9 +90,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class SphereMesh
-/// \ingroup Graphics
+/// \class jop::SphereMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

@@ -58,4 +58,6 @@ namespace jop
         bool load(const glm::vec2& extents);
     };
 }
+/// \class jop::RectangleShape2D
+/// \ingroup physics2d
 #endif

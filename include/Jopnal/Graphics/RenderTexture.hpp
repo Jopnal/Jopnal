@@ -132,8 +132,7 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class RenderTexture
+/// \class jop::RenderTexture
 /// \ingroup graphics
 ///
+#endif

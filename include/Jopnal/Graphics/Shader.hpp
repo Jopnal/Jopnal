@@ -101,9 +101,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Shader
-/// \ingroup Graphics
+/// \class jop::Shader
+/// \ingroup graphics
 ///
 /// 
+#endif

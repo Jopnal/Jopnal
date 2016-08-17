@@ -92,9 +92,8 @@ namespace jop
 	};
 }
 
-#endif
-
-/// \class CapsuleMesh
-/// \ingroup Graphics
+/// \class jop::CapsuleMesh
+/// \ingroup graphics
 ///
 /// 
+#endif

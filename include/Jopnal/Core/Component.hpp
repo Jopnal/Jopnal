@@ -156,7 +156,6 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Component
 /// \ingroup core
+#endif

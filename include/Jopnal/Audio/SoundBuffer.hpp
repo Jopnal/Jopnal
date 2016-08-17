@@ -134,9 +134,8 @@ namespace jop
         parsedAudioInfo m_info;                     ///< Info about sound's structure
     };
 }
-#endif
-
-/// \class SoundBuffer
-/// \ingroup Audio
+/// \class jop::SoundBuffer
+/// \ingroup audio
 ///
 /// Sound data storage
+#endif

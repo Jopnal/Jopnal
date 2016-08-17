@@ -78,4 +78,6 @@ namespace jop
     };
 }
 
+/// \class jop::ContactListener
+/// \ingroup physics
 #endif

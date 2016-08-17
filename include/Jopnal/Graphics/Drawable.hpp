@@ -202,9 +202,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Drawable
+/// \class jop::Drawable
 /// \ingroup graphics
 ///
 /// #TODO Detailed description
+#endif

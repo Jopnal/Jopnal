@@ -63,4 +63,6 @@ namespace jop
         bool m_isCompound;
     };
 }
+/// \class jop::CollisionShape2D
+/// \ingroup physics2d
 #endif

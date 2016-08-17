@@ -138,4 +138,6 @@ namespace jop
     };
 }
 
+/// \class jop::Image
+/// \ingroup graphics
 #endif

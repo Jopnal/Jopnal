@@ -79,5 +79,7 @@ namespace jop
         Material m_material;    ///< The material
     };
 }
+/// \class jop::SkySphere
+/// \ingroup graphics
 
 #endif

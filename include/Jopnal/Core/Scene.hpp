@@ -256,7 +256,6 @@ namespace jop
     #include <Jopnal/Core/Inl/Scene.inl>
 }
 
-#endif
-
-/// \class Scene
+/// \class jop::Scene
 /// \ingroup core
+#endif

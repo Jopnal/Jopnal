@@ -59,4 +59,6 @@ namespace jop
     };
 }
 
+/// \class jop::RopeJoint
+/// \ingroup physics
 #endif

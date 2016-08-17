@@ -121,9 +121,9 @@ namespace jop
         const int m_usage;              ///< The usage type
     };
 }
-#endif
-
-/// \class Buffer
-/// \ingroup Graphics
+/// \class jop::Buffer
+/// \ingroup graphics
 ///
 /// 
+
+#endif

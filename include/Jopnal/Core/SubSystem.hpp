@@ -117,9 +117,8 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::SubSystem
 /// \ingroup core
 ///
 /// 
+#endif

@@ -70,4 +70,6 @@ namespace jop
     };
 }
 
+/// \class jop::ModelLoader
+/// \ingroup graphics
 #endif

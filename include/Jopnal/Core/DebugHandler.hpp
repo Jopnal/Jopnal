@@ -223,8 +223,6 @@ namespace jop
     #include <Jopnal/Core/Inl/DebugHandler.inl>
 }
 
-#endif
-
 /// \def JOP_DEBUG_ERROR(stream)
 /// \brief Print an error debug message
 ///
@@ -252,3 +250,5 @@ namespace jop
 
 /// \class jop::DebugHandler
 /// \ingroup core
+
+#endif

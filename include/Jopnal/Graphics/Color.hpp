@@ -126,9 +126,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Color
+/// \class jop::Color
 /// \ingroup graphics
 ///
 /// #TODO Detailed description
+#endif

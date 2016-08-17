@@ -132,9 +132,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Mouse
+/// \class jop::Mouse
 /// \ingroup window
 ///
 /// #TODO Detailed description
+#endif

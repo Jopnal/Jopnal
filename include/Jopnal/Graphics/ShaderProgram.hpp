@@ -220,4 +220,6 @@ namespace jop
 #include <Jopnal/Graphics/Inl/ShaderProgram.inl>
 }
 
+/// \class jop::ShaderProgram
+/// \ingroup graphics
 #endif

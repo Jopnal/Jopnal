@@ -50,11 +50,10 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Glyph
+/// \class jop::Glyph
 /// \ingroup graphics
 ///
 /// Glyph holds data for text rendering
 /// 
 ///
+#endif

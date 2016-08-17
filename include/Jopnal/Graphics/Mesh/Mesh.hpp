@@ -189,7 +189,6 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Mesh
 /// \ingroup graphics
+#endif

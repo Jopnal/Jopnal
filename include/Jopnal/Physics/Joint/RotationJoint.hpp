@@ -61,4 +61,6 @@ namespace jop
         btGeneric6DofConstraint* m_jointL;
     };
 }
+/// \class jop::RotationJoint
+/// \ingroup physics
 #endif

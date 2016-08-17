@@ -105,9 +105,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Clock
+/// \class jop::Clock
 /// \ingroup utility
 ///
 /// #TODO Detailed description
+#endif

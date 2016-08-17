@@ -51,4 +51,7 @@ namespace jop
     };
 }
 
+/// \class jop::Vibrator
+/// \ingroup window
+
 #endif

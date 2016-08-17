@@ -218,7 +218,7 @@ namespace jop
         ///
         /// \comm setFixedRotation
         ///
-        /// \param rot Boolean for setting the body to constantly rotate. Resets the mass of the body.
+        /// \param rot Enable/disable body from rotating. Resets the mass of the body.
         ///
         /// \return Reference to self
         ///
@@ -275,4 +275,6 @@ namespace jop
 
     #include <Jopnal/Physics2D/Inl/RigidBody2D.inl>
 }
+/// \class jop::RigidBody2D
+/// \ingroup physics2d
 #endif

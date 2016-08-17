@@ -144,9 +144,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Keyboard
+/// \class jop::Keyboard
 /// \ingroup window
 ///
 /// #TODO Detailed description
+#endif

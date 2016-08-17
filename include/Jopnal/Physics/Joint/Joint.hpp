@@ -113,4 +113,7 @@ namespace jop
         unsigned int m_ID; ///< Joint ID.
     };
 }
+
+/// \class jop::Joint
+/// \ingroup physics
 #endif

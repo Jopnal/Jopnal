@@ -124,9 +124,8 @@ namespace jop
     };
 }
 
-#endif
-
-/// \class Transform
+/// \class jop::Transform
 /// \ingroup graphics
 ///
 /// #TODO Detailed description
+#endif

@@ -137,10 +137,10 @@ namespace jop
         glm::vec3 m_lastPos;    ///< Used to calculate velocity
     };
 }
-#endif
-
-/// \class Listener
-/// \ingroup Audio
+/// \class jop::Listener
+/// \ingroup audio
 ///
 /// Handles audio's position distance and volume retrieving according to source/retriever aspect
 /// Only one instance of this class can be created at time. SFML listener can't handle multiple retrievers.
+#endif
+
