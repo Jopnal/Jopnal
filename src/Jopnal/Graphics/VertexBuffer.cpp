@@ -53,7 +53,7 @@ namespace jop
     {
     #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
 
-        if (m_bytesAllocated)
+        if (m_bytesAllocated && gl::getVersionMajor() >= 3)
         {
             bind();
 
@@ -76,9 +76,7 @@ namespace jop
 
     VertexBuffer& VertexBuffer::operator =(VertexBuffer&& other)
     {
-        destroy();
-
-        Buffer::operator=(std::move(other));
+        Buffer::operator =(std::move(other));
 
         return *this;
     }
@@ -87,14 +85,18 @@ namespace jop
 
     void VertexBuffer::setData(const void* data, const std::size_t bytes)
     {
-        bind();
-
-        if (m_buffer && bytes > 0 && data)
+        if (bytes && data)
         {
-            glCheck(glBufferData(m_bufferType, bytes, NULL, m_usage));
+            bind();
+
+            if (bytes == m_bytesAllocated)
+            {
+                glCheck(glBufferSubData(m_bufferType, 0, bytes, data));
+                return;
+            }
+
+            glCheck(glBufferData(m_bufferType, bytes, data, m_usage));
             m_bytesAllocated = bytes;
-            setSubData(data, 0, bytes);
-            return;
         }
     }
 
@@ -102,7 +104,10 @@ namespace jop
 
     void VertexBuffer::setSubData(const void* data, const std::size_t offset, const std::size_t size)
     {
-        if (m_buffer && data && size)
+        if (data && size && (offset + size) <= m_bytesAllocated)
+        {
+            bind();
             glCheck(glBufferSubData(m_bufferType, offset, size, data));
+        }
     }
 }

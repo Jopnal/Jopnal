@@ -1,0 +1,33 @@
+// Jopnal lighting shader plugin file
+//
+// Jopnal license applies.
+
+// Required uniforms for lighting calculations
+//
+// Required by both lighting and shadows
+//
+#plugin <Jopnal/DefaultLighting/Base>
+
+	// Material
+	struct Material
+	{
+	    vec4 ambient;
+	    vec4 diffuse;
+	    vec4 specular;
+	    vec4 emission;
+	
+	    float shininess;
+	    float reflectivity;
+	};
+	uniform Material u_Material;
+
+#pluginend
+
+// Default lighting functions
+//
+//
+#plugin <Jopnal/DefaultLighting/Lighting>
+
+	
+
+#pluginend

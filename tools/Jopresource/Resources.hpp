@@ -46,5 +46,7 @@ extern const unsigned char brightFilter[1632];
 
 extern const unsigned char compatibilityPlugins[2001];
 
+extern const unsigned char lightingPlugins[533];
+
 }
 #endif

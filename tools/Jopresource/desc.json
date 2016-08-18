@@ -93,6 +93,11 @@
         {
             "name": "compatibilityPlugins",
             "path": "res/ShaderPlugins/compatibility.jops"
+        },
+
+        {
+            "name": "lightingPlugins",
+            "path": "res/ShaderPlugins/lighting.jops"
         }
     ]
 }

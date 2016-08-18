@@ -92,6 +92,8 @@ namespace jop
     {
         JOP_ASSERT(m_bufferType == other.m_bufferType, "Cannot assign a buffer of different type!");
 
+        destroy();
+
         m_buffer = other.m_buffer;
         other.m_buffer = 0;
 
