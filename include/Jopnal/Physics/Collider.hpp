@@ -135,6 +135,8 @@ namespace jop
 
         void attachToWorld();
 
+        bool isDetachedFromWorld() const;
+
     protected:
 
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state

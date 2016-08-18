@@ -85,7 +85,8 @@ namespace jop
           SafeReferenceable<Collider>   (this),
           m_motionState                 (std::make_unique<::detail::MotionState>(object)),
           m_body                        (),
-          m_worldRef                    (world)
+          m_worldRef                    (world),
+          m_detached                    (false)
     {}
 
     Collider::Collider(const Collider& other, Object& newObj)
@@ -93,7 +94,8 @@ namespace jop
           SafeReferenceable<Collider>   (this),
           m_motionState                 (std::make_unique<::detail::MotionState>(newObj)),
           m_body                        (),
-          m_worldRef                    (other.m_worldRef)
+          m_worldRef                    (other.m_worldRef),
+          m_detached                    (other.m_detached)
     {}
 
     Collider::~Collider()
@@ -282,5 +284,12 @@ namespace jop
             m_worldRef.m_worldData->world->addCollisionObject(m_body.get());
             m_detached = false;
         }
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::isDetachedFromWorld() const
+    {
+        return m_detached;
     }
 }

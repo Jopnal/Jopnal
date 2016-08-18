@@ -47,52 +47,12 @@ JOP_VARYING_IN vec2 vf_TexCoords;
 JOP_VARYING_IN vec3 vf_Normal;
 JOP_VARYING_IN vec4 vf_Color;
 
-// Surface material
-struct Material
-{
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    vec4 emission;
-
-    float shininess;
-    float reflectivity;
-};
-uniform Material u_Material;
+#include <Jopnal/DefaultLighting/Uniforms>
 
 // Light info
 #ifdef JMAT_LIGHTING
 
-    #if JMAT_MAX_POINT_LIGHTS > 0
-
-        // Point lights
-        struct PointLightInfo
-        {
-            bool enabled;
-
-            // Position
-            vec3 position;
-
-            // Intensities
-            vec3 ambient;
-            vec3 diffuse;
-            vec3 specular;
-
-            // Attenuation
-            // x = constant
-            // y = linear
-            // z = quadratic
-            vec3 attenuation;
-
-            // Shadow map info
-            bool castShadow;    ///< Cast shadows?
-            float farPlane;     ///< The light's far plane
-        };
-        uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
-        uniform samplerCube u_PointLightShadowMaps[JMAT_MAX_POINT_LIGHTS];
-        uniform int u_NumPointLights;
-
-    #endif
+    #include <Jopnal/DefaultLighting/Lighting>
 
     #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
 
@@ -157,126 +117,7 @@ uniform Material u_Material;
 
     #endif
 
-    #if JMAT_MAX_POINT_LIGHTS > 0
-
-        #if __VERSION__ >= 300
-        
-            // Offset directions for sampling point shadows
-            const vec3 g_gridSamplingDisk[20] = vec3[]
-            (
-                vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
-                vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-                vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
-                vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
-                vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
-            );
-
-        #endif
-        
-        // Point light calculation
-        vec3 calculatePointLight(const in int index)
-        {
-            PointLightInfo l = u_PointLights[index];
-
-            #if __VERSION__ < 300
-                if (!l.enabled)
-                    return vec3(0.0);
-            #endif
-
-            // Ambient impact
-            vec3 ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
-            // Direction from fragment to light
-            vec3 lightDir = normalize(l.position - vf_FragPosition);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            vec3 diffuse = diff * l.diffuse * vec3(u_Material.diffuse);
-
-            // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
-
-            // Calculate reflection direction (use a half-way vector)
-            vec3 reflectDir = normalize(lightDir + viewDir);
-
-            float shininess = max(1.0, u_Material.shininess
-
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
-
-            // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            vec3 specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
-
-            // Attenuation
-            float dist = length(l.position - vf_FragPosition);
-            float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
-            ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-            {
-                // Get a vector between fragment and light positions
-                vec3 fragToLight = vf_FragPosition - l.position;
-
-                // Test for shadows with PCF
-            #if __VERSION__ >= 300
-
-                // Get current linear depth as the length between the fragment and light position
-                float currentDepth = length(fragToLight);
-
-                float shadow = 0.0;
-                const float bias = 0.15;
-                const int samples = 20;
-
-                float viewDistance = length(u_CameraPosition - vf_FragPosition);
-                float diskRadius = (1.0 + (viewDistance / l.farPlane)) / 25.0;
-                for (int i = 0; i < samples; ++i)
-                {
-                    vec3 samp = fragToLight + g_gridSamplingDisk[i] * diskRadius;
-                    
-                    float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], samp).r;
-
-                    // Undo mapping [0,1]
-                    closestDepth *= l.farPlane;
-
-                    if (currentDepth - bias > closestDepth)
-                        shadow += 1.0;
-                }
-                shadow /= float(samples);
-
-            #else
-
-                float closestDepth = JOP_TEXTURE_CUBE(u_PointLightShadowMaps[index], fragToLight).r;
-
-                closestDepth *= l.farPlane;
-
-                float currentDepth = length(fragToLight);
-
-                const float bias = 0.05;
-
-                float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
-            #endif
-            
-                return (ambient + (1.0 - shadow) * (diffuse + specular));
-            }
-
-            return ambient + diffuse + specular;
-        }
-
-    #endif
+    
 
     #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0 || JMAT_MAX_SPOT_LIGHTS > 0
 
@@ -298,10 +139,10 @@ uniform Material u_Material;
                 shadow = 0.0;
 
             // Do percentage-closer filtering
-        #if __VERSION__ >= 300
-
             else
             {
+            #if __VERSION__ >= 300
+
                 vec2 texelSize = vec2(1.0) / vec2(textureSize(samp, 0));
                 for(int x = -1; x <= 1; ++x)
                 {
@@ -312,9 +153,13 @@ uniform Material u_Material;
                     }    
                 }
                 shadow /= 9.0;
-            }
 
-        #endif
+            #else
+
+                shadow = float(currentDepth - bias > closestDepth);
+
+            #endif
+            }
 
             return shadow;
         }
@@ -510,9 +355,15 @@ void main()
         if (u_ReceiveLights)
         {
         #if JMAT_MAX_POINT_LIGHTS > 0
+
             // Point lights
             for (int i = 0; i < JOP_POINT_LIMIT; ++i)
-                tempLight += calculatePointLight(i);
+            {
+                vec3 lightAmb, lightDif, lightSpec;
+                jop_CalculatePointLight(i, lightAmb, lightDif, lightSpec);
+                tempLight += lightAmb + lightDif + lightSpec;
+            }
+
         #endif
         
         #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
