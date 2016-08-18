@@ -140,24 +140,21 @@ namespace jop
         ///
         bool expired() const;
 
-
         /// \brief Reset this reference
         ///
         /// After this call, this reference won't point to anything.
         ///
         void reset();
 
-
         /// \brief Get a pointer to the bound object
         ///
-        /// \return Pointer to the object. Nullptr if expired
+        /// \return Pointer to the object. nullptr if expired
         ///
         T* get();
 
         /// \copydoc get()
         ///
         const T* get() const;
-
 
         /// \brief Dereference operator
         ///
@@ -172,7 +169,6 @@ namespace jop
         ///
         const T& operator *() const;
 
-
         /// \copydoc operator*()
         ///
         operator T&();
@@ -181,7 +177,6 @@ namespace jop
         ///
         operator const T&() const;
 
-
         /// \copydoc get()
         ///
         T* operator ->();
@@ -189,7 +184,6 @@ namespace jop
         /// \copydoc get()
         ///
         const T* operator ->() const;
-
 
         /// \brief Check if this reference is not expired
         ///

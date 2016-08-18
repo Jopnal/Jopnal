@@ -47,19 +47,19 @@ namespace jop
 
     public:
 
-        /// \brief Is touch received
+        /// \brief Check if touch is currently down
         ///
-        /// \param Finger's id 0-9
+        /// \param id The finger id
         ///
-        /// \return True if touch is received false if not
+        /// \return True if the touch is down
         ///
         static bool isDown(const int id = 0);
 
-        /// \brief Get position of specific finger
+        /// \brief Get position of a specific touch
         ///
-        /// \param Finger's id 0-9
+        /// \param id The touch id
         ///
-        /// \return Position as glm vector 2
+        /// \return Touch position, [-1, -1] if the touch is not down
         ///
         static glm::vec2 getPosition(const int id = 0);
     };

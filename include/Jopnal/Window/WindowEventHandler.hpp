@@ -64,12 +64,12 @@ namespace jop
 
         /// \brief Resize callback
         ///
-        /// This will be called if/when the window frame buffer size changes
+        /// This will be called when the window frame buffer size has changed.
         ///
-        /// \param newWidth The new width
-        /// \param newHeight The new height
+        /// \param x The new width
+        /// \param y The new height
         ///
-        virtual void resized(const unsigned int newWidth, const unsigned int newHeight);
+        virtual void resized(const unsigned int x, const unsigned int y);
 
         /// \brief Focus lost callback
         ///
@@ -91,6 +91,9 @@ namespace jop
         /// \param scanCode The scan code
         /// \param mods Modifiers
         ///
+        /// \see Keyboard::Key
+        /// \see Keyboard::Modifier
+        ///
         virtual void keyPressed(const int key, const int scanCode, const int mods);
 
         /// \brief Key released callback
@@ -100,6 +103,9 @@ namespace jop
         /// \param key The key that was released
         /// \param scanCode The scan code
         /// \param mods Modifiers
+        ///
+        /// \see Keyboard::Key
+        /// \see Keyboard::Modifier
         ///
         virtual void keyReleased(const int key, const int scanCode, const int mods);
 
@@ -131,31 +137,39 @@ namespace jop
 
         /// \brief Mouse button pressed callback
         ///
-        /// This will be called when one of the mouse buttons was pressed.
+        /// This will be called when one of the mouse buttons is pressed.
         ///
-        /// \param button The button that was pressed
+        /// \param button The mouse button
         /// \param mods Modifiers
+        ///
+        /// \see Mouse::Button
+        /// \see Keyboard::Modifier
         ///
         virtual void mouseButtonPressed(const int button, const int mods);
 
         /// \brief Mouse button released callback
         ///
-        /// This will be called when one of the mouse buttons was released.
+        /// This will be called when one of the mouse buttons is released.
         ///
-        /// \param button The button that was released
+        /// \param button The mouse button
         /// \param mods Modifiers
+        ///
+        /// \see Mouse::Button
+        /// \see Keyboard::Modifier
         ///
         virtual void mouseButtonReleased(const int button, const int mods);
 
         /// \brief Mouse left callback
         ///
         /// This will be called when the mouse cursor leaves the window.
+        /// On Android this means that the application lost input focus.
         ///
         virtual void mouseLeft();
 
         /// \brief Mouse entered callback
         ///
         /// This will be called when the mouse cursor enters the window.
+        /// On Android this means that the application gained input focus.
         ///
         virtual void mouseEntered();
 
@@ -187,27 +201,33 @@ namespace jop
         ///
         /// \param index Index of the controller
         /// \param axisIndex Index of the axis
-        /// \param shift Shift of the axis
+        /// \param shift Shift of the axis, between -1 and 1
+        ///
+        /// \see Controller::XBox::Axis
         ///
         virtual void controllerAxisShifted(const int index, const int axisIndex, const float shift);
 
         /// \brief Controller button pressed callback
         ///
         /// \param index Index of the controller
-        /// \param button The button that was pressed
+        /// \param button The controller button
+        ///
+        /// \see Controller::XBox::Button
         ///
         virtual void controllerButtonPressed(const int index, const int button);
 
         /// \brief Controller button released callback
         ///
         /// \param index Index of the controller
-        /// \param button The button that was released
+        /// \param button The controller button
+        ///
+        /// \see Controller::XBox::Button
         ///
         virtual void controllerButtonReleased(const int index, const int button);
 
-        /// \brief Touch event callback
+        /// \brief Touch pressed callback
         ///
-        /// This will be called when touch is received.
+        /// This will be called when touch is started.
         ///
         /// \param touchId Id for finger in case of multiple touches
         /// \param x The vertical position
@@ -215,7 +235,7 @@ namespace jop
         ///
         virtual void touchPressed(const int touchId, const float x, const float y);
 
-        /// \brief Touch event callback
+        /// \brief Touch released callback
         ///
         /// This will be called when touch is ended.
         ///
@@ -225,17 +245,7 @@ namespace jop
         ///
         virtual void touchReleased(const int touchId, const float x, const float y);
 
-        /// \brief Touch event callback
-        ///
-        /// This will be called when touch isn't stationary.
-        ///
-        /// \param touchId Id for finger in case of multiple touches
-        /// \param x The vertical position/offset
-        /// \param y The horizontal position/offset
-        ///
-        virtual void touchMoved(const int touchId, const float x, const float y);
-
-        /// \brief Touch event callback
+        /// \brief Touch moved callback
         ///
         /// This will be called when touch isn't stationary.
         ///
@@ -243,17 +253,29 @@ namespace jop
         /// \param x The vertical offset
         /// \param y The horizontal offset
         ///
+        virtual void touchMoved(const int touchId, const float x, const float y);
+
+        /// \copybrief touchMoved()
+        ///
+        /// \copydetails touchMoved()
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
         virtual void touchMovedAbsolute(const int touchId, const float x, const float y);
 
-        /// \brief Information about touch event callback.
+        /// \brief Touch event information callback
         ///
         /// \param touchId Id for finger in case of multiple touches
         /// \param info Enum value of information
         /// \param value Pressure or radius of touch
         ///
+        /// \see Touch::Info
+        ///
         virtual void touchInfo(const int touchId, const int info, const float value);
 
-        /// \brief Touch event callback
+        /// \brief Touch scrolled callback
         ///
         /// This will be called when touch has momentum only on one axis.
         ///

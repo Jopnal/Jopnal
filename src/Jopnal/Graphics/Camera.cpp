@@ -79,7 +79,7 @@ namespace jop
         }
         else
         {
-            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 9999999.f));
+            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 1000.f));
             setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
             setSize(Engine::getMainRenderTarget().getSize());
         }

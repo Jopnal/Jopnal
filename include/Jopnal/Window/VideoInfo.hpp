@@ -36,9 +36,9 @@ namespace jop
     {
     public:
     
-        /// \brief Get the supported full screen resolutions
+        /// \brief Get all the supported full screen resolutions
         ///
-        /// \return Reference to an internal array
+        /// \return Reference to an internal array with the resolutions
         ///
         static const std::vector<glm::uvec2>& getSupportedResolutions();
 

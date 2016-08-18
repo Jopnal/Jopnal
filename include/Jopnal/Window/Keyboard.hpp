@@ -57,7 +57,7 @@ namespace jop
             GraveAccent,
             World1,
             World2,
-            Escape,
+            Escape, ///< Back on Android
             Enter,
             Tab,
             Backspace,
@@ -128,17 +128,19 @@ namespace jop
         ///
         static std::string getKeyName(const int scanCode);
 
-        /// \brief Get boolean is key down
+        /// \brief Check if a key is currently down
         ///
-        /// \param Keycode
+        /// \param key The keyboard key
         ///
-        /// \return True if down
+        /// \return True if the key is down
         ///
         static bool isKeyDown(const Key key);
 
-        /// \brief Shows or hides virtual keyboard. Currently only for android
+        /// \brief Shows or hides the virtual keyboard
         ///
-        /// \param Boolean true to show keyboard and false to hide it
+        /// This only works on Android.
+        ///
+        /// \param show True to show, false to hide
         ///
         static void showVirtualKeyboard(const bool show);   
     };

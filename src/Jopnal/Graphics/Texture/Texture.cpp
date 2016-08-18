@@ -852,10 +852,12 @@ namespace jop
 
     #ifdef JOP_OPENGL_ES
 
+        static const bool srgb = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB);
+
         return allow
         
         #if JOP_MIN_OPENGL_ES_VERSION < 300
-            && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_EXT_sRGB))
+            && srgb
         #endif
         ;
 
@@ -875,13 +877,14 @@ namespace jop
     #ifdef JOP_OPENGL_ES
 
         static const bool srgbMip = JOP_CHECK_GL_EXTENSION(GL_NV_generate_mipmap_sRGB);
+        static const bool npot = gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot);
 
         return allow && (!srgb || srgbMip)
 
         #if JOP_MIN_OPENGL_ES_VERSION < 300
 
             // Check NPOT
-            && (gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(GL_OES_texture_npot) || ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0))
+            && (npot || ((size.x & (size.x - 1)) == 0 && (size.y & (size.y - 1)) == 0))
 
         #endif
         ;

@@ -460,13 +460,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Window* Window::getCurrentContextWindow()
-    {
-        return detail::WindowImpl::getCurrentContextWindow();
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result Window::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(Window, message.getString(), this) == Message::Result::Escape)

@@ -72,7 +72,7 @@ namespace jop
         ///
         class JOP_API SettingCallbackBase
         {
-            friend class SettingManager;
+            friend class ::jop::SettingManager;
             std::string m_path;
 
         public:
