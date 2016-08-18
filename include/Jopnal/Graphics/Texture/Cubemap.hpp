@@ -117,7 +117,7 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Cubemap
 /// \ingroup graphics
+
+#endif

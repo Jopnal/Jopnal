@@ -72,6 +72,7 @@ namespace jop
         static ALCcontext_struct& getContext();
     };
 }
+
 /// \class jop::AudioDevice
 /// \ingroup audio
 ///

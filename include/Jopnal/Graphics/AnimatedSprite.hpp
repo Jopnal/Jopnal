@@ -115,4 +115,5 @@ namespace jop
 
 /// \class jop::AnimatedSprite
 /// \ingroup graphics
+
 #endif

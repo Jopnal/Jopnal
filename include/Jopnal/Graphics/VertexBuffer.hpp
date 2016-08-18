@@ -83,9 +83,8 @@ namespace jop
         void setSubData(const void* data, const std::size_t offset, const std::size_t size);
     };
 }
+
 /// \class jop::VertexBuffer
 /// \ingroup graphics
-///
-/// 
-#endif
 
+#endif

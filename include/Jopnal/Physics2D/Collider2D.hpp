@@ -134,6 +134,8 @@ namespace jop
         std::set<ContactListener2D*> m_listeners;
     };
 }
+
 /// \class jop::Collider2D
 /// \ingroup physics2d
+
 #endif

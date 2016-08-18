@@ -158,4 +158,5 @@ namespace jop
 
 /// \class jop::Component
 /// \ingroup core
+
 #endif

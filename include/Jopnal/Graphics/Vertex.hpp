@@ -76,7 +76,5 @@ namespace jop
 
 /// \class jop::Vertex
 /// \ingroup graphics
-///
-/// 
 
 #endif

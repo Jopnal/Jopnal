@@ -74,7 +74,7 @@ namespace jop
         ///
         float getGlobalVolume() const;
 
-         /// \brief Set doppler effect
+        /// \brief Set doppler effect
         ///
         /// \param default is 1
         ///
@@ -137,10 +137,11 @@ namespace jop
         glm::vec3 m_lastPos;    ///< Used to calculate velocity
     };
 }
+
 /// \class jop::Listener
 /// \ingroup audio
 ///
 /// Handles audio's position distance and volume retrieving according to source/retriever aspect
 /// Only one instance of this class can be created at time. SFML listener can't handle multiple retrievers.
-#endif
 
+#endif

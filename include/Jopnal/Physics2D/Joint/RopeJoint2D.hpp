@@ -62,6 +62,8 @@ namespace jop
         b2DistanceJoint* m_jointL;
     };
 }
+
 /// \class jop::RopeJoint2D
 /// \ingroup physics2d
+
 #endif

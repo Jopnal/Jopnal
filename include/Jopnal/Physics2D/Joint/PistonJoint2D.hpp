@@ -88,4 +88,5 @@ namespace jop
 
 /// \class jop::PistonJoint2D
 /// \ingroup physics2d
+
 #endif

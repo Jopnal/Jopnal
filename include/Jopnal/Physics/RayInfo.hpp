@@ -56,4 +56,5 @@ namespace jop
 
 /// \class jop::RayInfo
 /// \ingroup physics
+
 #endif

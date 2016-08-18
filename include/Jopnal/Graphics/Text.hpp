@@ -148,11 +148,11 @@ namespace jop
     };
 }
 
-
 /// \class jop::Text
 /// \ingroup graphics
 ///
 /// Handles text rendering
 /// Supports multiple styles
 ///
+
 #endif

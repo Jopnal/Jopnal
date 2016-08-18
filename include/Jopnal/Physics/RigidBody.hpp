@@ -301,4 +301,5 @@ namespace jop
 
 /// \class jop::RigidBody
 /// \ingroup physics
+
 #endif

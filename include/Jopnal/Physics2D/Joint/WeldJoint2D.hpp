@@ -59,6 +59,8 @@ namespace jop
         b2WeldJoint* m_jointL;
     };
 }
+
 /// \class jop::WeldJoint2D
 /// \ingroup physics2d
+
 #endif

@@ -90,4 +90,5 @@ namespace jop
 /// \ingroup utility
 ///
 /// Class for picking random values from given distribution
+
 #endif

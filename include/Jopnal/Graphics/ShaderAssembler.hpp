@@ -119,4 +119,5 @@ namespace jop
 
 /// \class jop::ShaderAssembler
 /// \ingroup graphics
+
 #endif

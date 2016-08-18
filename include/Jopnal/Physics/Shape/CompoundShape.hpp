@@ -56,4 +56,5 @@ namespace jop
 
 /// \class jop::CompoundShape
 /// \ingroup physics
+
 #endif

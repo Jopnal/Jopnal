@@ -134,5 +134,5 @@ namespace jop
 
 /// \class jop::RenderTexture
 /// \ingroup graphics
-///
+
 #endif

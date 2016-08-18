@@ -183,4 +183,5 @@ namespace jop
 
 /// \class jop::Message
 /// \ingroup utility
+
 #endif

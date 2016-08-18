@@ -51,9 +51,9 @@ namespace jop
     };
 }
 
-
 /// \class jop::ContactInfo
 /// \ingroup physics
 ///
 /// #TODO Detailed description
+
 #endif

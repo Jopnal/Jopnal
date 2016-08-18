@@ -103,6 +103,5 @@ namespace jop
 
 /// \class jop::Shader
 /// \ingroup graphics
-///
-/// 
+
 #endif

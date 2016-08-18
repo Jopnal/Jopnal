@@ -94,6 +94,5 @@ namespace jop
 
 /// \class jop::CylinderMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

@@ -258,4 +258,5 @@ namespace jop
 
 /// \class jop::Scene
 /// \ingroup core
+
 #endif

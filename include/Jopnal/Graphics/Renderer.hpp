@@ -111,4 +111,5 @@ namespace jop
 
 /// \class jop::Renderer
 /// \ingroup graphics
+
 #endif

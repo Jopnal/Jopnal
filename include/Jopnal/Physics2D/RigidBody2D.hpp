@@ -275,6 +275,8 @@ namespace jop
 
     #include <Jopnal/Physics2D/Inl/RigidBody2D.inl>
 }
+
 /// \class jop::RigidBody2D
 /// \ingroup physics2d
+
 #endif

@@ -116,4 +116,5 @@ namespace jop
 
 /// \class jop::Joint
 /// \ingroup physics
+
 #endif

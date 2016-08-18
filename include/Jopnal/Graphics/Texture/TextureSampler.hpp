@@ -173,7 +173,7 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::TextureSampler
 /// \ingroup graphics
+
+#endif

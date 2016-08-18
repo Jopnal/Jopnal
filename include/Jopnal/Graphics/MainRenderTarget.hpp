@@ -62,4 +62,5 @@ namespace jop
 
 /// \class jop::MainRenderTarget
 /// \ingroup graphics
+
 #endif

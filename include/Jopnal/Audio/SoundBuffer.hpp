@@ -50,9 +50,9 @@ namespace jop
 
         struct parsedAudioInfo
         {
-            uint64 sampleCount = 0;                      ///< Total number of samples
-            int channelCount   = 0;                      ///< Number of channels
-            int sampleRate     = 0;                      ///< Samples per second
+            uint64 sampleCount = 0;                         ///< Total number of samples
+            int channelCount   = 0;                         ///< Number of channels
+            int sampleRate     = 0;                         ///< Samples per second
             AudioFormat format = AudioFormat::undefined;    ///< Format of audio for decoding
         };
 
@@ -134,8 +134,10 @@ namespace jop
         parsedAudioInfo m_info;                     ///< Info about sound's structure
     };
 }
+
 /// \class jop::SoundBuffer
 /// \ingroup audio
 ///
 /// Sound data storage
+
 #endif

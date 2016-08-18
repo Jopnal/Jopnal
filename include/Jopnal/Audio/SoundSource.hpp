@@ -237,7 +237,6 @@ namespace jop
     };
 }
 
-
 /// \class jop::SoundSource
 /// \ingroup audio
 ///

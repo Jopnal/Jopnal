@@ -914,4 +914,5 @@ namespace jop
 
 /// \class jop::Object 
 /// \ingroup core
+
 #endif

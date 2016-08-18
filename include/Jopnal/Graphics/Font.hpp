@@ -154,4 +154,5 @@ namespace jop
 /// Font manager class, which loads fonts from file and packs them to textures.
 /// Supports .ttf format.
 ///
+
 #endif

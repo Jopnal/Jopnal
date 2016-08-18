@@ -94,6 +94,5 @@ namespace jop
 
 /// \class jop::CapsuleMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

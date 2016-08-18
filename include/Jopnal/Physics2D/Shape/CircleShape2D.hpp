@@ -49,6 +49,8 @@ namespace jop
         bool load(const float radius);
     };
 }
+
 /// \class jop::CircleShape2D
 /// \ingroup physics2d
+
 #endif

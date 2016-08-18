@@ -369,4 +369,5 @@ namespace jop
 
 /// \class jop::Engine
 /// \ingroup core
+
 #endif

@@ -279,9 +279,7 @@ namespace jop
     };
 }
 
-
 /// \class jop::WindowEventHandler
 /// \ingroup window
-///
-///
+
 #endif

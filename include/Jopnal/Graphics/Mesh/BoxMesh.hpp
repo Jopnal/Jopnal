@@ -126,6 +126,5 @@ namespace jop
 
 /// \class jop::BoxMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

@@ -191,4 +191,5 @@ namespace jop
 
 /// \class jop::Mesh
 /// \ingroup graphics
+
 #endif

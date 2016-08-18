@@ -63,4 +63,5 @@ namespace jop
 
 /// \class jop::RectangleShape
 /// \ingroup physics
+
 #endif

@@ -85,6 +85,5 @@ namespace jop
 
 /// \class jop::Sensor
 /// \ingroup window
-///
-///
+
 #endif

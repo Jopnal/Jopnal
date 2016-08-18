@@ -292,6 +292,5 @@ namespace jop
 
 /// \class jop::Camera
 /// \ingroup graphics
-///
-/// 
+
 #endif

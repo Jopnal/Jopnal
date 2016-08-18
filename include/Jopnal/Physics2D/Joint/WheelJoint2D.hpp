@@ -89,6 +89,8 @@ namespace jop
 
     };
 }
+
 /// \class jop::WheelJoint2D
 /// \ingroup physics2d
+
 #endif

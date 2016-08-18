@@ -74,4 +74,5 @@ namespace jop
 
 /// \class jop::ContactListener2D
 /// \ingroup physics2d
+
 #endif

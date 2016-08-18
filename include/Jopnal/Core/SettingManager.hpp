@@ -248,4 +248,5 @@ namespace jop
 /// \ingroup core
 ///
 /// #TODO Detailed description
+
 #endif

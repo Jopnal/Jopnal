@@ -143,4 +143,5 @@ namespace jop
 /// \ingroup window
 ///
 /// #TODO Detailed description
+
 #endif

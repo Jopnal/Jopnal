@@ -228,7 +228,7 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Texture
 /// \ingroup graphics
+
+#endif

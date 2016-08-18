@@ -317,4 +317,5 @@ namespace jop
 
 /// \class jop::Material
 /// \ingroup graphics
+
 #endif

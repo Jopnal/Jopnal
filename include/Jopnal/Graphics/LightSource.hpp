@@ -383,4 +383,5 @@ namespace jop
 
 /// \class jop::LightSource
 /// \ingroup graphics
+
 #endif

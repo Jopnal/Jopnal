@@ -51,6 +51,8 @@ namespace jop
         bool load(const float width, const float height);
     };
 }
+
 /// \class jop::ConeShape2D
 /// \ingroup physics2d
+
 #endif

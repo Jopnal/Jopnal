@@ -56,4 +56,5 @@ namespace jop
 /// Glyph holds data for text rendering
 /// 
 ///
+
 #endif

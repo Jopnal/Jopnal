@@ -55,4 +55,5 @@ namespace jop
 
 /// \class jop::ConeShape
 /// \ingroup physics
+
 #endif

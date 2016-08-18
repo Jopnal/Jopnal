@@ -51,4 +51,5 @@ namespace jop
 
 /// \class jop::EnvironmentRecorder
 /// \ingroup graphics
+
 #endif

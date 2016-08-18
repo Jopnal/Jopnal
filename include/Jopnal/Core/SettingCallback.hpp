@@ -113,4 +113,5 @@ namespace jop
 
 /// \class jop::SettingCallback
 /// \ingroup core
+
 #endif

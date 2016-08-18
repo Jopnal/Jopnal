@@ -71,4 +71,5 @@ namespace jop
 
 /// \class jop::CollisionShape
 /// \ingroup physics
+
 #endif

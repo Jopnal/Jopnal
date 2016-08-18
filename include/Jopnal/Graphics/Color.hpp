@@ -130,4 +130,5 @@ namespace jop
 /// \ingroup graphics
 ///
 /// #TODO Detailed description
+
 #endif

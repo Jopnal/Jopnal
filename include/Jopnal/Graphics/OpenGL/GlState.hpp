@@ -180,7 +180,5 @@ namespace jop
 
 /// \class jop::GlStateManager
 /// \ingroup graphics
-///
-/// 
-#endif
 
+#endif

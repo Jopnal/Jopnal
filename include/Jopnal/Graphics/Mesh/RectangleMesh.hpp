@@ -95,6 +95,5 @@ namespace jop
 
 /// \class jop::RectangleMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

@@ -235,4 +235,5 @@ namespace jop
 
 /// \class jop::ResourceManager
 /// \ingroup core
+
 #endif

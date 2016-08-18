@@ -222,4 +222,5 @@ namespace jop
 
 /// \class jop::ShaderProgram
 /// \ingroup graphics
+
 #endif

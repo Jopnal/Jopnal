@@ -56,6 +56,8 @@ namespace jop
         float m_damping;
     };
 }
+
 /// \class jop::WeldJoint
 /// \ingroup physics
+
 #endif

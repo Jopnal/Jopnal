@@ -79,4 +79,5 @@ namespace jop
 
 /// \class jop::SkyBox
 /// \ingroup graphics
+
 #endif

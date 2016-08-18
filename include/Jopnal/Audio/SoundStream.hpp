@@ -157,9 +157,11 @@ namespace jop
         Thread m_thread;                            ///< Own thread for reading files to buffer
     };
 }
+
 /// \class jop::SoundStream
 /// \ingroup audio
 ///
 /// Sound streaming straight from file 
 /// Uses SFML Music.hpp streaming instead of FileLoader.hpp
+
 #endif

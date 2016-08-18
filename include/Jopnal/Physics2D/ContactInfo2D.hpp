@@ -53,4 +53,5 @@ namespace jop
 
 /// \class jop::ContactInfo2D
 /// \ingroup physics2d
+
 #endif

@@ -149,4 +149,5 @@ namespace jop
 
 /// \class jop::Thread
 /// \ingroup utility
+
 #endif

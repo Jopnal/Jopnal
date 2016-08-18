@@ -78,6 +78,5 @@ namespace jop
 
 /// \class jop::CircleMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

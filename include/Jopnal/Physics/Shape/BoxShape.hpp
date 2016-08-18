@@ -63,4 +63,5 @@ namespace jop
 
 /// \class jop::BoxShape
 /// \ingroup physics
+
 #endif

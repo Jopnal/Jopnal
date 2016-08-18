@@ -141,6 +141,8 @@ namespace jop
         float m_step;
     };
 }
+
 /// \class jop::World2D
 /// \ingroup physics2d
+
 #endif

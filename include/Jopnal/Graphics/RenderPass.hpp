@@ -144,4 +144,5 @@ namespace jop
 
 /// \class jop::RenderPass
 /// \ingroup graphics
+
 #endif

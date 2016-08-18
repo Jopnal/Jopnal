@@ -119,6 +119,5 @@ namespace jop
 
 /// \class jop::SubSystem
 /// \ingroup core
-///
-/// 
+
 #endif

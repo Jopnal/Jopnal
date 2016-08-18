@@ -136,7 +136,7 @@ namespace jop
     };
 }
 
-#endif
-
 /// \class jop::Texture2D
 /// \ingroup graphics
+
+#endif

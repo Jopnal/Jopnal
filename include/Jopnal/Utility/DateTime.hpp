@@ -74,4 +74,5 @@ namespace jop
 
 /// \class jop::DateTime
 /// \ingroup utility
+
 #endif

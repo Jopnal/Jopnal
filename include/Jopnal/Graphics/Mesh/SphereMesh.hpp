@@ -92,6 +92,5 @@ namespace jop
 
 /// \class jop::SphereMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif

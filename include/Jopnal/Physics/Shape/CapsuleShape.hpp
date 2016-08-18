@@ -55,4 +55,5 @@ namespace jop
 
 /// \class jop::CapsuleShape
 /// \ingroup physics
+
 #endif

@@ -164,8 +164,10 @@ namespace jop
         bool m_resetSound;                          ///< Check for not breaking ongoing sound
     };
 }
+
 /// \class jop::SoundEffect
 /// \ingroup audio
 ///
 /// Audio component that plays sound
+
 #endif

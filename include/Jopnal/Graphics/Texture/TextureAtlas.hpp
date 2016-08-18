@@ -135,7 +135,7 @@ namespace jop
 #include <Jopnal/Graphics/Inl/TextureAtlas.inl>
 }
 
-#endif
-
 /// \class jop::TextureAtlas
 /// \ingroup graphics
+
+#endif

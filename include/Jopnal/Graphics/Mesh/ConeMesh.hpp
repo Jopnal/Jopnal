@@ -94,6 +94,5 @@ namespace jop
 
 /// \class jop::ConeMesh
 /// \ingroup graphics
-///
-/// 
+
 #endif
