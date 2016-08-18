@@ -209,7 +209,7 @@ namespace jop
                         deb << currentLine << " " << std::string(current, std::strpbrk(current, "\n\0") - current) << 
                             
                         #ifdef JOP_OS_ANDROID
-                            std::endl;
+                            std::endl
                         #else
                             "\n"
                         #endif
@@ -225,7 +225,10 @@ namespace jop
                         }
                     }
 
-                    current = std::strchr(current, '\n') + 1;
+                    current = std::strchr(current, '\n');
+
+                    if (current)
+                        current += 1;
                 }
             }
 

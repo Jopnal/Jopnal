@@ -52,255 +52,8 @@ JOP_VARYING_IN vec4 vf_Color;
 // Light info
 #ifdef JMAT_LIGHTING
 
+    #include <Jopnal/DefaultLighting/Shadows>
     #include <Jopnal/DefaultLighting/Lighting>
-
-    #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
-
-        // Directional lights
-        struct DirectionalLightInfo
-        {
-            bool enabled;
-
-            // Direction
-            vec3 direction;
-
-            // Intensities
-            vec3 ambient;
-            vec3 diffuse;
-            vec3 specular;
-
-            // No attenuation for directional lights
-
-            // Shadow map info
-            bool castShadow;        ///< Cast shadows?
-            mat4 lsMatrix;          ///< Light space matrix
-        };
-        uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
-        uniform sampler2D u_DirectionalLightShadowMaps[JMAT_MAX_DIRECTIONAL_LIGHTS];
-        uniform int u_NumDirectionalLights;
-
-    #endif
-
-    #if JMAT_MAX_SPOT_LIGHTS > 0
-
-        // Spot lights
-        struct SpotLightInfo
-        {
-            bool enabled;
-
-            // Position
-            vec3 position;
-
-            // Direction
-            vec3 direction;
-
-            // Intensities
-            vec3 ambient;
-            vec3 diffuse;
-            vec3 specular;
-
-            // Attenuation
-            vec3 attenuation;
-
-            // Cutoff
-            // x = inner
-            // y = outer
-            vec2 cutoff;
-
-            // Shadow map info
-            bool castShadow;        ///< Cast shadows?
-            mat4 lsMatrix;          ///< Light space matrix
-        };
-        uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
-        uniform sampler2D u_SpotLightShadowMaps[JMAT_MAX_SPOT_LIGHTS];
-        uniform int u_NumSpotLights;
-
-    #endif
-
-    
-
-    #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0 || JMAT_MAX_SPOT_LIGHTS > 0
-
-        // Shadow calculation for directional and spot lights
-        float calculateDirSpotShadow(const in vec3 projCoords, const in vec3 norm, const in vec3 lightDir, const in sampler2D samp)
-        {
-            // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-            float closestDepth = JOP_TEXTURE_2D(samp, projCoords.xy).r;
-
-            // Get depth of current fragment from light's perspective
-            float currentDepth = projCoords.z;
-
-            // Check whether current frag pos is in shadow
-            float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
-
-            float shadow = 0.0;
-
-            if (projCoords.z > 1.0)
-                shadow = 0.0;
-
-            // Do percentage-closer filtering
-            else
-            {
-            #if __VERSION__ >= 300
-
-                vec2 texelSize = vec2(1.0) / vec2(textureSize(samp, 0));
-                for(int x = -1; x <= 1; ++x)
-                {
-                    for(int y = -1; y <= 1; ++y)
-                    {
-                        float pcfDepth = JOP_TEXTURE_2D(samp, projCoords.xy + vec2(x, y) * texelSize).r;
-                        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-                    }    
-                }
-                shadow /= 9.0;
-
-            #else
-
-                shadow = float(currentDepth - bias > closestDepth);
-
-            #endif
-            }
-
-            return shadow;
-        }
-
-    #endif
-
-    #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
-
-        // Directional light calculation
-        vec3 calculateDirectionalLight(const in int index)
-        {
-            DirectionalLightInfo l = u_DirectionalLights[index];
-
-            #if __VERSION__ < 300
-                if (!l.enabled)
-                    return vec3(0.0);
-            #endif
-
-            // Ambient impact
-            vec3 ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
-            // Direction from light to fragment.
-            // Directional light shines infinitely in the same direction,
-            // so no need to take fragment position into account
-            vec3 lightDir = normalize(-l.direction);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            vec3 diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
-
-            // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
-
-            // Calculate reflection direction (use a half-way vector)
-            vec3 reflectDir = normalize(lightDir + viewDir);
-
-            float shininess = max(1.0, u_Material.shininess
-
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
-
-            // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            vec3 specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
-
-            // No attenuation calculations here
-            // Directional Light is infinite, Directional Light is eternal
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-                return (ambient + (1.0 - calculateDirSpotShadow(vec3(l.lsMatrix * vec4(vf_FragPosition, 1.0)) * 0.5 + 0.5, norm, lightDir, u_DirectionalLightShadowMaps[index])) * (diffuse + specular));
-            
-            return ambient + diffuse + specular;
-        }
-
-    #endif
-
-    #if JMAT_MAX_SPOT_LIGHTS > 0
-
-        // Spot light calculation
-        vec3 calculateSpotLight(const in int index)
-        {
-            SpotLightInfo l = u_SpotLights[index];
-
-            #if __VERSION__ < 300
-                if (!l.enabled)
-                    return vec3(0.0);
-            #endif
-
-            // Ambient impact
-            vec3 ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
-            // Direction from fragment to light
-            vec3 lightDir = normalize(l.position - vf_FragPosition);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            vec3 diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
-
-            // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_FragPosition);
-
-            // Calculate reflection direction (use a half-way vector)
-            vec3 reflectDir = normalize(lightDir + viewDir);
-
-            float shininess = max(1.0, u_Material.shininess
-
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
-
-            // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) /*<< energy conservation */ * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            vec3 specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
-
-            // Spotlight soft edges
-            float theta = dot(lightDir, normalize(-l.direction));
-            float epsilon = (l.cutoff.x - l.cutoff.y);
-            float intensity = clamp((theta - l.cutoff.y) / epsilon, 0.0, 1.0);
-            ambient *= intensity;
-            diffuse *= intensity;
-            specular *= intensity;
-
-            // Attenuation
-            float dist = length(l.position - vf_FragPosition);
-            float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
-            ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-            {
-                vec4 tempCoords = l.lsMatrix * vec4(vf_FragPosition, 1.0);
-
-                return (ambient + (1.0 - calculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, norm, lightDir, u_SpotLightShadowMaps[index])) * (diffuse + specular));
-            }
-
-            return ambient + diffuse + specular;
-        }
-
-    #endif
 
 #endif
 
@@ -354,28 +107,39 @@ void main()
 
         if (u_ReceiveLights)
         {
+            vec3 light[3];
+
         #if JMAT_MAX_POINT_LIGHTS > 0
 
             // Point lights
             for (int i = 0; i < JOP_POINT_LIMIT; ++i)
             {
-                vec3 lightAmb, lightDif, lightSpec;
-                jop_CalculatePointLight(i, lightAmb, lightDif, lightSpec);
-                tempLight += lightAmb + lightDif + lightSpec;
+                jop_CalculatePointLight(i, light[0], light[1], light[2]);
+                tempLight += light[0] + light[1] + light[2];
             }
 
         #endif
         
         #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
+
             // Directional lights
             for (int i = 0; i < JOP_DIR_LIMIT; ++i)
-                tempLight += calculateDirectionalLight(i);
+            {
+                jop_CalculateDirectionalLight(i, light[0], light[1], light[2]);
+                tempLight += light[0] + light[1] + light[2];
+            }
+
         #endif
                 
         #if JMAT_MAX_SPOT_LIGHTS > 0
+
             // Spot lights
             for (int i = 0; i < JOP_SPOT_LIMIT; ++i)
-                tempLight += calculateSpotLight(i);
+            {
+                jop_CalculateSpotLight(i, light[0], light[1], light[2]);
+                tempLight += light[0] + light[1] + light[2];
+            }
+
         #endif
         }
 
