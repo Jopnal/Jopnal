@@ -35,15 +35,12 @@ namespace jop
 	{
 	public:
 
-		/// \copydoc jop::BoxMesh::BoxMesh()
-		///
+        /// \copydoc Mesh::Mesh()
+        ///
 		CapsuleMesh(const std::string& name);
 
-		/// \brief Copy constructor
-		///
-		/// \param other The other mesh to be copied
-		/// \param newName Name of the new mesh
-		///
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
+        ///
 		CapsuleMesh(const CapsuleMesh& other, const std::string& newName);
 
 
@@ -56,7 +53,6 @@ namespace jop
 		/// \return True if successful
 		///
 		bool load(const float radius, const float height, const unsigned int rings, const bool normalizedTexCoords = true);
-
 
 		/// \brief Get the radius
 		///

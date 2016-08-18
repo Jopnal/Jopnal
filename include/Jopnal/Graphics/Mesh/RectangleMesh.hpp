@@ -36,25 +36,16 @@ namespace jop
     {
     public:
 
-        /// \brief Default constructor
-        ///
-        /// Does not initialize the vertices.
-        ///
-        /// \param name Name of the rectangle
+        /// \copydoc Mesh::Mesh()
         ///
         RectangleMesh(const std::string& name);
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other mesh to be copied
-        /// \param newName Name of the new mesh
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
         RectangleMesh(const RectangleMesh& other, const std::string& newName);
 
 
         /// \brief Load this rectangle
-        ///
-        /// This will set up the vertices and create the buffers.
         ///
         /// \param size Size of the rectangle
         ///

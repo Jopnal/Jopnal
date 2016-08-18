@@ -154,7 +154,7 @@ namespace jop
         #ifdef JOP_DEBUG_MODE
 
             {
-                static DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
+                static const DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
 
                 if (validateSetting.value && !shdr.validate())
                     return;

@@ -234,7 +234,7 @@ namespace jop
         //////////////////////////////////////////////
 
         template<typename T>
-        void setSetting(const std::string& path, const T& value, std::recursive_mutex& mutex, SettingManager::UpdaterMap& updaters, json::Document& root)
+        T setSetting(const std::string& path, const T& value, std::recursive_mutex& mutex, SettingManager::UpdaterMap& updaters, json::Document& root)
         {
             std::lock_guard<std::recursive_mutex> lock(mutex);
 
@@ -243,7 +243,7 @@ namespace jop
             if (!val)
             {
                 JOP_DEBUG_ERROR("Setting \"" << path << "\" couldn't be written");
-                return;
+                return value;
             }
 
             if (detail::queryVariable<T>(*val) || val->IsNull())
@@ -251,17 +251,19 @@ namespace jop
                 if (val->IsNull() || !detail::compareVariable(*val, value))
                     detail::setVariable<T>(*val, value, root.GetAllocator());
                 else
-                    return;
+                    return value;
             }
             else
             {
                 JOP_DEBUG_ERROR("Setting \"" << path << "\" was not set, unmatched type");
-                return;
+                return value;
             }
 
             auto range = updaters.equal_range(path);
             for (auto itr = range.first; itr != range.second; ++itr)
                 itr->second->valueChangedBase(*val);
+
+            return value;
         }
     }
 
@@ -310,39 +312,39 @@ namespace jop
     #define SET_SETTING detail::setSetting(path, value, m_instance->m_mutex, m_instance->m_updaters, detail::findRoot(path, m_instance->m_settings, m_instance->m_defaultRoot))
 
     template<>
-    void SettingManager::set<bool>(const std::string& path, const bool& value)
+    bool SettingManager::set<bool>(const std::string& path, const bool& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     template<>
-    void SettingManager::set<int>(const std::string& path, const int& value)
+    int SettingManager::set<int>(const std::string& path, const int& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     template<>
-    void SettingManager::set<unsigned int>(const std::string& path, const unsigned int& value)
+    unsigned int SettingManager::set<unsigned int>(const std::string& path, const unsigned int& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     template<>
-    void SettingManager::set<float>(const std::string& path, const float& value)
+    float SettingManager::set<float>(const std::string& path, const float& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     template<>
-    void SettingManager::set<double>(const std::string& path, const double& value)
+    double SettingManager::set<double>(const std::string& path, const double& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     template<>
-    void SettingManager::set<std::string>(const std::string& path, const std::string& value)
+    std::string SettingManager::set<std::string>(const std::string& path, const std::string& value)
     {
-        SET_SETTING;
+        return SET_SETTING;
     }
 
     //////////////////////////////////////////////

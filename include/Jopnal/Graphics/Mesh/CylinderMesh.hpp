@@ -35,29 +35,25 @@ namespace jop
     {
     public:
 
-        /// \copydoc jop::BoxMesh::BoxMesh()
+        /// \copydoc Mesh::Mesh()
         ///
         CylinderMesh(const std::string& name);
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other mesh to be copied
-        /// \param newName Name of the new mesh
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
         CylinderMesh(const CylinderMesh& other, const std::string& newName);
 
 
         /// \brief Load a Cylinder
         ///
-        /// \param radius The radius of the Cylinder
-        /// \param height How tall will the Cylinder be
+        /// \param radius The radius of the cylinder
+        /// \param height How tall will the cylinder be
         /// \param sectors How many blocks will form the exterior surface
         /// \param dividedTexCoords If true side will use coordinates 0.25-0.75 from texture and rest is used for top and bottom
         ///
         /// \return True if successful
         ///
 		bool load(const float radius, const float height, const unsigned int sectors, const bool dividedTexCoords = true);
-
 
         /// \brief Get the radius
         ///
@@ -77,7 +73,7 @@ namespace jop
         ///
         float getHeight() const;
 
-        /// \brief Check if this Cylinder uses normalized texture coordinates
+        /// \brief Check if this cylinder uses normalized texture coordinates
         ///
         /// \return True if normalized
         ///

@@ -71,7 +71,7 @@ namespace jop
                 // Lighting models
                 Phong           = 1 << 18,
                 BlinnPhong      = Phong | Phong << 1,   //
-                Gouraud         = Phong,                // TODO: Implement these, requires shader work
+                Gouraud         = Phong,                // TODO: Implement these
                 Flat            = Phong,                //
 
                 // Bundles
@@ -80,7 +80,7 @@ namespace jop
 
                 // For internal functionality, do not use
                 __Map           = 0,
-                __Lighting      = Phong | BlinnPhong | Gouraud | Flat
+                __Lighting      = BlinnPhong | Gouraud | Flat
             };
         };
 

@@ -131,8 +131,10 @@ namespace jop
         /// \param path The setting path
         /// \param value The value to set
         ///
+        /// \return The same value as 'value'
+        ///
         template<typename T>
-        static void set(const std::string& path, const T& value);
+        static T set(const std::string& path, const T& value);
 
         /// \brief Register a setting change callback
         ///
@@ -230,6 +232,14 @@ namespace jop
         /// \see SettingManager::get()
         ///
         DynamicSetting(const std::string& path, const T& defaultValue);
+
+        /// \brief Conversion operator
+        ///
+        /// Used to convert a DynamicSetting into its actual value.
+        ///
+        /// \return The current value
+        ///
+        operator const T&() const;
 
     private:
 

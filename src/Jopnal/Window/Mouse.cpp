@@ -41,7 +41,8 @@
 namespace
 {
     jop::Window* ns_windowRef = nullptr;
-    std::pair<glm::ivec2, glm::ivec2> ns_restrictions(glm::ivec2(-1), glm::ivec2(-1));
+    std::pair<glm::ivec2, glm::ivec2> ns_restrictions(glm::ivec2(0), glm::ivec2(0));
+    bool ns_clipped = false;
 
     bool validateWindowRef()
     {
@@ -104,19 +105,10 @@ namespace jop
 
         if (validateWindowRef())
         {
-            glm::ivec2 winPos;
-            glfwGetWindowPos(ns_windowRef->getLibraryHandle(), &winPos.x, &winPos.y);
+            glm::ivec2 winSize;
+            glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
-            if (!isClipping())
-            {
-                glm::ivec2 winSize;
-                glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
-
-                ns_restrictions = std::make_pair(glm::ivec2(0, winSize.x), glm::ivec2(0, winSize.y));
-            }
-
-            RECT res{winPos.x + ns_restrictions.first.x, winPos.y + ns_restrictions.second.x, winPos.x + ns_restrictions.first.y, winPos.y + ns_restrictions.second.y};
-            ClipCursor(&res);
+            setClipping(glm::ivec2(0), winSize);
         }
 
     #endif
@@ -130,21 +122,19 @@ namespace jop
 
         if (validateWindowRef())
         {
-            glm::ivec2 winSize = glm::ivec2(0);
+            glm::ivec2 winPos, winSize;
+            glfwGetWindowPos(ns_windowRef->getLibraryHandle(), &winPos.x, &winPos.y);
             glfwGetWindowSize(ns_windowRef->getLibraryHandle(), &winSize.x, &winSize.y);
 
-            ns_restrictions = std::make_pair(min, max);
+            RECT res
+            {
+                /* Left   */ glm::clamp(winPos.x + min.x, winPos.x, winPos.x + winSize.x),
+                /* Top    */ glm::clamp(winPos.y + min.y, winPos.y, winPos.y + winSize.y),
+                /* Right  */ glm::clamp(winPos.x + max.x, winPos.x, winPos.x + winSize.x),
+                /* Bottom */ glm::clamp(winPos.y + max.y, winPos.y, winPos.y + winSize.y)
+            };
 
-            if (ns_restrictions.first.y > winSize.x)
-                ns_restrictions.first.y = winSize.x;
-            if (ns_restrictions.first.x > winSize.x)
-                ns_restrictions.first.x = winSize.x;
-            if (ns_restrictions.second.y > winSize.y)
-                ns_restrictions.second.y = winSize.y;
-            if (ns_restrictions.second.x > winSize.y)
-                ns_restrictions.second.x = winSize.y;
-
-            setClipping();
+            ClipCursor(&res);
         }
 
     #endif
@@ -161,14 +151,7 @@ namespace jop
 
     bool Mouse::isClipping()
     {
-    #ifdef JOP_OS_WINDOWS
-
-        if (ns_restrictions.first != glm::ivec2(-1) && ns_restrictions.second != glm::ivec2(-1))
-            return true;
-
-    #endif
-
-        return false;
+        return ns_clipped;
     }
 
     //////////////////////////////////////////////
@@ -178,7 +161,8 @@ namespace jop
     #ifdef JOP_OS_WINDOWS
 
         ClipCursor(NULL);
-        ns_restrictions = std::make_pair(glm::ivec2(-1), glm::ivec2(-1));
+        ns_restrictions.first = ns_restrictions.second = glm::ivec2(0);
+        ns_clipped = false;
 
     #endif
     }

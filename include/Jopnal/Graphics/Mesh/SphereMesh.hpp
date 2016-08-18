@@ -35,19 +35,16 @@ namespace jop
     {
     public:
 
-        /// \copydoc jop::BoxMesh::BoxMesh()
+        /// \copydoc Mesh::Mesh()
         ///
         SphereMesh(const std::string& name);
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other mesh to be copied
-        /// \param newName Name of the new mesh
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
         SphereMesh(const SphereMesh& other, const std::string& newName);
 
 
-        /// \brief Load a sphere
+        /// \brief Load this sphere
         ///
         /// \param radius The radius of the sphere
         /// \param rings How many rings will the sphere have
@@ -56,7 +53,6 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float radius, const unsigned int rings, const bool normalizedTexCoords = true);
-
 
         /// \brief Get the radius
         ///

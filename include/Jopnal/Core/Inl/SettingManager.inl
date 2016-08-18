@@ -34,3 +34,11 @@ void DynamicSetting<T>::valueChanged(const T& val)
 {
     value = val;
 }
+
+//////////////////////////////////////////////
+
+template<typename T>
+DynamicSetting<T>::operator const T&() const
+{
+    return value;
+}

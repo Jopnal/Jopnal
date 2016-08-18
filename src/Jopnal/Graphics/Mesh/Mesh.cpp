@@ -51,6 +51,16 @@ namespace jop
           m_vertexSize          (0)
     {}
 
+    Mesh::Mesh(const Mesh& other, const std::string& newName)
+        : Resource              (other, newName),
+          m_vertexbuffer        (other.m_vertexbuffer),
+          m_indexbuffer         (other.m_indexbuffer),
+          m_bounds              (other.m_bounds),
+          m_vertexComponents    (other.m_vertexComponents),
+          m_elementSize         (other.m_elementSize),
+          m_vertexSize          (other.m_vertexSize)
+    {}
+
     //////////////////////////////////////////////
 
     bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned short indexSize, const unsigned int indexAmount)

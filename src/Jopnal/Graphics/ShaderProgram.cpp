@@ -410,7 +410,7 @@ namespace jop
 
             if (location == -1)
             {
-                static DynamicSetting<bool> err("engine@Debug|bPrintShaderUniformLocationErrors", true);
+                static const DynamicSetting<bool> err("engine@Debug|bPrintShaderUniformLocationErrors", true);
 
                 if (err.value)
                     JOP_DEBUG_WARNING("Uniform named \"" << name << "\" not found in shader \"" << getName() << "\"");

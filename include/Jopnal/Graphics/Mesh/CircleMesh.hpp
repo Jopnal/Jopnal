@@ -35,18 +35,11 @@ namespace jop
     {
     public:
 
-        /// \brief Default constructor
-        ///
-        /// Does not initialize the vertices.
-        ///
-        /// \param name Name of the Circle
+        /// \copydoc Mesh::Mesh()
         ///
         CircleMesh(const std::string& name);
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other mesh to be copied
-        /// \param newName Name of the new mesh
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
         CircleMesh(const CircleMesh& other, const std::string& newName);
 
@@ -62,7 +55,6 @@ namespace jop
         ///
         bool load(const float radius, int pointCount);
 
-
         /// \brief Get the radius
         ///
         /// \return The radius
@@ -71,7 +63,7 @@ namespace jop
 
     private:
 
-        float m_radius; ///< This Circle's size
+        float m_radius; ///< This circle's radius
         int m_points;   ///How many points does this circle have; triangle, pentagon, circle
     };
 }

@@ -35,14 +35,11 @@ namespace jop
     {
     public:
 
-        /// \copydoc jop::BoxMesh::BoxMesh()
+        /// \copydoc Mesh::Mesh()
         ///
         ConeMesh(const std::string& name);
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other mesh to be copied
-        /// \param newName Name of the new mesh
+        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
         ConeMesh(const ConeMesh& other, const std::string& newName);
 
@@ -57,7 +54,6 @@ namespace jop
         /// \return True if successful
         ///
         bool load(const float radius, const float height, const unsigned int sectors, const bool dividedTexCoords = false);
-
 
         /// \brief Get the radius
         ///
@@ -77,7 +73,7 @@ namespace jop
         ///
         float getHeight() const;
 
-        /// \brief Check if this Cylinder uses normalized texture coordinates
+        /// \brief Check if this cone uses normalized texture coordinates
         ///
         /// \return True if normalized
         ///

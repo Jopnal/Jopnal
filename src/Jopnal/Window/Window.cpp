@@ -109,7 +109,7 @@ namespace jop
 
         void BufferSwapper::draw()
         {
-            static DynamicSetting<unsigned int> frameLimit("engine@DefaultWindow|uFrameLimit", 0);
+            static const DynamicSetting<unsigned int> frameLimit("engine@DefaultWindow|uFrameLimit", 0);
 
             if (frameLimit.value > 0)
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>((1.f / frameLimit.value - m_frameClock.reset().asSeconds()) * 1000.f)));

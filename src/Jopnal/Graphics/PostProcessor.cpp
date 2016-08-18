@@ -465,7 +465,7 @@ namespace jop
             m_blurShader->setUniform("u_Buffer", *(*itr)[0].getTextureAttachment(slot), 1);
             bool horizontal = true;
 
-            static DynamicSetting<unsigned int> kernelSize("engine@Graphics|Postprocessor|Bloom|uKernelSize", 5);
+            static const DynamicSetting<unsigned int> kernelSize("engine@Graphics|Postprocessor|Bloom|uKernelSize", 5);
 
             for (unsigned int j = 0; j < kernelSize.value * 2; ++j)
             {
