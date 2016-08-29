@@ -179,9 +179,9 @@ namespace jop
 
         /// \brief Use object's direction for sound
         ///
-        /// \param Bool true will make sound to use direction
+        /// \param use true will make sound to use direction
         ///
-        SoundSource& useDirection(bool use);
+        SoundSource& useDirection(const bool use);
 
         /// \brief Check if sound has direction
         ///

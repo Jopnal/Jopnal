@@ -42,16 +42,19 @@ namespace jop
 
         /// \brief Constructor
         ///
+        /// \param name Name of the resource
+        ///
         ShaderProgram(const std::string& name);
 
         /// \brief Destructor
         ///
         ~ShaderProgram();
 
+
         /// \brief Load shaders
         ///
         /// Attaches a variable number of shaders to shader program.
-        /// NOTE: Can load some shaders as objects and others as source codes simultaneously.
+        /// \note Can load some shaders as objects and others as source codes simultaneously.
         ///
         /// Invalid shader objects or empty sources will be silently ignored and won't be used
         /// in the final link operation.
@@ -59,22 +62,28 @@ namespace jop
         /// \param pp Preprocessor string
         /// \param args Variable amount of shaders objects or shader sources
         ///
+        /// \return True if successful
+        ///
         template<typename ... Args>
         bool load(const std::string& pp, const Args&... args);
 
-        /// \brief Attach shader to program
+        /// \brief Attach shader to the program
         ///
         /// \param shader Reference to shader object
         ///
+        /// \return True if successful
+        ///
         bool attachShader(const Shader& shader);
 
-        /// \brief Link shader program
+        /// \brief Link the shader program
+        ///
+        /// \return True if successful
         ///
         bool link();
 
-        /// \brief Unlink shader program
+        /// \brief Unlink the shader program
         ///
-        /// Unbinds shader program and destroys it
+        /// Unbinds shader program and destroys it.
         ///
         void unlink();
 
@@ -92,16 +101,20 @@ namespace jop
 
         /// \brief Validate program status
         ///
+        /// \return True if successfully validated
+        ///
         bool validate() const;
 
         /// \brief Check if this program is valid
         ///
+        /// \return True if valid
+        ///
         bool isValid() const;
 
-        /// \brief method setting matrix 4x4
+        /// \brief Set a mat4 uniform
         ///
-        /// \param name unique name
-        /// \param matrix 4x4 matrix
+        /// \param name Uniform name
+        /// \param matrix A 4x4 matrix
         ///
         /// \return True if set successfully
         ///
@@ -119,10 +132,10 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
 
-        /// \brief method setting 3x3 matrix with unique name
+        /// \brief Set a mat3 uniform
         ///
-        /// \param name unique name
-        /// \param matrix 3x3 matrix
+        /// \param name Uniform name
+        /// \param matrix A 3x3 matrix
         ///
         /// \return True if set successfully
         ///
@@ -137,28 +150,28 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const glm::vec2& vector);
 
-        /// \brief method setting vector with 3 dimensions and unique name
+        /// \brief Set a vec3 uniform
         ///
-        /// \param name unique name
-        /// \param vector 3 dimensional vector
+        /// \param name Uniform name
+        /// \param vector A 3-dimensional vector
         ///
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const glm::vec3& vector);
 
-        /// \brief method setting vector with 4 dimensions and unique name
+        /// \brief Set a vec4 uniform
         ///
-        /// \param name unique name
-        /// \param vector 4 dimensional vector
+        /// \param name Uniform name
+        /// \param vector A 4-dimensional vector
         ///
         /// \return True if set successfully
         ///
         bool setUniform(const std::string& name, const glm::vec4& vector);
 
-        /// \brief method setting texture with unique name and Uint
+        /// \brief Set a texture uniform
         ///
-        /// \param name unique name
-        /// \param texture The texture
+        /// \param name Uniform name
+        /// \param texture A texture
         /// \param unit The texture unit
         ///
         /// \return True if set successfully
@@ -192,13 +205,13 @@ namespace jop
         ///
         bool setUniform(const std::string& name, const bool value);
 
-        /// \brief Get the default shader
+        /// \brief Get the default shader program
         ///
         /// \return Reference to the default shader
         ///
         static ShaderProgram& getDefault();
 
-        /// \brief Get the error shader
+        /// \brief Get the error shader program
         ///
         /// This shader will paint any drawn object bright red.
         ///
@@ -208,7 +221,7 @@ namespace jop
 
     private:
 
-        /// \brief Get location of uniform by name
+        /// \brief Get the location of a uniform by name
         ///
         int getUniformLocation(const std::string& name);
 
@@ -217,7 +230,9 @@ namespace jop
         LocationMap m_unifMap;                                                      ///< Map with uniform locations
         unsigned int m_programID;                                                   ///< OpenGL program handle
     };
-#include <Jopnal/Graphics/Inl/ShaderProgram.inl>
+
+    // Include the template implementation file
+    #include <Jopnal/Graphics/Inl/ShaderProgram.inl>
 }
 
 /// \class jop::ShaderProgram

@@ -38,25 +38,24 @@ namespace jop
     {
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param window Reference to the main window
+        ///
         MainRenderTarget(const Window& window);
 
 
+        /// \brief Update
+        ///
+        /// This will simply clear the back buffer.
+        ///
+        /// \param deltaTime The delta time, not used
+        ///
         void preUpdate(const float deltaTime) override;
-
-        void setMaxResolutionScale(const float scale);
-
-        float getMaxResolutionScale() const;
-
-        void setResolutionScale(const float scale);
-
-        float getResolutionScale() const;
-
 
     private:
 
-        float m_maxResScale;
-        float m_resScale;
-        const Window& m_windowRef;
+        const Window& m_windowRef;  ///< Main window reference
     };
 }
 

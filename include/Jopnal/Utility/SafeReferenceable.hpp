@@ -32,7 +32,6 @@
 
 namespace jop
 {
-    // Forward declarations
     template<typename T>
     class SafeReferenceable;
     template<typename T>

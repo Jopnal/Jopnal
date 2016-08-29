@@ -58,8 +58,6 @@ namespace jop
     
         /// \brief Constructor
         ///
-        /// \param ID Identifier of this render target
-        ///
         RenderTarget();
 
         /// \brief Virtual destructor
@@ -73,20 +71,17 @@ namespace jop
         ///
         void clear(const unsigned int bits);
 
-
         /// \brief Bind this render target for drawing
         ///
         /// \return True if successful
         ///
         virtual bool bind() const = 0;
         
-
         /// \brief Get the size
         ///
-        /// \return The size
+        /// \return The size in pixels
         ///
         virtual glm::uvec2 getSize() const = 0;
-
 
         /// \brief Set the clear color
         ///
@@ -110,9 +105,9 @@ namespace jop
         ///
         RenderTarget& setClearDepth(const float depth);
 
-        /// \brief Get the clear depth
+        /// \brief Get the clear depth value
         ///
-        /// \return The clear depth
+        /// \return The clear depth value
         ///
         float getClearDepth() const;
 
@@ -124,9 +119,9 @@ namespace jop
         ///
         RenderTarget& setClearStencil(const int stencil);
 
-        /// \brief Get the clear stencil
+        /// \brief Get the clear stencil value
         ///
-        /// \return The clear stencil
+        /// \return The clear stencil value
         ///
         int getClearStencil() const;
 
@@ -136,15 +131,13 @@ namespace jop
 
     private:
 
-        Color m_clearColor;                         ///< The clear color
-        std::atomic<float> m_clearDepth;            ///< The clear depth
-        std::atomic<int> m_clearStencil;            ///< The clear stencil
+        Color m_clearColor;                 ///< The clear color
+        std::atomic<float> m_clearDepth;    ///< The clear depth
+        std::atomic<int> m_clearStencil;    ///< The clear stencil
     };
 }
 
 /// \class jop::RenderTarget
 /// \ingroup graphics
-///
-/// #TODO Detailed description
 
 #endif

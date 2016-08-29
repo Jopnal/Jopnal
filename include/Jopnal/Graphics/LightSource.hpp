@@ -119,10 +119,7 @@ namespace jop
         ///
         /// \return The render mask
         ///
-        /// \comm setRenderMask_LightSource
-        ///
         uint32 getRenderMask() const;
-
 
         /// \brief Get the light type
         ///
@@ -130,8 +127,9 @@ namespace jop
         ///
         Type getType() const;
 
-
         /// \brief Set shadow casting for this light
+        ///
+        /// This can be an expensive function, do not call frequently.
         ///
         /// \param castShadows True to cast shadows
         ///
@@ -143,10 +141,7 @@ namespace jop
         ///
         /// \return True if this light casts shadows
         ///
-        /// \comm setCastShadows
-        ///
         bool castsShadows() const;
-
 
         /// \brief Get a light space matrix
         ///
@@ -162,35 +157,34 @@ namespace jop
 
         /// \brief Get the shadow map
         ///
-        /// \return Const reference to the shadow map. Nullptr if no shadow map exists
+        /// \return Const reference to the shadow map. nullptr if no shadow map exists
         ///
         const Texture* getShadowMap() const;
 
-
-        /// \brief Sets m_intensities array to color
+        /// \brief Set a specific intensity value
         ///
-        /// \comm setIntensity
-        ///
-        /// \param intensity Intensity type from enum
-        /// \param color Color type as RGB vector
+        /// \param intensity The intensity type
+        /// \param color The color value to set
         ///
         /// \return Reference to self
         ///
+        /// \comm setIntensity
+        ///
         LightSource& setIntensity(const Intensity intensity, const Color& color);
         
-        /// \brief Overload function for setIntensity
+        /// \brief Set all intensity values
         ///
-        /// \param ambient Color value for ambient lighting
-        /// \param diffuse Color value for diffuse lighting
-        /// \param specular Color value for specular lighting
+        /// \param ambient Ambient intensity
+        /// \param diffuse Diffuse intensity
+        /// \param specular Specular intensity
         ///
         /// \return Reference to self
         ///
         LightSource& setIntensity(const Color& ambient, const Color& diffuse, const Color& specular);
 
-        /// \brief Set an uniform intensity
+        /// \brief Set all intensity values
         ///
-        /// All the intensity values will be set to the given color value
+        /// All the intensity values will be set to the given color value.
         ///
         /// \param intensity The intensity to set
         ///
@@ -202,10 +196,9 @@ namespace jop
         ///
         /// \param intensity The intensity type
         ///
-        /// \return The intensity color
+        /// \return The intensity value
         ///
         const Color& getIntensity(const Intensity intensity) const;
-
 
         /// \brief Set a single attenuation value
         ///
@@ -218,13 +211,13 @@ namespace jop
 
         /// \brief Set the attenuation values
         ///
-        /// \comm setAttenuation
-        ///
         /// \param constant The constant attenuation
         /// \param linear The linear attenuation
         /// \param quadratic The quadratic attenuation
         ///
         /// \return Reference to self
+        ///
+        /// \comm setAttenuation
         /// 
         LightSource& setAttenuation(const float constant, const float linear, const float quadratic);
 
@@ -256,8 +249,7 @@ namespace jop
         ///
         /// \return A vector with the attenuation values
         ///
-        glm::vec3 getAttenuationVec() const;
-
+        glm::vec3 getAttenuation() const;
 
         /// \brief Get the approximate maximum range
         ///
@@ -269,20 +261,19 @@ namespace jop
         ///
         float getRange() const;
 
-
         /// \brief Set the cutoff
         ///
         /// This only affects spot lights.
         /// The inner and outer cutoff control the dimming near
         /// the edges of the spot light.
         ///
-        /// \comm setCutoff
-        ///
         /// \param inner The inner cutoff in radians. The light will be at its
         ///              maximum intensity inside this angle
         /// \param outer The outer cutoff in radians
         ///
         /// \return Reference to self
+        ///
+        /// \comm setCutoff
         ///
         LightSource& setCutoff(const float inner, const float outer);
 
@@ -295,7 +286,6 @@ namespace jop
         ///
         const glm::vec2& getCutoff() const;
 
-
         /// \brief Get the setting for the maximum number of lights
         ///
         /// \param type The light type
@@ -303,7 +293,6 @@ namespace jop
         /// \return The maximum number of lights
         ///
         static unsigned int getMaximumLights(const Type type);
-
 
         /// \brief Calculate cube map view matrices
         ///
@@ -315,6 +304,8 @@ namespace jop
         
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         Message::Result receiveMessage(const Message& message) override;
 
     private:
@@ -334,7 +325,7 @@ namespace jop
 
     /// \brief Container for lights
     ///
-    /// Meant to be passed to drawable
+    /// Meant to be passed to Drawable::draw().
     ///
     class JOP_API LightContainer
     {
@@ -344,6 +335,8 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
         LightContainer();
 
         /// \brief Check is this container is empty

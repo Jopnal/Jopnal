@@ -45,8 +45,8 @@ namespace jop
           m_envRecorders    (),
           m_target          (mainTarget)
     {
-        createRenderPass<DefaultPrePass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
-        createRenderPass<DefaultPostPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);
+        createRenderPass<SortedRenderPass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
+        createRenderPass<OrderedRenderPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);
     }
 
     //////////////////////////////////////////////

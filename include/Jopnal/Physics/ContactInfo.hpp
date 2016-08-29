@@ -42,18 +42,16 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param pos Contact position
+        /// \param norm Contact normal
         ///
         ContactInfo(const glm::vec3& pos, const glm::vec3& norm);
         
-        
         const glm::vec3 position;   ///< Contact position
-        const glm::vec3 normal;
+        const glm::vec3 normal;     ///< Contact normal
     };
 }
 
 /// \class jop::ContactInfo
 /// \ingroup physics
-///
-/// #TODO Detailed description
 
 #endif

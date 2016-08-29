@@ -38,6 +38,7 @@
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/VertexBuffer.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
     #include <Jopnal/Physics/Collider.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Utility/Assert.hpp>
@@ -159,10 +160,10 @@ namespace detail
 
                 shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
-                GlState::setVertexAttribute(true, 0);
-                GlState::setVertexAttribute(true, 5);
-                glCheck(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), 0));
-                glCheck(glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), (void*)sizeof(btVector3)));
+                GlState::setVertexAttribute(true, Mesh::VertexIndex::Position);
+                GlState::setVertexAttribute(true, Mesh::VertexIndex::Color);
+                glCheck(glVertexAttribPointer(Mesh::VertexIndex::Position, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), 0));
+                glCheck(glVertexAttribPointer(Mesh::VertexIndex::Color, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), (void*)sizeof(btVector3)));
 
                 glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 

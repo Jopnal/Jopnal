@@ -42,11 +42,19 @@ namespace jop
         ///
         Color();
 
+        /// \brief Overloaded constructor
+        ///
+        /// \param rgb The red, green, blue components
+        /// \param a The alpha component
+        ///
         explicit Color(const glm::vec3& rgb, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///
-        /// The values need to be clamped between 0 and 1.
+        /// \param r The red component
+        /// \param g The green component
+        /// \param b The blue component
+        /// \param a The alpha component
         ///
         Color(const float32 r, const float32 g, const float32 b, const float32 a = 1.f);
 
@@ -65,11 +73,11 @@ namespace jop
         explicit Color(const std::string& hexString);
 
 
-        /// \brief Get this color as a RGB float vector
+        /// \brief Get this color as a RGBA float vector
         ///
         /// The precision of the values is 32 bits each.
         ///
-        /// \return A float vector describing the color
+        /// \return Float vector describing the color
         ///
         glm::vec4 asRGBAVector() const;
 
@@ -81,8 +89,8 @@ namespace jop
         
     public:
 
-        glm::vec3   colors;
-        float32     alpha;
+        glm::vec3   colors; ///< The RGB color
+        float32     alpha;  ///< Alpha
 
         static const Color Black;       ///< Black color
         static const Color White;       ///< White color
@@ -128,7 +136,5 @@ namespace jop
 
 /// \class jop::Color
 /// \ingroup graphics
-///
-/// #TODO Detailed description
 
 #endif

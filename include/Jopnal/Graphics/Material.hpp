@@ -63,15 +63,11 @@ namespace jop
                 ReflectionMap   = EnvironmentMap    << 1,
                 OpacityMap      = ReflectionMap     << 1,
                 GlossMap        = OpacityMap        << 1,
-                //NormalMap       = 1 << 7, // TODO: Implement
-                //ParallaxMap     = 1 << 8, // TODO: Implement
-                //AmbienceMap    = 1 << 10, // TODO: Implement
-                //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
                 Phong           = 1 << 18,
                 BlinnPhong      = Phong | Phong << 1,   //
-                Gouraud         = Phong,                // TODO: Implement these
+                Gouraud         = Phong,                // To be implemented
                 Flat            = Phong,                //
 
                 // Bundles
@@ -79,12 +75,13 @@ namespace jop
                 DefaultLighting = BlinnPhong,
 
                 // For internal functionality, do not use
-                __Map           = 0,
                 __Lighting      = BlinnPhong | Gouraud | Flat
             };
         };
 
         /// The reflection attribute
+        ///
+        /// \note These will only affect rendering when lighting is enabled.
         ///
         enum class Reflection
         {
@@ -103,45 +100,11 @@ namespace jop
             Emission,
             Environment,
             Reflection,
-            //Normal
-            //Parallax
-            //Ambience
-            //Light
             Opacity,
             Gloss,
             
             /// For internal use. Never use this
             Last
-        };
-
-        /// Predefined material properties
-        ///
-        enum class Preset
-        {
-            Emerald,
-            Jade,
-            Obsidian,
-            Pearl,
-            Ruby,
-            Turquoise,
-            Brass,
-            Bronze,
-            Chrome,
-            Copper,
-            Gold,
-            Silver,
-            BlackPlastic,
-            CyanPlastic,
-            GreenPlastic,
-            RedPlastic,
-            WhitePlastic,
-            YellowPlastic,
-            BlackRubber,
-            CyanRubber,
-            GreenRubber,
-            RedRubber,
-            WhiteRubber,
-            YellowRubber
         };
 
     private:
@@ -161,12 +124,16 @@ namespace jop
         /// \brief Send this material to a shader
         ///
         /// \param shader Reference to the shader to send this material to
-        /// \param camera The camera to use
+        /// \param camPos The camera position, may be nullptr
         ///
         void sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const;
 
+        /// \brief Get a shader pre-processor string
+        ///
+        /// \param attribs The material attributes
+        /// \param str The string to write into
+        ///
         static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
-
 
         /// \brief Set a reflection value
         ///
@@ -187,14 +154,6 @@ namespace jop
         /// \return Reference to self
         ///
         Material& setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission);
-
-        /// \brief Set the reflection values using a preset
-        ///
-        /// \param preset The preset to use
-        ///
-        /// \return Reference to self
-        ///
-        Material& setReflection(const Preset preset);
    
         /// \brief Get a reflection value
         ///
@@ -218,7 +177,6 @@ namespace jop
         ///
         float getShininess() const;
 
-
         /// \brief Set the reflectivity
         ///
         /// Do not confuse this with reflection. What this defines is how
@@ -238,10 +196,9 @@ namespace jop
         ///
         float getReflectivity() const;
 
-
         /// \brief Set a map
         ///
-        /// \param map The map attribute
+        /// \param map The map enum
         /// \param tex Reference to the texture
         ///
         /// \return Reference to self
@@ -258,12 +215,11 @@ namespace jop
 
         /// \brief Get a map
         ///
-        /// \param map The map attribute
+        /// \param map The map enum
         ///
-        /// \return Pointer to the texture. Nullptr if none bound
+        /// \return Pointer to the texture. nullptr if none bound
         ///
         const Texture* getMap(const Map map) const;
-
 
         /// \brief Set the attribute bit field
         ///
@@ -287,16 +243,43 @@ namespace jop
         ///
         bool hasAttribute(const uint64 attrib) const;
 
+        /// \brief Check if this material has a set of attributes
+        ///
+        /// \param attribs The attributes to check
+        ///
+        /// \return True if does have the attributes
+        ///
         bool hasAttributes(const uint64 attribs) const;
 
+        /// \brief Check if this material has a specific attribute set
+        ///
+        /// \param attribs The attributes to compare
+        ///
+        /// \return True if the attributes match
+        ///
         bool compareAttributes(const uint64 attribs) const;
 
+        /// \brief Add attributes
+        ///
+        /// \param attribs Attributes to add
+        ///
+        /// \return Reference to self
+        ///
         Material& addAttributes(const uint64 attribs);
 
+        /// \brief Remove attributes
+        ///
+        /// \param attribs Attributes to remove
+        ///
+        /// \return Reference to self
+        ///
         Material& removeAttributes(const uint64 attribs);
 
+        /// \brief Check if this material has potential transparency
+        ///
+        /// \return True if this material has potential transparency
+        ///
         bool hasAlpha() const;
-
 
         /// \brief Get the default material
         ///

@@ -24,7 +24,7 @@
 /// <h2><a href="https://github.com/Jopnal/Jopnal/wiki/Tutorial-Index"><b>Tutorials</b></a><br>
 /// <br>
 /// <a href="https://github.com/Jopnal/Jopnal/wiki/Credits"><b>Credits</b></a><br>
-/// <a href="https://github.com/Jopnal/Jopnal"><b>Github Repository</b></a></h3><br>
+/// <a href="https://github.com/Jopnal/Jopnal"><b>Github Repository</b></a></h2><br>
 ///
 /// \verbatim
 /// Jopnal Engine C++ Library                                                      
@@ -46,7 +46,6 @@
 ///    misrepresented as being the original software.                              
 /// 3. This notice may not be removed or altered from any source distribution.
 /// \endverbatim
-/// 
 
 // Headers
 #include <Jopnal/Audio.hpp>

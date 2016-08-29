@@ -40,8 +40,6 @@ namespace jop
     MainRenderTarget::MainRenderTarget(const Window& window)
         : RenderTexture (),
           Subsystem     (0),
-          m_maxResScale (1.f),
-          m_resScale    (1.f),
           m_windowRef   (window)
     {
         const glm::uvec2 scaledRes(SettingManager::get<float>("engine@Graphics|MainRenderTarget|fResolutionScale", 1.f) * glm::vec2(window.getSize()));
@@ -54,9 +52,7 @@ namespace jop
         addTextureAttachment(Slot::Color0, hdr ? CA::RGBA_F_16 : CA::RGBA_UB_8);
         
         if (!addRenderbufferAttachment(Slot::DepthStencil, CA::DepthStencil_UI_24_B_8))
-        {
             addRenderbufferAttachment(Slot::Depth, CA::Depth_US_16);
-        }
 
         getTextureAttachment(Slot::Color0)->setFilterMode(TextureSampler::Filter::Bilinear).setRepeatMode(TextureSampler::Repeat::ClampEdge);
 

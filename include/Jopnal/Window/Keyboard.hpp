@@ -148,7 +148,5 @@ namespace jop
 
 /// \class jop::Keyboard
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

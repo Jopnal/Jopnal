@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup utility Utility
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Utility/Assert.hpp>

@@ -51,7 +51,7 @@ namespace jop
         /// \param collider Reference to the collider which registered collider is colliding with
         /// \param ci Contact info containing the contact point and contact normal
         ///
-        virtual void beginContact(Collider& collider, ContactInfo& ci);
+        virtual void beginContact(Collider& collider, const ContactInfo& ci);
 
         /// \brief End contact callback
         ///

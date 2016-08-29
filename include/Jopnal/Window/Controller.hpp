@@ -147,7 +147,5 @@ namespace jop
 
 /// \class jop::Controller
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

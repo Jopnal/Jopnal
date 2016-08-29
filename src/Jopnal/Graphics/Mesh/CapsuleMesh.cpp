@@ -97,9 +97,9 @@ namespace jop
 				itr->texCoords.x = texCoordMultS * s * -S;
 				itr->texCoords.y = texCoordMultR * r * R;
 
-				itr->normalVector.x = x;
-				itr->normalVector.y = y;
-				itr->normalVector.z = z;
+				itr->normal.x = x;
+				itr->normal.y = y;
+				itr->normal.z = z;
 
 				++itr;
 			}

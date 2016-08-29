@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Graphics/ModelLoader.hpp>
+    #include <Jopnal/Graphics/ModelLoader.hpp>
 
 #endif
 
@@ -34,16 +34,15 @@
 namespace jop
 {
     ModelLoader::ModelLoader(Object& obj)
-        : Component         (obj, 0),
-          m_path            (),
-          m_localBounds     (),
-          m_globalBounds    (),
-          m_updateBounds    (true)
+        : Component     (obj, 0),
+          m_path        (),
+          m_localBounds ()
     {}
 
     ModelLoader::ModelLoader(const ModelLoader& other, Object& obj)
-        : Component (other, obj),
-          m_path    (other.m_path)
+        : Component     (other, obj),
+          m_path        (other.m_path),
+          m_localBounds (other.m_localBounds)
     {}
 
     //////////////////////////////////////////////
@@ -351,7 +350,7 @@ namespace jop
             return false;
         }
 
-        float bounds[6] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+        float bounds[6] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
         if (doc.HasMember("globalbb") && doc["globalbb"].IsArray() && doc["globalbb"].Size() >= 6u)
         {
             for (unsigned int i = 0; i < 6; ++i)
@@ -374,16 +373,13 @@ namespace jop
         return m_localBounds;
     }
 
-    const std::pair<glm::vec3, glm::vec3>& ModelLoader::getGlobalBounds() const
+    //////////////////////////////////////////////
+
+    std::pair<glm::vec3, glm::vec3> ModelLoader::getGlobalBounds() const
     {
-        if (m_updateBounds)
-        {
-            m_globalBounds = getLocalBounds();
-            getObject()->getTransform().transformBounds(m_globalBounds.first, m_globalBounds.second);
+        auto bounds = getLocalBounds();
+        getObject()->getTransform().transformBounds(bounds.first, bounds.second);
 
-            m_updateBounds = false;
-        }
-
-        return m_globalBounds;
+        return bounds;
     }
 }

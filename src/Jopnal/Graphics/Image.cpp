@@ -216,7 +216,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    uint32 Image::getDepth() const
+    uint32 Image::getPixelDepth() const
     {
         return m_bytesPerPixel;
     }

@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
+#include <Jopnal/Core/SettingManager.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <array>
@@ -48,6 +49,8 @@ namespace jop
 
     public:
 
+        /// Post-process functions
+        ///
         struct Function
         {
             enum : uint32
@@ -61,34 +64,21 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// \param mainTarget The main render target
+        ///
         PostProcessor(const RenderTarget& mainTarget);
 
+        /// \brief Destructor
+        ///
         ~PostProcessor();
 
 
-        static void enableFunctions(const uint32 funcs);
-
-        static void disableFunctions(const uint32 funcs);
-
-        static bool functionEnabled(const uint32 func);
-
-        static void setExposure(const float exposure);
-
-        static float getExposure();
-
-        static void setGamma(const float gamma);
-
-        static float getGamma();
-
-        static void setBloomThreshold(const float threshold);
-
-        static float getBloomThreshold();
-
-        static void setBloomSubThresholdExponent(const float exponent);
-
-        static float getBloomSubThresholdExponent();
-
-
+        /// \brief Draw
+        ///
+        /// This will draw a full-screen quad using the post-process settings.
+        ///
         void draw() override;
 
     private:
@@ -100,21 +90,21 @@ namespace jop
         void enableBloom();
 
 
-        static PostProcessor* m_instance;
+        static PostProcessor* m_instance;                                   ///< The single instance
 
-        std::array<std::string, 2> m_shaderSources;
-        std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders;
-        WeakReference<ShaderProgram> m_blurShader;
-        WeakReference<RectangleMesh> m_quad;
-        const RenderTarget& m_mainTarget;
-        uint32 m_functions;
-        float m_exposure;
-        float m_gamma;
-        float m_bloomThreshold;
-        float m_subBloomThresholdExp;
-        Texture2D m_ditherMatrix;
-        std::array<std::array<RenderTexture, 2>, 5> m_bloomTextures;
-        WeakReference<ShaderProgram> m_brightShader;
+        std::array<std::string, 2> m_shaderSources;                         ///< Shader sources
+        std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders; ///< Shader map
+        WeakReference<ShaderProgram> m_blurShader;                          ///< Gaussian blur shader
+        WeakReference<RectangleMesh> m_quad;                                ///< Full screen quad
+        const RenderTarget& m_mainTarget;                                   ///< Reference to the main render target
+        uint32 m_functions;                                                 ///< Enabled functions
+        DynamicSetting<float> m_exposure;                                   ///< Exposure
+        DynamicSetting<float> m_gamma;                                      ///< Gamma value
+        DynamicSetting<float> m_bloomThreshold;                             ///< Full bloom threshold
+        DynamicSetting<float> m_subBloomThresholdExp;                       ///< Sub-threshold bloom exponent
+        Texture2D m_ditherMatrix;                                           ///< Dithering matrix texture
+        std::array<std::array<RenderTexture, 2>, 5> m_bloomTextures;        ///< Bloom frame buffers
+        WeakReference<ShaderProgram> m_brightShader;                        ///< Bright filter shader
     };
 }
 

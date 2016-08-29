@@ -302,7 +302,6 @@ namespace jop
     SoundStream& SoundStream::setLoop(const bool loop)
     {
         m_loop = loop;
-
         return *this;
     }
 

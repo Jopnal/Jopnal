@@ -256,7 +256,5 @@ namespace jop
 
 /// \class jop::SettingManager
 /// \ingroup core
-///
-/// #TODO Detailed description
 
 #endif

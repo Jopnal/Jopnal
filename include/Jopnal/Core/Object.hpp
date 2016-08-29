@@ -281,7 +281,7 @@ namespace jop
 
         /// \brief Remove all children with the given tag
         ///
-        /// \copydetails removeChildren()
+        /// The children will actually be removed only at the beginning of the next update call.
         ///
         /// \param tag The tag to search with
         /// \param recursive Search recursively?
@@ -748,8 +748,6 @@ namespace jop
         Object& lookAt(const glm::vec3& point, const glm::vec3& up);
 
         /// \brief Set this transform to look at a certain point
-        ///
-        /// \copydetails lookAt(const glm::vec3&)
         ///
         /// \param x The X point
         /// \param y The Y point

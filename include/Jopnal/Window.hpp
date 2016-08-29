@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup window Window
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Window/Controller.hpp>

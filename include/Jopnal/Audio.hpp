@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup audio Audio
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Audio/AudioDevice.hpp>

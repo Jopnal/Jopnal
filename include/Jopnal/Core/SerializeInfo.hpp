@@ -63,7 +63,5 @@ namespace jop
 
 /// \class jop::SerializeInfo
 /// \ingroup core
-///
-/// #TODO Detailed description
 
 #endif

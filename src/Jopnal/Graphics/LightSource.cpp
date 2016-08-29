@@ -363,7 +363,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 LightSource::getAttenuationVec() const
+    glm::vec3 LightSource::getAttenuation() const
     {
         return glm::vec3(m_attenuation);
     }
@@ -610,7 +610,7 @@ namespace jop
                 shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Attenuation
-                shader.setUniform(cache[4], li.getAttenuationVec());
+                shader.setUniform(cache[4], li.getAttenuation());
 
                 // Shadow map
                 if (receiveShadows)
@@ -666,7 +666,7 @@ namespace jop
                 shader.setUniform(cache[4], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Attenuation
-                shader.setUniform(cache[5], li.getAttenuationVec());
+                shader.setUniform(cache[5], li.getAttenuation());
 
                 // Cutoff
                 shader.setUniform(cache[6], glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));

@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup physics Physics
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Physics/Collider.hpp>

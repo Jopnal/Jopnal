@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <utility>
 
 //////////////////////////////////////////////
 
@@ -91,7 +92,7 @@ namespace jop
         /// The coordinates are relative to the main window.
         ///
         /// \param min The minimum coordinates of the restriction rectangle (left, top)
-        /// \param min The maximum coordinates of the restriction rectangle (right, bottom)
+        /// \param max The maximum coordinates of the restriction rectangle (right, bottom)
         ///
         static void setClipping(const glm::ivec2& min, const glm::ivec2& max);
 
@@ -115,7 +116,5 @@ namespace jop
 
 /// \class jop::Mouse
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

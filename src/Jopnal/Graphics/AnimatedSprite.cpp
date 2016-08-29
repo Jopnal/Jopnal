@@ -44,7 +44,8 @@ namespace jop
           m_frameTime       (0),
           m_timer           (0),
           m_status          (Status::Stopped),
-          m_currentFrame    (0)
+          m_currentFrame    (0),
+          m_repeats         (0)
     {
         setModel(Model(*m_mesh, m_material));
     }
@@ -56,13 +57,14 @@ namespace jop
 
     void AnimatedSprite::update(const float deltaTime)
     {
-        m_timer += deltaTime * (m_status == Status::Playing);
+        m_timer += deltaTime * (m_status == Status::Playing) * (m_repeats != 0);
 
         if (m_timer >= m_frameTime)
         {  
             if (++m_currentFrame > m_animationRange.second)
             {
                 m_currentFrame = m_animationRange.first;
+                m_repeats = std::max(-1, m_repeats - 1);
             }
 
             const auto coords = m_atlas->getCoordinates(m_currentFrame);
@@ -78,12 +80,14 @@ namespace jop
     {
         m_status = Status::Stopped;
         m_currentFrame = m_animationRange.first;
+        m_repeats = 0;
     }
 
     //////////////////////////////////////////////
 
-    void AnimatedSprite::play()
+    void AnimatedSprite::play(const unsigned int repeats)
     {
+        m_repeats = (repeats == 0 ? -1 : repeats);
         m_status = Status::Playing;
     }
 
@@ -131,5 +135,12 @@ namespace jop
     AnimatedSprite::Status AnimatedSprite::getStatus() const
     {
         return m_status;
+    }
+
+    //////////////////////////////////////////////
+
+    int AnimatedSprite::getRemainingRepeats() const
+    {
+        return m_repeats;
     }
 }

@@ -47,6 +47,7 @@ namespace jop
 		/// \brief Load a Capsule
 		///
 		/// \param radius The radius of the Capsule
+        /// \param height Height of the capsule
 		/// \param rings How many rings will the Capsule have
 		/// \param normalizedTexCoords Normalize the texture coordinates?
 		///

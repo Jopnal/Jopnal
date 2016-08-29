@@ -11,13 +11,12 @@
 JOP_ATTRIBUTE(0) vec3 a_Position;
 JOP_ATTRIBUTE(1) vec2 a_TexCoords;
 JOP_ATTRIBUTE(2) vec3 a_Normal;
-JOP_ATTRIBUTE(5) vec4 a_Color;
+JOP_ATTRIBUTE(3) vec4 a_Color;
 
 // Matrices
 uniform mat4 u_PMatrix; // Perspective
 uniform mat4 u_VMatrix; // View
-uniform mat4 u_MMatrix; // Model
-uniform mat3 u_NMatrix; // Normal = transpose(inverse(u_MMatrix))
+JOP_ATTRIBUTE(4) mat4 a_MMatrix;
 
 // Vertex attributes to fragment/geometry shader
 JOP_VARYING_OUT vec3 vf_Position;
@@ -33,14 +32,14 @@ void main()
     vec4 pos = 
         
     #if !defined(JDRW_SKYBOX) && !defined(JDRW_SKYSPHERE)
-        u_MMatrix * 
+        a_MMatrix * 
     #endif
     vec4(a_Position, 1.0);
 
     // Assign attributes
     vf_Position     = pos.xyz;
     vf_TexCoords    = a_TexCoords;
-    vf_Normal       = u_NMatrix * a_Normal;
+    vf_Normal       = transpose(inverse(mat3(a_MMatrix))) * a_Normal;
     vf_Color        = a_Color;
 
     // Calculate and assign fragment position

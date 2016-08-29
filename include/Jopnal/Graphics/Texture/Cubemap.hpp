@@ -42,6 +42,7 @@ namespace jop
         ///
         Cubemap(const std::string& name);
 
+
         /// \brief Load a cube map from files
         ///
         /// \param right Right side
@@ -50,7 +51,7 @@ namespace jop
         /// \param bottom Bottom side
         /// \param back Back side
         /// \param front Front side
-        /// \param srgb Use SRGB color space?
+        /// \param flags Texture flags
         ///
         /// \return True if successful
         ///
@@ -62,8 +63,8 @@ namespace jop
         /// \brief Load an empty cube map
         ///
         /// \param size The size of a single face
-        /// \param bpp The pixel depth in bytes
-        /// \param srgb Use SRGB color space?
+        /// \param format The texture format
+        /// \param flags Texture flags
         ///
         /// \return True if successful
         ///
@@ -72,48 +73,56 @@ namespace jop
         /// \brief Load from .dds file
         ///
         /// Creates Image object and calls its load from file method
-        /// NOTE: Only use this with compressed .dds images that contain a full cubemap (6 faces)
+        /// \note Only use this with compressed .dds images that contain a full cube map (6 faces)
         ///
         /// \param path Path to file
-        /// \param srgb Use SRGB color space?
+        /// \param flags Texture flags
+        ///
+        /// \return True if successful
         ///
         bool load(const std::string& path, const uint32 flags = 0);
 
-        /// \brief Load cubemap from compressed image containing a cubemap (DXT1/3/5)
+        /// \brief Load cube map from compressed image containing a cube map (DXT1/3/5)
         ///
-        /// Gets 6 faces from the compressed image and goes through them and their mipmaps
-        /// NOTE: Only works with compressed images that contain a full cubemap (6 faces)
+        /// Gets 6 faces from the compressed image and goes through them and their mipmaps.
+        /// \note Only works with compressed images that contain a full cube map (6 faces).
         ///
-        /// \param image Image containing a cubemap
-        /// \param srgb Use SRGB color space?
+        /// \param image Image containing a cube map
+        /// \param flags Texture flags
+        ///
+        /// \return True if successful
         ///
         bool load(const Image& image, const uint32 flags = 0);
 
-        /// \brief Get the texture size
-        ///
-        /// \return The size
+        /// \copydoc Texture::getSize()
         ///
         glm::uvec2 getSize() const override;
 
+        /// \copydoc Texture::getPixelDepth()
+        ///
         unsigned int getPixelDepth() const override;
 
+        /// \brief Get the maximum supported cube map size on this system
+        ///
+        /// \return The maximum cube map size
+        ///
         static unsigned int getMaximumSize();
 
-        /// \brief Get the error texture
+        /// \brief Get the error cube map
         ///
-        /// \return Reference to the texture
+        /// \return Reference to the cube map
         ///
         static Cubemap& getError();
 
-        /// \brief Get the default texture
+        /// \brief Get the default cube map
         ///
-        /// \return Reference to the texture
+        /// \return Reference to the cube map
         ///
         static Cubemap& getDefault();
 
     private:
 
-        glm::uvec2 m_size;  ///< Size
+        glm::uvec2 m_size; ///< Size
     };
 }
 

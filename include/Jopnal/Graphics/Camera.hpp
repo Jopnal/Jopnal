@@ -113,7 +113,6 @@ namespace jop
         ///
         uint32 getRenderMask() const;
 
-
         /// \brief Set the projection mode
         ///
         /// You need to accompany this call with calls to set the camera
@@ -121,9 +120,11 @@ namespace jop
         /// Failing to set the properties will cause the projection to
         /// malfunction.
         ///
-        /// \comm setProjectionMode
-        ///
         /// \param mode The mode to be set
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setProjectionMode
         ///
         Camera& setProjectionMode(const Projection mode);
 
@@ -133,16 +134,17 @@ namespace jop
         ///
         Projection getProjectionMode() const;
 
-
         /// \brief Set the near and far clipping planes
         ///
         /// In perspective projection the clipping planes need to be positive.
         /// Otherwise, the projection result is undefined.
         ///
-        /// \comm setClippingPlanes
-        ///
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setClippingPlanes
         ///
         Camera& setClippingPlanes(const float clipNear, const float clipFar);
 
@@ -155,21 +157,24 @@ namespace jop
         ///
         const ClippingPlanes& getClippingPlanes() const;
 
-
         /// \brief Brief set the size of the projection
         ///
         /// In perspective mode this call is equal to calling setAspectRatio(size.x / size.y)
         ///
         /// \param size The new size of the projection
         ///
+        /// \return Reference to self
+        ///
         Camera& setSize(const glm::vec2& size);
 
         /// \brief Brief set the size of the projection
         ///
-        /// \comm setSize
-        ///
         /// \param x The width
         /// \param y The height
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setSize
         ///
         Camera& setSize(const float x, const float y);
 
@@ -185,9 +190,9 @@ namespace jop
         ///
         /// This call is only valid in perspective mode.
         ///
-        /// \comm setAspectRatio
-        ///
         /// \param ratio The new aspect ratio to be set
+        ///
+        /// \comm setAspectRatio
         ///
         Camera& setAspectRatio(const float ratio);
 
@@ -199,15 +204,16 @@ namespace jop
         ///
         float getAspectRatio() const;
 
-
         /// \brief Set the vertical field of view
         ///
         /// The minimum value is glm::radians(1) and maximum glm::radians(179).
         /// The value will be clamped inside this range.
         ///
-        /// \comm setFieldOfView
-        ///
         /// \param fovY The new field of view value
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setFieldOfView
         ///
         Camera& setFieldOfView(const float fovY);
 
@@ -217,18 +223,17 @@ namespace jop
         ///
         float getFieldOfView() const;
 
-
         /// \brief Set the view port
         ///
         /// The values are in relative coordinates. For example, [0.5,0.5] and [1.0,1.0]
-        /// will select the right half of the screen
-        ///
-        /// \comm setViewport
+        /// will select the right half of the screen.
         ///
         /// \param start The start coordinates
         /// \param end The end coordinates
         ///
         /// \return Reference to self
+        ///
+        /// \comm setViewport
         ///
         Camera& setViewport(const glm::vec2& start, const glm::vec2& end);
 
@@ -249,7 +254,6 @@ namespace jop
         ///
         void applyViewport(const RenderTarget& mainTarget) const;
 
-
         /// \brief Get the internal render texture
         ///
         /// \return Reference to the render texture
@@ -259,7 +263,6 @@ namespace jop
         /// \copydoc getRenderTexture()
         ///
         const RenderTexture& getRenderTexture() const;
-
 
         /// \brief Get a ray for mouse picking purposes
         ///
@@ -274,6 +277,8 @@ namespace jop
 
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         Message::Result receiveMessage(const Message& message) override;
 
     private:

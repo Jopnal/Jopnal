@@ -283,7 +283,5 @@ namespace jop
 
 /// \class jop::Window
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup core Core
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Core/Component.hpp>

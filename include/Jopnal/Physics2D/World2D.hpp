@@ -78,9 +78,7 @@ namespace jop
         ///
         void update(const float deltaTime) override;
 
-        /// \brief Debug draw the world
-        ///
-        /// \param camera Camera to use
+        /// \copydoc World::draw()
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 

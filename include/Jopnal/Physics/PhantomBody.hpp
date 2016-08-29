@@ -59,7 +59,5 @@ namespace jop
 
 /// \class jop::PhantomBody
 /// \ingroup physics
-///
-/// #TODO Detailed description
 
 #endif

@@ -52,34 +52,46 @@ namespace jop
 
     public:
     
+        /// Drawable flags
+        ///
         enum Flag : uint32
         {
-            ReceiveLights   = 1,
-            ReceiveShadows  = 1 << 1,
-            CastShadows     = 1 << 2,
-            Reflected       = 1 << 3
+            ReceiveLights   = 1,        ///< Receive lights?
+            ReceiveShadows  = 1 << 1,   ///< Receive shadows?
+            CastShadows     = 1 << 2,   ///< Cast shadows?
+            Reflected       = 1 << 3    ///< Reflect on dynamic environment maps?
         };
 
+        /// Attribute flags
+        ///
         struct Attribute
         {
             enum : uint64
             {
-
-
                 __SkySphere = 1 << 10,
                 __SkyBox    = __SkySphere << 1
             };
         };
 
+        /// Projection info
+        ///
         struct JOP_API ProjectionInfo
         {
             JOP_DISALLOW_COPY_MOVE(ProjectionInfo);
 
+        public:
+
+            /// \brief Constructor
+            ///
+            /// \param view The view matrix
+            /// \param proj The projection matrix
+            /// \param camPos The camera position
+            ///
             ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
 
-            const glm::mat4& viewMatrix;
-            const glm::mat4& projectionMatrix;
-            const glm::vec3& cameraPosition;
+            const glm::mat4& viewMatrix;        ///< View matrix
+            const glm::mat4& projectionMatrix;  ///< Projection matrix
+            const glm::vec3& cameraPosition;    ///< Camera position
         };
 
     public:
@@ -88,10 +100,15 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
-        /// \param ID Component identifier
+        /// \param pass The render pass
         ///
         Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
 
+        /// \brief Overloaded constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param pass The render pass to bind this drawable into
+        ///
         Drawable(Object& object, RenderPass& pass);
 
         /// \brief Virtual destructor
@@ -99,11 +116,9 @@ namespace jop
         virtual ~Drawable() override;
 
 
-        /// \brief Base draw function
-        ///
-        /// This will use the shader bound to this drawable.
+        /// \brief Draw function
         /// 
-        /// \param camera The camera to use
+        /// \param proj The projection info
         /// \param lights The light container
         ///
         virtual void draw(const ProjectionInfo& proj, const LightContainer& lights) const;
@@ -114,10 +129,11 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer()
+        /// \brief Get the renderer this drawable is bound to
+        ///
+        /// \return Reference to the renderer
         ///
         const Renderer& getRenderer() const;
-
 
         /// \brief Set the render group
         ///
@@ -135,16 +151,15 @@ namespace jop
         ///
         uint8 getRenderGroup() const;
 
-
         /// \brief Set the model
         ///
         /// The model will be copied.
         ///
         /// \param model Reference to the model
         ///
-        /// \comm setModel
-        ///
         /// \return Reference to self
+        ///
+        /// \comm setModel
         ///
         Drawable& setModel(const Model& model);
 
@@ -158,53 +173,127 @@ namespace jop
         ///
         const Model& getModel() const;
 
+        /// \brief Set the color
+        ///
+        /// This sets the drawable-specific color to be used as a base.
+        /// If the bound material has a texture, the color will be used
+        /// as a multiplier. The default color is white with an alpha of 1.
+        ///
+        /// \param color The color to set
+        ///
+        /// \return Reference to self
+        ///
         Drawable& setColor(const Color& color);
 
+        /// \brief Get the color
+        ///
+        /// \return Reference to the color
+        ///
+        /// \see setColor()
+        ///
         const Color& getColor() const;
 
+        /// \brief Get the local bounds
+        ///
+        /// This is the same as calling %getModel().%getMesh()->%getBounds().
+        ///
+        /// \return The local bounds
+        ///
         const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
 
-        const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
+        /// \brief Get the global bounds
+        ///
+        /// This will apply the current transformation to the local bounds and
+        /// then return them.
+        ///
+        /// \return The global bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getGlobalBounds() const;
 
+        /// \brief Set flags
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see Flag
+        ///
         Drawable& setFlags(const uint32 flags);
 
+        /// \brief Check if this drawable has a flag
+        ///
+        /// \param flag The flag to check
+        ///
+        /// \return True if this drawable has the flag
+        ///
+        /// \see Flag
+        ///
         bool hasFlag(const uint32 flag) const;
 
+        /// \brief Set attributes
+        ///
+        /// \param attributes The attributes to set
+        ///
+        /// \return Reference to self
+        ///
         Drawable& setAttributes(const uint64 attributes);
 
+        /// \brief Add attributes
+        ///
+        /// \param attributes The attributes to add
+        ///
+        /// \return Reference to self
+        ///
         Drawable& addAttributes(const uint64 attributes);
 
+        /// \brief Get the attribute field
+        ///
+        /// \return The attribute field
+        ///
         uint64 getAttributes() const;
 
+        /// \brief Check if this drawable has a certain attribute
+        ///
+        /// \param attribute The attribute to check
+        ///
+        /// \return True if this drawable has the attribute
+        ///
         bool hasAttribute(const uint64 attribute) const;
 
+        /// \brief Get a shader pre-processor string
+        ///
+        /// \param attribs The drawable attributes
+        /// \param str The string to write into
+        ///
         static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         virtual Message::Result receiveMessage(const Message& message) override;
 
+        /// \brief Get the current shader
+        ///
+        /// \return Reference to the shader
+        ///
         ShaderProgram& getShader() const;
 
     private:
 
-        Color m_color;
-        Model m_model;                          ///< The bound model
+        Color m_color;                                  ///< Color specific to this drawable
+        Model m_model;                                  ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
-        uint64 m_attributes;
-        Renderer& m_rendererRef;                ///< Reference to the renderer
-        const RenderPass::Pass m_pass;
-        uint32 m_flags;                         ///< Property flags
-        mutable std::pair<glm::vec3, glm::vec3> m_globalBounds;
-        uint8 m_renderGroup;                    ///< The render group
-        mutable bool m_updateShader;
-        mutable bool m_updateBounds;
+        uint64 m_attributes;                            ///< Attribute flags
+        Renderer& m_rendererRef;                        ///< Reference to the renderer
+        const RenderPass::Pass m_pass;                  ///< The render pass
+        uint32 m_flags;                                 ///< Property flags
+        uint8 m_renderGroup;                            ///< The render group
+        mutable bool m_updateShader;                    ///< Must the shader be updated?
     };
 }
 
 /// \class jop::Drawable
 /// \ingroup graphics
-///
-/// #TODO Detailed description
 
 #endif

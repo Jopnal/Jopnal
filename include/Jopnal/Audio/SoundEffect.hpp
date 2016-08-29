@@ -73,22 +73,18 @@ namespace jop
 
         /// \brief Play sound
         ///
-        /// \comm playEffect
-        ///
-        /// \param reset Does sound start from beginning (true) or continue if already playing (false)
-        ///
         /// \return Reference to self
+        ///
+        /// \comm playEffect
         ///
         SoundEffect& play();
 
         /// \brief Play sound from start
         ///
-        /// This is the same as calling play(true).
-        ///
         /// \return Reference to self
         ///
-        /// \see stop
-        /// \see pause
+        /// \see stop()
+        /// \see pause()
         ///
         SoundEffect& playReset();
 
@@ -96,12 +92,12 @@ namespace jop
         ///
         /// After this call, the playing offset will be at the beginning.
         ///
-        /// \comm stopEffect
-        ///
         /// \return Reference to self
         ///
-        /// \see play
-        /// \see pause
+        /// \see play()
+        /// \see pause()
+        ///
+        /// \comm stopEffect
         ///
         SoundEffect& stop();
 
@@ -109,12 +105,12 @@ namespace jop
         ///
         /// The playing offset will be left at the current position.
         ///
-        /// \comm pauseEffect
-        ///
         /// \return Reference to self
         ///
-        /// \see play
-        /// \see stop
+        /// \see play()
+        /// \see stop()
+        ///
+        /// \comm pauseEffect
         ///
         SoundEffect& pause();
 
@@ -122,11 +118,11 @@ namespace jop
         ///
         /// The value will be clamped to fit the buffer's length.
         ///
-        /// \comm setEffectOffset
-        ///
         /// \param time The time point as seconds
         ///
         /// \return Reference to self
+        ///
+        /// \comm setEffectOffset
         ///
         SoundEffect& setOffset(const float time);
 
@@ -140,13 +136,19 @@ namespace jop
         ///
         /// If looping is enabled, the sound will loop indefinitely until stopped.
         ///
-        /// \comm setEffectLoop
-        ///
         /// \param loop True to set this sound to loop
         ///
         /// \return Reference to self
         ///
+        /// \comm setEffectLoop
+        ///
         SoundEffect& setLoop(const bool loop);
+
+        /// \brief Check if this sound is looping
+        ///
+        /// \return True if looping
+        ///
+        bool isLooping() const;
 
     private:
 

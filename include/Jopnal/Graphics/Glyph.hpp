@@ -30,18 +30,22 @@
 
 namespace jop
 {
+    /// Glyph rectangle
+    ///
     struct Rect
     {
-        int left;   ///< Glyphs left border
-        int right;  ///< Glyphs right border
-        int bottom; ///< Glyphs bottom border
-        int top;    ///< Glyphs top border
+        int left;   ///< Glyph's left border
+        int right;  ///< Glyph's right border
+        int bottom; ///< Glyph's bottom border
+        int top;    ///< Glyph's top border
     };
 
     class JOP_API Glyph
     {
     public:
          
+        /// \brief Constructor
+        ///
         Glyph();
 
         int advance;    ///< Advance to next glyph
@@ -52,9 +56,5 @@ namespace jop
 
 /// \class jop::Glyph
 /// \ingroup graphics
-///
-/// Glyph holds data for text rendering
-/// 
-///
 
 #endif

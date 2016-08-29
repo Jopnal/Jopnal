@@ -59,23 +59,65 @@ namespace jop
 
         /// \brief Constructor
         ///
+        /// \param mainTarget Reference to the main render target
+        ///
         Renderer(const RenderTarget& mainTarget);
 
 
+        /// \brief Get the bound render target
+        ///
+        /// \return Reference to the render target
+        ///
         const RenderTarget& getRenderTarget() const;
 
+        /// \brief Get the camera set
+        ///
+        /// \return Reference to the camera set
+        ///
         const CameraSet& getCameras() const;
 
+        /// \brief Get the light set
+        ///
+        /// \return Reference to the light set
+        ///
         const LightSet& getLights() const;
 
+        /// \brief Create a new render pass
+        ///
+        /// If a pass with the same type and weight already exists, it will be replaced.
+        ///
+        /// \param pass The render pas type
+        /// \param weight The weight. Lesser weight means higher priority during rendering
+        /// \param args The arguments to pass to the render pass' constructor
+        ///
+        /// \return Reference to the newly created render pass
+        ///
         template<typename T, typename ... Args>
         T& createRenderPass(const RenderPass::Pass pass, const uint32 weight, Args&&... args);
 
+        /// \brief Get a render pass
+        ///
+        /// \param pass The render pass type
+        /// \param weight The weight
+        ///
+        /// \return Pointer to the render pass. nullptr if no pass exists with the given type and weight
+        ///
         template<typename T>
         T* getRenderPass(const RenderPass::Pass pass, const uint32 weight);
 
+        /// \brief Remove and delete a render pass
+        ///
+        /// You must only call this after all the bound drawables have been removed.
+        ///
+        /// \param pass Render pass type
+        /// \param weight The weight of the pass to remove
+        ///
         void removeRenderPass(const RenderPass::Pass pass, const uint32 weight);
 
+        /// \brief Draw
+        ///
+        /// \param pass The render passes to draw
+        ///
         void draw(const RenderPass::Pass pass);
 
     private:
@@ -98,11 +140,11 @@ namespace jop
 
     private:
 
-        LightSet m_lights;                  ///< The bound lights
-        CameraSet m_cameras;                      ///< The bound cameras
-        PassContainer m_passes;
+        LightSet m_lights;                                      ///< The bound lights
+        CameraSet m_cameras;                                    ///< The bound cameras
+        PassContainer m_passes;                                 ///< Render passes
         std::set<const EnvironmentRecorder*> m_envRecorders;    ///< The bound environment recorders
-        const RenderTarget& m_target;
+        const RenderTarget& m_target;                           ///< Main render target reference
     };
 
     // Include template implementation file

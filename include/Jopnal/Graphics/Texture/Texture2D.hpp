@@ -43,78 +43,87 @@ namespace jop
         Texture2D(const std::string& name);
 
 
-        /// \brief Method for using file loader to load new resource from file
+        /// \brief Load from file
         ///
         /// \param path The file path
-        /// \param srgb Use SRGB color space?
+        /// \param flags Texture flags
         ///
-        /// \return True if loading was successful
+        /// \return True if successful
         ///
         bool load(const std::string& path, const uint32 flags = 0);
 
         /// \brief Load from memory
         ///
         /// \param ptr Pointer to data (pixels)
-        /// \param size Size of the data to be loaded
-        /// \param srgb Use SRGB color space?
+        /// \param size Size of the data to be loaded in bytes
+        /// \param flags Texture flags
+        ///
+        /// \return True if successful
         ///
         bool load(const void* ptr, const uint32 size, const uint32 flags = 0);
 
         /// \brief Creates flat/empty texture
         ///
-        /// \param size The size
-        /// \param bytesPerPixel The byte depth
-        /// \param srgb Use SRGB color space?
+        /// \param size The texture dimensions
+        /// \param format The texture format
+        /// \param flags Texture flags
         ///
-        /// \return True if loading was successful
+        /// \return True if successful
         ///
         bool load(const glm::uvec2& size, const Format format, const uint32 flags = 0);
 
         /// \brief Create a texture from an array of pixels
         ///
-        /// \param size The size
-        /// \param bytesPerPixel The byte depth of the image
-        /// \param pixels Pointer to the beginning of the pixel array
-        /// \param srgb Use SRGB color space?
+        /// \param size The texture dimensions
+        /// \param format The texture format
+        /// \param pixels Pointer to the beginning of the pixel array. Data must match the format
+        /// \param flags Texture flags
         ///
-        /// \return True if loading was successful
+        /// \return True if successful
         ///
         bool load(const glm::uvec2& size, const Format format, const void* pixels, const uint32 flags = 0);
 
-        /// \brief Load texture from compressed image
+        /// \brief Load from a compressed image
         ///
-        /// \param image Image to load into the texture
-        /// \param srgb Use SRGB color space?
+        /// \param image Image to load from
+        /// \param flags Texture flags
         ///
         bool load(const Image& image, const uint32 flags = 0);
 
         /// \brief Set a subset of pixels
         ///
-        /// The byte depth must be the same as this texture's!
-        ///
-        /// \param start The starting point
-        /// \param size The size of the area
-        /// \param pixels Pointer to the pixels
+        /// \param start The starting coordinates in pixels
+        /// \param size The size of the area in pixels
+        /// \param pixels Pointer to the pixels. The data must match the texture format
         ///
         void setPixels(const glm::uvec2& start, const glm::uvec2& size, const void* pixels);
 
+        /// \brief Set a subset of pixels from an image
+        ///
+        /// The image must not be compressed.
+        ///
+        /// \param start The starting coordinates in pixels
+        /// \param image The image to set the pixels from
+        ///
         void setPixels(const glm::uvec2& start, const Image& image);
 
-        /// \brief Get the texture size
-        ///
-        /// \return The size
+        /// \copydoc Texture::getSize()
         ///
         glm::uvec2 getSize() const override;
 
-        /// \brief Returns textures bytes per pixel value
+        /// \copydoc Texture::getPixelDepth()
         ///
         unsigned int getPixelDepth() const override;
 
-        /// \brief Copies the texture into an image and returns it
+        /// \brief Copy the texture into an image
+        ///
+        /// \return A new image with the texture pixels
         ///
         Image getImage() const;
 
-        /// \brief Get the maximum supported texture size of this system
+        /// \brief Get the maximum supported 2D texture size on this system
+        ///
+        /// \return The maximum texture size
         ///
         static unsigned int getMaximumSize();
 
@@ -132,7 +141,7 @@ namespace jop
 
     private:
 
-        glm::uvec2  m_size; ///< Size
+        glm::uvec2 m_size; ///< Size
     };
 }
 

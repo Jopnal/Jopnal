@@ -49,16 +49,17 @@ namespace jop
 
     public:
 
-        /// \brief Default constructor
+        /// \brief Constructor
         ///
         Image();
 
 
-        /// \brief Method for using file loader to load new resource from file
+        /// \brief Load from file
         ///
         /// \param path The file path
+        /// \param allowCompression Allow compression?
         ///
-        /// \return True if loading was successful
+        /// \return True if successful
         ///
         bool load(const std::string& path, const bool allowCompression = true);
 
@@ -66,6 +67,8 @@ namespace jop
         ///
         /// \param ptr Pointer to data
         /// \param size Size of the data
+        ///
+        /// \return True if successful
         ///
         bool load(const void* ptr, const uint32 size);
 
@@ -75,47 +78,69 @@ namespace jop
         /// \param bytesPerPixel The byte depth of the image
         /// \param pixels Pointer to the beginning of the pixel array
         ///
-        /// \return True if loading was successful
+        /// \return True if successful
         ///
-        bool load(const glm::uvec2& size, const uint32 bytesPerpixel, const unsigned char* pixels);
+        bool load(const glm::uvec2& size, const uint32 bytesPerPixel, const unsigned char* pixels);
 
-        /// \brief Return the dimensions of the image
+        /// \brief Get the dimensions of the image
+        ///
+        /// \return The image dimensions
         ///
         glm::uvec2 getSize() const;
 
+        /// \brief Get the pixel data size
+        ///
+        /// \return The pixel data size in bytes
+        ///
         unsigned int getPixelSize() const;
 
-        /// \brief Get image depth (bytes per pixel)
+        /// \brief Get image pixel depth
         ///
-        uint32 getDepth() const;
+        /// \return Image pixel depth in bytes
+        ///
+        uint32 getPixelDepth() const;
 
-        /// \brief Get pixels in image
+        /// \brief Get pixels of this image
+        ///
+        /// \return Pointer to the pixel data
         ///
         const uint8* getPixels() const;
 
-        /// Get internal compressed image format
+        /// \brief Get internal compressed image format
         ///
-        /// (DXT1 / DXT3 / DXT5)
+        /// \return The compressed image format
+        ///
+        /// \see isCompressed()
         ///
         Format getFormat() const;
 
-        /// Get amount of mipmap levels in compressed image
+        /// \brief Get the amount of mipmap levels in compressed image
+        ///
+        /// \return The amount of mipmap levels
         ///
         unsigned int getMipMapCount() const;
 
-        /// \brief Does image contain a cube map?
+        /// \brief Check if this image is a cube map
+        ///
+        /// \return True if cube map
         ///
         bool isCubemap() const;
 
-        /// \brief Is image compressed (DDS)
+        /// \brief Check if the image is compressed
+        ///
+        /// \return True if compressed
         ///
         bool isCompressed() const;
 
         /// \brief Flip image vertically
         ///
+        /// Doesn't work correctly with compressed images.
+        ///
         void flipVertically();
 
         /// brief Flip image horizontally
+        ///
+        /// \copydetails flipVertically()
         ///
         void flipHorizontally();
 
@@ -125,6 +150,8 @@ namespace jop
         ///
         /// Compresses image to DXT1 format if RGB color space
         /// or DXT5 format if RGBA color space
+        ///
+        /// \return True if successful
         ///
         bool compress(const bool allowCompression);
 

@@ -70,6 +70,8 @@ if (CMAKE_HOST_WIN32)
                       DEPENDS ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.hpp
                               ${PROJECT_SOURCE_DIR}/tools/Jopresource/Resources.cpp)
     
+    set_target_properties(jopnal-resources PROPERTIES FOLDER "jopnal")
+    
 else ()
 
     message(WARNING "Resource compiler is provided only for Windows, using pre-assembled Jopnal resource files")

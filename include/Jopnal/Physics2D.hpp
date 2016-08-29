@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup physics2d Physics2D
-///
-/// #TODO Detailed description
 
 // Headers
 #include <Jopnal/Physics2D/Collider2D.hpp>

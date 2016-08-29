@@ -33,27 +33,27 @@
 
 namespace jop
 {
-    Vertex::Vertex(const glm::vec3& position)
-        : position      (position),
-          texCoords     (0, 0),
-          normalVector  (0, 0, 0)
+    Vertex::Vertex(const glm::vec3& pos)
+        : position  (pos),
+          texCoords (0.f, 0.f),
+          normal    (0.f, 0.f, 0.f)
     {}
 
-    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords)
-        : position      (position),
-          texCoords     (texCoords),
-          normalVector  (0, 0, 0)
+    Vertex::Vertex(const glm::vec3& pos, const glm::vec2& tc)
+        : position  (pos),
+          texCoords (tc),
+          normal    (0.f, 0.f, 0.f)
     {}
 
-    Vertex::Vertex(const glm::vec3& position, const glm::vec3& normalVector)
-        : position      (position),
-          texCoords     (0, 0),
-          normalVector  (normalVector)
+    Vertex::Vertex(const glm::vec3& pos, const glm::vec3& nor)
+        : position  (pos),
+          texCoords (0.f, 0.f),
+          normal    (nor)
     {}
 
-    Vertex::Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normalVector)
-        : position      (position),
-          texCoords     (texCoords),
-          normalVector  (normalVector)
+    Vertex::Vertex(const glm::vec3& pos, const glm::vec2& tc, const glm::vec3& nor)
+        : position  (pos),
+          texCoords (tc),
+          normal    (nor)
     {}
 }

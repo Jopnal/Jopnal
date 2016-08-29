@@ -43,11 +43,12 @@ namespace jop
     {
     public:
 
+        /// Load mode
         enum class LoadMode
         {
-            Separate,
-            Sheet,
-            TextureOnly
+            Separate,   ///< Load from separate textures
+            Sheet,      ///< Use if you have a complete sheet (inside a single texture)
+            TextureOnly ///< Only load the texture
         };
 
     public:
@@ -60,34 +61,52 @@ namespace jop
 
         /// \brief Destructor
         ///
-        ~TextureAtlas();
+        ~TextureAtlas() override;
 
-        /// \brief Load atlas
+
+        /// \brief Load an empty atlas
         ///
-        /// \param atlasSize Size of the atlas to be created.
+        /// \param atlasSize Size of the atlas to be created
+        ///
+        /// \return True if successful
         ///
         bool load(const glm::uvec2& atlasSize);
 
-        /// \brief Load atlas
+        /// \brief Load this atlas
         ///
-        /// Loads atlas of given size and with variable amount of given Images, Texture2D's or filepath's
-        /// using the addTexture method for each argument
+        /// Loads this atlas of given size and with variable amount of given Images, Texture2D's or file paths
+        /// using addTexture() for each argument.
         ///
-        /// \param atlasSize Size of the atlas to be created.
-        /// \param args Variable amount of Texture2D's, Image's or file paths
+        /// \param atlasSize Size of the atlas to be created
+        /// \param args Variable amount of Texture2D's, Images or file paths
         ///
-        template<typename... Args>
+        /// \return True if successful
+        ///
+        template<typename ... Args>
         bool load(const glm::uvec2& atlasSize, const Args&... args);
 
         /// \brief Load from JSON file
         ///
-        /// \param mode Load mode - if you have a complete sheet use LoadMode::Sheet, otherwise use LoadMode::Seperate (which is on by default)
+        /// \param path Path to the JSON file
+        /// \param mode Load mode
         ///
-        bool load(const std::string& path, const LoadMode mode = LoadMode::Separate);
+        /// [Information about the JSON formats.](https://github.com/Jopnal/Jopnal/wiki/TextureAtlas)
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::string& path, const LoadMode mode);
+
+        /// \brief Destroy this atlas
+        ///
+        /// Called implicitly by all load methods.
+        ///
+        void destroy();
 
         /// \brief Add texture from image to the atlas
         ///
         /// \param image Image to be added
+        ///
+        /// \return The texture index
         ///
         unsigned int addTexture(const Image& image);
 
@@ -95,17 +114,27 @@ namespace jop
         ///
         /// \param texture Texture to be added
         ///
+        /// \return The texture index
+        ///
         unsigned int addTexture(const Texture2D& texture);
 
         /// \brief Add texture from file to atlas
         ///
         /// \param texturePath Path to the texture in file
         ///
+        /// \return The texture index
+        ///
         unsigned int addTexture(const std::string& texturePath);
 
         /// \brief Define a texture
         ///
-        /// Adds a texture to memory with given dimension
+        /// Adds a texture to memory with given dimension. This call must not be mixed
+        /// with addTexture().
+        ///
+        /// \param start The start coordinates
+        /// \param end The end coordinates
+        ///
+        /// \return The texture index 
         ///
         unsigned int defineTexture(const glm::vec2& start, const glm::vec2& end);
 
@@ -113,15 +142,21 @@ namespace jop
         ///
         /// \param index Index of the texture
         ///
+        /// \return The texture coordinates. First = min, second = max
+        ///
         std::pair<glm::vec2, glm::vec2> getCoordinates(const unsigned int index) const;
 
         /// \brief Get amount of textures inside atlas
+        ///
+        /// \return The amount of textures inside atlas
         ///
         unsigned int getTextureAmount() const;
 
         /// \brief Get the texture of atlas
         ///
-        /// If no textures have been added to atlas default texture will be returned
+        /// If no textures have been added to atlas default texture will be returned.
+        ///
+        /// \return Reference to the internal atlas texture
         ///
         const Texture2D& getTexture() const;
 
@@ -132,7 +167,9 @@ namespace jop
         std::unique_ptr<detail::AtlasPacker> m_packer;              ///< TextureAtlas packer
         bool m_isSheet;                                             ///< Is atlas a sheet?
     };
-#include <Jopnal/Graphics/Inl/TextureAtlas.inl>
+
+    // Include the template implementation file
+    #include <Jopnal/Graphics/Inl/TextureAtlas.inl>
 }
 
 /// \class jop::TextureAtlas

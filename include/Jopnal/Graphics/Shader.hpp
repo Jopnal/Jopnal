@@ -36,7 +36,7 @@ namespace jop
     {
     public:
 
-        /// The shader type enum
+        /// Shader type
         ///
         enum class Type
         {
@@ -47,57 +47,77 @@ namespace jop
 
     public:
 
-        /// \brief default constructor
+        /// \brief Constructor
+        ///
+        /// \param name Name of the resource
         ///
         explicit Shader(const std::string& name);
 
-        /// \brief default destructor
+        /// \brief Destructor
         ///
         ~Shader() override;
 
 
+        /// \brief Destroy this shader
+        ///
         void destroy();
 
-        /// \brief Add source
+        /// \brief Add shader source
         ///
         /// The string must stay in existence until after compile() is called.
+        ///
+        /// \param source The shader source
         ///
         void addSource(const char* source);
 
         /// \brief Compile shader
         ///
-        /// \param type Shader Type:: (Vertex / Geometry / Fragment)
-        /// \param preprocess Should shader be preprocessed? (True by default)
+        /// \param type Shader type
+        /// \param preprocess Should shader be preprocessed?
+        ///
+        /// \return True if successful
         ///
         bool compile(const Type type, const bool preprocess = true);
 
         /// \brief Load shader
         ///
         /// \param path Path to file containing shader or shaders source code
-        /// \param type Shader Type:: (Vertex / Geometry / Fragment)
-        /// \param preprocess Should shader be preprocessed? (True by default)
+        /// \param type Shader type
+        /// \param preprocess Should shader be preprocessed?
+        ///
+        /// \return True if successful
         ///
         bool load(const std::string& path, Type type, const bool preprocess = true);
 
-        /// \brief Get shader type (Vertex / Geometry / Fragment)
+        /// \brief Get the shader type
         ///
-        unsigned int getType() const;
+        /// \return The shader type
+        ///
+        Type getType() const;
 
-        /// \brief Get shader handle
+        /// \brief Get the OpenGL handle
+        ///
+        /// \return The shader handle
         ///
         unsigned int getHandle() const;
 
-        /// \brief Get OpenGL version number
+        /// \brief Get the version definition string
+        ///
+        /// \return The version string
         ///
         static const std::string& getVersionString();
 
+        /// \brief Get the extension definition string
+        ///
+        /// \return The extension string
+        ///
         static const std::string& getExtensionString();
 
     private:
 
-        Type                        m_shaderType;   ///< Shaders type (Vertex / Geometry / Fragment)
-        std::vector<const char*>    m_sources;      ///< Container holding shaders sources
-        unsigned int                m_handle;       ///< OpenGL handle for the shader
+        Type m_shaderType;                  ///< Shaders type (Vertex / Geometry / Fragment)
+        std::vector<const char*> m_sources; ///< Container holding shaders sources
+        unsigned int m_handle;              ///< OpenGL handle for the shader
     };
 }
 

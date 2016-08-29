@@ -80,10 +80,10 @@ namespace jop
 
         /// \brief Debug draw the world
         ///
-        /// \param camera Camera to use
+        /// \param proj The projection info
+        /// \param lights The lights, not used
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
-
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///
@@ -136,6 +136,8 @@ namespace jop
 
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         Message::Result receiveMessage(const Message& message) override;
 
 

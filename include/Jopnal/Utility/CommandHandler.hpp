@@ -62,7 +62,6 @@ namespace jop
         ///
         /// \param command The command name
         /// \param func The function object to bind
-        /// \param dis std::true_type to discard return value
         /// \param result The message result this function should return
         ///
         template<typename Ret, typename ... FuncArgs>
@@ -72,7 +71,6 @@ namespace jop
         ///
         /// \param command The command name
         /// \param func The function pointer to bind
-        /// \param dis std::true_type to discard return value
         /// \param result The message result this function should return
         ///
         template<typename Ret, typename ... FuncArgs>
@@ -93,7 +91,6 @@ namespace jop
         /// 
         /// \param command The command name
         /// \param func The function object to bind
-        /// \param dis std::true_type to discard return value
         /// \param result The message result this function should return
         ///
         template<typename Ret, typename Class, typename ... FuncArgs>
@@ -103,7 +100,6 @@ namespace jop
         ///
         /// \param command The command name
         /// \param func The function pointer to bind
-        /// \param dis std::true_type to discard return value
         /// \param result The message result this function should return
         ///
         template<typename Ret, typename Class, typename ... FuncArgs>
@@ -113,7 +109,6 @@ namespace jop
         ///
         /// \param command The command name
         /// \param func The function pointer to bind
-        /// \param dis std::true_type to discard return value
         /// \param result The message result this function should return
         /// 
         template<typename Ret, typename Class, typename ... FuncArgs>
@@ -178,7 +173,5 @@ namespace jop
 
 /// \class jop::CommandHandler
 /// \ingroup utility
-///
-/// #TODO Detailed description
 
 #endif

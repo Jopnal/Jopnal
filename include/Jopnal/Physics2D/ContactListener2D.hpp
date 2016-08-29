@@ -54,7 +54,7 @@ namespace jop
         /// \param collider Reference to the collider which is being collided with
         /// \param ci Contact info containing the contact point and contact normal
         ///
-        virtual void beginContact(Collider2D& collider, ContactInfo2D& ci);
+        virtual void beginContact(Collider2D& collider, const ContactInfo2D& ci);
 
         /// \brief End contact callback
         ///
@@ -62,7 +62,6 @@ namespace jop
         /// This may be called when a body is destroyed, so this event can occur outside the time step.
         ///
         /// \param collider Reference to the collider which was being collided with
-        /// \param ci Contact info containing the contact point and contact normal
         ///
         virtual void endContact(Collider2D& collider);
         

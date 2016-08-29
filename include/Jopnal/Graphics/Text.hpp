@@ -45,6 +45,8 @@ namespace jop
 
     public:
 
+        /// Text style
+        ///
         enum Style : uint32
         {
             Default         = 0,
@@ -55,24 +57,24 @@ namespace jop
 
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param object Parent
-        /// \param renderer Renderer
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass)
         ///
         Text(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::AfterPost);
 
+        /// \copydoc Drawable::Drawable(Object&,RenderPass&)
+        ///
         Text(Object& object, RenderPass& pass);
+
 
         /// \brief Set string that is displayed
         ///
-        /// \param string text
+        /// \param string The string
+        ///
+        /// \return Reference to self
         ///
         Text& setString(const std::wstring& string);
 
-        /// \brief Set string that is displayed and calculate vertex positions
-        ///
-        /// \param string text
+        /// \copydoc setString(const std::wstring&)
         ///
         Text& setString(const std::string& string);
 
@@ -84,31 +86,47 @@ namespace jop
         
         /// \brief Get bounds for whole text
         ///
+        /// \return The bounding rectangle
+        ///
         const Rect& getBounds() const;
 
         /// \brief Get the position of a single character
+        ///
+        /// \param index Index of the character
         ///
         /// \return Single characters position in local coordinates.
         ///
         glm::vec2 getCharacterPosition(const uint32 index);
 
-        /// \brief Set font
+        /// \brief Set the font
+        ///
+        /// \param font The font to set
+        ///
+        /// \return Reference to self
         ///
         Text& setFont(const Font& font);
 
-        /// \brief Get font
+        /// \brief Get the font
+        ///
+        /// \return Reference to the font
         ///
         const Font& getFont() const;
 
         /// \brief Set text style
         ///
-        /// \param style jop::Text::Style (Default, Italic, Underlined, Strikethrough)
-        ///
         /// Can use multiple styles simultaneously
+        ///
+        /// \param style The text style
+        ///
+        /// \return Reference to self
+        ///
+        /// \see Style
         ///
         Text& setStyle(const uint32 style);
 
-        /// \brief Get text style
+        /// \brief Get the text style
+        ///
+        /// \return The text style
         ///
         uint32 getStyle() const;
 
@@ -132,7 +150,7 @@ namespace jop
         ///
         void addLine(std::vector<Vertex>& m_vertices, const float lineLenght, const float lineTop, const float offset, const float thickness) const;
 
-        /// \brief Draws text from given string
+        /// \brief Draw
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 

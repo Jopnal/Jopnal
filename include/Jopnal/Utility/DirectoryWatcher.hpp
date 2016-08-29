@@ -79,7 +79,7 @@ namespace jop
         /// Calls start() with the given arguments.
         ///
         /// \param dir The directory to start watching
-        /// \param EventCallback The event callback
+        /// \param callback The event callback
         ///
         DirectoryWatcher(const std::string& dir, EventCallback callback);
 
@@ -93,7 +93,7 @@ namespace jop
         /// Calls stop() before opening the new directory.
         ///
         /// \param dir The directory to start watching
-        /// \param EventCallback The event callback
+        /// \param callback The event callback
         ///
         /// \return True if the directory was opened successfully
         ///

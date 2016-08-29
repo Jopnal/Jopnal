@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>

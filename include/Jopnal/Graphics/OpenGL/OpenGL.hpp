@@ -80,14 +80,41 @@
 
 #endif
 
+/// \def JOP_CHECK_GL_EXTENSION
+/// \brief Check if an OpenGL extension is supported
+///
+/// \param extension The name of the extension without quotes
+/// \return True if the extension is supported
+
+/// \def JOP_CHECK_EGL_EXTENSION
+/// \brief Check if an EGL extension is supported
+///
+/// \copydetails JOP_CHECK_GL_EXTENSION
+
 namespace jop { namespace gl
 {
+    /// \brief Get the major OpenGL version
+    ///
+    /// \return Major OpenGL version number
+    ///
     JOP_API unsigned int getVersionMajor();
 
+    /// \brief Get the minor OpenGL version
+    ///
+    /// \return Minor OpenGL version number
+    ///
     JOP_API unsigned int getVersionMinor();
 
+    /// \brief Get the GLSL version
+    ///
+    /// The version will be represented by a single number, e.g. 300.
+    ///
+    /// \return GLSL version number
+    ///
     JOP_API unsigned int getGLSLVersion();
 
+    /// \brief This will be true when using OpenGL ES
+    ///
     JOP_API extern const bool es;
 }}
 

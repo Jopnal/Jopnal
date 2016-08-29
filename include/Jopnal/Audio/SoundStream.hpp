@@ -46,7 +46,7 @@ namespace jop
             uint64 sampleCount  = 0; ///< Total number of samples
             uint64 currentPos   = 0; ///< Current point in audio data
             uint64 firstSample  = 0; ///< First audio sample for looping
-            float offset[2];            ///< Track offset of current buffer
+            float offset[2];         ///< Track offset of current buffer
             int channelCount    = 0; ///< Number of channels
             int sampleRate      = 0; ///< Samples per second
         };
@@ -84,35 +84,35 @@ namespace jop
         ///
         bool setPath(const std::string& path);
 
-        /// \copydoc SoundEffect::play(const bool)
+        /// \copydoc SoundEffect::play()
         ///
         SoundStream& play();
 
-        /// \copydoc SoundEffect::play
+        /// \copydoc SoundEffect::playReset()
         ///
         SoundStream& playReset();
 
-        /// \copydoc SoundEffect::stop
+        /// \copydoc SoundEffect::stop()
         ///
         SoundStream& stop();
 
-        /// \copydoc SoundEffect::pause
+        /// \copydoc SoundEffect::pause()
         ///
         SoundStream& pause();
 
-        /// \copydoc SoundEffect::setOffset
+        /// \copydoc SoundEffect::setOffset()
         ///
         SoundStream& setOffset(const float time);
 
-        /// \copydoc SoundEffect::getOffset
+        /// \copydoc SoundEffect::getOffset()
         ///
         float getOffset() const;
 
-        /// \copydoc SoundEffect::setLoop
+        /// \copydoc SoundEffect::setLoop()
         ///
         SoundStream& setLoop(const bool loop);
 
-        /// \copydoc SoundEffect::isLooping
+        /// \copydoc SoundEffect::isLooping()
         ///
         bool isLooping() const;
 

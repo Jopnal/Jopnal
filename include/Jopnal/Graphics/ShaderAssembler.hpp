@@ -59,37 +59,59 @@ namespace jop
         ///
         ~ShaderAssembler() override;
 
-        /// \brief Add a plugin
+
+        /// \brief Add a single plugin
         ///
         /// \param name Name of the plugin
-        /// \param data The source code for the plugin
+        /// \param source The source code for the plugin
+        ///
+        /// \see addPlugins()
         ///
         static void addPlugin(const std::string& name, const std::string& source);
 
         /// \brief Add multiple plugins from single string
         ///
-        /// Parses through the string and searches for plugins and adds them to memory
+        /// Parses through the string and searches for plugins and adds them to memory.
+        ///
+        /// Different plugins are defined as follows:
+        ///
+        /// \verbatim
+        /// #plugin <PluginName>
+        /// 
+        /// some GLSL code...
+        ///
+        /// #pluginend
+        /// \endverbatim
+        ///
+        /// Multiple plugins can be defined in a single source.
+        ///
+        /// \param source The plugin source
+        ///
+        /// \see addPlugin()
         ///
         static void addPlugins(const std::string& source);
 
         /// \brief Removes plugin with given name from memory
         ///
+        /// \param name Name of the plugin
+        ///
         static void removePlugin(const std::string& name);
 
-        /// \brief Clears all plugins from memory
+        /// \brief Clear all plugins from memory
         ///
         static void clearPlugins();
 
-        /// \brief Preprocesses shaders source code and adds necessary plugins before compilation
+        /// \brief Pre-processes shaders source code and adds necessary plugins before compilation
         ///
-        /// \pram input Shaders source code
+        /// \param input Shaders source code
         /// \param output Preprocessed source code
         ///
         static void preprocess(const std::vector<const char*>& input, std::string& output);
 
         /// \brief Get a shader with the given attribute combination
         ///
-        /// \param attributes The material attributes
+        /// \param materialAttribs The material attributes
+        /// \param drawableAttribs The drawable attributes
         ///
         /// \return Reference to the shader
         ///
@@ -101,6 +123,13 @@ namespace jop
         ///
         static const ShaderMap& getShaderMap();
 
+        /// \brief Set a shader source
+        ///
+        /// This can be used to override the default über shader.
+        ///
+        /// \param type The shader type
+        /// \param source The shader source
+        ///
         static void setShaderSource(const Shader::Type type, const std::string& source);
 
     private:

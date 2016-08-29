@@ -16,21 +16,21 @@ extern const unsigned char errorTexture[92086];
 
 extern const unsigned char defaultShaderFrag[266];
 
-extern const unsigned char defaultShaderVert[466];
+extern const unsigned char defaultShaderVert[475];
 
 extern const unsigned char defaultUberShaderFrag[4104];
 
-extern const unsigned char defaultUberShaderVert[1598];
+extern const unsigned char defaultUberShaderVert[1557];
 
 extern const unsigned char depthRecordShaderFrag[177];
 
-extern const unsigned char depthRecordShaderVert[411];
+extern const unsigned char depthRecordShaderVert[420];
 
 extern const unsigned char depthRecordShaderPointFrag[593];
 
 extern const unsigned char depthRecordShaderPointGeom[723];
 
-extern const unsigned char depthRecordShaderPointVert[328];
+extern const unsigned char depthRecordShaderPointVert[337];
 
 extern const unsigned char gaussianBlurShaderFrag[1354];
 

@@ -67,7 +67,5 @@ namespace jop
 
 /// \class jop::Touch
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

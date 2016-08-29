@@ -107,7 +107,5 @@ namespace jop
 
 /// \class jop::Clock
 /// \ingroup utility
-///
-/// #TODO Detailed description
 
 #endif

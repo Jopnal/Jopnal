@@ -53,11 +53,11 @@ namespace jop
     //////////////////////////////////////////////
 
     TextureAtlas::TextureAtlas(const std::string& name)
-        : Resource(name),
-          m_texture("AtlasTexture"),
-          m_textures(),
-          m_packer(std::make_unique<detail::AtlasPacker>()),
-          m_isSheet(false)
+        : Resource      (name),
+          m_texture     (""),
+          m_textures    (),
+          m_packer      (std::make_unique<detail::AtlasPacker>()),
+          m_isSheet     (false)
     {}
 
     TextureAtlas::~TextureAtlas()
@@ -67,12 +67,15 @@ namespace jop
 
     bool TextureAtlas::load(const glm::uvec2& atlasSize)
     {
+        destroy();
+
         // Check if size is ok and load texture
         if (16 <= atlasSize.x && 16 <= atlasSize.y && m_texture.load(atlasSize, Texture::Format::RGBA_UB_8, Texture::Flag::DisallowMipmapGeneration))
         {
             // Initialize packer
             m_packer->nodes.resize(atlasSize.x);
             m_packer->origin = glm::uvec2(0);
+
             // Initialize target - NOTE: num_nodes >= width
             stbrp_init_target(&m_packer->context, atlasSize.x, atlasSize.y, m_packer->nodes.data(), m_packer->nodes.size());
 
@@ -92,8 +95,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool TextureAtlas::load(const std::string& path, LoadMode mode)
+    bool TextureAtlas::load(const std::string& path, const LoadMode mode)
     {
+        destroy();
+
         if (mode == LoadMode::TextureOnly)
             return m_texture.load(path, Texture::Flag::DisallowCompression);
 
@@ -181,17 +186,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void TextureAtlas::destroy()
+    {
+        m_texture.destroy();
+        m_textures.clear();
+        m_packer = std::make_unique<detail::AtlasPacker>();
+        m_isSheet = false;
+    }
+
+    //////////////////////////////////////////////
+
     unsigned int TextureAtlas::addTexture(const Image& image)
     {
         if (m_isSheet)
         {
-            JOP_DEBUG_WARNING("Texture being packed into atlas is a sheet not a single image");
+            JOP_DEBUG_WARNING("Texture being packed into atlas is a sheet, not a single image");
             return 0;
         }
 
         // Find an empty spot in the texture
         // Add padding to avoid pixel overflow (1 empty pixel)
-        stbrp_rect rectangle = { 0, static_cast<stbrp_coord>(image.getSize().x + 1), static_cast<stbrp_coord>(image.getSize().y + 1) };
+        stbrp_rect rectangle = {0, static_cast<stbrp_coord>(image.getSize().x + 1), static_cast<stbrp_coord>(image.getSize().y + 1)};
         stbrp_pack_rects(&m_packer->context, &rectangle, 1);
         rectangle.w -= 1;
         rectangle.h -= 1;
@@ -241,7 +256,7 @@ namespace jop
 
     unsigned int TextureAtlas::defineTexture(const glm::vec2& start, const glm::vec2& end)
     {
-        m_textures.emplace_back(start / glm::vec2(m_texture.getSize()),end / glm::vec2(m_texture.getSize()));
+        m_textures.emplace_back(start / glm::vec2(m_texture.getSize()), end / glm::vec2(m_texture.getSize()));
         return m_textures.size() - 1;
     }
 
@@ -265,7 +280,7 @@ namespace jop
 
     unsigned int TextureAtlas::getTextureAmount() const
     {
-            return m_textures.size();
+        return m_textures.size();
     }
 
     //////////////////////////////////////////////
@@ -275,8 +290,6 @@ namespace jop
         if (m_texture.isValid())
             return m_texture;
 
-        JOP_DEBUG_ERROR("Error texture: No texture found for texture atlas");
         return m_texture.getError();
     }
-
 }

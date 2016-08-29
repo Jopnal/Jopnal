@@ -273,17 +273,17 @@ namespace jop
         template<typename T>
         bool breakJoint(RigidBody& other, unsigned int IDthis = 0, unsigned int IDother = 0);
 
-        //T = joint
-        //this = A
-        //Rigidbody& = B
         /// \brief Creates a joint between this RigidBody and another RigidBody.
         ///
-        /// \param T Type of the joint to create. Applicable joints are derived from Joint.
+        /// T is the type of the joint to create. Applicable joints are derived from Joint.
+        ///
+        /// \param body The other body to link with
+        /// \param args The arguments to pass to the joint's constructor
         ///
         /// \return Returns a reference to the RigidBody whence called from.
         ///
         template<typename T, typename ... Args>
-        T& link(RigidBody&, Args&&...);
+        T& link(RigidBody& body, Args&&... args);
 
     protected:
 
@@ -296,7 +296,9 @@ namespace jop
         std::unordered_set<std::shared_ptr<Joint>> m_joints;
         bool m_allowSleep;
     };
-#include <Jopnal/Physics/Inl/RigidBody.inl>
+
+    // Include the template implementation file
+    #include <Jopnal/Physics/Inl/RigidBody.inl>
 }
 
 /// \class jop::RigidBody

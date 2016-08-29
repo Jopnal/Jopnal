@@ -50,8 +50,6 @@ namespace jop { namespace detail
     {
         //return pthread_setschedprio(thread.native_handle(), ns_enums[priority]) == 0;
 
-        // TODO: find out how to do this
-
         return false;
     }
     

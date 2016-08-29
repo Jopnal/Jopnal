@@ -59,7 +59,6 @@ namespace jop
         /// \param size Size of the box
         /// \param min Minimum bound of texture
         /// \param max Maximum bound of texture
-        /// \param invert Is cube inside-out?
         ///
         bool load(const glm::vec3& size, const glm::vec2& min, const glm::vec2& max);
 
@@ -73,7 +72,6 @@ namespace jop
         /// \param right Index to the texture to be placed in to right face
         /// \param top Index to the texture to be placed in to top face
         /// \param bottom Index to the texture to be placed in to bottom face
-        /// \param invert Is cube inside-out?
         ///
         bool load(const glm::vec3& size,
                   const TextureAtlas& atlas,
@@ -93,7 +91,6 @@ namespace jop
         /// \param right Coordinates of the texture to be placed in right face
         /// \param top Coordinates of the texture to be placed in top face
         /// \param bottom Coordinates of the texture to be placed in bottom face
-        /// \param invert Is cube inside-out?
         ///
         bool load(const glm::vec3& size,
                   const std::pair<glm::vec2, glm::vec2>& front,

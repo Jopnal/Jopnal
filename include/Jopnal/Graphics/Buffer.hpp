@@ -39,18 +39,18 @@ namespace jop
         ///
         enum class Type
         {
-            ArrayBuffer,
-            ElementArrayBuffer,
-            UniformBuffer
+            ArrayBuffer,        ///< Array buffer (vertex data)
+            ElementArrayBuffer, ///< Element buffer (index data)
+            UniformBuffer       ///< Uniform buffer
         };
 
         /// \brief Enum of usage types
         ///
         enum Usage
         {
-            StaticDraw,
-            DynamicDraw,
-            StreamDraw
+            StaticDraw,     ///< Static buffer, use when the data rarely changes
+            DynamicDraw,    ///< Dynamic buffer, use when the data changes often
+            StreamDraw      ///< Stream buffer, use when the data changes all the time
         };
 
     public:
@@ -62,54 +62,50 @@ namespace jop
         ///
         Buffer(const Type type, const Usage usage);
 
-        /// \brief Constructor to another buffer
-        ///
-        /// \param other Reference to buffer constructor 
+        /// \brief Copy constructor
         ///
         Buffer(const Buffer& other);
 
-        /// \brief Overloads reference to buffer
-        ///
-        /// \param other Reference to buffer constructor
+        /// \brief Copy assignment operator
         ///
         Buffer& operator =(const Buffer& other);
 
         /// \brief Move constructor 
         ///
-        /// \param other 
-        ///
         Buffer(Buffer&& other);
 
-        /// \brief Overloads move constructor
-        ///
-        /// \param other 
+        /// \brief Move assignment operator
         ///
         Buffer& operator =(Buffer&& other);
 
-        /// \brief Destructor
+        /// \brief Virtual destructor
         ///
         virtual ~Buffer() = 0;
 
 
-        /// \brief Generates and binds buffers by its type
+        /// \brief Bind this buffer
         ///
         void bind() const;
 
-        /// \brief Unbinds buffer by its type
+        /// \brief Unbind a buffer
         ///
-        /// \param type Name of the type that is unbound
+        /// \param type The buffer type to unbind
         ///
         static void unbind(const Type type);
 
-        /// \brief Clears this buffer
+        /// \brief Clear this buffer
+        ///
+        /// The buffer itself won't be destroyed, only the data.
         ///
         void clear();
 
-        /// \brief Destroys this buffer
+        /// \brief Destroy this buffer
         ///
         void destroy();
 
         /// \brief Get the allocated size in bytes
+        ///
+        /// \return The allocated size
         ///
         std::size_t getAllocatedSize() const;
 

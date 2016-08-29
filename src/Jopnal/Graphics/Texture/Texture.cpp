@@ -719,6 +719,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Texture::removeSampler()
+    {
+        m_sampler.reset();
+    }
+
+    //////////////////////////////////////////////
+
     const TextureSampler* Texture::getSampler() const
     {
         return m_sampler.get();
@@ -773,7 +780,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    TextureSampler::Filter Texture::getFilteringMode() const
+    TextureSampler::Filter Texture::getFilterMode() const
     {
         return m_filter;
     }

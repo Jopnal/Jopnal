@@ -52,7 +52,5 @@ namespace jop
 
 /// \class jop::VideoInfo
 /// \ingroup window
-///
-/// #TODO Detailed description
 
 #endif

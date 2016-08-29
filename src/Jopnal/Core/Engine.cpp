@@ -68,8 +68,8 @@ namespace
             return reinterpret_cast<const char*>(glGetString(e));
         };
 
-        std::lock_guard<std::recursive_mutex> lock(jop::DebugHandler::getInstance().getMutex());
-        auto& deb = jop::DebugHandler::getInstance();
+        std::lock_guard<std::recursive_mutex> lock(DebugHandler::getInstance().getMutex());
+        auto& deb = DebugHandler::getInstance();
 
         deb << DebugHandler::Severity::__Always
             << "\t\tOpenGL initialized, adapter info:\n\n"
@@ -127,8 +127,7 @@ namespace
         #endif
         }
 
-        JOP_DEBUG_INFO(jop::DebugHandler::Severity::__Always);
-
+        deb << DebugHandler::Severity::__Always << std::endl;
     }
 }
 
@@ -157,7 +156,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tJopnal Engine v. " << JOP_VERSION_STRING);
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "\t\tJopnal Engine v. " << JOP_VERSION_STRING << std::endl;
     }
 
     Engine::~Engine()
@@ -176,7 +175,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO(DebugHandler::Severity::__Always << "\t\tDestroying jop::Engine, goodbye!");
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "\t\tDestroying jop::Engine, goodbye!" << std::endl;
     }
 
     //////////////////////////////////////////////

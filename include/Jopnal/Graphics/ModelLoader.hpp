@@ -49,7 +49,7 @@ namespace jop
         /// \brief Load a model from file
         ///
         /// This will create the object tree and load the correct meshes and materials.
-        /// Only models converted with Jopmodel are supported.
+        /// Only models converted with [Jopmodel](https://github.com/Jopnal/Jopmodel) are supported.
         ///
         /// \param path Path to the model file
         ///
@@ -57,16 +57,22 @@ namespace jop
         ///
         bool load(const std::string& path);
 
+        /// \brief Get the local bounds
+        ///
+        /// \return The local bounds
+        ///
         const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
 
-        const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
+        /// \brief Get the global bounds
+        ///
+        /// \return The global bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getGlobalBounds() const;
 
     private:
 
-        std::string m_path; ///< Path to model file
-        std::pair<glm::vec3, glm::vec3> m_localBounds;
-        mutable std::pair<glm::vec3, glm::vec3> m_globalBounds;
-        mutable bool m_updateBounds;
+        std::string m_path;                             ///< Path to model file
+        std::pair<glm::vec3, glm::vec3> m_localBounds;  ///< Local bounds
     };
 }
 

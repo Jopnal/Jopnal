@@ -250,7 +250,7 @@ namespace jop
 
         /// \brief Creates a joint between this RigidBody2D and another RigidBody2D.
         ///
-        /// \param T Type of the joint to create. Applicable joints are derived from Joint2D.
+        /// T is the type of the joint to create. Applicable joints are derived from Joint2D.
         ///
         /// \return Returns a reference to the RigidBody2D whence called from.
         ///
@@ -259,6 +259,8 @@ namespace jop
 
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         Message::Result receiveMessage(const Message& message) override;
 
         /// \brief Initializes m_body with a collidable object.
@@ -268,7 +270,7 @@ namespace jop
         void createCollidable(const ConstructInfo2D& info, const b2Shape& shape);
 
 
-        /// \brief All the joints that this body has.
+        /// All the joints that this body has.
         ///
         std::unordered_set<std::shared_ptr<Joint2D>> m_joints;
     };

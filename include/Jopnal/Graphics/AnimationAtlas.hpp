@@ -42,9 +42,6 @@ namespace jop
         ///
         AnimationAtlas(const std::string& name);
 
-        /// \brief Destructor
-        ///
-        ~AnimationAtlas();
 
         /// \brief Load animation atlas from texture
         ///
@@ -53,6 +50,8 @@ namespace jop
         ///
         /// \param path Path to the file which contains texture for animation atlas
         /// \param frames How many frames are there in the texture (X, Y)
+        ///
+        /// \return True if successful
         ///
         bool load(const std::string& path, const glm::uvec2& frames);
 
@@ -66,15 +65,19 @@ namespace jop
         /// \param rectMin Minimum coordinates for the rectangle bounding the frames
         /// \param rectMax Maximum coordinates for the rectangle bounding the frames
         ///
+        /// \return True if successful
+        ///
         bool load(const std::string& path, const glm::uvec2& frames, const glm::uvec2& rectMin, const glm::uvec2& rectMax);
 
         /// \brief Get size of a single frame
+        ///
+        /// \return The size of a single frame
         ///
         const glm::vec2& getFrameSize() const;
 
     private:
 
-        glm::vec2 m_frameSize; ///< Size of frame
+        glm::vec2 m_frameSize; ///< Size of a single frame
     };
 }
 

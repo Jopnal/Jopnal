@@ -38,6 +38,7 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <glm/gtc/type_ptr.hpp>
 
 #endif
 
@@ -49,7 +50,6 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(Drawable)
 
         JOP_BIND_MEMBER_COMMAND(&Drawable::setModel, "setModel");
-
         JOP_BIND_MEMBER_COMMAND(&Drawable::setRenderGroup, "setRenderGroup");
 
     JOP_END_COMMAND_HANDLER(Drawable)
@@ -74,10 +74,8 @@ namespace jop
           m_rendererRef     (renderer),
           m_pass            (pass),
           m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_globalBounds    (),
           m_renderGroup     (0),
-          m_updateShader    (true),
-          m_updateBounds    (true)
+          m_updateShader    (true)
     {
         renderer.bind(this, pass);
     }
@@ -91,10 +89,8 @@ namespace jop
           m_rendererRef     (pass.getRenderer()),
           m_pass            (pass.getPass()),
           m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_globalBounds    (),
           m_renderGroup     (0),
-          m_updateShader    (true),
-          m_updateBounds    (true)
+          m_updateShader    (true)
     {
         pass.bind(this);
     }
@@ -108,9 +104,7 @@ namespace jop
           m_pass            (other.m_pass),
           m_renderGroup     (other.m_renderGroup),
           m_flags           (other.m_flags),
-          m_globalBounds    (other.m_globalBounds),
-          m_updateShader    (other.m_updateShader),
-          m_updateBounds    (other.m_updateBounds)
+          m_updateShader    (other.m_updateShader)
     {
         m_rendererRef.bind(this, m_pass);
     }
@@ -137,19 +131,25 @@ namespace jop
 
             shdr.setUniform("u_PMatrix", proj.projectionMatrix);
             shdr.setUniform("u_VMatrix", proj.viewMatrix);
-            shdr.setUniform("u_MMatrix", modelMat);
+
+            const auto MM = Mesh::VertexIndex::ModelMatrix;
+
+            glCheck(glVertexAttrib4fv(MM + 0, glm::value_ptr(modelMat[0])));
+            glCheck(glVertexAttrib4fv(MM + 1, glm::value_ptr(modelMat[1])));
+            glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
+            glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
 
             if (mat.hasAttribute(Material::Attribute::__Lighting))
-            {
-                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 lights.sendToShader(shdr, *this);
-            }
 
             mat.sendToShader(shdr, &proj.cameraPosition);
 
-            // Default vertex color
-            // Used if the mesh itself doesn't have colors
-            glCheck(glVertexAttrib4fv(5, &getColor().colors[0]));
+            if (!mesh.hasVertexComponent(Mesh::Color))
+            {
+                // Default vertex color
+                // Used if the mesh itself doesn't have colors
+                glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
+            }
 
         #ifdef JOP_DEBUG_MODE
 
@@ -201,7 +201,6 @@ namespace jop
     {
         m_model = model;
         m_updateShader = true;
-        m_updateBounds = true;
 
         return *this;
     }
@@ -213,10 +212,11 @@ namespace jop
         return m_model;
     }
 
+    //////////////////////////////////////////////
+
     Model& Drawable::getModel()
     {
         m_updateShader = true;
-        m_updateBounds = true;
 
         return m_model;
     }
@@ -248,17 +248,19 @@ namespace jop
         return dummy;
     }
 
-    const std::pair<glm::vec3, glm::vec3>& Drawable::getGlobalBounds() const
-    {
-        if (m_updateBounds && getModel().getMesh())
-        {
-            m_globalBounds = getLocalBounds();
-            getObject()->getTransform().transformBounds(m_globalBounds.first, m_globalBounds.second);
+    //////////////////////////////////////////////
 
-            m_updateBounds = false;
+    std::pair<glm::vec3, glm::vec3> Drawable::getGlobalBounds() const
+    {
+        if (getModel().getMesh())
+        {
+            auto bounds = getLocalBounds();
+            getObject()->getTransform().transformBounds(bounds.first, bounds.second);
+
+            return bounds;
         }
 
-        return m_globalBounds;
+        return std::make_pair(glm::vec3(), glm::vec3());
     }
 
     //////////////////////////////////////////////

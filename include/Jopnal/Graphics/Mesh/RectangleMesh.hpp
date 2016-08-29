@@ -63,8 +63,9 @@ namespace jop
 
         /// \brief Load rectangle from specific part of texture
         ///
-        /// \param min Minimum bounds
-        /// \param max Maximum bounds
+        /// \param size Size of the rectangle
+        /// \param min Minimum texture coordinates
+        /// \param max Maximum texture coordinates
         ///
         bool load(const float size, const glm::vec2& min, const glm::vec2& max);
 

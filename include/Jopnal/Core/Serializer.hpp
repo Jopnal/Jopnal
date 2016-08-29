@@ -213,7 +213,5 @@ namespace jop
 
 /// \class jop::Serializer
 /// \ingroup core
-///
-/// #TODO Detailed description
 
 #endif

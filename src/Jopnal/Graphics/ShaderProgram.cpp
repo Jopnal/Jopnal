@@ -74,7 +74,7 @@ namespace jop
         if (!shader.getHandle())
             return false;
         
-        m_shaders.emplace(shader.getType(), static_ref_cast<const Shader>(shader.getReference()));
+        m_shaders.emplace(static_cast<unsigned int>(shader.getType()), static_ref_cast<const Shader>(shader.getReference()));
 
         return true;
     }
@@ -106,9 +106,7 @@ namespace jop
         for (auto& i : m_shaders)
         {
             if (!i.second.expired())
-            {
                 glCheck(glAttachShader(m_programID, i.second->getHandle()));
-            }
         }
         
         // Link program

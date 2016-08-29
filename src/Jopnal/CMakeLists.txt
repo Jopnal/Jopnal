@@ -475,6 +475,9 @@ if (JOP_GENERATE_DOCS)
     
     else ()
         message(WARNING "Couldn't find Doxygen, documentation won't be generated")
+        
     endif()
+    
+    set_target_properties(jopnal-docs PROPERTIES FOLDER "jopnal")
 
 endif()

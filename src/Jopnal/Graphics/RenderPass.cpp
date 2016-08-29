@@ -92,13 +92,13 @@ namespace jop
     //////////////////////////////////////////////
 
 
-    DefaultPrePass::DefaultPrePass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
+    SortedRenderPass::SortedRenderPass(Renderer& renderer, const RenderTarget& target, const Pass pass, const uint32 weight)
         : RenderPass(renderer, target, pass, weight)
     {}
 
     //////////////////////////////////////////////
 
-    void DefaultPrePass::draw()
+    void SortedRenderPass::draw()
     {
         if (!isActive() || m_drawables.empty())
             return;
@@ -189,27 +189,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void DefaultPrePass::bind(const Drawable* drawable)
+    void SortedRenderPass::bind(const Drawable* drawable)
     {
         m_drawables.insert(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void DefaultPrePass::unbind(const Drawable* drawable)
+    void SortedRenderPass::unbind(const Drawable* drawable)
     {
         m_drawables.erase(drawable);
     }
 
     //////////////////////////////////////////////
 
-    DefaultPostPass::DefaultPostPass(Renderer& renderer, const RenderTarget&, const Pass pass, const uint32 weight)
+    OrderedRenderPass::OrderedRenderPass(Renderer& renderer, const RenderTarget&, const Pass pass, const uint32 weight)
         : RenderPass(renderer, Engine::getMainWindow(), pass, weight)
     {}
 
     //////////////////////////////////////////////
 
-    void DefaultPostPass::draw()
+    void OrderedRenderPass::draw()
     {
         if (!isActive() || m_drawables.empty())
             return;
@@ -245,14 +245,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void DefaultPostPass::bind(const Drawable* drawable)
+    void OrderedRenderPass::bind(const Drawable* drawable)
     {
         m_drawables.push_back(drawable);
     }
 
     //////////////////////////////////////////////
 
-    void DefaultPostPass::unbind(const Drawable* drawable)
+    void OrderedRenderPass::unbind(const Drawable* drawable)
     {
         for (auto itr = m_drawables.begin(); itr != m_drawables.end(); ++itr)
         {

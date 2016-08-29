@@ -334,7 +334,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    TextureSampler::Filter TextureSampler::getFilteringMode() const
+    TextureSampler::Filter TextureSampler::getFilterMode() const
     {
         return m_filter;
     }

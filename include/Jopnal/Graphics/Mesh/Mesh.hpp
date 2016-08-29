@@ -54,6 +54,22 @@ namespace jop
             Color       = 1 << 5
         };
 
+        /// vertex attribute indices
+        ///
+        struct VertexIndex
+        {
+            enum : uint32
+            {
+                Position,
+                TexCoords,
+                Normal,
+                Color,
+                ModelMatrix,
+                Tangent = ModelMatrix + 4,
+                BiTangent
+            };
+        };
+
     public:
 
         /// \brief Constructor

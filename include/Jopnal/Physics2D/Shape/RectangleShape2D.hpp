@@ -43,7 +43,8 @@ namespace jop
 
         /// \brief Load this shape
         ///
-        /// \param size Size of the rectangle
+        /// \param sizeX Width of the rectangle
+        /// \param sizeY Height of the rectangle
         ///
         /// \return True if successful
         ///

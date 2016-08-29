@@ -48,17 +48,31 @@ namespace jop
             None,       ///< No filtering
             Bilinear,   ///< Bilinear (linear) filtering
             Trilinear,  ///< Trilinear filtering, requires mipmaps
-            Anisotropic ///< Anisotropic filtering, requires mipmaps
+
+            /// Anisotropic filtering, requires mipmaps
+            ///
+            /// \warning Only supported with the extension EXT_texture_filter_anisotropic
+            ///
+            Anisotropic
         };
 
         /// The repeat mode
+        ///
+        /// \warning Repeat modes (Basic, Mirrored) on GLES 2.0 are only supported with
+        ///          the extension OES_texture_npot, when using non-power-of-two textures
         ///
         enum class Repeat
         {
             Basic,      ///< Repeat
             Mirrored,   ///< Mirrored repeat
             ClampEdge,  ///< Clamp to edge
-            ClampBorder ///< Clamp to border
+
+            /// Clamp to border
+            ///
+            /// \warning On GLES 3.1 and lesser, only supported with one of these extensions:
+            ///          NV_texture_border_clamp, EXT_texture_border_clamp, OES_texture_border_clamp
+            ///
+            ClampBorder
         };
 
     public:
@@ -67,10 +81,13 @@ namespace jop
         /// 
         /// This will create a sampler object with default settings.
         ///
+        /// \param name Name of the resource
+        ///
         TextureSampler(const std::string& name);
 
         /// \brief Constructor
         ///
+        /// \param name Name of the resource
         /// \param filter Initial filtering mode
         /// \param repeat Initial repeating mode
         /// \param param Anisotropic filtering level
@@ -88,6 +105,10 @@ namespace jop
         ///
         void bind(const unsigned int textureUnit) const;
 
+        /// \brief Unbind a sampler
+        ///
+        /// \param textureUnit The texture unit to unbind a sampler from
+        ///
         static void unbind(const unsigned int textureUnit);
 
         /// \brief Delete and recreate this sampler, clearing all the settings
@@ -115,6 +136,9 @@ namespace jop
 
         /// \brief Set the border color
         ///
+        /// \warning On GLES 3.1 and lesser, only supported with one of these extensions:
+        ///          EXT_texture_border_clamp, OES_texture_border_clamp
+        ///
         /// \param color The border color
         ///
         /// \return Reference to self
@@ -131,7 +155,7 @@ namespace jop
         ///
         /// \return The filtering mode
         ///
-        Filter getFilteringMode() const;
+        Filter getFilterMode() const;
 
         /// \brief Get the repeating mode
         ///
@@ -157,17 +181,11 @@ namespace jop
         ///
         static float getMaxAnisotropy();
 
-        /// \brief Get the default sampler
-        ///
-        /// \return Reference to the sampler
-        ///
-        static TextureSampler& getDefault();
-
     private:
 
         Filter m_filter;        ///< The filtering mode
         Repeat m_repeat;        ///< The repeating mode
-        float m_anisotropic;    ///< The anisotropic level
+        float m_anisotropic;    ///< The anisotropy level
         Color m_borderColor;    ///< The border color
         unsigned int m_sampler; ///< The OpenGL sampler handle
     };

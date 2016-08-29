@@ -174,6 +174,8 @@ namespace jop
         ///
         static void setDepthWrite(const bool enable);
 
+        /// \brief Call glFlush
+        ///
         static void flush();
     };
 }

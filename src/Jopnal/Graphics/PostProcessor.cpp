@@ -41,14 +41,12 @@
 
 namespace
 {
-    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+    #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
         #define JOP_ENABLE_BLOOM
     #endif
 
     bool isLinear()
     {
-    #if !defined(JOP_OPENGL_ES) && defined(JOP_OPENGL_ES3)
-
         static bool init = false;
         static bool linear = false;
 
@@ -65,25 +63,9 @@ namespace
         }
 
         return linear;
-
-    #else
-
-        return true;
-
-    #endif
     }
 
-    void drawQuad(const jop::RectangleMesh& mesh)
-    {
-        //mesh.updateVertexAttributes(0);
-        //mesh.getIndexBuffer().bind();
-
-        //glCheck(glDrawElements(GL_TRIANGLES, mesh.getElementAmount(), mesh.getElementEnum(), 0));
-
-        mesh.draw(0);
-    }
-
-    const float ns_defBloomThreshold = 2.f - 1.1f * jop::gl::es;
+    const float ns_defBloomThreshold = 2.f - jop::gl::es;
 }
 
 namespace jop
@@ -95,10 +77,10 @@ namespace jop
           m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getEmpty<RectangleMesh>("__jop_fs_quad").getReference())),
           m_mainTarget          (mainTarget),
           m_functions           (),
-          m_exposure            (1.f),
-          m_gamma               (2.2f),
-          m_bloomThreshold      (ns_defBloomThreshold),
-          m_subBloomThresholdExp(4.f),
+          m_exposure            ("engine@Graphics|Postprocessor|Tonemapping|fExposure", 1.f),
+          m_gamma               ("engine@Graphics|Postprocessor|GammaCorrection|fGamma", 2.2f),
+          m_bloomThreshold      ("engine@Graphics|Postprocessor|Bloom|fThreshold", ns_defBloomThreshold),
+          m_subBloomThresholdExp("engine@Graphics|Postprocessor|Bloom|fSubThresholdExponent", 4.f),
           m_ditherMatrix        (""),
           m_bloomTextures       ()
     {
@@ -123,126 +105,45 @@ namespace jop
         m_ditherMatrix.load(glm::uvec2(8, 8), Texture::Format::Alpha_UB_8, pattern, Texture::Flag::DisallowSRGB | Texture::Flag::DisallowMipmapGeneration);
         m_ditherMatrix.setFilterMode(TextureSampler::Filter::None).setRepeatMode(TextureSampler::Repeat::Basic);
 
-        // Bloom
-        enableBloom();
-
-        // Tone mapping settings
+        struct FunctionEnabler : SettingCallback<bool>
         {
-            static const struct EnabledCallback : SettingCallback<bool>
+            const uint32 func;
+
+            FunctionEnabler(const char* str, const uint32 function, const bool def)
+                : SettingCallback   (),
+                  func              (function)
             {
-                const char* str;
+                valueChanged(SettingManager::get<bool>(str, def));
+                SettingManager::registerCallback(str, *this);
+            }
 
-                EnabledCallback()
-                    : str("engine@Graphics|Postprocessor|Tonemapping|bEnabled")
-                {
-                    valueChanged(SettingManager::get<bool>(str, !gl::es));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const bool& value) override {value ? enableFunctions(Function::ToneMap) : disableFunctions(Function::ToneMap);}
-            } enabled;
-
-            static const struct ExposureCallback : SettingCallback<float>
+            void valueChanged(const bool& value) override
             {
-                const char* str;
+                (m_instance->m_functions &= ~func) |= func * value;
+            }
+        };
 
-                ExposureCallback()
-                    : str("engine@Graphics|Postprocessor|Tonemapping|fExposure")
-                {
-                    valueChanged(SettingManager::get<float>(str, 1.f));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const float& value) override {setExposure(value);}
-            } exposure;
+        // Tone mapping
+        {
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Tonemapping|bEnabled", Function::ToneMap, !gl::es);
         }
 
-        // Bloom settings
+        // Bloom
         {
-            static const struct EnabledCallback : SettingCallback<bool>
-            {
-                const char* str;
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Bloom|bEnabled", Function::Bloom, !gl::es);
 
-                EnabledCallback()
-                    : str("engine@Graphics|Postprocessor|Bloom|bEnabled")
-                {
-                    valueChanged(SettingManager::get<bool>(str, !gl::es));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const bool& value) override {value ? enableFunctions(Function::Bloom) : disableFunctions(Function::Bloom);}
-            } enabled;
-
-            static const struct ThresholdCallback : SettingCallback<float>
-            {
-                const char* str;
-
-                ThresholdCallback()
-                    : str("engine@Graphics|Postprocessor|Bloom|fThreshold")
-                {
-                    valueChanged(SettingManager::get<float>(str, ns_defBloomThreshold));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const float& value) override { setBloomThreshold(value); }
-            } threshold;
-
-            static const struct ExponentCallback : SettingCallback<float>
-            {
-                const char* str;
-
-                ExponentCallback()
-                    : str("engine@Graphics|Postprocessor|Bloom|fSubThresholdExponent")
-                {
-                    valueChanged(SettingManager::get<float>(str, 4.f));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const float& value) override { setBloomSubThresholdExponent(value); }
-            } exponent;
-
-            if (functionEnabled(Function::Bloom))
+            if (m_functions & Function::Bloom)
                 enableBloom();
         }
 
         // Gamma correction settings
         {
-            static const struct EnabledCallback : SettingCallback<bool>
-            {
-                const char* str;
-
-                EnabledCallback()
-                    : str("engine@Graphics|Postprocessor|GammaCorrection|bEnabled")
-                {
-                    valueChanged(SettingManager::get<bool>(str, isLinear()));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const bool& value) override { value ? enableFunctions(Function::GammaCorrection) : disableFunctions(Function::GammaCorrection); }
-            } enabled;
-
-            static const struct GammaCallback : SettingCallback<float>
-            {
-                const char* str;
-
-                GammaCallback()
-                    : str("engine@Graphics|Postprocessor|GammaCorrection|fGamma")
-                {
-                    valueChanged(SettingManager::get<float>(str, 2.2f));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const float& value) override { setGamma(value); }
-            } exposure;
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|GammaCorrection|bEnabled", Function::GammaCorrection, isLinear());
         }
 
         // Dithering settings
         {
-            static const struct EnabledCallback : SettingCallback<bool>
-            {
-                const char* str;
-
-                EnabledCallback()
-                    : str("engine@Graphics|Postprocessor|Dithering|bEnabled")
-                {
-                    valueChanged(SettingManager::get<bool>(str, !gl::es));
-                    SettingManager::registerCallback(str, *this);
-                }
-                void valueChanged(const bool& value) override { value ? enableFunctions(Function::Dither) : disableFunctions(Function::Dither); }
-            } enabled;
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Dithering|bEnabled", Function::Dither, !gl::es);
         }
 
         // Shader sources
@@ -286,76 +187,6 @@ namespace jop
 
     PostProcessor::~PostProcessor()
     {}
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::enableFunctions(const uint32 funcs)
-    {
-        if (m_instance)
-            m_instance->m_functions |= funcs;
-    }
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::disableFunctions(const uint32 funcs)
-    {
-        if (m_instance)
-            m_instance->m_functions &= ~funcs;
-    }
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::setExposure(const float exposure)
-    {
-        if (m_instance)
-            m_instance->m_exposure = exposure;
-    }
-
-    //////////////////////////////////////////////
-
-    float PostProcessor::getExposure()
-    {
-        if (m_instance)
-            return m_instance->m_exposure;
-
-        return 1.f;
-    }
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::setGamma(const float gamma)
-    {
-        if (m_instance)
-            m_instance->m_gamma = gamma;
-    }
-
-    //////////////////////////////////////////////
-
-    float PostProcessor::getGamma()
-    {
-        if (m_instance)
-            return m_instance->m_gamma;
-
-        return 0.f;
-    }
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::setBloomThreshold(const float threshold)
-    {
-        if (m_instance)
-            m_instance->m_bloomThreshold = threshold;
-    }
-
-    //////////////////////////////////////////////
-
-    float PostProcessor::getBloomThreshold()
-    {
-        if (m_instance)
-            return m_instance->m_bloomThreshold;
-
-        return 0.f;
-    }
 
     //////////////////////////////////////////////
 
@@ -406,14 +237,7 @@ namespace jop
         RenderTexture::unbind();
         
         shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(RenderTexture::Slot::Color0), 1);
-        drawQuad(m_quad);
-    }
-
-    //////////////////////////////////////////////
-
-    bool PostProcessor::functionEnabled(const uint32 func)
-    {
-        return m_instance != nullptr && (m_instance->m_functions & func) != 0;
+        m_quad->draw(0);
     }
 
     //////////////////////////////////////////////
@@ -457,7 +281,7 @@ namespace jop
         m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
-        drawQuad(m_quad);
+        m_quad->draw(0);
 
         // Blur
         for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
@@ -473,7 +297,7 @@ namespace jop
                 m_blurShader->setUniform("u_Horizontal", horizontal);
                 m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getTextureAttachment(slot), 1);
 
-                drawQuad(m_quad);
+                m_quad->draw(0);
                 horizontal = !horizontal;
             }
 
@@ -533,24 +357,6 @@ namespace jop
         }
 
     #endif
-    }
-
-    //////////////////////////////////////////////
-
-    void PostProcessor::setBloomSubThresholdExponent(const float exponent)
-    {
-        if (m_instance)
-            m_instance->m_subBloomThresholdExp = exponent;
-    }
-
-    //////////////////////////////////////////////
-
-    float PostProcessor::getBloomSubThresholdExponent()
-    {
-        if (m_instance)
-            return m_instance->m_subBloomThresholdExp;
-
-        return 0.f;
     }
 
     //////////////////////////////////////////////

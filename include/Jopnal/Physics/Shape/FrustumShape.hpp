@@ -48,7 +48,5 @@ namespace jop
 
 /// \class jop::FrustumShape
 /// \ingroup physics
-///
-/// #TODO Detailed description
 
 #endif

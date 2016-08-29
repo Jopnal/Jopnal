@@ -32,7 +32,7 @@ namespace jop
             m_collider->m_listeners.erase(this);
     }
 
-    void ContactListener::beginContact(Collider&, ContactInfo&)
+    void ContactListener::beginContact(Collider&, const ContactInfo&)
     {}
 
     void ContactListener::endContact(Collider&)

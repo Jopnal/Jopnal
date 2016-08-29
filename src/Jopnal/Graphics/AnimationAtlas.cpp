@@ -24,7 +24,7 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-#include <Jopnal/Graphics/AnimationAtlas.hpp>
+    #include <Jopnal/Graphics/AnimationAtlas.hpp>
 
 #endif
 
@@ -34,11 +34,8 @@
 namespace jop
 {
     AnimationAtlas::AnimationAtlas(const std::string& name)
-        : TextureAtlas(name),
-          m_frameSize(0)
-    {}
-
-    AnimationAtlas::~AnimationAtlas()
+        : TextureAtlas  (name),
+          m_frameSize   (0)
     {}
 
     //////////////////////////////////////////////

@@ -78,7 +78,7 @@ namespace jop
 
             mat.sendToShader(shdr, nullptr);
 
-            glCheck(glVertexAttrib4fv(5, &getColor().colors[0]));
+            glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);

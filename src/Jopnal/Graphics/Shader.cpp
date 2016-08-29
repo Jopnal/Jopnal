@@ -37,7 +37,7 @@
 
 namespace
 {
-    static const int shaderTypes[] =
+    static const int ns_shaderTypes[] =
     {
         GL_VERTEX_SHADER,
         GL_GEOMETRY_SHADER,
@@ -95,7 +95,7 @@ namespace jop
         }
 
         // Create shader & set handle
-        m_handle = glCheck(glCreateShader(shaderTypes[static_cast<int>(type)]));
+        m_handle = glCheck(glCreateShader(ns_shaderTypes[static_cast<int>(type)]));
         m_shaderType = type;
 
         if (preprocess)
@@ -288,9 +288,9 @@ namespace jop
 
     //////////////////////////////////////////////
  
-    unsigned int Shader::getType() const
+    Shader::Type Shader::getType() const
     {
-        return shaderTypes[static_cast<int>(m_shaderType)];
+        return m_shaderType;
     }
 
     //////////////////////////////////////////////

@@ -58,10 +58,13 @@ namespace jop
         ///
         ~Font() override;
 
-        /// \brief Loads a font from targeted path
+
+        /// \brief Load from file
         ///
         /// \param path Path to desired .ttf font file
         /// \param fontSize Glyph size in texture
+        ///
+        /// \return True if successful
         ///
         bool load(const std::string& path, const int fontSize);
 
@@ -71,36 +74,48 @@ namespace jop
         ///
         /// \param ptr Pointer to memory
         /// \param size Amount of bytes to read
-        /// \param pixelSize Glyph size in texture
+        /// \param fontSize Glyph size in texture
+        ///
+        /// \return True if successful
         ///
         bool load(const void* ptr, const uint32 size, const int fontSize);
 
         /// \brief Returns the necessary kerning advancement between two characters
         ///
-        /// \param left Codepoint value pointing to the desired character
-        /// \param right Codepoint value pointing to the next character
+        /// \param left Code point value pointing to the desired character
+        /// \param right Code point value pointing to the next character
         ///
-        /// NOTE: Every font does NOT have support for this!
+        /// \warning Every font does NOT have support for this!
         ///
-        float getKerning(const uint32 left,const uint32 right) const;
+        /// \return True if successful
+        ///
+        float getKerning(const uint32 left, const uint32 right) const;
 
         /// \brief Returns a single glyph from given codepoint
         ///
-        /// If glyph with the given codepoint does not exist yet calls packGlyph() and create and pack it
+        /// If glyph with the given codepoint does not exist yet calls packGlyph() to create and pack it.
         ///
         /// \param codepoint Unicode codepoint of a character
         ///
+        /// \return Reference to the glyph
+        ///
         const Glyph& getGlyph(const uint32 codepoint) const;
 
-        /// \brief Returns the spacing between two rows in the font
+        /// \brief Return the spacing between two rows in the font
+        ///
+        /// \return The line spacing
         ///
         float getLineSpacing() const;
 
-        /// \brief Returns the texture that contains all loaded glyphs
+        /// \brief Return the texture that contains all loaded glyphs
+        ///
+        /// \return Reference to the font texture
         ///
         const Texture2D& getTexture() const;
 
         /// \brief Returns pixel size of the font
+        ///
+        /// \return The font pixel size
         ///
         int getSize() const;
 
@@ -115,6 +130,8 @@ namespace jop
         /// \brief Loads a font from internal buffer
         ///
         /// \param pixelSize Glyph size in texture
+        ///
+        /// \return True if successful
         ///
         bool load(const int fontSize);
 

@@ -32,6 +32,7 @@
     #pragma warning(disable: 4201) // Nameless struct/union
     #pragma warning(disable: 4503) // Decorated name truncation
     #pragma warning(disable: 4068) // Unrecognized pragma
+    #pragma warning(disable: 4505) // Unreferenced local function
         
     #define JOP_OS_WINDOWS
     #define JOP_OS_DESKTOP
