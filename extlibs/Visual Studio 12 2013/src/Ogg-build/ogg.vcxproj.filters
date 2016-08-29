@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\src\bitwise.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\src\framing.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\include\ogg\config_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\include\ogg\ogg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\include\ogg\os_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Ogg\win32\ogg.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{78CCA472-7783-384A-9B46-96B26FE963C3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B9676D10-9F08-3C3D-A98C-458F9F59D7C9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

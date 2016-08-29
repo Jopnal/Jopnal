@@ -1,0 +1,10 @@
+# CMake generation dependency list for this directory.
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/OpenAL/utils/alsoft-config/CMakeLists.txt
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/FindQt4.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/CheckCXXSymbolExists.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/CheckSymbolExists.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/MacroAddFileDependencies.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/FindPackageHandleStandardArgs.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/FindPackageMessage.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/CMakeParseArguments.cmake
+D:/Ohjelmat/Cmake/share/cmake-3.6/Modules/CMakePushCheckState.cmake

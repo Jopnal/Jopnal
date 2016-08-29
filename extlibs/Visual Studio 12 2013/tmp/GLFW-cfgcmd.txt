@@ -1,0 +1,1 @@
+cmd='D:/Ohjelmat/Cmake/bin/cmake.exe;-DGLFW_BUILD_DOCS=OFF;-DGLFW_BUILD_EXAMPLES=OFF;-DGLFW_BUILD_TESTS=OFF;-DGLFW_INSTALL=OFF;-GVisual Studio 12 2013;C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/GLFW'

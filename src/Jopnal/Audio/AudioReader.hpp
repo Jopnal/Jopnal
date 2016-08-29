@@ -45,7 +45,7 @@ namespace jop
 
         /// \brief Decode streamed data
         ///
-        static bool stream(FileLoader& fileInstance, SoundBuffer& soundBuf, uint64& currentPos);
+        static bool stream(FileLoader& fileInstance, SoundBuffer& soundBuf, void* offset);
 
     private:
         /// \brief Decodes wav file
@@ -58,7 +58,7 @@ namespace jop
 
         /// \brief Decode streamed vorbis data
         ///
-        static bool streamOgg(FileLoader& fileInstance, SoundBuffer& soundBuf, uint64& currentPos);
+		static bool streamOgg(FileLoader& fileInstance, SoundBuffer& soundBuf, void* offset);
 
         /// \brief Checks if data is wav file
         ///

@@ -43,12 +43,9 @@ namespace jop
 
         struct ParsedStreamingInfo
         {
-            uint64 sampleCount  = 0; ///< Total number of samples
-            uint64 currentPos   = 0; ///< Current point in audio data
-            uint64 firstSample  = 0; ///< First audio sample for looping
-            float offset[2];         ///< Track offset of current buffer
-            int channelCount    = 0; ///< Number of channels
-            int sampleRate      = 0; ///< Samples per second
+            uint64 sampleCount  = 0;         ///< Total number of samples
+            uint64 currentPos   = 0;         ///< Current reading point in audio data
+			std::atomic<float> offset = 0.f; ///< Current offset in audio data
         };
 
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
@@ -68,7 +65,7 @@ namespace jop
 
         /// \brief Update
         ///
-        /// Keeps tabs on offset and handling buffers.
+        /// Updates offset
         ///
         /// \param deltaTime The delta time
         ///
@@ -84,55 +81,58 @@ namespace jop
         ///
         bool setPath(const std::string& path);
 
-        /// \copydoc SoundEffect::play()
+        /// \copydoc SoundEffect::play(const bool)
         ///
         SoundStream& play();
 
-        /// \copydoc SoundEffect::playReset()
+        /// \copydoc SoundEffect::play
         ///
         SoundStream& playReset();
 
-        /// \copydoc SoundEffect::stop()
+        /// \copydoc SoundEffect::stop
         ///
         SoundStream& stop();
 
-        /// \copydoc SoundEffect::pause()
+        /// \copydoc SoundEffect::pause
         ///
         SoundStream& pause();
 
-        /// \copydoc SoundEffect::setOffset()
+        /// \copydoc SoundEffect::setOffset
         ///
         SoundStream& setOffset(const float time);
 
-        /// \copydoc SoundEffect::getOffset()
+        /// \copydoc SoundEffect::getOffset
         ///
-        float getOffset() const;
+        float getOffset();
 
-        /// \copydoc SoundEffect::setLoop()
+        /// \copydoc SoundEffect::setLoop
         ///
+		/// If sound is small enough for one buffer, 
+		/// loop might be ignored due to buffer queue ending before loop check.
+		///
         SoundStream& setLoop(const bool loop);
 
-        /// \copydoc SoundEffect::isLooping()
+        /// \copydoc SoundEffect::isLooping
         ///
         bool isLooping() const;
 
     private:
 
-        /// \brief Private method handling updating buffers
-        ///
-        void updateBackBuffer();
+		/// \brief updateStream
+		///
+		/// Loop for stream's thread
+		///
+		void updateStream();
 
-        /// \brief Private method handling openAlQueue
-        ///
-        void updateOpenAl();
+		/// \brief fillBuffer
+		///
+		/// Reads next chunk of audio data into buffer
+		///
+		void fillBuffer();
 
-        /// \brief Private method to start song from beginning
-        ///
-        void fromBegin();
-
-        /// \brief Private method to read samples into free buffer
-        ///
-        void readBuffer();
+		/// \brief Private method to change stream's offset
+		///
+		void changeOffset();
 
         /// \brief Private method for opening file
         ///
@@ -142,26 +142,23 @@ namespace jop
         ///
         void closeFile();
 
-        std::mutex m_mutex;  
+        std::recursive_mutex m_mutex;  
         std::string m_path;                         ///< Remembers streaming path for cloning
         bool m_isFileOpen;                          ///< Opens file if it's closed
         bool m_loop;                                ///< If true song start from beginning when finished
-        bool m_playing;                             ///< For maintaining buffer updates
-        bool m_lastBuffer;                          ///< True when chunk of data is in use
-        std::atomic<bool> m_updatebuffer;           ///< Check to able reader thread to update audio data
-        std::atomic<bool> m_updateBoth;             ///< Check reader thread will update audio data for both buffers
         std::atomic<bool> m_keepThread;             ///< While true keeps thread alive
-        std::vector<std::unique_ptr<SoundBuffer>> m_bufferQueue; ///< SoundBuffer stack for streaming
+		float m_deltaOffset;                        ///< Updates current offset
+		std::atomic<float> m_inputOffset;           ///< Stores input offset
+		std::atomic<float> m_rawOffset;             ///< Reader's exact position
+		std::vector<std::unique_ptr<SoundBuffer>> m_bufferQueue; ///< SoundBuffer stack for streaming
         ParsedStreamingInfo m_info;                 ///< Critical information for passing between buffers
         FileLoader m_fileInstance;                  ///< FileLoader instance for this stream
-        Thread m_thread;                            ///< Own thread for reading files to buffer
+        Thread m_streamThread;                      ///< Enables streaming in seperate thread
     };
 }
+#endif
 
-/// \class jop::SoundStream
-/// \ingroup audio
+/// \class SoundStream
+/// \ingroup Audio
 ///
 /// Sound streaming straight from file 
-/// Uses SFML Music.hpp streaming instead of FileLoader.hpp
-
-#endif

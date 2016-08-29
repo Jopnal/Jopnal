@@ -1,0 +1,3 @@
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/GLFW-build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/GLFW-build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/GLFW-build/src/CMakeFiles/glfw.dir

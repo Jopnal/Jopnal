@@ -1,0 +1,5 @@
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS-build/CMakeFiles/test_physfs.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS-build/CMakeFiles/physfs-static.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS-build/CMakeFiles/INSTALL.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS-build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS-build/CMakeFiles/ZERO_CHECK.dir

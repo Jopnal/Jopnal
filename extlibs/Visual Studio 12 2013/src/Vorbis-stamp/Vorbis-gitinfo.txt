@@ -1,0 +1,3 @@
+repository='https://git.xiph.org/vorbis.git'
+module=''
+tag=''

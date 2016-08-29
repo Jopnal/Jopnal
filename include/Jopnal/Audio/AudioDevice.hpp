@@ -48,27 +48,26 @@ namespace jop
         /// \brief Destructor
         ///
         ~AudioDevice() override;
-
         
-        /// \brief Set new device for audio output
+        /// \Set new device for audio output
         ///
-        /// \param device Audio device's name
+        /// param Audio device's name
         ///
         static void setDevice(const std::string& device);
         
-        /// \return Default audio device's name
+        /// \Returns default audio device's name
         ///
         static std::string getDeviceName();
 
-        /// \return All audio device names
+        /// \Returns all audio device names
         ///
         static std::string getAllDeviceNames();
 
-        /// \return Audio device
+        /// \Returns audio device
         ///
         static ALCdevice_struct& getDevice();
 
-        /// \return Audio context
+        /// \Returns audio context
         ///
         static ALCcontext_struct& getContext();
     };
