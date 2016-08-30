@@ -31,35 +31,35 @@
 
 namespace jop
 {
-	class JOP_API CapsuleMesh : public Mesh
-	{
-	public:
+    class JOP_API CapsuleMesh : public Mesh
+    {
+    public:
 
         /// \copydoc Mesh::Mesh()
         ///
-		CapsuleMesh(const std::string& name);
+        CapsuleMesh(const std::string& name);
 
         /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
         ///
-		CapsuleMesh(const CapsuleMesh& other, const std::string& newName);
+        CapsuleMesh(const CapsuleMesh& other, const std::string& newName);
 
 
-		/// \brief Load a Capsule
-		///
-		/// \param radius The radius of the Capsule
+        /// \brief Load a Capsule
+        ///
+        /// \param radius The radius of the Capsule
         /// \param height Height of the capsule
-		/// \param rings How many rings will the Capsule have
-		/// \param normalizedTexCoords Normalize the texture coordinates?
-		///
-		/// \return True if successful
-		///
-		bool load(const float radius, const float height, const unsigned int rings, const bool normalizedTexCoords = true);
+        /// \param rings How many rings will the Capsule have
+        /// \param normalizedTexCoords Normalize the texture coordinates?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const float radius, const float height, const unsigned int rings, const bool normalizedTexCoords = true);
 
-		/// \brief Get the radius
-		///
-		/// \return The radius
-		///
-		float getRadius() const;
+        /// \brief Get the radius
+        ///
+        /// \return The radius
+        ///
+        float getRadius() const;
 
         /// \brief Get the height
         ///
@@ -67,26 +67,26 @@ namespace jop
         ///
         float getHeight() const;
 
-		/// \brief Get the amount of rings
-		///
-		/// \return The ring amount
-		///
-		unsigned int getRings() const;
+        /// \brief Get the amount of rings
+        ///
+        /// \return The ring amount
+        ///
+        unsigned int getRings() const;
 
-		/// \brief Check if this Capsule uses normalized texture coordinates
-		///
-		/// \return True if normalized
-		///
-		bool normalizedTexCoords() const;
+        /// \brief Check if this Capsule uses normalized texture coordinates
+        ///
+        /// \return True if normalized
+        ///
+        bool normalizedTexCoords() const;
 
-	private:
+    private:
 
-		float m_radius;         ///< The radius
+        float m_radius;         ///< The radius
         float m_height;         ///< The height
-		unsigned int m_rings;   ///< Rings
-		unsigned int m_sectors; ///< Sectors
-		bool m_normTexCoords;   ///< Normalized texture coordinates
-	};
+        unsigned int m_rings;   ///< Rings
+        unsigned int m_sectors; ///< Sectors
+        bool m_normTexCoords;   ///< Normalized texture coordinates
+    };
 }
 
 /// \class jop::CapsuleMesh

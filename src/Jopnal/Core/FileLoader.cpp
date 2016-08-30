@@ -110,8 +110,6 @@ namespace jop
             JOP_ASSERT_EVAL(PHYSFS_init(arg) != 0, "Failed to initialize file system!");
             createNeededDirs();
 
-            checkError("Init");
-
             DebugHandler::getInstance().openFileHandles();
         }
 

@@ -82,7 +82,7 @@ namespace jop
     private:
 
         float m_radius;             ///< The radius
-        float m_height;			    ///< The height
+        float m_height;                ///< The height
         unsigned int m_sectors;     ///< Sectors
         bool m_dividedTexCoords;    ///< Normalized texture coordinates
     };

@@ -50,7 +50,7 @@ JOP_VARYING_IN vec4 vf_Color;
 // Light info
 #ifdef JMAT_LIGHTING
 
-	#include <Jopnal/DefaultLighting/Uniforms>
+    #include <Jopnal/DefaultLighting/Uniforms>
     #include <Jopnal/DefaultLighting/Shadows>
     #include <Jopnal/DefaultLighting/Lighting>
 

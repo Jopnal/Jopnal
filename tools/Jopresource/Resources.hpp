@@ -18,7 +18,7 @@ extern const unsigned char defaultShaderFrag[266];
 
 extern const unsigned char defaultShaderVert[475];
 
-extern const unsigned char defaultUberShaderFrag[4103];
+extern const unsigned char defaultUberShaderFrag[4106];
 
 extern const unsigned char defaultUberShaderVert[1583];
 
@@ -46,7 +46,7 @@ extern const unsigned char brightFilter[1632];
 
 extern const unsigned char compatibilityPlugins[2001];
 
-extern const unsigned char lightingPlugins[14728];
+extern const unsigned char lightingPlugins[14767];
 
 }
 #endif

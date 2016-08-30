@@ -343,15 +343,20 @@ namespace jop
 
     LightSource& LightSource::setAttenuation(const float constant, const float linear, const float quadratic)
     {
-        m_attenuation = glm::vec3(constant, linear, quadratic);
-        return *this;
+        return setAttenuation(Attenuation::Constant, constant)
+              .setAttenuation(Attenuation::Linear, linear)
+              .setAttenuation(Attenuation::Quadratic, quadratic);
     }
 
     //////////////////////////////////////////////
 
     LightSource& LightSource::setAttenuation(const float range)
     {
-        return setAttenuation(1.0f, 4.5f / std::max(FLT_MIN, range), 75.0f / std::max(FLT_MIN, range * range));
+        // Adjust the attenuation when the scene is likely not gamma corrected
+        static const float numeratorLinear = 4.5f / (1.f + !Texture::allowSRGB() * 1.2f);
+        static const float numeratorQuadratic = 75.f / (1.f + !Texture::allowSRGB() * 1.2f);
+
+        return setAttenuation(1.0f, numeratorLinear / std::max(FLT_MIN, range), numeratorQuadratic / std::max(FLT_MIN, range * range));
     }
 
     //////////////////////////////////////////////
@@ -408,7 +413,7 @@ namespace jop
     {
         static const unsigned int defLimits[] =
         {
-            gl::getGLSLVersion() >= 300 ? 8u : 2u,
+            gl::getGLSLVersion() >= 300 ? 8u : 1u,
             gl::getGLSLVersion() >= 300 ? 2u : 1u,
             gl::getGLSLVersion() >= 300 ? 2u : 1u,
         };

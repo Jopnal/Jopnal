@@ -53,7 +53,7 @@ namespace jop
         ///
         /// \return True if successful
         ///
-		bool load(const float radius, const float height, const unsigned int sectors, const bool dividedTexCoords = true);
+        bool load(const float radius, const float height, const unsigned int sectors, const bool dividedTexCoords = true);
 
         /// \brief Get the radius
         ///
@@ -82,9 +82,9 @@ namespace jop
     private:
 
         float m_radius;             ///< The radius
-        float m_height;			    ///< The height
+        float m_height;                ///< The height
         unsigned int m_sectors;     ///< Sectors
-		bool m_dividedTexCoords;    ///< Normalized texture coordinates
+        bool m_dividedTexCoords;    ///< Normalized texture coordinates
     };
 }
 
