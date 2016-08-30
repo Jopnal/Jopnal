@@ -20,16 +20,23 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/Shader.hpp>
 
-    #if defined(JOP_OPENGL_ES) && !defined(GL_GEOMETRY_SHADER)
-        #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
-    #endif
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <queue>
 
+#endif
+
+#ifndef GL_GEOMETRY_SHADER
+    #define GL_GEOMETRY_SHADER GL_GEOMETRY_SHADER_EXT
 #endif
 
 //////////////////////////////////////////////
@@ -330,7 +337,7 @@ namespace jop
         if (extString.empty())
         {
         #ifdef JOP_OPENGL_ES
-            if (gl::getGLSLVersion() < 300 && JOP_CHECK_GL_EXTENSION(GL_NV_explicit_attrib_location))
+            if (gl::getGLSLVersion() < 300 && JOP_CHECK_GL_EXTENSION(NV_explicit_attrib_location))
                 extString += "#extension GL_NV_explicit_attrib_location : enable\n";
         #endif
         }

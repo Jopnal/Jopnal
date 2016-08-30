@@ -20,7 +20,16 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+    
+    #include <Jopnal/Graphics/Text.hpp>
+
+    #include <Jopnal/Graphics/Font.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 

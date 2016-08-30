@@ -51,7 +51,7 @@ namespace jop
     JOP_REGISTER_COMMAND_HANDLER(RigidBody)
 
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
-        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setFixedMovement, "setLinearFactor");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setFixedRotation, "setFixedRotation");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
@@ -84,8 +84,7 @@ namespace jop
         : Collider      (object, world, 0),
           m_type        (info.m_type),
           m_mass        (info.m_mass),
-          m_rigidBody   (nullptr),
-          m_allowSleep  (true)
+          m_rigidBody   (nullptr)
     {
         btVector3 inertia(0.f, 0.f, 0.f);
         if (m_type == Type::Dynamic)
@@ -179,31 +178,34 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RigidBody& RigidBody::setLinearFactor(const glm::vec3& linearFactor)
+    RigidBody& RigidBody::setFixedMovement(const glm::bvec3& fixed)
     {
-        m_rigidBody->setLinearFactor(btVector3(linearFactor.x, linearFactor.y, linearFactor.z));
+        m_rigidBody->setLinearFactor(btVector3(fixed.x, fixed.y, fixed.z));
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    glm::vec3 RigidBody::getLinearFactor()const
+    glm::bvec3 RigidBody::hasFixedMovement() const
     {
-        auto& glf = m_rigidBody->getLinearFactor();
-        return glm::vec3(glf.x(), glf.y(), glf.z());
+        auto& lf = m_rigidBody->getLinearFactor();
+        return glm::bvec3(lf.x() < 1.f, lf.y() < 1.f, lf.z() < 1.f);
     }
 
     //////////////////////////////////////////////
 
-    RigidBody& RigidBody::setFixedRotation(const glm::vec3& axis)
+    RigidBody& RigidBody::setFixedRotation(const glm::bvec3& axis)
     {
-        m_rigidBody->setAngularFactor(btVector3(
-            axis.x == 1.f ? 1.f : 0.f,
-            axis.y == 1.f ? 1.f : 0.f,
-            axis.z == 1.f ? 1.f : 0.f
-            ));
-
+        m_rigidBody->setAngularFactor(btVector3(axis.x, axis.y, axis.z));
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    glm::bvec3 RigidBody::hasFixedRotation() const
+    {
+        auto& af = m_rigidBody->getAngularFactor();
+        return glm::bvec3(af.x() < 1.f, af.y() < 1.f, af.z() < 1.f);
     }
 
     //////////////////////////////////////////////
@@ -324,20 +326,6 @@ namespace jop
             m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
         }
         return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    void RigidBody::setAllowSleep(const bool allow)
-    {
-        m_allowSleep = allow;
-    }
-
-    //////////////////////////////////////////////
-
-    bool RigidBody::getAllowSleep() const
-    {
-        return m_allowSleep;
     }
 
     //////////////////////////////////////////////

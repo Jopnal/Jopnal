@@ -47,11 +47,10 @@ JOP_VARYING_IN vec2 vf_TexCoords;
 JOP_VARYING_IN vec3 vf_Normal;
 JOP_VARYING_IN vec4 vf_Color;
 
-#include <Jopnal/DefaultLighting/Uniforms>
-
 // Light info
 #ifdef JMAT_LIGHTING
 
+	#include <Jopnal/DefaultLighting/Uniforms>
     #include <Jopnal/DefaultLighting/Shadows>
     #include <Jopnal/DefaultLighting/Lighting>
 

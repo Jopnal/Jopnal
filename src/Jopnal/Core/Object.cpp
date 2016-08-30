@@ -1079,10 +1079,18 @@ namespace jop
 
     Object& Object::lookAt(const glm::vec3& point, const glm::vec3& up)
     {
-        const glm::vec3 direction = glm::normalize(point - getGlobalPosition());
-        const glm::quat rot = glm::rotation(Transform::Front, direction);
+        auto& p = getGlobalPosition();
+        const glm::vec3 z = glm::normalize(p - point);
+        const glm::vec3 x = glm::normalize(glm::cross(up, z));
+        const glm::vec3 y = glm::cross(z, x);
 
-        return setRotation(glm::rotation(rot * Transform::Up, glm::cross(glm::cross(direction, up), direction)) * rot);
+        return setRotation(glm::quat(glm::mat4
+        (
+            glm::vec4(x, -glm::dot(x, p)),
+            glm::vec4(y, -glm::dot(y, p)),
+            glm::vec4(z, -glm::dot(z, p)),
+            glm::vec4(0.f, 0.f, 0.f, 1.f)
+        )));
     }
 
     //////////////////////////////////////////////

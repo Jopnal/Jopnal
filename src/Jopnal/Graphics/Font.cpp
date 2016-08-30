@@ -20,7 +20,19 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Font.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/Glyph.hpp>
+    #include <Jopnal/STL.hpp>
+
+#endif
 
 #include <Jopnal/Resources/Resources.hpp>
 

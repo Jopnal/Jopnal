@@ -75,9 +75,18 @@ namespace jop
         ///
         virtual ~Collider2D() override = 0;
 
-        /// \brief Update inherited from Component
+
+        /// \copydoc Collider::update()
         ///
         void update(const float deltaTime) override;
+
+        /// \copydoc Collider::setAllowSleep()
+        ///
+        void setAllowSleep(const bool allow);
+
+        /// \copydoc Collider::isSleepAllowed()
+        ///
+        bool isSleepAllowed() const;
 
     public:
 
@@ -129,9 +138,9 @@ namespace jop
 
     protected:
 
-        b2Body* m_body;         ///< A RigidBody2D
-        World2D& m_worldRef2D;  ///< Reference to the world
-        std::set<ContactListener2D*> m_listeners;
+        b2Body* m_body;                             ///< A RigidBody2D
+        World2D& m_worldRef2D;                      ///< Reference to the world
+        std::set<ContactListener2D*> m_listeners;   ///< Bound contact listeners
     };
 }
 

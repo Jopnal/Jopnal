@@ -81,7 +81,23 @@ namespace jop
         virtual ~Collider() override = 0;
 
 
+        /// \brief Update
+        ///
+        /// \param deltaTime The delta time
+        ///
         void update(const float deltaTime) override;
+
+        /// \brief Set whether the collider is allowed to sleep
+        ///
+        /// \param allow True to allow sleep. True by default
+        ///
+        void setAllowSleep(const bool allow);
+
+        /// \brief Check if sleep is allowed
+        ///
+        /// \return True if allowed
+        ///
+        bool isSleepAllowed() const;
 
     public:
 
@@ -131,10 +147,18 @@ namespace jop
         ///
         const World& getWorld() const;
 
+        /// \brief Detach this body from its world
+        ///
         void detachFromWorld();
 
+        /// \brief Attach this body to its world if it was previously detached
+        ///
         void attachToWorld();
 
+        /// \brief Check if this body is currently detached from its world
+        ///
+        /// \return True if detached
+        ///
         bool isDetachedFromWorld() const;
 
     protected:
@@ -142,8 +166,9 @@ namespace jop
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
-        std::set<ContactListener*> m_listeners;          ///< Listeners registered for this collider
-        bool m_detached;
+        std::set<ContactListener*> m_listeners;         ///< Listeners registered for this collider
+        bool m_detached;                                ///< Is this body detached from the world?
+        bool m_allowSleep;                              ///< Is sleep allowed?
     };
 }
 

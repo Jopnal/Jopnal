@@ -20,11 +20,26 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #ifndef JOP_PRECOMPILED_HEADER
 
     #include <Jopnal/Graphics/ModelLoader.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/Color.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Model.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Utility/Json.hpp>
+    #include <tuple>
+    #include <vector>
 
 #endif
 

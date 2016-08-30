@@ -28,6 +28,7 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
     #include <Jopnal/Graphics/Texture/Cubemap.hpp>
@@ -407,6 +408,13 @@ namespace jop
     {
         void bindFBOBase(const GLuint fb, const glm::uvec2& size, const GLenum binding)
         {
+        #ifdef JOP_OS_ANDROID
+
+            if (!detail::ActivityState::get()->fullFocus)
+                return;
+
+        #endif
+
             glCheck(glBindFramebuffer(binding, fb));
 
             glCheck(glViewport(0, 0, size.x, size.y));
@@ -416,9 +424,17 @@ namespace jop
 
     bool RenderTexture::bindRead() const
     {
-    #if defined(JOP_OPENGL_ES) && !defined(GL_ES_VERSION_3_0)
+    #ifdef JOP_OPENGL_ES
+        
+        #ifndef GL_ES_VERSION_3_0
+            return false;
 
-        return false;
+        #else
+
+            if (gl::getVersionMajor() < 3)
+                return false;
+
+        #endif
 
     #else
 
@@ -446,11 +462,7 @@ namespace jop
 
     void RenderTexture::unbind()
     {
-        glCheck(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-        
-        const auto size = Engine::getMainWindow().getSize();
-        glCheck(glViewport(0, 0, size.x, size.y));
-        glCheck(glScissor(0, 0, size.x, size.y));
+        detail::bindFBOBase(0, Engine::getMainWindow().getSize(), GL_FRAMEBUFFER);
     }
 
     //////////////////////////////////////////////

@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <glm/vec3.hpp>
+#include <utility>
 
 //////////////////////////////////////////////
 

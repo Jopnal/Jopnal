@@ -47,22 +47,41 @@ namespace
 
     bool isLinear()
     {
+    #if defined(GL_ES_VERSION_3_0)
+    
         static bool init = false;
         static bool linear = false;
 
         if (!init)
         {
-            jop::RenderTexture::unbind();
+            if (gl::getVersionMajor() < 3)
+                linear = true;
 
-            GLint enc;
+            else
+            {
+                jop::RenderTexture::unbind();
 
-            glCheck(glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
+                GLint enc;
 
-            linear = enc == GL_LINEAR;
+                glCheck(glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_BACK, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc));
+
+                linear = enc == GL_LINEAR;
+            }
+
             init = true;
         }
 
         return linear;
+
+    #elif defined(GL_ES_VERSION_2_0)
+
+        return true;
+
+    #else
+        
+        return false;
+
+    #endif
     }
 
     const float ns_defBloomThreshold = 2.f - jop::gl::es;

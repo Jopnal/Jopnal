@@ -52,16 +52,11 @@ namespace jop
         ///
         CollisionShape(const std::string& name);
 
-        
     public:
 
         /// \brief Virtual destructor
         ///
         virtual ~CollisionShape() override = 0;
-
-
-        
-
 
     protected:
 

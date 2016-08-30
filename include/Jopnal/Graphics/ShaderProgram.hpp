@@ -26,12 +26,17 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/Shader.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <unordered_map>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    class Texture;
+
     class JOP_API ShaderProgram : public Resource
     {
     private:
@@ -218,6 +223,12 @@ namespace jop
         /// \return Reference to the error shader
         ///
         static ShaderProgram& getError();
+
+        /// \brief Get the maximum vertex attributes
+        ///
+        /// \return The maximum number of vertex attributes supported
+        ///
+        static unsigned int getMaxAttributes();
 
     private:
 

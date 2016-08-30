@@ -61,14 +61,14 @@
 
 namespace jop
 {
-    RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const Type type, const float mass)
+    RigidBody2D::ConstructInfo2D::ConstructInfo2D(const CollisionShape2D& shape, const RigidBody::Type type, const float mass)
         : group         (1),
           mask          (1),
           friction      (0.2f),
           restitution   (0.5f),
           m_shape       (shape),
           m_type        (type),
-          m_mass        ((type == Type::Dynamic) * mass)
+          m_mass        ((type == RigidBody::Type::Dynamic) * mass)
     {}
 
     //////////////////////////////////////////////
@@ -85,18 +85,18 @@ namespace jop
         bd.position = b2Vec2(pos.x, pos.y);
         bd.userData = this;
 
-        b2BodyType Types[3] = { b2BodyType::b2_staticBody, b2BodyType::b2_dynamicBody, b2BodyType::b2_kinematicBody };
+        b2BodyType Types[3] = {b2BodyType::b2_staticBody, b2BodyType::b2_dynamicBody, b2BodyType::b2_kinematicBody};
 
         switch (info.m_type)
         {
-            case Type::StaticSensor:
+            case RigidBody::Type::StaticSensor:
             {
                 bd.type = b2BodyType::b2_staticBody;
                 object.setIgnoreParent(true);
                 break;
             }
 
-            case Type::KinematicSensor:
+            case RigidBody::Type::KinematicSensor:
             {
                 bd.type = b2BodyType::b2_kinematicBody;
                 break;
@@ -161,15 +161,15 @@ namespace jop
     {
         for (auto& i : m_joints)
         {
-            auto& body = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyB : i->m_bodyA;
+            auto& body = i->m_bodyA == this ? i->m_bodyB : i->m_bodyA;
 
-            //if (!body.expired())
-            body/*.lock()*/->m_joints.erase(i);
+            body->m_joints.erase(i);
             {
-                auto& thisBody = i->m_bodyA/*.lock().get()*/ == this ? i->m_bodyA : i->m_bodyB;
+                auto& thisBody = i->m_bodyA == this ? i->m_bodyA : i->m_bodyB;
                 thisBody = nullptr;
             }
         }
+
         m_joints.clear();
         m_worldRef2D.m_worldData2D->DestroyBody(m_body);
     }
@@ -216,7 +216,6 @@ namespace jop
 
     float RigidBody2D::getAngularVelocity()const
     {
-
         return m_body->GetAngularVelocity();
     }
 
@@ -277,24 +276,33 @@ namespace jop
     }
 
     //////////////////////////////////////////////
+
+    bool RigidBody2D::hasFixedRotation() const
+    {
+        return m_body->IsFixedRotation();
+    }
+
+    //////////////////////////////////////////////
+
     RigidBody2D& RigidBody2D::synchronizeTransform()
     {
         auto& pos = getObject()->getGlobalPosition();
         m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
         return *this;
     }
+
     //////////////////////////////////////////////
 
     void RigidBody2D::createCollidable(const ConstructInfo2D& info, const b2Shape& shape)
     {
         b2FixtureDef fdf;
 
-        fdf.density = 1;
+        fdf.density = info.m_mass * 0.5f;
         fdf.filter.groupIndex = info.group;
         fdf.filter.maskBits = info.mask;
         fdf.friction = info.friction;
 
-        if (info.m_type == Type::KinematicSensor || info.m_type == Type::StaticSensor)
+        if (info.m_type == RigidBody::Type::KinematicSensor || info.m_type == RigidBody::Type::StaticSensor)
             fdf.isSensor = true;
 
         fdf.restitution = info.restitution;

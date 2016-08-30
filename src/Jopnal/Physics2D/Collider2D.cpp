@@ -71,20 +71,32 @@ namespace jop
                 auto& pos = m_body->GetPosition();
                 getObject()->setPosition(pos.x, pos.y, 0.f);
                 getObject()->setRotation(0.f, 0.f, m_body->GetAngle());
-
+                
                 break;
             }
             case b2BodyType::b2_kinematicBody:
             {
                 auto& pos = getObject()->getGlobalPosition();
                 m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
-
-                break;
             }
         }
 
         if (m_body->IsActive() != isActive())
             m_body->SetActive(isActive());
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider2D::setAllowSleep(const bool allow)
+    {
+        m_body->SetSleepingAllowed(allow);
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider2D::isSleepAllowed() const
+    {
+        return m_body->IsSleepingAllowed();
     }
 
     //////////////////////////////////////////////

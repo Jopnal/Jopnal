@@ -16,7 +16,9 @@ JOP_ATTRIBUTE(3) vec4 a_Color;
 // Matrices
 uniform mat4 u_PMatrix; // Perspective
 uniform mat4 u_VMatrix; // View
-JOP_ATTRIBUTE(4) mat4 a_MMatrix;
+//JOP_ATTRIBUTE(4) mat4 a_MMatrix;
+uniform mat4 a_MMatrix;
+uniform mat3 u_NMatrix;
 
 // Vertex attributes to fragment/geometry shader
 JOP_VARYING_OUT vec3 vf_Position;
@@ -39,7 +41,7 @@ void main()
     // Assign attributes
     vf_Position     = pos.xyz;
     vf_TexCoords    = a_TexCoords;
-    vf_Normal       = transpose(inverse(mat3(a_MMatrix))) * a_Normal;
+    vf_Normal       = u_NMatrix * a_Normal;
     vf_Color        = a_Color;
 
     // Calculate and assign fragment position

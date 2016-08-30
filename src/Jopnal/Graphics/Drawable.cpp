@@ -131,16 +131,20 @@ namespace jop
 
             shdr.setUniform("u_PMatrix", proj.projectionMatrix);
             shdr.setUniform("u_VMatrix", proj.viewMatrix);
+            shdr.setUniform("a_MMatrix", modelMat);
 
-            const auto MM = Mesh::VertexIndex::ModelMatrix;
-
-            glCheck(glVertexAttrib4fv(MM + 0, glm::value_ptr(modelMat[0])));
-            glCheck(glVertexAttrib4fv(MM + 1, glm::value_ptr(modelMat[1])));
-            glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
-            glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
+            //const auto MM = Mesh::VertexIndex::ModelMatrix;
+            //
+            //glCheck(glVertexAttrib4fv(MM + 0, glm::value_ptr(modelMat[0])));
+            //glCheck(glVertexAttrib4fv(MM + 1, glm::value_ptr(modelMat[1])));
+            //glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
+            //glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
 
             if (mat.hasAttribute(Material::Attribute::__Lighting))
+            {
+                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 lights.sendToShader(shdr, *this);
+            }
 
             mat.sendToShader(shdr, &proj.cameraPosition);
 

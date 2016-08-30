@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics2D/Collider2D.hpp>
 #include <Jopnal/Physics2D/Joint/Joint2D.hpp>
 #include <unordered_set>
@@ -46,19 +47,6 @@ namespace jop
 
     public:
 
-        /// Rigid body type
-        ///
-        enum class Type
-        {
-            Static,     ///< Non-moving body
-            Dynamic,    ///< Moving body
-            Kinematic,  ///< User-animated body
-
-            // Sensor types (no collision response)
-            StaticSensor,   ///< Non-moving
-            KinematicSensor ///< User-animated
-        };
-
         /// Rigid body construction info
         ///
         class JOP_API ConstructInfo2D
@@ -77,7 +65,7 @@ namespace jop
             /// \param type Body type
             /// \param mass Mass, will default to 0 when type is static or kinematic
             ///
-            ConstructInfo2D(const CollisionShape2D& shape, const Type type = Type::Static, const float mass = 0.f);
+            ConstructInfo2D(const CollisionShape2D& shape, const RigidBody::Type type = RigidBody::Type::Static, const float mass = 0.f);
 
             int16 group;            ///< Collision filter group
             int16 mask;             ///< Collision filter mask
@@ -88,7 +76,7 @@ namespace jop
         private:
 
             const CollisionShape2D& m_shape;    ///< Collision shape
-            const Type m_type;                  ///< Body type
+            const RigidBody::Type m_type;       ///< Body type
             const float m_mass;                 ///< Mass
         };
 
@@ -106,13 +94,14 @@ namespace jop
         ///
         virtual ~RigidBody2D() override;
 
+
         /// \brief Set gravity scaling to the rigid body object
-        ///
-        /// \comm setGravityScale
         ///
         /// \param scale Scale of the gravity to be applied as float
         ///
         /// \return Reference to self
+        ///
+        /// \comm setGravityScale
         ///
         RigidBody2D& setGravityScale(const float scale);
 
@@ -124,138 +113,153 @@ namespace jop
 
         /// \brief Sets the linear velocity for rigid body
         ///
-        /// \comm setLinearVelocity
-        ///
         /// \param linearVelocity Unique vector for linear velocity
         ///
         /// \return Reference to self
+        ///
+        /// \comm setLinearVelocity
         ///
         RigidBody2D& setLinearVelocity(const glm::vec2& linearVelocity);
 
         /// \brief Get the linear velocity of the body
         ///
-        /// \return glm::vec2
+        /// \return The linear velocity
         ///
         glm::vec2 getLinearVelocity() const;
 
         /// \brief Sets the angular velocity for rigid body
         ///
-        /// \comm setAngularVelocity
-        ///
         /// \param angularVelocity Unique float for angular velocity
         ///
         /// \return Reference to self
+        ///
+        /// \comm setAngularVelocity
         ///
         RigidBody2D& setAngularVelocity(const float angularVelocity);
 
         /// \brief Gets the angular velocity as float
         ///
+        /// \return The angular velocity
+        ///
         float getAngularVelocity() const;
 
         /// \brief Applies constant force to rigid bodies relative position
-        ///
-        /// \comm applyForce
         ///
         /// \param force Amount and direction of the force 
         /// \param worldPoint Vector for a point in the world that the force is applied to relative to the rigid body
         ///
         /// \return Reference to self
         ///
+        /// \comm applyForce
+        ///
         RigidBody2D& applyForce(const glm::vec2& force, const glm::vec2& worldPoint);
 
         /// \brief Applies force to the rigid body's center 
-        ///
-        /// \comm applyCentralForce
         ///
         /// \param force Amount and direction of the applied force
         ///
         /// \return Reference to self
         ///
+        /// \comm applyCentralForce
+        ///
         RigidBody2D& applyCentralForce(const glm::vec2& force);
 
         /// \brief Applies an impulse to rigid bodies relative position
-        ///
-        /// \comm applyImpulse
         ///
         /// \param impulse Amount of the impulse
         ///
         /// \return Reference to self
         ///
+        /// \comm applyImpulse
+        ///
         RigidBody2D& applyAngularImpulse(const float& impulse);
 
         /// \brief Applies an impulse to rigid bodies relative position
-        ///
-        /// \comm applyImpulse
         ///
         /// \param impulse Amount and direction of the impulse
         /// \param point Vector for a point in world that the impulse is applied to relative to the rigid body
         ///
         /// \return Reference to self
         ///
+        /// \comm applyImpulse
+        ///
         RigidBody2D& applyLinearImpulse(const glm::vec2& impulse, const glm::vec2& point);
 
         /// \brief Applies impulse to the rigid body's center
-        ///
-        /// \comm applyCentralImpulse
         ///
         /// \param impulse Amount and direction of the impulse
         ///
         /// \return Reference to self
         ///
+        /// \comm applyCentralImpulse
+        ///
         RigidBody2D& applyCentralImpulse(const glm::vec2& impulse);
 
         /// \brief Applies torque to the rigid body
-        ///
-        /// \comm applyTorque
         ///
         /// \param torque Amount and direction as vector of the applied torque
         ///
         /// \return Reference to self
         ///
+        /// \comm applyTorque
+        ///
         RigidBody2D& applyTorque(const float torque);
 
         /// \brief Sets/unsets the body to constantly rotate
-        ///
-        /// \comm setFixedRotation
         ///
         /// \param rot Enable/disable body from rotating. Resets the mass of the body.
         ///
         /// \return Reference to self
         ///
+        /// \comm setFixedRotation
+        ///
         RigidBody2D& setFixedRotation(const bool rot);
 
-        /// \brief Sets the RigidBody2D position to be same as the objects' transform.
+        /// \brief Check if fixed rotation has been set
+        ///
+        /// \return True if set
+        ///
+        bool hasFixedRotation() const;
+
+        /// \brief Sets the RigidBody2D position to be same as the objects' transform
         ///
         /// \return Reference to self.
         ///
         RigidBody2D& synchronizeTransform();
 
-        /// \brief Returns a pointer to a joint on the RigidBody2D whence called from.
+        /// \brief Returns a pointer to a joint on the RigidBody2D whence called from
         ///
         /// User can give an ID of the the joint which to return. If left empty, returns a pointer to the first joint the RigidBody2D has.
         ///
-        /// \return Returns a pointer to the joint. Nullptr if not found.
+        /// \param ID The joint's identifier
+        ///
+        /// \return Returns a pointer to the joint. nullptr if not found.
         ///
         template<typename T>
         T* getJoint(unsigned int id = 0);
 
-        /// \brief Breaks a joint from the RigidBody2D whence called from.
+        /// \brief Breaks a joint from the RigidBody2D whence called from
         ///
         /// User can give an ID of the the joint which to break. If left empty, breaks the first joint the RigidBody2D has.
+        ///
+        /// \param ID The joint's identifier
         ///
         /// \return Returns true if successful.
         ///
         template<typename T>
         bool breakJoint(unsigned int ID = 0);
 
-        /// \brief Creates a joint between this RigidBody2D and another RigidBody2D.
+        /// \brief Creates a joint between this RigidBody2D and another RigidBody2D
         ///
         /// T is the type of the joint to create. Applicable joints are derived from Joint2D.
+        ///
+        /// \param body The other body to link
+        /// \param args The arguments to pass to the joint's constructor
         ///
         /// \return Returns a reference to the RigidBody2D whence called from.
         ///
         template<typename T, typename ... Args>
-        T& link(RigidBody2D&, Args&&...);
+        T& link(RigidBody2D& body, Args&&... args);
 
     protected:
 
@@ -265,7 +269,7 @@ namespace jop
 
         /// \brief Initializes m_body with a collidable object.
         ///
-        /// Handled by the Jopnal Engine.
+        /// Handled by the engine.
         ///
         void createCollidable(const ConstructInfo2D& info, const b2Shape& shape);
 
@@ -275,6 +279,7 @@ namespace jop
         std::unordered_set<std::shared_ptr<Joint2D>> m_joints;
     };
 
+    // Include the template implementation file
     #include <Jopnal/Physics2D/Inl/RigidBody2D.inl>
 }
 

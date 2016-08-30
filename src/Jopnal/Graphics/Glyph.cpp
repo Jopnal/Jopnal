@@ -20,7 +20,13 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Glyph.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -28,8 +34,8 @@
 namespace jop
 {
     Glyph::Glyph() 
-        : bounds      ({0,0,0,0}),
-          textCoord   ({ 0, 0, 0, 0 }),
+        : bounds      ({0, 0, 0, 0}),
+          textCoord   ({0, 0, 0, 0}),
           advance     (0)
     {}
 }

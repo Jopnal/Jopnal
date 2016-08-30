@@ -59,8 +59,8 @@ namespace jop
         jmethodID vibrate = env->GetMethodID(vibratorClass, "vibrate", "(J)V");
 
         // Vibrate!
-        jlong time = static_cast<jlong>(std::min(static_cast<unsigned int>(INT_MAX), time));
-        env->CallVoidMethod(vibrator, vibrate, time);
+        jlong jtime = static_cast<jlong>(std::min(static_cast<unsigned int>(INT_MAX), time));
+        env->CallVoidMethod(vibrator, vibrate, jtime);
 
         // Free references
         env->DeleteLocalRef(nativeAct);

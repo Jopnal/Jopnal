@@ -46,9 +46,9 @@ namespace jop
         ///
         RayInfo2D(Collider2D* coll, const glm::vec2& pnt, const glm::vec2& norm);
 
-        Collider2D* collider; ///< Collider component, can be nullptr
-        glm::vec2 point;    ///< Ray hit point in world coordinates
-        glm::vec2 normal;   ///< Local ray hit normal
+        Collider2D* collider;   ///< Collider component, can be nullptr
+        glm::vec2 point;        ///< Ray hit point in world coordinates
+        glm::vec2 normal;       ///< Local ray hit normal
     };
 }
 

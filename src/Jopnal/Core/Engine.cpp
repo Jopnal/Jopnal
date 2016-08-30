@@ -35,6 +35,7 @@
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/PostProcessor.hpp>
     #include <Jopnal/Graphics/RenderPass.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
@@ -80,20 +81,19 @@ namespace
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", true))
         {
-            int unifVert = 0, unifFrag = 0, attr = 0, var = 0;
+            int unifVert = 0, unifFrag = 0, var = 0;
 
             glCheck(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &unifVert));
             glCheck(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &unifFrag));
-            glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attr));
             glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
 
-            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()                 << "\n"
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()                         << "\n"
                 <<   "    Maximum: \n"
-                <<   "      Texture size:                  " << Texture2D::getMaximumSize() << "\n"
-                <<   "      GLSL vertex uniform vectors:   " << unifVert                    << "\n"
-                <<   "      GLSL fragment uniform vectors: " << unifFrag                    << "\n"
-                <<   "      GLSL attribute vectors:        " << attr                        << "\n"
-                <<   "      GLSL varying vectors:          " << var                         << "\n";
+                <<   "      Texture size:                  " << Texture2D::getMaximumSize()         << "\n"
+                <<   "      GLSL vertex uniform vectors:   " << unifVert                            << "\n"
+                <<   "      GLSL fragment uniform vectors: " << unifFrag                            << "\n"
+                <<   "      GLSL attribute vectors:        " << ShaderProgram::getMaxAttributes()   << "\n"
+                <<   "      GLSL varying vectors:          " << var                                 << "\n";
         }
 
         if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))

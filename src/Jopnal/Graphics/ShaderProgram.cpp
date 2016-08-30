@@ -20,7 +20,27 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/Texture/Texture.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <glm/gtc/type_ptr.hpp>
+    #include <vector>
+
+#endif
+
 #include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
@@ -92,12 +112,19 @@ namespace jop
 
         if (gl::getVersionMajor() < 3)
         {
-            glCheck(glBindAttribLocation(m_programID, 0, "a_Position"));
-            glCheck(glBindAttribLocation(m_programID, 1, "a_TexCoords"));
-            glCheck(glBindAttribLocation(m_programID, 2, "a_Normal"));
-            glCheck(glBindAttribLocation(m_programID, 3, "a_Tangent"));
-            glCheck(glBindAttribLocation(m_programID, 4, "a_BiTangent"));
-            glCheck(glBindAttribLocation(m_programID, 5, "a_Color"));
+            typedef Mesh::VertexIndex VI;
+
+            glCheck(glBindAttribLocation(m_programID, VI::Position,     "a_Position"));
+            glCheck(glBindAttribLocation(m_programID, VI::TexCoords,    "a_TexCoords"));
+            glCheck(glBindAttribLocation(m_programID, VI::Normal,       "a_Normal"));
+            glCheck(glBindAttribLocation(m_programID, VI::Color,        "a_Color"));
+            //glCheck(glBindAttribLocation(m_programID, VI::ModelMatrix,  "a_MMatrix"));
+
+            if (getMaxAttributes() > 8)
+            {
+                glCheck(glBindAttribLocation(m_programID, VI::Tangent, "a_Tangent"));
+                glCheck(glBindAttribLocation(m_programID, VI::BiTangent, "a_BiTangent"));
+            }
         }
 
     #endif
@@ -391,6 +418,20 @@ namespace jop
         }
 
         return *errProgram;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int ShaderProgram::getMaxAttributes()
+    {
+        unsigned int attr = 0;
+
+        if (!attr)
+        {
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint*>(&attr)));
+        }
+
+        return attr;
     }
 
     //////////////////////////////////////////////

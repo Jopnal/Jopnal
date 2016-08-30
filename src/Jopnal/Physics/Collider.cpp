@@ -86,7 +86,8 @@ namespace jop
           m_motionState                 (std::make_unique<::detail::MotionState>(object)),
           m_body                        (),
           m_worldRef                    (world),
-          m_detached                    (false)
+          m_detached                    (false),
+          m_allowSleep                  (true)
     {}
 
     Collider::Collider(const Collider& other, Object& newObj)
@@ -95,7 +96,8 @@ namespace jop
           m_motionState                 (std::make_unique<::detail::MotionState>(newObj)),
           m_body                        (),
           m_worldRef                    (other.m_worldRef),
-          m_detached                    (other.m_detached)
+          m_detached                    (other.m_detached),
+          m_allowSleep                  (other.m_allowSleep)
     {}
 
     Collider::~Collider()
@@ -115,12 +117,26 @@ namespace jop
 
         if (m_body->isActive() != active)
         {
-            if (m_body->isKinematicObject())
+            if (m_body->isKinematicObject() || !m_allowSleep)
                 m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
 
             else
                 m_body->setActivationState(active ? ACTIVE_TAG : DISABLE_SIMULATION);
         }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::setAllowSleep(const bool allow)
+    {
+        m_allowSleep = allow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::isSleepAllowed() const
+    {
+        return m_allowSleep;
     }
 
     //////////////////////////////////////////////
