@@ -175,8 +175,8 @@ if (JOP_OS_ANDROID)
         add_definitions("-DSTL_LIBRARY=${ANDROID_STL}")
     endif()
 
-	# Force OpenGL ES
-	unset(JOP_OPENGL_ES CACHE)
+    # Force OpenGL ES
+    unset(JOP_OPENGL_ES CACHE)
     set(JOP_OPENGL_ES TRUE)
 
     # Workaround to compile activity without the stl library as a dependency
@@ -223,27 +223,27 @@ if (JOP_OPENGL_ES)
     add_definitions(-DJOP_OPENGL_ES)
     add_definitions(-DGL_GLEXT_PROTOTYPES)
 
-	jopSetOption(JOP_MIN_OPENGL_ES_VERSION 200 STRING, "Select the minimum supported GLES version. Forcing a greater version will improve features, stability and performance but limit the amount of supported devices")
-	set_property(CACHE JOP_MIN_OPENGL_ES_VERSION PROPERTY STRINGS
-				 "200" "300" "310" "320")
-	
-	if (JOP_OS_ANDROID)
-	
-		if (${JOP_MIN_OPENGL_ES_VERSION} GREATER 200 AND ${ANDROID_API_MIN} LESS 18)
-			message(FATAL_ERROR "OpenGL ES 3.0 requires API level 18 or greater")
-		
-		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
-			message(FATAL_ERROR "OpenGL ES 3.1 requires API level 23 or greater")
-			
-		elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
-			message(FATAL_ERROR "OpenGL ES 3.2 requires API level 24 or greater")
+    jopSetOption(JOP_MIN_OPENGL_ES_VERSION 200 STRING, "Select the minimum supported GLES version. Forcing a greater version will improve features, stability and performance but limit the amount of supported devices")
+    set_property(CACHE JOP_MIN_OPENGL_ES_VERSION PROPERTY STRINGS
+                 "200" "300" "310" "320")
+    
+    if (JOP_OS_ANDROID)
+    
+        if (${JOP_MIN_OPENGL_ES_VERSION} GREATER 200 AND ${ANDROID_API_MIN} LESS 18)
+            message(FATAL_ERROR "OpenGL ES 3.0 requires API level 18 or greater")
+        
+        elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+            message(FATAL_ERROR "OpenGL ES 3.1 requires API level 23 or greater")
+            
+        elseif (${JOP_MIN_OPENGL_ES_VERSION} GREATER 300 AND ${ANDROID_API_MIN} LESS 23)
+            message(FATAL_ERROR "OpenGL ES 3.2 requires API level 24 or greater")
 
         endif()
-	
-	endif()
+    
+    endif()
 
     add_definitions("-DJOP_MIN_OPENGL_ES_VERSION=${JOP_MIN_OPENGL_ES_VERSION}")
-	
+    
 endif()
 
 # Force inclusion of available c++11 features
