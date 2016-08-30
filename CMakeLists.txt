@@ -38,8 +38,6 @@ jopSetOption(ANDROID_TOOLCHAIN_NAME "arm-linux-androideabi-4.9" STRING "Choose t
 # Enable RTTI
 set(ANDROID_RTTI TRUE)
 
-# NDK path
-jopSetOption(ANDROID_NDK "$ENV{ANDROID_NDK}" PATH "Path to the Android NDK")
 # STL implementation
 jopSetOption(ANDROID_STL c++_shared STRING "Choose the STL implementation")
 
