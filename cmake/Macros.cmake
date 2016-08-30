@@ -155,8 +155,8 @@ macro(jopAddExample target)
     set(EXAMPLE_RESOURCES "${CMAKE_SOURCE_DIR}/examples/${target}/Resources")
     
     add_custom_command(TARGET ${target} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E make_directory
-                           ${EXAMPLE_RESOURCES} $<TARGET_FILE_DIR:${target}>/../Resources)
+                       COMMAND ${CMAKE_COMMAND} -E make_directory
+                       ${EXAMPLE_RESOURCES} $<TARGET_FILE_DIR:${target}>/../Resources)
     
     if (EXISTS ${EXAMPLE_RESOURCES})
     
