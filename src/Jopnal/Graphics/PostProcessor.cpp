@@ -54,7 +54,7 @@ namespace
 
         if (!init)
         {
-            if (gl::getVersionMajor() < 3)
+            if (jop::gl::getVersionMajor() < 3)
                 linear = true;
 
             else
