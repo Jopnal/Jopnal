@@ -28,6 +28,7 @@
 #include <Jopnal/Core/SettingManager.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 #include <array>
 #include <unordered_map>
 
@@ -38,7 +39,6 @@ namespace jop
 {
     class ShaderProgram;
     class Renderer;
-    class RectangleMesh;
     class RenderTarget;
 
     class JOP_API PostProcessor final : public Subsystem
@@ -95,7 +95,7 @@ namespace jop
         std::array<std::string, 2> m_shaderSources;                         ///< Shader sources
         std::unordered_map<uint32, WeakReference<ShaderProgram>> m_shaders; ///< Shader map
         WeakReference<ShaderProgram> m_blurShader;                          ///< Gaussian blur shader
-        WeakReference<RectangleMesh> m_quad;                                ///< Full screen quad
+        RectangleMesh m_quad;                                               ///< Full screen quad
         const RenderTarget& m_mainTarget;                                   ///< Reference to the main render target
         uint32 m_functions;                                                 ///< Enabled functions
         DynamicSetting<float> m_exposure;                                   ///< Exposure

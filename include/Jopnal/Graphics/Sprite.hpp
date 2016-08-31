@@ -19,73 +19,74 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_RECTANGLEMESH_HPP
-#define JOP_RECTANGLEMESH_HPP
+#ifndef JOP_SPRITE_HPP
+#define JOP_SPRITE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Graphics/Mesh/Mesh.hpp>
-#include <glm/vec2.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
+#include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API RectangleMesh : public Mesh
+    class JOP_API Sprite : public Drawable
     {
+    private:
+
+        JOP_GENERIC_COMPONENT_CLONE(Sprite);
+
     public:
 
-        /// \copydoc Mesh::Mesh()
+        /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
         ///
-        RectangleMesh(const std::string& name);
+        Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
 
-        /// \copydoc Mesh::Mesh(const Mesh&, const std::string&)
+        /// \copydoc Drawable::Drawable(Object&, RenderPass&)
         ///
-        RectangleMesh(const RectangleMesh& other, const std::string& newName);
+        Sprite(Object& object, RenderPass& pass);
 
 
-        /// \brief Load this rectangle
+        /// \brief Set the texture
         ///
-        /// \param size Size of the rectangle
+        /// \param texture The texture to bind
+        /// \param updateSize Update the size from the texture?
         ///
-        /// \return True if successful
+        /// \return Reference to self
         ///
-        bool load(const float size);
+        Sprite& setTexture(const Texture2D& texture, const bool updateSize = true);
 
-        /// \brief Load this rectangle using differing dimensions
+        /// \brief Get the texture
         ///
-        /// \param size Size as vector
+        /// \return Pointer to the texture. nullptr if none bound
         ///
-        /// \return True if successful
-        ///
-        bool load(const glm::vec2& size);
+        const Texture* getTexture() const;
 
-        /// \brief Load rectangle from specific part of texture
+        /// \brief Set the size
         ///
-        /// \param size Size of the rectangle
-        /// \param min Minimum texture coordinates
-        /// \param max Maximum texture coordinates
+        /// \param size The new size
         ///
-        bool load(const float size, const glm::vec2& min, const glm::vec2& max);
-
-        /// \copydoc load(const float, const glm::vec2&, const glm::vec2&)
+        /// \return Reference to self
         ///
-        bool load(const glm::vec2& size, const glm::vec2& min, const glm::vec2& max);
+        Sprite& setSize(const glm::vec2& size);
 
         /// \brief Get the size
         ///
-        /// \return The size
+        /// \return The size of this sprite
         ///
         const glm::vec2& getSize() const;
 
     private:
 
-        glm::vec2 m_size;   ///< This rectangle's size
+        Material m_material;    ///< Material
+        RectangleMesh m_mesh;   ///< Mesh
     };
 }
 
-/// \class jop::RectangleMesh
+/// \class jop::Sprite
 /// \ingroup graphics
 
 #endif

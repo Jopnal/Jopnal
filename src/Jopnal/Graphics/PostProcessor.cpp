@@ -93,7 +93,7 @@ namespace jop
         : Subsystem             (0),
           m_shaderSources       (),
           m_shaders             (),
-          m_quad                (static_ref_cast<RectangleMesh>(ResourceManager::getEmpty<RectangleMesh>("__jop_fs_quad").getReference())),
+          m_quad                (""),
           m_mainTarget          (mainTarget),
           m_functions           (),
           m_exposure            ("engine@Graphics|Postprocessor|Tonemapping|fExposure", 1.f),
@@ -106,8 +106,7 @@ namespace jop
         JOP_ASSERT(m_instance == nullptr, "There must only be one jop::PostProcessor instance!");
         m_instance = this;
 
-        m_quad->load(2.f, glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f));
-        m_quad->setPersistence(0);
+        m_quad.load(2.f, glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f));
 
         static const unsigned char pattern[] = 
         {
@@ -256,7 +255,7 @@ namespace jop
         RenderTexture::unbind();
         
         shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(RenderTexture::Slot::Color0), 1);
-        m_quad->draw(0);
+        m_quad.draw(0);
     }
 
     //////////////////////////////////////////////
@@ -300,7 +299,7 @@ namespace jop
         m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
-        m_quad->draw(0);
+        m_quad.draw(0);
 
         // Blur
         for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
@@ -316,7 +315,7 @@ namespace jop
                 m_blurShader->setUniform("u_Horizontal", horizontal);
                 m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getTextureAttachment(slot), 1);
 
-                m_quad->draw(0);
+                m_quad.draw(0);
                 horizontal = !horizontal;
             }
 

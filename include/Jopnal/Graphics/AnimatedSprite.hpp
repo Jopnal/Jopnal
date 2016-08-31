@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 //////////////////////////////////////////////
 
@@ -33,7 +34,6 @@
 namespace jop
 {
     class AnimationAtlas;
-    class RectangleMesh;
 
     class JOP_API AnimatedSprite : public Drawable
     {
@@ -50,12 +50,13 @@ namespace jop
 
     public:
 
-        /// \brief Constructor
+        /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
         ///
-        /// \param object Reference to the object which this component is getting bound to
-        /// \param renderer Reference to the renderer
+        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+
+        /// \copydoc Drawable::Drawable(Object&, RenderPass&)
         ///
-        AnimatedSprite(Object& object, Renderer& renderer);
+        AnimatedSprite(Object& object, RenderPass& pass);
 
         /// \brief Destructor
         ///
@@ -124,7 +125,7 @@ namespace jop
     private:
 
         WeakReference<const AnimationAtlas> m_atlas;    ///< Reference to the animation atlas
-        std::unique_ptr<RectangleMesh> m_mesh;          ///< Mesh to be drawn on
+        RectangleMesh m_mesh;                           ///< Mesh to be drawn on
         Material m_material;                            ///< Material to be drawn with
         std::pair<uint32, uint32> m_animationRange;     ///< Animation range (Start - End)
         float m_frameTime;                              ///< Time taken for each frame

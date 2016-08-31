@@ -36,6 +36,7 @@ set(__INC_GRAPHICS
     ${__INCDIR_GRAPHICS}/ShaderProgram.hpp
     ${__INCDIR_GRAPHICS}/SkyBox.hpp
     ${__INCDIR_GRAPHICS}/SkySphere.hpp
+    ${__INCDIR_GRAPHICS}/Sprite.hpp
     ${__INCDIR_GRAPHICS}/Text.hpp
     ${__INCDIR_GRAPHICS}/Transform.hpp
     ${__INCDIR_GRAPHICS}/Vertex.hpp
@@ -113,6 +114,7 @@ set(__SRC_GRAPHICS
     ${__SRCDIR_GRAPHICS}/ShaderProgram.cpp
     ${__SRCDIR_GRAPHICS}/SkyBox.cpp
     ${__SRCDIR_GRAPHICS}/SkySphere.cpp
+    ${__SRCDIR_GRAPHICS}/Sprite.cpp
     ${__SRCDIR_GRAPHICS}/Text.cpp
     ${__SRCDIR_GRAPHICS}/Transform.cpp
     ${__SRCDIR_GRAPHICS}/Vertex.cpp

@@ -50,6 +50,7 @@
 #include <Jopnal/Graphics/ShaderAssembler.hpp>
 #include <Jopnal/Graphics/SkyBox.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
+#include <Jopnal/Graphics/Sprite.hpp>
 #include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <Jopnal/Graphics/Texture/TextureSampler.hpp>

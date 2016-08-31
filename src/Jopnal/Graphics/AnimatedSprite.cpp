@@ -35,19 +35,34 @@
 
 namespace jop
 {
-    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer)
-        : Drawable          (object, renderer),
+    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass)
+        : Drawable          (object, renderer, pass),
           m_atlas           (),
-          m_mesh            (std::make_unique<RectangleMesh>("")),
+          m_mesh            (""),
           m_material        ("", true),
           m_animationRange  (),
-          m_frameTime       (0),
-          m_timer           (0),
+          m_frameTime       (0.f),
+          m_timer           (0.f),
           m_status          (Status::Stopped),
           m_currentFrame    (0),
           m_repeats         (0)
     {
-        setModel(Model(*m_mesh, m_material));
+        setModel(Model(m_mesh, m_material));
+    }
+
+    AnimatedSprite::AnimatedSprite(Object& object, RenderPass& pass)
+        : Drawable          (object, pass),
+          m_atlas           (),
+          m_mesh            (""),
+          m_material        ("", true),
+          m_animationRange  (),
+          m_frameTime       (0.f),
+          m_timer           (0.f),
+          m_status          (Status::Stopped),
+          m_currentFrame    (0),
+          m_repeats         (0)
+    {
+        setModel(Model(m_mesh, m_material));
     }
 
     AnimatedSprite::~AnimatedSprite()
@@ -68,7 +83,7 @@ namespace jop
             }
 
             const auto coords = m_atlas->getCoordinates(m_currentFrame);
-            m_mesh->load(m_atlas->getFrameSize().x, coords.first, coords.second);
+            m_mesh.load(m_atlas->getFrameSize().x, coords.first, coords.second);
 
             m_timer -= m_frameTime;
         } 
@@ -123,7 +138,7 @@ namespace jop
         m_material.setMap(Material::Map::Diffuse, atlas.getTexture());
 
         const auto coords = m_atlas->getCoordinates(0);
-        m_mesh->load(m_atlas->getFrameSize().x, coords.first, coords.second);
+        m_mesh.load(m_atlas->getFrameSize().x, coords.first, coords.second);
 
         m_currentFrame = 0;
 
