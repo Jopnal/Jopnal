@@ -38,9 +38,9 @@ namespace jop
     {
     public:
 
-        /// \brief WeldJoint2D constructor
+        /// \brief WeldJoint2D constructor.
         ///
-        /// \param collide Boolean for wheel colliding with the object it is attached to.
+        /// Welds two bodies together. Moving one body moves the other in similiar way.
         ///
         WeldJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
 

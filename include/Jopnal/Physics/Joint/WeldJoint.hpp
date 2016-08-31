@@ -37,7 +37,7 @@ namespace jop
     public:
         /// \brief WeldJoint constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
+        /// Welds two bodies together. Moving one body moves the other in similiar way.
         ///
         WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 

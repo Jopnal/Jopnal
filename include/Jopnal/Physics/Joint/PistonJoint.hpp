@@ -40,12 +40,11 @@ namespace jop
     public:
         /// \brief PistonJoint constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
+        /// \param anchor Position of the joint in world coordinates. Default in the middle between the bodies.
         /// \param jRot Rotation of the joint. Default axis-aligned.
         ///
         PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide,
-            const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
+            const glm::vec3& anchor = glm::vec3(0.f, 0.f, FLT_MAX), const glm::quat& jRot = glm::quat(1.f, 0.f, 0.f, 0.f));
 
         /// \return Returns current rotational limits of the piston: first = minimum, second = maximum.
         ///

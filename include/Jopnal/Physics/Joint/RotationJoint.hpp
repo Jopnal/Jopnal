@@ -37,10 +37,9 @@ namespace jop
     public:
         /// \brief RotationJoint constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
-        /// \param jPos Position of the joint in world coordinates.
+        /// \param anchor Position of the joint in world coordinates. Default in the middle between the bodies.
         ///
-        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos = glm::vec3(0.f, 0.f, FLT_MAX));
+        RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& anchor = glm::vec3(0.f, 0.f, FLT_MAX));
 
         /// \param lower True = return lower limits. False = return upper limits.
         ///

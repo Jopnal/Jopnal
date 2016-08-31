@@ -38,9 +38,9 @@ namespace jop
     public:
         /// \brief GearJoint constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
-        /// \param rotAxisX Local axis of body X in which to apply and observe rotation.
-        /// \param ratio Ratio in which to affect bodies.
+        /// \param rotAxisA Local axis of bodyA in which to apply and observe rotation.
+        /// \param rotAxisB Local axis of bodyB in which to apply and observe rotation.
+        /// \param ratio Ratio between the linked bodies.
         ///
         GearJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& rotAxisA, const glm::vec3& rotAxisB, const float ratio = 1.f);
 

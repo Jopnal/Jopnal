@@ -39,12 +39,20 @@ namespace jop
     {
     public:
 
-        /// \brief PulleyJoint2D constructor
+        /// \brief PulleyJoint2D constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
+        /// \note These pulleys have the other end as a static attachment to the world. If the user wishes to create a pulley that also moves sideways, the user can create one in the following way:
+        /// Create four RigidBody2Ds.
+        /// Attach two of them with WeldJoint2D.
+        /// Attach a free body to either welded body via PulleyJoint2D.
+        /// Attach final body to the other welded body via PulleyJoint2D.
+        /// Create logic between the PulleyJoint2Ds and apply forces to a welded body.
+        ///
         /// \param ratio Ratio for which the ropes move in relation to each other.
-        /// \param groundAnchor World coordinates for attachment point of the second end of the rope.
-        /// \param localAnchor Local coordinates of each body to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
+        /// \param groundAnchorA World coordinates for attachment point of the second end of the rope for body A.
+        /// \param groundAnchorB World coordinates for attachment point of the second end of the rope for body B.
+        /// \param localAnchorA Local coordinates of body A to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
+        /// \param localAnchorB Local coordinates of body B to attach the rope to. Uses local center of the object if left empty. Please use values between -1.f and 1.f.
         ///
         /// \return PulleyJoint2D
         ///

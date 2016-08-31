@@ -36,12 +36,12 @@
 
 namespace jop
 {
-    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos, const glm::quat& jRot) :
+    PistonJoint::PistonJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& anchor, const glm::quat& jRot) :
         Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();
-        glm::vec3 p = defaultCenter(jPos);
+        glm::vec3 p = defaultCenter(anchor);
         ctwt.setOrigin(btVector3(p.x, p.y, p.z));
         ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 

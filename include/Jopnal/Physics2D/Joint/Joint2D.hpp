@@ -45,8 +45,10 @@ namespace jop
         
         /// \brief Joint2D constructor
         ///
+        /// \param worldRef Reference to the current world. Obtained and handled by the engine.
         /// \param bodyA RigidBody2D where to attach this joint. Received automatically from the calling function.
         /// \param bodyB RigidBody2D in which to attach the second end of the joint. Given by user as an argument.
+        /// \param collide Boolean whether the linked bodies should collide with each other.
         ///
         Joint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide);
 

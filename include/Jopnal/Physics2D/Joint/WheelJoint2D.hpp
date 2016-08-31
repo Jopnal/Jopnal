@@ -39,9 +39,10 @@ namespace jop
     {
     public:
 
-        /// \brief WheelJoint2D constructor
+        /// \brief WheelJoint2D constructor.
         ///
-        /// \param collide Boolean for wheel colliding with the object it is attached to.
+        /// Used to create rotating wheels.
+        ///
         /// \param axis Single axis where movement is allowed.
         /// \param localAnchorA Given in world units in relation to the target body center.
         /// \param localAnchorB Given in local units. Defaults to the center of the wheel. Should be left empty unless user wants funny wheels.
