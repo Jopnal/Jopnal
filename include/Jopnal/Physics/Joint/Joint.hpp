@@ -43,14 +43,15 @@ namespace jop
     class JOP_API Joint
     {
         friend class RigidBody;
-        //friend class GearJoint;
 
     public:
 
         /// \brief Joint constructor.
         ///
+        /// \param worldRef Reference to the current world. Obtained and handled by the engine.
         /// \param bodyA RigidBody where to attach this joint. Received automatically from the calling function.
         /// \param bodyB RigidBody in which to attach the second end of the joint. Given by user as the first argument.
+        /// \param collide Boolean whether the linked bodies should collide with each other.
         ///
         Joint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
@@ -70,7 +71,7 @@ namespace jop
         ///
         Joint& setID(const unsigned int id);
 
-        World* m_worldRef; ///< Pointer to the world.
+        World* m_worldRef;  ///< Pointer to the world.
         RigidBody* m_bodyA; ///< Pointer to bodyA.
         RigidBody* m_bodyB; ///< Pointer to bodyB.
 
@@ -94,7 +95,7 @@ namespace jop
 
         /// Checks if the joint position is default (declared in the function)
         /// Returns the current position if not default.
-        /// Returns the middle of the m_bodies if default.
+        /// Returns the middle between the m_bodies if default.
         ///
         /// \param jPos Current position of the joint.
         ///
@@ -102,15 +103,15 @@ namespace jop
         /// 
         glm::vec3 defaultCenter(const glm::vec3& jPos) const;
 
-        /// \brief Calculates the point in the middle between the m_bodies of this.
+        /// \brief Calculates the point in the middle between this' m_bodies.
         ///
         /// \return Returns the point as glm::vec3.
         ///
         glm::vec3 computeCenter() const;
 
-        bool m_collide; /// < Should the linked bodies collide.
+        bool m_collide;                             /// < Should the linked bodies collide.
         std::unique_ptr<btTypedConstraint> m_joint; ///< Pointer to Bullet joint.
-        unsigned int m_ID; ///< Joint ID.
+        unsigned int m_ID;                          ///< Joint ID.
     };
 }
 

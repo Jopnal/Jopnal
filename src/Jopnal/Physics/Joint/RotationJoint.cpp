@@ -36,12 +36,12 @@
 
 namespace jop
 {
-    RotationJoint::RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& jPos) :
+    RotationJoint::RotationJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const glm::vec3& anchor) :
         Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr)
     {
         btTransform ctwt = btTransform::getIdentity();
-        glm::vec3 p = defaultCenter(jPos);
+        glm::vec3 p = defaultCenter(anchor);
         ctwt.setOrigin(btVector3(p.x, p.y, p.z));
 
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;

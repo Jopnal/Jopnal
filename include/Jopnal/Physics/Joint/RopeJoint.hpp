@@ -41,8 +41,6 @@ namespace jop
         /// Length of the rope is calculated from the difference in global coordinates between the two bodies.
         /// Longer ropes, where accurate physics computations are needed, should be created by creating separate RigidBodies and attaching RopeJoint to them one after another.
         ///
-        /// \param collide Joined bodies collide with each other.
-        ///
         RopeJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
         /// \brief Lock/Unlock specific rotation axis.

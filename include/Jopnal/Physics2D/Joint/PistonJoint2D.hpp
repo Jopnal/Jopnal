@@ -40,7 +40,8 @@ namespace jop
     public:
         /// \brief PistonJoint2D constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
+        /// Creates a piston using bodyB as the 'head' of the piston. Movement limits can be set for the bodyB.
+        ///
         /// \param axis A single axis where movement is permitted.
         ///
         PistonJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide, const glm::vec2& axis);

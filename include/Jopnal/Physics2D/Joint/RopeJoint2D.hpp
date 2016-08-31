@@ -41,8 +41,10 @@ namespace jop
 
         /// \brief RopeJoint2D constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
-        /// \param anchorX Anchor point in local coordinates. Please use values between -1.f - +1.f. Defaults to the center.
+        /// Creates a link / rope between the bodies. For longer ropes, ropes made from several rigidbodies and attached one after another should be used.
+        ///
+        /// \param anchorA Anchor point in local coordinates. Please use values between -1.f - +1.f. Defaults to the center of the body.
+        /// \param anchorB Anchor point in local coordinates. Please use values between -1.f - +1.f. Defaults to the center of the body.
         ///
         RopeJoint2D(World2D& worldRef, RigidBody2D& bodyA, RigidBody2D& bodyB, const bool collide,
             const glm::vec2& anchorA = glm::vec2(0.f, 0.f), const glm::vec2& anchorB = glm::vec2(0.f, 0.f));

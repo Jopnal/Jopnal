@@ -38,7 +38,9 @@ namespace jop
     class JOP_API RotationJoint2D : public Joint2D
     {
     public:
-        /// \brief RotationJoint2D constructor
+        /// \brief RotationJoint2D constructor.
+        ///
+        /// Links the bodyB to a circular track around the bodyA. Movement area can be limited by radians.
         ///
         /// \param localAnchorA Anchor point in the bodyA to start the connection from. Local coordinates: -1.f - +1.f. Default is center.
         /// Anchor point for bodyB can not changed. It is at the center of bodyB.

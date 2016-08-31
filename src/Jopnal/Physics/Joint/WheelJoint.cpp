@@ -37,7 +37,7 @@
 
 namespace jop
 {
-    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::quat& jRot, const glm::vec3& jPos) :
+    WheelJoint::WheelJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide, const float maxSteering, const glm::quat& jRot, const glm::vec3& anchor) :
         Joint(worldRef, bodyA, bodyB, collide),
         m_jointL(nullptr),
         m_maxAngle(maxSteering)
@@ -54,13 +54,10 @@ namespace jop
         else
             ctwt.setRotation(btQuaternion(jRot.x, jRot.y, jRot.z, jRot.w));
 
-        if (jPos == glm::vec3(0.f, 0.f, FLT_MAX))
+        if (anchor == glm::vec3(0.f, 0.f, FLT_MAX))
             ctwt.setOrigin(getBody(bodyB)->getWorldTransform().getOrigin());
         else
-        {
-            glm::vec3 p = defaultCenter(jPos);
-            ctwt.setOrigin(btVector3(p.x, p.y, p.z));
-        }
+            ctwt.setOrigin(btVector3(anchor.x, anchor.y, anchor.z));
 
         btTransform tInA = getBody(bodyA)->getCenterOfMassTransform().inverse() * ctwt;
         btTransform tInB = getBody(bodyB)->getCenterOfMassTransform().inverse() * ctwt;
