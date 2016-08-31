@@ -26,6 +26,8 @@
 
     #include <Jopnal/Graphics/Sprite.hpp>
 
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+
 #endif
 
 //////////////////////////////////////////////

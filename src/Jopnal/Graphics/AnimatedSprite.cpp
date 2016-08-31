@@ -26,6 +26,7 @@
 
     #include <Jopnal/Graphics/AnimatedSprite.hpp>
 
+    #include <Jopnal/Graphics/AnimationAtlas.hpp>
     #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 #endif

@@ -29,6 +29,7 @@
 #include <Jopnal/Utility/Thread.hpp>
 #include <mutex>
 #include <vector>
+#include <atomic>
 
 //////////////////////////////////////////////
 
@@ -43,9 +44,11 @@ namespace jop
 
         struct ParsedStreamingInfo
         {
-            uint64 sampleCount  = 0;         ///< Total number of samples
-            uint64 currentPos   = 0;         ///< Current reading point in audio data
-			std::atomic<float> offset = 0.f; ///< Current offset in audio data
+            ParsedStreamingInfo();
+
+            uint64 sampleCount;         ///< Total number of samples
+            uint64 currentPos;          ///< Current reading point in audio data
+			std::atomic<float> offset;  ///< Current offset in audio data
         };
 
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);

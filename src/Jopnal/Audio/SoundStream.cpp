@@ -40,21 +40,30 @@
 
 ////////////////////////////////////////////
 
+
 namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(SoundStream)
 
-    JOP_BIND_MEMBER_COMMAND((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
-    JOP_BIND_MEMBER_COMMAND(&SoundStream::pause, "pauseStream");
-    JOP_BIND_MEMBER_COMMAND(&SoundStream::stop, "stopStream");
-    JOP_BIND_MEMBER_COMMAND(&SoundStream::setOffset, "setStreamOffset");
-    JOP_BIND_MEMBER_COMMAND(&SoundStream::setLoop, "setStreamLoop");
+        JOP_BIND_MEMBER_COMMAND((SoundStream& (SoundStream::*)(const bool reset))&SoundStream::play, "playStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::pause, "pauseStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::stop, "stopStream");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setOffset, "setStreamOffset");
+        JOP_BIND_MEMBER_COMMAND(&SoundStream::setLoop, "setStreamLoop");
 
     JOP_END_COMMAND_HANDLER(SoundStream)
 }
 
 namespace jop
 {
+    SoundStream::ParsedStreamingInfo::ParsedStreamingInfo()
+        : sampleCount   (0),
+          currentPos    (0),
+          offset        (0.f)
+    {}
+
+    ////////////////////////////////////////////
+
 	SoundStream::SoundStream(Object& object)
 		: SoundSource         (object, 0),
 		m_path                (),

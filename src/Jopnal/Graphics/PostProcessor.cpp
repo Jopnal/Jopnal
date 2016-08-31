@@ -27,6 +27,8 @@
     #include <Jopnal/Graphics/PostProcessor.hpp>
 
     #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
+    #include <Jopnal/Graphics/Shader.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Core/ResourceManager.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
