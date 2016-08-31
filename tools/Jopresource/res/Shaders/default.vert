@@ -9,7 +9,7 @@
 // Matrices
 uniform mat4 u_PMatrix; // Projection
 uniform mat4 u_VMatrix; // View
-JOP_ATTRIBUTE(4) mat4 a_MMatrix; // Model
+uniform mat4 a_MMatrix; // Model
 
 // Vertex attributes
 JOP_ATTRIBUTE(0) vec3 a_Position;

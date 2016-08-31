@@ -10,7 +10,7 @@
 uniform mat4 u_PVMatrix;
 
 // Model matrix
-JOP_ATTRIBUTE(4) mat4 a_MMatrix;
+uniform mat4 a_MMatrix;
 
 // Position attribute
 JOP_ATTRIBUTE(0) vec3 a_Position;

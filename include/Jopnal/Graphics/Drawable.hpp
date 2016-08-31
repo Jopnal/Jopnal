@@ -267,22 +267,43 @@ namespace jop
         ///
         static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 
-    protected:
-
-        /// \copydoc Component::receiveMessage()
-        ///
-        virtual Message::Result receiveMessage(const Message& message) override;
-
         /// \brief Get the current shader
         ///
         /// \return Reference to the shader
         ///
         ShaderProgram& getShader() const;
 
+        /// \brief Set an override shader
+        ///
+        /// \param shader The override shader
+        ///
+        /// \see removeOverrideShader()
+        ///
+        void setOverrideShader(ShaderProgram& shader);
+
+        /// \brief Remove the override shader if one is bound
+        ///
+        /// \see setOverrideShader()
+        /// 
+        void removeOverrideShader();
+
+        /// \brief Check if using an override shader
+        ///
+        /// \return True if using an override shader
+        ///
+        bool hasOverrideShader() const;
+
+    protected:
+
+        /// \copydoc Component::receiveMessage()
+        ///
+        virtual Message::Result receiveMessage(const Message& message) override;
+
     private:
 
         Color m_color;                                  ///< Color specific to this drawable
         Model m_model;                                  ///< The bound model
+        mutable uint64 m_lastMaterialAttribs;           ///< The last material attributes, used to fetch a new shader when needed
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
         uint64 m_attributes;                            ///< Attribute flags
         Renderer& m_rendererRef;                        ///< Reference to the renderer
@@ -290,6 +311,7 @@ namespace jop
         uint32 m_flags;                                 ///< Property flags
         uint8 m_renderGroup;                            ///< The render group
         mutable bool m_updateShader;                    ///< Must the shader be updated?
+        bool m_overrideShader;                          ///< Using an override shader?
     };
 }
 
