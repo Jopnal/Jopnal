@@ -37,9 +37,9 @@
 
 namespace jop { namespace detail
 {
-    const std::vector<glm::uvec2>& VideoInfoImpl::getSupportedResolutions()
+    const std::vector<VideoInfo>& VideoInfoImpl::getSupportedModes()
     {
-        static std::vector<glm::uvec2> vec;
+        static std::vector<VideoInfo> vec;
 
         if (vec.empty())
         {
@@ -47,14 +47,14 @@ namespace jop { namespace detail
 
             int count;
             auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
-
+            
             vec.reserve(count);
 
-            auto alreadyExists = [](const int width, const int height, const std::vector<glm::uvec2>& vec) -> bool
+            auto alreadyExists = [](const int width, const int height, const int refreshRate, const std::vector<VideoInfo>& vec) -> bool
             {
                 for (auto& i : vec)
                 {
-                    if (static_cast<int>(i.x) == width && static_cast<int>(i.y) == height)
+                    if (static_cast<int>(i.resolution.x) == width && static_cast<int>(i.resolution.y) == height && static_cast<int>(i.refreshRate) == refreshRate)
                         return true;
                 }
 
@@ -65,8 +65,8 @@ namespace jop { namespace detail
             {
                 auto& m = modes[i];
 
-                if (!alreadyExists(m.width, m.height, vec))
-                    vec.emplace_back(m.width, m.height);
+                if (!alreadyExists(m.width, m.height, m.refreshRate, vec))
+                    vec.push_back(VideoInfo{glm::uvec2(glm::ivec2(m.width, m.height)), static_cast<unsigned int>(m.refreshRate)});
             }
         }
 
@@ -75,12 +75,12 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    glm::uvec2 VideoInfoImpl::getDesktopResolution()
+    VideoInfo VideoInfoImpl::getDesktopMode()
     {
         glfwInit();
 
         auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        return glm::uvec2(mode->width, mode->height);
+        return VideoInfo{glm::uvec2(mode->width, mode->height), static_cast<unsigned int>(mode->refreshRate)};
     }
 }}
 

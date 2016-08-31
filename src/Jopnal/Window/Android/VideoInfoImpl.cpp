@@ -37,16 +37,16 @@
 
 namespace jop { namespace detail
 {
-    const std::vector<glm::uvec2>& VideoInfoImpl::getSupportedResolutions()
+    const std::vector<VideoInfo>& VideoInfoImpl::getSupportedModes()
     {
-        static std::vector<glm::uvec2> vec;
+        static std::vector<VideoInfo> vec;
 
         if (vec.empty())
         {
-            const glm::uvec2 res = getDesktopResolution();
+            const auto mode = getDesktopMode();
 
-            vec.push_back(res);
-            vec.push_back(glm::uvec2(res.y, res.x));
+            vec.push_back(mode);
+            vec.push_back(VideoInfo{glm::uvec2(mode.resolution.y, mode.resolution.x), mode.refreshRate});
         }
 
         return vec;
@@ -54,9 +54,10 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    glm::uvec2 VideoInfoImpl::getDesktopResolution()
+    VideoInfo VideoInfoImpl::getDesktopMode()
     {
-        return detail::ActivityState::get()->screenSize;
+        auto state = detail::ActivityState::get();
+        return VideoInfo{state->screenSize, state->screenRefreshRate};
     }
 }}
 

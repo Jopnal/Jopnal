@@ -156,9 +156,9 @@ namespace jop
         {
             typedef SettingManager SM;
 
-            static const glm::uvec2 deskTop = VideoInfo::getDesktopResolution();
+            static const auto deskTop = VideoInfo::getDesktopMode();
 
-            size.x = SM::get<unsigned int>(ns_settingStr[0], deskTop.x); size.y = SM::get<unsigned int>(ns_settingStr[1], deskTop.y);
+            size.x = SM::get<unsigned int>(ns_settingStr[0], deskTop.resolution.x); size.y = SM::get<unsigned int>(ns_settingStr[1], deskTop.resolution.y);
             title = SM::get<std::string>("engine@DefaultWindow|sTitle", getProjectName());
             displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine@DefaultWindow|uMode", 1)));
             samples = SM::get<unsigned int>("engine@DefaultWindow|uMultisampling", 0);

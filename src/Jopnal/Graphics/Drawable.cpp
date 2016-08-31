@@ -344,7 +344,7 @@ namespace jop
         if (m_updateShader)
         {
             if (!getModel().isValid())
-                m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getDefault().getReference());
+                m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getError().getReference());
             else
                 m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributes(), getAttributes()).getReference());
 

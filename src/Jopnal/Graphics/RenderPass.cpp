@@ -98,6 +98,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    const LightContainer ns_dummyLightCont;
+
     void SortedRenderPass::draw()
     {
         if (!isActive() || m_drawables.empty())
@@ -168,14 +170,12 @@ namespace jop
                         d->draw(projInfo, lightCont);
                     }
                     else
-                    {
-                        static const LightContainer dummyLightCont;
-                        d->draw(projInfo, dummyLightCont);
-                    }
+                        d->draw(projInfo, ns_dummyLightCont);
                 }
             };
 
             GlState::setDepthTest(true);
+            GlState::setDepthWrite(true);
             GlState::setBlendFunc(false);
             drawSet(sorted[0]);
             drawSet(sorted[2]);
@@ -219,6 +219,10 @@ namespace jop
         const auto& target = m_target;
         const auto& cameras = rend.getCameras();
 
+        GlState::setDepthTest(true, GlState::DepthFunc::Always);
+        GlState::setBlendFunc(true);
+        GlState::setDepthWrite(false);
+
         for (auto cam : cameras)
         {
             const auto camMask = cam->getRenderMask();
@@ -237,10 +241,12 @@ namespace jop
                 if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask))
                     continue;
 
-                static const LightContainer dummyLightCont;
-                d->draw(projInfo, dummyLightCont);
+                d->draw(projInfo, ns_dummyLightCont);
             }
         }
+
+        GlState::setDepthTest(true);
+        GlState::setDepthWrite(true);
     }
 
     //////////////////////////////////////////////

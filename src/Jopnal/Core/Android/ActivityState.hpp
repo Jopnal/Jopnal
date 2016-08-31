@@ -79,6 +79,7 @@ namespace jop { namespace detail
 
         WindowImpl* window;
         glm::uvec2 screenSize;
+        unsigned int screenRefreshRate;
 
         glm::vec2 lastTouchPosition[10];
         int activeKey; 

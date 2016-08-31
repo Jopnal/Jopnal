@@ -37,15 +37,15 @@
 
 namespace jop
 {
-    const std::vector<glm::uvec2>& VideoInfo::getSupportedResolutions()
+    const std::vector<VideoInfo>& VideoInfo::getSupportedModes()
     {
-        return detail::VideoInfoImpl::getSupportedResolutions();
+        return detail::VideoInfoImpl::getSupportedModes();
     }
 
     //////////////////////////////////////////////
 
-    glm::uvec2 VideoInfo::getDesktopResolution()
+    VideoInfo VideoInfo::getDesktopMode()
     {
-        return detail::VideoInfoImpl::getDesktopResolution();
+        return detail::VideoInfoImpl::getDesktopMode();
     }
 }

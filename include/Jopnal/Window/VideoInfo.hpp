@@ -40,13 +40,18 @@ namespace jop
         ///
         /// \return Reference to an internal array with the resolutions
         ///
-        static const std::vector<glm::uvec2>& getSupportedResolutions();
+        static const std::vector<VideoInfo>& getSupportedModes();
 
         /// \brief Get the primary monitor desktop resolution
         ///
         /// \return Primary monitor desktop resolution
         /// 
-        static glm::uvec2 getDesktopResolution();
+        static VideoInfo getDesktopMode();
+
+    public:
+
+        glm::uvec2 resolution;
+        unsigned int refreshRate;
     };
 }
 

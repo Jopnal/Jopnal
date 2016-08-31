@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Window/VideoInfo.hpp>
 #include <glm/vec2.hpp>
 #include <vector>
 
@@ -36,9 +37,9 @@ namespace jop { namespace detail
     {
     public:
 
-        static const std::vector<glm::uvec2>& getSupportedResolutions();
+        static const std::vector<VideoInfo>& getSupportedModes();
 
-        static glm::uvec2 getDesktopResolution();
+        static VideoInfo getDesktopMode();
     };
 }}
 

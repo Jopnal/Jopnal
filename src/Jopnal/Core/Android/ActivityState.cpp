@@ -114,6 +114,9 @@ namespace jop { namespace detail
             ns_instance->screenSize.x = env->GetIntField(displayMetricsObject, pixelsWidth);
             ns_instance->screenSize.y = env->GetIntField(displayMetricsObject, pixelsHeight);
 
+            jmethodID getRefreshRateMethod = env->GetMethodID(displayClass, "getRefreshRate", "F");
+            ns_instance->screenRefreshRate = env->CallFloatMethod(displayObject, getRefreshRateMethod);
+
             env->DeleteLocalRef(activityClass);
             env->DeleteLocalRef(displayMetricsObject);
             env->DeleteLocalRef(windowManagerObject);

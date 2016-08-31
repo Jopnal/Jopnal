@@ -47,7 +47,7 @@ namespace
         std::hash<T> hasher;
         const std::size_t seed = hasher(first);
 
-        return seed ^ hasher(second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed ^ (hasher(second) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
     }
 }
 

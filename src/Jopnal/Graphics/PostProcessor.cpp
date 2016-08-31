@@ -149,7 +149,7 @@ namespace jop
 
         // Bloom
         {
-            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Bloom|bEnabled", Function::Bloom, !gl::es);
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Bloom|bEnabled", Function::Bloom, false);
 
             if (m_functions & Function::Bloom)
                 enableBloom();
@@ -162,7 +162,7 @@ namespace jop
 
         // Dithering settings
         {
-            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Dithering|bEnabled", Function::Dither, !gl::es);
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Dithering|bEnabled", Function::Dither, false);
         }
 
         // Shader sources

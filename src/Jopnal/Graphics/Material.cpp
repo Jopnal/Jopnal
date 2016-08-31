@@ -312,7 +312,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    uint64 jop::Material::getAttributes() const
+    uint64 Material::getAttributes() const
     {
         return m_attributes;
     }

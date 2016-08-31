@@ -133,6 +133,11 @@ namespace jop
     /// Sorts opaque drawables from nearest to farthest and translucent
     /// drawables the other way around.
     ///
+    /// Draws its drawables in three different sets:
+    /// 1. Opaque objects
+    /// 2. Sky boxes/spheres
+    /// 3. Translucent objects
+    ///
     /// By default Renderer creates one of these as a BeforePost pass, using
     /// RenderPass::DefaultWeight.
     ///
@@ -164,6 +169,9 @@ namespace jop
     /// \brief Orderer render pass
     ///
     /// Maintains the order in which drawables are added.
+    ///
+    /// \note This pass by default doesn't do depth testing or writing
+    /// \note Lighting is disabled for all drawables bound to this kind of pass
     ///
     /// By default Renderer creates one of these as a AfterPost pass, using
     /// RenderPass::DefaultWeight.
