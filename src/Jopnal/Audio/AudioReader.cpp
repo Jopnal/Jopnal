@@ -329,15 +329,15 @@ namespace jop
         {
             int bytesToRead = static_cast<int>(JOP_AUDIO_STREAMING_BUFFER_SIZE - count) * sizeof(int16);
             long bytesRead = ov_read(&oggData, reinterpret_cast<char*>(samplesReaded.data()), bytesToRead, 0, 2, 1, NULL);
+
             if (bytesRead > 0)
             {
                 count += bytesRead / sizeof(int16);
                 soundBuf.m_samples.insert(soundBuf.m_samples.end(), samplesReaded.begin(), samplesReaded.begin() + bytesRead);
             }
-			else if (bytesRead = 0)
-			{
+			else if (bytesRead == 0)
 				break;
-			}
+
             else
             {
                 JOP_DEBUG_ERROR("Decoding vorbis file " << soundBuf.getName() << " failed")
@@ -345,7 +345,8 @@ namespace jop
             }
 
         }
-		*static_cast<float*>(offset) = ov_time_tell(&oggData);
+
+		*static_cast<float*>(offset) = static_cast<float>(ov_time_tell(&oggData));
         soundBuf.m_info.sampleCount = soundBuf.m_samples.size();
         ov_clear(&oggData);
 

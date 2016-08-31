@@ -88,11 +88,11 @@ namespace jop
         ///
         /// The value will be clamped inside the appropriate range.
         ///
-        /// \comm setVolume
-        ///
         /// \param vol Float 0-100.0f default is 100.0f
         ///
         /// \return Reference to self
+        ///
+        /// \comm setVolume
         ///
         SoundSource& setVolume(const float vol);
 
@@ -107,11 +107,11 @@ namespace jop
         /// Be careful with this function. Setting the pitch too high or low can lead to
         /// sound artifacts or even crashes. The safe range seems to be between 0.1 and 8.
         ///
-        /// \comm setPitch
-        ///
         /// \param value The pitch value. Default is 1
         ///
         /// \return Reference to self
+        ///
+        /// \comm setPitch
         ///
         SoundSource& setPitch(const float value);
 
@@ -123,11 +123,11 @@ namespace jop
 
         /// \brief Toggle listener on/off
         ///
-        /// \comm setListener
-        ///
-        /// \param toggle True enables spatialization(default) and makes sound relative to listener
+        /// \param toggle True enables spatialization (default) and makes sound relative to listener
         ///
         /// \return Reference to self
+        ///
+        /// \comm setListener
         ///
         SoundSource& setSpatialization(const bool toggle);
 
@@ -141,21 +141,21 @@ namespace jop
         ///
         /// Higher values mean that the sound will fade out more quickly.
         ///
-        /// \comm setAttenuation
-        ///
         /// \param at Attenuation 0-100.0f
         ///
         /// \return Reference to self
+        ///
+        /// \comm setAttenuation
         ///
         SoundSource& setAttenuation(const float at);
         
         /// \brief Change sound's distance when it is heard in max volume
         ///
-        /// \comm setMinDistance
-        ///
         /// \param min MinDistance 1<x
         ///
         /// \return Reference to self
+        ///
+        /// \comm setMinDistance
         ///
         SoundSource& setMinDistance(const float min);
        
@@ -179,9 +179,9 @@ namespace jop
 
         /// \brief Use object's direction for sound
         ///
-        /// \param Bool true will make sound to use direction
+        /// \param use true will make sound to use direction
         ///
-        SoundSource& useDirection(bool use);
+        SoundSource& useDirection(const bool use);
 
         /// \brief Check if sound has direction
         ///

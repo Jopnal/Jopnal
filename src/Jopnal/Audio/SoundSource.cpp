@@ -239,7 +239,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    SoundSource& SoundSource::useDirection(bool use)
+    SoundSource& SoundSource::useDirection(const bool use)
     {
         m_isDirection = use;
 

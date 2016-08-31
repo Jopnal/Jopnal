@@ -1,3 +1,0 @@
-repository='https://github.com/Jopnal/Box2D.git'
-module=''
-tag=''

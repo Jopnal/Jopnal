@@ -1,4 +1,0 @@
-C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg-build/CMakeFiles/ogg.dir
-C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg-build/CMakeFiles/INSTALL.dir
-C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg-build/CMakeFiles/ALL_BUILD.dir
-C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg-build/CMakeFiles/ZERO_CHECK.dir

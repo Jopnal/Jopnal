@@ -58,10 +58,10 @@ namespace jop
         ///
         SoundStream(Object& object);
 
-
         /// \brief destructor
         ///
         ~SoundStream();
+
 
         /// \brief Update
         ///
@@ -112,7 +112,7 @@ namespace jop
 		///
         SoundStream& setLoop(const bool loop);
 
-        /// \copydoc SoundEffect::isLooping
+        /// \copydoc SoundEffect::isLooping()
         ///
         bool isLooping() const;
 
@@ -141,6 +141,7 @@ namespace jop
         /// \brief Private method for closing file
         ///
         void closeFile();
+
 
         std::recursive_mutex m_mutex;  
         std::string m_path;                         ///< Remembers streaming path for cloning

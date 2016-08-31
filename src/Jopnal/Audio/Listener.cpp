@@ -40,15 +40,6 @@
 
 namespace jop
 {
-    JOP_REGISTER_COMMAND_HANDLER(Listener)
-
-        JOP_BIND_MEMBER_COMMAND((Listener& (Listener::*)(float))&Listener::setGlobalVolume, "setGlobalVolume");
-
-    JOP_END_COMMAND_HANDLER(Listener)
-}
-
-namespace jop
-{
     Listener::Listener(Object& object)
         : Component         (object, 0),
           m_dopplerEffect   (false),
@@ -100,16 +91,14 @@ namespace jop
 
     ///////////////////////////////////////
 
-    Listener& Listener::setGlobalVolume(const float volume)
+    void Listener::setGlobalVolume(const float volume)
     {
         alTry(alListenerf(AL_GAIN, glm::clamp(volume, 0.f, 100.f) * 0.01f));
-
-        return *this;
     }
 
     ///////////////////////////////////////
 
-    float Listener::getGlobalVolume() const
+    float Listener::getGlobalVolume()
     {
         float volume;
         alTry(alGetListenerf(AL_GAIN, &volume));

@@ -98,7 +98,8 @@ namespace jop
 
         /// \brief Load a new buffer from memory
         ///
-        /// \param Pointer to array and size
+        /// \param ptr Pointer to data
+        /// \param size Size if the data in bytes
         ///
         /// \return True if successful
         ///

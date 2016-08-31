@@ -1,3 +1,0 @@
-repository='https://github.com/Jopnal/physfs.git'
-module=''
-tag=''

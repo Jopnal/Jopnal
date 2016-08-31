@@ -43,7 +43,6 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object this component will be bound to
-        /// \param ID Unique component identifier
         ///
         Listener(Object& object);
 
@@ -60,23 +59,21 @@ namespace jop
         ///
         /// The individual volume of all sounds will be multiplied by this value.
         ///
-        /// \comm setGlobalVolume
-        ///
         /// \param volume Global volume in range of 0-100.0f
         ///
         /// \see getGlobalVolume
         ///
-        Listener& setGlobalVolume(const float volume);
+        static void setGlobalVolume(const float volume);
 
         /// \brief Get the current value of the global volume
         ///
         /// \return The global volume
         ///
-        float getGlobalVolume() const;
+        static float getGlobalVolume();
 
         /// \brief Set doppler effect
         ///
-        /// \param default is 1
+        /// \param dop The doppler value. Default is 1
         ///
         Listener& setDopplerEffect(const float dop);
 
@@ -87,12 +84,16 @@ namespace jop
         float getDopplerEffect() const;
 
         /// \brief Sets doppler effect to default
+        /// 
+        /// \return Reference to self
         ///
         Listener& setDopplerEffectToDefault();
 
         /// \brief Set speed for sound
         ///
-        /// \param default is 343.3
+        /// \param speed The speed of sound. Default is 343.3
+        /// 
+        /// \return Reference to self
         ///
         Listener& setSpeedOfSound(const float speed);
 
@@ -104,29 +105,35 @@ namespace jop
 
         /// \brief Calculate doppler effect for sound
         ///
-        /// \param True to use doppler effect false to ignore
+        /// \param use True to use doppler effect, false to ignore
+        /// 
+        /// \return Reference to self
         ///
         Listener& useDopplerEffect(const bool use);
 
         /// \brief Calculate doppler speed for sounds
         ///
-        /// \param True to use speed false to ignore
+        /// \param use True to use speed, false to ignore
+        /// 
+        /// \return Reference to self
         ///
         Listener& useSpeedOfSound(const bool use);
 
         /// \brief Get boolean to know if speed of sound is in use
-        ///
-        /// \param True if using speed of sound
+        /// 
+        /// \return True if using speed of sound
         ///
         bool isSpeedOfSound() const;
 
         /// \brief Get boolean to know if doppler effect is in use
         ///
-        /// \param True if using doppler effect
+        /// \return True if using doppler effect
         ///
         bool isDopplerEffect() const;
 
         /// \brief Sets speed of sound to default
+        /// 
+        /// \return Reference to self
         ///
         Listener& setSpeedOfSoundToDefault();
 

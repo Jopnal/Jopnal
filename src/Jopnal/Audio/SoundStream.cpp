@@ -337,7 +337,7 @@ namespace jop
 		{
 			alTry(alSourceUnqueueBuffers(m_source, 1, &m_bufferQueue.back()->m_bufferId));
 
-			if (m_info.currentPos == m_fileInstance.getSize() && m_loop)
+			if (m_info.currentPos == static_cast<uint64>(m_fileInstance.getSize()) && m_loop)
 			{
 				m_info.offset = 0.f;
 				m_deltaOffset = 0.f;
@@ -345,7 +345,7 @@ namespace jop
 				m_info.currentPos = m_bufferQueue.back()->m_info.firstSample;
 				m_fileInstance.seek(m_info.currentPos);
 			}
-			else if (m_info.currentPos == m_fileInstance.getSize())
+			else if (m_info.currentPos == static_cast<uint64>(m_fileInstance.getSize()))
 				return;
 
 			m_bufferQueue.back()->m_samples.clear();
@@ -360,9 +360,10 @@ namespace jop
 			}
 			else
 			{
-				int bufSize = m_fileInstance.getSize() - m_info.currentPos;
+				int64 bufSize = m_fileInstance.getSize() - m_info.currentPos;
 				if (bufSize > JOP_AUDIO_STREAMING_BUFFER_SIZE)
-					bufSize = JOP_AUDIO_STREAMING_BUFFER_SIZE;				
+					bufSize = JOP_AUDIO_STREAMING_BUFFER_SIZE;
+
 				else if (bufSize<0)
 				{
 					m_inputOffset=0.f;
@@ -370,7 +371,7 @@ namespace jop
 					return;
 				}
 
-				m_bufferQueue.back()->m_samples.resize(bufSize, 0);
+				m_bufferQueue.back()->m_samples.resize(static_cast<std::size_t>(bufSize), 0);
 
 				m_fileInstance.seek(m_info.currentPos);
 				m_fileInstance.read(m_bufferQueue.back()->m_samples.data(), bufSize);

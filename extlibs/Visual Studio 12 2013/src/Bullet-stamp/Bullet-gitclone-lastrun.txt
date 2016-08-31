@@ -1,3 +1,0 @@
-repository='https://github.com/Jopnal/bullet3.git'
-module=''
-tag=''
