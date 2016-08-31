@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\physfs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\physfs_byteorder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\physfs_unicode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\platform_posix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\platform_unix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\platform_macosx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\platform_windows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_dir.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_unpacked.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_grp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_hog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_lzma.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_mvl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_qpak.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_wad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_zip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_slb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\src\archiver_iso9660.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\PhysFS\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6B01391D-CD01-36AF-A242-3635A7BBA8B5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

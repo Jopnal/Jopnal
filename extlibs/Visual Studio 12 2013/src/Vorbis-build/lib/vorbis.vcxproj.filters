@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\mdct.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\smallft.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\block.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\envelope.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lsp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lpc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\analysis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\synthesis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\psy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\floor1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\floor0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\res0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\mapping0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\registry.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\codebook.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\sharedbook.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lookup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\bitrate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\envelope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lpc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\codebook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\psy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\masking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\os.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\mdct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\smallft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\highlevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\scales.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lookup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\lookup_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\codec_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\backends.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\bitrate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\lib\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\Vorbis\win32\vorbis.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{BECC05FA-0F13-3EA3-A63F-4BAA45C81488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E917A4D4-BDF1-3524-BC41-338B96F526A5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

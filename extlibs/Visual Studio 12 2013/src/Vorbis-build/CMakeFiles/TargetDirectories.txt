@@ -1,0 +1,7 @@
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/CMakeFiles/INSTALL.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/lib/CMakeFiles/vorbis.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/lib/CMakeFiles/INSTALL.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/lib/CMakeFiles/vorbisenc.dir
+C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis-build/lib/CMakeFiles/vorbisfile.dir

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kesis\Documents\SourceTree\Jopnal\extlibs\Visual Studio 12 2013\src\OpenAL-build\CMakeFiles\da2b6c7c5462cacdbe4bdcc32c2198fa\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{97ECA124-1F3E-3B48-863D-4E2AF56753AB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -186,12 +186,4 @@ namespace jop
 
         return *this;
     }
-
-    bool SoundEffect::isLooping() const
-    {
-        ALint loop;
-        alTry(alGetSourcei(m_source, AL_LOOPING, &loop));
-
-        return loop != 0;
-    }
 }

@@ -1,0 +1,1 @@
+cmd='D:/Ohjelmat/Cmake/bin/cmake.exe;-DOGG_INCLUDE_DIRS=C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg/include;-DOGG_LIBRARIES=C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Ogg-build/$(Configuration);-GVisual Studio 12 2013;C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/Vorbis'

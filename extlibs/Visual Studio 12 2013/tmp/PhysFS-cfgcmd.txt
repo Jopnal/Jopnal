@@ -1,0 +1,1 @@
+cmd='D:/Ohjelmat/Cmake/bin/cmake.exe;-DPHYSFS_BUILD_SHARED=OFF;-DPHYSFS_ARCHIVE_7Z=OFF;-GVisual Studio 12 2013;C:/Users/Kesis/Documents/SourceTree/Jopnal/extlibs/Visual Studio 12 2013/src/PhysFS'
