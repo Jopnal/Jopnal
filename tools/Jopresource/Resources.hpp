@@ -38,7 +38,7 @@ extern const unsigned char physicsDebugShaderFrag[360];
 
 extern const unsigned char physicsDebugShaderVert[598];
 
-extern const unsigned char postProcessFrag[1249];
+extern const unsigned char postProcessFrag[1222];
 
 extern const unsigned char postProcessVert[400];
 

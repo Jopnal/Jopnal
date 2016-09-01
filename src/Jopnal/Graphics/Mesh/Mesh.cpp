@@ -89,9 +89,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Mesh::draw(const uint64 materialAttributes) const
+    void Mesh::draw() const
     {
-        if (updateVertexAttributes(materialAttributes))
+        if (updateVertexAttributes())
         {
             if (getElementAmount())
             {
@@ -246,7 +246,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Mesh::updateVertexAttributes(const uint64 materialAttribs) const
+    bool Mesh::updateVertexAttributes() const
     {
         if (!getVertexAmount())
             return false;
@@ -268,42 +268,14 @@ namespace jop
         else
             GlState::setVertexAttribute(false, VertexIndex::TexCoords);
 
-        // Lighting
-        if (materialAttribs & Material::Attribute::__Lighting)
+        // Normals
+        if (m_vertexComponents & Normal)
         {
-            // Normals
-            if (m_vertexComponents & Normal)
-            {
-                GlState::setVertexAttribute(true, VertexIndex::Normal);
-                glCheck(glVertexAttribPointer(VertexIndex::Normal, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
-            }
-            else
-            {
-                GlState::setVertexAttribute(false, VertexIndex::Normal);
-                JOP_DEBUG_WARNING("Mesh \"" << getName() << "\" doesn't have normals, although material has lighting enabled");
-            }
-
-            //if (materialAttribs & Material::Attribute::NormalMap)
-            //{
-            //    // Tangents
-            //    if (m_vertexComponents & Tangent)
-            //    {
-            //        GlState::setVertexAttribute(m_vertexComponents & Tangent, 3);
-            //        glCheck(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Tangent)));
-            //    }
-            //    if (m_vertexComponents & BiTangent)
-            //    {
-            //        GlState::setVertexAttribute(m_vertexComponents & BiTangent, 4);
-            //        glCheck(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(BiTangent)));
-            //    }
-            //}
+            GlState::setVertexAttribute(true, VertexIndex::Normal);
+            glCheck(glVertexAttribPointer(VertexIndex::Normal, 3, GL_FLOAT, GL_FALSE, vertSize, getVertexOffset(Normal)));
         }
         else
-        {
             GlState::setVertexAttribute(false, VertexIndex::Normal);
-            GlState::setVertexAttribute(false, VertexIndex::Tangent);
-            GlState::setVertexAttribute(false, VertexIndex::BiTangent);
-        }
 
         // Colors
         if (m_vertexComponents & Color)

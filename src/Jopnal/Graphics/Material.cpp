@@ -72,7 +72,9 @@ namespace jop
           m_attributes          (),
           m_shininess           (1.f),
           m_maps                (),
-          m_autoAttribs         (autoAttributes)
+		  m_shader				(),
+          m_autoAttribs         (autoAttributes),
+		  m_updateShader		(true)
     {
         if (autoAttributes)
             setMap(Map::Diffuse, Texture2D::getDefault());
@@ -85,7 +87,9 @@ namespace jop
           m_attributes          (other.m_attributes),
           m_shininess           (other.m_shininess),
           m_maps                (other.m_maps),
-          m_autoAttribs         (other.m_autoAttribs)
+          m_shader              (other.m_shader),
+          m_autoAttribs         (other.m_autoAttribs),
+          m_updateShader        (other.m_updateShader)
     {}
 
     //////////////////////////////////////////////
@@ -200,6 +204,10 @@ namespace jop
             // Phong model
             if (attribs & m::Phong)
                 str += "#define JMAT_PHONG\n" + maxLights;
+
+            // Blinn-phong model
+            if (attribs & m::BlinnPhong)
+                str += "#define JMAT_BLINNPHONG\n";
         }
     }
 
@@ -307,6 +315,8 @@ namespace jop
     Material& Material::setAttributes(const uint64 attribs)
     {
         m_attributes = attribs;
+        m_updateShader = true;
+
         return *this;
     }
 
@@ -362,7 +372,22 @@ namespace jop
                hasAttributes(Attribute::OpacityMap)                                                                           ||
               (hasAttributes(Attribute::DiffuseMap)  && getMap(Map::Diffuse)  && getMap(Map::Diffuse)->getPixelDepth() > 3)   ||
               (hasAttributes(Attribute::EmissionMap) && getMap(Map::Emission) && getMap(Map::Emission)->getPixelDepth() > 3);
-    }
+	}
+
+	//////////////////////////////////////////////
+
+	Material& Material::setAutoAttributes(const bool autoAttribs)
+	{
+		m_autoAttribs = autoAttribs;
+		return *this;
+	}
+
+	//////////////////////////////////////////////
+
+	bool Material::hasAutoAttributes() const
+	{
+		return m_autoAttribs;
+	}
 
     //////////////////////////////////////////////
 
@@ -378,4 +403,17 @@ namespace jop
 
         return *defMat;
     }
+
+	//////////////////////////////////////////////
+
+	ShaderProgram& Material::getShader() const
+	{
+		if (m_updateShader || m_shader.expired())
+		{
+			m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getAttributes()).getReference());
+			m_updateShader = false;
+		}
+
+        return *m_shader;
+	}
 }

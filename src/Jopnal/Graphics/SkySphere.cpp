@@ -33,6 +33,7 @@
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
     #include <Jopnal/Graphics/OpenGL/GlState.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
 
 #endif
 
@@ -52,6 +53,8 @@ namespace jop
         setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
         addAttributes(Attribute::__SkySphere);
+
+        setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }
 
     SkySphere::SkySphere(const SkySphere& other, Object& newObj)
@@ -84,7 +87,7 @@ namespace jop
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
 
-        msh.draw(mat.getAttributes());
+        msh.draw();
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);

@@ -115,7 +115,7 @@ namespace jop
         ///
         /// \return Reference to the shader
         ///
-        static ShaderProgram& getShader(const uint64 materialAttribs, const uint64 drawableAttribs);
+        static ShaderProgram& getShader(const uint64 materialAttribs, const uint64 drawableAttribs = 0);
 
         /// \brief Get the shader map
         ///

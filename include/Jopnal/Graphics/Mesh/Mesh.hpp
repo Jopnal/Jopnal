@@ -122,9 +122,7 @@ namespace jop
         /// This function will set up the vertex attributes pointers, buffer bindings and call
         /// glDrawElements or glDrawArrays depending on whether there are indices or not.
         ///
-        /// \param materialAttributes The material attributes used
-        ///
-        void draw(const uint64 materialAttributes) const;
+        void draw() const;
 
         /// \brief Destroy this mesh
         ///
@@ -229,7 +227,7 @@ namespace jop
 
     private:
 
-        bool updateVertexAttributes(const uint64 materialAttribs) const;
+        bool updateVertexAttributes() const;
 
 
         VertexBuffer m_vertexbuffer;                ///< The vertex buffer

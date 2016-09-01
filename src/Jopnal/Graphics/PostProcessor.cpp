@@ -257,7 +257,7 @@ namespace jop
         RenderTexture::unbind();
         
         shdr.setUniform("u_Scene", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(RenderTexture::Slot::Color0), 1);
-        m_quad.draw(0);
+        m_quad.draw();
     }
 
     //////////////////////////////////////////////
@@ -301,7 +301,7 @@ namespace jop
         m_brightShader->setUniform("u_Texture", *static_cast<const RenderTexture&>(m_mainTarget).getTextureAttachment(slot), 1);
         m_brightShader->setUniform("u_Threshold", m_bloomThreshold);
         m_brightShader->setUniform("u_SubExponent", m_subBloomThresholdExp);
-        m_quad.draw(0);
+        m_quad.draw();
 
         // Blur
         for (auto itr = m_bloomTextures.begin(); itr != m_bloomTextures.end(); ++itr)
@@ -317,7 +317,7 @@ namespace jop
                 m_blurShader->setUniform("u_Horizontal", horizontal);
                 m_blurShader->setUniform("u_Buffer", *(*itr)[!horizontal].getTextureAttachment(slot), 1);
 
-                m_quad.draw(0);
+                m_quad.draw();
                 horizontal = !horizontal;
             }
 

@@ -73,7 +73,7 @@ namespace
         auto& deb = DebugHandler::getInstance();
 
         deb << DebugHandler::Severity::__Always
-            << "\t\tOpenGL initialized, adapter info:\n\n"
+            << "        OpenGL initialized, adapter info:\n\n"
             << "    Vendor:       " << getStr(GL_VENDOR)                    << "\n"
             << "    Renderer:     " << getStr(GL_RENDERER)                  << "\n"
             << "    Version:      " << getStr(GL_VERSION)                   << "\n"
@@ -156,7 +156,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "\t\tJopnal Engine v. " << JOP_VERSION_STRING << std::endl;
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "        Jopnal Engine v. " << JOP_VERSION_STRING << std::endl;
     }
 
     Engine::~Engine()
@@ -175,7 +175,7 @@ namespace jop
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "\t\tDestroying jop::Engine, goodbye!" << std::endl;
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "        Destroying jop::Engine, goodbye!" << std::endl;
     }
 
     //////////////////////////////////////////////

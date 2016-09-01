@@ -38,12 +38,12 @@ namespace
 {
     void handleCommand(const std::string& orig, std::string& command, std::string& args)
     {
-        std::size_t commandStart = orig.find_first_not_of(" \t\r\n");
-        std::size_t commandEnd = orig.find_first_of(" \t\r\n", commandStart);
+        std::size_t commandStart = orig.find_first_not_of("     \r\n");
+        std::size_t commandEnd = orig.find_first_of("     \r\n", commandStart);
         std::size_t commandLen = (commandStart != std::string::npos) ? ((commandEnd == std::string::npos ? orig.length() : commandEnd) - commandStart) : 0;
 
         std::size_t argStart = std::min(commandStart + commandLen + 1, orig.length());
-        std::size_t argEnd = orig.find_last_not_of(" \t\r\n");
+        std::size_t argEnd = orig.find_last_not_of("     \r\n");
         std::size_t argLen = std::max(argStart, argEnd) - argStart + 1;
 
         // Values

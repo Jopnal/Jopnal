@@ -382,10 +382,10 @@ namespace jop
 
                 static const char* const severityStr[] =
                 {
-                    "ERROR:\t\t",
-                    "WARNING:\t",
-                    "INFO:\t\t",
-                    "DIAG:\t\t",
+                    "ERROR:        ",
+                    "WARNING:    ",
+                    "INFO:        ",
+                    "DIAG:        ",
                     ""
                 };
 

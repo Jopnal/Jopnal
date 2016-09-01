@@ -66,15 +66,15 @@ namespace jop
 
 	SoundStream::SoundStream(Object& object)
 		: SoundSource         (object, 0),
-		m_path                (),
-		m_loop                (false),
-		m_isFileOpen          (false),
-		m_keepThread          (false),
-		m_deltaOffset         (0.f),
-		m_inputOffset         (-1.f),
-		m_rawOffset           (0.f),
-		m_fileInstance        (),
-		m_streamThread        ()
+		  m_path              (),
+		  m_loop              (false),
+		  m_isFileOpen        (false),
+		  m_keepThread        (false),
+		  m_deltaOffset       (0.f),
+		  m_inputOffset       (-1.f),
+		  m_rawOffset         (0.f),
+		  m_fileInstance      (),
+		  m_streamThread      ()
 	{
 		m_streamThread.setPriority(Thread::Priority::Lowest);
 		alTry(alGenSources(1, &m_source));
@@ -84,16 +84,16 @@ namespace jop
 
 	SoundStream::SoundStream(const SoundStream& other, Object& newObj)
 		: SoundSource         (other, newObj),
-		m_path                (other.m_path),
-		m_loop                (other.m_loop),
-		m_bufferQueue         (),
-		m_isFileOpen          (false),
-		m_keepThread          (true),
-		m_deltaOffset         (0.f),
-		m_inputOffset         (-1.f),
-		m_rawOffset           (0.f),
-		m_fileInstance        (),
-		m_streamThread        ()
+		  m_path              (other.m_path),
+		  m_loop              (other.m_loop),
+		  m_bufferQueue       (),
+		  m_isFileOpen        (false),
+		  m_keepThread        (true),
+		  m_deltaOffset       (0.f),
+		  m_inputOffset       (-1.f),
+		  m_rawOffset         (0.f),
+		  m_fileInstance      (),
+		  m_streamThread      ()
 	{
 		m_streamThread = Thread(&SoundStream::updateStream, this);
 		m_streamThread.setPriority(Thread::Priority::Lower);

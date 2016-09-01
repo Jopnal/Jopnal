@@ -69,15 +69,12 @@ namespace jop
         : Component             (object, 0),
           m_color               (),
           m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_lastMaterialAttribs (0),
           m_shader              (),
           m_attributes          (0),
           m_rendererRef         (renderer),
           m_pass                (pass),
           m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0),
-          m_updateShader        (true),
-          m_overrideShader      (false)
+          m_renderGroup         (0)
     {
         renderer.bind(this, pass);
     }
@@ -86,15 +83,12 @@ namespace jop
         : Component             (object, 0),
           m_color               (),
           m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_lastMaterialAttribs (0),
           m_shader              (),
           m_attributes          (0),
           m_rendererRef         (pass.getRenderer()),
           m_pass                (pass.getPass()),
           m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0),
-          m_updateShader        (true),
-          m_overrideShader      (false)
+          m_renderGroup         (0)
     {
         pass.bind(this);
     }
@@ -103,14 +97,11 @@ namespace jop
         : Component             (other, newObj),
           m_color               (other.m_color),
           m_model               (other.m_model),
-          m_lastMaterialAttribs (other.m_lastMaterialAttribs),
           m_shader              (other.m_shader),
           m_rendererRef         (other.m_rendererRef),
           m_pass                (other.m_pass),
           m_renderGroup         (other.m_renderGroup),
-          m_flags               (other.m_flags),
-          m_updateShader        (other.m_updateShader),
-          m_overrideShader      (other.m_overrideShader)
+          m_flags               (other.m_flags)
     {
         m_rendererRef.bind(this, m_pass);
     }
@@ -129,9 +120,6 @@ namespace jop
 
         auto& mesh = *getModel().getMesh();
         auto& mat = *getModel().getMaterial();
-
-        m_updateShader = m_lastMaterialAttribs != mat.getAttributes();
-        m_lastMaterialAttribs = mat.getAttributes();
 
         // Uniforms
         {
@@ -176,7 +164,7 @@ namespace jop
         #endif
         }
 
-        mesh.draw(mat.getAttributes());
+        mesh.draw();
     }
 
     //////////////////////////////////////////////
@@ -213,8 +201,6 @@ namespace jop
     Drawable& Drawable::setModel(const Model& model)
     {
         m_model = model;
-        m_updateShader = true;
-
         return *this;
     }
 
@@ -229,7 +215,6 @@ namespace jop
 
     Model& Drawable::getModel()
     {
-        m_updateShader = true;
         return m_model;
     }
 
@@ -295,8 +280,6 @@ namespace jop
     Drawable& Drawable::setAttributes(const uint64 attributes)
     {
         m_attributes = attributes;
-        m_updateShader = true;
-
         return *this;
     }
 
@@ -346,27 +329,13 @@ namespace jop
 
     ShaderProgram& Drawable::getShader() const
     {
-        if ((m_updateShader || m_shader.expired()) && !m_overrideShader)
-        {
-            if (!getModel().isValid())
-                m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getError().getReference());
-            else
-                m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getModel().getMaterial()->getAttributes(), getAttributes()).getReference());
-
-            m_updateShader = false;
-        }
-
-        if (m_shader.expired())
-            m_shader = static_ref_cast<ShaderProgram>(ShaderProgram::getError().getReference());
-
-        return *m_shader;
+		return m_shader.expired() ? (getModel().getMaterial() ? getModel().getMaterial()->getShader() : ShaderProgram::getError()) : *m_shader;
     }
 
     //////////////////////////////////////////////
 
     void Drawable::setOverrideShader(ShaderProgram& shader)
     {
-        m_overrideShader = true;
         m_shader = static_ref_cast<ShaderProgram>(shader.getReference());
     }
 
@@ -374,14 +343,13 @@ namespace jop
 
     void Drawable::removeOverrideShader()
     {
-        m_overrideShader = false;
-        m_updateShader = true;
+		m_shader.reset();
     }
 
     //////////////////////////////////////////////
 
     bool Drawable::hasOverrideShader() const
     {
-        return m_overrideShader;
+        return !m_shader.expired();
     }
 }

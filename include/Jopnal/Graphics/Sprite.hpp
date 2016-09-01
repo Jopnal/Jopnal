@@ -59,7 +59,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Sprite& setTexture(const Texture2D& texture, const bool updateSize = true);
+        Sprite& setTexture(const Texture2D& texture, const bool updateSize);
 
         /// \brief Get the texture
         ///

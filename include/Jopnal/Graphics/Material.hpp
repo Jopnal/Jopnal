@@ -115,10 +115,13 @@ namespace jop
 
         /// \brief Default constructor
         ///
-        /// \param name Name of this material
-        /// \param autoAttributes Set attributes automatically?
+        /// If autoAttributes is true, the attribute DiffuseMap will be enabled, and
+        /// the default texture will be used.
         ///
-        Material(const std::string& name, const bool autoAttributes = true);
+        /// \param name Name of this material
+        /// \param autoAttributes Set attributes automatically? See setAutoAttributes()
+        ///
+        Material(const std::string& name, const bool autoAttributes);
         
 
         /// \brief Send this material to a shader
@@ -281,6 +284,35 @@ namespace jop
         ///
         bool hasAlpha() const;
 
+		/// \brief Set this material to use automatic attributes
+		///
+		/// Automatic attributes are meant to simplify using materials. Enabling this
+		/// will cause the material to set up its attributes automatically, depending
+		/// on what methods are called. The rules are as follows:
+		///
+		///   - setReflection() and setShininess() will enable the default lighting model
+		///   - setReflectivity() will enable the environment map
+		///   - setMap() will enable the respective map
+		///   - removeMap() will disable the respective map
+		///
+		/// \param autoAttribs True to enable automatic attributes
+		///
+		/// \return Reference to self
+		///
+		Material& setAutoAttributes(const bool autoAttribs);
+
+		/// \brief Check if this material is using automatic attributes
+		///
+		/// \return True if using automatic attributes
+		///
+		bool hasAutoAttributes() const;
+
+		/// \brief Get the shader for this material
+		///
+		/// \return Reference to the shader
+		///
+		ShaderProgram& getShader() const;
+
         /// \brief Get the default material
         ///
         /// \return Reference to the default material
@@ -289,12 +321,14 @@ namespace jop
 
     private:
 
-        std::array<Color, 4> m_reflection;  ///< The reflection values
-        MapArray m_maps;                    ///< An array with the bound maps
-        uint64 m_attributes;                ///< The attribute bit field
-        float m_reflectivity;               ///< The reflectivity value
-        float m_shininess;                  ///< The shininess factor
-        bool m_autoAttribs;                 ///< Use automatic attributes?
+		std::array<Color, 4> m_reflection;				///< The reflection values
+		MapArray m_maps;								///< An array with the bound maps
+		mutable WeakReference<ShaderProgram> m_shader;	///< Shader
+		uint64 m_attributes;							///< The attribute bit field
+		float m_reflectivity;							///< The reflectivity value
+		float m_shininess;								///< The shininess factor
+		bool m_autoAttribs;								///< Use automatic attributes?
+		mutable bool m_updateShader;				    ///< Does the shader need updating?
     };
 }
 

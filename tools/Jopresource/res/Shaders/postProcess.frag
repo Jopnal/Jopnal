@@ -29,7 +29,7 @@ void main()
     #ifdef JPP_BLOOM
 
         for (int i = 0; i < int(u_Bloom.length()); ++i)
-            tempColor += (JOP_TEXTURE_2D(u_Bloom[i], vf_TexCoords) * max(1.0, float(i) * 2.0));
+            tempColor += (JOP_TEXTURE_2D(u_Bloom[i], vf_TexCoords));
 
     #endif
 
