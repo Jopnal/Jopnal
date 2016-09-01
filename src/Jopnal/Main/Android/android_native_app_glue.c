@@ -26,12 +26,12 @@
 #include "android_native_app_glue.h"
 #include <android/log.h>
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "jopnal-main-glue", __VA_ARGS__))
+#define LOGI(...) ((void)0) //((void)__android_log_print(ANDROID_LOG_INFO, "jopnal-main-glue", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "jopnal-main-glue", __VA_ARGS__))
 
 /* For debug builds, always enable the debug traces in this library */
 #ifndef NDEBUG
-#  define LOGV(...)  ((void)__android_log_print(ANDROID_LOG_VERBOSE, "jopnal-main-glue", __VA_ARGS__))
+#  define LOGV(...)  ((void)0) //((void)__android_log_print(ANDROID_LOG_VERBOSE, "jopnal-main-glue", __VA_ARGS__))
 #else
 #  define LOGV(...)  ((void)0)
 #endif
