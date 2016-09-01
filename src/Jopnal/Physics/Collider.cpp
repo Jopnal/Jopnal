@@ -20,7 +20,26 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/Collider.hpp>
+
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletCollisionCommon.h>
+
+    #pragma warning(pop)
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -61,27 +80,72 @@ namespace detail
 
 namespace jop
 {
-    Collider::Collider(Object& object, World& world, const std::string& ID)
-        : Component     (object, ID),
-          m_motionState (std::make_unique<::detail::MotionState>(object)),
-          m_body        (),
-          m_worldRef    (world)
+    Collider::Collider(Object& object, World& world, const uint32 ID)
+        : Component                     (object, ID),
+          SafeReferenceable<Collider>   (this),
+          m_motionState                 (std::make_unique<::detail::MotionState>(object)),
+          m_body                        (),
+          m_worldRef                    (world),
+          m_detached                    (false),
+          m_allowSleep                  (true)
     {}
 
     Collider::Collider(const Collider& other, Object& newObj)
-        : Component     (other, newObj),
-          m_motionState (std::make_unique<::detail::MotionState>(newObj)),
-          m_body        (),
-          m_worldRef    (other.m_worldRef)
+        : Component                     (other, newObj),
+          SafeReferenceable<Collider>   (this),
+          m_motionState                 (std::make_unique<::detail::MotionState>(newObj)),
+          m_body                        (),
+          m_worldRef                    (other.m_worldRef),
+          m_detached                    (other.m_detached),
+          m_allowSleep                  (other.m_allowSleep)
     {}
 
     Collider::~Collider()
-    {}
+    {
+        for (auto& i : m_listeners)
+            i->m_collider = nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::update(const float)
+    {
+        if (m_detached)
+            return;
+
+        const bool active = isActive();
+
+        if (m_body->isActive() != active)
+        {
+            if (m_body->isKinematicObject() || !m_allowSleep)
+                m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
+
+            else
+                m_body->setActivationState(active ? ACTIVE_TAG : DISABLE_SIMULATION);
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::setAllowSleep(const bool allow)
+    {
+        m_allowSleep = allow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::isSleepAllowed() const
+    {
+        return m_allowSleep;
+    }
 
     //////////////////////////////////////////////
 
     bool Collider::checkOverlap(const Collider& other) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btBroadphaseAabbCallback
         {
             const void* m_against;
@@ -112,6 +176,9 @@ namespace jop
 
     bool Collider::checkContact(const Collider& other) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btCollisionWorld::ContactResultCallback
         {
             bool hit;
@@ -137,6 +204,9 @@ namespace jop
 
     bool Collider::checkRay(const glm::vec3& start, const glm::vec3& ray) const
     {
+        if (m_detached)
+            return false;
+
         struct Callback : btCollisionWorld::RayResultCallback
         {
             const void* m_against;
@@ -168,9 +238,74 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Collider::beginOverlap(const Collider&)
-    {}
+    World& Collider::getWorld()
+    {
+        return m_worldRef;
+    }
 
-    void Collider::endOverlap(const Collider&)
-    {}
+    //////////////////////////////////////////////
+
+    const World& Collider::getWorld() const
+    {
+        return m_worldRef;
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::registerListener(ContactListener& listener)
+    {
+        if (listener.m_collider != this)
+        {
+            if (listener.m_collider)
+                listener.m_collider->m_listeners.erase(&listener);
+
+            // Replace old collider with this
+            listener.m_collider = this;
+
+            // Check if this listener is already registered
+            std::pair<std::set<ContactListener*>::iterator, bool> ret;
+            ret = m_listeners.insert(&listener);
+
+            if (ret.second == false)
+            {
+                // Erase the old and replace it with new
+                m_listeners.erase(ret.first);
+                m_listeners.insert(&listener);
+            }
+        }
+        else
+        {
+            JOP_DEBUG_INFO("Could not register listener for Collider2D: Listener is already registered for collider");
+            return;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::detachFromWorld()
+    {
+        if (!m_detached)
+        {
+            m_worldRef.m_worldData->world->removeCollisionObject(m_body.get());
+            m_detached = true;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::attachToWorld()
+    {
+        if (m_detached)
+        {
+            m_worldRef.m_worldData->world->addCollisionObject(m_body.get());
+            m_detached = false;
+        }
+    }
+
+    //////////////////////////////////////////////
+
+    bool Collider::isDetachedFromWorld() const
+    {
+        return m_detached;
+    }
 }

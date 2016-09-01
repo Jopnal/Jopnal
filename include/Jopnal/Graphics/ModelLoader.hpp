@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <glm/vec3.hpp>
+#include <utility>
 
 //////////////////////////////////////////////
 
@@ -35,52 +37,7 @@ namespace jop
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other loader to copy
-        /// \param newObj The new object
-        ///
-        ModelLoader(const ModelLoader& other, Object& obj);
-
-        JOP_DISALLOW_COPY_MOVE(ModelLoader);
         JOP_GENERIC_COMPONENT_CLONE(ModelLoader);
-
-    public:
-
-        /// Optional options structure
-        ///
-        struct JOP_API Options
-        {
-            /// \brief Constructor
-            ///
-            /// Initializes the default values.
-            ///
-            Options();
-
-            /// Force the use of a diffuse alpha channel if one is available.
-            ///
-            /// False by default.
-            ///
-            bool forceDiffuseAlpha;
-
-            /// Collapse the object tree.
-            ///
-            /// This will reduce the number of draw calls, but destroys the
-            /// original object tree hierarchy and naming.
-            ///
-            /// True by default.
-            ///
-            bool collapseTree;
-
-            /// Attempt to fix in-facing normals.
-            ///
-            /// The results are correct most of the time. If you're having problems
-            /// with lighting, try disabling this.
-            ///
-            /// True by default.
-            ///
-            bool fixInfacingNormals;
-        };
 
     public:
 
@@ -88,28 +45,40 @@ namespace jop
         ///
         /// \param obj The object this loader is bound to
         ///
-        ModelLoader(Object& obj);
+        explicit ModelLoader(Object& obj);
 
 
         /// \brief Load a model from file
         ///
         /// This will create the object tree and load the correct meshes and materials.
-        ///
-        /// \warning If the model file has a name for the root node, the root object's
-        ///          identifier will be changed accordingly. Be aware of this when
-        ///          using this function.
+        /// Only models converted with [Jopmodel](https://github.com/Jopnal/Jopmodel) are supported.
         ///
         /// \param path Path to the model file
-        /// \param options Optional options structure
         ///
         /// \return True if successful
         ///
-        bool load(const std::string& path, const Options& options = Options());
+        bool load(const std::string& path);
+
+        /// \brief Get the local bounds
+        ///
+        /// \return The local bounds
+        ///
+        const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
+
+        /// \brief Get the global bounds
+        ///
+        /// \return The global bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getGlobalBounds() const;
 
     private:
 
-        std::string m_path; ///< Path to model file
+        std::string m_path;                             ///< Path to model file
+        std::pair<glm::vec3, glm::vec3> m_localBounds;  ///< Local bounds
     };
 }
+
+/// \class jop::ModelLoader
+/// \ingroup graphics
 
 #endif

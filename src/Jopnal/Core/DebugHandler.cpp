@@ -20,26 +20,63 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
+
+    #ifdef JOP_OS_DESKTOP
+
+        #include <GLFW/glfw3.h> 
+        #include <iostream>
+
+    #endif
+
+    #if defined(JOP_OS_ANDROID)
+        #include <android/log.h>
+
+    #elif defined(JOP_OS_WINDOWS)
+
+        #include <Jopnal/Graphics/Color.hpp>
+        #include <glm/vec2.hpp>
+        #include <io.h>
+        #include <fcntl.h>
+
+    #endif
+
+#endif
 
 //////////////////////////////////////////////
 
 
-#ifdef JOP_OS_WINDOWS
 namespace
 {
+#ifdef JOP_OS_WINDOWS
+
     BOOL WINAPI handleConsoleEvent(DWORD event)
     {
         return event == CTRL_C_EVENT;
     }
 
+#endif
+
     bool checkConsoleWindow()
     {
+    #if defined(JOP_OS_WINDOWS)
         return GetConsoleWindow() != NULL;
+    #elif defined(JOP_OS_ANDROID)
+        return true;
+    #endif
     }
 
     void openConsoleWindow()
     {
+    #if defined(JOP_OS_WINDOWS)
+
         if (!checkConsoleWindow())
         {
             if (!AllocConsole())
@@ -47,12 +84,21 @@ namespace
                 JOP_ASSERT(false, "Failed to allocate console window!");
                 return;
             }
+
+            _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
+
+            {
+                FILE* pCout = nullptr;
+                freopen_s(&pCout, "CONOUT$", "w", stdout);
+            }
         }
+        else
+        {
+            DWORD processID = 0;
+            GetWindowThreadProcessId(GetConsoleWindow(), &processID);
 
-        _open_osfhandle(INT_PTR(GetStdHandle(STD_OUTPUT_HANDLE)), _O_TEXT);
-
-        FILE* pCout = nullptr;
-        freopen_s(&pCout, "CONOUT$", "w", stdout);
+            AttachConsole(processID);
+        }
 
         std::cout.clear();
 
@@ -62,23 +108,24 @@ namespace
         // Set custom color table
         COLORREF table[] =
         {
-            RGB(0x00, 0x00, 0x00), // 1. Black
-            RGB(0xFF, 0xFF, 0xFF), // 2. White
-            RGB(0xFF, 0x00, 0x00), // 3. Red
-            RGB(0x00, 0xFF, 0x00), // 4. Green
-            RGB(0x00, 0x00, 0xFF), // 5. Blue
-            RGB(0x00, 0xFF, 0xFF), // 6. Cyan
-            RGB(0xFF, 0xFF, 0x00), // 7. Yellow
-            RGB(0xFF, 0x00, 0xFF), // 8. Magenta
-            RGB(0x80, 0x00, 0xFF), // 9. Purple
-            RGB(0xFF, 0x80, 0x00), // 10. Orange
-            RGB(0x99, 0x99, 0x99), // 11. Gray
-            RGB(0x80, 0x64, 0x00), // 12. Brown
+            0x00000000,
 
-            0x00FFFFFF, // 13. White
-            0x00FFFFFF, // 14. White
-            0x00FFFFFF, // 15. White
-            0x00FFFFFF, // 16. White
+            RGB(0xFF, 0x00, 0x00), // 1. Red
+            RGB(0xFF, 0xFF, 0x00), // 2. Yellow
+            RGB(0xFF, 0xFF, 0xFF), // 3. White
+            RGB(0x99, 0x99, 0x99), // 4. Gray
+            RGB(0x00, 0x89, 0xFF), // 5. Cyan/blue
+
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF,
+            0x00FFFFFF
         };
 
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -91,13 +138,19 @@ namespace
         std::memset(&font, 0, sizeof(font));
         font.cbSize = sizeof(font);
 
-        if (!GetConsoleScreenBufferInfoEx(consoleHandle, &info) || !GetCurrentConsoleFontEx(consoleHandle, FALSE, &font))
-            return;
+        GetConsoleScreenBufferInfoEx(consoleHandle, &info);
+        GetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
 
         std::memcpy(info.ColorTable, table, sizeof(table));
 
         font.dwFontSize.X = 5;
         font.dwFontSize.Y = 8;
+
+        if (IsWindows8OrGreater())
+        {
+            font.dwFontSize.X = 9;
+            font.dwFontSize.Y = 12;
+        }
 
         SetConsoleScreenBufferInfoEx(consoleHandle, &info);
         SetCurrentConsoleFontEx(consoleHandle, FALSE, &font);
@@ -111,7 +164,7 @@ namespace
             int count;
             auto monitors = glfwGetMonitors(&count);
 
-            for (int i = 0; i < count && count > 1; ++i)
+            for (int i = count - 1; i >= 0; --i)
             {
                 if (monitors[i] != glfwGetPrimaryMonitor())
                 {
@@ -140,53 +193,65 @@ namespace
                 RECT consoleSize;
                 GetWindowRect(GetConsoleWindow(), &consoleSize);
 
-                MoveWindow(GetConsoleWindow(), pos.x + 5, pos.y + 5, consoleSize.right - consoleSize.left, consoleSize.bottom - consoleSize.top - 25, TRUE);
+                MoveWindow(GetConsoleWindow(), pos.x + 5 - (IsWindows8OrGreater() * 10), pos.y + 5, consoleSize.right - consoleSize.left - (IsWindows8OrGreater() * 6), consoleSize.bottom - consoleSize.top - 25, TRUE);
             }
         }
+
+        // Scroll the console up
+        // On Windows 8 and later the console seems to
+        // scroll down a bit by itself
+        if (IsWindows8OrGreater())
+        {
+            CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbiInfo);
+
+            SMALL_RECT srctWindow = csbiInfo.srWindow;
+            srctWindow.Bottom -= srctWindow.Top;
+            srctWindow.Top = 0;
+
+            SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srctWindow);
+        }
+
+    #endif
     }
 
     void closeConsoleWindow()
     {
         if (checkConsoleWindow())
         {
+        #if defined(JOP_OS_WINDOWS)
+
             ShowWindow(GetConsoleWindow(), SW_HIDE);
             FreeConsole();
+
+        #endif
         }
     }
+
+#if defined(JOP_OS_WINDOWS)
 
     void setConsoleColor(const jop::Color& color)
     {
         using jop::Color;
 
-        WORD attrib = 1; // White
+        WORD attrib = 3; // White
 
-        if (color == Color::White)
+        if (color == Color::Red)
             attrib = 1;
-        else if (color == Color::Red)
+        else if (color == Color::Yellow)
             attrib = 2;
-        else if (color == Color::Green)
+        else if (color == Color::White)
             attrib = 3;
-        else if (color == Color::Blue)
+        else if (color == Color::Gray)
             attrib = 4;
         else if (color == Color::Cyan)
             attrib = 5;
-        else if (color == Color::Yellow)
-            attrib = 6;
-        else if (color == Color::Magenta)
-            attrib = 7;
-        else if (color == Color::Purple)
-            attrib = 8;
-        else if (color == Color::Orange)
-            attrib = 9;
-        else if (color == Color::Gray)
-            attrib = 10;
-        else if (color == Color::Brown)
-            attrib = 11;
 
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attrib);
     }
-}
+
 #endif
+}
 
 namespace jop
 {
@@ -198,7 +263,9 @@ namespace jop
           m_consoleEnabled  (false),
           m_noSpam          (true),
           m_debuggerOutput  (true),
-          m_mutex           ()
+          m_fileLogging     (false),
+          m_mutex           (),
+          m_fileHandles     ()
     {
     #ifdef JOP_DEBUG_MODE
         setEnabled(true);
@@ -229,7 +296,7 @@ namespace jop
         if (m_consoleEnabled != enabled)
         {
             enabled ? openConsoleWindow() : closeConsoleWindow();
-
+            
             m_consoleEnabled = enabled;
         }
     }
@@ -264,6 +331,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void DebugHandler::setFileLogging(const bool set)
+    {
+        m_fileLogging = set;
+    }
+
+    //////////////////////////////////////////////
+
+    bool DebugHandler::fileLoggingEnabled() const
+    {
+    #ifdef JOP_OS_ANDROID
+        return false;
+    #else
+        return m_fileLogging;
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    std::recursive_mutex& DebugHandler::getMutex()
+    {
+        return m_mutex;
+    }
+
+    //////////////////////////////////////////////
+
     DebugHandler& DebugHandler::operator <<(const Severity severity)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -278,27 +370,73 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        if ((isConsoleEnabled() || m_debuggerOutput) && m_lastSeverity <= m_displaySeverity)
+        if ((isConsoleEnabled() || m_debuggerOutput) && (m_lastSeverity <= m_displaySeverity || m_lastSeverity == Severity::__Always))
         {
-            std::string newStr(m_stream.str());
+            const std::string newStr(m_stream.str());
 
             if (!m_noSpam || m_last != newStr)
             {
+                unsigned int severity = static_cast<unsigned int>(m_lastSeverity);
+
+            #ifndef JOP_OS_ANDROID
+
                 static const char* const severityStr[] =
                 {
-                    "ERROR:\t\t",
-                    "WARNING:\t",
-                    "INFO:\t\t",
-                    "DIAG:\t\t"
+                    "ERROR:        ",
+                    "WARNING:    ",
+                    "INFO:        ",
+                    "DIAG:        ",
+                    ""
                 };
 
-                const std::string baseStr = std::string("[JOPNAL] ") + severityStr[static_cast<int>(m_lastSeverity)];
+                static const Color severityColor[] =
+                {
+                    Color::Red,
+                    Color::Yellow,
+                    Color::White,
+                    Color::Gray,
+                    Color::Cyan
+                };
+
+                const std::string baseStr = std::string("[JOPNAL] ") + severityStr[severity];
+                const std::string finalString = baseStr + newStr + '\n';
+
+            #endif
 
                 if (isConsoleEnabled())
                 {
-                    std::cout << baseStr << newStr << '\n' << std::endl;
-                    setConsoleColor(Color::White);
+                #ifdef JOP_OS_ANDROID
+
+                    static const android_LogPriority androidSeverity[] =
+                    {
+                        ANDROID_LOG_ERROR,
+                        ANDROID_LOG_WARN,
+                        ANDROID_LOG_INFO,
+                        ANDROID_LOG_VERBOSE,
+                        ANDROID_LOG_INFO
+                    };
+
+                    __android_log_write(androidSeverity[severity], "jopnal", newStr.c_str());
+
+                #else
+
+                    setConsoleColor(severityColor[severity]);
+                    std::cout << finalString << std::endl;
+
+                #endif
                 }
+
+            #ifndef JOP_OS_ANDROID
+
+                severity = std::min(static_cast<unsigned int>(Severity::Diagnostic), severity);
+
+                if (fileLoggingEnabled() && m_fileHandles[severity].is_open())
+                {
+                    m_fileHandles[severity] << finalString;
+                    m_fileHandles[severity].flush();
+                }
+
+            #endif
 
             #ifdef JOP_OS_WINDOWS
                 if (m_debuggerOutput)
@@ -317,13 +455,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    DebugHandler& DebugHandler::operator <<(const jop::Color& color)
+    void DebugHandler::openFileHandles()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    #ifndef JOP_OS_ANDROID
 
-        if (isConsoleEnabled())
-            setConsoleColor(color);
+        for (std::size_t i = 0; i < m_fileHandles.size(); ++i)
+        {
+            static const char* const filepath[] =
+            {
+                "error.log",
+                "warning.log",
+                "info.log",
+                "diag.log"
+            };
 
-        return *this;
+            const char sep = FileLoader::getDirectorySeparator();
+
+            m_fileHandles[i].open((FileLoader::getDirectory(FileLoader::Directory::User) + sep + "Log" + sep + filepath[i]).c_str(), std::ios::out | std::ios::trunc);
+
+            if (!m_fileHandles[i].good())
+                JOP_DEBUG_ERROR("Failed to open log file \"" << filepath[i] << "\" for writing");
+        }
+
+    #endif
+    }
+
+    void DebugHandler::closeFileHandles()
+    {
+    #ifndef JOP_OS_ANDROID
+
+        for (auto& i : m_fileHandles)
+            i.close();
+
+    #endif
     }
 }

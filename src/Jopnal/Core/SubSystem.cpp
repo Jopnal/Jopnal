@@ -20,7 +20,15 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Subsystem.hpp>
+
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -29,14 +37,14 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(Subsystem)
 
-        JOP_BIND_MEMBER_COMMAND_NORETURN(&Subsystem::setActive, "setActive");
+        JOP_BIND_MEMBER_COMMAND(&Subsystem::setActive, "setActive");
 
     JOP_END_COMMAND_HANDLER(Subsystem)
 }
 
 namespace jop
 {
-    Subsystem::Subsystem(const std::string& ID)
+    Subsystem::Subsystem(const uint32 ID)
         : m_ID      (ID),
           m_active  (true)
     {}
@@ -56,38 +64,15 @@ namespace jop
 
     void Subsystem::draw()
     {}
-    
-    //////////////////////////////////////////////
-    
-    Message::Result Subsystem::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-    
-    //////////////////////////////////////////////
-
-    Message::Result Subsystem::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
 
     //////////////////////////////////////////////
 
     Message::Result Subsystem::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Subsystem) && message.passFilter(getID()))
+        if (message.passFilter(Message::Subsystem))
         {
-            if (message.passFilter(Message::Command))
-            {
-                Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Subsystem, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-
-            if (message.passFilter(Message::Custom))
-                return sendMessageImpl(message);
+            if (receiveMessage(message) == Message::Result::Escape)
+                return Message::Result::Escape;
         }
 
         return Message::Result::Continue;
@@ -110,15 +95,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::string& Subsystem::getID() const
+    uint32 Subsystem::getID() const
     {
         return m_ID;
     }
 
     //////////////////////////////////////////////
 
-    Message::Result Subsystem::sendMessageImpl(const Message&)
+    Message::Result Subsystem::receiveMessage(const Message& message)
     {
-        return Message::Result::Continue;
+        return JOP_EXECUTE_COMMAND(Subsystem, message.getString(), this);
     }
 }

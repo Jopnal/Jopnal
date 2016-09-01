@@ -52,4 +52,7 @@ namespace jop
     };
 }
 
+/// \class jop::SphereShape
+/// \ingroup physics
+
 #endif

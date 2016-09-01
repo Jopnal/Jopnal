@@ -44,63 +44,53 @@ namespace jop
 
         /// \brief Overloaded constructor
         ///
-        /// \param _r The red value
-        /// \param _g The green value
-        /// \param _b The blue value
-        /// \param _a The alpha value
+        /// \param rgb The red, green, blue components
+        /// \param a The alpha component
         ///
-        Color(const uint8 _r, const uint8 _g, const uint8 _b, const uint8 _a = 255);
+        explicit Color(const glm::vec3& rgb, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///
-        /// The values need to be clamped between 0 and 1.
+        /// \param r The red component
+        /// \param g The green component
+        /// \param b The blue component
+        /// \param a The alpha component
         ///
-        Color(const float _r, const float _g, const float _b, const float _a = 1.f);
+        Color(const float32 r, const float32 g, const float32 b, const float32 a = 1.f);
 
         /// \brief Overloaded constructor
         ///
         /// \param colors A 32-bit unsigned integer to represent the colors,
         ///               as in 0xFFFFFFFF
         ///
-        Color(const uint32 colors);
+        explicit Color(const uint32 colors);
 
         /// \brief Overloaded constructor
         ///
         /// \param hexString A string in hex form to describe the color, as
         ///                  in "FFFFFFFF"
         ///
-        Color(const std::string& hexString);
+        explicit Color(const std::string& hexString);
 
 
         /// \brief Get this color as a RGBA float vector
         ///
         /// The precision of the values is 32 bits each.
         ///
-        /// \return A float vector describing the color
+        /// \return Float vector describing the color
         ///
-        glm::vec4 asRGBAFloatVector() const;
-
-        /// \brief Get this color as a RGB float vector
-        ///
-        /// The precision of the values is 32 bits each.
-        ///
-        /// \return A float vector describing the color
-        ///
-        glm::vec3 asRGBFloatVector() const;
+        glm::vec4 asRGBAVector() const;
 
         /// \brief Get this color as an 32-bit unsigned integer
         ///
         /// \return 32-bit unsigned integer
         ///
         unsigned int asInteger() const;
-
-
+        
     public:
 
-        uint8   r, ///< The red component
-                g, ///< The green component
-                b, ///< The blue component
-                a; ///< The alpha component
+        glm::vec3   colors; ///< The RGB color
+        float32     alpha;  ///< Alpha
 
         static const Color Black;       ///< Black color
         static const Color White;       ///< White color
@@ -116,22 +106,35 @@ namespace jop
         static const Color Brown;       ///< Brown color
         static const Color Transparent; ///< Transparent color
 
-
     public:
 
         /// \brief Equality operator
         ///
-        bool operator ==(const Color& other) const;
+        bool operator ==(const Color& right) const;
 
         /// \brief Inequality operator
         ///
-        bool operator !=(const Color& other) const;
+        bool operator !=(const Color& right) const;
+
+        Color operator +(const Color& right) const;
+
+        Color operator -(const Color& right) const;
+
+        Color operator *(const Color& right) const;
+
+        Color operator *(const float right) const;
+
+        Color& operator +=(const Color& right);
+
+        Color& operator -=(const Color& right);
+
+        Color& operator *=(const Color& right);
+
+        Color& operator *=(const float right);
     };
 }
 
-#endif
-
-/// \class Color
+/// \class jop::Color
 /// \ingroup graphics
-///
-/// #TODO Detailed description
+
+#endif

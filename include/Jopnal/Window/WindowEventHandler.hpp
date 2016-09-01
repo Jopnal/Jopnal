@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 
 //////////////////////////////////////////////
@@ -33,6 +33,7 @@
 namespace jop
 {
     class Window;
+    class Controller;
 
     class JOP_API WindowEventHandler
     {
@@ -63,12 +64,12 @@ namespace jop
 
         /// \brief Resize callback
         ///
-        /// This will be called if/when the window frame buffer size changes
+        /// This will be called when the window frame buffer size has changed.
         ///
-        /// \param newWidth The new width
-        /// \param newHeight The new height
+        /// \param x The new width
+        /// \param y The new height
         ///
-        virtual void resized(const unsigned int newWidth, const unsigned int newHeight);
+        virtual void resized(const unsigned int x, const unsigned int y);
 
         /// \brief Focus lost callback
         ///
@@ -90,6 +91,9 @@ namespace jop
         /// \param scanCode The scan code
         /// \param mods Modifiers
         ///
+        /// \see Keyboard::Key
+        /// \see Keyboard::Modifier
+        ///
         virtual void keyPressed(const int key, const int scanCode, const int mods);
 
         /// \brief Key released callback
@@ -100,15 +104,10 @@ namespace jop
         /// \param scanCode The scan code
         /// \param mods Modifiers
         ///
+        /// \see Keyboard::Key
+        /// \see Keyboard::Modifier
+        ///
         virtual void keyReleased(const int key, const int scanCode, const int mods);
-
-        /// \brief Check if a key is down
-        ///
-        /// \param key The virtual key code
-        ///
-        /// \return True if the key is down
-        ///
-        bool keyDown(const int key) const;
 
         /// \brief Text entered callback
         ///
@@ -122,52 +121,55 @@ namespace jop
         ///
         /// This will be called when the mouse is moved.
         ///
-        /// \param x The vertical position/offset
-        /// \param y The horizontal position/offset
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
         ///
         virtual void mouseMoved(const float x, const float y);
 
-        /// \brief Get the cursor position
+        /// \brief Mouse position callback
         ///
-        /// \return A std::pair with the position. First = x, second = y
+        /// This will be called when the mouse is moved.
         ///
-        glm::vec2 getCursorPosition() const;
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void mouseMovedAbsolute(const float x, const float y);
 
         /// \brief Mouse button pressed callback
         ///
-        /// This will be called when one of the mouse buttons was pressed.
+        /// This will be called when one of the mouse buttons is pressed.
         ///
-        /// \param button The button that was pressed
+        /// \param button The mouse button
         /// \param mods Modifiers
+        ///
+        /// \see Mouse::Button
+        /// \see Keyboard::Modifier
         ///
         virtual void mouseButtonPressed(const int button, const int mods);
 
         /// \brief Mouse button released callback
         ///
-        /// This will be called when one of the mouse buttons was released.
+        /// This will be called when one of the mouse buttons is released.
         ///
-        /// \param button The button that was released
+        /// \param button The mouse button
         /// \param mods Modifiers
         ///
+        /// \see Mouse::Button
+        /// \see Keyboard::Modifier
+        ///
         virtual void mouseButtonReleased(const int button, const int mods);
-
-        /// \brief Check if a mouse button is down
-        ///
-        /// \param button The virtual button code
-        ///
-        /// \return True if the button is down
-        ///
-        bool mouseButtonDown(const int button) const;
 
         /// \brief Mouse left callback
         ///
         /// This will be called when the mouse cursor leaves the window.
+        /// On Android this means that the application lost input focus.
         ///
         virtual void mouseLeft();
 
         /// \brief Mouse entered callback
         ///
         /// This will be called when the mouse cursor enters the window.
+        /// On Android this means that the application gained input focus.
         ///
         virtual void mouseEntered();
 
@@ -199,25 +201,90 @@ namespace jop
         ///
         /// \param index Index of the controller
         /// \param axisIndex Index of the axis
-        /// \param shift Shift of the axis
+        /// \param shift Shift of the axis, between -1 and 1
+        ///
+        /// \see Controller::XBox::Axis
         ///
         virtual void controllerAxisShifted(const int index, const int axisIndex, const float shift);
 
         /// \brief Controller button pressed callback
         ///
         /// \param index Index of the controller
-        /// \param button The button that was pressed
+        /// \param button The controller button
+        ///
+        /// \see Controller::XBox::Button
         ///
         virtual void controllerButtonPressed(const int index, const int button);
 
         /// \brief Controller button released callback
         ///
         /// \param index Index of the controller
-        /// \param button The button that was released
+        /// \param button The controller button
+        ///
+        /// \see Controller::XBox::Button
         ///
         virtual void controllerButtonReleased(const int index, const int button);
 
-    private:
+        /// \brief Touch pressed callback
+        ///
+        /// This will be called when touch is started.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void touchPressed(const int touchId, const float x, const float y);
+
+        /// \brief Touch released callback
+        ///
+        /// This will be called when touch is ended.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void touchReleased(const int touchId, const float x, const float y);
+
+        /// \brief Touch moved callback
+        ///
+        /// This will be called when touch isn't stationary.
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
+        ///
+        virtual void touchMoved(const int touchId, const float x, const float y);
+
+        /// \copybrief touchMoved()
+        ///
+        /// \copydetails touchMoved()
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param x The vertical position
+        /// \param y The horizontal position
+        ///
+        virtual void touchMovedAbsolute(const int touchId, const float x, const float y);
+
+        /// \brief Touch event information callback
+        ///
+        /// \param touchId Id for finger in case of multiple touches
+        /// \param info Enum value of information
+        /// \param value Pressure or radius of touch
+        ///
+        /// \see Touch::Info
+        ///
+        virtual void touchInfo(const int touchId, const int info, const float value);
+
+        /// \brief Touch scrolled callback
+        ///
+        /// This will be called when touch has momentum only on one axis.
+        ///
+        /// \param x The vertical offset
+        /// \param y The horizontal offset
+        ///
+        virtual void touchScrolled(const float x, const float y);
+        
+   private:
 
         /// \brief Internal function to invoke controller callbacks
         ///
@@ -225,16 +292,16 @@ namespace jop
 
     protected:
 
-        Window& m_windowRef; ///< Reference to the window
+        Window& m_windowRef;    ///< Reference to the window
 
     public:
-
-        float m_lastMouseX; ///< For internal use. Do not touch
-        float m_lastMouseY; ///< For internal use. Do not touch
+        
+        float m_lastMouseX;     ///< For internal use. Do not touch
+        float m_lastMouseY;     ///< For internal use. Do not touch
     };
 }
 
-#endif
-
-/// \class WindowEventHandler
+/// \class jop::WindowEventHandler
 /// \ingroup window
+
+#endif

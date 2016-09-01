@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <string>
 #include <memory>
@@ -33,7 +34,7 @@
 
 namespace jop
 {
-    class JOP_API Resource : public SafeReferenceable<Resource>
+    class JOP_API Resource : public SafeReferenceable<Resource>, public SerializeInfo
     {
     private:
 
@@ -44,6 +45,11 @@ namespace jop
     protected:
 
         /// \brief Copy constructor
+        ///
+        /// This differs from the standard copy constructor signature.
+        /// Should you wish your custom resources to be copyable via
+        /// the resource manager, you should define a copy constructor
+        /// with an similar signature.
         ///
         /// \param other The other resource to copy
         /// \param newName New name for this resource
@@ -63,16 +69,20 @@ namespace jop
         virtual ~Resource() = 0;
 
 
-        /// \brief Get the name
+        /// \brief Get the name of this resource
         ///
         /// \return Reference to the name
         ///
         const std::string& getName() const;
 
-
         /// \brief Set the persistence level
         ///
+        /// The persistence level controls how resources are unloaded
+        /// by the \ref ResourceManager "resource manager".
+        ///
         /// \param level The persistence level
+        ///
+        /// \see ResourceManager
         ///
         void setPersistence(const unsigned short level);
 
@@ -80,33 +90,35 @@ namespace jop
         ///
         /// \return The persistence level
         ///
+        /// \see setPersistence()
+        ///
         unsigned short getPersistence() const;
-
-        /// \brief Set the managed flag
-        ///
-        /// Managed resources will be ignored in serialization.
-        ///
-        /// \param managed The flag to set
-        ///
-        void setManaged(const bool managed);
-
-        /// \brief Get the managed flag
-        ///
-        /// \return The managed flag
-        ///
-        bool isManaged() const;
 
     private:
 
         const std::string m_name;       ///< Name of this resource
         unsigned short m_persistence;   ///< Persistence level
-        bool m_managed;                 ///< Is this resource managed?
     };
 }
 
-#endif
-
-/// \class Resource
+/// \class jop::Resource
 /// \ingroup core
 ///
-/// This is the base class for all resources that are loaded from files
+/// \brief Base class for resources.
+///
+/// ## Default & error resources
+///
+/// It's possible to define special resources in case of load failure, to be
+/// returned instead by jop::ResourceManager. To do so, define one or both of
+/// the following functions for your derived resource class:
+///
+/// \code{.cpp}
+/// static ResourceType& getDefault();
+/// static ResourceType& getError();
+/// \endcode
+/// 
+/// If at least one of these exists, the resource manager will use them to fetch
+/// a fallback resource if the load() method fails. Make sure that these functions
+/// always succeed, so that they don't cause an infinite recursive loop.
+
+#endif

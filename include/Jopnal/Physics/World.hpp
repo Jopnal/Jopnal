@@ -24,36 +24,37 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 
-
-namespace detail
-{
-    struct GhostCallback;
-}
 
 namespace jop
 {
     namespace detail
     {
         struct WorldImpl;
+        struct BroadPhaseCallback;
+        struct GhostCallback;
+        struct ContactListenerImpl;
     }
     class Camera;
+    class Joint;
 
-    class JOP_API World : public Component
+    class JOP_API World : public Drawable
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(World);
 
-        friend class Scene;
+        friend class Collider;
+        friend class Joint;
         friend class Renderer;
         friend class RigidBody;
-        friend class Collider;
+        friend class PhantomBody;
 
         World* clone(Object&) const override;
 
@@ -79,10 +80,10 @@ namespace jop
 
         /// \brief Debug draw the world
         ///
-        /// \param camera Camera to use
+        /// \param proj The projection info
+        /// \param lights The lights, not used
         ///
-        void draw(const Camera& camera);
-
+        void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///
@@ -133,11 +134,21 @@ namespace jop
         ///
         bool debugMode() const;
 
-    private:
+    protected:
 
-        std::unique_ptr<detail::WorldImpl> m_worldData;             ///< The world data
-        std::unique_ptr<::detail::GhostCallback> m_ghostCallback;   ///< Internal ghost callback
+        /// \copydoc Component::receiveMessage()
+        ///
+        Message::Result receiveMessage(const Message& message) override;
+
+
+        std::unique_ptr<detail::WorldImpl> m_worldData;                 ///< The world data
+        std::unique_ptr<detail::GhostCallback> m_ghostCallback;         ///< Internal ghost callback
+        std::unique_ptr<detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
+        std::unique_ptr<detail::BroadPhaseCallback> m_bpCallback;       ///< Broad phase callback
     };
 }
+
+/// \class jop::World
+/// \ingroup physics
 
 #endif

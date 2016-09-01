@@ -24,31 +24,29 @@
 
 //////////////////////////////////////////////
 
+
 // This file contains the configuration options for the engine compilation
 
-// OpenGL
-#define JOP_OPENGL_VERSION_MAJOR 3
-#define JOP_OPENGL_VERSION_MINOR 3
-
-// Define to enable gl error checks
-#define JOP_OPENGL_ERROR_CHECKS
+#ifndef JOP_CONSOLE_VERBOSITY
+    #define JOP_CONSOLE_VERBOSITY 3
+#endif
+/// \def JOP_CONSOLE_VERBOSITY
+///
+/// CMake sets this for the engine. Redefine this for your application
+/// to set the console verbosity.
+///
+/// -1 - Disable
+///  0 - Error
+///  1 - Warning
+///  2 - Info
+///  3 - Diagnostic
 
 // Debug
 #define JOP_DEBUG_MODE
 
-// Console
-#ifdef JOP_DEBUG_MODE
-    #define JOP_CONSOLE_VERBOSITY 3
-#else
-    #define JOP_CONSOLE_VERBOSITY 0
-#endif
-
-// Asserts
-#define JOP_ENABLE_ASSERTS
-
 // Version
 #define JOP_VERSION_MAJOR 0
-#define JOP_VERSION_MINOR 2
-#define JOP_VERSION_STRING "indev 0.2"
+#define JOP_VERSION_MINOR 4
+#define JOP_VERSION_STRING "alpha 0.4"
 
 #endif

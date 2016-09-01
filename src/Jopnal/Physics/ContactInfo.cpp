@@ -20,14 +20,21 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/ContactInfo.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    ContactInfo::ContactInfo(const glm::vec3& pos)
-        : position(pos)
+    ContactInfo::ContactInfo(const glm::vec3& pos, const glm::vec3& norm)
+        : position(pos),
+          normal(norm)
     {}
 }

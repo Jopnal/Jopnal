@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -42,17 +42,16 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param pos Contact position
+        /// \param norm Contact normal
         ///
-        ContactInfo(const glm::vec3& pos);
-        
+        ContactInfo(const glm::vec3& pos, const glm::vec3& norm);
         
         const glm::vec3 position;   ///< Contact position
+        const glm::vec3 normal;     ///< Contact normal
     };
 }
 
-#endif
-
-/// \class ContactInfo
+/// \class jop::ContactInfo
 /// \ingroup physics
-///
-/// #TODO Detailed description
+
+#endif

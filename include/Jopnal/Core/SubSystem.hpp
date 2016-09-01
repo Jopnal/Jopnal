@@ -47,7 +47,7 @@ namespace jop
         ///
         /// \param ID Identifier of this subsystem
         ///
-        Subsystem(const std::string& ID);
+        Subsystem(const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -65,35 +65,16 @@ namespace jop
         /// \brief Post-update
         ///
         /// This will be called after the engine calls the scene's update.
-        /// This function can also be used as a pre-draw function.
         ///
         /// \param deltaTime Delta time
         ///
         virtual void postUpdate(const float deltaTime);
 
-        /// \brief Post-draw
+        /// \brief Draw
         ///
-        /// This will be called after the engine calls the scene's draw.
+        /// This will be called during rendering.
         ///
         virtual void draw();
-
-
-        /// \brief Function to handle messages
-        ///
-        /// \param message String holding the message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Function to handle messages
-        ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
 
         /// \brief Function to handle messages
         ///
@@ -103,10 +84,11 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-
         /// \brief Set this sub system active
         ///
         /// \param active True to set active
+        ///
+        /// \return Reference to self
         ///
         Subsystem& setActive(const bool active);
 
@@ -116,33 +98,26 @@ namespace jop
         ///
         bool isActive() const;
 
-
         /// \brief Get the ID
         ///
-        /// \return Reference to the ID string
+        /// \return The ID
         ///
-        const std::string& getID() const;
+        uint32 getID() const;
 
     protected:
 
-        /// \brief Virtual sendMessage
+        /// \copydoc Component::receiveMessage()
         ///
-        /// \param message The message
-        ///
-        /// \return The message result
-        ///
-        virtual Message::Result sendMessageImpl(const Message& message);
+        virtual Message::Result receiveMessage(const Message& message);
 
     private:
 
-        const std::string m_ID;     ///< This subsystem's name
+        const uint32 m_ID;          ///< This subsystem's identifier
         std::atomic<bool> m_active; ///< Sets activity 
     };
 }
 
-#endif
-
-/// \class SubSystem
+/// \class jop::SubSystem
 /// \ingroup core
-///
-/// 
+
+#endif

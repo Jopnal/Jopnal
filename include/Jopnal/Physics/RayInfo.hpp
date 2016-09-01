@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -53,5 +53,8 @@ namespace jop
         glm::vec3 normal;   ///< Local ray hit normal
     };
 }
+
+/// \class jop::RayInfo
+/// \ingroup physics
 
 #endif

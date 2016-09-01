@@ -24,6 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
+#include <string>
 
 //////////////////////////////////////////////
 
@@ -55,7 +57,7 @@ namespace jop
             GraveAccent,
             World1,
             World2,
-            Escape,
+            Escape, ///< Back on Android
             Enter,
             Tab,
             Backspace,
@@ -98,7 +100,7 @@ namespace jop
             LSuper,
             RShift,
             RControl,
-            RAlth,
+            RAlt,
             RSuper,
             Menu
         };
@@ -109,10 +111,10 @@ namespace jop
             ///
             enum
             {
-                Shift = 1,
+                Shift   = 1,
                 Control = 1 << 1,
-                Alt = 1 << 2,
-                Super = 1 << 3
+                Alt     = 1 << 2,
+                Super   = 1 << 3
             };
         };
 
@@ -125,12 +127,26 @@ namespace jop
         /// \return String with the name
         ///
         static std::string getKeyName(const int scanCode);
+
+        /// \brief Check if a key is currently down
+        ///
+        /// \param key The keyboard key
+        ///
+        /// \return True if the key is down
+        ///
+        static bool isKeyDown(const Key key);
+
+        /// \brief Shows or hides the virtual keyboard
+        ///
+        /// This only works on Android.
+        ///
+        /// \param show True to show, false to hide
+        ///
+        static void showVirtualKeyboard(const bool show);   
     };
 }
 
-#endif
-
-/// \class Keyboard
+/// \class jop::Keyboard
 /// \ingroup window
-///
-/// #TODO Detailed description
+
+#endif

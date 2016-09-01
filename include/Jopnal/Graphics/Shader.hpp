@@ -23,250 +23,105 @@
 #define JOP_SHADER_HPP
 
 // Headers
-#include <Jopnal/Jopnal.hpp>
+#include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <unordered_map>
-#include <array>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Texture;
-
     class JOP_API Shader : public Resource
     {
-    private:
-
-        typedef std::unordered_map<std::string, int> LocationMap;
-
-        JOP_DISALLOW_COPY_MOVE(Shader);
-
     public:
 
-        /// The shader type
+        /// Shader type
         ///
         enum class Type
         {
             Vertex,
             Geometry,
-            Fragment,
-            Preprocessor
+            Fragment
         };
 
     public:
 
-        /// \brief default constructor
+        /// \brief Constructor
         ///
-        Shader(const std::string& name);
+        /// \param name Name of the resource
+        ///
+        explicit Shader(const std::string& name);
 
-        /// \brief default destructor
+        /// \brief Destructor
         ///
         ~Shader() override;
 
-
-        /// \brief Load a shader
-        ///
-        /// The arguments don't have to be paths. They may also contain the shader code.
-        ///
-        /// \param vert Vertex shader path
-        /// \param geom Geometry shader path
-        /// \param frag Fragment shader path
-        /// \param pp Preprocessor definitions
-        ///
-        /// \return True if the shader was loaded, compiled and linked successfully
-        ///
-        bool load(const std::string& vert, const std::string& geom, const std::string& frag, const std::string& pp = "#version 330 core");
 
         /// \brief Destroy this shader
         ///
         void destroy();
 
+        /// \brief Add shader source
+        ///
+        /// The string must stay in existence until after compile() is called.
+        ///
+        /// \param source The shader source
+        ///
+        void addSource(const char* source);
 
-        /// \brief Bind this shader for use
+        /// \brief Compile shader
+        ///
+        /// \param type Shader type
+        /// \param preprocess Should shader be preprocessed?
         ///
         /// \return True if successful
         ///
-        bool bind() const;
+        bool compile(const Type type, const bool preprocess = true);
 
-        /// \brief Unbind the currently bound shader
+        /// \brief Load shader
         ///
-        static void unbind();
+        /// \param path Path to file containing shader or shaders source code
+        /// \param type Shader type
+        /// \param preprocess Should shader be preprocessed?
+        ///
+        /// \return True if successful
+        ///
+        bool load(const std::string& path, Type type, const bool preprocess = true);
 
-          
-        /// \brief method setting matrix 4x4
+        /// \brief Get the shader type
         ///
-        /// \param name unique name
-        /// \param matrix 4x4 matrix
+        /// \return The shader type
         ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const glm::mat4& matrix);
-
-        /// \brief Set an array of matrices
-        ///
-        /// This is for 4x4 matrices (glm::mat4).
-        ///
-        /// \param name The uniform name
-        /// \param matrices Pointer to the first element of the first matrix
-        /// \param amount Amount of the matrices
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const float* matrices, const unsigned int amount);
-
-        /// \brief method setting 3x3 matrix with unique name
-        ///
-        /// \param name unique name
-        /// \param matrix 3x3 matrix
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const glm::mat3& matrix);
-
-        /// \brief Set a two-dimensional float vector uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param vector The vector to set
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const glm::vec2& vector);
-
-        /// \brief method setting vector with 3 dimensions and unique name
-        ///
-        /// \param name unique name
-        /// \param vector 3 dimensional vector
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const glm::vec3& vector);
-        
-        /// \brief method setting vector with 4 dimensions and unique name
-        ///
-        /// \param name unique name
-        /// \param vector 4 dimensional vector
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const glm::vec4& vector);
-
-        /// \brief method setting texture with unique name and Uint
-        ///
-        /// \param name unique name
-        /// \param texture The texture
-        /// \param unit The texture unit
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const jop::Texture& texture, const unsigned int unit);
-
-        /// \brief Set a float uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param value The float value
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const float value);
-
-        /// \brief Set an integer uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param value The integer to set
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const int value);
-
-        /// \brief Set a boolean uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param value The boolean to set
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const bool value);
-
-        /// \brief Set an unsigned integer uniform
-        ///
-        /// \param name Name of the uniform
-        /// \param value The unsigned integer to set
-        ///
-        /// \return True if set successfully
-        ///
-        bool setUniform(const std::string& name, const unsigned int value);
-
-        /// \brief Set an attribute using the location
-        ///
-        /// \param loc Attribute location
-        /// \param type Data type, Use the appropriate OpenGL enum
-        /// \param amount Amount of variables per element
-        /// \param stride The stride. Refer to OpenGL documentation on what this is
-        /// \param normalize Normalize the attributes?
-        /// \param pointer Pointer to the data or the offset in the buffer
-        ///
-        void setAttribute(const unsigned int loc, unsigned int type, int amount, unsigned int stride, const bool normalize, const void* pointer);
-
-
-        /// \brief Get the shader source
-        ///
-        /// This is either the file path from which the shader was loaded or the shader source code itself.
-        ///
-        /// \param type The shader type
-        ///
-        /// \return Reference to the source
-        ///
-        const std::string& getSource(const Type type) const;
-
+        Type getType() const;
 
         /// \brief Get the OpenGL handle
         ///
-        /// \return The OpenGL handle
+        /// \return The shader handle
         ///
         unsigned int getHandle() const;
 
-        /// \brief Validate this shader
+        /// \brief Get the version definition string
         ///
-        /// This is useful for catching shader errors. You should never call this
-        /// unless you have a need to debug your shaders.
+        /// \return The version string
         ///
-        /// \return True if validation passed
-        ///
-        bool validate() const;
+        static const std::string& getVersionString();
 
-        
-        /// \brief Get the default shader
+        /// \brief Get the extension definition string
         ///
-        /// \return Reference to the default shader
+        /// \return The extension string
         ///
-        static Shader& getDefault();
-
-        /// \brief Get the error shader
-        ///
-        /// This shader will paint any drawn object bright red.
-        ///
-        /// \return Reference to the error shader
-        ///
-        static Shader& getError();
+        static const std::string& getExtensionString();
 
     private:
 
-        /// \brief Get location of uniform by name
-        ///
-        int getUniformLocation(const std::string& name);
-
-        
-        std::array<std::string, 4> m_strings;   ///< The shader sources
-        LocationMap m_unifMap;                  ///< Map with the uniform locations
-        unsigned int m_shaderProgram;           ///< The OpenGL shader handle
+        Type m_shaderType;                  ///< Shaders type (Vertex / Geometry / Fragment)
+        std::vector<const char*> m_sources; ///< Container holding shaders sources
+        unsigned int m_handle;              ///< OpenGL handle for the shader
     };
 }
 
-#endif
+/// \class jop::Shader
+/// \ingroup graphics
 
-/// \class Shader
-/// \ingroup Graphics
-///
-/// 
+#endif

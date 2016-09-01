@@ -20,163 +20,30 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, EnvironmentRecorder)
-
-        JOP_BIND_MEMBER_COMMAND(&EnvironmentRecorder::setRenderMask, "setEnvRecorderRenderMask");
-
-    JOP_END_COMMAND_HANDLER(EnvironmentRecorder)
-
-    JOP_REGISTER_LOADABLE(jop, EnvironmentRecorder)[](Object& obj, const Scene& scene, const json::Value& val) -> bool
+    /*EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
+        : Component     (obj, 0)
     {
-        auto& rec = obj.createComponent<EnvironmentRecorder>(scene.getRenderer());
-
-        const char* const idField = "id";
-        if (val.HasMember(idField) && val[idField].IsString())
-            rec.setID(val[idField].GetString());
-
-        const char* const maskField = "mask";
-        if (val.HasMember(maskField) && val[maskField].IsUint())
-            rec.setRenderMask(val[maskField].GetUint());
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(EnvironmentRecorder)
-
-    JOP_REGISTER_SAVEABLE(jop, EnvironmentRecorder)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc) -> bool
-    {
-        auto& rec = static_cast<const EnvironmentRecorder&>(comp);
-
-        val.AddMember(json::StringRef("id"), json::StringRef(rec.getID().c_str()), alloc);
-        val.AddMember(json::StringRef("mask"), rec.getRenderMask(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(EnvironmentRecorder)
-}
-
-namespace jop
-{
-    EnvironmentRecorder::EnvironmentRecorder(Object& obj, Renderer& renderer)
-        : Component     (obj, "environmentrecorder"),
-          m_matrices    (6),
-          m_fbo         (),
-          m_mask        (1),
-          m_rendererRef (renderer)
-    {
-        static const int mapResolution = SettingManager::get<unsigned int>("engine/Graphics|Shading|uEnvironmentMapSize", 128);
-
-        using ca = RenderTexture::ColorAttachment;
-        using da = RenderTexture::DepthAttachment;
-
-        m_fbo.create(glm::uvec2(mapResolution), ca::RGBACube, da::Texture16);
-
-        m_rendererRef.bind(*this);
     }
 
     EnvironmentRecorder::EnvironmentRecorder(const EnvironmentRecorder& other, Object& newObj)
-        : Component     (other, newObj),
-          m_matrices    (6),
-          m_fbo         (),
-          m_mask        (other.m_mask),
-          m_rendererRef (other.m_rendererRef)
+        : Component     (other, newObj)
     {
-        m_rendererRef.bind(*this);
     }
 
     EnvironmentRecorder::~EnvironmentRecorder()
     {
-        m_rendererRef.unbind(*this);
-    }
-
-    //////////////////////////////////////////////
-
-    void EnvironmentRecorder::record()
-    {
-        static const struct Callback : SettingCallback<float>
-        {
-            const char* const str;
-            float farPlane;
-            glm::mat4 proj;
-            void updateProj()
-            {
-                proj = glm::perspective(glm::half_pi<float>(), 1.f, 0.5f, farPlane);
-            }
-            Callback()
-                : str("engine/Graphics|Shading|fEnvironmentRecordFarPlane"),
-                  farPlane(SettingManager::get<float>(str, 1000.f)),
-                  proj()
-            {
-                updateProj();
-                SettingManager::registerCallback(str, *this);
-            }
-            void valueChanged(const float& value) override
-            {
-                farPlane = value;
-                updateProj();
-            }
-        } cb;
-
-        LightSource::makeCubemapMatrices(cb.proj, getObject()->getGlobalPosition(), m_matrices);
-
-        auto& rend = m_rendererRef;
-
-        m_fbo.clear(RenderTarget::ColorBit | RenderTarget::DepthBit);
-
-        Shader* lastShader = nullptr;
-
-        for (auto drawable : rend.m_drawables)
-        {
-            uint32 drawableBit = 1 << drawable->getRenderGroup();
-            if (!drawable->isActive() || !drawable->getModel().isValid() || !drawable->isReflected() || (m_mask & drawableBit) == 0)
-                continue;
-
-            auto shdr = &ShaderAssembler::getShader(drawable->getModel().getMaterial()->getAttributeField() | Material::Attribute::__RecordEnv);
-
-            if (shdr == &Shader::getDefault())
-            {
-                JOP_DEBUG_ERROR("Couldn't compile environment record shader. Trying to draw the rest...");
-                continue;
-            }
-
-            if (lastShader != shdr)
-            {
-                shdr->setUniform("u_PVMatrices", glm::value_ptr(m_matrices[0]), 6);
-
-                lastShader = shdr;
-            }
-
-            LightContainer lights;
-            rend.chooseLights(*drawable, lights);
-
-            drawable->draw(nullptr, lights, *shdr);
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void EnvironmentRecorder::setRenderMask(const uint32 mask)
-    {
-        m_mask = mask;
-    }
-
-    //////////////////////////////////////////////
-
-    uint32 EnvironmentRecorder::getRenderMask() const
-    {
-        return m_mask;
-    }
-
-    //////////////////////////////////////////////
-
-    const Texture* EnvironmentRecorder::getTexture() const
-    {
-        return m_fbo.getTexture();
-    }
+    }*/
 }

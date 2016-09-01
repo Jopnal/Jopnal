@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <vector>
+#include <tuple>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -36,12 +37,37 @@ namespace jop
 {
     class Renderer;
     class World;
+    class World2D;
     class Window;
     class RenderTarget;
+
+    namespace detail
+    {
+        template<int D>
+        struct WorldType
+        {
+            static_assert(D == 2 || D == 3, "Invalid world dimensions");
+        };
+
+        template<>
+        struct WorldType<2>
+        {
+            typedef World2D type;
+        };
+
+        template<>
+        struct WorldType<3>
+        {
+            typedef World type;
+        };
+    }
 
     class JOP_API Scene : private Object
     {
     public:
+
+        using Object::getReference;
+        using Object::reserveChildren;
 
         using Object::createComponent;
         using Object::getComponent;
@@ -49,6 +75,7 @@ namespace jop
         using Object::removeComponents;
         using Object::clearComponents;
         using Object::componentCount;
+        using Object::removeComponent;
 
         using Object::createChild;
         using Object::getChildren;
@@ -71,11 +98,15 @@ namespace jop
         using Object::getID;
         using Object::setID;
 
+        using Object::printDebugTree;
+
+        using TransformRestriction = Object::TransformRestriction;
+
     public:
 
         JOP_DISALLOW_COPY_MOVE(Scene);
 
-        friend class StateLoader;
+        friend class SceneLoader;
         friend class Object;
 
     public:
@@ -100,25 +131,58 @@ namespace jop
         template<typename T, typename ... Args>
         T& setRenderer(Args&&... args);
 
+        /// \brief Get the physics world
+        ///
+        /// The template argument D must be either 2 or 3.
+        /// If a world hasn't been enabled yet, it will be created by this function.
+        ///
+        /// \return Reference to the world
+        ///
+        template<int D>
+        typename detail::WorldType<D>::type& getWorld();
+
+        /// \brief Check if a world is enabled
+        ///
+        /// The template argument D must be either 2 or 3.
+        ///
+        /// \return True if world has been enabled
+        ///
+        template <int D>
+        bool worldEnabled() const;
+
+        /// \brief Disable a world
+        ///
+        /// The template argument D must be either 2 or 3.
+        /// The world will be deleted immediately. You shouldn't
+        /// need to ever call this in typical situations, but
+        /// should you, you'll need to ensure that all colliders
+        /// that exist within the world are destroyed beforehand.
+        ///
+        /// After this call returns, getWorld() will create the
+        /// world again once called.
+        ///
+        /// \see getWorld()
+        ///
+        template<int D>
+        void disableWorld();
+        
         /// \brief Get the renderer
         ///
         /// \return Reference to the renderer
         ///
         Renderer& getRenderer() const;
-
-
-        /// \brief Get the physics world
-        ///
-        /// \return Reference to the world
-        ///
-        World& getWorld() const;
-
         
         /// \brief Set the delta time scalar
         ///
         /// The delta time value will be multiplied by this value every frame.
+        /// This makes it possible to create slow-down or fast-forward effects.
+        ///
+        /// \warning The delta scale is allowed to be zero. You should ensure
+        ///          that divisions by zero won't occur because of this.
         /// 
         /// \param scale The scale to set
+        ///
+        /// \see Engine::getDeltaTimeUnscaled()
         ///
         void setDeltaScale(const float scale);
 
@@ -128,31 +192,10 @@ namespace jop
         ///
         float getDeltaScale() const;
 
-
-        /// \brief Base sendMessage function
+        /// \brief Send a message to this scene
         ///
-        /// This will handle message filtering and forwarding
-        /// to the objects
-        ///
-        /// \param message String holding message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Base sendMessage function
-        ///
-        /// This will handle message filtering and forwarding
-        /// to the objects
-        ///
-        /// \param message String holding message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
-        /// \brief Function to handle messages
+        /// The message will be forwarded to the objects, should it
+        /// pass the filter.
         ///
         /// \param message The message
         ///
@@ -160,19 +203,15 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-
-        /// \brief Update method for scene
+        /// \brief Base update
+        ///
+        /// This will call preUpdate() and postUpdate().
         ///
         /// \param deltaTime The delta time
         ///
         void updateBase(const float deltaTime);
-
-        /// \brief Method for drawing
-        ///
-        void drawBase();
         
-
-        /// \brief Method for pre-updating
+        /// \brief Pre-update
         ///
         /// This will be called before objects are updated.
         ///
@@ -180,31 +219,18 @@ namespace jop
         ///
         virtual void preUpdate(const float deltaTime);
 
-        /// \brief Method for post-updating
+        /// \brief Post-update
         ///
         /// This will be called after objects are updated.
         ///
         /// \param deltaTime The delta time
         ///
         virtual void postUpdate(const float deltaTime);
-        
-        /// \brief Method for pre-drawing
-        ///
-        /// This will be called before objects are drawn.
-        ///
-        virtual void preDraw();
-
-        /// \brief Method for post drawing
-        ///
-        /// This will be called after objects are drawn.
-        ///
-        virtual void postDraw();
-
 
         /// \brief Get this scene as object
         ///
         /// This can be used to work around the privately inherited jop::Object.
-        /// <b>Do not</b> ever call this unless you know what you're doing.
+        /// **Do not** ever call this unless you know what you're doing.
         ///
         /// \return Reference to this as Object
         ///
@@ -216,21 +242,21 @@ namespace jop
 
     private:
 
-        /// \brief Virtual sendMessage
+        /// \copydoc Component::receiveMessage()
         ///
-        virtual Message::Result sendMessageImpl(const Message& message);
+        virtual Message::Result receiveMessage(const Message& message);
 
 
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
-        mutable World& m_world;                 ///< The physics world
         float m_deltaScale;                     ///< Delta time scalar
+        std::tuple<World2D*, World*> m_worlds;  ///< 2D and 3D worlds
     };
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Scene.inl>
 }
 
-#endif
-
-/// \class Scene
+/// \class jop::Scene
 /// \ingroup core
+
+#endif

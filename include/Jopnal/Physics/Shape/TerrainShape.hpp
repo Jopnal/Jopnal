@@ -25,6 +25,8 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <glm/vec3.hpp>
+#include <vector>
 
 //////////////////////////////////////////////
 
@@ -47,7 +49,7 @@ namespace jop
             RayInfo();
 
             unsigned int triangleIndex; ///< Triangle index
-            glm::vec3 triangle;         ///< Triangle points
+            glm::vec3 triangle[3];      ///< Triangle points
             bool hit;                   ///< Was any triangle hit?
         };
 
@@ -74,8 +76,8 @@ namespace jop
 
         /// \brief Load this shape
         ///
-        /// \param points Terrain points
-        /// \param indices 
+        /// \param points Terrain mesh points
+        /// \param indices The indices
         ///
         /// \return True if successful
         ///
@@ -93,11 +95,13 @@ namespace jop
     private:
 
         std::unique_ptr<btStridingMeshInterface> m_mesh;    ///< Mesh interface
-
         std::unique_ptr<btIndexedMesh> m_indMesh;           ///< Indexed mesh descriptor
         std::vector<glm::vec3> m_indMeshPoints;             ///< Indexed mesh vertices
         std::vector<unsigned int> m_indMeshIndices;         ///< Indexed mesh indices
     };
 }
+
+/// \class jop::TerrainShape
+/// \ingroup physics
 
 #endif

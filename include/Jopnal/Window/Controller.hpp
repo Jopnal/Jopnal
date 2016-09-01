@@ -24,13 +24,14 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <glm/vec2.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Controller
+    class JOP_API Controller
     {
     public:
 
@@ -42,6 +43,7 @@ namespace jop
             ///
             enum Button
             {
+                Unknown,
                 A,
                 B,
                 X,
@@ -56,6 +58,8 @@ namespace jop
                 PadRight,
                 PadDown,
                 PadLeft,
+
+                __Count ///< For internal functionality, do not use
             };
 
             /// Axes
@@ -63,9 +67,10 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                RightStickX,
                 RightStickY,
-                RightStickX
+                LTrigger,
+                RTrigger
             };
         };
 
@@ -75,6 +80,7 @@ namespace jop
         {
             enum Button
             {
+                Unknown,
                 X,
                 O,
                 Square,
@@ -88,7 +94,7 @@ namespace jop
                 PadUp,
                 PadRight,
                 PadDown,
-                PadLeft,
+                PadLeft
             };
 
             /// Axes
@@ -96,17 +102,50 @@ namespace jop
             {
                 LeftStickX,
                 LeftStickY,
-                Triggers,
+                RightStickX,
                 RightStickY,
-                RightStickX
+                LTrigger,
+                RTrigger
             };
         };
+
+    public:
+
+        /// \brief Check how many controllers are connected
+        ///
+        /// \return Number of controllers
+        ///
+        static int controllersPresent();
+
+        /// \brief Check if specific controller is connected
+        ///
+        /// \param index The index of the controller to check
+        ///
+        /// \return True if connected
+        ///
+        static bool isControllerPresent(const int index);
+
+        /// \brief Check if a controller button is currently pressed
+        ///
+        /// \param index The controller index
+        /// \param button The controller button
+        ///
+        /// \return True if currently pressed
+        ///
+        static bool isButtonDown(const int index, const int button);
+
+        /// \brief Get an axis offset
+        ///
+        /// \param index The index if the controller
+        /// \param axis The axis
+        ///
+        /// \return The axis offsed, between -1 and 1
+        ///
+        static float getAxisOffset(const int index, const int axis);
     };
 }
 
-#endif
-
-/// \class Controller
+/// \class jop::Controller
 /// \ingroup window
-///
-/// #TODO Detailed description
+
+#endif

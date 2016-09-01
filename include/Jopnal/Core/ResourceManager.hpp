@@ -24,11 +24,13 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Subsystem.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Utility/Json.hpp>
+#include <Jopnal/Core/Subsystem.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
 #include <Jopnal/Utility/Clock.hpp>
+#include <Jopnal/STL.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <typeindex>
 #include <mutex>
@@ -47,6 +49,8 @@ namespace std
 
 namespace jop
 {
+    class Resource;
+
     class JOP_API ResourceManager : public Subsystem
     {
     public:
@@ -60,7 +64,7 @@ namespace jop
         ~ResourceManager() override;
 
 
-        /// \brief Load and get a resource
+        /// \brief Get a resource
         ///
         /// If resource is not found this creates a new one. The first argument must be convertible
         /// into std::string, as it's used as a hash map key.
@@ -70,12 +74,12 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getResource(Args&&... args);
+        static T& get(Args&&... args);
 
         /// \brief Get a named resource
         ///
         /// This is primarily used when the resource is not loaded from a file. After the resource
-        /// has been loaded once, it can be retrieved by using getResource().
+        /// has been loaded once, it can be retrieved by using getExisting().
         ///
         /// \param name Name for the resource
         /// \param args Arguments passed to resource's constructor
@@ -83,18 +87,18 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getNamedResource(const std::string& name, Args&&... args);
+        static T& getNamed(const std::string& name, Args&&... args);
 
         /// \brief Get an empty resource
         ///
-        /// This function will replace the resource if one already exists with the same name.
+        /// This function will not call the resource's load function.
         ///
         /// \param args Arguments to pass to the resource's constructor
         ///
         /// \return Reference to the resource
         ///
         template<typename T, typename ... Args>
-        static T& getEmptyResource(Args&&... args);
+        static T& getEmpty(Args&&... args);
 
         /// \brief Get an existing resource
         ///
@@ -106,7 +110,7 @@ namespace jop
         /// \return Reference to the resource
         ///
         template<typename T>
-        static T& getExistingResource(const std::string& name);
+        static T& getExisting(const std::string& name);
 
         /// \brief Check is a resource exists
         ///
@@ -117,8 +121,7 @@ namespace jop
         /// \return True if the resource exists
         /// 
         template<typename T>
-        static bool resourceExists(const std::string& name);
-
+        static bool exists(const std::string& name);
 
         /// \brief Copy a resource
         ///
@@ -131,22 +134,26 @@ namespace jop
         ///
         /// \return Reference to the resource
         ///
+        /// \see Resource::Resource(const Resource&, const std::string&)
+        ///
         template<typename T>
-        static T& copyResource(const std::string& name, const std::string& newName);
+        static T& copy(const std::string& name, const std::string& newName);
 
-
-        /// \brief Deletes resources from memory
+        /// \brief Delete resources
         ///
         /// This will delete all the resources with the given name, regardless of type.
         ///
-        /// The resources, if found, will be deleted regardless of the persistence flag.
+        /// The resources, if found, will be deleted regardless of the persistence level.
         /// Resources with the persistence level of 0 will not be removed, however.
         ///
         /// \param name Name of the resources to unload
         ///
-        static void unloadResource(const std::string& name);
+        static void unload(const std::string& name);
 
         /// \brief Delete a resource from memory
+        ///
+        /// The resource, if found, will be deleted regardless of the persistence level.
+        /// Resources with the persistence level of 0 will not be removed, however.
         ///
         /// When possible, you should prefer this overload.
         /// It's possibly magnitudes faster.
@@ -154,27 +161,56 @@ namespace jop
         /// \param name Name of the resource
         ///
         template<typename T>
-        static void unloadResource(const std::string& name);
+        static void unload(const std::string& name);
 
-        /// \brief Deletes all resources from memory
+        /// \brief Delete all resources
         ///
         /// \param persistence The persistence of the resources to unload
-        /// \param descending Set true to unload all resources with the given and below persistence levels
+        /// \param descending Set true to unload all resources with the given and greater persistence levels
         ///
-        static void unloadResources(const unsigned short persistence = 0xFFFF, const bool descending = true);
+        static void unload(const unsigned short persistence = 0xFFFF, const bool descending = true);
 
+        /// \brief Mark the beginning of a resource loading phase
+        ///
+        /// This function is provided to make it easier to manage big amounts of resources. When called, every resource
+        /// that is referenced after, will become flagged. When the load phase is ended, all resources **not** flagged
+        /// will be removed, provided they pass the persistence test.
+        ///
+        /// \warning It's very important to call endLoadPhase() after this, right after all the needed resources are loaded
+        ///
+        /// \see endLoadPhase()
+        ///
+        static void beginLoadPhase();
 
-        /// \brief Load the contents
+        /// \brief Mark the ending of a resource loading phase
         ///
-        /// This is for internal use only.
+        /// If a load phase was previously initiated, calling this function will end it and clear
+        /// all resources as described on beginLoadPhase().
         ///
-        static bool loadBase(const json::Value& val);
+        /// \param persistence The maximum persistence level to take into account. Resources with equal or greater
+        ///                    persistence level will be removed
+        ///
+        /// \see beginLoadPhase()
+        ///
+        static void endLoadPhase(const uint16 persistence);
 
-        /// \brief Save the contents
+        /// \brief Check is a resource is the default resource
         ///
-        /// This is for internal use only.
+        /// \param resource Reference to the resource
         ///
-        static bool saveBase(const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc);
+        /// \return True if the resource is the default resource
+        ///
+        template<typename T>
+        static bool isDefault(const T& resource);
+
+        /// \brief Check is a resource is the error resource
+        ///
+        /// \param resource Reference to the resource
+        ///
+        /// \return True if the resource is the error resource
+        ///
+        template<typename T>
+        static bool isError(const T& resource);
 
     private:
 
@@ -185,6 +221,11 @@ namespace jop
             std::pair<std::string, std::type_index>,
             std::unique_ptr<Resource>
         > m_resources;                              ///< Container holding resources
+        std::unordered_set
+        <
+            std::pair<std::string, std::type_index>
+        > m_loadPhaseResources;                     ///< Resource keys loaded during a load phase
+        std::atomic<bool> m_loadPhase;              ///< Is it load phase currently?
         std::recursive_mutex m_mutex;               ///< Mutex
     };
 
@@ -192,7 +233,7 @@ namespace jop
     #include <Jopnal/Core/Inl/ResourceManager.inl>
 }
 
-#endif
-
-/// \class ResourceManager
+/// \class jop::ResourceManager
 /// \ingroup core
+
+#endif

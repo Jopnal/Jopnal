@@ -19,8 +19,18 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup physics Physics
+
 // Headers
 #include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Physics/Joint/Joint.hpp>
+#include <Jopnal/Physics/Joint/GearJoint.hpp>
+#include <Jopnal/Physics/Joint/PistonJoint.hpp>
+#include <Jopnal/Physics/Joint/RotationJoint.hpp>
+#include <Jopnal/Physics/Joint/RopeJoint.hpp>
+#include <Jopnal/Physics/Joint/WeldJoint.hpp>
+#include <Jopnal/Physics/Joint/WheelJoint.hpp>
+#include <Jopnal/Physics/PhantomBody.hpp>
 #include <Jopnal/Physics/RayInfo.hpp>
 #include <Jopnal/Physics/RigidBody.hpp>
 #include <Jopnal/Physics/Shape/BoxShape.hpp>
@@ -30,14 +40,10 @@
 #include <Jopnal/Physics/Shape/ConeShape.hpp>
 #include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
 #include <Jopnal/Physics/Shape/CylinderShape.hpp>
+#include <Jopnal/Physics/Shape/FrustumShape.hpp>
 #include <Jopnal/Physics/Shape/InfinitePlaneShape.hpp>
 #include <Jopnal/Physics/Shape/RectangleShape.hpp>
 #include <Jopnal/Physics/Shape/SphereShape.hpp>
 #include <Jopnal/Physics/Shape/TerrainShape.hpp>
 #include <Jopnal/Physics/World.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup physics Physics
-///
-/// #TODO Detailed decription
+#include <Jopnal/Physics/ContactListener.hpp>

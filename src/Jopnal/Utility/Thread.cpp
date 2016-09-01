@@ -20,14 +20,41 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Utility/Thread.hpp>
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+
+    #ifdef JOP_OS_ANDROID
+
+        #include <jni.h>
+        #include <unordered_map>
+
+    #endif
+
+#endif
 
 #ifdef JOP_OS_WINDOWS
     #include <Jopnal/Utility/Win32/ThreadImpl.hpp>
+#else
+    #include <Jopnal/Utility/Unix/ThreadImpl.hpp>
 #endif
 
 //////////////////////////////////////////////
 
+
+#ifdef JOP_OS_ANDROID
+
+namespace
+{
+    std::unordered_map<std::thread::id, _JNIEnv*> ns_javaEnvs;
+}
+
+#endif
 
 namespace jop
 {
@@ -92,5 +119,82 @@ namespace jop
     std::thread::id Thread::getId() const
     {
         return m_thread.get_id();
+    }
+
+    //////////////////////////////////////////////
+
+    void Thread::attachJavaThread(void* vm, void* mainEnv)
+    {
+    #ifdef JOP_OS_ANDROID
+
+        JOP_DEBUG_DIAG("Attaching thread " << std::this_thread::get_id() << " to JVM...");
+
+        if (!vm)
+            vm = detail::ActivityState::get()->nativeActivity->vm;
+
+        JNIEnv* env = static_cast<JNIEnv*>(mainEnv);
+
+        JavaVMAttachArgs args;
+        args.version = JNI_VERSION_1_6;
+        args.name = "NativeThread";
+        args.group = NULL;
+        jint res = static_cast<JavaVM*>(vm)->AttachCurrentThread(&env, &args);
+
+        if (res == JNI_ERR)
+        {
+            JOP_DEBUG_ERROR("Failed to attach thread \"" << std::this_thread::get_id() << "\" to JVM");
+            return;
+        }
+
+        ns_javaEnvs[std::this_thread::get_id()] = env;
+
+        JOP_DEBUG_DIAG("Thread " << std::this_thread::get_id() << " attached to JVM");
+
+    #else
+
+        vm;
+        mainEnv;
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    void Thread::detachJavaThread(void* vm)
+    {
+    #ifdef JOP_OS_ANDROID
+
+        JOP_DEBUG_DIAG("Detaching thread " << std::this_thread::get_id() << " from JVM...");
+
+        if (!vm)
+            vm = detail::ActivityState::get()->nativeActivity->vm;
+
+        static_cast<JavaVM*>(vm)->DetachCurrentThread();
+
+        ns_javaEnvs.erase(std::this_thread::get_id());
+
+        JOP_DEBUG_DIAG("Thread " << std::this_thread::get_id() << " detached from JVM");
+
+    #else
+
+        vm;
+
+    #endif
+    }
+
+    //////////////////////////////////////////////
+
+    _JNIEnv* Thread::getCurrentJavaEnv()
+    {
+    #ifdef JOP_OS_ANDROID
+
+        auto itr = ns_javaEnvs.find(std::this_thread::get_id());
+
+        if (itr != ns_javaEnvs.end())
+            return itr->second;
+
+    #endif
+
+        return nullptr;
     }
 }

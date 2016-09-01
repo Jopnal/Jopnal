@@ -27,28 +27,37 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Physics/ContactInfo.hpp>
 #include <memory>
+#include <set>
 
 //////////////////////////////////////////////
 
 
 class btMotionState;
 class btCollisionObject;
-namespace detail
-{
-    struct GhostCallback;
-}
 
 namespace jop
 {
+    namespace detail
+    {
+        struct GhostCallback;
+        struct ContactListenerImpl;
+    }
+    class ContactListener;
+    class Joint;
     class World;
+    
 
-    class JOP_API Collider : public Component
+    class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
     private:
 
         JOP_DISALLOW_COPY_MOVE(Collider);
 
-        friend struct ::detail::GhostCallback;
+        friend struct detail::GhostCallback;
+        friend struct detail::ContactListenerImpl;
+        friend class ContactListener;
+        friend class Joint;
+        
 
     protected:
 
@@ -58,7 +67,7 @@ namespace jop
         /// \param world Reference to the physics world
         /// \param ID Id of this component
         ///
-        Collider(Object& object, World& world, const std::string& ID);
+        Collider(Object& object, World& world, const uint32 ID);
 
         /// \brief Copy constructor
         ///
@@ -70,6 +79,25 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~Collider() override = 0;
+
+
+        /// \brief Update
+        ///
+        /// \param deltaTime The delta time
+        ///
+        void update(const float deltaTime) override;
+
+        /// \brief Set whether the collider is allowed to sleep
+        ///
+        /// \param allow True to allow sleep. True by default
+        ///
+        void setAllowSleep(const bool allow);
+
+        /// \brief Check if sleep is allowed
+        ///
+        /// \return True if allowed
+        ///
+        bool isSleepAllowed() const;
 
     public:
 
@@ -101,6 +129,14 @@ namespace jop
         ///
         bool checkRay(const glm::vec3& start, const glm::vec3& ray) const;
 
+        /// \brief Register a listener for this collider
+        ///
+        /// Single collider can have multiple listeners
+        ///
+        /// \param listener Reference to the listener which is to be registered for this collider 
+        ///
+        void registerListener(ContactListener& listener);
+
         /// \brief Get the world this collider belongs to
         ///
         /// \return Reference to the world
@@ -111,32 +147,32 @@ namespace jop
         ///
         const World& getWorld() const;
 
-    private:
+        /// \brief Detach this body from its world
+        ///
+        void detachFromWorld();
 
-        /// \brief Overlap begin callback
+        /// \brief Attach this body to its world if it was previously detached
         ///
-        /// \param other The other collider that was overlapped
-        ///
-        virtual void beginOverlap(const Collider& other);
+        void attachToWorld();
 
-        /// \brief Overlap end callback
+        /// \brief Check if this body is currently detached from its world
         ///
-        /// \param other The other collider that was overlapping
+        /// \return True if detached
         ///
-        virtual void endOverlap(const Collider& other);
-
-        /// \brief Activity setter
-        ///
-        /// For internal use
-        ///
-        virtual void setActive(const bool) override = 0;
+        bool isDetachedFromWorld() const;
 
     protected:
 
         std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
         std::unique_ptr<btCollisionObject> m_body;      ///< Body data
         World& m_worldRef;                              ///< Reference to the world
+        std::set<ContactListener*> m_listeners;         ///< Listeners registered for this collider
+        bool m_detached;                                ///< Is this body detached from the world?
+        bool m_allowSleep;                              ///< Is sleep allowed?
     };
 }
+
+/// \class jop::Collider
+/// \ingroup physics
 
 #endif

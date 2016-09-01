@@ -20,7 +20,13 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/ResourceManager.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -36,27 +42,14 @@ namespace std
     }
 }
 
-//////////////////////////////////////////////
-
-namespace jop
-{
-    JOP_REGISTER_LOADABLE(jop, ResourceManager)[](const json::Value& val) -> bool
-    {
-        return ResourceManager::loadBase(val);
-    }
-    JOP_END_LOADABLE_REGISTRATION(ResourceManager)
-
-    JOP_REGISTER_SAVEABLE(jop, ResourceManager)[](const Subsystem& subsys, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        return ResourceManager::saveBase(subsys, val, alloc);
-    }
-    JOP_END_SAVEABLE_REGISTRATION(ResourceManager)
-}
-
 namespace jop
 {
     ResourceManager::ResourceManager()
-        : Subsystem("Resource Manager")
+        : Subsystem             (0),
+          m_resources           (),
+          m_loadPhaseResources  (),
+          m_loadPhase           (false),
+          m_mutex               ()
     {
         JOP_ASSERT(m_instance == nullptr, "Only one jop::ResourceManager object must exist at a time!");
     
@@ -70,7 +63,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResource(const std::string& name)
+    void ResourceManager::unload(const std::string& name)
     {
         if (m_instance)
         {
@@ -85,7 +78,7 @@ namespace jop
                 {
                     if (itr->second->getPersistence() != 0)
                     {
-                        JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
+                        JOP_DEBUG_DIAG("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                         inst.m_resources.erase(itr);
                     }
                     
@@ -99,7 +92,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void ResourceManager::unloadResources(const unsigned short persistence, const bool descending)
+    void ResourceManager::unload(const unsigned short persistence, const bool descending)
     {
         if (m_instance)
         {
@@ -113,7 +106,7 @@ namespace jop
                     ++itr;
                 else
                 {
-                    JOP_DEBUG_INFO("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
+                    JOP_DEBUG_DIAG("\"" << itr->first.first << "\" (" << typeid(*itr->second).name() << ") unloaded");
                     itr = res.erase(itr);
                 }
             }
@@ -122,92 +115,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool ResourceManager::loadBase(const json::Value& val)
+    void ResourceManager::beginLoadPhase()
     {
-        if (!m_instance)
-        {
-            JOP_DEBUG_ERROR("Couldn't load resource manager state, no instance exists");
-            return false;
-        }
-
-        if (val.HasMember("resources") && val["resources"].IsArray())
-        {
-            auto& custCont = StateLoader::getInstance().getFunctionContainer<Resource>();
-
-            for (auto& i : val["resources"])
-            {
-                if (i.HasMember("type") && i["type"].IsString())
-                {
-                    auto itr = custCont.find(i["type"].GetString());
-
-                    if (itr != custCont.end())
-                    {
-                        const json::Value v(json::kObjectType);
-                        if (!std::get<0>(itr->second)(nullptr, i.HasMember("data") && i["data"].IsObject() ? i["data"] : v))
-                        {
-                            JOP_DEBUG_ERROR("Failed to load resource, registered load function reported failure");
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        JOP_DEBUG_WARNING("Couldn't load resource with type \"" << i["type"].GetString() << "\", load function not registered. Attempting to load the rest...");
-                        continue;
-                    }
-                }
-            }
-        }
-
-        return true;
+        if (m_instance)
+            m_instance->m_loadPhase.store(true);
     }
 
     //////////////////////////////////////////////
 
-    bool ResourceManager::saveBase(const Subsystem&, json::Value& val, json::Value::AllocatorType& alloc)
+    void ResourceManager::endLoadPhase(const uint16 persistence)
     {
-        if (!m_instance)
+        if (m_instance && m_instance->m_loadPhase.load())
         {
-            JOP_DEBUG_ERROR("Couldn't load resource manager state, no instance exists");
-            return false;
-        }
+            auto& inst = *m_instance;
 
-        val.AddMember(json::StringRef("id"), json::StringRef(m_instance->getID().c_str()), alloc);
-
-        if (!m_instance->m_resources.empty())
-        {
-            const auto& resCont = StateLoader::getInstance().getFunctionContainer<Resource>();
-            const auto& nameMap = StateLoader::getInstance().getSavenameContainer();
-
-            auto& resArr = val.AddMember(json::StringRef("resources"), json::kArrayType, alloc)["resources"];
-
-            for (auto& i : m_instance->m_resources)
+            std::size_t count = 0;
             {
-                if (i.second->isManaged())
-                    continue;
+                std::lock_guard<std::recursive_mutex> lock(inst.m_mutex);
 
-                auto nameItr = nameMap.find(std::type_index(typeid(*i.second)));
-                auto itr = resCont.end();
-
-                if (nameItr == nameMap.end() || (itr = resCont.find(nameItr->second)) == resCont.end())
+                for (auto itr = inst.m_resources.begin(); itr != inst.m_resources.end();)
                 {
-                    JOP_DEBUG_WARNING("Couldn't save resource, type \"" << typeid(*i.second).name() << "\" not registered. Attempting to save the rest");
-                    continue;
+                    if (inst.m_loadPhaseResources.find(itr->first) == inst.m_loadPhaseResources.end() && itr->second->getPersistence() >= persistence)
+                    {
+                        JOP_DEBUG_DIAG("\"" << itr->first.first << "\" (" << itr->first.second.name() << ") unloaded");
+
+                        itr = inst.m_resources.erase(itr);
+                        ++count;
+                        continue;
+                    }
+
+                    ++itr;
                 }
 
-                resArr.PushBack(json::kObjectType, alloc);
-                auto& curr = resArr[resArr.Size() - 1];
-
-                curr.AddMember(json::StringRef("type"), json::StringRef(nameItr->second.c_str()), alloc);
-
-                if (!std::get<1>(itr->second)(i.second.get(), curr.AddMember(json::StringRef("data"), json::kObjectType, alloc)["data"], alloc))
-                {
-                    JOP_DEBUG_ERROR("Couldn't save resource with name \"" << i.second->getName() << "\", registered save function reported failure");
-                    return false;
-                }
+                inst.m_loadPhaseResources.clear();
             }
-        }
 
-        return true;
+            inst.m_loadPhase.store(false);
+
+            JOP_DEBUG_INFO("Resource load phase ended, " << count << " resources removed");
+        }
     }
 
     //////////////////////////////////////////////

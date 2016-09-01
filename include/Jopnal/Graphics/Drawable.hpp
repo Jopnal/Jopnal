@@ -25,76 +25,103 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Model.hpp>
+#include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Utility/Json.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
+#include <utility>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
     class LightSource;
     class LightContainer;
     class Renderer;
-    class Camera;
 
     class JOP_API Drawable : public Component
     {
-    private:
-
-        JOP_DISALLOW_COPY_MOVE(Drawable);
-
-        enum
-        {
-            ReceiveLights = 1,
-            ReceiveShadows = 1 << 1,
-            CastShadows = 1 << 2,
-            Reflected = 1 << 3
-        };
-
     protected:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other drawable to copy
-        /// \param newObj The new object
-        ///
-        Drawable(const Drawable& other, Object& newObj);
+        JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
     public:
     
+        /// Drawable flags
+        ///
+        enum Flag : uint32
+        {
+            ReceiveLights   = 1,        ///< Receive lights?
+            ReceiveShadows  = 1 << 1,   ///< Receive shadows?
+            CastShadows     = 1 << 2,   ///< Cast shadows?
+            Reflected       = 1 << 3    ///< Reflect on dynamic environment maps?
+        };
+
+        /// Attribute flags
+        ///
+        struct Attribute
+        {
+            enum : uint64
+            {
+                __SkySphere = 1 << 10,
+                __SkyBox    = __SkySphere << 1
+            };
+        };
+
+        /// Projection info
+        ///
+        struct JOP_API ProjectionInfo
+        {
+            JOP_DISALLOW_COPY_MOVE(ProjectionInfo);
+
+        public:
+
+            /// \brief Constructor
+            ///
+            /// \param view The view matrix
+            /// \param proj The projection matrix
+            /// \param camPos The camera position
+            ///
+            ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
+
+            const glm::mat4& viewMatrix;        ///< View matrix
+            const glm::mat4& projectionMatrix;  ///< Projection matrix
+            const glm::vec3& cameraPosition;    ///< Camera position
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
-        /// \param ID Component identifier
+        /// \param pass The render pass
         ///
-        Drawable(Object& object, Renderer& renderer, const std::string& ID);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+
+        /// \brief Overloaded constructor
+        ///
+        /// \param object Reference to the object this drawable will be bound to
+        /// \param pass The render pass to bind this drawable into
+        ///
+        Drawable(Object& object, RenderPass& pass);
 
         /// \brief Virtual destructor
         ///
-        virtual ~Drawable() override = 0;
+        virtual ~Drawable() override;
 
-
-        
-        /// \brief Base draw function
-        ///
-        /// This will use the shader bound to this drawable.
-        /// 
-        /// \param camera The camera to use
-        /// \param lights The light container
-        ///
-        void draw(const Camera& camera, const LightContainer& lights) const;
 
         /// \brief Draw function
+        /// 
+        /// \param proj The projection info
+        /// \param lights The light container
         ///
-        /// The camera pointer can be null some times. In these cases it means that the view & perspective
-        /// matrices have already been taken care of and you shouldn't try to set them.
-        ///
-        virtual void draw(const Camera*, const LightContainer&, Shader&) const = 0;
-
+        virtual void draw(const ProjectionInfo& proj, const LightContainer& lights) const;
 
         /// \brief Get the renderer this drawable is bound to
         ///
@@ -102,10 +129,11 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer
+        /// \brief Get the renderer this drawable is bound to
+        ///
+        /// \return Reference to the renderer
         ///
         const Renderer& getRenderer() const;
-
 
         /// \brief Set the render group
         ///
@@ -123,16 +151,15 @@ namespace jop
         ///
         uint8 getRenderGroup() const;
 
-
         /// \brief Set the model
         ///
         /// The model will be copied.
         ///
         /// \param model Reference to the model
         ///
-        /// \comm setModel
-        ///
         /// \return Reference to self
+        ///
+        /// \comm setModel
         ///
         Drawable& setModel(const Model& model);
 
@@ -146,140 +173,146 @@ namespace jop
         ///
         const Model& getModel() const;
 
+        /// \brief Set the color
+        ///
+        /// This sets the drawable-specific color to be used as a base.
+        /// If the bound material has a texture, the color will be used
+        /// as a multiplier. The default color is white with an alpha of 1.
+        ///
+        /// \param color The color to set
+        ///
+        /// \return Reference to self
+        ///
+        Drawable& setColor(const Color& color);
 
-        /// \brief Set the shader
+        /// \brief Get the color
         ///
-        /// This can be used to override the shader fetched from the bound material.
+        /// \return Reference to the color
         ///
-        /// \param shader Reference to the shader
+        /// \see setColor()
         ///
-        /// \comm setShader
-        ///
-        Drawable& setShader(Shader& shader);
+        const Color& getColor() const;
 
-        /// \brief Remove the shader
+        /// \brief Get the local bounds
         ///
-        /// \param loadMaterialShader Set this to true to automatically fetch a new shader
-        ///                           from the bound material. If this is false, there won't
-        ///                           be a shader bound after this call, and thus, drawing
-        ///                           will fail.
+        /// This is the same as calling %getModel().%getMesh()->%getBounds().
         ///
-        /// \return Reference to self 
+        /// \return The local bounds
         ///
-        Drawable& removeShader(const bool loadMaterialShader = true);
+        const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
 
-        /// \brief Get the shader
+        /// \brief Get the global bounds
         ///
-        /// \return Pointer to the shader. Empty if none bound
+        /// This will apply the current transformation to the local bounds and
+        /// then return them.
         ///
-        Shader* getShader() const;
+        /// \return The global bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getGlobalBounds() const;
 
+        /// \brief Set flags
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see Flag
+        ///
+        Drawable& setFlags(const uint32 flags);
 
-        /// \brief Set whether or not this drawable receives lights
+        /// \brief Check if this drawable has a flag
         ///
-        /// \param receive True to receive lights
+        /// \param flag The flag to check
         ///
-        /// \comm setReceiveLights
+        /// \return True if this drawable has the flag
         ///
-        Drawable& setReceiveLights(const bool receive);
+        /// \see Flag
+        ///
+        bool hasFlag(const uint32 flag) const;
 
-        /// \brief Check if this drawable receives lights
+        /// \brief Get a shader pre-processor string
         ///
-        /// \return True if receives lights
+        /// \param attribs The drawable attributes
+        /// \param str The string to write into
         ///
-        bool receiveLights() const;
+        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 
+        /// \brief Get the current shader
+        ///
+        /// \return Reference to the shader
+        ///
+        ShaderProgram& getShader() const;
 
-        /// \brief Check if a light affects this drawable
+        /// \brief Set an override shader
+        ///
+        /// \param shader The override shader
+        ///
+        /// \see removeOverrideShader()
+        ///
+        void setOverrideShader(ShaderProgram& shader);
+
+        /// \brief Remove the override shader if one is bound
+        ///
+        /// \see setOverrideShader()
         /// 
-        /// \param light The light to check against
-        ///
-        /// \return True if the light affects
-        ///
-        bool lightTouches(const LightSource& light) const;
+        void removeOverrideShader();
 
+        /// \brief Check if using an override shader
+        ///
+        /// \return True if using an override shader
+        ///
+        bool hasOverrideShader() const;
 
-        /// \brief Set the flag to receive shadows
+        /// \brief Check if this drawable has a certain attribute
         ///
-        /// \param receive True to set this to receive shadows
+        /// \param attribute The attribute to check
         ///
-        /// \comm setReceiveShadows
+        /// \return True if this drawable has the attribute
         ///
-        Drawable& setReceiveShadows(const bool receive);
+        bool hasAttribute(const uint64 attribute) const;
 
-        /// \brief Check if this drawable receives shadows
-        ///
-        /// \return True if this drawable receives shadows
-        ///
-        bool receiveShadows() const;
+	protected:
 
-        /// \brief Set the flag to cast shadows
-        /// 
-        /// \param cast True to set this to cast shadows
-        ///
-        /// \comm setCastShadows
-        ///
-        Drawable& setCastShadows(const bool cast);
+		/// \brief Set attributes
+		///
+		/// \param attributes The attributes to set
+		///
+		/// \return Reference to self
+		///
+		Drawable& setAttributes(const uint64 attributes);
 
-        /// \brief Check if this drawable casts shadows
-        ///
-        /// \return True if this drawable casts shadows
-        ///
-        bool castShadows() const;
+		/// \brief Add attributes
+		///
+		/// \param attributes The attributes to add
+		///
+		/// \return Reference to self
+		///
+		Drawable& addAttributes(const uint64 attributes);
 
+		/// \brief Get the attribute field
+		///
+		/// \return The attribute field
+		///
+		uint64 getAttributes() const;
 
-        /// \brief Set whether or not this drawable should be reflected in dynamic environment maps
+        /// \copydoc Component::receiveMessage()
         ///
-        /// \param reflected True to set this to be reflected
-        ///
-        /// \comm setReflected
-        ///
-        Drawable& setReflected(const bool reflected);
-
-        /// \brief Check if this drawable is reflected in dynamic environment maps
-        ///
-        /// \return True if this is reflected
-        ///
-        bool isReflected() const;
-
-
-        /// \brief Load the state
-        ///
-        /// This can be called by the derived class while loading serialized state.
-        ///
-        /// \param drawable Reference to the drawable to load
-        /// \param scene The scene this drawable is bound to
-        /// \param val The json value
-        ///
-        /// \return True if successful
-        ///
-        static bool loadStateBase(Drawable& drawable, const Scene& scene, const json::Value& val);
-
-        /// \brief Save the state
-        ///
-        /// This can be called by the derived class while serializing state.
-        ///
-        /// \param drawable Reference to the drawable to save
-        /// \param val The json value
-        /// \param alloc The json allocator
-        ///
-        /// \return True if successful
-        ///
-        static bool saveStateBase(const Drawable& drawable, json::Value& val, json::Value::AllocatorType& alloc);
+        virtual Message::Result receiveMessage(const Message& message) override;
 
     private:
 
-        mutable Model m_model;                  ///< The bound model
-        mutable WeakReference<Shader> m_shader; ///< The bound shader
-        Renderer& m_rendererRef;                ///< Reference to the renderer
-        uint8 m_renderGroup;                    ///< The render group
-        unsigned char m_flags;                  ///< Property flags
+        Color m_color;                                  ///< Color specific to this drawable
+        Model m_model;                                  ///< The bound model
+        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader (override)
+        uint64 m_attributes;                            ///< Attribute flags
+        Renderer& m_rendererRef;                        ///< Reference to the renderer
+        const RenderPass::Pass m_pass;                  ///< The render pass
+        uint32 m_flags;                                 ///< Property flags
+        uint8 m_renderGroup;                            ///< The render group
     };
 }
 
-#endif
-
-/// \class Drawable
+/// \class jop::Drawable
 /// \ingroup graphics
-///
-/// #TODO Detailed description
+
+#endif

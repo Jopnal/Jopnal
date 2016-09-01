@@ -20,13 +20,39 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/Transform.hpp>
+
+    #include <glm/gtc/matrix_transform.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    Transform::Variables::Variables(
+        const float posX, const float posY, const float posZ,
+        const float scaX, const float scaY, const float scaZ,
+        const float qW, const float qX, const float qY, const float qZ
+        ) :
+
+        position(posX, posY,posZ),
+        scale(scaX, scaY, scaZ),
+        rotation(qW, qX, qY, qZ)
+    {}
+
+
+    Transform::Variables::Variables(const glm::vec3& pos, const glm::vec3& sca, const glm::quat& rot) :
+        position(pos),
+        scale(sca),
+        rotation(rot)
+    {}
+
     Transform::Transform()
         : m_matrix(IdentityMatrix)
     {}
@@ -66,6 +92,36 @@ namespace jop
     void Transform::translate(const glm::vec3& translation)
     {
         m_matrix = glm::translate(m_matrix, translation);
+    }
+
+    //////////////////////////////////////////////
+
+    void Transform::transformBounds(glm::vec3& min, glm::vec3& max) const
+    {
+        const auto& mi = min;
+        const auto& ma = max;
+
+        const glm::vec4 points[] =
+        {
+            glm::vec4(mi, 1.f),                  // -X, -Y, -Z
+            glm::vec4(mi.x, mi.y, ma.z, 1.f),    // -X, -Y,  Z
+            glm::vec4(ma.x, mi.y, ma.z, 1.f),    //  X, -Y,  Z
+            glm::vec4(ma.x, mi.y, mi.z, 1.f),    //  X, -Y, -Z
+            glm::vec4(ma, 1.f),                  //  X,  Y,  Z
+            glm::vec4(ma.x, ma.y, mi.z, 1.f),    //  X,  Y, -Z
+            glm::vec4(mi.x, ma.y, mi.z, 1.f),    // -X,  Y, -Z
+            glm::vec4(mi.x, ma.y, ma.z, 1.f),    // -X,  Y,  Z
+        };
+
+        auto& t = getMatrix();
+
+        for (int i = 0; i < sizeof(points) / sizeof(points[0]); ++i)
+        {
+            const auto transformed = glm::vec3(t * points[i]);
+
+            min = glm::min(transformed, min);
+            max = glm::max(transformed, max);
+        }
     }
 
     //////////////////////////////////////////////

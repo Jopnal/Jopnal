@@ -32,29 +32,25 @@
 
 
 struct PHYSFS_File;
-namespace Assimp
-{
-    class Importer;
-}
+struct AAsset;
 
 namespace jop
 {
-    class JOP_API FileSystemInitializer final : public Subsystem
+    namespace detail
     {
-    private:
+        class FileSystemInitializer final : public Subsystem
+        {
+            JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
 
-        JOP_DISALLOW_COPY_MOVE(FileSystemInitializer);
+            friend class ModelLoader;
 
-        friend class ModelLoader;
+        public:
 
-        static Assimp::Importer& getImporter();
+            FileSystemInitializer(const char* arg);
 
-    public:
-
-        FileSystemInitializer(const char* arg);
-
-        ~FileSystemInitializer();
-    };
+            ~FileSystemInitializer();
+        };
+    }
 
     class JOP_API FileLoader
     {
@@ -69,8 +65,8 @@ namespace jop
         enum class Directory
         {
             Executable, ///< Executable directory
-            Resource,   ///< Resource folder
-            User        ///< User folder
+            Resource,   ///< Resource folder. On Android this is the memory card directory
+            User        ///< User folder. On Android this is the same directory as Executable
         };
 
     public:
@@ -83,11 +79,11 @@ namespace jop
 
         /// \brief Overloaded constructor
         ///
-        /// This will open the file for writing if found
+        /// This will open the file for reading if found
         ///
         /// \param path Path to file to open
         ///
-        /// \see isValid
+        /// \see isValid()
         ///
         explicit FileLoader(const std::string& path);
 
@@ -99,7 +95,7 @@ namespace jop
         /// \param path Path to file to open
         /// \param append Append to the file. False to clear the file before writing
         ///
-        /// \see isValid
+        /// \see isValid()
         /// 
         FileLoader(const Directory dir, const std::string& path, const bool append);
 
@@ -136,17 +132,23 @@ namespace jop
         ///
         bool open(const Directory dir, const std::string& path, const bool append);
 
-        /// \brief Flush the file handle if open
+        /// \brief Flush the file stream
+        ///
+        /// This function only has an effect when writing to a file. Once called
+        /// all buffered file output will be flushed and written to disk.
+        ///
+        /// If no file handle is open, this will have no effect.
         ///
         void flush();
 
-        /// \brief Close the file handle if open
+        /// \brief Close the file handle
         ///
+        /// If no file handle is open, this will have no effect.
         /// When writing, calling this means saving the file.
         ///
         void close();
 
-        /// \brief Check if a file handle exists
+        /// \brief Check if a file handle is open
         ///
         /// \return True if a valid file handle exists
         ///
@@ -159,7 +161,7 @@ namespace jop
         ///
         /// \return Amount of data read in bytes
         ///
-        /// \see getSize
+        /// \see getSize()
         ///
         int64 read(void* data, const uint64 size);
 
@@ -172,9 +174,9 @@ namespace jop
         ///
         int64 write(const void* data, const uint64 size);
 
-        /// \brief Move the cursor to the given position
+        /// \brief Move the file cursor to the given position
         ///
-        /// \param position The cursor position to set
+        /// \param position The cursor position to set in bytes
         ///
         /// \return True if successful
         ///
@@ -182,20 +184,19 @@ namespace jop
 
         /// \brief Get the current position of the cursor
         ///
-        /// \return Current position of the file read/write cursor
+        /// \return Current position of the file read/write cursor. -1 in case of failure
         ///
-        int64 tell();
+        int64 tell() const;
 
         /// \brief Get the size of the opened file
         ///
         /// \return Size of the file
         ///
-        int64 getSize();
+        int64 getSize() const;
 
-        /// \copydoc isValid
+        /// \copydoc isValid()
         ///
         operator bool() const;
-
 
         /// \brief Check if a file exists
         ///
@@ -216,6 +217,8 @@ namespace jop
 
         /// \brief Enumerate all files within a directory recursively
         ///
+        /// \warning On Android, files cannot be enumerated recursively from the .apk.
+        ///
         /// \param path Path to a directory
         /// \param list Reference to a list to fill with the file paths found
         ///
@@ -225,11 +228,12 @@ namespace jop
 
         /// \brief Delete a file
         ///
+        /// \param dir The base write directory
         /// \param file Path to the file
         ///
-        /// \return True if file was deleted
+        /// \return True if file was successfully deleted
         ///
-        static bool deleteFile(const std::string& file);
+        static bool deleteFile(const Directory dir, const std::string& file);
 
         /// \brief Read a text file
         ///
@@ -276,11 +280,12 @@ namespace jop
         ///
         /// If the directory already exists, this has no effect.
         ///
+        /// \param dir The base write directory
         /// \param path The directory to create
         ///
         /// \return True if successful
         ///
-        static bool makeDirectory(const std::string& path);
+        static bool makeDirectory(const Directory dir, const std::string& path);
 
         /// \brief Get a base directory as string
         ///
@@ -296,17 +301,6 @@ namespace jop
         ///
         static char getDirectorySeparator();
 
-        /// \brief Read a resource file
-        ///
-        /// This is mostly used internally.
-        ///
-        /// \param id Identifier of the resource
-        /// \param buffer The data buffer
-        ///
-        /// \return True if successful
-        /// 
-        static bool readResource(const int id, std::vector<uint8>& buffer);
-
         /// \brief Enable/disable file system error checks
         ///
         /// \param enable True to enable
@@ -321,8 +315,16 @@ namespace jop
 
     private:
 
-        PHYSFS_File* m_file;    ///< File handle
+        union
+        {
+            PHYSFS_File* m_file;    ///< File handle
+            AAsset* m_asset;        ///< Android asset handle
+        };
+        bool m_isAsset;             ///< Is the current open file an Android asset?
     };
 }
+
+/// \class jop::FileLoader
+/// \ingroup core
 
 #endif

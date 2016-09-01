@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -60,5 +60,8 @@ namespace jop
         bool load(const glm::vec3& extents);
     };
 }
+
+/// \class jop::BoxShape
+/// \ingroup physics
 
 #endif

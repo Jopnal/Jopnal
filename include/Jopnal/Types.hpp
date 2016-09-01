@@ -27,23 +27,18 @@
 
 namespace jop
 {
-    // Float (32 bit)
-    typedef float float32;
+    typedef float               float32;    ///< 32 bit float (single-precision)
+    typedef double              float64;    ///< 64 bit float (double precision)
 
-    // Float (64 bit)
-    typedef double float64;
+    typedef signed char         int8;       ///< 8 bit signed integer     
+    typedef signed short        int16;      ///< 16 bit signed integer
+    typedef signed int          int32;      ///< 32 bit signed integer
+    typedef signed long long    int64;      ///< 64 bit signed integer
 
-    // Ints (8, 16, 32 64 bit)
-    typedef signed char int8;
-    typedef signed short int16;
-    typedef signed int int32;
-    typedef signed long long int64;
-
-    // Uints (8, 16, 32, 64 bit)
-    typedef unsigned char uint8;
-    typedef unsigned short uint16;
-    typedef unsigned int uint32;
-    typedef unsigned long long uint64;
+    typedef unsigned char       uint8;      ///< 8 bit unsigned integer
+    typedef unsigned short      uint16;     ///< 16 bit unsigned integer
+    typedef unsigned int        uint32;     ///< 32 bit unsigned integer
+    typedef unsigned long long  uint64;     ///< 64 bit unsigned integer
 }
 
 #endif

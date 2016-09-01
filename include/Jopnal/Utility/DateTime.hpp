@@ -35,41 +35,76 @@ namespace jop
     {
     public:
 
+        /// \brief Structure representing a date
+        ///
         struct Date
         {
-            uint16 year;
-            uint8 month;
-            uint8 day;
+            uint16 year;    ///< The year
+            uint8 month;    ///< The month
+            uint8 day;      ///< The day
         };
 
         struct Time
         {
-            uint8 hour;
-            uint8 minute;
-            uint8 second;
+            uint8 hour;     ///< The hour
+            uint8 minute;   ///< The minute
+            uint8 second;   ///< The second
         };
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// Calls update().
+        ///
         DateTime();
 
 
+        /// \brief Update the date and/or time with the current, real world date and time values
+        ///
+        /// \param date Update date?
+        /// \param time Update time?
+        ///
+        /// \return Reference to self
+        ///
         DateTime& update(const bool date = true, const bool time = true);
 
+        /// \brief Get the cached date value
+        ///
+        /// \return The cached date value
+        ///
         const Date& getDate() const;
 
+        /// \brief Get the cached time value
+        ///
+        /// \return The cached time value
+        ///
         const Time& getTime() const;
 
-
+        /// \brief Equality operator
+        ///
+        /// \param right The other DateTime to compare against
+        ///
+        /// \return True if the two date-times match
+        ///
         bool operator ==(const DateTime& right) const;
-        
+
+        /// \brief Inequality operator
+        ///
+        /// \param right The other DateTime to compare against
+        ///
+        /// \return True if the two date-times don't match
+        ///
         bool operator !=(const DateTime& right) const;
 
     private:
 
-        Date m_date;
-        Time m_time;
+        Date m_date;    ///< Date
+        Time m_time;    ///< Time
     };
 }
+
+/// \class jop::DateTime
+/// \ingroup utility
 
 #endif

@@ -20,7 +20,17 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Component.hpp>
+
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -32,11 +42,36 @@ namespace jop
         JOP_BIND_MEMBER_COMMAND(&Component::setID, "setID");
 
     JOP_END_COMMAND_HANDLER(Component)
+
+    bool jop__baseComponentLoadFunc(JOP_COMPONENT_LOAD_ARGS)
+    {
+        if (val.HasMember("id") && val["id"].IsUint())
+            comp.setID(val["id"].GetUint());
+
+        return true;
+    }
+    bool jop__baseComponentSaveFunc(JOP_COMPONENT_SAVE_ARGS)
+    {
+        val.AddMember(json::StringRef("id"), comp.getID(), alloc);
+
+        return true;
+    }
+
+    JOP_REGISTER_SERIALIZER_NO_FACTORY(jop, Component, jop__baseComponentLoadFunc, jop__baseComponentSaveFunc);
 }
 
 namespace jop
 {
-    Component::Component(Object& object, const std::string& ID)
+    Component* Component::clone(Object&) const
+    {
+        JOP_DEBUG_ERROR("clone() not defined for component \"" << typeid(*this).name() << "\", was not copied");
+
+        return nullptr;
+    }
+
+    //////////////////////////////////////////////
+
+    Component::Component(Object& object, const uint32 ID)
         : m_objectRef   (object),
           m_ID          (ID)
     {}
@@ -51,34 +86,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Component::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result Component::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
     Message::Result Component::sendMessage(const Message& message)
     {
-        if (message.passFilter(Message::Component) && message.passFilter(getID()))
-        {
-            if (message.passFilter(Message::Command))
-            {
-                Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Component, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
-                    return Message::Result::Escape;
-            }
-
-            if (message.passFilter(Message::Custom))
-                return sendMessageImpl(message);
-        }
+        if (message.passFilter(Message::Component))
+            return receiveMessage(message);
 
         return Message::Result::Continue;
     }
@@ -90,14 +101,14 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const std::string& Component::getID() const
+    uint32 Component::getID() const
     {
         return m_ID;
     }
 
     //////////////////////////////////////////////
 
-    void Component::setID(const std::string& ID)
+    void Component::setID(const uint32 ID)
     {
         m_ID = ID;
     }
@@ -140,13 +151,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Component::setActive(const bool)
-    {}
-
-    //////////////////////////////////////////////
-
-    Message::Result Component::sendMessageImpl(const Message&)
+    Message::Result Component::receiveMessage(const Message& message)
     {
-        return Message::Result::Continue;
+        return JOP_EXECUTE_COMMAND(Component, message.getString(), this);
     }
 }

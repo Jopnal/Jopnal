@@ -24,7 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
 
 //////////////////////////////////////////////
@@ -36,23 +36,26 @@ namespace jop
     {
     public:
     
-        /// \brief Get the supported full screen resolutions
+        /// \brief Get all the supported full screen resolutions
         ///
-        /// \return Reference to an internal array
+        /// \return Reference to an internal array with the resolutions
         ///
-        static const std::vector<glm::uvec2>& getSupportedResolutions();
+        static const std::vector<VideoInfo>& getSupportedModes();
 
         /// \brief Get the primary monitor desktop resolution
         ///
         /// \return Primary monitor desktop resolution
         /// 
-        static glm::uvec2 getDesktopResolution();
+        static VideoInfo getDesktopMode();
+
+    public:
+
+        glm::uvec2 resolution;
+        unsigned int refreshRate;
     };
 }
 
-#endif
-
-/// \class VideoInfo
+/// \class jop::VideoInfo
 /// \ingroup window
-///
-/// #TODO Detailed description
+
+#endif

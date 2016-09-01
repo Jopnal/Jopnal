@@ -25,21 +25,21 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 #include <string>
 
 //////////////////////////////////////////////
 
-
-namespace sf
-{
-    class SoundSource;
-}
-
 namespace jop
 {
+
     class JOP_API SoundSource : public Component
     {
+    private:
+
+        friend class Listener;
+
     protected:
 
         /// \brief Copy constructor
@@ -69,7 +69,7 @@ namespace jop
         /// \param object Reference to the object this component will be bound to
         /// \param ID Component identifier
         ///
-        SoundSource(Object& object, const std::string& ID);
+        SoundSource(Object& object, const uint32 ID);
 
         /// \brief Virtual destructor
         ///
@@ -88,11 +88,11 @@ namespace jop
         ///
         /// The value will be clamped inside the appropriate range.
         ///
-        /// \comm setVolume
-        ///
         /// \param vol Float 0-100.0f default is 100.0f
         ///
         /// \return Reference to self
+        ///
+        /// \comm setVolume
         ///
         SoundSource& setVolume(const float vol);
 
@@ -107,11 +107,11 @@ namespace jop
         /// Be careful with this function. Setting the pitch too high or low can lead to
         /// sound artifacts or even crashes. The safe range seems to be between 0.1 and 8.
         ///
-        /// \comm setPitch
-        ///
         /// \param value The pitch value. Default is 1
         ///
         /// \return Reference to self
+        ///
+        /// \comm setPitch
         ///
         SoundSource& setPitch(const float value);
 
@@ -123,39 +123,39 @@ namespace jop
 
         /// \brief Toggle listener on/off
         ///
-        /// \comm setListener
-        ///
-        /// \param toggle True plays sound at listener's position and false enables spatialization in 3d space
+        /// \param toggle True enables spatialization (default) and makes sound relative to listener
         ///
         /// \return Reference to self
         ///
-        SoundSource& setListener(const bool toggle);
+        /// \comm setListener
+        ///
+        SoundSource& setSpatialization(const bool toggle);
 
         /// \brief Returns relativity to listener
         ///
-        /// \return True if relative to listener
+        /// \return True if spatialized false if relative to listener
         ///
-        bool getListener() const;
+        bool isSpatialized() const;
 
         /// \brief Change sound's fade-out distance
         ///
         /// Higher values mean that the sound will fade out more quickly.
         ///
-        /// \comm setAttenuation
-        ///
         /// \param at Attenuation 0-100.0f
         ///
         /// \return Reference to self
+        ///
+        /// \comm setAttenuation
         ///
         SoundSource& setAttenuation(const float at);
         
         /// \brief Change sound's distance when it is heard in max volume
         ///
-        /// \comm setMinDistance
-        ///
         /// \param min MinDistance 1<x
         ///
         /// \return Reference to self
+        ///
+        /// \comm setMinDistance
         ///
         SoundSource& setMinDistance(const float min);
        
@@ -171,15 +171,75 @@ namespace jop
         ///
         float getMinDistance() const;
 
+        /// \brief Returns status of the sound (Stopped,Paused,Playing)
+        ///
+        /// \return enum
+        ///
+        Status getStatus() const;
+
+        /// \brief Use object's direction for sound
+        ///
+        /// \param use true will make sound to use direction
+        ///
+        SoundSource& useDirection(const bool use);
+
+        /// \brief Check if sound has direction
+        ///
+        /// \return Is direction calculated for sound
+        ///
+        bool isDirection() const;
+
     protected:
 
-        std::unique_ptr<sf::SoundSource> m_sound;   ///< Sound source
+        /// \brief Private check is speed of sound calculated
+        ///
+        /// \return Boolean if true speed is calculated
+        ///
+        static bool isSpeedOfSound();
+
+        unsigned int m_source;   ///< Sound source
+        float m_delayCounter;    ///< Sound's propagation delay
+        bool m_calculateDelay;   ///< Check if delay should be calculated
+
+    private:
+
+        /// \brief Private handling for speed of sound for source
+        ///
+        /// \param Boolean if true speed of sound will be calculated
+        ///
+        static void calculateSpeedOfSound(const bool use);
+
+        /// \brief Private handling for doppler effect for source
+        ///
+        /// \param Boolean if true doppler effect will be calculated
+        ///
+        static void calculateDopplerEffect(const bool use);
+
+        /// \brief Private method to change speed of sound
+        ///
+        /// \return Param speed for sound
+        ///
+        static void setSpeedForSound(float speed);
+
+        /// \brief Private method to get speed of sound
+        ///
+        /// \return Speed of sound as float
+        ///
+        static float getSpeedForSound();
+
+        /// \brief Private calculation when sound must be played.
+        ///
+        void calculateSound();
+
+
+        bool m_isDirection;     ///< Does sound have direction
+        glm::vec3 m_lastPos;    ///< Used in calculating velocity
     };
 }
 
-#endif
-
-/// \class SoundSource
-/// \ingroup Audio
+/// \class jop::SoundSource
+/// \ingroup audio
 ///
 /// Base class for audio component
+
+#endif

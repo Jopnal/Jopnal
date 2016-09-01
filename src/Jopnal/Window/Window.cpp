@@ -20,10 +20,39 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Window/Window.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/RenderTexture.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/Keyboard.hpp>
+    #include <Jopnal/Window/WindowEventHandler.hpp>
+    #include <Jopnal/Window/VideoInfo.hpp>
+    #include <Jopnal/STL.hpp>
+
+    #ifdef JOP_OPENGL_ES
+
+        #include <Jopnal/Graphics/OpenGL/EglCheck.hpp>
+        #include <EGL/egl.h>
+
+    #endif
+
+#endif
 
 #if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/WindowImpl.hpp>
+#else
+    #include <Jopnal/Window/Android/WindowImpl.hpp>
 #endif
 
 //////////////////////////////////////////////
@@ -31,7 +60,7 @@
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Subsystem, Window)
+    JOP_REGISTER_COMMAND_HANDLER(Window)
 
         JOP_BIND_MEMBER_COMMAND(&Window::setMouseMode, "setMouseMode");
 
@@ -46,24 +75,79 @@ namespace
     {
         explicit jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
         void closed() override {jop::Engine::exit();}
+
+    #ifdef JOP_OS_ANDROID
+
+        void keyPressed(const int key, const int, const int)
+        {
+            if (key == jop::Keyboard::Escape)
+                closed();
+        }
+
+    #endif
     };
 
     const char* const ns_settingStr[] =
     {
-        /* 0 */ "engine/DefaultWindow|uSizeX",
-        /* 1 */ "engine/DefaultWindow|uSizeY",
-        /* 2 */ "engine/DefaultWindow|bVerticalSync"
+        /* 0 */ "engine@DefaultWindow|uSizeX",
+        /* 1 */ "engine@DefaultWindow|uSizeY",
+        /* 2 */ "engine@DefaultWindow|bVerticalSync"
     };
 }
 
 namespace jop
 {
+    namespace detail
+    {
+        BufferSwapper::BufferSwapper(Window& window)
+            : Subsystem     (0),
+              m_frameClock  (),
+              m_windowRef   (window)
+        {}
+
+        //////////////////////////////////////////////
+
+        void BufferSwapper::draw()
+        {
+            static const DynamicSetting<unsigned int> frameLimit("engine@DefaultWindow|uFrameLimit", 0);
+
+            if (frameLimit.value > 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>((1.f / frameLimit.value - m_frameClock.reset().asSeconds()) * 1000.f)));
+
+            if (m_windowRef.isOpen())
+            {
+                if (Engine::getState() != Engine::State::Frozen)
+
+            #ifdef JOP_OS_ANDROID
+
+                {
+                    if (ActivityState::get()->fullFocus)
+                        m_windowRef.m_impl->swapBuffers();
+                    else
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+
+            #else
+
+                    m_windowRef.m_impl->swapBuffers();
+
+            #endif
+            }
+        }
+    }
+
+
+    //////////////////////////////////////////////
+
+
     Window::Settings::Settings(const bool loadSettings)
-        : size          (1u, 1u),
+        : colorBits     (8, 8, 8, 8),
+          size          (1u, 1u),
           title         ("Window Title"),
           displayMode   (DisplayMode::Windowed),
           samples       (0),
-          maxFrameRate  (0),
+          depthBits     (0),
+          stencilBits   (0),
           visible       (false),
           vSync         (true),
           debug         (false)
@@ -72,52 +156,85 @@ namespace jop
         {
             typedef SettingManager SM;
 
-            size.x = SM::get<unsigned int>(ns_settingStr[0], 1280); size.y = SM::get<unsigned int>(ns_settingStr[1], 720);
-            title = SM::get<std::string>("engine/DefaultWindow|sTitle", getProjectName());
-            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine/DefaultWindow|uMode", 0)));
-            samples = SM::get<unsigned int>("engine/DefaultWindow|uMultisampling", 0);
-            maxFrameRate = SM::get<unsigned int>("engine/DefaultWindow|uFrameLimit", 0);
-            visible = SM::get<bool>("engine/DefaultWindow|bVisible", true);
+            static const auto deskTop = VideoInfo::getDesktopMode();
+
+            size.x = SM::get<unsigned int>(ns_settingStr[0], deskTop.resolution.x); size.y = SM::get<unsigned int>(ns_settingStr[1], deskTop.resolution.y);
+            title = SM::get<std::string>("engine@DefaultWindow|sTitle", getProjectName());
+            displayMode = static_cast<Window::DisplayMode>(std::min(2u, SM::get<unsigned int>("engine@DefaultWindow|uMode", 1)));
+            samples = SM::get<unsigned int>("engine@DefaultWindow|uMultisampling", 0);
+            visible = SM::get<bool>("engine@DefaultWindow|bVisible", true);
             vSync = SM::get<bool>(ns_settingStr[2], true);
-            debug = SM::get<bool>("engine/DefaultWindow|bDebugContext", false);
+            debug = SM::get<bool>("engine@DefaultWindow|bDebugContext", false);
         }
     }
 
     //////////////////////////////////////////////
 
     Window::Window()
-        : RenderTarget      ("window"),
+        : RenderTarget      (),
+          Subsystem         (0),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_vertexArray     (0)
     {}
 
     Window::Window(const Settings& settings)
-        : RenderTarget      ("window"),
+        : RenderTarget      (),
+          Subsystem         (0),
           m_impl            (),
-          m_eventHandler    ()
+          m_eventHandler    (),
+          m_vertexArray     (0)
     {
         open(settings);
         setDefaultEventHandler();
 
-    #ifdef JOP_DEBUG_MODE
-        if (gl::exts::var_KHR_debug)
+    #if JOP_CONSOLE_VERBOSITY >= 0
+
+        if (JOP_CHECK_GL_EXTENSION(KHR_debug) && settings.debug)
         {
-            gl::DebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+        #ifdef JOP_OPENGL_ES
+
+            #define GL_DEBUG_SEVERITY_HIGH GL_DEBUG_SEVERITY_HIGH_KHR
+            #define GL_DEBUG_SEVERITY_MEDIUM GL_DEBUG_SEVERITY_MEDIUM_KHR
+            #define GL_DEBUG_SEVERITY_LOW GL_DEBUG_SEVERITY_LOW_KHR
+            #define GL_DEBUG_SEVERITY_NOTIFICATION GL_DEBUG_SEVERITY_NOTIFICATION_KHR
+
+            auto voidCallback = eglCheck(eglGetProcAddress("glDebugMessageCallbackKHR"));
+            auto glDebugMessageCallback = reinterpret_cast<void(*)(GLDEBUGPROCKHR, const void*)>(voidCallback);
+
+            if (!voidCallback)
+                JOP_DEBUG_ERROR("Failed to load function glDebugMessageCallbackKHR")
+            
+            else
+
+        #endif
             {
-                if (severity == gl::DEBUG_SEVERITY_HIGH)
-                    JOP_DEBUG_ERROR(msg)
+                glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*)
+                {
+                #if JOP_CONSOLE_VERBOSITY >= 0
+                    if (severity == GL_DEBUG_SEVERITY_HIGH)
+                        JOP_DEBUG_ERROR(msg)
+                #endif
 
-                else if (severity == gl::DEBUG_SEVERITY_MEDIUM)
-                    JOP_DEBUG_WARNING(msg)
+                #if JOP_CONSOLE_VERBOSITY >= 1
+                    else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+                        JOP_DEBUG_WARNING(msg)
+                #endif
 
-                else if (severity == gl::DEBUG_SEVERITY_LOW)
-                    JOP_DEBUG_INFO(msg)
+                #if JOP_CONSOLE_VERBOSITY >= 2
+                    else if (severity == GL_DEBUG_SEVERITY_LOW)
+                        JOP_DEBUG_INFO(msg)
+                #endif
 
-                else if (severity == gl::DEBUG_SEVERITY_NOTIFICATION)
-                    JOP_DEBUG_DIAG(msg);
+                #if JOP_CONSOLE_VERBOSITY >= 3
+                    else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+                        JOP_DEBUG_DIAG(msg)
+                #endif
 
-            }, NULL);
+                }, NULL);
+            }
         }
+
     #endif
     }
 
@@ -135,12 +252,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Window::postUpdate(const float deltaTime)
+    void Window::postUpdate(const float)
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (isOpen() && Engine::getState() != Engine::State::Frozen)
-            RenderTarget::postUpdate(deltaTime);
+            clear(AllBit);
     }
 
     //////////////////////////////////////////////
@@ -149,15 +266,12 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        if (isOpen() && Engine::getState() != Engine::State::Frozen)
-            m_impl->swapBuffers();
-
         // Only poll the events if they haven't yet been during this frame.
         // We care about this because we don't want to invoke controller
         // callbacks multiple times.
         if (!ns_eventsPolled)
         {
-            static const bool controllers = SettingManager::get<unsigned int>("engine/Input|Controller|uMaxControllers", 1) > 0;
+            static const bool controllers = SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1) > 0;
 
             pollEvents();
 
@@ -186,12 +300,24 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        m_impl = std::make_unique<detail::WindowImpl>(settings);
+        m_impl = std::make_unique<detail::WindowImpl>(settings, *this);
         auto s = getSize();
-        gl::Viewport(0, 0, s.x, s.y);
 
-        static const Color defColor(SettingManager::get<std::string>("engine/DefaultWindow|sClearColor", "121212FF"));
+        static const Color defColor(SettingManager::get<std::string>("engine@DefaultWindow|sClearColor", "000000FF"));
         setClearColor(defColor);
+
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
+        if (gl::getVersionMajor() >= 3)
+        {
+            glCheck(glGenVertexArrays(1, &m_vertexArray));
+            glCheck(glBindVertexArray(m_vertexArray));
+        }
+
+    #endif
+
+        GlState::setFaceCull(true);
+        GlState::setSeamlessCubemap(true);
     }
 
     //////////////////////////////////////////////
@@ -199,6 +325,16 @@ namespace jop
     void Window::close()
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        
+    #if !defined(JOP_OPENGL_ES) || defined(JOP_OPENGL_ES3)
+
+        if (gl::getVersionMajor() >= 3)
+        {
+            glCheck(glBindVertexArray(0));
+            glCheck(glDeleteVertexArrays(1, &m_vertexArray));
+        }
+
+    #endif
 
         m_impl.reset();
     }
@@ -239,14 +375,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    GLFWwindow* Window::getLibraryHandle()
+    WindowLibHandle Window::getLibraryHandle()
     {
-    #ifdef JOP_OS_DESKTOP
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         if (isOpen())
             return m_impl->getLibraryHandle();
-    #endif
 
         return nullptr;
     }
@@ -322,5 +456,15 @@ namespace jop
             return m_impl->getSize();
 
         return glm::uvec2();
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result Window::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(Window, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Subsystem::receiveMessage(message);
     }
 }

@@ -26,7 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <glm/vec2.hpp>
 #include <mutex>
 #include <atomic>
 
@@ -35,7 +35,7 @@
 
 namespace jop
 {
-    class JOP_API RenderTarget : public Subsystem
+    class JOP_API RenderTarget
     {
     private:
 
@@ -58,22 +58,12 @@ namespace jop
     
         /// \brief Constructor
         ///
-        /// \param ID Identifier of this render target
-        ///
-        RenderTarget(const std::string& ID);
+        RenderTarget();
 
         /// \brief Virtual destructor
         ///
         virtual ~RenderTarget() = 0;
 
-
-        /// \brief Post-update
-        ///
-        /// This will clear the color, depth and stencil buffers
-        ///
-        /// \param deltaTime The delta time, not used
-        ///
-        virtual void postUpdate(const float deltaTime) override;
 
         /// \brief Clear the selected buffers
         ///
@@ -81,20 +71,17 @@ namespace jop
         ///
         void clear(const unsigned int bits);
 
-
         /// \brief Bind this render target for drawing
         ///
         /// \return True if successful
         ///
         virtual bool bind() const = 0;
         
-
         /// \brief Get the size
         ///
-        /// \return The size
+        /// \return The size in pixels
         ///
         virtual glm::uvec2 getSize() const = 0;
-
 
         /// \brief Set the clear color
         ///
@@ -102,7 +89,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        RenderTarget& setClearColor(const Color color);
+        RenderTarget& setClearColor(const Color& color);
 
         /// \brief Get the clear color
         ///
@@ -118,9 +105,9 @@ namespace jop
         ///
         RenderTarget& setClearDepth(const float depth);
 
-        /// \brief Get the clear depth
+        /// \brief Get the clear depth value
         ///
-        /// \return The clear depth
+        /// \return The clear depth value
         ///
         float getClearDepth() const;
 
@@ -132,9 +119,9 @@ namespace jop
         ///
         RenderTarget& setClearStencil(const int stencil);
 
-        /// \brief Get the clear stencil
+        /// \brief Get the clear stencil value
         ///
-        /// \return The clear stencil
+        /// \return The clear stencil value
         ///
         int getClearStencil() const;
 
@@ -144,16 +131,13 @@ namespace jop
 
     private:
 
-        Color m_clearColor;         ///< The clear color
-        std::atomic<float> m_clearDepth;         ///< The clear depth
-        std::atomic<int> m_clearStencil;         ///< The clear stencil
-        std::atomic<bool> m_clearAttribsChanged; ///< Have any of the clear values been changed?
+        Color m_clearColor;                 ///< The clear color
+        std::atomic<float> m_clearDepth;    ///< The clear depth
+        std::atomic<int> m_clearStencil;    ///< The clear stencil
     };
 }
 
-#endif
-
-/// \class RenderTarget
+/// \class jop::RenderTarget
 /// \ingroup graphics
-///
-/// #TODO Detailed description
+
+#endif

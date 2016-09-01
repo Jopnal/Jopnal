@@ -24,6 +24,8 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/DebugHandler.hpp>
+#include <Jopnal/Graphics/OpenGL/GlState.hpp>
 #include <Jopnal/Utility/Message.hpp>
 #include <Jopnal/Utility/Thread.hpp>
 #include <Jopnal/Window/Window.hpp>
@@ -45,34 +47,24 @@ namespace jop
     {
         template<typename, bool, bool>
         struct SceneCreator;
-
-        template<typename T, bool Threaded>
-        struct SceneTypeSelector{typedef T& type;};
-        template<typename T>
-        struct SceneTypeSelector<T, true>
-        {typedef ::jop::Scene& type;};
     }
 
     class JOP_API Engine final
     {
     private:
 
-        friend class StateLoader;
-
         template<typename, bool, bool>
         friend struct detail::SceneCreator;
 
     public:
 
-        /// Engine state
+        /// \brief Engine state
         ///
-        /// No matter the state, sub systems will always be running normally, except
-        /// in ZeroDelta state, the delta time passed to sub systems is still zero.
+        /// No matter the state, sub systems will always be running normally.
         ///
         enum class State
         {
             Running,    ///< Run normally
-            ZeroDelta,  ///< Run normally, except delta time is always zero
             RenderOnly, ///< Only render, don't update
             Frozen      ///< No rendering or updating
         };
@@ -120,30 +112,27 @@ namespace jop
         ///
         /// When state is Running, this function has no effect.
         ///
-        /// \comm advanceFrame
-        ///
         static void advanceFrame();
-
 
         /// \brief Create a new scene
         ///
         /// This function will construct the scene and then set it as active.
-        /// The previously active scene will be discarded.
+        /// The previously active scene will be discarded and deleted.
         ///
         /// If Threaded is true, the scene will be loaded in a separate thread, while the old one is
         /// left running. If WaitSignal is false, the new scene will be set current as soon as it's loaded.
         /// If WaitSignal is true, you'll need to call signalNewScene to set it active.
         ///
+        /// \warning When creating a scene in a thread, exit() must not be called before the scene 
+        ///          has finished loading.
+        ///
         /// \param args The arguments to be used in the scene's construction
         ///
-        /// \return A reference to the newly created scene. If Threaded is true, a reference to the
-        ///         shared scene is returned instead
-        ///
-        /// \see signalNewScene
-        /// \see newSceneReady
+        /// \see signalNewScene()
+        /// \see newSceneReady()
         ///
         template<typename T, bool Threaded = false, bool WaitSignal = false, typename ... Args>
-        static typename detail::SceneTypeSelector<T, Threaded>::type createScene(Args&&... args);
+        static void createScene(Args&&... args);
 
         /// \brief Check if there's a current scene
         ///
@@ -157,9 +146,11 @@ namespace jop
         ///
         /// \return Reference to the scene
         ///
+        /// \see hasCurrentScene()
+        ///
         static Scene& getCurrentScene();
 
-        /// \brief Signal a new scene loaded in a threaded manner to set itself current
+        /// \brief Signal a new scene (loaded in a threaded manner) to set itself current
         ///
         /// If a scene wasn't previously loaded with a thread, this function has no effect.
         ///
@@ -169,54 +160,52 @@ namespace jop
         /// 
         static bool signalNewScene();
 
-        /// \brief Check if a scene is loaded and ready to be set current
+        /// \brief Check if a scene has been loaded and is ready to be set current
+        ///
+        /// If a scene wasn't previously loaded with a thread, this function will
+        /// always return false.
         ///
         /// \return True if a scene is ready and waiting to be set current
         ///
         static bool newSceneReady();
 
-
         /// \brief Create a subsystem
         ///
         /// \param args The arguments to be used in the subsystem's construction
         ///
-        /// \return A reference to the newly created subsystem
+        /// \return Reference to the newly created subsystem
         ///
         template<typename T, typename ... Args>
         static T& createSubsystem(Args&&... args);
 
         /// \brief Get a subsystem using type info
         ///
-        /// \return Pointer to the subsystem. Nullptr if not found
+        /// \return Pointer to the subsystem. nullptr if not found
         ///
         template<typename T>
         static T* getSubsystem();
 
         /// \brief Get a subsystem using subsystem ID and type info
         ///
-        /// \return Pointer to the subsystem. Nullptr if not found
+        /// \param ID The identifier to search with
+        ///
+        /// \return Pointer to the subsystem. nullptr if not found
         ///
         template<typename T>
-        static T* getSubsystem(const std::string& ID);
-
-        /// \brief Get a subsystem
-        ///
-        /// \param ID Identifier of the subsystem
-        ///
-        /// \return Pointer to the subsystem. Nullptr if not found
-        ///
-        static Subsystem* getSubsystem(const std::string& ID);
+        static T* getSubsystem(const uint32 ID);
 
         /// \brief Remove a subsystem
         ///
-        /// \comm removeSubsystem
-        ///
         /// \param ID Identifier of the subsystem to be removed
         ///
-        static bool removeSubsystem(const std::string& ID);
-
+        /// \return True if the subsystem was found and removed
+        ///
+        template<typename T>
+        static bool removeSubsystem(const uint32 ID);
 
         /// \brief Check if the engine is signaled to exit
+        ///
+        /// This will also be true when the engine hasn't been loaded yet.
         ///
         /// \return True if engine was signaled to exit
         ///
@@ -228,14 +217,9 @@ namespace jop
         /// time of the call. The main loop returns only after the current
         /// frame has been processed.
         ///
-        /// \comm exit
-        ///
         static void exit();
 
-
         /// \brief Set the engine state
-        ///
-        /// \comm setState
         ///
         /// \param state The new state to set
         ///
@@ -247,52 +231,35 @@ namespace jop
         ///
         static State getState();
 
-
-        /// \brief Set the global delta time scalar
-        ///
-        /// This makes it possible to create fast-forward or slow-down
-        /// effects.
-        ///
-        /// \comm setDeltaScale
-        ///
-        /// \param scale The scalar to set
-        ///
-        static void setDeltaScale(const float scale);
-
-        /// \brief Get the global delta time scalar
-        ///
-        /// \return The global delta time scalar
-        ///
-        static float getDeltaScale();
-
-
         /// \brief Get the main render target
         ///
-        /// This could either return the main window or a HDR render texture.
+        /// This can be either MainRenderTarget or Window.
         ///
         /// \return Reference to the main render target
         ///
-        static const RenderTarget& getMainRenderTarget();
+        static RenderTarget& getMainRenderTarget();
 
+        /// \brief Get the main window
+        ///
+        /// This function asserts that the window has been created first. This will be
+        /// done automatically by loadDefaultConfiguration().
+        ///
+        /// \return Reference to the window
+        ///
+        /// \see hasMainWindow()
+        ///
+        static Window& getMainWindow();
+
+        /// \brief Check if there's a main window
+        ///
+        /// \return True if there's a main window
+        ///
+        static bool hasMainWindow();
 
         /// \brief Send a message to the whole engine
         ///
-        /// \param message String holding message
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message);
-
-        /// \brief Send a message to the whole engine
-        ///
-        /// \param message String holding message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return Message result
-        ///
-        static Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
-        /// \brief Function to handle messages
+        /// The message will be forwarded everywhere. This function is identical
+        /// to jop::broadcast().
         ///
         /// \param message The message
         ///
@@ -300,18 +267,15 @@ namespace jop
         ///
         static Message::Result sendMessage(const Message& message);
 
-
         /// \brief Get the shared scene
         ///
-        /// The shared scene exists for the purpose of being able to have layers & objects
+        /// The shared scene exists for the purpose of being able to have objects
         /// that are shared between scenes. This makes it possible to have general-purpose
         /// functionality without having to take care of it in every scene separately.
         ///
-        /// The existence of the shared scene will not be checked. Only
-        /// call this function when you know there exists a valid jop::Engine
-        /// object. If necessary, you can check by using jop::Engine::exiting().
-        ///
         /// \return Reference to the shared scene
+        ///
+        /// \see hasSharedScene()
         ///
         static Scene& getSharedScene();
 
@@ -323,7 +287,8 @@ namespace jop
 
         /// \brief Set the shared scene
         ///
-        /// This will replace the previous shared scene with a new one of the given type.
+        /// This will immediately replace the previous shared scene with a new one of the
+        /// given type. Threaded loading is not supported at this time.
         ///
         /// \param args Arguments to use in the scene's construction
         ///
@@ -332,30 +297,37 @@ namespace jop
         template<typename T, typename ... Args>
         static T& setSharedScene(Args&&... args);
 
-
         /// \brief Get the total time since Engine construction
         ///
-        /// \return Time in seconds
+        /// \return Total time in seconds
         ///
         static double getTotalTime();
 
+        /// \brief Get the current actual/unscaled delta time
+        ///
+        /// Use this if you need the real delta time value, which
+        /// is unaffected by the scene's delta scale.
+        ///
+        /// \return The unscaled delta time
+        ///
+        static float getDeltaTimeUnscaled();
 
     private:
 
         static Engine* m_engineObject;                          ///< The single Engine instance
 
         std::vector<std::unique_ptr<Subsystem>> m_subsystems;   ///< A vector containing the subsystems
-        std::recursive_mutex m_mutex;                           ///< Mutex
         std::atomic<double> m_totalTime;                        ///< The total time
+        std::atomic<float> m_deltaTimeUnscaled;                 ///< Current delta time
         std::unique_ptr<Scene> m_currentScene;                  ///< The current scene
         std::atomic<Scene*> m_newScene;                         ///< Temporary new scene pointer
         std::atomic<bool> m_newSceneSignal;                     ///< Was the new scene signaled?
         std::unique_ptr<Scene> m_sharedScene;                   ///< The shared scene
         std::atomic<bool> m_exit;                               ///< Should the engine exit?
         std::atomic<State> m_state;                             ///< Current state
-        std::atomic<float> m_deltaScale;                        ///< The global delta scale
         std::atomic<bool> m_advanceFrame;                       ///< Advance a single frame when not paused?
-        RenderTarget* m_mainTarget;
+        RenderTarget* m_mainTarget;                             ///< Main render target
+        Window* m_mainWindow;                                   ///< Main window
     };
 
     /// \brief Get the project name
@@ -366,28 +338,7 @@ namespace jop
 
     /// \brief Broadcast a message to the whole engine
     ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message);
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
-    ///
-    /// \param message String holding message
-    /// \param returnWrap Pointer to hold extra data
-    ///
-    /// \return The message result
-    ///
-    JOP_API Message::Result broadcast(const std::string& message, Any& returnWrap);
-
-    /// \brief Broadcast a message to the whole engine
-    ///
-    /// This is the same as calling jop::Engine::sendMessage
+    /// This is the same as calling jop::Engine::sendMessage().
     ///
     /// \param message The message
     ///
@@ -395,30 +346,28 @@ namespace jop
     ///
     JOP_API Message::Result broadcast(const Message& message);
 
-
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Engine.inl>
 }
 
-/// \brief Initializing the engine with the default configuration
-///
-/// The engine should be constructed after entering main.
+/// \brief Construct and initialize the engine with the default configuration
 ///
 /// \param projectName The project name
 /// \param argc Number of arguments passed from main()
 /// \param argv The argument array passed from main()
 ///
-#define JOP_ENGINE_INIT(projectName, argc, argv) jop::Engine jop_engine(projectName, argc, argv); jop_engine.loadDefaultConfiguration();
+#define JOP_ENGINE_INIT(projectName, argc, argv)            \
+                                                            \
+    ::jop::Engine __jop_engine(projectName, argc, argv);    \
+    __jop_engine.loadDefaultConfiguration()
 
 /// \brief Run the main loop
 ///
-/// This macro must appear in the same scope as JOP_ENGINE_INIT
+/// Must be called **after** JOP_ENGINE_INIT.
 ///
-#define JOP_MAIN_LOOP jop::Engine::runMainLoop();
+#define JOP_MAIN_LOOP ::jop::Engine::runMainLoop()
+
+/// \class jop::Engine
+/// \ingroup core
 
 #endif
-
-/// \class Engine
-/// \ingroup core
-///
-/// 

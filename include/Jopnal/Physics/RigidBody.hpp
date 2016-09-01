@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Collider.hpp>
+#include <Jopnal/Physics/Joint/Joint.hpp>
 
 //////////////////////////////////////////////
 
@@ -34,15 +35,15 @@ class btRigidBody;
 namespace jop
 {
     class CollisionShape;
+    class Joint;
 
     class JOP_API RigidBody : public Collider
     {
     private:
 
-        RigidBody(const RigidBody& other, Object& newObj);
-
         JOP_GENERIC_COMPONENT_CLONE(RigidBody);
-        JOP_DISALLOW_COPY_MOVE(RigidBody);
+
+        friend class Joint;
 
     public:
 
@@ -86,10 +87,6 @@ namespace jop
             float rollingFriction;  ///< Rolling friction
             float restitution;      ///< Restitution
 
-            /// Set this true to enable contact callbacks.
-            /// This is false by default due to performance concerns.
-            bool enableContactCallback;
-
         private:
 
             const CollisionShape& m_shape;  ///< Collision shape
@@ -114,150 +111,212 @@ namespace jop
 
         /// \brief Set gravity to the rigid body object
         ///
-        /// \comm setBodyGravity
-        ///
         /// \param acceleration Amount of the gravity to be applied as vector
         ///
         /// \return Reference to self
+        ///
+        /// \comm setBodyGravity
         ///
         RigidBody& setGravity(const glm::vec3& acceleration);
 
         /// \brief Get the gravity
         ///
+        /// \return The gravity scale
+        ///
         glm::vec3 getGravity() const;
 
         /// \brief Sets the linear factor for rigid body
         ///
+        /// \param fixed Axes to disable movement
+        ///
+        /// \return Reference to self
+        ///
         /// \comm setLinearFactor
         ///
-        /// \param linearFactor Unique vector for linear factor
+        RigidBody& setFixedMovement(const glm::bvec3& fixed);
+
+        /// \brief Check if the movement is fixed
+        ///
+        /// \return The axis values
+        ///
+        glm::bvec3 hasFixedMovement() const;
+
+        /// \brief Sets/unsets the body to constantly rotate
+        ///
+        /// \param axis Axes to disable rotations
         ///
         /// \return Reference to self
         ///
-        RigidBody& setLinearFactor(const glm::vec3& linearFactor);
+        /// \comm setFixedRotation
+        ///
+        RigidBody& setFixedRotation(const glm::bvec3& axis);
 
-        /// \brief Gets the linear factor as glm::vec3 
+        /// \brief Check if the rotation is fixed
         ///
-        glm::vec3 getLinearFactor() const;
-
-        /// \brief Sets the angular factor for rigid body
+        /// \return The axis values
         ///
-        /// \comm setAngularFactor
-        ///
-        /// \param angularFactor Unique vector for angular factor
-        ///
-        /// \return Reference to self
-        ///
-        RigidBody& setAngularFactor(const glm::vec3& angularFactor);
-
-        /// \brief Gets the angular factor as glm::vec3 
-        ///
-        glm::vec3 getAngularFactor() const;
+        glm::bvec3 hasFixedRotation() const;
 
         /// \brief Applies constant force to rigid bodies relative position
-        ///
-        /// \comm applyForce
         ///
         /// \param force Amount and direction of the force 
         /// \param rel_pos Vector for the relative position on rigid body that the force applies on
         ///
         /// \return Reference to self
         ///
+        /// \comm applyForce
+        ///
         RigidBody& applyForce(const glm::vec3& force, const glm::vec3& rel_pos);
 
         /// \brief Applies an impulse to rigid bodies relative position
-        ///
-        /// \comm applyImpulse
         ///
         /// \param impulse Amount and direction of the impulse
         /// \param rel_pos Vector for the relative position on rigid body that the impulse applies on
         ///
         /// \return Reference to self
         ///
+        /// \comm applyImpulse
+        ///
         RigidBody& applyImpulse(const glm::vec3& impulse, const glm::vec3& rel_pos);
 
         /// \brief Applies torque to the rigid body
         ///
-        /// \comm applyTorque
-        ///
         /// \param torque Amount and direction as vector of the applied torque
         ///
         /// \return Reference to self
+        ///
+        /// \comm applyTorque
         ///
         RigidBody& applyTorque(const glm::vec3& torque);
 
         /// \brief Applies torque impulse to the rigid body
         ///
-        /// \comm applyTorqueImpulse
-        ///
         /// \param torque Amount and direction as vector of the applied torque
         ///
         /// \return Reference to self
+        ///
+        /// \comm applyTorqueImpulse
         ///
         RigidBody& applyTorqueImpulse(const glm::vec3& torque);
 
         /// \brief Sets linear velocity to the rigid body
         ///
-        /// \comm setLinearVelocity
-        ///
         /// \param linearVelocity Amount and direction of the linear velocity 
         ///
         /// \return Reference to self
         ///
+        /// \comm setLinearVelocity
+        ///
         RigidBody& setLinearVelocity(const glm::vec3& linearVelocity);
 
-        /// \brief Sets angular velocity to the rigid body
+        /// \brief Get the linear (movement) velocity
         ///
-        /// \comm setAngularVelocity
+        /// \return The linear velocity
+        ///
+        glm::vec3 getLinearVelocity() const;
+
+        /// \brief Sets angular velocity to the rigid body
         ///
         /// \param angularVelocity Amount and direction of the angular velocity
         ///
         /// \return Reference to self
         ///
+        /// \comm setAngularVelocity
+        ///
         RigidBody& setAngularVelocity(const glm::vec3& angularVelocity);
 
-        /// \brief Applies force to the rigid body's center 
+        /// \brief Get the angular (rotational) velocity
         ///
-        /// \comm applyCentralForce
+        /// \return The angular velocity
+        ///
+        glm::vec3 getAngularVelocity() const;
+
+        /// \brief Applies force to the rigid body's center 
         ///
         /// \param force Amount and direction of the applied force
         ///
         /// \return Reference to self
         ///
+        /// \comm applyCentralForce
+        ///
         RigidBody& applyCentralForce(const glm::vec3& force);
 
         /// \brief Applies impulse to the rigid body's center
-        ///
-        /// \comm applyCentralImpulse
         ///
         /// \param impulse Amount and direction of the applies impulse
         ///
         /// \return Reference to self
         ///
+        /// \comm applyCentralImpulse
+        ///
         RigidBody& applyCentralImpulse(const glm::vec3& impulse);
 
         /// \brief Clear all the forces affecting this body
         ///
-        /// \comm clearForces
-        ///
         /// \return Reference to self
+        ///
+        /// \comm clearForces
         ///
         RigidBody& clearForces();
 
-    private:
+        /// \brief Get the local bounds of this body
+        ///
+        /// \return The local bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getLocalBounds() const;
 
-        /// \brief Called when the bound object is set active/inactive
+        /// \brief Sets the RigidBody position to be same as the objects' transform.
         ///
-        /// Sets the physics body activity
+        /// \return Reference to self.
         ///
-        /// \param active Was the object set active?
+        RigidBody& synchronizeTransform();
+        
+        /// \brief Returns a pointer to a joint on the RigidBody whence called from.
         ///
-        void setActive(const bool active) final override;
+        /// User can give an ID of the the joint which to return. If left empty, returns a pointer to the first joint the RigidBody has.
+        ///
+        /// \return Returns a pointer to the joint. nullptr if not found.
+        ///
+        template<typename T>
+        T* getJoint(unsigned int id = 0);
+
+        /// \brief Breaks a joint from the RigidBody whence called from.
+        ///
+        /// User can give an ID of the the joint which to break. If left empty, breaks the first joint the RigidBody has.
+        ///
+        /// \return Returns true if successful.
+        ///
+        template<typename T>
+        bool breakJoint(RigidBody& other, unsigned int IDthis = 0, unsigned int IDother = 0);
+
+        /// \brief Creates a joint between this RigidBody and another RigidBody.
+        ///
+        /// T is the type of the joint to create. Applicable joints are derived from Joint.
+        ///
+        /// \param body The other body to link with
+        /// \param args The arguments to pass to the joint's constructor
+        ///
+        /// \return Returns a reference to the RigidBody whence called from.
+        ///
+        template<typename T, typename ... Args>
+        T& link(RigidBody& body, Args&&... args);
+
+    protected:
+
+        Message::Result receiveMessage(const Message& message) override;
 
         const Type m_type;           ///< The body type
         const float m_mass;          ///< The mass
         btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
+
+        std::unordered_set<std::shared_ptr<Joint>> m_joints; ///< Joints
     };
+
+    // Include the template implementation file
+    #include <Jopnal/Physics/Inl/RigidBody.inl>
 }
+
+/// \class jop::RigidBody
+/// \ingroup physics
 
 #endif

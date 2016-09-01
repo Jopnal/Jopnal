@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <Jopnal/Graphics/Transform.hpp>
 
 //////////////////////////////////////////////
 
@@ -52,5 +53,8 @@ namespace jop
         void addChild(CollisionShape& childShape, const Transform::Variables& childTransform);
     };
 }
+
+/// \class jop::CompoundShape
+/// \ingroup physics
 
 #endif

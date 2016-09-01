@@ -20,23 +20,38 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Engine.hpp>
+
+    #include <Jopnal/Audio/AudioDevice.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/MainRenderTarget.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/PostProcessor.hpp>
+    #include <Jopnal/Graphics/RenderPass.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Window/Window.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <Jopnal/Core/Android/ActivityState.hpp>
+
+    #ifndef JOP_OS_WINDOWS
+        #include <unistd.h>
+    #endif
+
+#endif
 
 //////////////////////////////////////////////
 
-
-namespace jop
-{
-    JOP_REGISTER_COMMAND_HANDLER(Engine)
-    
-        JOP_BIND_COMMAND(&Engine::removeSubsystem, "removeSubsystem");
-        JOP_BIND_COMMAND(&Engine::exit, "exit");
-        JOP_BIND_COMMAND(&Engine::setState, "setState");
-        JOP_BIND_COMMAND(&Engine::advanceFrame, "advanceFrame");
-        JOP_BIND_COMMAND(&Engine::setDeltaScale, "setDeltaScale");
-
-    JOP_END_COMMAND_HANDLER(Engine)
-}
 
 namespace
 {
@@ -44,20 +59,93 @@ namespace
 
     int ns_argc;
     char** ns_argv;
+
+    void printOpenGLInfo()
+    {
+        using namespace jop;
+
+        auto getStr = [](const GLenum e) -> const char*
+        {
+            return reinterpret_cast<const char*>(glGetString(e));
+        };
+
+        std::lock_guard<std::recursive_mutex> lock(DebugHandler::getInstance().getMutex());
+        auto& deb = DebugHandler::getInstance();
+
+        deb << DebugHandler::Severity::__Always
+            << "        OpenGL initialized, adapter info:\n\n"
+            << "    Vendor:       " << getStr(GL_VENDOR)                    << "\n"
+            << "    Renderer:     " << getStr(GL_RENDERER)                  << "\n"
+            << "    Version:      " << getStr(GL_VERSION)                   << "\n"
+            << "    GLSL version: " << getStr(GL_SHADING_LANGUAGE_VERSION)  << "\n";
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLCapabilities", true))
+        {
+            int unifVert = 0, unifFrag = 0, var = 0;
+
+            glCheck(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &unifVert));
+            glCheck(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &unifFrag));
+            glCheck(glGetIntegerv(GL_MAX_VARYING_VECTORS, &var));
+
+            deb << "\n    Texture units: " << Texture::getMaxTextureUnits()                         << "\n"
+                <<   "    Maximum: \n"
+                <<   "      Texture size:                  " << Texture2D::getMaximumSize()         << "\n"
+                <<   "      GLSL vertex uniform vectors:   " << unifVert                            << "\n"
+                <<   "      GLSL fragment uniform vectors: " << unifFrag                            << "\n"
+                <<   "      GLSL attribute vectors:        " << ShaderProgram::getMaxAttributes()   << "\n"
+                <<   "      GLSL varying vectors:          " << var                                 << "\n";
+        }
+
+        if (SettingManager::get<bool>("engine@Debug|bPrintOpenGLExtensions", false))
+        {
+            deb << "\n\n    Available OpenGL extensions:\n\n";
+
+        #ifdef JOP_OS_DESKTOP
+
+            GLint extensions;
+            glCheck(glGetIntegerv(GL_NUM_EXTENSIONS, &extensions));
+
+            const int alignBase = 40;
+            int lastAlign = 0;
+
+            for (int i = 0; i < extensions; ++i)
+            {
+                const char* str = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+
+                for (int j = 0; j < lastAlign; ++j)
+                    deb << " ";
+
+                deb << "    " << str << (i % 4 == 3 ? "\n" : "");
+
+                lastAlign = (i % 4 == 3 ? 0 : alignBase - std::strlen(str));
+            }
+
+        #else
+
+            deb << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+
+        #endif
+        }
+
+        deb << DebugHandler::Severity::__Always << std::endl;
+    }
 }
 
 namespace jop
 {
     Engine::Engine(const std::string& name, int argc, char* argv[])
-        : m_sharedScene     (),
-          m_totalTime       (0.0),
-          m_subsystems      (),
-          m_currentScene    (),
-          m_exit            (false),
-          m_state           (State::Running),
-          m_deltaScale      (1.f),
-          m_advanceFrame    (false),
-          m_mainTarget      (nullptr)
+        : m_sharedScene         (),
+          m_totalTime           (0.0),
+          m_deltaTimeUnscaled   (0.f),
+          m_subsystems          (),
+          m_currentScene        (),
+          m_newScene            (nullptr),
+          m_newSceneSignal      (false),
+          m_exit                (false),
+          m_state               (State::Running),
+          m_advanceFrame        (false),
+          m_mainTarget          (nullptr),
+          m_mainWindow          (nullptr)
     {
         JOP_ASSERT(m_engineObject == nullptr, "Only one jop::Engine object may exist at a time!");
         JOP_ASSERT(!name.empty(), "Project name mustn't be empty!");
@@ -68,7 +156,7 @@ namespace jop
         ns_argc = argc;
         ns_argv = argv;
 
-        JOP_DEBUG_INFO(Color::Blue << "Jopnal Engine v. " << JOP_VERSION_STRING);
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "        Jopnal Engine v. " << JOP_VERSION_STRING << std::endl;
     }
 
     Engine::~Engine()
@@ -80,33 +168,43 @@ namespace jop
         // guaranteed to happen by the standard.
         while (!m_subsystems.empty())
         {
-            JOP_DEBUG_INFO("Deleting sub system " << (m_subsystems.end() - 1)->get()->getID() << " (" << typeid(*(*(m_subsystems.end() - 1))).name() << ")");
+            JOP_DEBUG_INFO("Subsystem \"" << typeid(*(*(m_subsystems.end() - 1))).name() << "\" removed");
             m_subsystems.erase(m_subsystems.end() - 1);
         }
 
         ns_projectName = std::string();
         m_engineObject = nullptr;
 
-        JOP_DEBUG_INFO("Destroying jop::Engine, goodbye!");
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << "        Destroying jop::Engine, goodbye!" << std::endl;
     }
 
     //////////////////////////////////////////////
 
     void Engine::loadDefaultConfiguration()
     {
-        // Set process priority
-    #ifdef JOP_OS_WINDOWS
-        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-    #endif
-
         // File system
-        createSubsystem<FileSystemInitializer>(ns_argv[0]);
+        createSubsystem<detail::FileSystemInitializer>(ns_argv[0]);
 
         // Setting manager
         createSubsystem<SettingManager>();
 
+        // Audio output
+        createSubsystem<AudioDevice>();
+
+        const bool useWindow(SettingManager::get<bool>("engine@Graphics|MainRenderTarget|bUseWindow", gl::es));
+
         // Main window
-        auto& win = createSubsystem<Window>(Window::Settings(true));
+        {
+            Window::Settings winSettings(true);
+            if (useWindow)
+            {
+                winSettings.depthBits = 16;
+                winSettings.stencilBits = 8;
+            }
+
+            m_mainWindow = &createSubsystem<Window>(winSettings);
+            printOpenGLInfo();
+        }
 
         // Resource manager
         createSubsystem<ResourceManager>();
@@ -114,26 +212,48 @@ namespace jop
         // Shader manager
         createSubsystem<ShaderAssembler>();
 
+        // Pre-pass render proxy
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::BeforePost);
+
         // Main render target
-        m_mainTarget = &win;
+        if (!useWindow)
+        {
+            m_mainTarget = &createSubsystem<MainRenderTarget>(*m_mainWindow);
 
-        // Shared scene
-        m_sharedScene = std::make_unique<Scene>("sharedscene");
+            // Post processor
+            createSubsystem<PostProcessor>(*m_mainTarget);
+        }
+        else
+            m_mainTarget = m_mainWindow;
 
-        JOP_DEBUG_INFO("Default engine configuration loaded");
+        // Post-pass render proxy
+        createSubsystem<detail::RenderPassProxy>(RenderPass::Pass::AfterPost);
+
+        // Buffer swapper
+        createSubsystem<detail::BufferSwapper>(*m_mainWindow);
+
+        // Set process priority
+        if (SettingManager::get<bool>("engine@bForceProcessHighPriority", true))
+
+        #if defined(JOP_OS_WINDOWS)
+            SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+        #else
+            nice(-10);
+        #endif
+
+        JOP_DEBUG_INFO("Default engine sub system configuration loaded");
     }
 
     //////////////////////////////////////////////
 
     int Engine::runMainLoop()
     {
-        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop without a valid jop::Engine instance!");
+        JOP_ASSERT(m_engineObject != nullptr, "Tried to run main loop before initializing the engine!");
 
-#pragma warning(suppress: 6011)
         auto& eng = *m_engineObject;
 
         if (!eng.m_currentScene)
-            JOP_DEBUG_WARNING("No scene was loaded before entering main loop. Only the shared scene will be used.");
+            JOP_DEBUG_WARNING("No scene was loaded before entering main loop");
 
         Clock frameClock;
 
@@ -150,8 +270,8 @@ namespace jop
             float frameTime = static_cast<float>(frameClock.reset().asSeconds());
             eng.m_totalTime.store(eng.m_totalTime.load() + static_cast<double>(frameTime));
 
-            frameTime *= (getDeltaScale() * (getState() != State::ZeroDelta || eng.m_advanceFrame.load()));
             frameTime = std::min(0.1f, frameTime);
+            eng.m_deltaTimeUnscaled.store(frameTime);
 
             // Update
             {
@@ -161,14 +281,11 @@ namespace jop
                         i->preUpdate(frameTime);
                 }
 
-                if (getState() <= State::ZeroDelta || eng.m_advanceFrame.load())
-                {
-                    if (eng.m_currentScene)
-                        eng.m_currentScene->updateBase(frameTime);
+                if (hasCurrentScene())
+                    eng.m_currentScene->updateBase(frameTime);
 
-                    if (eng.m_sharedScene)
-                        eng.m_sharedScene->updateBase(frameTime);
-                }
+                if (hasSharedScene())
+                    eng.m_sharedScene->updateBase(frameTime);
 
                 for (auto& i : eng.m_subsystems)
                 {
@@ -178,21 +295,10 @@ namespace jop
             }
 
             // Draw
+            for (auto& i : eng.m_subsystems)
             {
-                if (getState() != State::Frozen)
-                {
-                    if (eng.m_currentScene)
-                        eng.m_currentScene->drawBase();
-
-                    if (eng.m_sharedScene)
-                        eng.m_sharedScene->drawBase();
-                }
-
-                for (auto& i : eng.m_subsystems)
-                {
-                    if (i->isActive())
-                        i->draw();
-                }
+                if (i->isActive())
+                    i->draw();
             }
 
             eng.m_advanceFrame.store(false);
@@ -205,50 +311,8 @@ namespace jop
 
     Scene& Engine::getCurrentScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         JOP_ASSERT(hasCurrentScene(), "Tried to get the current scene when it didn't exist!");
         return *m_engineObject->m_currentScene;
-    }
-
-    //////////////////////////////////////////////
-
-    Subsystem* Engine::getSubsystem(const std::string& ID)
-    {
-        if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
-            for (auto& i : m_engineObject->m_subsystems)
-            {
-                if (i->getID() == ID)
-                    return i.get();
-            }
-        }
-
-        return nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Engine::removeSubsystem(const std::string& ID)
-    {
-        if (m_engineObject)
-        {
-            std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
-            for (auto itr = m_engineObject->m_subsystems.begin(); itr != m_engineObject->m_subsystems.end(); ++itr)
-            {
-                if ((*itr)->getID() == ID)
-                {
-                    JOP_DEBUG_INFO("Subsystem \"" << (*itr)->getID() << "\" (type: \"" << typeid(*(*itr)).name() << "\") removed");
-                    m_engineObject->m_subsystems.erase(itr);
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     //////////////////////////////////////////////
@@ -262,6 +326,22 @@ namespace jop
 
     void Engine::exit()
     {
+    #ifdef JOP_OS_ANDROID
+
+        auto state = detail::ActivityState::get();
+
+        static bool calledOnce = state->destroyRequested;
+
+        if (!calledOnce)
+        {
+            ANativeActivity_finish(state->nativeActivity);
+            calledOnce = true;
+
+            return;
+        }
+
+    #endif
+
         if (m_engineObject)
         {
             JOP_DEBUG_INFO("Exit signal received, exiting...");
@@ -276,16 +356,17 @@ namespace jop
         if (!exiting() && getState() != state)
         {
         #if JOP_CONSOLE_VERBOSITY >= 2
+
             static const char* const stateStr[] =
             {
                 "Running",
-                "ZeroDelta",
                 "RenderOnly",
                 "Frozen"
             };
+
         #endif
 
-            JOP_DEBUG_INFO("Engine state changed: " << stateStr[static_cast<int>(state)]);
+            JOP_DEBUG_DIAG("Engine state changed: " << stateStr[static_cast<int>(state)]);
 
             m_engineObject->m_state.store(state);
         }
@@ -295,23 +376,16 @@ namespace jop
 
     Engine::State Engine::getState()
     {
-        return exiting() ? State::Frozen : m_engineObject->m_state.load();
-    }
+    #ifdef JOP_OS_ANDROID
 
-    //////////////////////////////////////////////
+        using detail::ActivityState;
 
-    Message::Result Engine::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
+        if (ActivityState::get() && !ActivityState::get()->fullFocus)
+            return State::Frozen;
 
-    //////////////////////////////////////////////
+    #endif
 
-    Message::Result Engine::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
+        return exiting() ? State::Frozen : (m_engineObject->m_advanceFrame.load() ? State::Running : m_engineObject->m_state.load());
     }
 
     //////////////////////////////////////////////
@@ -320,25 +394,18 @@ namespace jop
     {
         if (m_engineObject)
         {
-            if (message.passFilter(Message::Engine) && message.passFilter(Message::Command))
+            const unsigned short sceneField = Message::SharedScene | Message::Scene | Message::Object | Message::Component;
+
+            if (hasSharedScene() && message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
+                return Message::Result::Escape;
+
+            if (hasCurrentScene())
             {
-                Any engPtr(m_engineObject);
-                if (JOP_EXECUTE_COMMAND(Engine, message.getString(), engPtr, message.getReturnWrapper()) == Message::Result::Escape)
+                auto& s = m_engineObject->m_currentScene;
+
+                if (s && message.passFilter(sceneField) && s->sendMessage(message) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
-
-            static const unsigned short sceneField = Message::SharedScene   |
-                                                     Message::Scene         |
-                                                     Message::Object        |
-                                                     Message::Component;
-
-            if (message.passFilter(sceneField) && m_engineObject->m_sharedScene->sendMessage(message) == Message::Result::Escape)
-                return Message::Result::Escape;
-
-            auto& s = m_engineObject->m_currentScene;
-
-            if (s && message.passFilter(sceneField) && s->sendMessage(message) == Message::Result::Escape)
-                return Message::Result::Escape;
 
             if (message.passFilter(Message::Subsystem))
             {
@@ -357,9 +424,8 @@ namespace jop
 
     Scene& Engine::getSharedScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
-
         JOP_ASSERT(hasSharedScene(), "Tried to get the shared scene when it didn't exist!");
+
         return *m_engineObject->m_sharedScene;
     }
 
@@ -367,9 +433,10 @@ namespace jop
 
     bool Engine::hasSharedScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+        if (m_engineObject)
+            return m_engineObject->m_sharedScene.operator bool();
 
-        return m_engineObject != nullptr && m_engineObject->m_sharedScene.operator bool();
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -386,9 +453,10 @@ namespace jop
 
     bool Engine::hasCurrentScene()
     {
-        std::lock_guard<std::recursive_mutex> lock(m_engineObject->m_mutex);
+        if (m_engineObject)
+            return m_engineObject->m_currentScene.operator bool();
 
-        return m_engineObject != nullptr && m_engineObject->m_currentScene.operator bool();
+        return false;
     }
 
     //////////////////////////////////////////////
@@ -397,21 +465,6 @@ namespace jop
     {
         if (!exiting())
             m_engineObject->m_advanceFrame.store(true);
-    }
-
-    //////////////////////////////////////////////
-
-    void Engine::setDeltaScale(const float scale)
-    {
-        if (m_engineObject)
-            m_engineObject->m_deltaScale.store(scale);
-    }
-
-    //////////////////////////////////////////////
-
-    float Engine::getDeltaScale()
-    {
-        return m_engineObject != nullptr ? m_engineObject->m_deltaScale.load() : 1.f;
     }
 
     //////////////////////////////////////////////
@@ -439,11 +492,40 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const RenderTarget& Engine::getMainRenderTarget()
+    RenderTarget& Engine::getMainRenderTarget()
     {
         JOP_ASSERT(m_engineObject != nullptr && m_engineObject->m_mainTarget != nullptr, "Tried to get the main render target when it didn't exist!");
 
         return *m_engineObject->m_mainTarget;
+    }
+
+    //////////////////////////////////////////////
+
+    Window& Engine::getMainWindow()
+    {
+        JOP_ASSERT(m_engineObject != nullptr && hasMainWindow(), "Tried to get the main window ehn it didn't exist!");
+
+        return *m_engineObject->m_mainWindow;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Engine::hasMainWindow()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_mainWindow != nullptr;
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    float Engine::getDeltaTimeUnscaled()
+    {
+        if (m_engineObject)
+            return m_engineObject->m_deltaTimeUnscaled.load();
+
+        return 0.f;
     }
 
     //////////////////////////////////////////////
@@ -458,17 +540,6 @@ namespace jop
     }
 
     //////////////////////////////////////////////
-
-    Message::Result broadcast(const std::string& message)
-    {
-        return Engine::sendMessage(message);
-    }
-
-    Message::Result broadcast(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return Engine::sendMessage(msg);
-    }
 
     Message::Result broadcast(const Message& message)
     {

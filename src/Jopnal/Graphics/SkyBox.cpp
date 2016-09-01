@@ -20,48 +20,41 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/SkyBox.hpp>
+
+    #include <Jopnal/Core/Serializer.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Texture/Cubemap.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_REGISTER_LOADABLE(jop, SkyBox)[](Object& obj, const Scene& scene, const json::Value& val)
-    {
-        const float size = val.HasMember("size") && val["size"].IsDouble() ? static_cast<float>(val["size"].GetDouble()) : 2.f;
-
-        auto& box = obj.createComponent<SkyBox>(scene.getRenderer(), size);
-
-        
-
-        return Drawable::loadStateBase(box, scene, val);
-    }
-    JOP_END_LOADABLE_REGISTRATION(SkyBox)
-
-    JOP_REGISTER_SAVEABLE(jop, SkyBox)[](const Component& comp, json::Value& val, json::Value::AllocatorType& alloc)
-    {
-        auto& box = static_cast<const SkyBox&>(comp);
-
-        return Drawable::saveStateBase(box, val , alloc);
-    }
-    JOP_END_SAVEABLE_REGISTRATION(SkyBox)
-}
-
-namespace jop
-{
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, "skybox"),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
           m_mesh        (""),
-          m_material    ("", Material::Attribute::__SkyBox | Material::Attribute::EnvironmentMap, false)
+          m_material    ("", false)
     {
-        m_mesh.load(size, true);
+        m_material.setAttributes(Material::Attribute::EnvironmentMap);
+        m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
+        setFlags(Reflected);
+        addAttributes(Attribute::__SkyBox);
 
-        setCastShadows(false);
-        setReceiveLights(false);
-        setReceiveShadows(false);
+        setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }
 
     SkyBox::SkyBox(const SkyBox& other, Object& newObj)
@@ -72,40 +65,32 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkyBox::draw(const Camera* camera, const LightContainer&, Shader& shader) const
+    void SkyBox::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
         if (!getModel().isValid())
             return;
 
-        auto& s = shader;
+        auto& shdr = getShader();
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        if (camera)
+        // Uniforms
         {
-            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
-            s.setUniform("u_VMatrix", camera->getViewMatrix());
+            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
+            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+
+            mat.sendToShader(shdr, nullptr);
+
+            glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }
-
-        msh.getVertexBuffer().bind();
-        const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-
-        mat.sendToShader(s, camera);
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
+        GlState::setFaceCull(true, GlState::FaceCull::Front);
 
-        if (msh.getElementAmount())
-        {
-            msh.getIndexBuffer().bind();
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
-        }
-        else
-        {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
-        }
+        msh.draw();
 
         GlState::setDepthTest(true);
+        GlState::setFaceCull(true);
     }
 
     //////////////////////////////////////////////

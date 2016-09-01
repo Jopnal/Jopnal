@@ -1,21 +1,21 @@
-//Jopnal Engine C++ Library
-//Copyright(c) 2016 Team Jopnal
+// Jopnal Engine C++ Library
+// Copyright (c) 2016 Team Jopnal
 //
-//This software is provided 'as-is', without any express or implied
-//warranty.In no event will the authors be held liable for any damages
-//arising from the use of this software.
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
 //
-//Permission is granted to anyone to use this software for any purpose,
-//including commercial applications, and to alter it and redistribute it
-//freely, subject to the following restrictions :
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
 //
-//1. The origin of this software must not be misrepresented; you must not
-//claim that you wrote the original software.If you use this software
-//in a product, an acknowledgement in the product documentation would be
-//appreciated but is not required.
-//2. Altered source versions must be plainly marked as such, and must not be
-//misrepresented as being the original software.
-//3. This notice may not be removed or altered from any source distribution.
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgement in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 //////////////////////////////////////////////
 
@@ -24,22 +24,22 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Core/Resource.hpp>
-#include <Jopnal/Graphics/Texture2D.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <memory>
 #include <unordered_map>
 
 //////////////////////////////////////////////
 
 
-namespace detail
-{
-    struct FontImpl;
-}
-
 namespace jop
 {
+    namespace detail
+    {
+        struct FontImpl;
+    }
+
     class JOP_API Font : public Resource
     {
     private:
@@ -59,50 +59,65 @@ namespace jop
         ~Font() override;
 
 
-        /// \brief Loads a font from targeted path
+        /// \brief Load from file
         ///
         /// \param path Path to desired .ttf font file
-        /// \param pixelSize Glyph size in texture
+        /// \param fontSize Glyph size in texture
         ///
-        bool load(const std::string& path, const int pixelSize);
+        /// \return True if successful
+        ///
+        bool load(const std::string& path, const int fontSize);
 
-        /// \brief Calculates font boundaries
+        /// \brief Loads a font from memory
         ///
-        /// \param codepoint Numerical value pointing to a single character
+        /// The memory will be copied.
         ///
-        std::pair<glm::vec2, glm::vec2> getBounds(const int codepoint) const;
+        /// \param ptr Pointer to memory
+        /// \param size Amount of bytes to read
+        /// \param fontSize Glyph size in texture
+        ///
+        /// \return True if successful
+        ///
+        bool load(const void* ptr, const uint32 size, const int fontSize);
 
-        /// \brief Returns the necessary kerning between characters
+        /// \brief Returns the necessary kerning advancement between two characters
         ///
-        /// \param codepoint1 Numerical value pointing to the desired character
-        /// \param codepoint2 Ditto
+        /// \param left Code point value pointing to the desired character
+        /// \param right Code point value pointing to the next character
         ///
-        float getKerning(const int codepoint1, const int codepoint2) const;
+        /// \warning Every font does NOT have support for this!
+        ///
+        /// \return True if successful
+        ///
+        float getKerning(const uint32 left, const uint32 right) const;
 
-        /// \brief Checks if glyph is in bitmap
+        /// \brief Returns a single glyph from given codepoint
         ///
-        /// \param codepoint Pointer to a single character
-        /// \param width Width of a single character
-        /// \param height Height of a single character
-        /// \param x The X coordinate
-        /// \param y The Y coordinate
+        /// If glyph with the given codepoint does not exist yet calls packGlyph() to create and pack it.
         ///
-        void getTextureCoordinates(const int codepoint, int* width, int* height, int* x, int* y) const;
+        /// \param codepoint Unicode codepoint of a character
+        ///
+        /// \return Reference to the glyph
+        ///
+        const Glyph& getGlyph(const uint32 codepoint) const;
 
-        /// \brief Returns the texture that contains all loaded glyphs
+        /// \brief Return the spacing between two rows in the font
+        ///
+        /// \return The line spacing
+        ///
+        float getLineSpacing() const;
+
+        /// \brief Return the texture that contains all loaded glyphs
+        ///
+        /// \return Reference to the font texture
         ///
         const Texture2D& getTexture() const;
 
-        /// \brief Returns pixel size 
+        /// \brief Returns pixel size of the font
         ///
-        float getPixelSize() const;
-
-
-        /// \brief Get the error font
+        /// \return The font pixel size
         ///
-        /// \return Reference to the font
-        ///
-        static Font& getError();
+        int getSize() const;
 
         /// \brief Get the default font
         ///
@@ -112,30 +127,49 @@ namespace jop
 
     private:
 
-        /// \brief Loads a font from DLL file
-        ///
-        /// \param id ID
-        /// \param pixelSize Glyph size in texture
-        ///
-        bool load(const int id, const int pixelSize);
-
         /// \brief Loads a font from internal buffer
         ///
         /// \param pixelSize Glyph size in texture
         ///
-        bool load(const int pixelSize);
+        /// \return True if successful
+        ///
+        bool load(const int fontSize);
+
+        /// \brief Pack and create a glyph
+        ///
+        /// \param codepoint Unicode codepoint
+        ///
+        /// Packs a glyph in to a texture and checks if there is room in the texture
+        /// if there is no room resizePacker() is called
+        ///
+        /// \return True if successful
+        ///
+        bool packGlyph(const uint32 codepoint) const;
+
+        /// \brief Resizes and remakes the packed texture
+        ///
+        /// \param lastCodepoint The last glyphs codepoint that did not fit into the old packer
+        ///
+        /// When a packer runs out of space this function gets called
+        /// Creates two new packers and creates new bigger texture and copy the old texture on it
+        ///
+        bool resizePacker(const uint32 lastCodepoint) const;
 
 
-        std::unique_ptr<::detail::FontImpl> m_data;
-        int m_pixelSize;
+        mutable Texture2D m_texture;                        ///< Texture
+        mutable std::unordered_map<int, Glyph> m_glyphs;    ///< Texture coordinates
+        std::vector<uint8> m_buffer;                        ///< File buffer
+        std::unique_ptr<detail::FontImpl> m_data;           ///< Font data
+        int m_fontSize;                                     ///< Font size
+        mutable unsigned int m_packerIndex;                 ///< Current packer index
     };
 }
 
-#endif
-
-/// \class Font
+/// \class jop::Font
 /// \ingroup graphics
 ///
-/// Font manager class, which loads fonts from file.
-/// 
+/// Font manager class, which loads fonts from file and packs them to textures.
+/// Supports .ttf format.
 ///
+
+#endif

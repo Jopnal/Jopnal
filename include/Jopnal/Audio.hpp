@@ -19,15 +19,12 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup audio Audio
+
 // Headers
+#include <Jopnal/Audio/AudioDevice.hpp>
 #include <Jopnal/Audio/Listener.hpp>
 #include <Jopnal/Audio/SoundBuffer.hpp>
 #include <Jopnal/Audio/SoundEffect.hpp>
 #include <Jopnal/Audio/SoundSource.hpp>
 #include <Jopnal/Audio/SoundStream.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup audio Audio
-///
-/// #TODO Detailed decription

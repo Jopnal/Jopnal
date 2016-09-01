@@ -20,29 +20,44 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/ModelLoader.hpp>
+
+    #include <Jopnal/Core/FileLoader.hpp>
+    #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/Scene.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Graphics/Color.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/Model.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Utility/Json.hpp>
+    #include <tuple>
+    #include <vector>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    ModelLoader::Options::Options()
-        : forceDiffuseAlpha     (false),
-          collapseTree          (true),
-          fixInfacingNormals    (true)
-    {}
-
-    //////////////////////////////////////////////
-
     ModelLoader::ModelLoader(Object& obj)
-        : Component (obj, "modelloader"),
-          m_path    ()
+        : Component     (obj, 0),
+          m_path        (),
+          m_localBounds ()
     {}
 
     ModelLoader::ModelLoader(const ModelLoader& other, Object& obj)
-        : Component (other, obj),
-          m_path    (other.m_path)
+        : Component     (other, obj),
+          m_path        (other.m_path),
+          m_localBounds (other.m_localBounds)
     {}
 
     //////////////////////////////////////////////
@@ -51,601 +66,335 @@ namespace jop
     {
         std::string getHex()
         {
-        #ifdef JOP_OS_WINDOWS
-            const __int64 timePoint = __rdtsc();
-        #endif
+            static unsigned long long count = 0;
 
             std::ostringstream ss;
-            ss << std::hex << timePoint;
+            ss << std::hex << ++count;
             return ss.str();
         }
 
-        void loadCameras(const aiScene& scene, WeakReference<Object> root)
+        void getTextures(const json::Document& doc, const std::vector<uint8>& data, const std::string& root)
         {
-            if (!scene.HasCameras())
+            if (!doc.HasMember("textures") || !doc["textures"].IsObject())
                 return;
 
-            auto& renderer = root->getScene().getRenderer();
-
-            for (std::size_t i = 0; i < scene.mNumCameras; ++i)
+            for (auto itr = doc["textures"].MemberBegin(); itr < doc["textures"].MemberEnd(); ++itr)
             {
-                auto& cam = *scene.mCameras[i];
+                Texture2D* tex = nullptr;
 
-                WeakReference<Object> node;
+                using F = Texture::Flag;
 
-                if (root->getID() == cam.mName.C_Str())
-                    node = root;
-                else if ((node = root->findChild(cam.mName.C_Str(), true)).expired())
+                const char* const srgb = "srgb";
+                const char* const mip = "genmipmaps";
+
+                const uint32 flags =
+                    
+                    (!(itr->value.HasMember(srgb) && itr->value[srgb].IsBool() ? itr->value[srgb].GetBool() : false) * F::DisallowSRGB) |
+                    (!(itr->value.HasMember(mip) && itr->value[mip].IsBool() ? itr->value[mip].GetBool() : true) * F::DisallowMipmapGeneration);
+
+                if (itr->value.HasMember("path") && itr->value["path"].IsString())
+                    tex = &ResourceManager::get<Texture2D>
+                    (
+                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), flags
+                    );
+
+                else if (itr->value.HasMember("start") && itr->value["start"].IsUint() && itr->value.HasMember("length") && itr->value["length"].IsUint())
+                    tex = &ResourceManager::getNamed<Texture2D>
+                    (
+                        root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString(), &data.at(itr->value["start"].GetUint()), itr->value["length"].GetUint(), flags
+                    );
+
+                else
                 {
-                    JOP_DEBUG_WARNING("Couldn't find node \"" << cam.mName.C_Str() << "\" while loading camera");
+                    JOP_DEBUG_ERROR("Failed load texture \"" << itr->name.GetString() << "\", invalid data");
                     continue;
                 }
 
-                if (cam.mAspect <= 0.f)
-                {
-                    JOP_DEBUG_WARNING("Couldn't load camera, aspect ratio must be more than zero");
+                if (tex == &Texture2D::getError())
                     continue;
-                }
 
-                auto& comp = node->createComponent<Camera>(renderer, Camera::Projection::Perspective);
-
-                comp.setAspectRatio(cam.mAspect);
-                comp.setClippingPlanes(cam.mClipPlaneNear, cam.mClipPlaneFar);
-                comp.setFieldOfView(cam.mHorizontalFOV / cam.mAspect);
+                if (itr->value.HasMember("wrapmode") && itr->value["wrapmode"].IsInt())
+                    tex->setRepeatMode(static_cast<TextureSampler::Repeat>(itr->value["wrapmode"].GetInt()));
             }
         }
 
-        void loadLights(const aiScene& scene, WeakReference<Object> root)
-        {
-            if (!scene.HasLights())
-                return;
-
-            auto& renderer = root->getScene().getRenderer();
-
-            for (std::size_t i = 0; i < scene.mNumLights; ++i)
-            {
-                auto& light = *scene.mLights[i];
-
-                WeakReference<Object> node;
-
-                if (root->getID() == light.mName.C_Str())
-                    node = root;
-                else if ((node = root->findChild(light.mName.C_Str(), true)).expired())
-                {
-                    JOP_DEBUG_WARNING("Couldn't find node \"" << light.mName.C_Str() << "\" while loading light source");
-                    continue;
-                }
-
-                static const LightSource::Type types[] =
-                {
-                    LightSource::Type::Directional,
-                    LightSource::Type::Point,
-                    LightSource::Type::Spot
-                };
-
-                auto& comp = node->createComponent<LightSource>(renderer, types[light.mType]);
-
-                comp.setAttenuation(light.mAttenuationConstant, light.mAttenuationLinear, light.mAttenuationQuadratic);
-                comp.setCutoff(light.mAngleInnerCone, light.mAngleOuterCone);
-                
-                auto& amb = light.mColorAmbient;
-                auto& dif = light.mColorDiffuse;
-                auto& spe = light.mColorSpecular;
-
-                comp.setIntensity(Color(amb.r, amb.g, amb.b), Color(dif.r, dif.g, dif.b), Color(spe.r, spe.g, spe.b));
-            }
-        }
-
-        std::vector<const Material*> getMaterials(const aiScene& scene, const ModelLoader::Options& options)
+        std::vector<const Material*> getMaterials(const json::Document& doc, const std::string& root)
         {
             std::vector<const Material*> mats;
-            mats.reserve(scene.mNumMaterials);
 
-            for (std::size_t i = 0; i < scene.mNumMaterials; ++i)
+            if (doc.HasMember("materials") && doc["materials"].IsArray())
             {
-                auto& mat = *scene.mMaterials[i];
-                
-                auto& m = ResourceManager::getEmptyResource<Material>("jop_material_" + getHex(), true).setAttributeField(Material::Attribute::AmbientConstant);
+                mats.reserve(doc["materials"].Size());
 
-                // Reflection
+                for (auto& mat : doc["materials"])
                 {
-                    aiColor3D col;
+                    auto& m = ResourceManager::getEmpty<Material>("jop_material_" + getHex(), true);
 
-                    // Ambient color
-                    mat.Get(AI_MATKEY_COLOR_AMBIENT, col);
-                    m.setReflection(Material::Reflection::Ambient, Color(col.r, col.g, col.b));
-
-                    // Diffuse color
-                    mat.Get(AI_MATKEY_COLOR_DIFFUSE, col);
-                    m.setReflection(Material::Reflection::Diffuse, Color(col.r, col.g, col.b));
-
-                    // Specular color
-                    mat.Get(AI_MATKEY_COLOR_SPECULAR, col);
-                    m.setReflection(Material::Reflection::Specular, Color(col.r, col.g, col.b));
-
-                    // Emission color
-                    mat.Get(AI_MATKEY_COLOR_EMISSIVE, col);
-                    m.setReflection(Material::Reflection::Emission, Color(col.r, col.g, col.b));
-                }
-
-                bool hadShininess = false;
-
-                // Shininess
-                {
-                    float shin;
-                    if (mat.Get(AI_MATKEY_SHININESS, shin) == aiReturn_SUCCESS)
+                    if (mat.HasMember("reflection") && mat["reflection"].IsArray() && mat["reflection"].Size() >= 16)
                     {
-                        hadShininess = true;
-                        m.setShininess(shin);
-                    }
-                }
-
-                // Lighting model
-                {
-                    aiShadingMode mode;
-                    mat.Get(AI_MATKEY_SHADING_MODEL, mode);
-
-                    switch (mode)
-                    {
-                        case aiShadingMode_Flat:
-                            m.addAttributes(Material::Attribute::Flat);
-                            break;
-                        case aiShadingMode_Gouraud:
-                            m.addAttributes(Material::Attribute::Gouraud);
-                            break;
-                        case aiShadingMode_Phong:
-                            m.addAttributes(Material::Attribute::Phong);
-                            break;
-                        case aiShadingMode_Blinn:
-                            m.addAttributes(Material::Attribute::BlinnPhong);
-                            break;
-                        default:
-                            m.addAttributes(Material::Attribute::DefaultLighting);
-                    }
-                }
-
-                auto processTexFlags = [](const aiMaterial& aiMat, Material& jopMat, const ModelLoader::Options& options, const aiTextureType type, const int index, Texture& tex)
-                {
-                    // Flags
-                    {
-                        aiTextureFlags flags;
-                        aiMat.Get(AI_MATKEY_TEXFLAGS(type, index), flags);
-                        switch (flags)
+                        auto getFloatColor = [](const json::Value& val, const unsigned int index) -> float
                         {
-                            //case aiTextureFlags_Invert:
+                            return val[index].IsUint() ? static_cast<float>(val[index].GetDouble()) : 1.f;
+                        };
 
-                            case aiTextureFlags_UseAlpha:
-                                jopMat.addAttributes(Material::Attribute::DiffuseAlpha);
-                                break;
-                            case aiTextureFlags_IgnoreAlpha:
-                                jopMat.removeAttributes(Material::Attribute::DiffuseAlpha);
-                                break;
+                        const auto& refVal = mat["reflection"];
+
+                        for (unsigned int i = 0; i < refVal.Size() / 4; ++i)
+                        {
+                            m.setReflection(static_cast<Material::Reflection>(i), Color
+                            (
+                                getFloatColor(refVal, i * 4 + 0),
+                                getFloatColor(refVal, i * 4 + 1),
+                                getFloatColor(refVal, i * 4 + 2),
+                                getFloatColor(refVal, i * 4 + 3)
+                            ));
                         }
                     }
 
-                    if (options.forceDiffuseAlpha && type == aiTextureType_DIFFUSE)
-                        jopMat.addAttributes(Material::Attribute::DiffuseAlpha);
+                    if (mat.HasMember("shininess"))
+                        m.setShininess(static_cast<float>(mat["shininess"].GetDouble()));
 
-                    // Wrapping
+                    if (mat.HasMember("reflectivity"))
+                        m.setReflectivity(static_cast<float>(mat["reflectivity"].GetDouble()));
+
+                    if (mat.HasMember("textures") && mat["textures"].IsObject())
                     {
-                        aiTextureMapMode mapMode;
-                        aiMat.Get(AI_MATKEY_MAPPING(type, index), mapMode);
-                        switch (mapMode)
+                        auto& texObject = mat["textures"];
+
+                        for (auto itr = texObject.MemberBegin(); itr != texObject.MemberEnd(); ++itr)
                         {
-                            case aiTextureMapMode_Wrap:
-                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::Basic);
-                                break;
-                            case aiTextureMapMode_Clamp:
-                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::ClampEdge);
-                                break;
-                            case aiTextureMapMode_Decal:
-                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::ClampBorder);
-                                break;
-                            case aiTextureMapMode_Mirror:
-                                tex.getSampler().setRepeatMode(TextureSampler::Repeat::Mirrored);
-                        }
-                    }
-                };
-
-                // Textures
-                {
-                    // Diffuse
-                    if (mat.GetTextureCount(aiTextureType_DIFFUSE))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
-                        
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
-                            m.setMap(Material::Map::Diffuse, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_DIFFUSE, 0, tex);
-                        }
-                    }
-
-                    // Specular
-                    if (mat.GetTextureCount(aiTextureType_SPECULAR))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_SPECULAR, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Specular, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_SPECULAR, 0, tex);
-                        }
-                    }
-
-                    // Gloss
-                    if (mat.GetTextureCount(aiTextureType_SHININESS))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_SHININESS, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Gloss, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_SHININESS, 0, tex);
-
-                            if (!hadShininess)
-                            {
-                                static const struct Callback : SettingCallback<float>
-                                {
-                                    const char* const str;
-                                    float mult;
-                                    Callback()
-                                        : str("engine/Graphics|Shading|fGlossMapMultiplier"),
-                                          mult(SettingManager::get<float>(str, 255.f))
-                                    {
-                                        SettingManager::registerCallback(str, *this);
-                                    }
-                                    void valueChanged(const float& value) override
-                                    {
-                                        mult = value;
-                                    }
-                                } cb;
-
-                                m.setShininess(cb.mult);
-                            }
-                        }
-                    }
-
-                    // Emission
-                    if (mat.GetTextureCount(aiTextureType_EMISSIVE))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_EMISSIVE, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), true);
-                            m.setMap(Material::Map::Emission, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_EMISSIVE, 0, tex);
-
-                        }
-                    }
-
-                    // Reflection
-                    if (mat.GetTextureCount(aiTextureType_REFLECTION))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_REFLECTION, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Reflection, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_REFLECTION, 0, tex);
-                        }
-                    }
-                    
-                    // Opacity
-                    if (mat.GetTextureCount(aiTextureType_OPACITY))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_OPACITY, 0, &path);
-
-                        if (path.length)
-                        {
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), false);
-                            m.setMap(Material::Map::Opacity, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_OPACITY, 0, tex);
-                        }
-                    }
-
-                    // Normal
-                    /*if (mat.GetTextureCount(aiTextureType_AMBIENT))
-                    {
-                        aiString path;
-                        mat.GetTexture(aiTextureType_AMBIENT, 0, &path);
-
-                        if (path.length)
-                            m.setMap(Material
-                    }*/
-
-                    // Ambient
-
-                    // Light
-
-                    // Unknown
-                    //
-                    // No other way to load these but try to guess what they are.
-                    //
-                    if (mat.GetTextureCount(aiTextureType_UNKNOWN))
-                    {
-                        for (std::size_t i = 0; i < mat.GetTextureCount(aiTextureType_UNKNOWN); ++i)
-                        {
-                            aiString path;
-                            mat.GetTexture(aiTextureType_UNKNOWN, i, &path);
-
-                            using A = Material::Attribute;
-                            using M = Material::Map;
-                            M map;
-
-                            // Diffuse
-                            if (!m.hasAttribute(A::DiffuseMap) && strstr(path.C_Str(), "dif"))
-                                map = M::Diffuse;
-
-                            // Specular
-                            else if (!m.hasAttribute(A::SpecularMap) && strstr(path.C_Str(), "spec"))
-                                map = M::Specular;
-
-                            // Emission
-                            else if (!m.hasAttribute(A::EmissionMap) && strstr(path.C_Str(), "emis"))
-                                map = M::Emission;
-
-                            // Reflection
-                            else if (!m.hasAttribute(A::ReflectionMap) && strstr(path.C_Str(), "refl"))
-                                map = M::Reflection;
-
-                            // Opacity
-                            else if (!m.hasAttribute(A::OpacityMap) && (strstr(path.C_Str(), "opa") || strstr(path.C_Str(), "alp")))
-                                map = M::Opacity;
-
-                            // Gloss
-                            else if (!m.hasAttribute(A::GlossMap) && strstr(path.C_Str(), "glo"))
-                                map = M::Gloss;
-
-                            // Not identified
-                            else
+                            if (!itr->value.HasMember("type") || !itr->value["type"].IsUint())
                                 continue;
-
-                            auto& tex = ResourceManager::getResource<Texture2D>(path.C_Str(), map == M::Diffuse || map == M::Emission);
-                            m.setMap(map, tex);
-
-                            processTexFlags(mat, m, options, aiTextureType_UNKNOWN, i, tex);
+                                
+                            m.setMap(static_cast<Material::Map>(itr->value["type"].GetUint()),
+                                     ResourceManager::getExisting<Texture2D>(root.substr(0, root.find_last_of('/') + 1) + itr->name.GetString()));
                         }
                     }
-                }
 
-                mats.push_back(&m);
+                    mats.push_back(&m);
+                }
             }
 
             return mats;
         }
 
-        std::vector<std::pair<const Mesh*, unsigned int>> getMeshes(const aiScene& scene)
+        std::vector<std::pair<const Mesh*, unsigned int>> getMeshes(const json::Document& doc, const std::vector<uint8>& data)
         {
             std::vector<std::pair<const Mesh*, unsigned int>> meshes;
-            meshes.reserve(scene.mNumMeshes);
 
-            for (std::size_t i = 0; i < scene.mNumMeshes; ++i)
+            if (doc.HasMember("meshes") && doc["meshes"].IsArray())
             {
-                const aiMesh& mesh = *scene.mMeshes[i];
-                if (!mesh.mNumVertices)
-                    continue;
-                
-                // Vertices
-                std::vector<uint8> vertBuf
-                (
-                    (sizeof(glm::vec3) +
-                     sizeof(glm::vec2) * mesh.HasTextureCoords(0) +
-                     sizeof(glm::vec3) * mesh.HasNormals() +
-                     sizeof(glm::vec3) * mesh.HasTangentsAndBitangents() * 2 +
-                     sizeof(Color)     * mesh.HasVertexColors(0)
-                    )
-                    * mesh.mNumVertices
-                );
+                const auto& meshVal = doc["meshes"];
 
-                for (std::size_t j = 0, vertIndex = 0; j < mesh.mNumVertices; ++j)
+                meshes.reserve(meshVal.Size());
+
+                for (auto& mes : meshVal)
                 {
-                    // Position
+                    uint32 info[8];
+                    const char* const dataKeys[] =
                     {
-                        auto& pos = mesh.mVertices[j];
-                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(pos.x, pos.y, pos.z);
-                        vertIndex += sizeof(glm::vec3);
-                    }
+                        "type",         // 0
+                        "components",   // 1
+                        "start",        // 2
+                        "length",       // 3
+                        "startIndex",   // 4
+                        "lengthIndex",  // 5
+                        "material",     // 6
+                        "sizeIndex"     // 7
+                    };
 
-                    // Tex coordinates
-                    if (mesh.HasTextureCoords(0))
+                    bool error = false;
+                    for (unsigned int i = 0; i < sizeof(info) / sizeof(uint32); ++i)
                     {
-                        auto& tc = mesh.mTextureCoords[0][j];
-                        reinterpret_cast<glm::vec2&>(vertBuf[vertIndex]) = glm::vec2(tc.x, tc.y);
-                        vertIndex += sizeof(glm::vec2);
-                    }
-
-                    // Normal
-                    if (mesh.HasNormals())
-                    {
-                        auto& norm = mesh.mNormals[j];
-                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(norm.x, norm.y, norm.z);
-                        vertIndex += sizeof(glm::vec3);
-                    }
-
-                    // Tangents
-                    if (mesh.HasTangentsAndBitangents())
-                    {
-                        auto& tang = mesh.mTangents[j], bitang = mesh.mBitangents[j];
-                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(tang.x, tang.y, tang.z);
-                        vertIndex += sizeof(glm::vec3);
-
-                        reinterpret_cast<glm::vec3&>(vertBuf[vertIndex]) = glm::vec3(bitang.x, bitang.y, bitang.z);
-                        vertIndex += sizeof(glm::vec3);
-                    }
-
-                    // Color
-                    if (mesh.HasVertexColors(0))
-                    {
-                        auto& col = mesh.mColors[0][j];
-                        reinterpret_cast<Color&>(vertBuf[vertIndex]) = Color(col.r, col.g, col.b, col.a);
-                        vertIndex += sizeof(Color);
-                    }
-                }
-
-                // Indices
-                std::vector<uint8> indBuf;
-                const auto elemSize = Mesh::getElementSize(mesh.mNumVertices * 3);
-                if (mesh.HasFaces())
-                {
-                    indBuf.resize(elemSize * mesh.mNumFaces * 3);
-
-                    for (std::size_t j = 0, bufIndex = 0; j < mesh.mNumFaces; ++j, bufIndex += elemSize * 3)
-                    {
-                        auto& face = mesh.mFaces[j];
-
-                        switch (elemSize)
+                        if (!mes.HasMember(dataKeys[i]) || !mes[dataKeys[i]].IsUint())
                         {
-                            case sizeof(UCHAR) :
-                                indBuf[bufIndex] = static_cast<UCHAR>(face.mIndices[0]);
-                                indBuf[bufIndex + sizeof(UCHAR)] = static_cast<UCHAR>(face.mIndices[1]);
-                                indBuf[bufIndex + sizeof(UCHAR) * 2] = static_cast<UCHAR>(face.mIndices[2]);
-                                break;
+                            JOP_DEBUG_ERROR("Failed to load mesh from model, missing data member \"" << dataKeys[i] << "\"");
 
-                            case sizeof(USHORT) :
-                                reinterpret_cast<USHORT&>(indBuf[bufIndex]) = static_cast<USHORT>(face.mIndices[0]);
-                                reinterpret_cast<USHORT&>(indBuf[bufIndex + sizeof(USHORT)]) = static_cast<USHORT>(face.mIndices[1]);
-                                reinterpret_cast<USHORT&>(indBuf[bufIndex + sizeof(USHORT) * 2]) = static_cast<USHORT>(face.mIndices[2]);
-                                break;
+                            error = true;
+                            break;
+                        }
 
-                            case sizeof(UINT) :
-                                reinterpret_cast<UINT&>(indBuf[bufIndex]) = face.mIndices[0];
-                                reinterpret_cast<UINT&>(indBuf[bufIndex + sizeof(UINT)]) = face.mIndices[1];
-                                reinterpret_cast<UINT&>(indBuf[bufIndex + sizeof(UINT) * 2]) = face.mIndices[2];
+                        info[i] = mes[dataKeys[i]].GetUint();
+                    }
+
+                    if (error)
+                        continue;
+
+                    float bounds[6] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+
+                    if (mes.HasMember("aabb") && mes["aabb"].IsArray() && mes["aabb"].Size() >= 6u)
+                    {
+                        for (unsigned int i = 0; i < 6; ++i)
+                        {
+                            if (mes["aabb"][i].IsDouble())
+                                bounds[i] = static_cast<float>(mes["aabb"][i].GetDouble());
+                            else
+                                JOP_DEBUG_ERROR("Failed to load mesh from model, aabb corrupt index: " << i << " using a default value.");
                         }
                     }
+                    else
+                        JOP_DEBUG_ERROR("Failed to load mesh from model, missing aabb. Using default values.");
+
+                    auto meshPtr = &ResourceManager::getNamed<Mesh>("jop_mesh_" + getHex(), &data.at(info[2]), info[3], info[1], &data.at(info[4]), static_cast<uint16>(info[7]), info[5] / info[7]);
+
+                    meshPtr->updateBounds(glm::vec3(bounds[0], bounds[1], bounds[2]), glm::vec3(bounds[3], bounds[4], bounds[5]));
+
+                    meshes.push_back(std::make_pair(meshPtr, info[6]));
                 }
-
-                const uint32 comps = Mesh::Position
-
-                    | (mesh.HasTextureCoords(0)         * Mesh::TexCoords)
-                    | (mesh.HasNormals()                * Mesh::Normal)
-                    | (mesh.HasTangentsAndBitangents()  * Mesh::Tangents)
-                    | (mesh.HasVertexColors(0)          * Mesh::Color)
-                    ;
-
-                meshes.push_back(std::make_pair(&ResourceManager::getNamedResource<Mesh>("jop_mesh_" + getHex(), vertBuf.data(), vertBuf.size(), comps, indBuf.data(), elemSize, mesh.mNumFaces * 3), mesh.mMaterialIndex));
             }
-
             return meshes;
         }
 
-        bool processNode(const aiNode& node, WeakReference<Object> object, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats)
+        bool processNode(WeakReference<Object> object, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*> mats, const json::Value& val)
         {
-            // Name
-            if (node.mName.length)
-                object->setID(node.mName.C_Str());
-
-            // Transform
+            auto getFloatVal = [](const json::Value& val, const unsigned int index, const float def) -> float
             {
-                aiVector3D scale, pos; aiQuaternion rot;
-                node.mTransformation.Decompose(scale, rot, pos);
+                return val[index].IsDouble() ? static_cast<float>(val[index].GetDouble()) : def;
+            };
 
-                object->setScale(scale.x, scale.y, scale.z)
-                       .setRotation(glm::quat(rot.w, rot.x, rot.y, rot.z))
-                       .setPosition(pos.x, pos.y, pos.z);
+            if (val.HasMember("scale") && val["scale"].IsArray() && val["scale"].Size() >= 3)
+            {
+                auto& sclVal = val["scale"];
+                object->setScale(getFloatVal(sclVal, 0, 1.f), getFloatVal(sclVal, 1, 1.f), getFloatVal(sclVal, 2, 1.f));
             }
 
-            // Meshes (drawables)
-            for (std::size_t i = 0; i < node.mNumMeshes; ++i)
+            if (val.HasMember("rotation") && val["rotation"].IsArray() && val["rotation"].Size() >= 4)
             {
-                auto& drawable = object->createComponent<GenericDrawable>(rend);
+                auto& rotVal = val["rotation"];
+                object->setRotation(glm::quat(getFloatVal(rotVal, 0, 1.f), getFloatVal(rotVal, 1, 0.f), getFloatVal(rotVal, 2, 0.f), getFloatVal(rotVal, 3, 0.f)));
+            }
 
-                auto& pair = meshes[node.mMeshes[i]];
-                drawable.setModel(Model(*pair.first, *mats[pair.second]));
+            if (val.HasMember("position") && val["position"].IsArray() && val["position"].Size() >= 3)
+            {
+                auto& posVal = val["position"];
+                object->setPosition(getFloatVal(posVal, 0, 0.f), getFloatVal(posVal, 1, 0.f), getFloatVal(posVal, 2, 0.f));
+            }
+
+            if (val.HasMember("meshes") && val["meshes"].IsArray())
+            {
+                for (auto& i : val["meshes"])
+                {
+                    if (i.IsUint())
+                        object->createComponent<Drawable>(rend).setModel(Model(*meshes[i.GetUint()].first, *mats[meshes[i.GetUint()].second]));
+                }
             }
 
             return true;
         }
 
-        bool makeNodes(const aiNode& parentNode, WeakReference<Object> parentObject, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats)
+        bool makeNodes(WeakReference<Object> parentObject, Renderer& rend, const std::vector<std::pair<const Mesh*, unsigned int>>& meshes, const std::vector<const Material*>& mats, json::Value& val)
         {
-            if (!processNode(parentNode, parentObject, rend, meshes, mats))
+            if (!processNode(parentObject, rend, meshes, mats, val))
                 return false;
 
-            for (std::size_t i = 0; i < parentNode.mNumChildren; ++i)
+            if (val.HasMember("children") && val["children"].IsObject())
             {
-                const aiNode& thisNode = *parentNode.mChildren[i];
-                const WeakReference<Object> thisObj = parentObject->createChild("");
-
-                if (!makeNodes(thisNode, thisObj, rend, meshes, mats))
-                    return false;
+                for (auto itr = val["children"].MemberBegin(); itr != val["children"].MemberEnd(); ++itr)
+                {
+                    if (!makeNodes(parentObject->createChild(itr->name.GetString()), rend, meshes, mats, itr->value))
+                        return false;
+                }
             }
 
             return true;
         }
     }
 
-    bool ModelLoader::load(const std::string& path, const Options& options)
+    bool ModelLoader::load(const std::string& path)
     {
-        if (path.empty())
-            return false;
+        FileLoader fl;
 
-    #if JOP_CONSOLE_VERBOSITY >= 2
-        Clock clock;
-    #endif
-
-        auto& imp = FileSystemInitializer::getImporter();
-
-        struct SceneDealloc
+        if (!fl.open(path))
         {
-            Assimp::Importer* imp;
-            explicit SceneDealloc(Assimp::Importer& i) : imp(&i){}
-            ~SceneDealloc(){ imp->FreeScene(); }
-
-        } sceneDeallocator(imp);
-
-        static const unsigned int preProcess = 0
-
-            | aiProcessPreset_TargetRealtime_Fast
-            | aiProcess_TransformUVCoords
-            | (aiProcess_FixInfacingNormals * options.fixInfacingNormals)
-            | aiProcess_FlipUVs
-            | aiProcess_ImproveCacheLocality
-            | aiProcess_FindInvalidData
-            | aiProcess_ValidateDataStructure
-            | aiProcess_OptimizeMeshes
-            | aiProcess_RemoveRedundantMaterials
-            | (aiProcess_OptimizeGraph * options.collapseTree)
-            ;
-
-        const aiScene* scene = imp.ReadFile(path, preProcess);
-        
-        if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0)
-        {
-            JOP_DEBUG_ERROR("Failed to load Model: " << imp.GetErrorString());
+            JOP_DEBUG_ERROR("Failed to open model file \"" << path << "\"");
             return false;
         }
 
-        JOP_DEBUG_INFO("Model loaded successfully, building object tree...");
+        unsigned int scopes = 0;
+        do{
+            char current = 0;
+            fl.read(&current, 1);
 
-        if (detail::makeNodes(*scene->mRootNode, getObject(), getObject()->getScene().getRenderer(), detail::getMeshes(*scene), detail::getMaterials(*scene, options)))
+            if (current == '{')
+                scopes++;
+            if (current == '}')
+                scopes--;
+
+        } while (scopes != 0);
+
+        unsigned int currentPos = static_cast<unsigned int>(fl.tell());
+        fl.seek(0);
+        std::string jsonData;
+        jsonData.resize(currentPos);
+
+        fl.read(&jsonData.at(0), currentPos);
+
+        json::Document doc;
+        doc.Parse(jsonData.c_str());
+
+        if (!json::checkParseError(doc))
         {
-            detail::loadLights(*scene, getObject());
-            detail::loadCameras(*scene, getObject());
-
-            m_path = path;
-            JOP_DEBUG_INFO("Successfully loaded model \"" << path << "\", took " << clock.getElapsedTime().asSeconds() << "s");
-            return true;
+            JOP_DEBUG_ERROR("Failed to parse model file \"" << path << "\"");
+            return false;
         }
 
-        return false;
+        // Skip whitespace
+        char currentChar = 0;
+        do{
+            fl.read(&currentChar, 1);
+        } while (currentChar == ' ' || currentChar == '\n');
+        fl.seek(fl.tell() - 1);
+
+        std::vector<uint8> data(static_cast<std::size_t>(fl.getSize() - fl.tell()));
+        fl.read(&data.at(0), fl.getSize() - fl.tell());
+
+        detail::getTextures(doc, data, path);
+
+        const auto materials = detail::getMaterials(doc, path);
+        const auto meshes = detail::getMeshes(doc, data);
+
+        if (!doc.HasMember("rootnode"))
+        {
+            JOP_DEBUG_ERROR("Model \"" << path << "\" has no root node");
+            return false;
+        }
+
+        if (!detail::makeNodes(getObject(), getObject()->getScene().getRenderer(), meshes, materials, doc["rootnode"]))
+        {
+            JOP_DEBUG_ERROR("Failed to load nodes from model \"" << path << "\"");
+            return false;
+        }
+
+        float bounds[6] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+        if (doc.HasMember("globalbb") && doc["globalbb"].IsArray() && doc["globalbb"].Size() >= 6u)
+        {
+            for (unsigned int i = 0; i < 6; ++i)
+                bounds[i] = static_cast<float>(doc["globalbb"][i].GetDouble());
+        }
+        else
+            JOP_DEBUG_ERROR("Model \"" << path << "\" has no global bounding box. Using default values.");
+
+        m_localBounds = std::make_pair(glm::vec3(bounds[0], bounds[1], bounds[2]), glm::vec3(bounds[3], bounds[4], bounds[5]));
+
+        m_path = path;
+
+        return true;
+    }
+
+    //////////////////////////////////////////////
+
+    const std::pair<glm::vec3, glm::vec3>& ModelLoader::getLocalBounds() const
+    {
+        return m_localBounds;
+    }
+
+    //////////////////////////////////////////////
+
+    std::pair<glm::vec3, glm::vec3> ModelLoader::getGlobalBounds() const
+    {
+        auto bounds = getLocalBounds();
+        getObject()->getTransform().transformBounds(bounds.first, bounds.second);
+
+        return bounds;
     }
 }

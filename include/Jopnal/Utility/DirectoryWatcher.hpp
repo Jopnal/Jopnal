@@ -46,43 +46,88 @@ namespace jop
 
     public:
 
-        struct Info
+        /// File change information
+        ///
+        struct JOP_API Info
         {
-            std::string filename;
-            DateTime datetime;
+            std::string filename;   ///< The file that was changed
+            DateTime datetime;      ///< Date and time
 
-            bool operator ==(const Info& right) const
-            {
-                return (datetime == right.datetime) &&
-                       (filename == right.filename);
-            }
+            /// \brief Equality operator
+            ///
+            /// \param right The other Info to compare against
+            ///
+            /// \return True if the infos match
+            ///
+            bool operator ==(const Info& right) const;
         };
 
+        /// File change event callback
+        ///
         typedef std::function<void(Info)> EventCallback;
 
     public:
 
+        /// \brief Constructor
+        ///
+        /// Won't start observing any directory.
+        ///
         DirectoryWatcher();
 
+        /// \brief Overloaded constructor
+        ///
+        /// Calls start() with the given arguments.
+        ///
+        /// \param dir The directory to start watching
+        /// \param callback The event callback
+        ///
         DirectoryWatcher(const std::string& dir, EventCallback callback);
 
+        /// \brief Destructor
+        ///
         ~DirectoryWatcher();
 
         
+        /// \brief Start watching a directory
+        ///
+        /// Calls stop() before opening the new directory.
+        ///
+        /// \param dir The directory to start watching
+        /// \param callback The event callback
+        ///
+        /// \return True if the directory was opened successfully
+        ///
         bool start(const std::string& dir, EventCallback callback);
 
+        /// \brief Stop watching a directory
+        ///
         void stop();
 
+        /// \brief Set this watcher active/inactive
+        ///
+        /// \param active True to set active
+        ///
         void setActive(const bool active);
 
+        /// \brief Check if this watcher is active
+        ///
+        /// \return True if active
+        ///
         bool isActive() const;
 
+        /// \brief Check if this watcher is in an error condition
+        ///
+        /// \return True if this watcher has an error
+        ///
         bool hasError() const;
 
     private:
 
-        std::unique_ptr<detail::DirectoryWatcherImpl> m_impl;
+        std::unique_ptr<detail::DirectoryWatcherImpl> m_impl;   ///< implementation
     };
 }
+
+/// \class jop::DirectoryWatcher
+/// \ingroup utility
 
 #endif

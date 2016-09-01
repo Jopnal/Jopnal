@@ -19,15 +19,15 @@
 
 //////////////////////////////////////////////
 
+/// \defgroup window Window
+
 // Headers
+#include <Jopnal/Window/Controller.hpp>
 #include <Jopnal/Window/Keyboard.hpp>
 #include <Jopnal/Window/Mouse.hpp>
+#include <Jopnal/Window/Sensor.hpp>
+#include <Jopnal/Window/Touch.hpp>
 #include <Jopnal/Window/Window.hpp>
 #include <Jopnal/Window/WindowEventHandler.hpp>
 #include <Jopnal/Window/VideoInfo.hpp>
-
-//////////////////////////////////////////////
-
-/// \defgroup window Window
-///
-/// #TODO Detailed decription
+#include <Jopnal/Window/Vibrator.hpp>

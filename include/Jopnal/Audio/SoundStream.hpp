@@ -25,22 +25,32 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Audio/SoundSource.hpp>
+#include <Jopnal/Core/FileLoader.hpp>
+#include <Jopnal/Utility/Thread.hpp>
+#include <mutex>
+#include <vector>
+#include <atomic>
 
 //////////////////////////////////////////////
 
 
-namespace sf
-{
-    class Music;
-}
-
 namespace jop
 {
+    class SoundBuffer;
+
     class JOP_API SoundStream : public SoundSource
     {
     private:
 
-        JOP_DISALLOW_COPY_MOVE(SoundStream);
+        struct ParsedStreamingInfo
+        {
+            ParsedStreamingInfo();
+
+            uint64 sampleCount;         ///< Total number of samples
+            uint64 currentPos;          ///< Current reading point in audio data
+			std::atomic<float> offset;  ///< Current offset in audio data
+        };
+
         JOP_GENERIC_COMPONENT_CLONE(SoundStream);
 
     public:
@@ -51,13 +61,18 @@ namespace jop
         ///
         SoundStream(Object& object);
 
-        /// \brief Copy constructor
+        /// \brief destructor
         ///
-        /// \param other The other sound stream to be copied
-        /// \param newObj New object for this stream component
-        ///
-        SoundStream(const SoundStream& other, Object& newObj);
+        ~SoundStream();
 
+
+        /// \brief Update
+        ///
+        /// Updates offset
+        ///
+        /// \param deltaTime The delta time
+        ///
+        void update(const float deltaTime) override;
 
         /// \brief Stream audio from file
         ///
@@ -71,11 +86,11 @@ namespace jop
 
         /// \copydoc SoundEffect::play(const bool)
         ///
-        SoundStream& play(const bool reset);
+        SoundStream& play();
 
         /// \copydoc SoundEffect::play
         ///
-        SoundStream& play();
+        SoundStream& playReset();
 
         /// \copydoc SoundEffect::stop
         ///
@@ -91,19 +106,58 @@ namespace jop
 
         /// \copydoc SoundEffect::getOffset
         ///
-        float getOffset() const;
-
-        /// \copydoc SoundEffect::getStatus
-        ///
-        Status getStatus() const;
+        float getOffset();
 
         /// \copydoc SoundEffect::setLoop
         ///
+		/// If sound is small enough for one buffer, 
+		/// loop might be ignored due to buffer queue ending before loop check.
+		///
         SoundStream& setLoop(const bool loop);
+
+        /// \copydoc SoundEffect::isLooping()
+        ///
+        bool isLooping() const;
 
     private:
 
-        std::string m_path; ///< Remembers streaming path for cloning
+		/// \brief updateStream
+		///
+		/// Loop for stream's thread
+		///
+		void updateStream();
+
+		/// \brief fillBuffer
+		///
+		/// Reads next chunk of audio data into buffer
+		///
+		void fillBuffer();
+
+		/// \brief Private method to change stream's offset
+		///
+		void changeOffset();
+
+        /// \brief Private method for opening file
+        ///
+        bool openFile();
+
+        /// \brief Private method for closing file
+        ///
+        void closeFile();
+
+
+        std::recursive_mutex m_mutex;  
+        std::string m_path;                         ///< Remembers streaming path for cloning
+        bool m_isFileOpen;                          ///< Opens file if it's closed
+        bool m_loop;                                ///< If true song start from beginning when finished
+        std::atomic<bool> m_keepThread;             ///< While true keeps thread alive
+		float m_deltaOffset;                        ///< Updates current offset
+		std::atomic<float> m_inputOffset;           ///< Stores input offset
+		std::atomic<float> m_rawOffset;             ///< Reader's exact position
+		std::vector<std::unique_ptr<SoundBuffer>> m_bufferQueue; ///< SoundBuffer stack for streaming
+        ParsedStreamingInfo m_info;                 ///< Critical information for passing between buffers
+        FileLoader m_fileInstance;                  ///< FileLoader instance for this stream
+        Thread m_streamThread;                      ///< Enables streaming in seperate thread
     };
 }
 #endif
@@ -112,4 +166,3 @@ namespace jop
 /// \ingroup Audio
 ///
 /// Sound streaming straight from file 
-/// Uses SFML Music.hpp streaming instead of FileLoader.hpp

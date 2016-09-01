@@ -34,7 +34,7 @@
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
     class Texture;
 
     class JOP_API Material final : public Resource
@@ -47,75 +47,59 @@ namespace jop
 
     public:
 
-        /// Attribute data type
-        ///
-        typedef uint32 AttribType;
-
         /// Bit values to describe a material's attributes
         ///
         struct Attribute
         {
-            enum : AttribType
+            enum : uint64
             {
-                // Misc
-                AmbientConstant = 1,
-                DiffuseAlpha    = AmbientConstant   << 1,
-                VertexColor     = DiffuseAlpha      << 1, 
+                None            = 0,
 
                 // Maps
-                DiffuseMap      = 1                 << 4,
+                DiffuseMap      = 1                 << 1,
                 SpecularMap     = DiffuseMap        << 1,
                 EmissionMap     = SpecularMap       << 1,
                 EnvironmentMap  = EmissionMap       << 1,
                 ReflectionMap   = EnvironmentMap    << 1,
                 OpacityMap      = ReflectionMap     << 1,
                 GlossMap        = OpacityMap        << 1,
-                //NormalMap       = 1 << 7, // TODO: Implement
-                //ParallaxMap     = 1 << 8, // TODO: Implement
-                //AmbientMap    = 1 << 10, // TODO: Implement
-                //LightMap      = 1 << 11, // TODO: Implement
 
                 // Lighting models
                 Phong           = 1 << 18,
                 BlinnPhong      = Phong | Phong << 1,   //
-                Gouraud         = Phong,                // TODO: Implement these, requires shader work
+                Gouraud         = Phong,                // To be implemented
                 Flat            = Phong,                //
 
                 // Bundles
                 Default         = DiffuseMap,
-                DefaultLighting = AmbientConstant | BlinnPhong,
+                DefaultLighting = BlinnPhong,
 
                 // For internal functionality, do not use
-                __SkySphere     = 1  << 29,
-                __SkyBox        = 1  << 30,
-                __RecordEnv     = 1u << 31,
-                __Lighting      = Phong | BlinnPhong | Gouraud | Flat
+                __Lighting      = BlinnPhong | Gouraud | Flat
             };
         };
 
         /// The reflection attribute
+        ///
+        /// \note These will only affect rendering when lighting is enabled.
         ///
         enum class Reflection
         {
             Ambient,
             Diffuse,
             Specular,
-            Emission,
-
-            Solid = Emission
+            Emission
         };
 
         /// The map attribute
         ///
         enum class Map
         {
-            Diffuse = 1,
+            Diffuse = 0,
             Specular,
             Emission,
             Environment,
             Reflection,
-            //Normal
-            //Parallax
             Opacity,
             Gloss,
             
@@ -123,67 +107,36 @@ namespace jop
             Last
         };
 
-        /// Predefined material properties
-        ///
-        enum class Preset
-        {
-            Emerald,
-            Jade,
-            Obsidian,
-            Pearl,
-            Ruby,
-            Turquoise,
-            Brass,
-            Bronze,
-            Chrome,
-            Copper,
-            Gold,
-            Silver,
-            BlackPlastic,
-            CyanPlastic,
-            GreenPlastic,
-            RedPlastic,
-            WhitePlastic,
-            YellowPlastic,
-            BlackRubber,
-            CyanRubber,
-            GreenRubber,
-            RedRubber,
-            WhiteRubber,
-            YellowRubber
-        };
+    private:
+
+        typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::Last) - 1> MapArray;
 
     public:
 
         /// \brief Default constructor
         ///
-        /// \param name Name of this material
-        /// \param autoAttributes Set attributes automatically?
-        ///
-        Material(const std::string& name, const bool autoAttributes = true);
-
-        /// \brief Overloaded constructor for initializing with attributes
+        /// If autoAttributes is true, the attribute DiffuseMap will be enabled, and
+        /// the default texture will be used.
         ///
         /// \param name Name of this material
-        /// \param attributes The initial attributes
-        /// \param autoAttributes Set attributes automatically
+        /// \param autoAttributes Set attributes automatically? See setAutoAttributes()
         ///
-        Material(const std::string& name, const AttribType attributes, const bool autoAttributes = true);
+        Material(const std::string& name, const bool autoAttributes);
         
 
         /// \brief Send this material to a shader
         ///
         /// \param shader Reference to the shader to send this material to
-        /// \param camera The camera to use
+        /// \param camPos The camera position, may be nullptr
         ///
-        void sendToShader(Shader& shader, const Camera* camera) const;
+        void sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const;
 
-        /// \brief Get the shader
+        /// \brief Get a shader pre-processor string
         ///
-        /// \return Pointer to the shader
+        /// \param attribs The material attributes
+        /// \param str The string to write into
         ///
-        Shader* getShader() const;
-
+        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
 
         /// \brief Set a reflection value
         ///
@@ -203,15 +156,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Color ambient, const Color diffuse, const Color specular, const Color emission);
-
-        /// \brief Set the reflection values using a preset
-        ///
-        /// \param preset The preset to use
-        ///
-        /// \return Reference to self
-        ///
-        Material& setReflection(const Preset preset);
+        Material& setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission);
    
         /// \brief Get a reflection value
         ///
@@ -219,7 +164,7 @@ namespace jop
         ///
         /// \return The reflection value
         ///
-        Color getReflection(const Reflection reflection) const;
+        const Color& getReflection(const Reflection reflection) const;
 
         /// \brief Set the shininess value
         ///
@@ -234,7 +179,6 @@ namespace jop
         /// \return The shininess value
         ///
         float getShininess() const;
-
 
         /// \brief Set the reflectivity
         ///
@@ -255,10 +199,9 @@ namespace jop
         ///
         float getReflectivity() const;
 
-
         /// \brief Set a map
         ///
-        /// \param map The map attribute
+        /// \param map The map enum
         /// \param tex Reference to the texture
         ///
         /// \return Reference to self
@@ -275,12 +218,11 @@ namespace jop
 
         /// \brief Get a map
         ///
-        /// \param map The map attribute
+        /// \param map The map enum
         ///
-        /// \return Pointer to the texture. Nullptr if none bound
+        /// \return Pointer to the texture. nullptr if none bound
         ///
         const Texture* getMap(const Map map) const;
-
 
         /// \brief Set the attribute bit field
         ///
@@ -288,13 +230,13 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setAttributeField(const AttribType attribs);
+        Material& setAttributes(const uint64 attribs);
 
         /// \brief Get the attribute bit field
         ///
         /// \return The attribute bit field
         ///
-        AttribType getAttributeField() const;
+        uint64 getAttributes() const;
 
         /// \brief Check if this material has a specific attribute
         ///
@@ -302,16 +244,74 @@ namespace jop
         ///
         /// \return True if does have the attribute
         ///
-        bool hasAttribute(const AttribType attrib) const;
+        bool hasAttribute(const uint64 attrib) const;
 
-        bool hasAttributes(const AttribType attribs) const;
+        /// \brief Check if this material has a set of attributes
+        ///
+        /// \param attribs The attributes to check
+        ///
+        /// \return True if does have the attributes
+        ///
+        bool hasAttributes(const uint64 attribs) const;
 
-        bool compareAttributes(const AttribType attribs) const;
+        /// \brief Check if this material has a specific attribute set
+        ///
+        /// \param attribs The attributes to compare
+        ///
+        /// \return True if the attributes match
+        ///
+        bool compareAttributes(const uint64 attribs) const;
 
-        Material& addAttributes(const AttribType attribs);
+        /// \brief Add attributes
+        ///
+        /// \param attribs Attributes to add
+        ///
+        /// \return Reference to self
+        ///
+        Material& addAttributes(const uint64 attribs);
 
-        Material& removeAttributes(const AttribType attribs);
+        /// \brief Remove attributes
+        ///
+        /// \param attribs Attributes to remove
+        ///
+        /// \return Reference to self
+        ///
+        Material& removeAttributes(const uint64 attribs);
 
+        /// \brief Check if this material has potential transparency
+        ///
+        /// \return True if this material has potential transparency
+        ///
+        bool hasAlpha() const;
+
+		/// \brief Set this material to use automatic attributes
+		///
+		/// Automatic attributes are meant to simplify using materials. Enabling this
+		/// will cause the material to set up its attributes automatically, depending
+		/// on what methods are called. The rules are as follows:
+		///
+		///   - setReflection() and setShininess() will enable the default lighting model
+		///   - setReflectivity() will enable the environment map
+		///   - setMap() will enable the respective map
+		///   - removeMap() will disable the respective map
+		///
+		/// \param autoAttribs True to enable automatic attributes
+		///
+		/// \return Reference to self
+		///
+		Material& setAutoAttributes(const bool autoAttribs);
+
+		/// \brief Check if this material is using automatic attributes
+		///
+		/// \return True if using automatic attributes
+		///
+		bool hasAutoAttributes() const;
+
+		/// \brief Get the shader for this material
+		///
+		/// \return Reference to the shader
+		///
+		ShaderProgram& getShader() const;
 
         /// \brief Get the default material
         ///
@@ -321,19 +321,18 @@ namespace jop
 
     private:
 
-        std::array<Color, 4> m_reflection;  ///< The reflection values
-        float m_reflectivity;               ///< The reflectivity value
-        AttribType m_attributes;            ///< The attribute bit field
-        float m_shininess;                  ///< The shininess factor
-        std::array
-        <
-            WeakReference<const Texture>,
-            static_cast<int>(Map::Last) - 1
-        > m_maps;                               ///< An array with the bound maps
-        mutable WeakReference<Shader> m_shader; ///< Shader fitting the attributes
-        mutable bool m_attributesChanged;       ///< Have the attributes been changed?
-        bool m_autoAttribs;                     ///< Use automatic attributes?
+		std::array<Color, 4> m_reflection;				///< The reflection values
+		MapArray m_maps;								///< An array with the bound maps
+		mutable WeakReference<ShaderProgram> m_shader;	///< Shader
+		uint64 m_attributes;							///< The attribute bit field
+		float m_reflectivity;							///< The reflectivity value
+		float m_shininess;								///< The shininess factor
+		bool m_autoAttribs;								///< Use automatic attributes?
+		mutable bool m_updateShader;				    ///< Does the shader need updating?
     };
 }
+
+/// \class jop::Material
+/// \ingroup graphics
 
 #endif

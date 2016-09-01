@@ -41,6 +41,7 @@ namespace jop
         JOP_DISALLOW_COPY_MOVE(CollisionShape);
 
         friend class RigidBody;
+        friend class PhantomBody;
         friend class CompoundShape;
 
     protected:
@@ -62,5 +63,8 @@ namespace jop
         std::unique_ptr<btCollisionShape> m_shape;  ///< Shape data
     };
 }
+
+/// \class jop::CollisionShape
+/// \ingroup physics
 
 #endif

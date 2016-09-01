@@ -26,21 +26,26 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
 #include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Shader.hpp>
 #include <unordered_map>
 #include <mutex>
+#include <string>
+#include <array>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Shader;
+    class ShaderProgram;
 
     class JOP_API ShaderAssembler final : public Subsystem
     {
     private:
 
-        typedef std::unordered_map<Material::AttribType, WeakReference<Shader>> ShaderMap;
+        typedef std::unordered_map<std::string, std::string> PluginMap;
+        typedef std::unordered_map<std::size_t, WeakReference<ShaderProgram>> ShaderMap;
 
     public:
 
@@ -55,20 +60,62 @@ namespace jop
         ~ShaderAssembler() override;
 
 
+        /// \brief Add a single plugin
+        ///
+        /// \param name Name of the plugin
+        /// \param source The source code for the plugin
+        ///
+        /// \see addPlugins()
+        ///
+        static void addPlugin(const std::string& name, const std::string& source);
+
+        /// \brief Add multiple plugins from single string
+        ///
+        /// Parses through the string and searches for plugins and adds them to memory.
+        ///
+        /// Different plugins are defined as follows:
+        ///
+        /// \verbatim
+        /// #plugin <PluginName>
+        /// 
+        /// some GLSL code...
+        ///
+        /// #pluginend
+        /// \endverbatim
+        ///
+        /// Multiple plugins can be defined in a single source.
+        ///
+        /// \param source The plugin source
+        ///
+        /// \see addPlugin()
+        ///
+        static void addPlugins(const std::string& source);
+
+        /// \brief Removes plugin with given name from memory
+        ///
+        /// \param name Name of the plugin
+        ///
+        static void removePlugin(const std::string& name);
+
+        /// \brief Clear all plugins from memory
+        ///
+        static void clearPlugins();
+
+        /// \brief Pre-processes shaders source code and adds necessary plugins before compilation
+        ///
+        /// \param input Shaders source code
+        /// \param output Preprocessed source code
+        ///
+        static void preprocess(const std::vector<const char*>& input, std::string& output);
+
         /// \brief Get a shader with the given attribute combination
         ///
-        /// \param attributes The material attributes
+        /// \param materialAttribs The material attributes
+        /// \param drawableAttribs The drawable attributes
         ///
         /// \return Reference to the shader
         ///
-        static Shader& getShader(const Material::AttribType attributes);
-
-        /// \brief Get a pre-processor shader string
-        ///
-        /// \param attrib Material attributes
-        /// \param str The string to put the definitions into
-        ///
-        static void getPreprocessDef(const Material::AttribType attrib, std::string& str);
+        static ShaderProgram& getShader(const uint64 materialAttribs, const uint64 drawableAttribs = 0);
 
         /// \brief Get the shader map
         ///
@@ -76,14 +123,30 @@ namespace jop
         ///
         static const ShaderMap& getShaderMap();
 
+        /// \brief Set a shader source
+        ///
+        /// This can be used to override the default über shader.
+        ///
+        /// \param type The shader type
+        /// \param source The shader source
+        ///
+        static void setShaderSource(const Shader::Type type, const std::string& source);
+
     private:
 
-        static ShaderAssembler* m_instance;   ///< The single instance
+        static void preprocess(const std::vector<const char*>& input, std::string& output, const bool nested, std::unordered_set<const char*>& duplicateSet);
 
+
+        static ShaderAssembler* m_instance; ///< The single instance
+
+        PluginMap m_plugins;                ///< Map with the plugins
         ShaderMap m_shaders;                ///< Map with the shaders
         std::array<std::string, 3> m_uber;  ///< The uber shader sources
         std::recursive_mutex m_mutex;       ///< Mutex                                        
     };
 }
+
+/// \class jop::ShaderAssembler
+/// \ingroup graphics
 
 #endif

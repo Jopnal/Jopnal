@@ -20,10 +20,16 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
 
-#ifdef JOP_OS_DESKTOP
+#ifndef JOP_PRECOMPILED_HEADER
+    #include <Jopnal/Window/VideoInfo.hpp>
+#endif
+
+#if defined(JOP_OS_DESKTOP)
     #include <Jopnal/Window/Desktop/VideoInfoImpl.hpp>
+#elif defined(JOP_OS_ANDROID)
+    #include <Jopnal/Window/Android/VideoInfoImpl.hpp>
 #endif
 
 //////////////////////////////////////////////
@@ -31,15 +37,15 @@
 
 namespace jop
 {
-    const std::vector<glm::uvec2>& VideoInfo::getSupportedResolutions()
+    const std::vector<VideoInfo>& VideoInfo::getSupportedModes()
     {
-        return detail::VideoInfoImpl::getSupportedResolutions();
+        return detail::VideoInfoImpl::getSupportedModes();
     }
 
     //////////////////////////////////////////////
 
-    glm::uvec2 VideoInfo::getDesktopResolution()
+    VideoInfo VideoInfo::getDesktopMode()
     {
-        return detail::VideoInfoImpl::getDesktopResolution();
+        return detail::VideoInfoImpl::getDesktopMode();
     }
 }

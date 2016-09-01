@@ -19,13 +19,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYBOX_HPP
-#define JOP_SKYBOX_HPP
+#ifndef JOP_SKYSPHERE_HPP
+#define JOP_SKYSPHERE_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/SphereMesh.hpp>
+#include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
@@ -33,18 +33,12 @@
 
 namespace jop
 {
+    class Texture2D;
+
     class JOP_API SkySphere : public Drawable
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sky sphere to copy
-        /// \param newObj The new object
-        ///
-        SkySphere(const SkySphere& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(SkySphere);
         JOP_GENERIC_COMPONENT_CLONE(SkySphere);
 
     public:
@@ -61,9 +55,9 @@ namespace jop
         SkySphere(Object& obj, Renderer& renderer, const float radius = 2.f);
 
 
-        /// \copydoc Drawable::draw(const Camera*,const LightContainer&,Shader&)
+        /// \copydoc Drawable::draw()
         ///
-        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+        void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
         /// \brief Set the map
         ///
@@ -71,11 +65,11 @@ namespace jop
         ///
         /// \param map Reference to the map
         ///
-        void setMap(const Texture2D& map);
+        SkySphere& setMap(const Texture2D& map);
 
         /// \brief Get the bound map
         ///
-        /// \return Pointer to the map. Nullptr if none is bound
+        /// \return Pointer to the map. nullptr if none is bound
         ///
         const Texture* getMap() const;
 
@@ -85,5 +79,8 @@ namespace jop
         Material m_material;    ///< The material
     };
 }
+
+/// \class jop::SkySphere
+/// \ingroup graphics
 
 #endif

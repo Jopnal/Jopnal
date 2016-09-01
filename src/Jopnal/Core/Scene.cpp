@@ -20,46 +20,38 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Scene.hpp>
+
+    #include <Jopnal/Core/Engine.hpp>
+    #include <Jopnal/Graphics/Renderer.hpp>
+    #include <Jopnal/Physics/World.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+
+#endif
 
 /////////////////////////////////////////////
 
 
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Object, Scene)
+    JOP_REGISTER_COMMAND_HANDLER(Scene)
 
         JOP_BIND_MEMBER_COMMAND(&Scene::setDeltaScale, "setDeltaScale");
 
     JOP_END_COMMAND_HANDLER(Scene)
-
-    JOP_REGISTER_LOADABLE(jop, Scene) [](std::unique_ptr<Scene>& scene, const json::Value& val) -> bool
-    {
-        const float delta = val.HasMember("deltascale") && val["deltascale"].IsDouble() ? static_cast<float>(val["deltascale"].GetDouble()) : 1.f;
-
-        scene = std::make_unique<Scene>("");
-        scene->setDeltaScale(delta);
-
-        return true;
-    }
-    JOP_END_LOADABLE_REGISTRATION(Scene)
-
-    JOP_REGISTER_SAVEABLE(jop, Scene) [](const Scene& scene, json::Value& obj, json::Value::AllocatorType& alloc) -> bool
-    {
-        obj.AddMember(json::StringRef("deltascale"), scene.getDeltaScale(), alloc);
-
-        return true;
-    }
-    JOP_END_SAVEABLE_REGISTRATION(Scene)
 }
 
 namespace jop
 {
     Scene::Scene(const std::string& ID)
-        : Object        (ID),
-          m_renderer    (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
-          m_world       (createComponent<World>(*m_renderer)),
-          m_deltaScale  (1.f)
+        : Object            (ID),
+          m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
+          m_worlds          (nullptr, nullptr),
+          m_deltaScale      (1.f)
     {}
 
     Scene::~Scene()
@@ -78,13 +70,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    World& Scene::getWorld() const
-    {
-        return m_world;
-    }
-
-    //////////////////////////////////////////////
-
     void Scene::setDeltaScale(const float scale)
     {
         m_deltaScale = scale;
@@ -99,39 +84,18 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Scene::sendMessage(const std::string& message)
-    {
-        Any wrap;
-        return sendMessage(message, wrap);
-    }
-
-    //////////////////////////////////////////////
-
-    Message::Result Scene::sendMessage(const std::string& message, Any& returnWrap)
-    {
-        const Message msg(message, returnWrap);
-        return sendMessage(msg);
-    }
-
-    //////////////////////////////////////////////
-
     Message::Result Scene::sendMessage(const Message& message)
     {
         if (message.passFilter(getID()))
         {
-            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene)) && message.passFilter(Message::Command)))
+            if ((message.passFilter(Message::Scene) || (this == &Engine::getSharedScene() && message.passFilter(Message::SharedScene))))
             {
-                Any instance(this);
-                if (JOP_EXECUTE_COMMAND(Object, message.getString(), instance, message.getReturnWrapper()) == Message::Result::Escape)
+                if (receiveMessage(message) == Message::Result::Escape)
                     return Message::Result::Escape;
             }
-
-            if (message.passFilter(Message::Custom) && sendMessageImpl(message) == Message::Result::Escape)
-                return Message::Result::Escape;
         }
 
-        static const unsigned short objectField = Message::Object |
-                                                  Message::Component;
+        const unsigned short objectField = Message::Object | Message::Component;
 
         if (message.passFilter(objectField) && Object::sendMessage(message) == Message::Result::Escape)
             return Message::Result::Escape;
@@ -147,23 +111,17 @@ namespace jop
         {
             const float dt = deltaTime * m_deltaScale;
 
-            preUpdate(dt);
-            Object::update(dt);
-            postUpdate(dt);
-        }
-    }
+            // Have to check every step since engine state
+            // might be changed at any time
 
-    //////////////////////////////////////////////
+            if (Engine::getState() == Engine::State::Running)
+                preUpdate(dt);
 
-    void Scene::drawBase()
-    {
-        if (isActive())
-        {
-            preDraw();
+            if (Engine::getState() == Engine::State::Running)
+                Object::update(dt);
 
-            m_renderer->draw();
-
-            postDraw();
+            if (Engine::getState() == Engine::State::Running)
+                postUpdate(dt);
         }
     }
 
@@ -175,16 +133,6 @@ namespace jop
     //////////////////////////////////////////////
 
     void Scene::postUpdate(const float)
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::preDraw()
-    {}
-
-    //////////////////////////////////////////////
-
-    void Scene::postDraw()
     {}
 
     //////////////////////////////////////////////
@@ -203,8 +151,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Message::Result Scene::sendMessageImpl(const Message&)
+    Message::Result Scene::receiveMessage(const Message& message)
     {
-        return Message::Result::Continue;
+        return JOP_EXECUTE_COMMAND(Scene, message.getString(), this);
     }
 }

@@ -24,38 +24,73 @@
 
 //Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Component.hpp>
+#include <Jopnal/Core/SerializeInfo.hpp>
 #include <Jopnal/Utility/SafeReferenceable.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
+#include <Jopnal/STL.hpp>
 #include <unordered_set>
+#include <memory>
+#include <vector>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class JOP_API Object : public SafeReferenceable<Object>
+    class Scene;
+
+    class JOP_API Object : public SafeReferenceable<Object>, public SerializeInfo
     {
     private:
 
         JOP_DISALLOW_COPY(Object);
 
-        friend class StateLoader;
+        friend class SceneLoader;
         friend class Component;
 
-        enum : uint16
+        enum : uint32
         {
             ActiveFlag          = 1,
-            RemoveFlag          = 1 << 1,
-            ChildrenRemovedFlag = 1 << 2,
+            RemoveFlag          = 1 << 2,
+            ChildrenRemovedFlag = 1 << 3,
 
             // Transformations
-            IgnoreParent        = 1 << 3,
             MatrixDirty         = 1 << 4,
             InverseMatrixDirty  = 1 << 5,
 
             GlobalRotationDirty = 1 << 6,
             GlobalScaleDirty    = 1 << 7,
-            GlobalPositionDirty = 1 << 8
+            GlobalPositionDirty = 1 << 8,
+
+            TransformDirty      = MatrixDirty | InverseMatrixDirty | GlobalRotationDirty | GlobalScaleDirty | GlobalPositionDirty
+        };
+
+    public:
+
+        /// Transformation restrictions
+        ///
+        enum TransformRestriction : uint32
+        {
+            TranslationX = 1 << 10, ///< Translation on the X axis
+            TranslationY = 1 << 11, ///< Translation on the Y axis
+            TranslationZ = 1 << 12, ///< Translation on the Z axis
+
+            /// Translation on all axes
+            Translation = TranslationX | TranslationY | TranslationZ,
+
+            ScaleX = 1 << 13,   ///< Scale on the X axis
+            ScaleY = 1 << 14,   ///< Scale on the Y axis
+            ScaleZ = 1 << 15,   ///< Scale on the Z axis
+
+            /// Scale on all axes
+            Scale = ScaleX | ScaleY | ScaleZ,
+
+            /// Rotation on all axes
+            Rotation = 1 << 16,
+
+            /// Ignore parent transform completely
+            IgnoreParent = Translation | Scale | Rotation
         };
 
     public:
@@ -70,19 +105,15 @@ namespace jop
         /// 
         /// \param other The other object to copy
         /// \param newID The ID of the new object
-        /// \param newTransform The transform of the new object
+        /// \param newTransform The transform values of the new object
         ///
         Object(const Object& other, const std::string& newID, const Transform::Variables& newTransform);
 
         /// \brief Move constructor
         ///
-        /// \param other The other object to move
-        ///
         Object(Object&& other);
 
         /// \brief Move assignment operator
-        ///
-        /// \param other The other object to move
         ///
         /// \return Reference to self
         ///
@@ -92,29 +123,20 @@ namespace jop
         ///
         ~Object();
 
-
-        /// \brief Get a component with the given id
-        ///
-        /// \param ID Component identifier to search with
-        ///
-        /// \return Pointer to the component, nullptr if the component wasn't found
-        ///
-        Component* getComponent(const std::string& ID);
-
-        /// \copydoc getComponent()
-        ///
-        const Component* getComponent(const std::string& ID) const;
-
         
         /// \brief Get all components
         ///
         /// \return Reference to the internal vector with the components
         ///
+        std::vector<std::unique_ptr<Component>>& getComponents();
+
+        /// \copydoc getComponents()
+        ///
         const std::vector<std::unique_ptr<Component>>& getComponents() const;
 
         /// \brief Get a component using type info
         ///
-        /// \return Pointer to the component. Nullptr if not found
+        /// \return Pointer to the component. nullptr if not found
         ///
         template<typename T>
         T* getComponent();
@@ -124,44 +146,38 @@ namespace jop
         template<typename T>
         const T* getComponent() const;
 
-        /// \brief Get a component using component ID
+        /// \brief Get a component using component ID and type info
         ///
-        /// \return Pointer to the component. Nullptr if not found
+        /// \param ID The identifier to search with
         ///
-        template<typename T>
-        T* getComponent(const std::string& ID);
-
-        /// \copydoc getComponent()
+        /// \return Pointer to the component. nullptr if not found
         ///
         template<typename T>
-        const T* getComponent(const std::string& ID) const;
+        T* getComponent(const uint32 ID);
 
-        /// \brief Template function to create components
+        /// \copydoc getComponent(const uint32)
+        ///
+        template<typename T>
+        const T* getComponent(const uint32 ID) const;
+
+        /// \brief Create a component
         ///
         /// \param args Arguments to use with construction
+        ///
+        /// \return Reference to the newly created component
         ///
         template<typename T, typename ... Args>
         T& createComponent(Args&&... args);
 
-        /// \brief Template function to clone a component
+        /// \brief Clone a component
         ///
         /// \param object New object for the cloned component
         /// \param ID Identifier of the component to clone
         ///
-        /// \return Pointer to the cloned component. Nullptr if not found
+        /// \return Pointer to the cloned component. nullptr if not found
         ///
-        Component* cloneComponent(Object& object, const std::string& ID) const;
-
-        /// \brief Template function to duplicates component
-        ///
-        /// The same object will be used.
-        ///
-        /// \param ID Identifier of the component
-        /// \param newID Identifier of the cloned component
-        ///
-        /// \return Pointer to the cloned component. Nullptr if not found
-        ///
-        Component* cloneComponent(const std::string& ID, const std::string& newID);
+        template<typename T>
+        T* cloneComponent(Object& object, const uint32 ID = 0) const;
 
         /// \brief Remove components
         ///
@@ -169,17 +185,26 @@ namespace jop
         /// 
         /// \param ID The ID to search with
         ///
-        /// \comm removeComponents
-        ///
         /// \return Reference to self
+        ///
+        /// \comm removeComponents
         /// 
-        Object& removeComponents(const std::string& ID);
+        Object& removeComponents(const uint32 ID);
+
+        /// \brief Remove a component
+        ///
+        /// \param ID The ID to search with
+        ///
+        /// \return Reference to self 
+        ///
+        template<typename T>
+        Object& removeComponent(const uint32 ID = 0);
 
         /// \brief Remove all components
         ///
-        /// \comm clearComponents
-        ///
         /// \return Reference to self
+        ///
+        /// \comm clearComponents
         /// 
         Object& clearComponents();
 
@@ -189,14 +214,13 @@ namespace jop
         ///
         unsigned int componentCount() const;
 
-
         /// \brief Create a new child
         ///
-        /// \comm createChild
-        ///
-        /// \param ID Id for the new object
+        /// \param ID Id for the new child object
         ///
         /// \return Reference to the newly created child
+        ///
+        /// \comm createChild
         ///
         WeakReference<Object> createChild(const std::string& ID);
 
@@ -205,17 +229,21 @@ namespace jop
         /// This will move the child onto this object and remove it from its old parent.
         /// If the child's parent is equal to this, this function does nothing.
         ///
-        /// \comm adoptChild
-        ///
         /// \param child The child to adopt
         ///
         /// \return Reference to the adopted child. The old reference will become invalid
+        ///
+        /// \comm adoptChild
         ///
         WeakReference<Object> adoptChild(Object& child);
 
         /// \brief Get all children
         ///
         /// \return Reference to the internal vector with the components
+        ///
+        std::vector<Object>& getChildren();
+
+        /// \copydoc getChildren()
         ///
         const std::vector<Object>& getChildren() const;
 
@@ -224,10 +252,10 @@ namespace jop
         /// The child object, if successfully cloned, will be added to the internal array
         /// and then returned.
         ///
-        /// \param ID The id to search with
-        /// \param clonedID The id of the cloned object
+        /// \param ID The ID to search with
+        /// \param clonedID The ID of the cloned object
         ///
-        /// \return Pointer to the newly cloned child object if the object was found, nullptr otherwise
+        /// \return Reference to the newly cloned child object if the object was found, empty otherwise
         ///
         /// \comm cloneChild
         /// 
@@ -239,8 +267,7 @@ namespace jop
         /// 
         WeakReference<Object> cloneChild(const std::string& ID, const std::string& clonedID, const Transform::Variables& newTransform);
 
-
-        /// \brief Remove children with the given id
+        /// \brief Remove children with the given identifier
         ///
         /// The children will actually be removed only at the beginning of the next update call.
         ///
@@ -254,7 +281,7 @@ namespace jop
 
         /// \brief Remove all children with the given tag
         ///
-        /// \copydetails removeChildren
+        /// The children will actually be removed only at the beginning of the next update call.
         ///
         /// \param tag The tag to search with
         /// \param recursive Search recursively?
@@ -263,13 +290,24 @@ namespace jop
         ///
         Object& removeChildrenWithTag(const std::string& tag, const bool recursive);
 
-        /// \brief Remove all children
+        /// \brief Reserve memory for children
         ///
-        /// \comm clearChild
-        /// 
-        /// the children will be removed immediately.
+        /// Reallocates children if param size is greater than currently reserved size.
+        /// It's recommended to call tis before adding a large amount of children.
+        ///
+        /// \param size Size to reserve
         ///
         /// \return Reference to self
+        ///
+        Object& reserveChildren(const uint32 size);
+
+        /// \brief Remove all children
+        /// 
+        /// The children will be removed immediately.
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm clearChildren
         ///
         Object& clearChildren();
 
@@ -322,17 +360,13 @@ namespace jop
 
         /// \brief Get amount of children recursively
         ///
-        /// Goes through the children and their children all the way down the tree
-        /// and return the total amount of children
-        ///
         /// \return Amount of children, summed recursively
         ///
         unsigned int childCountRecursive() const;
 
-
         /// \brief Get this object's parent
         ///
-        /// If the result is empty, it means that this is a scene.
+        /// If the result is empty, it means that this object is a scene.
         ///
         /// \return Reference to the parent
         ///
@@ -342,51 +376,30 @@ namespace jop
         ///
         /// This is equivalent to calling newParent.adoptChild(this)
         ///
-        /// \comm setParent
-        ///
         /// \param newParent The new parent
         ///
         /// \return Reference to this. The old reference will become invalid
         ///
+        /// \comm setParent
+        ///
         WeakReference<Object> setParent(Object& newParent);
-
 
         /// \brief Get the scene this objects is bound to
         ///
-        /// You should avoid calling this when you can use jop::Engine::getCurrentScene
-        /// or jop::Engine::getSharedScene.
+        /// You should avoid calling this when you can use Engine::getCurrentScene()
+        /// or Engine::getSharedScene().
         ///
         /// \return Reference to the scene
         ///
         Scene& getScene();
 
-        /// \copydoc getScene
+        /// \copydoc getScene()
         ///
         const Scene& getScene() const;
 
-
-        /// \brief Method to send messages
+        /// \brief Send a message
         ///
-        /// Forwards messages to this object's components
-        ///
-        /// \param message String holding the message
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message);
-
-        /// \brief Method to send messages
-        ///
-        /// Forwards messages to this object's components
-        ///
-        /// \param message String holding the message
-        /// \param returnWrap Pointer to hold extra data
-        ///
-        /// \return The message result
-        ///
-        Message::Result sendMessage(const std::string& message, Any& returnWrap);
-
-        /// \brief Function to handle messages
+        /// The message will be forwarded to children and components.
         ///
         /// \param message The message
         ///
@@ -394,54 +407,63 @@ namespace jop
         ///
         Message::Result sendMessage(const Message& message);
 
-        /// \brief Function to find child returns weak reference of the child object
+        /// \brief Find a child
         ///
-        /// \param ID Unique object identifier
-        /// \param recursive Tells if search if recursive
-        /// \param strict Tells if search is strict, meaning the ID has to match exactly
+        /// \param ID Object identifier
+        /// \param recursive Search recursively?
+        /// \param strict Does the ID have to match exactly?
         ///
-        /// \return Objects child reference, empty if not found
+        /// \return Reference to the child, empty if not found
         ///
         WeakReference<Object> findChild(const std::string& ID, const bool recursive = false, const bool strict = true) const;
 
-        /// \brief Function to find all child objects 
+        /// \brief Find all children matching the criteria
+        ///
+        /// When ID is empty and strict is false, all children will be returned.
         /// 
-        /// \param ID Unique object identifier
-        /// \param recursive Tells if search is recursive
-        /// \param strict Tells if search is strict, meaning the ID has to match exactly
+        /// \param ID Object identifier
+        /// \param recursive Search recursively?
+        /// \param strict Does the ID have to match exactly?
         ///
-        /// \return Vector consisting all objects children, empty if none were found
+        /// \return Vector with all the found children, empty if none were found
         ///
-        std::vector<WeakReference<Object>> findChildren(const std::string &ID, const bool recursive, const bool strict) const;
+        std::vector<WeakReference<Object>> findChildren(const std::string& ID, const bool recursive, const bool strict) const;
 
-        /// \brief Finds children by given tag
+        /// \brief Find children with a tag
         ///
         /// \param tag Object identifier
-        /// \param recursive Tells if search is recursive
+        /// \param recursive Search recursively?
         ///
-        /// \return vector consisting objects children, empty if none were found
+        /// \return Vector with all the found children, empty if none were found
         ///
         std::vector<WeakReference<Object>> findChildrenWithTag(const std::string& tag, const bool recursive) const;
 
-        /// \brief Find child via path
+        /// \brief Find child with a search path
         /// 
-        /// \param path String that includes multiple ID:s 
+        /// \param path Search path
         ///
-        /// \return Weak reference to child, empty if not found
-        //
+        /// \return Reference to the child, empty if not found
+        ///
+        /// \see makeSearchPath()
+        ///
         WeakReference<Object> findChildWithPath(const std::string& path) const;
 
-        /// \brief Makes path to children including all parents
+        /// \brief Make a string path through this object's parents
+        ///
+        /// The path will be in the following format:
+        /// `GrandParent>Parent>ThisObject`.
+        /// Due to how the format works, the character '>'
+        /// in an object ID is forbidden.
         ///
         /// \return String with the path
         ///
-        /// \see findChildWithPath
+        /// \see findChildWithPath()
         ///
         std::string makeSearchPath() const;
 
         /// \brief Set this object active/inactive
         ///
-        /// \param active Activity flag to set
+        /// \param active True to set active
         ///
         /// \return Reference to self
         ///
@@ -455,16 +477,20 @@ namespace jop
         ///
         bool isActive() const;
 
-
-        /// \brief Get this object's id
+        /// \brief Get this object's identifier
         ///
         /// \return Reference to the internal id string
         ///
+        /// \see setID()
+        ///
         const std::string& getID() const;
 
-        /// \brief method for setting the ID
+        /// \brief Set the identifier
         ///
-        /// \param ID unique object identifier
+        /// The character '>' in an object identifier is
+        /// forbidden.
+        ///
+        /// \param ID Object identifier
         ///
         /// \return Reference to self
         ///
@@ -472,36 +498,35 @@ namespace jop
         /// 
         Object& setID(const std::string& ID);
 
-
         /// \brief Add a tag
         ///
-        /// \comm addTag
-        ///
-        /// \param tag Name of the added tag
+        /// \param tag The tag to add
         ///
         /// \return Reference to self
+        ///
+        /// \comm addTag
         ///
         Object& addTag(const std::string& tag);
 
         /// \brief Remove a tag
         ///
-        /// \comm removeTag
-        ///
-        /// \param tag Name of the tag to be removed
+        /// \param tag The tag to be removed
         ///
         /// \return Reference to self
+        ///
+        /// \comm removeTag
         ///
         Object& removeTag(const std::string& tag);
 
         /// \brief Clear tags
         ///
-        /// \comm clearTag
-        ///
         /// \return Reference to self
+        ///
+        /// \comm clearTags
         ///
         Object& clearTags();
 
-        /// \brief Finds out if object has tag name tag
+        /// \brief Check if this object has a tag
         ///
         /// \param tag The tag to check
         ///
@@ -509,20 +534,19 @@ namespace jop
         ///
         bool hasTag(const std::string& tag) const;
 
-
-        /// \brief Update method for object - forwarded for its components
+        /// \brief Update
         ///
-        /// \param deltaTime Double holding delta time
+        /// This is for internal use.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime);
 
+        /// \brief Print the tree of objects into the console, this object as root
+        ///
+        void printDebugTree() const;
 
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // Transformations
-        ////////////////////////////////////////////////////////////////////////////////
-
-    public:
+    public: // Transformations
 
         /// \brief Get the transform
         ///
@@ -536,7 +560,6 @@ namespace jop
         ///
         const Transform& getInverseTransform() const;
 
-
         /// \brief Get the local transformation variables
         ///
         /// \return Reference to the internal variables
@@ -549,10 +572,7 @@ namespace jop
         ///
         const Transform::Variables& getGlobalTransformVars() const;
 
-
         /// \brief Set the rotation
-        ///
-        /// This version uses euler angles
         ///
         /// \param x The X angle
         /// \param y The Y angle
@@ -589,7 +609,7 @@ namespace jop
 
         /// \brief Get the local rotation
         ///
-        /// \return Quaternion with the rotation
+        /// \return The local rotation
         ///
         const glm::quat& getLocalRotation() const;
 
@@ -598,7 +618,6 @@ namespace jop
         /// \return The global rotation
         ///
         const glm::quat& getGlobalRotation() const;
-
 
         /// \brief Get the global front vector
         ///
@@ -612,7 +631,7 @@ namespace jop
         ///
         glm::vec3 getGlobalRight() const;
 
-        /// \brief Get the global right vector
+        /// \brief Get the global up vector
         ///
         /// \return The global up vector
         ///
@@ -636,10 +655,9 @@ namespace jop
         ///
         glm::vec3 getLocalUp() const;
 
-
         /// \brief Set the scale
         ///
-        /// 1.f means the original scale
+        /// 1.f means the original scale.
         ///
         /// \param x The X component
         /// \param y The Y component
@@ -679,7 +697,6 @@ namespace jop
         ///
         const glm::vec3& getGlobalScale() const;
 
-
         /// \brief Set the position
         ///
         /// \param x The X component
@@ -700,7 +717,7 @@ namespace jop
 
         /// \brief Get the local position
         ///
-        /// \return Vector with the position
+        /// \return The local position
         ///
         const glm::vec3& getLocalPosition() const;
 
@@ -710,10 +727,13 @@ namespace jop
         ///
         const glm::vec3& getGlobalPosition() const;
 
-
         /// \brief Set this transform to look at a certain point
         ///
-        /// The rotation is applied locally.
+        /// The rotation is applied locally. If you want to set the rotation
+        /// to point at an absolute world position, use setIgnoreTransform() to
+        /// restrict the rotation.
+        ///
+        /// This overload will use Transform::Up as the up vector.
         ///
         /// \param point The point to look at
         ///
@@ -723,7 +743,7 @@ namespace jop
 
         /// \copydoc lookAt
         ///
-        /// \param up A custom up vector
+        /// \param up Custom up vector
         ///
         Object& lookAt(const glm::vec3& point, const glm::vec3& up);
 
@@ -737,12 +757,11 @@ namespace jop
         ///
         Object& lookAt(const float x, const float y, const float z);
 
-
         /// \brief Move this object
         ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
+        /// \param x The X offset
+        /// \param y The Y offset
+        /// \param z The Z offset
         ///
         /// \returns Reference to self
         ///
@@ -756,12 +775,11 @@ namespace jop
         ///
         Object& move(const glm::vec3& offset);
 
-
         /// \brief Rotate this object
         ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
+        /// \param x The X offset
+        /// \param y The Y offset
+        /// \param z The Z offset
         ///
         /// \returns Reference to self
         ///
@@ -788,12 +806,11 @@ namespace jop
         ///
         Object& rotate(const float angle, const glm::vec3& axis);
 
-
         /// \brief Scale this object
         ///
-        /// \param x The X component
-        /// \param y The Y component
-        /// \param z The Z component
+        /// \param x The X multiplier
+        /// \param y The Y multiplier
+        /// \param z The Z multiplier
         ///
         /// \returns Reference to self
         ///
@@ -809,18 +826,17 @@ namespace jop
 
         /// \brief Scale this object
         ///
-        /// This call is equal to scale(delta, delta, delta)
+        /// This call is equal to scale(delta, delta, delta).
         ///
-        /// \param delta The scale modifier
+        /// \param delta The scale multiplier
         ///
         /// \return Reference to self
         ///
         Object& scale(const float delta);
 
-
         /// \brief Set this node to ignore its parent
         ///
-        /// Nodes that ignore their parent will not take
+        /// Objects that ignore their parent will not take
         /// into account the parent's transformation.
         ///
         /// \param ignore The flag to set
@@ -835,17 +851,44 @@ namespace jop
         ///
         bool ignoresParent() const;
 
+        /// \brief Set transform restriction flags
+        ///
+        /// Use this function to ignore certain global transformations. The
+        /// local transformation values remain unaffected.
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see TransformRestriction
+        ///
+        Object& setIgnoreTransform(const uint32 flags);
+
+        /// \brief Check if a transform restriction has been set
+        ///
+        /// You should only check a single flag at a time.
+        ///
+        /// \param flag The flag to check
+        ///
+        /// \return True if the flag is set
+        ///
+        bool ignoresTransform(const uint32 flag) const;
+
     private:
+
+        void printDebugTreeImpl(std::vector<uint32> spacing, const bool isLast) const;
 
         void sweepRemoved();
 
-        bool flagSet(const uint16 flag) const;
+        bool flagSet(const uint32 flag) const;
 
-        void setFlags(const uint16 flags) const;
+        void setFlags(const uint32 flags) const;
 
-        void clearFlags(const uint16 flags) const;
+        void clearFlags(const uint32 flags) const;
 
-        void propagateFlags(const uint16 flags);
+        void setFlagsIf(const uint32 flags, const bool cond) const;
+
+        void propagateFlags(const uint32 flags);
 
 
         // Transformation
@@ -860,14 +903,14 @@ namespace jop
         std::unordered_set<std::string> m_tags;                 ///< Container holding tags
         std::string m_ID;                                       ///< Unique object identifier
         WeakReference<Object> m_parent;                         ///< The parent
-        mutable uint16 m_flags;                                 ///< Flags
+        mutable uint32 m_flags;                                 ///< Flags
     };
 
     // Include the template implementation file
     #include <Jopnal/Core/Inl/Object.inl>
 }
 
-#endif
+/// \class jop::Object 
+/// \ingroup core
 
-/// \class Object 
-/// \ingroup graphics
+#endif

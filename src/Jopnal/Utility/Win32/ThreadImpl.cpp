@@ -20,11 +20,18 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#include <Jopnal/Utility/Win32/ThreadImpl.hpp>
 
 #ifdef JOP_OS_WINDOWS
 
-#include <Jopnal/Utility/Win32/ThreadImpl.hpp>
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/Win32/Win32.hpp>
+    #include <thread>
+
+#endif
 
 //////////////////////////////////////////////
 

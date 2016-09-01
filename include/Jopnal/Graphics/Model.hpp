@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Utility/SafeReferenceable.hpp>
 
 //////////////////////////////////////////////
 
@@ -49,17 +50,28 @@ namespace jop
         ///
         Model(const Mesh& mesh);
 
-        /// \brief Constructor for initializing with a mesh and a material
+        /// \brief Constructor for initializing with a material
+        ///
+        /// Note that a model is not valid until it has a mesh also.
+        ///
+        /// \param material Material to initialize with
+        ///
+        Model(const Material& material);
+
+        /// \brief Constructor for initializing with a mesh and material
         ///
         /// \param mesh Mesh to initialize with
         /// \param material Material to initialize with
         ///
         Model(const Mesh& mesh, const Material& material);
 
-
         /// \brief Get the mesh
         ///
-        /// \return Pointer to the mesh
+        /// \return Pointer to the mesh. nullptr if none bound
+        ///
+        Mesh* getMesh();
+
+        /// \copydoc getMesh()
         ///
         const Mesh* getMesh() const;
 
@@ -71,24 +83,23 @@ namespace jop
         ///
         Model& setMesh(const Mesh& mesh);
 
-
         /// \brief Get the material
         ///
-        /// \return Pointer to the material. Nullptr if none bound
+        /// \return Pointer to the material. nullptr if none bound
+        ///
+        Material* getMaterial();
+
+        /// \copydoc getMaterial()
         ///
         const Material* getMaterial() const;
 
         /// \brief Set the material
-        ///
-        /// The material will be copied, so there's not need to keep the original around.
-        /// Respectively, you'll need to pass it again should you make any changes to it.
         ///
         /// \param material The new material
         ///
         /// \return Reference to self
         ///
         Model& setMaterial(const Material& material);
-
 
         /// \brief Check if this model is valid
         ///
@@ -101,8 +112,11 @@ namespace jop
     private:
 
         WeakReference<Material> m_material; ///< The material
-        WeakReference<const Mesh> m_mesh;   ///< The mesh
+        WeakReference<Mesh> m_mesh;         ///< The mesh
     };
 }
+
+/// \class jop::Model
+/// \ingroup graphics
 
 #endif

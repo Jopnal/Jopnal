@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+#include <glm/vec3.hpp>
 
 //////////////////////////////////////////////
 
@@ -51,5 +52,8 @@ namespace jop
         bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
     };
 }
+
+/// \class jop::InfinitePlaneShape
+/// \ingroup physics
 
 #endif

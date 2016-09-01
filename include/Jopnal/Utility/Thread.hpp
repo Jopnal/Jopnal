@@ -29,6 +29,8 @@
 //////////////////////////////////////////////
 
 
+class _JNIEnv;
+
 namespace jop
 {
     class JOP_API Thread
@@ -54,7 +56,7 @@ namespace jop
 
         /// \brief Default constructor
         ///
-        /// Will not start a thread.
+        /// Will not start an actual thread.
         ///
         Thread();
 
@@ -70,13 +72,9 @@ namespace jop
 
         /// \brief Move constructor
         ///
-        /// \param other The other thread to be moved
-        ///
         Thread(Thread&& other);
 
         /// \brief Move assignment operator
-        ///
-        /// \param other The other thread to be moved
         ///
         Thread& operator =(Thread&& other);
 
@@ -90,11 +88,13 @@ namespace jop
 
         /// \brief Wait for the thread to return
         ///
-        /// This will return immediately the thread is not joinable.
+        /// This will return immediately if the thread is not joinable.
         ///
         void join();
 
         /// \brief Check if this thread is joinable
+        ///
+        /// The thread is joinable if it hasn't been detached.
         ///
         /// \return True if joinable
         ///
@@ -129,6 +129,31 @@ namespace jop
         ///
         std::thread::id getId() const;
 
+        /// \brief Attach the calling thread to the Java virtual machine
+        ///
+        /// A thread needs to be attached if it makes any JNI calls.
+        ///
+        /// On operating systems besides Android, this function is no-op.
+        ///
+        /// \param vm Pointer to the Java virtual machine, may be null
+        /// \param mainEnv Pointer to the NativeActivity JNIEnv, may be null
+        ///
+        static void attachJavaThread(void* vm, void* mainEnv);
+
+        /// \brief Detach the calling thread from the Java virtual machine
+        ///
+        /// On operating systems besides Android, this function is no-op.
+        ///
+        /// \param vm Pointer to the Java virtual machine, may be null
+        ///
+        static void detachJavaThread(void* vm);
+
+        /// \brief Get the JNIEnv for the calling thread
+        ///
+        /// \return Pointer to the JNIEnv
+        ///
+        static _JNIEnv* getCurrentJavaEnv();
+
     private:
 
         std::thread m_thread;   ///< The internal thread
@@ -137,5 +162,8 @@ namespace jop
     // Include the implementation file
     #include <Jopnal/Utility/Inl/Thread.inl>
 }
+
+/// \class jop::Thread
+/// \ingroup utility
 
 #endif

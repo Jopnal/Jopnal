@@ -20,14 +20,48 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Physics/World.hpp>
+
+    #include <Jopnal/Core/Object.hpp>   
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/ResourceManager.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/VertexBuffer.hpp>
+    #include <Jopnal/Graphics/Mesh/Mesh.hpp>
+    #include <Jopnal/Physics/Collider.hpp>
+    #include <Jopnal/Physics/Detail/WorldImpl.hpp>
+    #include <Jopnal/Utility/Assert.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <Jopnal/Physics/ContactListener.hpp>
+
+    #pragma warning(push)
+    #pragma warning(disable: 4127)
+
+    #include <btBulletDynamicsCommon.h>
+    #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+    #pragma warning(pop)    
+
+#endif
+
+#include <Jopnal/Resources/Resources.hpp>
 
 //////////////////////////////////////////////
 
-
 namespace jop
 {
-    JOP_DERIVED_COMMAND_HANDLER(Component, World)
+    JOP_REGISTER_COMMAND_HANDLER(World)
 
         JOP_BIND_MEMBER_COMMAND(&World::setDebugMode, "setWorldDebugMode");
 
@@ -35,6 +69,7 @@ namespace jop
 }
 
 #ifdef JOP_DEBUG_MODE
+
 namespace detail
 {
     class DebugDrawer final : public btIDebugDraw
@@ -49,7 +84,7 @@ namespace detail
         LineVec m_lines;
         LineVec m_points;
         int m_mode;
-        const jop::Camera* m_cam;
+        const jop::Drawable::ProjectionInfo* m_proj;
 
     public:
 
@@ -58,7 +93,7 @@ namespace detail
               m_lines   (),
               m_points  (),
               m_mode    (0),
-              m_cam     (nullptr)
+              m_proj    (nullptr)
         {}
 
         void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
@@ -78,9 +113,9 @@ namespace detail
 
         void reportErrorWarning(const char* warningString) override
         {
-#ifndef JOP_DEBUG_MODE
+        #if JOP_CONSOLE_VERBOSITY < 1
             warningString;
-#endif
+        #endif
             JOP_DEBUG_WARNING(warningString);
         }
 
@@ -98,98 +133,61 @@ namespace detail
         {
             using namespace jop;
 
-            if ((m_lines.empty() && m_points.empty()) || !m_cam)
+            if (m_lines.empty() && m_points.empty())
                 return;
 
-            static WeakReference<Shader> shdr;
+            static WeakReference<ShaderProgram> shdr;
 
             if (shdr.expired())
             {
-                std::vector<unsigned char> vert, frag;
-                JOP_ASSERT_EVAL(FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_VERT, vert) && FileLoader::readResource(JOP_RES_PHYSICS_DEBUG_SHADER_FRAG, frag), "Failed to read physics debug shader source!");
+                shdr = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_physics_debug_shader").getReference());
 
-                shdr = static_ref_cast<Shader>(ResourceManager::getEmptyResource<Shader>("jop_physics_debug_shader").getReference());
+                if (!shdr->isValid())
+                {
+                    Shader vertex("");
+                    vertex.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderVert), sizeof(jopr::physicsDebugShaderVert)), Shader::Type::Vertex);
+                    Shader frag("");
+                    frag.load(std::string(reinterpret_cast<const char*>(jopr::physicsDebugShaderFrag), sizeof(jopr::physicsDebugShaderFrag)), Shader::Type::Fragment);
 
-                JOP_ASSERT_EVAL(shdr->load(std::string(reinterpret_cast<const char*>(vert.data()), vert.size()),
-                    "",
-                    std::string(reinterpret_cast<const char*>(frag.data()), frag.size())),
-                    "Failed to compile physics debug shader!");
+                    JOP_ASSERT_EVAL(shdr->load("", vertex, frag), "Failed to compile physics debug shader!");
+                }
             }
 
             // Draw lines
             if (!m_lines.empty())
             {
-                GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
-
                 m_buffer.setData(m_lines.data(), m_lines.size() * sizeof(LineVec::value_type));
 
-                shdr->setUniform("u_PVMatrix", m_cam->getProjectionMatrix() * m_cam->getViewMatrix());
+                shdr->setUniform("u_PVMatrix", m_proj->projectionMatrix * m_proj->viewMatrix);
 
-                shdr->setAttribute(0, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(0));
-                shdr->setAttribute(3, gl::FLOAT, 3, sizeof(LineVec::value_type), false, reinterpret_cast<void*>(sizeof(btVector3)));
+                GlState::setVertexAttribute(true, Mesh::VertexIndex::Position);
+                GlState::setVertexAttribute(true, Mesh::VertexIndex::Color);
+                glCheck(glVertexAttribPointer(Mesh::VertexIndex::Position, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), 0));
+                glCheck(glVertexAttribPointer(Mesh::VertexIndex::Color, 3, GL_FLOAT, GL_FALSE, sizeof(LineVec::value_type), (void*)sizeof(btVector3)));
 
-                glCheck(gl::DrawArrays(gl::LINES, 0, m_lines.size()));
+                glCheck(glDrawArrays(GL_LINES, 0, m_lines.size()));
 
                 m_lines.clear();
             }
 
             // Draw points
-            if (m_points.empty())
+            if (!m_points.empty())
             {
-                glCheck(gl::PointSize(3));
-                GlState::setDepthTest(true, GlState::DepthFunc::Always);
+            #ifndef JOP_OPENGL_ES
+                glCheck(glPointSize(3));
+            #endif
 
                 m_buffer.setData(m_points.data(), m_points.size() * sizeof(LineVec::value_type));
 
-                glCheck(gl::DrawArrays(gl::POINTS, 0, m_points.size()));
+                glCheck(glDrawArrays(GL_POINTS, 0, m_points.size()));
 
                 m_points.clear();
             }
-
-            GlState::setDepthTest(true);
         }
     };
 }
 
 #endif
-
-namespace detail
-{
-    struct GhostCallback : btGhostPairCallback
-    {
-        btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" began overlapping");
-
-                p0->beginOverlap(*p1);
-                p1->beginOverlap(*p0);
-            }
-
-            return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
-        }
-
-        void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
-        {
-            auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
-            auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
-
-            if (p0 && p1)
-            {
-                JOP_DEBUG_DIAG("Objects \"" << p0->getObject()->getID() << "\" and \"" << p1->getObject()->getID() << "\" ended overlap");
-
-                p0->endOverlap(*p1);
-                p1->endOverlap(*p0);
-            }
-
-            return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
-        }
-    };
-}
 
 #ifdef JOP_DEBUG_MODE
     #define CREATE_DRAWER new ::detail::DebugDrawer
@@ -199,24 +197,132 @@ namespace detail
 
 namespace jop
 {
-    World::World(Object& obj, Renderer& renderer)
-        : Component         (obj, "world"),
-          m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
-          m_ghostCallback   (std::make_unique<::detail::GhostCallback>())
+    namespace detail
     {
-    #ifdef JOP_DEBUG_MODE
-        renderer.m_physicsWorld = this;
-    #else
-        renderer;
-    #endif
-        
-        static const float gravity = SettingManager::get<float>("engine/Physics|DefaultWorld|fGravity", -9.81f);
+        struct GhostCallback : btGhostPairCallback
+        {
+            btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
+            {
+                auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+                auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+                if (p0 && p1)
+                {
+                    for (auto& i : p0->m_listeners)
+                        i->beginOverlap(*p1);
+
+                    for (auto& i : p1->m_listeners)
+                        i->beginOverlap(*p0);
+                }
+
+                return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+            }
+
+            void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
+            {
+                auto p0 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy0->m_clientObject)->getUserPointer());
+                auto p1 = static_cast<jop::Collider*>(static_cast<btCollisionObject*>(proxy1->m_clientObject)->getUserPointer());
+
+                if (p0 && p1)
+                {
+                    for (auto& i : p0->m_listeners)
+                        i->endOverlap(*p1);
+
+                    for (auto& i : p1->m_listeners)
+                        i->endOverlap(*p0);
+                }
+
+                return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
+            }
+        };
+
+        struct ContactListenerImpl
+        {
+        private:
+
+            struct ContactData
+            {
+                Collider* A;
+                Collider* B;
+
+                ContactData(Collider& a, Collider& b)
+                    : A(&a),
+                      B(&b)
+                {}
+            };
+
+        public:
+
+            static bool contactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
+            {
+                if (!body0 || !body1)
+                    return false;
+
+                auto a = static_cast<Collider*>(static_cast<btCollisionObject*>(body0)->getUserPointer());
+                auto b = static_cast<Collider*>(static_cast<btCollisionObject*>(body1)->getUserPointer());
+
+                const auto& pos = cp.m_positionWorldOnB;
+                const auto& norm = cp.m_normalWorldOnB;
+
+                ContactInfo ci(glm::vec3(pos.x(), pos.y(), pos.z()), glm::vec3(norm.x(), norm.y(), norm.z()));
+
+                cp.m_userPersistentData = new ContactData(*a, *b);
+
+                for (auto& i : a->m_listeners)
+                    i->beginContact(*b, ci);
+
+                return true;
+            }
+
+            static bool contactDestroyedCallback(void* userPersistentData)
+            {
+                ContactData* cd = static_cast<ContactData*>(userPersistentData);
+
+                for (auto& i : cd->A->m_listeners)
+                    i->endContact(*cd->B);
+
+                delete cd;
+
+                return true;
+            }
+        };
+
+        struct BroadPhaseCallback : btOverlapFilterCallback
+        {
+            bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
+            {
+                auto btColl0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+                auto btColl1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+
+                return !(btColl0->isStaticObject() && btColl1->isStaticObject()) &&
+                        static_cast<Collider*>(btColl0->getUserPointer())->isActive() &&
+                        static_cast<Collider*>(btColl1->getUserPointer())->isActive() &&
+                        (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0 &&
+                        (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
+    World::World(Object& obj, Renderer& renderer)
+        : Drawable          (obj, renderer, RenderPass::Pass::AfterPost),
+          m_worldData       (std::make_unique<detail::WorldImpl>(CREATE_DRAWER)),
+          m_ghostCallback   (std::make_unique<detail::GhostCallback>()),
+          m_contactListener (std::make_unique<detail::ContactListenerImpl>()),
+          m_bpCallback      (std::make_unique<detail::BroadPhaseCallback>())
+    {
+        static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
+        m_worldData->world->getPairCache()->setOverlapFilterCallback(m_bpCallback.get());
         m_worldData->world->setWorldUserInfo(this);
+        gContactProcessedCallback = m_contactListener->contactProcessedCallback;
+        gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
         
         setDebugMode(false);
+        setFlags(0);
     }
 
     World::~World()
@@ -236,8 +342,8 @@ namespace jop
 
     void World::update(const float deltaTime)
     {
-        static const char* const str = "engine/Physics|uUpdateFrequency";
-        static float timeStep = 1.f / static_cast<float>(SettingManager::get<unsigned int>(str, 50));
+        static const char* const str = "engine@Physics|uUpdateFrequency";
+        static float timeStep = 1.f / SettingManager::get<unsigned int>(str, 50);
 
         static struct Callback : SettingCallback<unsigned int>
         {
@@ -245,23 +351,25 @@ namespace jop
             Callback(float* _val, const char* str) : val(_val)
             {SettingManager::registerCallback(str, *this);}
             void valueChanged(const unsigned int& value) override
-            {*val = 1.f / static_cast<float>(value);}
-        } cb(&timeStep, str);
+            {*val = 1.f / value;}
 
+        } cb(&timeStep, str);
+        
         m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
     }
 
     //////////////////////////////////////////////
 
-    void World::draw(const Camera& camera)
+    void World::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
     #ifdef JOP_DEBUG_MODE
-        if (!m_worldData->world->getDebugDrawer()->getDebugMode())
-            return;
 
-        static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_cam = &camera;
+        if (m_worldData->world->getDebugDrawer()->getDebugMode())
+        {
+            static_cast<::detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_proj = &proj;
+            m_worldData->world->debugDrawWorld();
+        }
 
-        m_worldData->world->debugDrawWorld();
     #else
         camera;
     #endif
@@ -272,10 +380,15 @@ namespace jop
     void World::setDebugMode(const bool enable)
     {
     #ifdef JOP_DEBUG_MODE
+
         static const int debugField = btIDebugDraw::DBG_DrawAabb
-                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE;
+                                    | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE
+                                    | btIDebugDraw::DBG_DrawConstraints
+                                    | btIDebugDraw::DBG_DrawConstraintLimits
+                                    ;
 
         m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
+
     #else
         enable;
     #endif
@@ -301,6 +414,7 @@ namespace jop
         const btVector3 rayFromWorld(start.x, start.y, start.z);
         const btVector3 rayToWorld(fromTo.x, fromTo.y, fromTo.z);
 
+        
         btCollisionWorld::ClosestRayResultCallback cb(rayFromWorld, rayToWorld);
 
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
@@ -317,7 +431,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    std::vector<RayInfo> jop::World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
+    std::vector<RayInfo> World::checkRayAllHits(const glm::vec3& start, const glm::vec3& ray, const short group, const short mask) const
     {
         const glm::vec3 fromTo(start + ray);
 
@@ -331,7 +445,7 @@ namespace jop
         std::vector<RayInfo> objContainer;
         m_worldData->world->rayTest(rayFromWorld, rayToWorld, cb);
 
-        for (size_t i = 0; cb.m_collisionObjects.size(); ++i)
+        for (int i = 0; i < cb.m_collisionObjects.size(); ++i)
         {
             const auto& point = cb.m_hitPointWorld[i];
             const auto& normal = cb.m_hitNormalWorld[i];
@@ -369,5 +483,15 @@ namespace jop
         m_worldData->world->getBroadphase()->aabbTest(btVector3(aabbStart.x, aabbStart.y, aabbStart.z), btVector3(aabbEnd.x, aabbEnd.y, aabbEnd.z), cb);
 
         return cb.vec;
+    }
+
+    //////////////////////////////////////////////
+
+    Message::Result World::receiveMessage(const Message& message)
+    {
+        if (JOP_EXECUTE_COMMAND(World, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
+
+        return Component::receiveMessage(message);
     }
 }

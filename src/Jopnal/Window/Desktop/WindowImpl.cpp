@@ -20,18 +20,31 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
-
-#if defined(JOP_OS_WINDOWS)
+#include JOP_PRECOMPILED_HEADER_FILE
 
 #include <Jopnal/Window/Desktop/WindowImpl.hpp>
+
+#ifdef JOP_OS_DESKTOP
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Core/DebugHandler.hpp>
+    #include <Jopnal/Core/SettingManager.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <GLFW/glfw3.h>
+
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace
 {
-    unsigned int ns_windowCount = 0;
+    std::unordered_map<GLFWwindow*, jop::Window*> ns_windowRefs;
     GLFWwindow* ns_shared;
 
     void errorCallback(int code, const char* message)
@@ -62,20 +75,21 @@ namespace
 
         if (!init)
         {
-            auto result = gl::sys::LoadFunctions();
-
-            JOP_ASSERT(result, "Failed to load OpenGL extensions!");
-
-            if (result.GetNumMissing() > 0)
-                JOP_DEBUG_WARNING("Some requested OpenGL extensions failed to load. Missing extensions: " << result.GetNumMissing());
+            JOP_ASSERT_EVAL(ogl_LoadFunctions() != ogl_LOAD_FAILED, "Failed to load OpenGL extensions!");
 
             init = true;
         }
     }
 
+    #ifdef JOP_OPENGL_ES
+        #define JOP_DEF_OGL_MINOR 0
+    #else
+        #define JOP_DEF_OGL_MINOR 3
+    #endif
+
     void initialize()
     {
-        if (ns_windowCount++ == 0)
+        if (ns_windowRefs.empty())
         {
             glfwSetErrorCallback(errorCallback);
             glfwInit();
@@ -88,12 +102,20 @@ namespace
             glfwWindowHint(GLFW_DEPTH_BITS, 0);
             glfwWindowHint(GLFW_STENCIL_BITS, 0);
 
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, JOP_OPENGL_VERSION_MAJOR);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, JOP_OPENGL_VERSION_MINOR);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, jop::SettingManager::get<unsigned int>("engine@Graphics|OpenGL|uVersionMajor", 3));
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, jop::SettingManager::get<unsigned int>("engine@Graphics|OpenGL|uVersionMinor", JOP_DEF_OGL_MINOR));
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CLIENT_API, 
 
-            glfwWindowHint(GLFW_VISIBLE, gl::FALSE_);
-            glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
+            #ifdef JOP_OPENGL_ES
+                GLFW_OPENGL_ES_API
+            #else
+                GLFW_OPENGL_API
+            #endif
+            );
+
+            glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
             ns_shared = glfwCreateWindow(1, 1, "", NULL, NULL);
             glfwMakeContextCurrent(ns_shared);
@@ -106,7 +128,7 @@ namespace
 
     void deInitialize()
     {
-        if (--ns_windowCount == 0)
+        if (ns_windowRefs.empty())
         {
             glfwDestroyWindow(ns_shared);
             glfwTerminate();
@@ -116,29 +138,26 @@ namespace
 
 namespace jop { namespace detail
 {
-    WindowImpl::WindowImpl(const Window::Settings& settings)
-        : m_window      (nullptr),
-          m_vertexArray (0)
+    WindowImpl::WindowImpl(const Window::Settings& settings, Window& windowPtr)
+        : m_window(nullptr)
     {
         initialize();
 
-        glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
         glfwWindowHint(GLFW_VISIBLE, settings.visible);
         glfwWindowHint(GLFW_SAMPLES, settings.samples);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, settings.debug);
 
         // Pixel format
-        glfwWindowHint(GLFW_RED_BITS, 8);
-        glfwWindowHint(GLFW_GREEN_BITS, 8);
-        glfwWindowHint(GLFW_BLUE_BITS, 8);
-        glfwWindowHint(GLFW_ALPHA_BITS, 8);
+        glfwWindowHint(GLFW_RED_BITS, settings.colorBits.r);
+        glfwWindowHint(GLFW_GREEN_BITS, settings.colorBits.g);
+        glfwWindowHint(GLFW_BLUE_BITS, settings.colorBits.b);
+        glfwWindowHint(GLFW_ALPHA_BITS, settings.colorBits.a);
+        glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
 
         // Depth & stencil exist in the renderer frame buffer
-        glfwWindowHint(GLFW_DEPTH_BITS, 24);
-        glfwWindowHint(GLFW_STENCIL_BITS, 8);
-
-        // Frame rate limit
-        glfwWindowHint(GLFW_REFRESH_RATE, settings.maxFrameRate == 0 ? GLFW_DONT_CARE : settings.maxFrameRate);
+        glfwWindowHint(GLFW_DEPTH_BITS, settings.depthBits);
+        glfwWindowHint(GLFW_STENCIL_BITS, settings.stencilBits);
         
         // Decorated window
         glfwWindowHint(GLFW_DECORATED, settings.displayMode == Window::DisplayMode::Windowed);
@@ -146,6 +165,8 @@ namespace jop { namespace detail
         m_window = glfwCreateWindow(settings.size.x, settings.size.y, settings.title.c_str(), settings.displayMode != Window::DisplayMode::Fullscreen ? NULL : glfwGetPrimaryMonitor(), ns_shared);
 
         JOP_ASSERT(m_window != nullptr, "Failed to create window! Title: " + settings.title);
+
+        ns_windowRefs[m_window] = &windowPtr;
 
         if (settings.displayMode != Window::DisplayMode::Fullscreen)
         {
@@ -158,18 +179,22 @@ namespace jop { namespace detail
 
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(static_cast<int>(settings.vSync));
-        
-        glCheck(gl::GenVertexArrays(1, &m_vertexArray));
-        glCheck(gl::BindVertexArray(m_vertexArray));
+
+        static const bool srgbConversion = SettingManager::get<bool>("engine@DefaultWindow|bSRGBConversion", false);
+
+        if (srgbConversion)
+        {
+            // No intermediate frame buffer
+            glCheck(glEnable(GL_FRAMEBUFFER_SRGB));
+        }
     }
 
     WindowImpl::~WindowImpl()
     {
-        glCheck(gl::BindVertexArray(0));
-        glCheck(gl::DeleteVertexArrays(1, &m_vertexArray));
-
         // There should always be a valid window
+        ns_windowRefs.erase(m_window);
         glfwDestroyWindow(m_window);
+
         deInitialize();
     }
 
@@ -247,6 +272,18 @@ namespace jop { namespace detail
         glfwGetFramebufferSize(m_window, &s.x, &s.y);
 
         return s;
+    }
+
+    //////////////////////////////////////////////
+
+    Window* WindowImpl::getCurrentContextWindow()
+    {
+        auto itr = ns_windowRefs.find(glfwGetCurrentContext());
+
+        if (itr != ns_windowRefs.end())
+            return itr->second;
+
+        return nullptr;
     }
 }}
 

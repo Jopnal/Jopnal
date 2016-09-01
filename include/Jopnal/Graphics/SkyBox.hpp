@@ -19,13 +19,13 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_SKYSPHERE_HPP
-#define JOP_SKYSPHERE_HPP
+#ifndef JOP_SKYBOX_HPP
+#define JOP_SKYBOX_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
-#include <Jopnal/Graphics/BoxMesh.hpp>
+#include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 
 //////////////////////////////////////////////
@@ -33,23 +33,17 @@
 
 namespace jop
 {
+    class Cubemap;
+
     class JOP_API SkyBox : public Drawable
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other sky box to copy
-        /// \param newObj The new object
-        ///
-        SkyBox(const SkyBox& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(SkyBox);
         JOP_GENERIC_COMPONENT_CLONE(SkyBox);
 
     public:
 
-        /// \param Constructor
+        /// \brief Constructor
         ///
         /// You should only ever need to change the default size if you're using
         /// a non-default near clipping plane with your cameras.
@@ -60,9 +54,9 @@ namespace jop
         ///
         SkyBox(Object& obj, Renderer& renderer, const float size = 2.f);
 
-        /// \copydoc Drawable::draw(const Camera*, const LightContainer&, Shader&)
+        /// \copydoc Drawable::draw()
         ///
-        void draw(const Camera* camera, const LightContainer& lights, Shader& shader) const override;
+        void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
         /// \brief Set the map
         ///
@@ -72,7 +66,7 @@ namespace jop
 
         /// \brief Get the bound map
         ///
-        /// \return Pointer to the map. Nullptr if none is bound
+        /// \return Pointer to the map. nullptr if none is bound
         ///
         const Texture* getMap() const;
 
@@ -82,5 +76,8 @@ namespace jop
         Material m_material;    ///< The material
     };
 }
+
+/// \class jop::SkyBox
+/// \ingroup graphics
 
 #endif

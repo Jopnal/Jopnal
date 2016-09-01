@@ -26,7 +26,10 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/MathInclude.hpp>
+#include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Graphics/RenderTexture.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 #include <array>
 #include <set>
 
@@ -36,23 +39,18 @@
 namespace jop
 {
     class Object;
-    class Shader;
+    class ShaderProgram;
     class Renderer;
     class RenderTexture;
+    class Drawable;
 
     class JOP_API LightSource final : public Component
     {
     private:
 
-        /// \brief Copy constructor
-        ///
-        /// \param other The other light to copy
-        /// \param newObj The new object
-        ///
-        LightSource(const LightSource& other, Object& newObj);
-
-        JOP_DISALLOW_COPY_MOVE(LightSource);
         JOP_GENERIC_COMPONENT_CLONE(LightSource);
+
+        friend class Renderer;
 
     public:
 
@@ -121,10 +119,7 @@ namespace jop
         ///
         /// \return The render mask
         ///
-        /// \comm setRenderMask_LightSource
-        ///
         uint32 getRenderMask() const;
-
 
         /// \brief Get the light type
         ///
@@ -132,8 +127,9 @@ namespace jop
         ///
         Type getType() const;
 
-
         /// \brief Set shadow casting for this light
+        ///
+        /// This can be an expensive function, do not call frequently.
         ///
         /// \param castShadows True to cast shadows
         ///
@@ -145,10 +141,7 @@ namespace jop
         ///
         /// \return True if this light casts shadows
         ///
-        /// \comm setCastShadows
-        ///
         bool castsShadows() const;
-
 
         /// \brief Get a light space matrix
         ///
@@ -162,48 +155,36 @@ namespace jop
         ///
         const glm::mat4& getLightspaceMatrix(const DepthFace face = DepthFace::First) const;
 
-
-        /// \brief Render the shadow map
-        ///
-        /// This is only meant to be called by Renderer.
-        /// 
-        /// \param drawables The drawables to render into the shadow map
-        ///
-        /// \return True if any objects were drawn
-        ///
-        bool drawShadowMap(const std::set<const Drawable*>& drawables) const;
-
         /// \brief Get the shadow map
         ///
-        /// \return Const reference to the shadow map. Nullptr if no shadow map exists
+        /// \return Const reference to the shadow map. nullptr if no shadow map exists
         ///
         const Texture* getShadowMap() const;
 
-
-        /// \brief Sets m_intensities array to color
+        /// \brief Set a specific intensity value
         ///
-        /// \comm setIntensity
-        ///
-        /// \param intensity Intensity type from enum
-        /// \param color Color type as RGB vector
+        /// \param intensity The intensity type
+        /// \param color The color value to set
         ///
         /// \return Reference to self
         ///
+        /// \comm setIntensity
+        ///
         LightSource& setIntensity(const Intensity intensity, const Color& color);
         
-        /// \brief Overload function for setIntensity
+        /// \brief Set all intensity values
         ///
-        /// \param ambient Color value for ambient lighting
-        /// \param diffuse Color value for diffuse lighting
-        /// \param specular Color value for specular lighting
+        /// \param ambient Ambient intensity
+        /// \param diffuse Diffuse intensity
+        /// \param specular Specular intensity
         ///
         /// \return Reference to self
         ///
         LightSource& setIntensity(const Color& ambient, const Color& diffuse, const Color& specular);
 
-        /// \brief Set an uniform intensity
+        /// \brief Set all intensity values
         ///
-        /// All the intensity values will be set to the given color value
+        /// All the intensity values will be set to the given color value.
         ///
         /// \param intensity The intensity to set
         ///
@@ -215,10 +196,9 @@ namespace jop
         ///
         /// \param intensity The intensity type
         ///
-        /// \return The intensity color
+        /// \return The intensity value
         ///
-        Color getIntensity(const Intensity intensity) const;
-
+        const Color& getIntensity(const Intensity intensity) const;
 
         /// \brief Set a single attenuation value
         ///
@@ -231,13 +211,13 @@ namespace jop
 
         /// \brief Set the attenuation values
         ///
-        /// \comm setAttenuation
-        ///
         /// \param constant The constant attenuation
         /// \param linear The linear attenuation
         /// \param quadratic The quadratic attenuation
         ///
         /// \return Reference to self
+        ///
+        /// \comm setAttenuation
         /// 
         LightSource& setAttenuation(const float constant, const float linear, const float quadratic);
 
@@ -269,8 +249,7 @@ namespace jop
         ///
         /// \return A vector with the attenuation values
         ///
-        glm::vec3 getAttenuationVec() const;
-
+        glm::vec3 getAttenuation() const;
 
         /// \brief Get the approximate maximum range
         ///
@@ -282,26 +261,19 @@ namespace jop
         ///
         float getRange() const;
 
-        /// \brief Get the range of the light
-        ///
-        /// \return Range of the light
-        ///
-        bool checkRange(const Drawable& drawable) const;
-
-
         /// \brief Set the cutoff
         ///
         /// This only affects spot lights.
         /// The inner and outer cutoff control the dimming near
         /// the edges of the spot light.
         ///
-        /// \comm setCutoff
-        ///
         /// \param inner The inner cutoff in radians. The light will be at its
         ///              maximum intensity inside this angle
         /// \param outer The outer cutoff in radians
         ///
         /// \return Reference to self
+        ///
+        /// \comm setCutoff
         ///
         LightSource& setCutoff(const float inner, const float outer);
 
@@ -314,7 +286,6 @@ namespace jop
         ///
         const glm::vec2& getCutoff() const;
 
-
         /// \brief Get the setting for the maximum number of lights
         ///
         /// \param type The light type
@@ -322,7 +293,6 @@ namespace jop
         /// \return The maximum number of lights
         ///
         static unsigned int getMaximumLights(const Type type);
-
 
         /// \brief Calculate cube map view matrices
         ///
@@ -332,7 +302,16 @@ namespace jop
         ///
         static void makeCubemapMatrices(const glm::mat4& projection, const glm::vec3& position, std::vector<glm::mat4>& viewMats);
         
+    protected:
+
+        /// \copydoc Component::receiveMessage()
+        ///
+        Message::Result receiveMessage(const Message& message) override;
+
     private:
+
+        bool drawShadowMap() const;
+
 
         mutable RenderTexture m_shadowMap;                      ///< The shadow map
         mutable std::vector<glm::mat4> m_lightSpaceMatrices;    ///< Light space matrices. Used when rendering the shadow map
@@ -346,23 +325,19 @@ namespace jop
 
     /// \brief Container for lights
     ///
-    /// Meant to be passed to drawable
+    /// Meant to be passed to Drawable::draw().
     ///
-    class LightContainer
+    class JOP_API LightContainer
     {
     public:
 
         typedef std::vector<const LightSource*> ContainerType;
-        typedef std::vector<const Texture*> ShadowContainerType;
 
     public:
 
-        /// \brief Default constructor
-        ///
-        /// Reserves storage according to the maximum light amounts
+        /// \brief Constructor
         ///
         LightContainer();
-
 
         /// \brief Check is this container is empty
         ///
@@ -379,7 +354,7 @@ namespace jop
         /// \param shader The shader to send the lights to
         /// \param drawable The drawable
         ///
-        void sendToShader(Shader& shader, const Drawable& drawable) const;
+        void sendToShader(ShaderProgram& shader, const Drawable& drawable) const;
 
         /// \brief Access the individual containers for each light type
         ///
@@ -389,7 +364,7 @@ namespace jop
         ///
         ContainerType& operator [](const LightSource::Type type);
 
-        /// \copydoc operator[]
+        /// \copydoc operator[]()
         ///
         const ContainerType& operator [](const LightSource::Type type) const;
 
@@ -399,9 +374,7 @@ namespace jop
     };
 }
 
-#endif
+/// \class jop::LightSource
+/// \ingroup graphics
 
-/// \class LightSource
-/// \ingroup Graphics
-///
-/// Do explanation about the class
+#endif

@@ -26,3 +26,30 @@ T& Scene::setRenderer(Args&&... args)
     m_renderer = std::make_unique<T>(std::forward<Args>(args)...);
     return static_cast<T&>(*m_renderer);
 }
+
+//////////////////////////////////////////////
+
+template<int D>
+typename detail::WorldType<D>::type& Scene::getWorld()
+{
+    if (!worldEnabled<D>())
+        std::get<D - 2>(m_worlds) = &createComponent<typename detail::WorldType<D>::type>(getRenderer());
+    
+    return *std::get<D - 2>(m_worlds);
+}
+
+//////////////////////////////////////////////
+
+template<int D>
+bool Scene::worldEnabled() const
+{
+    return std::get<D - 2>(m_worlds) != nullptr;
+}
+
+//////////////////////////////////////////////
+
+template<int D>
+void Scene::disableWorld()
+{
+    removeComponent<typename detail::WorldType<D>::type>();
+}

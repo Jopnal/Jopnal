@@ -42,50 +42,41 @@ namespace jop
         ///
         VertexBuffer(const Type type, const Usage usage = Buffer::StaticDraw);
 
-        /// \brief Constructor to another vertex buffer
-        ///
-        /// \param other Reference to vertex buffer constructor 
+        /// \brief Copy constructor
         ///
         VertexBuffer(const VertexBuffer& other);
 
-        /// \brief Overloads reference to vertex buffer
-        ///
-        /// \param other References to vertex buffer constructor
+        /// \brief Copy assignment operator
         ///
         VertexBuffer& operator =(const VertexBuffer& other);
 
-        /// \brief Move constructor 
-        ///
-        /// \param other 
+        /// \brief Move constructor
         ///
         VertexBuffer(VertexBuffer&& other);
 
-        /// \brief Overloads move constructor
-        ///
-        /// \param other 
+        /// \brief Move assignment operator
         ///
         VertexBuffer& operator =(VertexBuffer&& other);
 
 
-        /// \brief Sets data by bytes
+        /// \brief Set the buffer data
         ///
-        /// \param data Void pointer to data
-        /// \param bytes Size of the buffer data
+        /// \param data Pointer to the data
+        /// \param size Size of the buffer data in bytes
         ///
-        void setData(const void* data, const std::size_t bytes);
+        void setData(const void* data, const std::size_t size);
         
-        /// \brief Sets sub data by size and set offset 
+        /// \brief Set buffer sub data
         ///
-        /// \param data Const void pointer to data
-        /// \param offset Size of the offset that is wanted 
-        /// \param size Size of the buffer subdata
+        /// \param data Pointer to the data
+        /// \param offset The start position in the buffer
+        /// \param size Size of the sub data in bytes
         ///
         void setSubData(const void* data, const std::size_t offset, const std::size_t size);
     };
 }
-#endif
 
-/// \class VertexBuffer
-/// \ingroup Graphics
-///
-/// 
+/// \class jop::VertexBuffer
+/// \ingroup graphics
+
+#endif

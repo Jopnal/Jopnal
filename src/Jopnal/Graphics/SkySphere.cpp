@@ -20,7 +20,22 @@
 //////////////////////////////////////////////
 
 // Headers
-#include <Jopnal/Precompiled.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+    #include <Jopnal/Graphics/SkySphere.hpp>
+
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlState.hpp>
+    #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+
+#endif
 
 //////////////////////////////////////////////
 
@@ -28,17 +43,18 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable(obj, renderer, "skysphere"),
-          m_mesh(""),
-          m_material("", Material::Attribute::__SkySphere | Material::Attribute::DiffuseMap, false)
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
+          m_mesh        (""),
+          m_material    ("", false)
     {
-        m_mesh.load(radius, 20, 20, true);
+        m_material.setAttributes(Material::Attribute::DiffuseMap);
+        m_mesh.load(radius, 20, true);
 
         setModel(Model(m_mesh, m_material));
+        setFlags(Reflected);
+        addAttributes(Attribute::__SkySphere);
 
-        setCastShadows(false);
-        setReceiveLights(false);
-        setReceiveShadows(false);
+        setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }
 
     SkySphere::SkySphere(const SkySphere& other, Object& newObj)
@@ -49,40 +65,29 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::draw(const Camera* camera, const LightContainer&, Shader& shader) const
+    void SkySphere::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
         if (!getModel().isValid())
             return;
 
-        auto& s = shader;
+        auto& shdr = getShader();
         auto& mat = *getModel().getMaterial();
         auto& msh = *getModel().getMesh();
 
-        if (camera)
+        // Uniforms
         {
-            s.setUniform("u_PMatrix", camera->getProjectionMatrix());
-            s.setUniform("u_VMatrix", camera->getViewMatrix());
+            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
+            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+
+            mat.sendToShader(shdr, &proj.cameraPosition);
+
+            glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }
-
-        msh.getVertexBuffer().bind();
-        const auto stride = msh.getVertexSize();
-        s.setAttribute(0, gl::FLOAT, 3, stride, false, msh.getVertexOffset(Mesh::Position));
-        s.setAttribute(1, gl::FLOAT, 2, stride, false, msh.getVertexOffset(Mesh::TexCoords));
-
-        mat.sendToShader(s, camera);
 
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
 
-        if (msh.getElementAmount())
-        {
-            msh.getIndexBuffer().bind();
-            glCheck(gl::DrawElements(gl::TRIANGLES, msh.getElementAmount(), msh.getElementEnum(), (void*)0));
-        }
-        else
-        {
-            glCheck(gl::DrawArrays(gl::TRIANGLES, 0, msh.getVertexAmount()));
-        }
+        msh.draw();
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);
@@ -90,9 +95,11 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void SkySphere::setMap(const Texture2D& map)
+    SkySphere& SkySphere::setMap(const Texture2D& map)
     {
         m_material.setMap(Material::Map::Diffuse, map);
+
+        return *this;
     }
 
     //////////////////////////////////////////////
