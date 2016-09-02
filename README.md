@@ -2,19 +2,11 @@
 <h1 align="center">Jopnal Engine</h1>
 ### Description
 
-A simple component based 3D game engine.
+A simple component based 2D/3D game engine.
 
 Jopnal has been tested to work on these operating systems:  
-- Windows 7 & 10 (VC++ 12)
-
-### How to compile
-
-The project, as of now, only contains the project files for Visual Studio 2013.
-
-1. Clone
-2. Extract extlibs.7z in the extlibs folder
-3. VS2013 project files are included. Open the project and it should compile as-is
-4. Create a new Win32 application and link the library
+- Windows 7 & 10 (VC++ 12/13)
+- Android 4.0.3< (NDK 10e through 12b)
 
 ### Documentation
 
