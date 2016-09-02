@@ -83,6 +83,12 @@ namespace jop
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
+        /// \brief Set gravity for world
+        ///
+        /// \param gravity Vector holding amplitude of gravity in each dimension
+        ///
+        void setGravity(const glm::vec2& gravity);
+
         /// \brief Check if a ray hits a collider and return the closest one
         ///
         /// \param start The start position of the ray

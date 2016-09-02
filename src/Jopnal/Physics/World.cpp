@@ -377,6 +377,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void World::setGravity(const glm::vec3& gravity)
+    {
+        m_worldData->world->setGravity(btVector3(0.f, 9.f, 0.f));
+    }
+
+    //////////////////////////////////////////////
+
     void World::setDebugMode(const bool enable)
     {
     #ifdef JOP_DEBUG_MODE

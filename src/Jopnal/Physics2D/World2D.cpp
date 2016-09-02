@@ -311,6 +311,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void World2D::setGravity(const glm::vec2& gravity)
+    {
+        m_worldData2D->SetGravity(b2Vec2(gravity.x, gravity.y));
+    }
+
+    //////////////////////////////////////////////
+
     void World2D::setDebugMode(const bool enable)
     {
     #ifdef JOP_DEBUG_MODE

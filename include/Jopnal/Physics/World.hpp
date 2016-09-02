@@ -134,6 +134,12 @@ namespace jop
         ///
         bool debugMode() const;
 
+        /// \brief Set gravity for world
+        ///
+        /// \param gravity Vector holding amplitude of gravity for each dimension
+        ///
+        void setGravity(const glm::vec3& gravity);
+
     protected:
 
         /// \copydoc Component::receiveMessage()
