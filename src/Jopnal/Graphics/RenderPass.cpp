@@ -138,7 +138,7 @@ namespace jop
 
                 static const uint64 skyAttrib = Drawable::Attribute::__SkyBox | Drawable::Attribute::__SkySphere;
 
-                sorted[std::min(2, d->getModel().getMaterial()->hasAlpha() + d->hasAttribute(skyAttrib) * 2)].push_back(d);
+                sorted[std::min(2, (d->getColor().alpha < 1.f || d->getModel().getMaterial()->hasAlpha()) + d->hasAttribute(skyAttrib) * 2)].push_back(d);
             }
 
             std::sort(sorted[0].begin(), sorted[0].end(), [&projInfo](const Drawable* left, const Drawable* right) -> bool

@@ -43,47 +43,11 @@
 
 //////////////////////////////////////////////
 
-
-namespace detail
-{
-    class MotionState final : public btMotionState
-    {
-    private:
-
-        jop::WeakReference<jop::Object> m_obj;
-
-    public:
-
-        explicit MotionState(jop::Object& obj)
-            : m_obj(obj)
-        {}
-
-        void getWorldTransform(btTransform& worldTrans) const override
-        {
-            auto& p = m_obj->getGlobalPosition();
-            auto& r = m_obj->getGlobalRotation();
-
-            worldTrans.setOrigin(btVector3(p.x, p.y, p.z));
-            worldTrans.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
-        }
-
-        void setWorldTransform(const btTransform& worldTrans) override
-        {
-            auto& p = worldTrans.getOrigin();
-            auto r = worldTrans.getRotation();
-
-            m_obj->setPosition(p.x(), p.y(), p.z());
-            m_obj->setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
-        }
-    };
-}
-
 namespace jop
 {
     Collider::Collider(Object& object, World& world, const uint32 ID)
         : Component                     (object, ID),
           SafeReferenceable<Collider>   (this),
-          m_motionState                 (std::make_unique<::detail::MotionState>(object)),
           m_body                        (),
           m_worldRef                    (world),
           m_detached                    (false),
@@ -93,7 +57,6 @@ namespace jop
     Collider::Collider(const Collider& other, Object& newObj)
         : Component                     (other, newObj),
           SafeReferenceable<Collider>   (this),
-          m_motionState                 (std::make_unique<::detail::MotionState>(newObj)),
           m_body                        (),
           m_worldRef                    (other.m_worldRef),
           m_detached                    (other.m_detached),
@@ -307,5 +270,29 @@ namespace jop
     bool Collider::isDetachedFromWorld() const
     {
         return m_detached;
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::updateWorldBounds()
+    {
+        m_worldRef.m_worldData->world->updateSingleAabb(m_body.get());
+    }
+
+    //////////////////////////////////////////////
+
+    void Collider::setCollisionShape(CollisionShape& shape)
+    {
+        m_body->setCollisionShape(shape.m_shape.get());
+    }
+
+    //////////////////////////////////////////////
+
+    const CollisionShape* Collider::getCollisionShape() const
+    {
+        if (m_body->getCollisionShape())
+            return static_cast<const CollisionShape*>(m_body->getCollisionShape()->getUserPointer());
+
+        return nullptr;
     }
 }

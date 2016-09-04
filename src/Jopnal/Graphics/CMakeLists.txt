@@ -45,6 +45,13 @@ set(__INC_GRAPHICS
 source_group("Graphics\\Headers" FILES ${__INC_GRAPHICS})
 list(APPEND SRC ${__INC_GRAPHICS})
 
+# Include - Culling
+set(__INC_GRAPHICS_CULLING
+    ${__INCDIR_GRAPHICS}/Culling/CullerComponent.hpp
+)
+source_group("Graphics\\Headers\\Culling" FILES ${__INC_GRAPHICS_CULLING})
+list(APPEND SRC ${__INC_GRAPHICS_CULLING})
+
 # Include - Mesh
 set(__INC_GRAPHICS_MESH
     ${__INCDIR_GRAPHICS}/Mesh/BoxMesh.hpp
@@ -122,6 +129,13 @@ set(__SRC_GRAPHICS
 )
 source_group("Graphics\\Source" FILES ${__SRC_GRAPHICS})
 list(APPEND SRC ${__SRC_GRAPHICS})
+
+# Source - Culling
+set(__SRC_GRAPHICS_CULLING
+    ${__SRCDIR_GRAPHICS}/Culling/CullerComponent.cpp
+)
+source_group("Graphics\\Source\\Culling" FILES ${__SRC_GRAPHICS_CULLING})
+list(APPEND SRC ${__SRC_GRAPHICS_CULLING})
 
 # Source - Mesh
 set(__SRC_GRAPHICS_MESH

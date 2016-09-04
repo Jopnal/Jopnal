@@ -40,7 +40,9 @@
 namespace jop
 {
     Renderer::Renderer(const RenderTarget& mainTarget)
-        : m_lights          (),
+        : m_dummyObject     (""),
+          m_cullingWorld    (m_dummyObject, *this),
+          m_lights          (),
           m_cameras         (),
           m_envRecorders    (),
           m_target          (mainTarget)
@@ -135,21 +137,38 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Renderer::updateCullingWorld()
+    {
+        m_cullingWorld.update(1.f / 60.f);
+    }
+
+    //////////////////////////////////////////////
+
     void Renderer::draw(const RenderPass::Pass pass)
     {
-        // Render shadow maps
-        for (auto light : m_lights)
-            light->drawShadowMap();
-
-        // Render environment maps
-        /*for (auto envmap : m_envRecorders)
+        if (pass == RenderPass::Pass::BeforePost)
         {
-        if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
-        envmap->record();
-        }*/
+            // Render shadow maps
+            for (auto light : m_lights)
+                light->drawShadowMap();
+
+            // Render environment maps
+            /*for (auto envmap : m_envRecorders)
+            {
+            if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
+            envmap->record();
+            }*/
+        }
 
         // Render objects
         for (auto& i : m_passes[static_cast<int>(pass)])
             i.second->draw();
+    }
+
+    //////////////////////////////////////////////
+
+    World& Renderer::getCullingWorld()
+    {
+        return m_cullingWorld;
     }
 }

@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    class JOP_API ConeShape final : public CollisionShape
+    class JOP_API ConeShape : public CollisionShape
     {
     public:
 

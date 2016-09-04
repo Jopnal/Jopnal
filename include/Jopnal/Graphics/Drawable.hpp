@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -44,7 +45,7 @@ namespace jop
     class LightContainer;
     class Renderer;
 
-    class JOP_API Drawable : public Component
+    class JOP_API Drawable : public CullerComponent
     {
     protected:
 
@@ -100,16 +101,18 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
+        /// \param cull Should this drawable be culled?
         /// \param pass The render pass
         ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        Drawable(Object& object, Renderer& renderer, const bool cull, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
 
         /// \brief Overloaded constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param pass The render pass to bind this drawable into
+        /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, RenderPass& pass);
+        Drawable(Object& object, RenderPass& pass, const bool cull);
 
         /// \brief Virtual destructor
         ///

@@ -172,7 +172,7 @@ namespace jop
         ///
         /// \comm applyImpulse
         ///
-        RigidBody2D& applyAngularImpulse(const float& impulse);
+        RigidBody2D& applyTorqueImpulse(const float impulse);
 
         /// \brief Applies an impulse to rigid bodies relative position
         ///
@@ -226,6 +226,10 @@ namespace jop
         /// \return Reference to self.
         ///
         RigidBody2D& synchronizeTransform();
+
+        /// \brief Clear the affecting forces of this body
+        ///
+        RigidBody2D& clearForces();
 
         /// \brief Returns a pointer to a joint on the RigidBody2D whence called from
         ///

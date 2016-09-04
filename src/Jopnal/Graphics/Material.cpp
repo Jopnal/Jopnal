@@ -208,6 +208,14 @@ namespace jop
             // Blinn-phong model
             if (attribs & m::BlinnPhong)
                 str += "#define JMAT_BLINNPHONG\n";
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+            // Should the shadow map be unpacked?
+            if (gl::getVersionMajor() < 3 && !JOP_CHECK_GL_EXTENSION(OES_depth_texture))
+                str += "#define JOP_UNPACK_DEPTH\n";
+
+        #endif
         }
     }
 
@@ -368,10 +376,9 @@ namespace jop
     {
         auto& ref = m_reflection;
 
-        return ref[0].alpha < 1.f || ref[1].alpha < 1.f || ref[2].alpha < 1.f || ref[3].alpha < 1.f                           ||
-               hasAttributes(Attribute::OpacityMap)                                                                           ||
-              (hasAttributes(Attribute::DiffuseMap)  && getMap(Map::Diffuse)  && getMap(Map::Diffuse)->getPixelDepth() > 3)   ||
-              (hasAttributes(Attribute::EmissionMap) && getMap(Map::Emission) && getMap(Map::Emission)->getPixelDepth() > 3);
+        return (hasAttributes(Attribute::__Lighting) && (ref[0].alpha < 1.f || ref[1].alpha < 1.f || ref[2].alpha < 1.f))   ||
+               (hasAttributes(Attribute::OpacityMap) && getMap(Map::Opacity))                                               ||
+               (hasAttributes(Attribute::DiffuseMap) && getMap(Map::Diffuse) && getMap(Map::Diffuse)->getPixelDepth() > 3);
 	}
 
 	//////////////////////////////////////////////

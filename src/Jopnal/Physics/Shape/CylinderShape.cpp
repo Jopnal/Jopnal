@@ -52,7 +52,7 @@ namespace jop
     {
         m_shape = std::make_unique<btCylinderShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
         m_shape->setUserPointer(this);
-
+        static_cast<btCylinderShape&>(*m_shape) = btCylinderShape(btVector3(extents.x, extents.y, extents.z) * 0.5f);
         return true;
     }
 }

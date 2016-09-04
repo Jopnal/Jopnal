@@ -50,7 +50,7 @@ namespace jop
 {
     JOP_REGISTER_COMMAND_HANDLER(RigidBody)
 
-        JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravityScale, "setBodyGravity");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setFixedMovement, "setLinearFactor");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::setFixedRotation, "setFixedRotation");
         JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
@@ -67,6 +67,42 @@ namespace jop
 
 namespace jop
 {
+    namespace detail
+    {
+        class MotionState final : public btMotionState
+        {
+        private:
+
+            WeakReference<Object> m_obj;
+
+        public:
+
+            explicit MotionState(Object& obj)
+                : m_obj(obj)
+            {}
+
+            void getWorldTransform(btTransform& worldTrans) const override
+            {
+                auto& p = m_obj->getGlobalPosition();
+                auto& r = m_obj->getGlobalRotation();
+
+                worldTrans.setOrigin(btVector3(p.x, p.y, p.z));
+                worldTrans.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
+            }
+
+            void setWorldTransform(const btTransform& worldTrans) override
+            {
+                auto& p = worldTrans.getOrigin();
+                auto r = worldTrans.getRotation();
+
+                m_obj->setPosition(p.x(), p.y(), p.z());
+                m_obj->setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     RigidBody::ConstructInfo::ConstructInfo(const CollisionShape& shape, const Type type, const float mass)
         : group             (1),
           mask              (1),
@@ -82,6 +118,7 @@ namespace jop
 
     RigidBody::RigidBody(Object& object, World& world, const ConstructInfo& info)
         : Collider      (object, world, 0),
+          m_motionState (std::make_unique<detail::MotionState>(object)),
           m_type        (info.m_type),
           m_mass        (info.m_mass),
           m_rigidBody   (nullptr)
@@ -121,6 +158,7 @@ namespace jop
 
     RigidBody::RigidBody(const RigidBody& other, Object& newObj)
         : Collider      (other, newObj),
+          m_motionState (std::make_unique<detail::MotionState>(newObj)),
           m_type        (other.m_type),
           m_mass        (other.m_mass),
           m_rigidBody   (nullptr)
@@ -162,7 +200,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RigidBody& RigidBody::setGravity(const glm::vec3& acceleration)
+    RigidBody& RigidBody::setGravityScale(const glm::vec3& acceleration)
     {
         m_rigidBody->setGravity(btVector3(acceleration.x, acceleration.y, acceleration.z));
         return *this;
@@ -170,7 +208,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    glm::vec3 RigidBody::getGravity()const
+    glm::vec3 RigidBody::getGravityScale()const
     {
         auto& gg = m_rigidBody->getGravity();
         return glm::vec3(gg.x(), gg.y(), gg.z());

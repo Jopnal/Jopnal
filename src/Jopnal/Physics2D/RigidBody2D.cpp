@@ -39,25 +39,24 @@
 //////////////////////////////////////////////
 
 
-//namespace jop
-//{
-//    JOP_REGISTER_COMMAND_HANDLER(RigidBody)
-//
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::setGravity, "setBodyGravity");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearFactor, "setLinearFactor");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularFactor");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyForce, "applyForce");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyImpulse, "applyImpulse");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorque, "applyTorque");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyTorqueImpulse, "applyTorqueImpulse");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::setLinearVelocity, "setLinearVelocity");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::setAngularFactor, "setAngularVelocity");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralForce, "applyCentralForce");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::applyCentralImpulse, "applyCentralImpulse");
-//        JOP_BIND_MEMBER_COMMAND(&RigidBody::clearForces, "clearForces");
-//
-//    JOP_END_COMMAND_HANDLER(RigidBody)
-//}
+namespace jop
+{
+    JOP_REGISTER_COMMAND_HANDLER(RigidBody2D)
+
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::setGravityScale, "setGravityScale");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::setFixedRotation, "setFixedRotation");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyForce, "applyForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyLinearImpulse, "applyLinearImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyTorque, "applyTorque");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyTorqueImpulse, "applyAngularImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::setLinearVelocity, "setLinearVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::setAngularVelocity, "setAngularVelocity");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyCentralForce, "applyCentralForce");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::applyCentralImpulse, "applyCentralImpulse");
+        JOP_BIND_MEMBER_COMMAND(&RigidBody2D::clearForces, "clearForces");
+
+    JOP_END_COMMAND_HANDLER(RigidBody2D)
+}
 
 namespace jop
 {
@@ -237,7 +236,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    RigidBody2D& RigidBody2D::applyAngularImpulse(const float& impulse)
+    RigidBody2D& RigidBody2D::applyTorqueImpulse(const float impulse)
     {
         m_body->ApplyAngularImpulse(impulse, true);
         return *this;
@@ -288,6 +287,17 @@ namespace jop
     {
         auto& pos = getObject()->getGlobalPosition();
         m_body->SetTransform(b2Vec2(pos.x, pos.y), glm::eulerAngles(getObject()->getGlobalRotation()).z);
+
+        return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    RigidBody2D& RigidBody2D::clearForces()
+    {
+        m_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+        m_body->SetAngularVelocity(0.f);
+
         return *this;
     }
 
@@ -318,8 +328,8 @@ namespace jop
 
     Message::Result RigidBody2D::receiveMessage(const Message& message)
     {
-        // if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
-        //     return Message::Result::Escape;
+        if (JOP_EXECUTE_COMMAND(RigidBody2D, message.getString(), this) == Message::Result::Escape)
+            return Message::Result::Escape;
 
         return Component::receiveMessage(message);
     }

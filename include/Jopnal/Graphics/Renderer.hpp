@@ -24,7 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Physics/World.hpp>
 #include <Jopnal/STL.hpp>
 #include <map>
 #include <array>
@@ -114,11 +116,19 @@ namespace jop
         ///
         void removeRenderPass(const RenderPass::Pass pass, const uint32 weight);
 
+        /// \brief Update the culling world
+        ///
+        void updateCullingWorld();
+
         /// \brief Draw
         ///
         /// \param pass The render passes to draw
         ///
         void draw(const RenderPass::Pass pass);
+
+        /// \brief Get the culling world
+        ///
+        World& getCullingWorld();
 
     private:
 
@@ -140,6 +150,8 @@ namespace jop
 
     private:
 
+        Object m_dummyObject;
+        World m_cullingWorld;                                   ///< Culling world
         LightSet m_lights;                                      ///< The bound lights
         CameraSet m_cameras;                                    ///< The bound cameras
         PassContainer m_passes;                                 ///< Render passes

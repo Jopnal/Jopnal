@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/Texture/Texture.hpp>
+#include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <glm/vec2.hpp>
 #include <string>
 #include <array>
@@ -88,6 +89,15 @@ namespace jop
         ///
         bool addTextureAttachment(const Slot slot, const Texture::Format format);
 
+        /// \brief Add a cube map attachment
+        ///
+        /// \param slot The attachment slot
+        /// \param format The cube map format
+        ///
+        /// \return True if added successfully
+        ///
+        bool addCubemapAttachment(const Slot slot, const Texture::Format format);
+
         /// \brief Add a render buffer attachment
         ///
         /// This will always return false when the size hasn't been set.
@@ -131,6 +141,21 @@ namespace jop
         ///
         static void unbind();
 
+        /// \brief Bind cube map face
+        ///
+        /// \note This will also bind the frame buffer object as the draw frame buffer
+        ///
+        /// \warning This function will not check if the attachment in the
+        ///          specified slot is actually a cube map. Make sure you've
+        ///          added a cube map attachment before calling this function
+        ///
+        /// \param slot The attachment slot
+        /// \param face The cube map face to bind
+        ///
+        /// \return True if successful
+        ///
+        bool bindCubeFace(const Slot slot, const Cubemap::Face face) const;
+
         /// \brief Set the size for attachments
         ///
         /// Must be called before attempting to add attachments. Has no effect
@@ -171,6 +196,8 @@ namespace jop
         static unsigned int getMaximumRenderbufferSize();
 
     private:
+
+        bool addTextureAttachment(const Slot slot, const Texture::Format format, const bool cube);
 
         bool attach() const;
 

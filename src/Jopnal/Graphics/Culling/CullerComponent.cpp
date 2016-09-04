@@ -19,42 +19,28 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_COMPOUNDSHAPE_HPP
-#define JOP_COMPOUNDSHAPE_HPP
-
 // Headers
-#include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/Shape/CollisionShape.hpp>
-#include <Jopnal/Graphics/Transform.hpp>
+#include JOP_PRECOMPILED_HEADER_FILE
+
+#ifndef JOP_PRECOMPILED_HEADER
+
+#endif
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Transform;
-
-    class JOP_API CompoundShape : public CollisionShape
+    CullerComponent::CullerComponent(Object& object, World& world, const Type& type)
+        : PhantomBody   (object, world),
+          m_type        (type)
     {
-    public:
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
-        ///
-        CompoundShape(const std::string& name);
+    }
 
-
-        /// \brief Add a child shape
-        ///
-        /// \param childShape Reference to a valid shape
-        /// \param childTransform Local transform for the child
-        ///
-        void addChild(CollisionShape& childShape, const Transform::Variables& childTransform);
-    };
+    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj)
+        : PhantomBody   (other, newObj),
+          m_type        (other.m_type)
+    {
+    }
 }
-
-/// \class jop::CompoundShape
-/// \ingroup physics
-
-#endif

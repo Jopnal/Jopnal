@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    class JOP_API InfinitePlaneShape : public CollisionShape
     {
     public:
 

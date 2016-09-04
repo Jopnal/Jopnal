@@ -46,6 +46,7 @@ namespace jop
         ///
         virtual ~ContactListener() = 0;
 
+
         /// \brief Begin contact callback
         ///
         /// \param collider Reference to the collider which registered collider is colliding with

@@ -121,7 +121,10 @@ namespace jop
                 Object::update(dt);
 
             if (Engine::getState() == Engine::State::Running)
+            {
                 postUpdate(dt);
+                m_renderer->updateCullingWorld();
+            }
         }
     }
 

@@ -47,17 +47,11 @@
 
 namespace jop
 {
-    PhantomBody::PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type)
+    PhantomBody::PhantomBody(Object& object, World& world)
         : Collider(object, world, 0)
     {
-        auto ghost = std::make_unique<btPairCachingGhostObject>();
-
-        int flags = ghost->getCollisionFlags();
-
-        ghost->setCollisionShape(shape.m_shape.get());
-        flags |= (type == Type::Kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE;
-
-        ghost->setCollisionFlags(flags);
+        auto ghost = std::make_unique<btGhostObject>();
+        ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
         m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
 
@@ -68,7 +62,12 @@ namespace jop
     PhantomBody::PhantomBody(const PhantomBody& other, Object& newObj)
         : Collider(other, newObj)
     {
+        auto otherGhost = static_cast<const btGhostObject*>(other.m_body.get());
 
+        auto ghost = std::make_unique<btGhostObject>(*otherGhost);
+
+        ghost->setUserPointer(this);
+        m_body = std::move(ghost);
     }
 
     //////////////////////////////////////////////
@@ -77,13 +76,46 @@ namespace jop
     {
         Collider::update(deltaTime);
 
-        if (m_body->isKinematicObject())
-        {
-            auto& rot = getObject()->getGlobalRotation();
-            auto& pos = getObject()->getGlobalPosition();
-            btTransform transform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+        auto& rot = getObject()->getGlobalRotation();
+        auto& pos = getObject()->getGlobalPosition();
 
-            m_body->setWorldTransform(transform);
-        }
-    }    
+        m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<Collider*> PhantomBody::getOverlaps()
+    {
+        std::vector<Collider*> vec;
+        vec.reserve(getOverlapAmount());
+
+        auto overlaps = static_cast<btGhostObject&>(*m_body).getOverlappingPairs();
+
+        for (int i = 0; i < overlaps.size(); ++i)
+            vec.push_back(static_cast<Collider*>(overlaps[i]->getUserPointer()));
+
+        return vec;
+    }
+
+    //////////////////////////////////////////////
+
+    std::vector<const Collider*> PhantomBody::getOverlaps() const
+    {
+        std::vector<const Collider*> vec;
+        vec.reserve(getOverlapAmount());
+
+        auto overlaps = static_cast<const btGhostObject&>(*m_body).getOverlappingPairs();
+
+        for (int i = 0; i < overlaps.size(); ++i)
+            vec.push_back(static_cast<const Collider*>(overlaps[i]->getUserPointer()));
+
+        return vec;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int PhantomBody::getOverlapAmount() const
+    {
+        return static_cast<const btGhostObject&>(*m_body).getNumOverlappingObjects();
+    }
 }

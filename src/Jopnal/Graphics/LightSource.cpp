@@ -136,26 +136,36 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setCastShadows(const bool castShadows)
+    LightSource& LightSource::setCastShadows(const bool castShadows, const glm::uvec2& resolution)
     {
         if (castsShadows() != castShadows)
         {
             if (castShadows)
             {
+                static const unsigned int defMapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uDefaultShadowMapResolution", 512);
+                const glm::uvec2 realSize = glm::min(glm::uvec2(m_type == Type::Point ? Cubemap::getMaximumSize() : Texture2D::getMaximumSize()),
+                                                    (resolution == glm::uvec2(0) ? glm::uvec2(defMapSize) : resolution));
+
+                m_shadowMap.setSize(realSize);
+
                 if (m_type == Type::Point)
-                    return *this;
-
-                static const unsigned int mapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uShadowMapResolution", 512);
-
-                m_shadowMap.setSize(glm::uvec2(mapSize));
-                m_shadowMap.addTextureAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16);
-
-                m_lightSpaceMatrices.resize(1);
+                {
+                    if (!m_shadowMap.addCubemapAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16))
+                        m_shadowMap.addCubemapAttachment(RenderTexture::Slot::Color0, Texture::Format::RGBA_UB_8);
+                }
+                else
+                {
+                    if (!m_shadowMap.addTextureAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16))
+                        m_shadowMap.addTextureAttachment(RenderTexture::Slot::Color0, Texture::Format::RGBA_UB_8);
+                }
+                
+                m_lightSpaceMatrices.resize(1 + (m_type == Type::Point) * 5);
             }
             else
             {
                 m_shadowMap.destroy(true, true);
                 m_lightSpaceMatrices.clear();
+                m_lightSpaceMatrices.shrink_to_fit();
             }
         }
 
@@ -171,7 +181,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const glm::mat4& LightSource::getLightspaceMatrix(const DepthFace face) const
+    const glm::mat4& LightSource::getLightspaceMatrix(const Cubemap::Face face) const
     {
         if (!castsShadows())
         {
@@ -189,36 +199,28 @@ namespace jop
         if (!castsShadows() || !isActive() || !getRenderMask())
             return false;
 
-        static WeakReference<ShaderProgram> dirSpotShader, pointShader;
+        static WeakReference<ShaderProgram> recordShader;
 
-        // Directional/spot light recorder
-        if (dirSpotShader.expired())
+        // Shadow map recorder shader
+        if (recordShader.expired())
         {
-            dirSpotShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader").getReference());
-            dirSpotShader->setPersistence(0);
+            recordShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader").getReference());
+            recordShader->setPersistence(0);
 
-            JOP_ASSERT_EVAL(dirSpotShader->load("",
+            const bool depthTextureSupport =
+            #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+                gl::getVersionMajor() >= 3 || JOP_CHECK_GL_EXTENSION(OES_depth_texture);
+            #else
+                true;
+            #endif
+
+            JOP_ASSERT_EVAL(recordShader->load(depthTextureSupport ? "" : "#define JOP_PACK_DEPTH\n",
                 Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderVert), sizeof(jopr::depthRecordShaderVert)),
                 Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderFrag), sizeof(jopr::depthRecordShaderFrag))),
                 "Failed to compile depth record shader!");
         }
 
-        // Point light recorder
-        if (pointShader.expired())
-        {
-            pointShader = static_ref_cast<ShaderProgram>(ResourceManager::getEmpty<ShaderProgram>("jop_depth_record_shader_point").getReference());
-            pointShader->setPersistence(0);
-
-            JOP_ASSERT_EVAL(pointShader->load("",
-                Shader::Type::Vertex, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointVert), sizeof(jopr::depthRecordShaderPointVert)),
-                Shader::Type::Geometry, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointGeom), sizeof(jopr::depthRecordShaderPointGeom)),
-                Shader::Type::Fragment, std::string(reinterpret_cast<const char*>(jopr::depthRecordShaderPointFrag), sizeof(jopr::depthRecordShaderPointFrag))),
-                "Failed to compile point depth record shader!");
-        }
-
-        auto& shdr = m_type == Type::Point ? *pointShader : *dirSpotShader;
-
-        if (!m_shadowMap.bind() || !shdr.bind())
+        //if (!m_shadowMap.bind() || !recordShader->bind())
             return false;
 
         m_shadowMap.clear(RenderTarget::DepthBit);
@@ -233,9 +235,9 @@ namespace jop
 
             makeCubemapMatrices(proj, pos, m_lightSpaceMatrices);
 
-            shdr.setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
-            shdr.setUniform("u_FarClippingPlane", range);
-            shdr.setUniform("u_LightPosition", pos);
+            recordShader->setUniform("u_PVMatrices", glm::value_ptr(m_lightSpaceMatrices[0]), 6);
+            recordShader->setUniform("u_FarClippingPlane", range);
+            recordShader->setUniform("u_LightPosition", pos);
         }
         else
         {
@@ -251,14 +253,14 @@ namespace jop
             if (getType() == Type::Directional)
             {
                 m_lightSpaceMatrices[0] = glm::ortho(scl.x * -0.5f, scl.x * 0.5f, scl.y * -0.5f, scl.y * 0.5f, 0.f, scl.z) * trans;
-                shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
+                recordShader->setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
             else
             {
                 auto s = glm::vec2(m_shadowMap.getSize());
                 m_lightSpaceMatrices[0] = glm::perspective(getCutoff().y * 2.f, s.x / s.y, 0.5f, getRange()) * trans;
 
-                shdr.setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
+                recordShader->setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
         }
 

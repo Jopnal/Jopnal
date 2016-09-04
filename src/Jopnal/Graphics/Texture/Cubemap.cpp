@@ -67,8 +67,8 @@ namespace jop
     //////////////////////////////////////////////
 
     Cubemap::Cubemap(const std::string& name)
-        : Texture           (name, GL_TEXTURE_CUBE_MAP),
-          m_size            ()
+        : Texture   (name, GL_TEXTURE_CUBE_MAP),
+          m_size    ()
     {}
 
     //////////////////////////////////////////////
@@ -204,7 +204,7 @@ namespace jop
 
     bool Cubemap::load(const Image& image, const uint32 flags)
     {
-        // Check if image is cubemap and that extensions are valid
+        // Check if image is cube map and that extensions are valid
         if (!image.isCubemap() || !JOP_CHECK_GL_EXTENSION(EXT_texture_compression_s3tc) || !detail::errorCheckCube(image.getSize()))
             return false;
 

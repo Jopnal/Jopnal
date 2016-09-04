@@ -45,7 +45,9 @@ namespace jop
 {
     ConvexHullShape::ConvexHullShape(const std::string& name)
         : CollisionShape(name)
-    {}
+    {
+        m_shape = std::make_unique<btConvexHullShape>();
+    }
 
     //////////////////////////////////////////////
 
@@ -61,8 +63,10 @@ namespace jop
         if (points.empty())
             return false;
 
+        m_shape->~btCollisionShape();
+
         if (indices.empty())
-            m_shape = std::make_unique<btConvexHullShape>(&points[0][0], points.size(), sizeof(glm::vec3));
+            new (&static_cast<btConvexHullShape&>(*m_shape)) btConvexHullShape(&points[0][0], points.size(), sizeof(glm::vec3));
 
         else
         {
@@ -72,7 +76,7 @@ namespace jop
             for (auto i : indices)
                 temp.emplace_back(points[i]);
 
-            m_shape = std::make_unique<btConvexHullShape>(&temp[0][0], temp.size(), sizeof(glm::vec3));
+            new (&static_cast<btConvexHullShape&>(*m_shape)) btConvexHullShape(&temp[0][0], temp.size(), sizeof(glm::vec3));
         }
 
         m_shape->setUserPointer(this);

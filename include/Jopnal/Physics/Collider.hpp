@@ -32,7 +32,6 @@
 //////////////////////////////////////////////
 
 
-class btMotionState;
 class btCollisionObject;
 
 namespace jop
@@ -42,11 +41,11 @@ namespace jop
         struct GhostCallback;
         struct ContactListenerImpl;
     }
+    class CollisionShape;
     class ContactListener;
     class Joint;
     class World;
     
-
     class JOP_API Collider : public Component, public SafeReferenceable<Collider>
     {
     private:
@@ -58,7 +57,6 @@ namespace jop
         friend class ContactListener;
         friend class Joint;
         
-
     protected:
 
         /// \brief Constructor
@@ -161,14 +159,32 @@ namespace jop
         ///
         bool isDetachedFromWorld() const;
 
+        /// \brief Force update of the world space bounds
+        ///
+        /// You'll usually want to call this when you've called
+        /// CollisionShape::setLocalScale() for the bound collision shape.
+        ///
+        void updateWorldBounds();
+
+        /// \brief Set the collision shape
+        ///
+        /// \param shape The new shape to set
+        ///
+        void setCollisionShape(CollisionShape& shape);
+
+        /// \brief Get the collision shape
+        ///
+        /// \return Pointer to the shape. nullptr if none bound
+        ///
+        const CollisionShape* getCollisionShape() const;
+
     protected:
 
-        std::unique_ptr<btMotionState> m_motionState;   ///< The motion state
-        std::unique_ptr<btCollisionObject> m_body;      ///< Body data
-        World& m_worldRef;                              ///< Reference to the world
-        std::set<ContactListener*> m_listeners;         ///< Listeners registered for this collider
-        bool m_detached;                                ///< Is this body detached from the world?
-        bool m_allowSleep;                              ///< Is sleep allowed?
+        std::unique_ptr<btCollisionObject> m_body;          ///< Body data
+        World& m_worldRef;                                  ///< Reference to the world
+        std::set<ContactListener*> m_listeners;             ///< Listeners registered for this collider
+        bool m_detached;                                    ///< Is this body detached from the world?
+        bool m_allowSleep;                                  ///< Is sleep allowed?
     };
 }
 

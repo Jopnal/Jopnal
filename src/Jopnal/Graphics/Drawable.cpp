@@ -57,7 +57,7 @@ namespace jop
 
 namespace jop
 {
-    Drawable::ProjectionInfo::ProjectionInfo(const glm::mat4 & view, const glm::mat4& proj, const glm::vec3 & camPos)
+    Drawable::ProjectionInfo::ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos)
         : viewMatrix        (view),
           projectionMatrix  (proj),
           cameraPosition    (camPos)
@@ -66,7 +66,7 @@ namespace jop
     //////////////////////////////////////////////
 
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Component             (object, 0),
+        : CullerComponent       (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable),
           m_color               (),
           m_model               (Mesh::getDefault(), Material::getDefault()),
           m_shader              (),
@@ -80,7 +80,7 @@ namespace jop
     }
 
     Drawable::Drawable(Object& object, RenderPass& pass)
-        : Component             (object, 0),
+        : CullerComponent       (object, pass.getRenderer().getCullingWorld(), CullerComponent::Type::Drawable),
           m_color               (),
           m_model               (Mesh::getDefault(), Material::getDefault()),
           m_shader              (),
@@ -94,7 +94,7 @@ namespace jop
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component             (other, newObj),
+        : CullerComponent       (other, newObj),
           m_color               (other.m_color),
           m_model               (other.m_model),
           m_shader              (other.m_shader),

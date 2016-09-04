@@ -37,7 +37,7 @@ namespace jop
     namespace detail
     {
         struct WorldImpl;
-        struct BroadPhaseCallback;
+        class BroadPhaseCallback;
         struct GhostCallback;
         struct ContactListenerImpl;
     }
@@ -57,6 +57,21 @@ namespace jop
         friend class PhantomBody;
 
         World* clone(Object&) const override;
+
+    public:
+
+        struct BroadphaseCallback
+        {
+            BroadphaseCallback(World& world);
+
+            virtual ~BroadphaseCallback();
+
+            virtual bool collide(const Collider& c0, const Collider& c1) const;
+
+        private:
+
+            World& m_worldRef;
+        };
 
     public:
 
@@ -140,6 +155,16 @@ namespace jop
         ///
         void setGravity(const glm::vec3& gravity);
 
+        /// \brief Set the broad phase callback
+        ///
+        /// \param callback Reference to the callback object
+        ///
+        void setBroadphaseBallback(const BroadphaseCallback& callback);
+
+        /// \brief Restore the default broad phase callback
+        ///
+        void setDefaultBroadphaseCallback();
+
     protected:
 
         /// \copydoc Component::receiveMessage()
@@ -151,6 +176,10 @@ namespace jop
         std::unique_ptr<detail::GhostCallback> m_ghostCallback;         ///< Internal ghost callback
         std::unique_ptr<detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
         std::unique_ptr<detail::BroadPhaseCallback> m_bpCallback;       ///< Broad phase callback
+
+    private:
+
+        BroadphaseCallback m_defaultBpCallback;
     };
 }
 
