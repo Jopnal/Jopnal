@@ -65,43 +65,43 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : CullerComponent       (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable),
-          m_color               (),
-          m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_shader              (),
-          m_attributes          (0),
-          m_rendererRef         (renderer),
-          m_pass                (pass),
-          m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0)
+    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : CullerComponent   (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable, cull),
+          m_color           (),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (renderer),
+          m_pass            (pass),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup     (0)
     {
         renderer.bind(this, pass);
     }
 
-    Drawable::Drawable(Object& object, RenderPass& pass)
-        : CullerComponent       (object, pass.getRenderer().getCullingWorld(), CullerComponent::Type::Drawable),
-          m_color               (),
-          m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_shader              (),
-          m_attributes          (0),
-          m_rendererRef         (pass.getRenderer()),
-          m_pass                (pass.getPass()),
-          m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0)
+    Drawable::Drawable(Object& object, RenderPass& pass, const bool cull)
+        : CullerComponent   (object, pass.getRenderer().getCullingWorld(), CullerComponent::Type::Drawable, cull),
+          m_color           (),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (pass.getRenderer()),
+          m_pass            (pass.getPass()),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup     (0)
     {
         pass.bind(this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : CullerComponent       (other, newObj),
-          m_color               (other.m_color),
-          m_model               (other.m_model),
-          m_shader              (other.m_shader),
-          m_rendererRef         (other.m_rendererRef),
-          m_pass                (other.m_pass),
-          m_renderGroup         (other.m_renderGroup),
-          m_flags               (other.m_flags)
+        : CullerComponent   (other, newObj),
+          m_color           (other.m_color),
+          m_model           (other.m_model),
+          m_shader          (other.m_shader),
+          m_rendererRef     (other.m_rendererRef),
+          m_pass            (other.m_pass),
+          m_renderGroup     (other.m_renderGroup),
+          m_flags           (other.m_flags)
     {
         m_rendererRef.bind(this, m_pass);
     }

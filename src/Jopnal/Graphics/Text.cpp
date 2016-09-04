@@ -36,8 +36,8 @@
 
 namespace jop
 {
-    Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Drawable              (object, renderer, pass),
+    Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : Drawable              (object, renderer, pass, cull),
           m_material            ("", false),
           m_font                (),
           m_string              (),
@@ -53,8 +53,8 @@ namespace jop
         setModel(Model(m_mesh, m_material));
     }
 
-    Text::Text(Object& object, RenderPass& pass)
-        : Drawable              (object, pass),
+    Text::Text(Object& object, RenderPass& pass, const bool cull)
+        : Drawable              (object, pass, cull),
           m_material            ("", false),
           m_font                (),
           m_string              (),

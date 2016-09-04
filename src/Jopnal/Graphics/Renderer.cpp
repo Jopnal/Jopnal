@@ -39,13 +39,13 @@
 
 namespace jop
 {
-    Renderer::Renderer(const RenderTarget& mainTarget)
-        : m_dummyObject     (""),
-          m_cullingWorld    (m_dummyObject, *this),
-          m_lights          (),
+    Renderer::Renderer(const RenderTarget& mainTarget, Scene& sceneRef)
+        : m_lights          (),
           m_cameras         (),
+          m_passes          (),
           m_envRecorders    (),
-          m_target          (mainTarget)
+          m_target          (mainTarget),
+          m_sceneRef        (sceneRef)
     {
         createRenderPass<SortedRenderPass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
         createRenderPass<OrderedRenderPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);
@@ -137,13 +137,6 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::updateCullingWorld()
-    {
-        m_cullingWorld.update(1.f / 60.f);
-    }
-
-    //////////////////////////////////////////////
-
     void Renderer::draw(const RenderPass::Pass pass)
     {
         if (pass == RenderPass::Pass::BeforePost)
@@ -169,6 +162,6 @@ namespace jop
 
     World& Renderer::getCullingWorld()
     {
-        return m_cullingWorld;
+        return m_sceneRef.m_cullingWorld;
     }
 }

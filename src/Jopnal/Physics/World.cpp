@@ -318,7 +318,7 @@ namespace jop
     //////////////////////////////////////////////
 
     World::World(Object& obj, Renderer& renderer)
-        : Drawable              (obj, renderer, RenderPass::Pass::AfterPost),
+        : Drawable              (obj, renderer, RenderPass::Pass::AfterPost, false),
           m_worldData           (std::make_unique<detail::WorldImpl>(new detail::DebugDrawer)),
           m_ghostCallback       (std::make_unique<detail::GhostCallback>()),
           m_contactListener     (std::make_unique<detail::ContactListenerImpl>()),

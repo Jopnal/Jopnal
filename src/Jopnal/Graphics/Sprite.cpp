@@ -35,8 +35,8 @@
 
 namespace jop
 {
-    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Drawable      (object, renderer, pass),
+    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : Drawable      (object, renderer, pass, cull),
           m_material    ("", true),
           m_mesh        ("")
     {
@@ -44,8 +44,8 @@ namespace jop
         setModel(Model(m_mesh, m_material));
     }
 
-    Sprite::Sprite(Object& object, RenderPass& pass)
-        : Drawable      (object, pass),
+    Sprite::Sprite(Object& object, RenderPass& pass, const bool cull)
+        : Drawable      (object, pass, cull),
           m_material    ("", true),
           m_mesh        ("")
     {

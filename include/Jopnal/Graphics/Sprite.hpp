@@ -45,11 +45,11 @@ namespace jop
 
         /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
         ///
-        Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
 
         /// \copydoc Drawable::Drawable(Object&, RenderPass&)
         ///
-        Sprite(Object& object, RenderPass& pass);
+        Sprite(Object& object, RenderPass& pass, const bool cull = true);
 
 
         /// \brief Set the texture

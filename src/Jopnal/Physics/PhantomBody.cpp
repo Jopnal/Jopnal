@@ -47,39 +47,58 @@
 
 namespace jop
 {
-    PhantomBody::PhantomBody(Object& object, World& world)
-        : Collider(object, world, 0)
+    PhantomBody::PhantomBody(Object& object, World& world, CollisionShape& shape, const bool attachToWorld)
+        : Collider      (object, world, 0),
+          m_attached    (attachToWorld)
     {
-        auto ghost = std::make_unique<btGhostObject>();
-        ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        if (attachToWorld)
+        {
+            auto ghost = std::make_unique<btGhostObject>();
 
-        m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
+            ghost->setCollisionShape(shape.m_shape.get());
+            ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
-        ghost->setUserPointer(this);
-        m_body = std::move(ghost);
+            m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
+
+            ghost->setUserPointer(this);
+            m_body = std::move(ghost);
+        }
     }
 
     PhantomBody::PhantomBody(const PhantomBody& other, Object& newObj)
-        : Collider(other, newObj)
+        : Collider      (other, newObj),
+          m_attached    (other.m_attached)
     {
-        auto otherGhost = static_cast<const btGhostObject*>(other.m_body.get());
+        if (m_attached)
+        {
+            auto otherGhost = static_cast<const btGhostObject*>(other.m_body.get());
 
-        auto ghost = std::make_unique<btGhostObject>(*otherGhost);
+            auto ghost = std::make_unique<btGhostObject>(*otherGhost);
 
-        ghost->setUserPointer(this);
-        m_body = std::move(ghost);
+            ghost->setUserPointer(this);
+            m_body = std::move(ghost);
+        }
+    }
+
+    PhantomBody::~PhantomBody()
+    {
+        if (m_attached)
+            m_worldRef.m_worldData->world->removeCollisionObject(m_body.get());
     }
 
     //////////////////////////////////////////////
 
     void PhantomBody::update(const float deltaTime)
     {
-        Collider::update(deltaTime);
+        if (m_attached)
+        {
+            Collider::update(deltaTime);
 
-        auto& rot = getObject()->getGlobalRotation();
-        auto& pos = getObject()->getGlobalPosition();
+            auto& rot = getObject()->getGlobalRotation();
+            auto& pos = getObject()->getGlobalPosition();
 
-        m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
+            m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
+        }
     }
 
     //////////////////////////////////////////////

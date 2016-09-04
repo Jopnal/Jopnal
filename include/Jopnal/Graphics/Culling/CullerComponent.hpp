@@ -49,7 +49,7 @@ namespace jop
 
     protected:
 
-        CullerComponent(Object& object, World& world, const Type type);
+        CullerComponent(Object& object, World& world, const Type type, const bool attach);
 
 
     private:

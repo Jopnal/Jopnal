@@ -31,8 +31,28 @@
 
 namespace jop
 {
-    CullerComponent::CullerComponent(Object& object, World& world, const Type& type)
-        : PhantomBody   (object, world),
+    namespace detail
+    {
+        class DummyShape : public CollisionShape
+        {
+        public:
+
+            DummyShape()
+                : CollisionShape("")
+            {
+                m_shape = std::make_unique<btEmptyShape>();
+            }
+        };
+
+        DummyShape& getDummyShape()
+        {
+            static DummyShape shape;
+            return shape;
+        }
+    }
+
+    CullerComponent::CullerComponent(Object& object, World& world, const Type type, const bool cull)
+        : PhantomBody   (object, world, detail::getDummyShape(), cull),
           m_type        (type)
     {
 

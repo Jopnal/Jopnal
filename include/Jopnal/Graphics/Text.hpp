@@ -59,11 +59,11 @@ namespace jop
 
         /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass)
         ///
-        Text(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::AfterPost);
+        Text(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::AfterPost, const bool cull = true);
 
         /// \copydoc Drawable::Drawable(Object&,RenderPass&)
         ///
-        Text(Object& object, RenderPass& pass);
+        Text(Object& object, RenderPass& pass, const bool cull = true);
 
 
         /// \brief Set string that is displayed

@@ -63,7 +63,7 @@ namespace jop
         ///
         /// \param mainTarget Reference to the main render target
         ///
-        Renderer(const RenderTarget& mainTarget);
+        Renderer(const RenderTarget& mainTarget, Scene& sceneRef);
 
 
         /// \brief Get the bound render target
@@ -116,10 +116,6 @@ namespace jop
         ///
         void removeRenderPass(const RenderPass::Pass pass, const uint32 weight);
 
-        /// \brief Update the culling world
-        ///
-        void updateCullingWorld();
-
         /// \brief Draw
         ///
         /// \param pass The render passes to draw
@@ -150,13 +146,12 @@ namespace jop
 
     private:
 
-        Object m_dummyObject;
-        World m_cullingWorld;                                   ///< Culling world
         LightSet m_lights;                                      ///< The bound lights
         CameraSet m_cameras;                                    ///< The bound cameras
         PassContainer m_passes;                                 ///< Render passes
         std::set<const EnvironmentRecorder*> m_envRecorders;    ///< The bound environment recorders
         const RenderTarget& m_target;                           ///< Main render target reference
+        Scene& m_sceneRef;
     };
 
     // Include template implementation file

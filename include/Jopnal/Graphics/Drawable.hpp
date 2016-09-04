@@ -104,7 +104,7 @@ namespace jop
         /// \param cull Should this drawable be culled?
         /// \param pass The render pass
         ///
-        Drawable(Object& object, Renderer& renderer, const bool cull, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
 
         /// \brief Overloaded constructor
         ///
@@ -112,7 +112,7 @@ namespace jop
         /// \param pass The render pass to bind this drawable into
         /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, RenderPass& pass, const bool cull);
+        Drawable(Object& object, RenderPass& pass, const bool cull = true);
 
         /// \brief Virtual destructor
         ///

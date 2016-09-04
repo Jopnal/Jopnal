@@ -36,8 +36,8 @@
 
 namespace jop
 {
-    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Drawable          (object, renderer, pass),
+    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : Drawable          (object, renderer, pass, cull),
           m_atlas           (),
           m_mesh            (""),
           m_material        ("", true),
@@ -51,8 +51,8 @@ namespace jop
         setModel(Model(m_mesh, m_material));
     }
 
-    AnimatedSprite::AnimatedSprite(Object& object, RenderPass& pass)
-        : Drawable          (object, pass),
+    AnimatedSprite::AnimatedSprite(Object& object, RenderPass& pass, const bool cull)
+        : Drawable          (object, pass, cull),
           m_atlas           (),
           m_mesh            (""),
           m_material        ("", true),
