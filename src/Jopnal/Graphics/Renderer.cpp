@@ -139,8 +139,8 @@ namespace jop
 
     void Renderer::draw(const RenderPass::Pass pass)
     {
-        if (pass == RenderPass::Pass::BeforePost)
-        {
+        //if (pass == RenderPass::Pass::BeforePost)
+        //{
             // Render shadow maps
             for (auto light : m_lights)
                 light->drawShadowMap();
@@ -151,7 +151,7 @@ namespace jop
             if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
             envmap->record();
             }*/
-        }
+        //}
 
         // Render objects
         for (auto& i : m_passes[static_cast<int>(pass)])

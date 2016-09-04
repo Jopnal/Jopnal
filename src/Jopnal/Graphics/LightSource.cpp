@@ -139,7 +139,7 @@ namespace jop
     LightSource& LightSource::setCastShadows(const bool castShadows, const glm::uvec2& resolution)
     {
         if (castsShadows() != castShadows)
-        {
+        {/*
             if (castShadows)
             {
                 static const unsigned int defMapSize = SettingManager::get<unsigned int>("engine@Graphics|Shading|uDefaultShadowMapResolution", 512);
@@ -166,7 +166,7 @@ namespace jop
                 m_shadowMap.destroy(true, true);
                 m_lightSpaceMatrices.clear();
                 m_lightSpaceMatrices.shrink_to_fit();
-            }
+            }*/
         }
 
         return *this;
