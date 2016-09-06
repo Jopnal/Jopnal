@@ -314,7 +314,7 @@ namespace jop
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
-        m_worldData->world->setGravity(btVector3(0.f, gravity, 0.f));
+		setGravity(glm::vec3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         m_worldData->world->getPairCache()->setOverlapFilterCallback(m_bpCallback.get());
         m_worldData->world->setWorldUserInfo(this);
@@ -379,7 +379,15 @@ namespace jop
 
     void World::setGravity(const glm::vec3& gravity)
     {
-        m_worldData->world->setGravity(btVector3(0.f, 9.f, 0.f));
+        m_worldData->world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 World::getGravity() const
+    {
+        const btVector3 gravity = m_worldData->world->getGravity;
+        return glm::vec3(gravity.x(), gravity.y(), gravity.z());
     }
 
     //////////////////////////////////////////////

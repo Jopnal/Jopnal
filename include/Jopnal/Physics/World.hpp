@@ -140,6 +140,10 @@ namespace jop
         ///
         void setGravity(const glm::vec3& gravity);
 
+        /// \brief Get gravity for world
+        ///
+        glm::vec3 getGravity() const;
+
     protected:
 
         /// \copydoc Component::receiveMessage()
