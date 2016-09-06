@@ -151,10 +151,11 @@ namespace jop
     bool RenderTexture::addTextureAttachment(const Slot slot, const Texture::Format format, const bool cube)
     {
         auto& att = m_attachments[static_cast<int>(slot)];
-        auto& tex = att.second;
+        auto& tex = std::get<1>(att);
+        std::get<2>(att) = cube;
 
-        glCheck(glDeleteRenderbuffers(1, &att.first));
-        att.first = 0;
+        glCheck(glDeleteRenderbuffers(1, &std::get<0>(att)));
+        std::get<0>(att) = 0;
         tex.reset();
 
         if (format == Texture::Format::None)
@@ -274,11 +275,11 @@ namespace jop
     bool RenderTexture::addRenderbufferAttachment(const Slot slot, const Texture::Format format)
     {
         auto& att = m_attachments[static_cast<int>(slot)];
-        auto& rendBuf = att.first;
+        auto& rendBuf = std::get<0>(att);
 
         glCheck(glDeleteRenderbuffers(1, &rendBuf));
         rendBuf = 0;
-        att.second.reset();
+        std::get<1>(att).reset();
 
         if (format == Texture::Format::None)
             return true;
@@ -438,8 +439,8 @@ namespace jop
         {
             for (auto& i : m_attachments)
             {
-                glCheck(glDeleteRenderbuffers(1, &i.first));
-                i.second.reset();
+                glCheck(glDeleteRenderbuffers(1, &std::get<0>(i)));
+                std::get<1>(i).reset();
             }
 
             m_size = glm::uvec2(0);
@@ -518,7 +519,7 @@ namespace jop
             const auto s = static_cast<int>(slot);
             const auto f = static_cast<GLenum>(face);
 
-            auto& tex = m_attachments[static_cast<int>(slot)].second;
+            auto& tex = std::get<1>(m_attachments[static_cast<int>(slot)]);
 
             if (!tex || !tex->isValid())
             {
@@ -570,7 +571,7 @@ namespace jop
 
         for (auto& i : m_attachments)
         {
-            if (i.first || i.second)
+            if (std::get<0>(i) || std::get<1>(i))
                 return true;
         }
 
@@ -581,14 +582,14 @@ namespace jop
 
     Texture* RenderTexture::getTextureAttachment(const Slot slot)
     {
-        return m_attachments[static_cast<int>(slot)].second.get();
+        return std::get<1>(m_attachments[static_cast<int>(slot)]).get();
     }
 
     //////////////////////////////////////////////
 
     const Texture* RenderTexture::getTextureAttachment(const Slot slot) const
     {
-        return m_attachments[static_cast<int>(slot)].second.get();
+        return std::get<1>(m_attachments[static_cast<int>(slot)]).get();
     }
 
     //////////////////////////////////////////////
@@ -626,7 +627,7 @@ namespace jop
 
             for (std::size_t i = 0; i < m_attachments.size(); ++i)
             {
-                auto att = &m_attachments[i];
+                auto& att = m_attachments[i];
 
             #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 
@@ -645,13 +646,13 @@ namespace jop
 
             #endif
 
-                if (att->first)
+                if (std::get<0>(att))
                 {
-                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_RENDERBUFFER, att->first));
+                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_RENDERBUFFER, std::get<0>(att)));
                 }
-                else if (att->second && att->second->isValid())
+                else if (std::get<1>(att) && std::get<1>(att)->isValid())
                 {
-                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_TEXTURE_2D, att->second->getHandle(), 0));
+                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[i], std::get<2>(att) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D, std::get<1>(att)->getHandle(), 0));
                 }
             }
 
@@ -663,7 +664,7 @@ namespace jop
                 std::vector<GLenum> colorAttachments;
 
                 for (std::size_t i = static_cast<int>(Slot::Color0); i < m_attachments.size(); ++i)
-                    colorAttachments.push_back((m_attachments[i].first || m_attachments[i].second) ? ns_attachmentPoint[i] : GL_NONE);
+                    colorAttachments.push_back((std::get<0>(m_attachments[i]) || std::get<1>(m_attachments[i])) ? ns_attachmentPoint[i] : GL_NONE);
 
                 glCheck(glDrawBuffers(colorAttachments.size(), colorAttachments.data()));
             }

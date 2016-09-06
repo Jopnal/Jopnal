@@ -61,7 +61,7 @@ namespace jop
 
     private:
 
-        typedef std::array<std::pair<unsigned int, std::unique_ptr<Texture>>, static_cast<int>(Slot::__Count)> AttachmentArray;
+        typedef std::array<std::tuple<unsigned int, std::unique_ptr<Texture>, bool>, static_cast<int>(Slot::__Count)> AttachmentArray;
 
     public:
 
@@ -145,9 +145,8 @@ namespace jop
         ///
         /// \note This will also bind the frame buffer object as the draw frame buffer
         ///
-        /// \warning This function will not check if the attachment in the
-        ///          specified slot is actually a cube map. Make sure you've
-        ///          added a cube map attachment before calling this function
+        /// \warning If the texture in the slot is not actually a cube map, but a regular
+        ///          2D texture, it will be bound instead
         ///
         /// \param slot The attachment slot
         /// \param face The cube map face to bind

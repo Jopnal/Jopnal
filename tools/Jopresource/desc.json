@@ -81,10 +81,17 @@
             "name": "compatibilityPlugins",
             "path": "res/ShaderPlugins/compatibility.jops"
         },
-
         {
             "name": "lightingPlugins",
             "path": "res/ShaderPlugins/lighting.jops"
+        },
+        {
+            "name": "structurePlugins",
+            "path": "res/ShaderPlugins/structures.jops"
+        },
+        {
+            "name": "shadowPlugins",
+            "path": "res/ShaderPlugins/shadows.jops"
         }
     ]
 }

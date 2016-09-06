@@ -147,17 +147,25 @@ namespace jop
                                                     (resolution == glm::uvec2(0) ? glm::uvec2(defMapSize) : resolution));
 
                 m_shadowMap.setSize(realSize);
+                bool packed = false;
+
+                using Slot = RenderTexture::Slot;
 
                 if (m_type == Type::Point)
                 {
-                    if (!m_shadowMap.addCubemapAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16))
-                        m_shadowMap.addCubemapAttachment(RenderTexture::Slot::Color0, Texture::Format::RGBA_UB_8);
+                    if (!m_shadowMap.addCubemapAttachment(Slot::Depth, Texture::Format::Depth_US_16))
+                        m_shadowMap.addCubemapAttachment(Slot::Color0, Texture::Format::RGBA_UB_8);
                 }
                 else
                 {
-                    if (!m_shadowMap.addTextureAttachment(RenderTexture::Slot::Depth, Texture::Format::Depth_US_16))
-                        m_shadowMap.addTextureAttachment(RenderTexture::Slot::Color0, Texture::Format::RGBA_UB_8);
+                    if (!m_shadowMap.addTextureAttachment(Slot::Depth, Texture::Format::Depth_US_16))
+                        m_shadowMap.addTextureAttachment(Slot::Color0, Texture::Format::RGBA_UB_8);
                 }
+
+                m_shadowMap.getTextureAttachment(packed ? Slot::Color0 : Slot::Depth)
+                    ->setFilterMode(TextureSampler::Filter::Bilinear)
+                     .setRepeatMode(TextureSampler::Repeat::ClampBorder)
+                     .setBorderColor(Color::White);
                 
                 m_lightSpaceMatrices.resize(1 + (m_type == Type::Point) * 5);
             }
@@ -220,11 +228,11 @@ namespace jop
                 "Failed to compile depth record shader!");
         }
 
-        //if (!m_shadowMap.bind() || !recordShader->bind())
+        if (!m_shadowMap.bind() || !recordShader->bind())
             return false;
 
         m_shadowMap.clear(RenderTarget::DepthBit);
-
+        /*
         if (getType() == Type::Point)
         {
             auto pos = getObject()->getGlobalPosition();
@@ -262,7 +270,7 @@ namespace jop
 
                 recordShader->setUniform("u_PVMatrix", m_lightSpaceMatrices[0]);
             }
-        }
+        }*/
 
         bool drawn = false;
 
@@ -503,7 +511,7 @@ namespace jop
 
         typedef LightSource LS;
 
-        static const unsigned int pointShadowStartUnit = static_cast<unsigned int>(Material::Map::Last);
+        static const unsigned int pointShadowStartUnit = static_cast<unsigned int>(Material::Map::__Last);
         unsigned int currentPointShadowUnit = pointShadowStartUnit;
 
         static const unsigned int dirSpotShadowStartUnit = pointShadowStartUnit + LS::getMaximumLights(LS::Type::Point);

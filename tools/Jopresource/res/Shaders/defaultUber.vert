@@ -26,9 +26,6 @@ JOP_VARYING_OUT vec2 vf_TexCoords;
 JOP_VARYING_OUT vec3 vf_Normal;
 JOP_VARYING_OUT vec4 vf_Color;
 
-// Fragment position to fragment shader
-JOP_VARYING_OUT vec3 vf_FragPosition;
-
 void main()
 {
     vec4 pos = 
@@ -43,9 +40,6 @@ void main()
     vf_TexCoords    = a_TexCoords;
     vf_Normal       = u_NMatrix * a_Normal;
     vf_Color        = a_Color;
-
-    // Calculate and assign fragment position
-    vf_FragPosition = pos.xyz;
 
     // Calculate and assign position
     gl_Position = (

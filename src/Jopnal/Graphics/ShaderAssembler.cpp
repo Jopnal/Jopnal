@@ -69,6 +69,8 @@ namespace jop
         // Load plugins
         addPlugins(std::string(reinterpret_cast<const char*>(jopr::compatibilityPlugins), sizeof(jopr::compatibilityPlugins)));
         addPlugins(std::string(reinterpret_cast<const char*>(jopr::lightingPlugins), sizeof(jopr::lightingPlugins)));
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::structurePlugins), sizeof(jopr::structurePlugins)));
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::shadowPlugins), sizeof(jopr::shadowPlugins)));
     }
 
     ShaderAssembler::~ShaderAssembler()

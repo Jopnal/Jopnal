@@ -35,9 +35,6 @@ uniform bool u_ReceiveLights;
 // Does the object receive shadows?
 uniform bool u_ReceiveShadows;
 
-// Fragment position from vertex/geometry shader
-JOP_VARYING_IN vec3 vf_FragPosition;
-
 // Camera position
 uniform vec3 u_CameraPosition;
 

@@ -53,28 +53,68 @@ namespace jop
         {
             enum : uint64
             {
+                /// No attributes, use this if you only want to use
+                /// Drawable::setColor()
                 None            = 0,
 
                 // Maps
-                DiffuseMap      = 1                 << 1,
-                SpecularMap     = DiffuseMap        << 1,
-                EmissionMap     = SpecularMap       << 1,
-                EnvironmentMap  = EmissionMap       << 1,
-                ReflectionMap   = EnvironmentMap    << 1,
-                OpacityMap      = ReflectionMap     << 1,
-                GlossMap        = OpacityMap        << 1,
+
+                DiffuseMap      = 1 << 1,   ///< \see Map::Diffuse
+                SpecularMap     = 1 << 2,   ///< \see Map::Specular
+                EmissionMap     = 1 << 3,   ///< \see Map::Emission
+                EnvironmentMap  = 1 << 4,   ///< \see Map::Environment
+                ReflectionMap   = 1 << 5,   ///< \see Map::Reflection
+                OpacityMap      = 1 << 6,   ///< \see Map::Opacity
+                GlossMap        = 1 << 7,   ///< \see Map::Gloss
 
                 // Lighting models
+
+                /// Fragment-based phong lighting model. The lighting value
+                /// is calculated for each pixel individually.
+                ///
+                /// This is the most expensive lighting model, and thus is not
+                /// recommended to be used in mobile environments.
+                ///
+                /// \see Gouraud
+                ///
                 Phong           = 1 << 18,
-                BlinnPhong      = Phong | Phong << 1,   //
-                Gouraud         = Phong,                // To be implemented
-                Flat            = Phong,                //
+
+                /// Slightly modified version of Phong. This uses a half-way
+                /// normal reflection vector to calculate the specular highlight,
+                /// which makes it slightly stronger.
+                ///
+                /// This model is marginally faster than Phong.
+                ///
+                /// This model is the default for desktop.
+                ///
+                BlinnPhong      = Phong | Phong << 1,
+
+                /// Vertex-base lighting. Lighting is calculated for each vertex
+                /// before interpolating it for each pixel.
+                ///
+                /// This model is much faster on GPU's where pixel fill rate is
+                /// the bottleneck.
+                ///
+                /// This model is the default for mobile.
+                ///
+                Gouraud         = Phong << 2,
+
+                /// Flat lighting, disables normal interpolation between vertices,
+                /// which results in a single polygon having a uniform color.
+                ///
+                /// \warning Not available on GLES 2.0, Gouraud model will be used instead
+                ///
+                Flat            = Phong << 3,
 
                 // Bundles
-                Default         = DiffuseMap,
-                DefaultLighting = BlinnPhong,
+                DefaultLighting =
+                #ifdef JOP_OPENGL_ES
+                    Gouraud,
+                #else
+                    BlinnPhong,
+                #endif
 
-                // For internal functionality, do not use
+                /// For internal functionality, do not use
                 __Lighting      = BlinnPhong | Gouraud | Flat
             };
         };
@@ -85,31 +125,47 @@ namespace jop
         ///
         enum class Reflection
         {
-            Ambient,
-            Diffuse,
-            Specular,
-            Emission
+            Ambient,    ///< Ambient light reflection, unaffected by object orientation or shadows
+            Diffuse,    ///< Diffuse reflection
+            Specular,   ///< Specular reflection
+            Emission    ///< Emissive reflection, which is simply added to the base light value
         };
 
         /// The map attribute
         ///
         enum class Map
         {
-            Diffuse = 0,
+            /// Essentially the "base" texture for an object
+            Diffuse,
+
+            /// The specular highlight value will be multiplied by this texture's value
             Specular,
+
+            /// The value of this texture will be added to the final fragment value,
+            /// after multiplication with the emissive reflection value
             Emission,
+
+            /// Cube map to be used as an environment reflection
             Environment,
+
+            /// To be used with an environment map. The value of this texture will be
+            /// multiplied with that of the environment map
             Reflection,
+
+            /// 8-bit alpha map. The opacity of each fragment will be multiplied by this
+            /// texture's value
             Opacity,
+
+            /// The value of this map will be multiplied with the shininess value
             Gloss,
             
             /// For internal use. Never use this
-            Last
+            __Last
         };
 
     private:
 
-        typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::Last) - 1> MapArray;
+        typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::__Last) - 1> MapArray;
 
     public:
 
@@ -314,6 +370,9 @@ namespace jop
 		ShaderProgram& getShader() const;
 
         /// \brief Get the default material
+        ///
+        /// The default material has no attributes, meaning only the
+        /// Drawable color will be used.
         ///
         /// \return Reference to the default material
         ///

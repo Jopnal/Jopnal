@@ -76,8 +76,7 @@ namespace jop
           m_autoAttribs         (autoAttributes),
 		  m_updateShader		(true)
     {
-        if (autoAttributes)
-            setMap(Map::Diffuse, Texture2D::getDefault());
+        setMap(Map::Diffuse, Texture2D::getDefault());
     }
 
     Material::Material(const Material& other, const std::string& newName)
@@ -203,11 +202,18 @@ namespace jop
 
             // Phong model
             if (attribs & m::Phong)
+            {
                 str += "#define JMAT_PHONG\n" + maxLights;
 
-            // Blinn-phong model
-            if (attribs & m::BlinnPhong)
-                str += "#define JMAT_BLINNPHONG\n";
+                // Blinn-phong model
+                if (attribs & m::BlinnPhong)
+                    str += "#define JMAT_BLINNPHONG\n";
+            }
+            else if (attribs & m::Gouraud)
+                str += "#define JMAT_GOURAUD\n";
+
+            else if (attribs & m::Flat)
+                str += "#define JMAT_FLAT\n";
 
         #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 
@@ -404,7 +410,7 @@ namespace jop
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material", true).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material", false).getReference());
             defMat->setPersistence(0);
         }
 
