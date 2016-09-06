@@ -89,6 +89,10 @@ namespace jop
         ///
         void setGravity(const glm::vec2& gravity);
 
+        /// \brief Get gravity for world
+        ///
+        glm::vec2 getGravity() const;
+
         /// \brief Check if a ray hits a collider and return the closest one
         ///
         /// \param start The start position of the ray
@@ -134,7 +138,7 @@ namespace jop
         ///
         /// \return True if enabled
         ///
-        bool debugMode() const;
+        bool debugMode() const;        
 
     private:
 

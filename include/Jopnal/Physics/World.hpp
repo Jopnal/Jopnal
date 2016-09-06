@@ -154,8 +154,15 @@ namespace jop
         /// \param gravity Vector holding amplitude of gravity for each dimension
         ///
         void setGravity(const glm::vec3& gravity);
+        
+        /// \brief Get gravity for world
+        ///
+        /// \return The gravity
+        ///
+        glm::vec3 getGravity() const;
 
         /// \brief Set the broad phase callback
+        /// \brief Get gravity for world
         ///
         /// \param callback Reference to the callback object
         ///

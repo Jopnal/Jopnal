@@ -237,7 +237,7 @@ namespace jop
     {
         static const float gravity = SettingManager::get<float>("engine@Physics2D|DefaultWorld|fGravity", -9.81f);
 
-        m_worldData2D->SetGravity(b2Vec2(0.f, gravity));
+        setGravity(glm::vec2(0.f, gravity));
         m_worldData2D->SetAllowSleeping(false);
         m_worldData2D->SetDebugDraw(m_dd.get());
         m_worldData2D->SetContactListener(m_contactListener.get());
@@ -314,6 +314,14 @@ namespace jop
     void World2D::setGravity(const glm::vec2& gravity)
     {
         m_worldData2D->SetGravity(b2Vec2(gravity.x, gravity.y));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec2 World2D::getGravity() const
+    {
+        const b2Vec2 grav = m_worldData2D->GetGravity();
+        return glm::vec2(grav.x, grav.y);
     }
 
     //////////////////////////////////////////////
