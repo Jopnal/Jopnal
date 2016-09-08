@@ -79,7 +79,7 @@ namespace jop
         m_info.format = other.m_info.format;
         m_info.channelCount = other.m_info.channelCount;
         m_info.sampleCount = other.m_info.sampleCount;
-		m_info.firstSample = other.m_info.firstSample;
+        m_info.firstSample = other.m_info.firstSample;
         m_info.sampleRate = other.m_info.sampleRate;
     }
 

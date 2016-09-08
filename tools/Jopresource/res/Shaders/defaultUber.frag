@@ -97,17 +97,17 @@ void main()
         #endif
 
         vec3 tempLight[3];
-		tempLight[0] = vec3(0.0);
-		tempLight[1] = vec3(0.0);
-		tempLight[2] = vec3(0.0);
+        tempLight[0] = vec3(0.0);
+        tempLight[1] = vec3(0.0);
+        tempLight[2] = vec3(0.0);
 
-		float shininessMult =
-		#ifdef JMAT_GLOSSMAP
-			JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-		#else
-			1.0
-		#endif
-		;
+        float shininessMult =
+        #ifdef JMAT_GLOSSMAP
+            JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
+        #else
+            1.0
+        #endif
+        ;
 
         if (u_ReceiveLights)
         {
@@ -120,14 +120,14 @@ void main()
             {
                 jop_CalculatePointLight(i, shininessMult, light[0], light[1], light[2]);
 
-				// Shadow calculation
-				float shadow = 1.0;
-				if (u_PointLights[i].castShadow && u_ReceiveShadows)
-				    shadow -= jop_CalculatePointShadow(u_PointLights[i].position - vf_Position, u_PointLights[i].farPlane, u_PointLightShadowMaps[i]);
+                // Shadow calculation
+                float shadow = 1.0;
+                if (u_PointLights[i].castShadow && u_ReceiveShadows)
+                    shadow -= jop_CalculatePointShadow(u_PointLights[i].position - vf_Position, u_PointLights[i].farPlane, u_PointLightShadowMaps[i]);
 
                 tempLight[0] += light[0];
-				tempLight[1] += light[1] * shadow;
-				tempLight[2] += light[2] * shadow;
+                tempLight[1] += light[1] * shadow;
+                tempLight[2] += light[2] * shadow;
             }
 
         #endif
@@ -139,14 +139,14 @@ void main()
             {
                 jop_CalculateDirectionalLight(i, shininessMult, light[0], light[1], light[2]);
 
-				// Shadow calculation
-				float shadow = 1.0;
-				if (u_DirectionalLights[i].castShadow && u_ReceiveShadows)
-				    shadow -= jop_CalculateDirSpotShadow(vec3(u_DirectionalLights[i].lsMatrix * vec4(vf_Position, 1.0)) * 0.5 + 0.5, vf_Normal, -u_DirectionalLights[i].direction, u_DirectionalLightShadowMaps[i]);
+                // Shadow calculation
+                float shadow = 1.0;
+                if (u_DirectionalLights[i].castShadow && u_ReceiveShadows)
+                    shadow -= jop_CalculateDirSpotShadow(vec3(u_DirectionalLights[i].lsMatrix * vec4(vf_Position, 1.0)) * 0.5 + 0.5, vf_Normal, -u_DirectionalLights[i].direction, u_DirectionalLightShadowMaps[i]);
 
                 tempLight[0] += light[0];
-				tempLight[1] += light[1] * shadow;
-				tempLight[2] += light[2] * shadow;
+                tempLight[1] += light[1] * shadow;
+                tempLight[2] += light[2] * shadow;
             }
 
         #endif
@@ -158,25 +158,25 @@ void main()
             {
                 jop_CalculateSpotLight(i, shininessMult, light[0], light[1], light[2]);
 
-				// Shadow calculation
-				float shadow = 1.0;
-				if (u_SpotLights[i].castShadow && u_ReceiveShadows)
-				{
-				    vec4 tempCoords = u_SpotLights[i].lsMatrix * vec4(vf_Position, 1.0);
-				    shadow -= jop_CalculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, vf_Normal, u_SpotLights[i].position - vf_Position, u_SpotLightShadowMaps[i]);
-				}
-				
+                // Shadow calculation
+                float shadow = 1.0;
+                if (u_SpotLights[i].castShadow && u_ReceiveShadows)
+                {
+                    vec4 tempCoords = u_SpotLights[i].lsMatrix * vec4(vf_Position, 1.0);
+                    shadow -= jop_CalculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, vf_Normal, u_SpotLights[i].position - vf_Position, u_SpotLightShadowMaps[i]);
+                }
+                
                 tempLight[0] += light[0];
-				tempLight[1] += light[1] * shadow;
-				tempLight[2] += light[2] * shadow;
+                tempLight[1] += light[1] * shadow;
+                tempLight[2] += light[2] * shadow;
             }
 
         #endif
         }
 
-		#ifdef JMAT_SPECULARMAP
-			tempLight[2] *= vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords));
-		#endif
+        #ifdef JMAT_SPECULARMAP
+            tempLight[2] *= vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords));
+        #endif
 
         tempColor *= vec4(tempLight[0] + tempLight[1] + tempLight[2], u_Material.ambient.a * u_Material.diffuse.a * u_Material.specular.a);
         tempColor += u_Material.emission

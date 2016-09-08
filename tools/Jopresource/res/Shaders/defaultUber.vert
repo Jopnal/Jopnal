@@ -28,10 +28,10 @@ void main()
 {
     // Assign attributes
     vf_Position     = (
-	#if !defined(JDRW_SKYBOX) && !defined(JDRW_SKYSPHERE)
-		u_VMMatrix * 
-	#endif
-					  a_Position).xyz;
+    #if !defined(JDRW_SKYBOX) && !defined(JDRW_SKYSPHERE)
+        u_VMMatrix * 
+    #endif
+                      a_Position).xyz;
     vf_TexCoords    = a_TexCoords;
     vf_Normal       = normalize(u_NMatrix * a_Normal);
     vf_Color        = a_Color;

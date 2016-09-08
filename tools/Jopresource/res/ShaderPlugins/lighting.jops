@@ -8,7 +8,7 @@
 //
 #plugin <Jopnal/DefaultLighting/Uniforms>
 
-	#include <Jopnal/DefaultLighting/Structures>
+    #include <Jopnal/DefaultLighting/Structures>
 
     uniform Material u_Material;
 

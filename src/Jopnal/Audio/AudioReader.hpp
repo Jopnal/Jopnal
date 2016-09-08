@@ -58,7 +58,7 @@ namespace jop
 
         /// \brief Decode streamed vorbis data
         ///
-		static bool streamOgg(FileLoader& fileInstance, SoundBuffer& soundBuf, void* offset);
+        static bool streamOgg(FileLoader& fileInstance, SoundBuffer& soundBuf, void* offset);
 
         /// \brief Checks if data is wav file
         ///

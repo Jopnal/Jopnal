@@ -289,7 +289,7 @@ namespace jop
 
     ShaderProgram& Drawable::getShader() const
     {
-		return m_shader.expired() ? (getModel().getMaterial() ? getModel().getMaterial()->getShader() : ShaderProgram::getError()) : *m_shader;
+        return m_shader.expired() ? (getModel().getMaterial() ? getModel().getMaterial()->getShader() : ShaderProgram::getError()) : *m_shader;
     }
 
     //////////////////////////////////////////////
@@ -303,7 +303,7 @@ namespace jop
 
     void Drawable::removeOverrideShader()
     {
-		m_shader.reset();
+        m_shader.reset();
     }
 
     //////////////////////////////////////////////

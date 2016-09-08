@@ -265,7 +265,7 @@ namespace jop
         ///
         uint64 getAttributes() const;
 
-	protected:
+    protected:
 
         /// \copydoc Component::receiveMessage()
         ///

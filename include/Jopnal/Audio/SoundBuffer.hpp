@@ -51,7 +51,7 @@ namespace jop
         struct parsedAudioInfo
         {
             uint64 sampleCount = 0;                         ///< Total number of samples
-			uint64 firstSample = 0;							///< First byte for audio in original file
+            uint64 firstSample = 0;                         ///< First byte for audio in original file
             int channelCount   = 0;                         ///< Number of channels
             int sampleRate     = 0;                         ///< Samples per second
             AudioFormat format = AudioFormat::undefined;    ///< Format of audio for decoding
