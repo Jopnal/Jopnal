@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/Texture/Texture.hpp>
+#include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <glm/vec2.hpp>
 #include <string>
 #include <array>
@@ -60,7 +61,7 @@ namespace jop
 
     private:
 
-        typedef std::array<std::pair<unsigned int, std::unique_ptr<Texture>>, static_cast<int>(Slot::__Count)> AttachmentArray;
+        typedef std::array<std::tuple<unsigned int, std::unique_ptr<Texture>, bool>, static_cast<int>(Slot::__Count)> AttachmentArray;
 
     public:
 
@@ -87,6 +88,15 @@ namespace jop
         /// \see setSize()
         ///
         bool addTextureAttachment(const Slot slot, const Texture::Format format);
+
+        /// \brief Add a cube map attachment
+        ///
+        /// \param slot The attachment slot
+        /// \param format The cube map format
+        ///
+        /// \return True if added successfully
+        ///
+        bool addCubemapAttachment(const Slot slot, const Texture::Format format);
 
         /// \brief Add a render buffer attachment
         ///
@@ -131,6 +141,20 @@ namespace jop
         ///
         static void unbind();
 
+        /// \brief Bind cube map face
+        ///
+        /// \note This will also bind the frame buffer object as the draw frame buffer
+        ///
+        /// \warning If the texture in the slot is not actually a cube map, but a regular
+        ///          2D texture, it will be bound instead
+        ///
+        /// \param slot The attachment slot
+        /// \param face The cube map face to bind
+        ///
+        /// \return True if successful
+        ///
+        bool bindCubeFace(const Slot slot, const Cubemap::Face face) const;
+
         /// \brief Set the size for attachments
         ///
         /// Must be called before attempting to add attachments. Has no effect
@@ -171,6 +195,8 @@ namespace jop
         static unsigned int getMaximumRenderbufferSize();
 
     private:
+
+        bool addTextureAttachment(const Slot slot, const Texture::Format format, const bool cube);
 
         bool attach() const;
 

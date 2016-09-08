@@ -16,6 +16,8 @@ if (CMAKE_HOST_WIN32)
     set(__SRC_SHADERPLUGINS
         ${__SRCDIR_RESOURCES}/ShaderPlugins/compatibility.jops
         ${__SRCDIR_RESOURCES}/ShaderPlugins/lighting.jops
+        ${__SRCDIR_RESOURCES}/ShaderPlugins/structures.jops
+        ${__SRCDIR_RESOURCES}/ShaderPlugins/shadows.jops
     )
     source_group("ShadersPlugins" FILES ${__SRC_SHADERPLUGINS})
     list(APPEND RES ${__SRC_SHADERPLUGINS})
@@ -29,9 +31,6 @@ if (CMAKE_HOST_WIN32)
         ${__SRCDIR_RESOURCES}/Shaders/defaultUber.vert
         ${__SRCDIR_RESOURCES}/Shaders/depthRecord.frag
         ${__SRCDIR_RESOURCES}/Shaders/depthRecord.vert
-        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.frag
-        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.geom
-        ${__SRCDIR_RESOURCES}/Shaders/depthRecordPoint.vert
         ${__SRCDIR_RESOURCES}/Shaders/gaussianBlur.frag
         ${__SRCDIR_RESOURCES}/Shaders/physicsDebug.frag
         ${__SRCDIR_RESOURCES}/Shaders/physicsDebug.vert

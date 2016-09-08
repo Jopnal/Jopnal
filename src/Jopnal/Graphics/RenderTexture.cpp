@@ -28,7 +28,6 @@
 
     #include <Jopnal/Core/DebugHandler.hpp>
     #include <Jopnal/Core/Engine.hpp>
-    #include <Jopnal/Core/Android/ActivityState.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
     #include <Jopnal/Graphics/Texture/Cubemap.hpp>
@@ -42,12 +41,31 @@
 //////////////////////////////////////////////
 
 
+namespace
+{
+    const GLenum ns_attachmentPoint[] =
+    {
+        GL_DEPTH_ATTACHMENT,
+        GL_STENCIL_ATTACHMENT,
+
+        #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
+            GL_DEPTH_STENCIL_ATTACHMENT,
+        #else
+            0,
+        #endif
+
+        GL_COLOR_ATTACHMENT0
+    };
+}
+
 namespace jop
 {
     namespace detail
     {
         bool checkFrameBufferStatus()
         {
+        #ifdef JOP_OPENGL_ERROR_CHECKS
+
             const GLenum status = glCheck(glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
             if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -101,6 +119,8 @@ namespace jop
                 return false;
             }
 
+        #endif
+
             return true;
         }
     }
@@ -108,10 +128,10 @@ namespace jop
     //////////////////////////////////////////////
 
     RenderTexture::RenderTexture()
-        : RenderTarget          (),
-          m_frameBuffer         (0),
-          m_attachments         (),
-          m_size                (0)
+        : RenderTarget  (),
+          m_frameBuffer (0),
+          m_attachments (),
+          m_size        (0)
     {}
 
     RenderTexture::~RenderTexture()
@@ -123,11 +143,19 @@ namespace jop
 
     bool RenderTexture::addTextureAttachment(const Slot slot, const Texture::Format format)
     {
-        auto& att = m_attachments[static_cast<int>(slot)];
-        auto& tex = att.second;
+        return addTextureAttachment(slot, format, false);
+    }
 
-        glCheck(glDeleteRenderbuffers(1, &att.first));
-        att.first = 0;
+    //////////////////////////////////////////////
+
+    bool RenderTexture::addTextureAttachment(const Slot slot, const Texture::Format format, const bool cube)
+    {
+        auto& att = m_attachments[static_cast<int>(slot)];
+        auto& tex = std::get<1>(att);
+        std::get<2>(att) = cube;
+
+        glCheck(glDeleteRenderbuffers(1, &std::get<0>(att)));
+        std::get<0>(att) = 0;
         tex.reset();
 
         if (format == Texture::Format::None)
@@ -191,20 +219,44 @@ namespace jop
 
     #endif
 
-        auto newTex = std::make_unique<Texture2D>("");
-
         using TF = Texture::Flag;
-        
-        if (newTex->load(m_size, format, TF::DisallowCompression | TF::DisallowMipmapGeneration | TF::DisallowSRGB))
-            tex = std::move(newTex);
+        static const auto flags = TF::DisallowCompression | TF::DisallowMipmapGeneration | TF::DisallowSRGB;
 
+        bool error = false;
+
+        if (cube)
+        {
+            auto newTex = std::make_unique<Cubemap>("");
+
+            if (newTex->load(m_size, format, flags))
+                tex = std::move(newTex);
+            else
+                error = true;
+        }
         else
         {
-            JOP_DEBUG_ERROR("Failed to add render texture attachment, failed to load texture (possibly invalid or unsupported format)");
+            auto newTex = std::make_unique<Texture2D>("");
+
+            if (newTex->load(m_size, format, flags))
+                tex = std::move(newTex);
+            else
+                error = true;
+        }
+
+        if (error)
+        {
+            JOP_DEBUG_ERROR("Failed to add render texture attachment, failed to load texture (invalid size or format)");
             return false;
         }
 
         return true;
+    }
+
+    //////////////////////////////////////////////
+
+    bool RenderTexture::addCubemapAttachment(const Slot slot, const Texture::Format format)
+    {
+        return addTextureAttachment(slot, format, true);
     }
 
     //////////////////////////////////////////////
@@ -223,11 +275,11 @@ namespace jop
     bool RenderTexture::addRenderbufferAttachment(const Slot slot, const Texture::Format format)
     {
         auto& att = m_attachments[static_cast<int>(slot)];
-        auto& rendBuf = att.first;
+        auto& rendBuf = std::get<0>(att);
 
         glCheck(glDeleteRenderbuffers(1, &rendBuf));
         rendBuf = 0;
-        att.second.reset();
+        std::get<1>(att).reset();
 
         if (format == Texture::Format::None)
             return true;
@@ -387,8 +439,8 @@ namespace jop
         {
             for (auto& i : m_attachments)
             {
-                glCheck(glDeleteRenderbuffers(1, &i.first));
-                i.second.reset();
+                glCheck(glDeleteRenderbuffers(1, &std::get<0>(i)));
+                std::get<1>(i).reset();
             }
 
             m_size = glm::uvec2(0);
@@ -408,13 +460,6 @@ namespace jop
     {
         void bindFBOBase(const GLuint fb, const glm::uvec2& size, const GLenum binding)
         {
-        #ifdef JOP_OS_ANDROID
-
-            if (!detail::ActivityState::get()->fullFocus)
-                return;
-
-        #endif
-
             glCheck(glBindFramebuffer(binding, fb));
 
             glCheck(glViewport(0, 0, size.x, size.y));
@@ -467,6 +512,31 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool RenderTexture::bindCubeFace(const Slot slot, const Cubemap::Face face) const
+    {
+        if (bindDraw())
+        {
+            const auto s = static_cast<int>(slot);
+            const auto f = static_cast<GLenum>(face);
+
+            auto& tex = std::get<1>(m_attachments[static_cast<int>(slot)]);
+
+            if (!tex || !tex->isValid())
+            {
+                JOP_DEBUG_ERROR("Failed to bind cube map face to frame buffer, no texture exists");
+                return false;
+            }
+
+            glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[s], GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, tex->getHandle(), 0));
+
+            return detail::checkFrameBufferStatus();
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
     void RenderTexture::setSize(const glm::uvec2& size)
     {
         if (!m_size.x && !m_size.y)
@@ -501,7 +571,7 @@ namespace jop
 
         for (auto& i : m_attachments)
         {
-            if (i.first || i.second)
+            if (std::get<0>(i) || std::get<1>(i))
                 return true;
         }
 
@@ -512,14 +582,14 @@ namespace jop
 
     Texture* RenderTexture::getTextureAttachment(const Slot slot)
     {
-        return m_attachments[static_cast<int>(slot)].second.get();
+        return std::get<1>(m_attachments[static_cast<int>(slot)]).get();
     }
 
     //////////////////////////////////////////////
 
     const Texture* RenderTexture::getTextureAttachment(const Slot slot) const
     {
-        return m_attachments[static_cast<int>(slot)].second.get();
+        return std::get<1>(m_attachments[static_cast<int>(slot)]).get();
     }
 
     //////////////////////////////////////////////
@@ -553,20 +623,6 @@ namespace jop
                 return false;
             }
 
-            const GLenum attachmentPoint[] =
-            {
-                GL_DEPTH_ATTACHMENT,
-                GL_STENCIL_ATTACHMENT,
-
-            #if !defined(JOP_OPENGL_ES) || defined(GL_ES_VERSION_3_0)
-                GL_DEPTH_STENCIL_ATTACHMENT,
-            #else
-                0,
-            #endif
-
-                GL_COLOR_ATTACHMENT0
-            };
-
             glCheck(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer));
 
             for (std::size_t i = 0; i < m_attachments.size(); ++i)
@@ -575,6 +631,8 @@ namespace jop
 
             #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 
+                // In GLES 2.0, depth-stencil attachments need to be attached to both
+                // the depth and stencil attachment points.
                 if (gl::getVersionMajor() < 3)
                 {
                     const auto s = static_cast<Slot>(i);
@@ -588,13 +646,13 @@ namespace jop
 
             #endif
 
-                if (att->first)
+                if (std::get<0>(*att))
                 {
-                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentPoint[i], GL_RENDERBUFFER, att->first));
+                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_RENDERBUFFER, std::get<0>(*att)));
                 }
-                else if (att->second && att->second->isValid())
+                else if (std::get<1>(*att) && std::get<1>(*att)->isValid())
                 {
-                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint[i], GL_TEXTURE_2D, att->second->getHandle(), 0));
+                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[i], std::get<2>(*att) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D, std::get<1>(*att)->getHandle(), 0));
                 }
             }
 
@@ -606,7 +664,7 @@ namespace jop
                 std::vector<GLenum> colorAttachments;
 
                 for (std::size_t i = static_cast<int>(Slot::Color0); i < m_attachments.size(); ++i)
-                    colorAttachments.push_back((m_attachments[i].first || m_attachments[i].second) ? attachmentPoint[i] : GL_NONE);
+                    colorAttachments.push_back((std::get<0>(m_attachments[i]) || std::get<1>(m_attachments[i])) ? ns_attachmentPoint[i] : GL_NONE);
 
                 glCheck(glDrawBuffers(colorAttachments.size(), colorAttachments.data()));
             }

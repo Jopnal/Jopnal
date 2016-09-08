@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -44,11 +45,13 @@ namespace jop
     class LightContainer;
     class Renderer;
 
-    class JOP_API Drawable : public Component
+    class JOP_API Drawable : public CullerComponent
     {
     protected:
 
         JOP_GENERIC_COMPONENT_CLONE(Drawable);
+
+        friend class ShaderAssembler;
 
     public:
     
@@ -100,16 +103,18 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
+        /// \param cull Should this drawable be culled?
         /// \param pass The render pass
         ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
 
         /// \brief Overloaded constructor
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param pass The render pass to bind this drawable into
+        /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, RenderPass& pass);
+        Drawable(Object& object, RenderPass& pass, const bool cull = true);
 
         /// \brief Virtual destructor
         ///
@@ -230,13 +235,6 @@ namespace jop
         ///
         bool hasFlag(const uint32 flag) const;
 
-        /// \brief Get a shader pre-processor string
-        ///
-        /// \param attribs The drawable attributes
-        /// \param str The string to write into
-        ///
-        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
-
         /// \brief Get the current shader
         ///
         /// \return Reference to the shader
@@ -263,48 +261,28 @@ namespace jop
         ///
         bool hasOverrideShader() const;
 
-        /// \brief Check if this drawable has a certain attribute
+        /// \copydoc Material::getAttributes()
         ///
-        /// \param attribute The attribute to check
-        ///
-        /// \return True if this drawable has the attribute
-        ///
-        bool hasAttribute(const uint64 attribute) const;
+        uint64 getAttributes() const;
 
 	protected:
-
-		/// \brief Set attributes
-		///
-		/// \param attributes The attributes to set
-		///
-		/// \return Reference to self
-		///
-		Drawable& setAttributes(const uint64 attributes);
-
-		/// \brief Add attributes
-		///
-		/// \param attributes The attributes to add
-		///
-		/// \return Reference to self
-		///
-		Drawable& addAttributes(const uint64 attributes);
-
-		/// \brief Get the attribute field
-		///
-		/// \return The attribute field
-		///
-		uint64 getAttributes() const;
 
         /// \copydoc Component::receiveMessage()
         ///
         virtual Message::Result receiveMessage(const Message& message) override;
 
+    protected:
+
+        uint64 m_attributes;                            ///< Attribute flags
+
     private:
+
+        static std::string getShaderPreprocessorDef(const uint64 attributes);
+
 
         Color m_color;                                  ///< Color specific to this drawable
         Model m_model;                                  ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader (override)
-        uint64 m_attributes;                            ///< Attribute flags
         Renderer& m_rendererRef;                        ///< Reference to the renderer
         const RenderPass::Pass m_pass;                  ///< The render pass
         uint32 m_flags;                                 ///< Property flags

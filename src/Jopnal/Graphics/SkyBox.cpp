@@ -43,16 +43,16 @@
 namespace jop
 {
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, false),
           m_mesh        (""),
-          m_material    ("", false)
+          m_material    ("")
     {
-        m_material.setAttributes(Material::Attribute::EnvironmentMap);
+        m_material.setMap(Material::Map::Environment, Cubemap::getDefault());
         m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
-        addAttributes(Attribute::__SkyBox);
+        m_attributes |= Attribute::__SkyBox;
 
         setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }
@@ -76,10 +76,9 @@ namespace jop
 
         // Uniforms
         {
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * glm::mat4(glm::mat3(proj.viewMatrix)));
 
-            mat.sendToShader(shdr, nullptr);
+            mat.sendToShader(shdr);
 
             glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }

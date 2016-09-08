@@ -90,6 +90,7 @@ namespace
             deb << "\n    Texture units: " << Texture::getMaxTextureUnits()                         << "\n"
                 <<   "    Maximum: \n"
                 <<   "      Texture size:                  " << Texture2D::getMaximumSize()         << "\n"
+                <<   "      Cube map size:                 " << Cubemap::getMaximumSize()           << "\n"
                 <<   "      GLSL vertex uniform vectors:   " << unifVert                            << "\n"
                 <<   "      GLSL fragment uniform vectors: " << unifFrag                            << "\n"
                 <<   "      GLSL attribute vectors:        " << ShaderProgram::getMaxAttributes()   << "\n"

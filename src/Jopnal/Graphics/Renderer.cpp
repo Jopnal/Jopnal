@@ -28,6 +28,7 @@
 
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
     #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
@@ -39,11 +40,13 @@
 
 namespace jop
 {
-    Renderer::Renderer(const RenderTarget& mainTarget)
+    Renderer::Renderer(const RenderTarget& mainTarget, Scene& sceneRef)
         : m_lights          (),
           m_cameras         (),
+          m_passes          (),
           m_envRecorders    (),
-          m_target          (mainTarget)
+          m_target          (mainTarget),
+          m_sceneRef        (sceneRef)
     {
         createRenderPass<SortedRenderPass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
         createRenderPass<OrderedRenderPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);
@@ -137,19 +140,29 @@ namespace jop
 
     void Renderer::draw(const RenderPass::Pass pass)
     {
-        // Render shadow maps
-        for (auto light : m_lights)
-            light->drawShadowMap();
+        //if (pass == RenderPass::Pass::BeforePost)
+        //{
+            // Render shadow maps
+            for (auto light : m_lights)
+                light->drawShadowMap();
 
-        // Render environment maps
-        /*for (auto envmap : m_envRecorders)
-        {
-        if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
-        envmap->record();
-        }*/
+            // Render environment maps
+            /*for (auto envmap : m_envRecorders)
+            {
+            if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
+            envmap->record();
+            }*/
+        //}
 
         // Render objects
         for (auto& i : m_passes[static_cast<int>(pass)])
             i.second->draw();
+    }
+
+    //////////////////////////////////////////////
+
+    World& Renderer::getCullingWorld()
+    {
+        return m_sceneRef.m_cullingWorld;
     }
 }

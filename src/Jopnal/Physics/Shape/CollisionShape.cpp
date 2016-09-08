@@ -47,4 +47,33 @@ namespace jop
 
     CollisionShape::~CollisionShape()
     {}
+
+    //////////////////////////////////////////////
+
+    void CollisionShape::setMargin(const float margin)
+    {
+        m_shape->setMargin(margin);
+    }
+
+    //////////////////////////////////////////////
+
+    float CollisionShape::getMargin() const
+    {
+        return m_shape->getMargin();
+    }
+
+    //////////////////////////////////////////////
+
+    void CollisionShape::setLocalScale(const glm::vec3& scale)
+    {
+        m_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+    }
+
+    //////////////////////////////////////////////
+
+    glm::vec3 CollisionShape::getLocalScale() const
+    {
+        auto& s = m_shape->getLocalScaling();
+        return glm::vec3(s.x(), s.y(), s.z());
+    }
 }

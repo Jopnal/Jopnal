@@ -51,19 +51,6 @@
         },
         
         {
-            "name": "depthRecordShaderPointFrag",
-            "path": "res/Shaders/depthRecordPoint.frag"
-        },
-        {
-            "name": "depthRecordShaderPointGeom",
-            "path": "res/Shaders/depthRecordPoint.geom"
-        },
-        {
-            "name": "depthRecordShaderPointVert",
-            "path": "res/Shaders/depthRecordPoint.vert"
-        },
-        
-        {
             "name": "gaussianBlurShaderFrag",
             "path": "res/Shaders/gaussianBlur.frag"
         },
@@ -94,10 +81,17 @@
             "name": "compatibilityPlugins",
             "path": "res/ShaderPlugins/compatibility.jops"
         },
-
         {
             "name": "lightingPlugins",
             "path": "res/ShaderPlugins/lighting.jops"
+        },
+        {
+            "name": "structurePlugins",
+            "path": "res/ShaderPlugins/structures.jops"
+        },
+        {
+            "name": "shadowPlugins",
+            "path": "res/ShaderPlugins/shadows.jops"
         }
     ]
 }

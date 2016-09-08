@@ -33,13 +33,11 @@
 
 namespace jop
 {
-    class JOP_API ConvexHullShape final : public CollisionShape
+    class JOP_API ConvexHullShape : public CollisionShape
     {
     public:
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
+        /// \copydoc Resource::Resource(const std::string&)
         ///
         ConvexHullShape(const std::string& name);
 

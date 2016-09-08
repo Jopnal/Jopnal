@@ -30,6 +30,7 @@
     #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
     #include <cctype>
 
 #endif
@@ -69,6 +70,8 @@ namespace jop
         // Load plugins
         addPlugins(std::string(reinterpret_cast<const char*>(jopr::compatibilityPlugins), sizeof(jopr::compatibilityPlugins)));
         addPlugins(std::string(reinterpret_cast<const char*>(jopr::lightingPlugins), sizeof(jopr::lightingPlugins)));
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::structurePlugins), sizeof(jopr::structurePlugins)));
+        addPlugins(std::string(reinterpret_cast<const char*>(jopr::shadowPlugins), sizeof(jopr::shadowPlugins)));
     }
 
     ShaderAssembler::~ShaderAssembler()
@@ -97,9 +100,8 @@ namespace jop
         const auto& uber = m_instance->m_uber;
         const std::string shaderName = "jop_shader_" + std::to_string(combinedAttribs);
 
-        std::string pp;
-        Material::getShaderPreprocessorDef(materialAttribs, pp);
-        Drawable::getShaderPreprocessorDef(drawableAttribs, pp);
+        std::string pp = Material::getShaderPreprocessorDef(materialAttribs) +
+                         Drawable::getShaderPreprocessorDef(drawableAttribs);
         
         ShaderProgram* s = &ResourceManager::getNamed<ShaderProgram>(shaderName, pp, Shader::Type::Vertex, uber[0], Shader::Type::Geometry, uber[1], Shader::Type::Fragment, uber[2]);
 
@@ -115,7 +117,7 @@ namespace jop
             }
 
             // Needed so that different samplers don't all point to zero
-            if ((materialAttribs & Material::Attribute::__Lighting) != 0)
+            if ((materialAttribs & Material::LightingAttribs) != 0)
             {
                 static const int maxUnits = Texture::getMaxTextureUnits();
 

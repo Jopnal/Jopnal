@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Utility/Message.hpp>
+#include <Jopnal/Physics/World.hpp>
 #include <vector>
 #include <tuple>
 #include <memory>
@@ -108,6 +109,7 @@ namespace jop
 
         friend class SceneLoader;
         friend class Object;
+        friend class Renderer;
 
     public:
 
@@ -250,6 +252,7 @@ namespace jop
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
         float m_deltaScale;                     ///< Delta time scalar
         std::tuple<World2D*, World*> m_worlds;  ///< 2D and 3D worlds
+        World m_cullingWorld;
     };
 
     // Include the template implementation file

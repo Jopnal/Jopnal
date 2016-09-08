@@ -143,9 +143,24 @@ namespace jop
                 GLint logLen;
                 glCheck(glGetShaderiv(m_handle, GL_INFO_LOG_LENGTH, &logLen));
 
+                auto getTypeStr = [](const Type t)
+                {
+                    switch (t)
+                    {
+                        case Type::Vertex:
+                            return " vertex";
+                        case Type::Geometry:
+                            return " geometry";
+                        case Type::Fragment:
+                            return " fragment";
+                    }
+
+                    return "";
+                };
+
                 std::string log(logLen, '0');
                 glCheck(glGetShaderInfoLog(m_handle, logLen, NULL, &log[0]));
-                deb << "Failed to compile shader:\n\n" << log << "\n\n";
+                deb << "Failed to compile" << getTypeStr(type) << " shader:\n\n" << log << "\n\n";
 
                 // Find lines with errors
                 const char* current = log.c_str();

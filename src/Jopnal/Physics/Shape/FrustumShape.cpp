@@ -26,6 +26,8 @@
 
     #include <Jopnal/Physics/Shape/FrustumShape.hpp>
 
+    #include <glm/gtx/rotate_vector.hpp>
+
 #endif
 
 //////////////////////////////////////////////
@@ -34,9 +36,57 @@
 namespace jop
 {
     FrustumShape::FrustumShape(const std::string& name)
-        : Resource(name)
-    {
+        : ConvexHullShape(name)
+    {}
 
+    //////////////////////////////////////////////
+
+    bool FrustumShape::load(const Camera::ClippingPlanes& clip, const glm::vec2& size, const glm::quat& rotation)
+    {
+        const auto half = size * 0.5f;
+
+        const std::vector<glm::vec3> points =
+        {
+            // Near
+            rotation * glm::vec3(-half.x, -half.y, clip.first),    // Lower left
+            rotation * glm::vec3( half.x, -half.y, clip.first),    // Lower right
+            rotation * glm::vec3( half.x,  half.y, clip.first),    // Upper right
+            rotation * glm::vec3(-half.x,  half.y, clip.first),    // Upper left
+
+            // Far
+            rotation * glm::vec3(-half.x, -half.y, clip.second),   // Lower left
+            rotation * glm::vec3( half.x, -half.y, clip.second),   // Lower right
+            rotation * glm::vec3( half.x,  half.y, clip.second),   // Upper right
+            rotation * glm::vec3(-half.x,  half.y, clip.second),   // Upper left
+        };
+
+        return ConvexHullShape::load(points);
     }
 
+    //////////////////////////////////////////////
+
+    bool FrustumShape::load(const Camera::ClippingPlanes& clip, const float fov, const float aspectRatio, const glm::quat& rotation)
+    {
+        const auto halfFov = fov * 0.5f;
+
+        const glm::vec3 nearHalf = glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.first), halfFov), halfFov * aspectRatio);
+        const glm::vec3 farHalf = glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.second), halfFov), halfFov * aspectRatio);
+
+        const std::vector<glm::vec3> points =
+        {
+            // Near
+            rotation * glm::vec3(-nearHalf.x, -nearHalf.y, -clip.first),   // Lower left
+            rotation * glm::vec3( nearHalf.x, -nearHalf.y, -clip.first),   // Lower right
+            rotation * glm::vec3( nearHalf.x,  nearHalf.y, -clip.first),   // Upper right
+            rotation * glm::vec3(-nearHalf.x,  nearHalf.y, -clip.first),   // Upper left
+
+            // Far
+            rotation * glm::vec3(-farHalf.x, -farHalf.y, -clip.second),    // Lower left
+            rotation * glm::vec3( farHalf.x, -farHalf.y, -clip.second),    // Lower right
+            rotation * glm::vec3( farHalf.x,  farHalf.y, -clip.second),    // Upper right
+            rotation * glm::vec3(-farHalf.x,  farHalf.y, -clip.second),    // Upper left
+        };
+
+        return ConvexHullShape::load(points);
+    }
 }

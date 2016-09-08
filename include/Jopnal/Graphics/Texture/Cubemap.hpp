@@ -36,6 +36,22 @@ namespace jop
     {
     public:
 
+        /// Cube map faces
+        ///
+        enum class Face
+        {
+            Right,
+            Left,
+            Top,
+            Bottom,
+            Back,
+            Front,
+
+            First = Right
+        };
+
+    public:
+
         /// \brief Constructor
         ///
         /// \param name Name of this resource

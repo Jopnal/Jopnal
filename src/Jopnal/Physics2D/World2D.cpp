@@ -229,7 +229,7 @@ namespace jop
     //////////////////////////////////////////////
 
     World2D::World2D(Object& obj, Renderer& renderer)
-        : Drawable          (obj, renderer, RenderPass::Pass::BeforePost),
+        : Drawable          (obj, renderer, RenderPass::Pass::BeforePost, false),
           m_contactListener (std::make_unique<detail::ContactListener2DImpl>()),
           m_worldData2D     (std::make_unique<b2World>(b2Vec2(0.f, 0.0f))),
           m_step            (0.f),
@@ -320,7 +320,7 @@ namespace jop
 
     glm::vec2 World2D::getGravity() const
     {
-        b2Vec2 grav = m_worldData2D->GetGravity();
+        const b2Vec2 grav = m_worldData2D->GetGravity();
         return glm::vec2(grav.x, grav.y);
     }
 

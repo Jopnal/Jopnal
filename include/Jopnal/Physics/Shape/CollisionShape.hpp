@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 
 //////////////////////////////////////////////
@@ -43,12 +44,11 @@ namespace jop
         friend class RigidBody;
         friend class PhantomBody;
         friend class CompoundShape;
+        friend class Collider;
 
     protected:
 
-        /// \brief Constructor
-        ///
-        /// \param name Name of the resource
+        /// \copydoc Resource::Resource(const std::string&)
         ///
         CollisionShape(const std::string& name);
 
@@ -57,6 +57,37 @@ namespace jop
         /// \brief Virtual destructor
         ///
         virtual ~CollisionShape() override = 0;
+
+
+        /// \brief Set the margin of this shape
+        ///
+        /// Usually you can leave this at the default.
+        ///
+        /// \param margin The margin to set
+        ///
+        void setMargin(const float margin);
+
+        /// \brief Get the margin of this shape
+        ///
+        /// \return The margin
+        ///
+        float getMargin() const;
+
+        /// \brief Set the local scaling
+        ///
+        /// This will scale the collision shape itself, but changes
+        /// won't be seen in colliders until Collider::updateWorldBounds()
+        /// is called on each one.
+        ///
+        /// \param The new scale to set
+        ///
+        void setLocalScale(const glm::vec3& scale);
+
+        /// \brief Get the current local scaling
+        ///
+        /// \return The local scaling
+        ///
+        glm::vec3 getLocalScale() const;
 
     protected:
 

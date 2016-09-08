@@ -34,6 +34,10 @@ class btRigidBody;
 
 namespace jop
 {
+    namespace detail
+    {
+        class MotionState;
+    }
     class CollisionShape;
     class Joint;
 
@@ -117,13 +121,13 @@ namespace jop
         ///
         /// \comm setBodyGravity
         ///
-        RigidBody& setGravity(const glm::vec3& acceleration);
+        RigidBody& setGravityScale(const glm::vec3& acceleration);
 
         /// \brief Get the gravity
         ///
         /// \return The gravity scale
         ///
-        glm::vec3 getGravity() const;
+        glm::vec3 getGravityScale() const;
 
         /// \brief Sets the linear factor for rigid body
         ///
@@ -305,11 +309,12 @@ namespace jop
 
         Message::Result receiveMessage(const Message& message) override;
 
-        const Type m_type;           ///< The body type
-        const float m_mass;          ///< The mass
-        btRigidBody* m_rigidBody;    ///< Pointer to derived rigid body pointer for convenience
+        std::unique_ptr<detail::MotionState> m_motionState;     ///< The motion state
+        const Type m_type;                                      ///< The body type
+        const float m_mass;                                     ///< The mass
+        btRigidBody* m_rigidBody;                               ///< Pointer to derived rigid body pointer for convenience
 
-        std::unordered_set<std::shared_ptr<Joint>> m_joints; ///< Joints
+        std::unordered_set<std::shared_ptr<Joint>> m_joints;    ///< Joints
     };
 
     // Include the template implementation file

@@ -22,7 +22,7 @@
 #ifndef JOP_OBJECT_HPP
 #define JOP_OBJECT_HPP
 
-//Headers
+// Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Core/SerializeInfo.hpp>
@@ -49,7 +49,7 @@ namespace jop
         friend class SceneLoader;
         friend class Component;
 
-        enum : uint32
+        enum Flag : uint32
         {
             ActiveFlag          = 1,
             RemoveFlag          = 1 << 2,
@@ -239,7 +239,7 @@ namespace jop
 
         /// \brief Get all children
         ///
-        /// \return Reference to the internal vector with the components
+        /// \return Reference to the internal vector with the children
         ///
         std::vector<Object>& getChildren();
 
@@ -741,7 +741,7 @@ namespace jop
         ///
         Object& lookAt(const glm::vec3& point);
 
-        /// \copydoc lookAt
+        /// \copydoc lookAt()
         ///
         /// \param up Custom up vector
         ///

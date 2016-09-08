@@ -24,25 +24,48 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Core/Resource.hpp>
+#include <Jopnal/Graphics/Camera.hpp>
+#include <Jopnal/Physics/Shape/ConvexHullShape.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class FrustumShape : public Resource
+    class JOP_API FrustumShape : public ConvexHullShape
     {
     public:
     
+        /// \copydoc Resource::Resource(const std::string&)
+        ///
         FrustumShape(const std::string& name);
 
 
+        /// \brief Load this shape
+        ///
+        /// This will create a shape for an orthographic projection.
+        ///
+        /// \param clip The clipping planes
+        /// \param size Size of the projection
+        /// \param rotation Local rotation to apply
+        ///
+        /// \return True if successful
+        ///
+        bool load(const Camera::ClippingPlanes& clip, const glm::vec2& size, const glm::quat& rotation);
 
-    private:
-
-
-        
+        /// \brief Load this shape
+        ///
+        /// This will create a shape for a perspective projection.
+        ///
+        /// \param clip The clipping planes
+        /// \param size The vertical field of view in radians
+        /// \param aspectRatio The aspect ratio (x / y)
+        /// \param rotation Local rotation to apply
+        ///
+        /// \return True if successful
+        ///
+        bool load(const Camera::ClippingPlanes& clip, const float fov, const float aspectRatio, const glm::quat& rotation);
     };
 }
 

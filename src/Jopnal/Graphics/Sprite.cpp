@@ -26,7 +26,12 @@
 
     #include <Jopnal/Graphics/Sprite.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 #endif
 
@@ -35,40 +40,57 @@
 
 namespace jop
 {
-    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Drawable      (object, renderer, pass),
-          m_material    ("", true),
+    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : Drawable      (object, renderer, pass, cull),
+          m_texture     (),
           m_mesh        ("")
     {
-        m_material.setMap(Material::Map::Diffuse, Texture2D::getDefault());
-        setModel(Model(m_mesh, m_material));
+        setTexture(Texture2D::getDefault(), true);
+        setOverrideShader(ShaderAssembler::getShader(1 << static_cast<uint64>(Material::Map::Diffuse0), 0));
     }
 
-    Sprite::Sprite(Object& object, RenderPass& pass)
-        : Drawable      (object, pass),
-          m_material    ("", true),
+    Sprite::Sprite(Object& object, RenderPass& pass, const bool cull)
+        : Drawable      (object, pass, cull),
+          m_texture     (),
           m_mesh        ("")
     {
-        m_material.setMap(Material::Map::Diffuse, Texture2D::getDefault());
-        setModel(Model(m_mesh, m_material));
+        setTexture(Texture2D::getDefault(), true);
+        setOverrideShader(ShaderAssembler::getShader(1 << static_cast<uint64>(Material::Map::Diffuse0), 0));
     }
 
     Sprite::Sprite(const Sprite& other, Object& newObj)
         : Drawable      (other, newObj),
-          m_material    ("", true),
+          m_texture     (),
           m_mesh        ("")
     {
-        if (other.getTexture())
-            m_material.setMap(Material::Map::Diffuse, *static_cast<const Texture2D*>(other.getTexture()));
+        setTexture(Texture2D::getDefault(), true);
+    }
 
-        setModel(Model(m_mesh, m_material));
+    //////////////////////////////////////////////
+
+    void Sprite::draw(const ProjectionInfo& proj, const LightContainer&) const
+    {
+        // Uniforms
+        {
+            auto& tex = getTexture();
+
+            auto& shdr = getShader();
+            auto& modelMat = getObject()->getTransform().getMatrix();
+
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * proj.viewMatrix * modelMat);
+            shdr.setUniform("u_DiffuseMap", tex, static_cast<unsigned int>(Material::Map::Diffuse0));
+
+            glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
+        }
+
+        m_mesh.draw();
     }
 
     //////////////////////////////////////////////
 
     Sprite& Sprite::setTexture(const Texture2D& texture, const bool updateSize)
     {
-        m_material.setMap(Material::Map::Diffuse, texture);
+        m_texture = static_ref_cast<const Texture2D>(texture.getReference());
 
         if (updateSize)
             return setSize(texture.getSize());
@@ -78,9 +100,12 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    const Texture* Sprite::getTexture() const
+    const Texture2D& Sprite::getTexture() const
     {
-        return m_material.getMap(Material::Map::Diffuse);
+        if (m_texture.expired())
+            m_texture = static_ref_cast<const Texture2D>(Texture2D::getDefault().getReference());
+
+        return *m_texture;
     }
 
     //////////////////////////////////////////////

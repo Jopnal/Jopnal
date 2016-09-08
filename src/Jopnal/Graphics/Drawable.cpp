@@ -57,7 +57,7 @@ namespace jop
 
 namespace jop
 {
-    Drawable::ProjectionInfo::ProjectionInfo(const glm::mat4 & view, const glm::mat4& proj, const glm::vec3 & camPos)
+    Drawable::ProjectionInfo::ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos)
         : viewMatrix        (view),
           projectionMatrix  (proj),
           cameraPosition    (camPos)
@@ -65,43 +65,43 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass)
-        : Component             (object, 0),
-          m_color               (),
-          m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_shader              (),
-          m_attributes          (0),
-          m_rendererRef         (renderer),
-          m_pass                (pass),
-          m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0)
+    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+        : CullerComponent   (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable, cull),
+          m_color           (),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (renderer),
+          m_pass            (pass),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup     (0)
     {
         renderer.bind(this, pass);
     }
 
-    Drawable::Drawable(Object& object, RenderPass& pass)
-        : Component             (object, 0),
-          m_color               (),
-          m_model               (Mesh::getDefault(), Material::getDefault()),
-          m_shader              (),
-          m_attributes          (0),
-          m_rendererRef         (pass.getRenderer()),
-          m_pass                (pass.getPass()),
-          m_flags               (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup         (0)
+    Drawable::Drawable(Object& object, RenderPass& pass, const bool cull)
+        : CullerComponent   (object, pass.getRenderer().getCullingWorld(), CullerComponent::Type::Drawable, cull),
+          m_color           (),
+          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_shader          (),
+          m_attributes      (0),
+          m_rendererRef     (pass.getRenderer()),
+          m_pass            (pass.getPass()),
+          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup     (0)
     {
         pass.bind(this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component             (other, newObj),
-          m_color               (other.m_color),
-          m_model               (other.m_model),
-          m_shader              (other.m_shader),
-          m_rendererRef         (other.m_rendererRef),
-          m_pass                (other.m_pass),
-          m_renderGroup         (other.m_renderGroup),
-          m_flags               (other.m_flags)
+        : CullerComponent   (other, newObj),
+          m_color           (other.m_color),
+          m_model           (other.m_model),
+          m_shader          (other.m_shader),
+          m_rendererRef     (other.m_rendererRef),
+          m_pass            (other.m_pass),
+          m_renderGroup     (other.m_renderGroup),
+          m_flags           (other.m_flags)
     {
         m_rendererRef.bind(this, m_pass);
     }
@@ -125,25 +125,18 @@ namespace jop
         {
             auto& shdr = getShader();
             auto& modelMat = getObject()->getTransform().getMatrix();
+            const auto VMMatrix = proj.viewMatrix * modelMat;
 
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
-            shdr.setUniform("a_MMatrix", modelMat);
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * VMMatrix);
 
-            //const auto MM = Mesh::VertexIndex::ModelMatrix;
-            //
-            //glCheck(glVertexAttrib4fv(MM + 0, glm::value_ptr(modelMat[0])));
-            //glCheck(glVertexAttrib4fv(MM + 1, glm::value_ptr(modelMat[1])));
-            //glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
-            //glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
-
-            if (mat.hasAttribute(Material::Attribute::__Lighting))
+            if (mat.getAttributes() & Material::LightingAttribs)
             {
-                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-                lights.sendToShader(shdr, *this);
+                shdr.setUniform("u_VMMatrix", VMMatrix);
+                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(VMMatrix))));
+                lights.sendToShader(shdr, *this, proj.viewMatrix);
             }
 
-            mat.sendToShader(shdr, &proj.cameraPosition);
+            mat.sendToShader(shdr);
 
             if (!mesh.hasVertexComponent(Mesh::Color))
             {
@@ -277,42 +270,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setAttributes(const uint64 attributes)
-    {
-        m_attributes = attributes;
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::addAttributes(const uint64 attributes)
-    {
-        return setAttributes(m_attributes | attributes);
-    }
-
-    //////////////////////////////////////////////
-
     uint64 Drawable::getAttributes() const
     {
         return m_attributes;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::hasAttribute(const uint64 attribute) const
-    {
-        return (m_attributes & attribute) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    void Drawable::getShaderPreprocessorDef(const uint64 attribs, std::string& str)
-    {
-        if (attribs & Attribute::__SkyBox)
-            str += "#define JDRW_SKYBOX\n";
-
-        if (attribs & Attribute::__SkySphere)
-            str += "#define JDRW_SKYSPHERE\n";
     }
 
     //////////////////////////////////////////////
@@ -351,5 +311,20 @@ namespace jop
     bool Drawable::hasOverrideShader() const
     {
         return !m_shader.expired();
+    }
+
+    //////////////////////////////////////////////
+
+    std::string Drawable::getShaderPreprocessorDef(const uint64 attributes)
+    {
+        std::string str;
+
+        if (attributes & Attribute::__SkyBox)
+            str += "#define JDRW_SKYBOX\n";
+
+        if (attributes & Attribute::__SkySphere)
+            str += "#define JDRW_SKYSPHERE\n";
+
+        return str;
     }
 }

@@ -28,6 +28,7 @@
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
+#include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <glm/vec2.hpp>
 #include <vector>
 #include <array>
@@ -53,19 +54,6 @@ namespace jop
         friend class Renderer;
 
     public:
-
-        /// The shadow map faces
-        ///
-        enum class DepthFace
-        {
-            Right,
-            First = Right,
-            Left,
-            Top,
-            Bottom,
-            Back,
-            Front
-        };
         
         /// The light type
         ///
@@ -132,10 +120,11 @@ namespace jop
         /// This can be an expensive function, do not call frequently.
         ///
         /// \param castShadows True to cast shadows
+        /// \param resolution The shadow map resolution, glm::uvec2(0) to use the default
         ///
         /// \return Reference to self
         ///
-        LightSource& setCastShadows(const bool castShadows);
+        LightSource& setCastShadows(const bool castShadows, const glm::uvec2& resolution = glm::uvec2(0));
 
         /// \brief Check if this light casts shadows
         ///
@@ -153,7 +142,7 @@ namespace jop
         ///
         /// \return Reference to the matrix
         ///
-        const glm::mat4& getLightspaceMatrix(const DepthFace face = DepthFace::First) const;
+        const glm::mat4& getLightspaceMatrix(const Cubemap::Face face = Cubemap::Face::First) const;
 
         /// \brief Get the shadow map
         ///
@@ -353,8 +342,9 @@ namespace jop
         ///
         /// \param shader The shader to send the lights to
         /// \param drawable The drawable
+        /// \param viewMatrix The current view matrix
         ///
-        void sendToShader(ShaderProgram& shader, const Drawable& drawable) const;
+        void sendToShader(ShaderProgram& shader, const Drawable& drawable, const glm::mat4& viewMatrix) const;
 
         /// \brief Access the individual containers for each light type
         ///

@@ -25,7 +25,6 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/SubSystem.hpp>
-#include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Shader.hpp>
 #include <unordered_map>
 #include <mutex>

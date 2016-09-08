@@ -52,11 +52,11 @@ namespace jop
 
         /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
         ///
-        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
 
         /// \copydoc Drawable::Drawable(Object&, RenderPass&)
         ///
-        AnimatedSprite(Object& object, RenderPass& pass);
+        AnimatedSprite(Object& object, RenderPass& pass, const bool cull = true);
 
         /// \brief Destructor
         ///

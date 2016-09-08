@@ -318,6 +318,7 @@ namespace jop
 
         GlState::setFaceCull(true);
         GlState::setSeamlessCubemap(true);
+        glCheck(glEnable(GL_SCISSOR_TEST));
     }
 
     //////////////////////////////////////////////

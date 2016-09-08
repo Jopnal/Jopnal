@@ -49,14 +49,15 @@ namespace jop
 {
     Scene::Scene(const std::string& ID)
         : Object            (ID),
-          m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget())),
+          m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget(), *this)),
           m_worlds          (nullptr, nullptr),
-          m_deltaScale      (1.f)
+          m_deltaScale      (1.f),
+          m_cullingWorld    (*this, *m_renderer)
     {}
 
     Scene::~Scene()
     {
-        // Child objects need to be deinitialized before the renderer
+        // Child objects need to be deinitialized before the renderer & culling world
         Object::clearChildren();
         Object::clearComponents();
     }
@@ -121,7 +122,10 @@ namespace jop
                 Object::update(dt);
 
             if (Engine::getState() == Engine::State::Running)
+            {
                 postUpdate(dt);
+                m_cullingWorld.update(1.f / 60.f);
+            }
         }
     }
 

@@ -43,16 +43,16 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, false),
           m_mesh        (""),
-          m_material    ("", false)
+          m_material    ("")
     {
-        m_material.setAttributes(Material::Attribute::DiffuseMap);
+        m_material.setMap(Material::Map::Diffuse0, Texture2D::getDefault());
         m_mesh.load(radius, 20, true);
 
         setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
-        addAttributes(Attribute::__SkySphere);
+        m_attributes |= Attribute::__SkySphere;
 
         setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }
@@ -76,10 +76,9 @@ namespace jop
 
         // Uniforms
         {
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * glm::mat4(glm::mat3(proj.viewMatrix)));
 
-            mat.sendToShader(shdr, &proj.cameraPosition);
+            mat.sendToShader(shdr);
 
             glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }
@@ -97,7 +96,7 @@ namespace jop
 
     SkySphere& SkySphere::setMap(const Texture2D& map)
     {
-        m_material.setMap(Material::Map::Diffuse, map);
+        m_material.setMap(Material::Map::Diffuse0, map);
 
         return *this;
     }
@@ -106,6 +105,6 @@ namespace jop
 
     const Texture* SkySphere::getMap() const
     {
-        return m_material.getMap(Material::Map::Diffuse);
+        return m_material.getMap(Material::Map::Diffuse0);
     }
 }

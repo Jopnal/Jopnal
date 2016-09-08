@@ -24,16 +24,11 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
-    #include <Jopnal/Physics/Shape/CylinderShape.hpp>
+    #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/STL.hpp>
-
-    #pragma warning(push)
-    #pragma warning(disable: 4127)
-
-    #include <btBulletCollisionCommon.h>
-
-    #pragma warning(pop)
+    #include <BulletCollision/CollisionShapes/btEmptyShape.h>
 
 #endif
 
@@ -42,17 +37,36 @@
 
 namespace jop
 {
-    CylinderShape::CylinderShape(const std::string& name)
-        : CollisionShape(name)
-    {}
-
-    //////////////////////////////////////////////
-
-    bool CylinderShape::load(const glm::vec3& extents)
+    namespace detail
     {
-        m_shape = std::make_unique<btCylinderShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
-        m_shape->setUserPointer(this);
-        static_cast<btCylinderShape&>(*m_shape) = btCylinderShape(btVector3(extents.x, extents.y, extents.z) * 0.5f);
-        return true;
+        class DummyShape : public CollisionShape
+        {
+        public:
+
+            DummyShape()
+                : CollisionShape("")
+            {
+                m_shape = std::make_unique<btEmptyShape>();
+            }
+        };
+
+        DummyShape& getDummyShape()
+        {
+            static DummyShape shape;
+            return shape;
+        }
+    }
+
+    CullerComponent::CullerComponent(Object& object, World& world, const Type type, const bool cull)
+        : PhantomBody   (object, world, detail::getDummyShape(), cull),
+          m_type        (type)
+    {
+
+    }
+
+    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj)
+        : PhantomBody   (other, newObj),
+          m_type        (other.m_type)
+    {
     }
 }

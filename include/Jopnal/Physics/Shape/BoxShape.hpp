@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API BoxShape final : public CollisionShape
+    class JOP_API BoxShape : public CollisionShape
     {
     public:
 

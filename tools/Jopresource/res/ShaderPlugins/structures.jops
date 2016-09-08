@@ -1,0 +1,88 @@
+// Jopnal lighting structures shader plugin file
+//
+// Jopnal license applies.
+
+// Structures used in lighting
+//
+#plugin <Jopnal/DefaultLighting/Structures>
+
+    // Material
+	struct Material
+    {
+        vec4 ambient;
+        vec4 diffuse;
+        vec4 specular;
+        vec4 emission;
+    
+        float shininess;
+        float reflectivity;
+    };
+
+	// Point lights
+    struct PointLightInfo
+    {
+		// Is this light enabled? Only used on GLES 2.0
+        bool enabled;
+
+        // Position
+        vec3 position;
+
+        // Intensities
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+
+        // Attenuation
+        // x = constant
+        // y = linear
+        // z = quadratic
+        vec3 attenuation;
+
+        // Shadow map info
+        bool castShadow;    ///< Cast shadows?
+        float farPlane;     ///< The light's far plane
+    };
+
+	// Spot lights
+    struct SpotLightInfo
+    {
+        bool enabled;
+
+        vec3 position;
+
+        // Direction
+        vec3 direction;
+
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+
+        vec3 attenuation;
+
+        // Cutoff
+        // x = inner
+        // y = outer
+        vec2 cutoff;
+
+        bool castShadow;
+        mat4 lsMatrix;
+    };
+
+	// Directional lights
+    struct DirectionalLightInfo
+    {
+        bool enabled;
+
+        vec3 direction;
+
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+
+        // No attenuation for directional lights
+
+        bool castShadow;
+        mat4 lsMatrix;
+    };
+
+#pluginend

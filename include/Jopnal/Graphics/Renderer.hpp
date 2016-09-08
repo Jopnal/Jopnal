@@ -24,7 +24,9 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Core/Object.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Physics/World.hpp>
 #include <Jopnal/STL.hpp>
 #include <map>
 #include <array>
@@ -61,7 +63,7 @@ namespace jop
         ///
         /// \param mainTarget Reference to the main render target
         ///
-        Renderer(const RenderTarget& mainTarget);
+        Renderer(const RenderTarget& mainTarget, Scene& sceneRef);
 
 
         /// \brief Get the bound render target
@@ -120,6 +122,10 @@ namespace jop
         ///
         void draw(const RenderPass::Pass pass);
 
+        /// \brief Get the culling world
+        ///
+        World& getCullingWorld();
+
     private:
 
         void bind(const LightSource* light);
@@ -145,6 +151,7 @@ namespace jop
         PassContainer m_passes;                                 ///< Render passes
         std::set<const EnvironmentRecorder*> m_envRecorders;    ///< The bound environment recorders
         const RenderTarget& m_target;                           ///< Main render target reference
+        Scene& m_sceneRef;
     };
 
     // Include template implementation file
