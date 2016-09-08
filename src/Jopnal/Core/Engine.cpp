@@ -69,11 +69,9 @@ namespace
             return reinterpret_cast<const char*>(glGetString(e));
         };
 
-        std::lock_guard<std::recursive_mutex> lock(DebugHandler::getInstance().getMutex());
-        auto& deb = DebugHandler::getInstance();
+        std::ostringstream deb;
 
-        deb << DebugHandler::Severity::__Always
-            << "        OpenGL initialized, adapter info:\n\n"
+        deb << "        OpenGL initialized, adapter info:\n\n"
             << "    Vendor:       " << getStr(GL_VENDOR)                    << "\n"
             << "    Renderer:     " << getStr(GL_RENDERER)                  << "\n"
             << "    Version:      " << getStr(GL_VERSION)                   << "\n"
@@ -128,7 +126,7 @@ namespace
         #endif
         }
 
-        deb << DebugHandler::Severity::__Always << std::endl;
+        DebugHandler::getInstance() << DebugHandler::Severity::__Always << deb.str() << std::endl;
     }
 }
 

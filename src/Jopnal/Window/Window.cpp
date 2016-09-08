@@ -73,18 +73,20 @@ namespace
 
     struct jop_DefaultEventHandler : jop::WindowEventHandler
     {
-        explicit jop_DefaultEventHandler(jop::Window& w) : jop::WindowEventHandler(w){}
-        void closed() override {jop::Engine::exit();}
+        explicit jop_DefaultEventHandler(jop::Window& w)
+            : jop::WindowEventHandler(w)
+        {}
 
-    #ifdef JOP_OS_ANDROID
+        void closed() override
+        {
+            jop::Engine::exit();
+        }
 
         void keyPressed(const int key, const int, const int)
         {
             if (key == jop::Keyboard::Escape)
                 closed();
         }
-
-    #endif
     };
 
     const char* const ns_settingStr[] =

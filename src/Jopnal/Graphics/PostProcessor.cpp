@@ -145,7 +145,7 @@ namespace jop
 
         // Tone mapping
         {
-            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Tonemapping|bEnabled", Function::ToneMap, !gl::es);
+            static const FunctionEnabler enabler("engine@Graphics|Postprocessor|Tonemapping|bEnabled", Function::ToneMap, false);
         }
 
         // Bloom

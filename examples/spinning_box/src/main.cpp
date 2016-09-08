@@ -6,23 +6,23 @@ class MyScene : public jop::Scene
 {
 private:
 
-    // Reference to out box object. This will be filled in the constructor.
+    // Reference to our box object. This will be filled in the constructor.
     jop::WeakReference<jop::Object> m_object;
 
 public:
 
     MyScene()
-        : jop::Scene("MyScene"),
-          m_object()
+        : jop::Scene    ("MyScene"),
+          m_object      ()
     {
-        // Create a camera object. If you don't do this, nothing will be drawn. The camera
+        // Create a Camera object. If you don't do this, nothing will be drawn. The camera
         // will, by default, be positioned at [0,0,0] and it'll point directly at [0,0,-1].
         createChild("cam")->createComponent<jop::Camera>(getRenderer(), jop::Camera::Projection::Perspective);
 
-        // Let's create our box object and store its reference
+        // Let's create our box object and store its reference.
         m_object = createChild("box");
 
-        // Create a GenericDrawable component. This will actually add the functionality for drawing the box.
+        // Create a Drawable component. This will actually add the functionality for drawing the box.
         // We don't need to do anything else here, as the default mesh, material and shader will be used
         // automatically.
         m_object->createComponent<jop::Drawable>(getRenderer());
@@ -32,7 +32,7 @@ public:
         m_object->setPosition(0.f, 0.f, -2.5f);
     }
 
-    // Pre-update will be called before objects are updated
+    // Pre-update will be called before objects are updated.
     void preUpdate(const float deltaTime) override
     {
         // Rotate our object by its X and Y axes. Don't forget to multiply by the delta time.
@@ -43,12 +43,12 @@ public:
 // Standard main() can be used, as long as jopnal-main.lib has been linked.
 int main(int argc, char* argv[])
 {
-    // Initialize the engine
+    // Initialize the engine.
     JOP_ENGINE_INIT("spinning_box_example", argc, argv);
 
-    // Create our scene
+    // Create our scene.
     jop::Engine::createScene<MyScene>();
 
-    // Finally run the main loop. The program can be closed by clicking the window red X button.
+    // Finally run the main loop. The program can be closed with alt + F4 or with the escape button.
     return JOP_MAIN_LOOP;
 }
