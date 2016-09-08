@@ -237,7 +237,7 @@ namespace jop
         soundBuf.m_info.format = SoundBuffer::AudioFormat::wav;
         soundBuf.m_info.channelCount = wavData.channels;
         soundBuf.m_info.sampleCount = wavData.totalSampleCount;
-		soundBuf.m_info.firstSample = wavData.memoryStream.currentReadPos;
+        soundBuf.m_info.firstSample = wavData.memoryStream.currentReadPos;
         soundBuf.m_info.sampleRate = wavData.sampleRate;
         soundBuf.m_duration = static_cast<float>(soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount);
 
@@ -269,7 +269,7 @@ namespace jop
 
         soundBuf.m_info.channelCount = oggInfo->channels;
         soundBuf.m_info.sampleRate = oggInfo->rate;
-		soundBuf.m_info.firstSample = oggData.offset;
+        soundBuf.m_info.firstSample = oggData.offset;
         soundBuf.m_info.sampleCount = static_cast<std::size_t>(ov_pcm_total(&oggData, -1) * oggInfo->channels);
         soundBuf.m_duration = static_cast<float>(soundBuf.m_info.sampleCount / soundBuf.m_info.sampleRate / soundBuf.m_info.channelCount);
 
@@ -320,7 +320,7 @@ namespace jop
             
             return false;
         }
-		ov_time_seek(&oggData, *static_cast<float*>(offset));
+        ov_time_seek(&oggData, *static_cast<float*>(offset));
 
         uint64 count = 0;
         std::vector<char> samplesReaded;
@@ -335,8 +335,8 @@ namespace jop
                 count += bytesRead / sizeof(int16);
                 soundBuf.m_samples.insert(soundBuf.m_samples.end(), samplesReaded.begin(), samplesReaded.begin() + bytesRead);
             }
-			else if (bytesRead == 0)
-				break;
+            else if (bytesRead == 0)
+                break;
 
             else
             {
@@ -346,7 +346,7 @@ namespace jop
 
         }
 
-		*static_cast<float*>(offset) = static_cast<float>(ov_time_tell(&oggData));
+        *static_cast<float*>(offset) = static_cast<float>(ov_time_tell(&oggData));
         soundBuf.m_info.sampleCount = soundBuf.m_samples.size();
         ov_clear(&oggData);
 

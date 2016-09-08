@@ -327,7 +327,7 @@ namespace jop
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
-		setGravity(glm::vec3(0.f, gravity, 0.f));
+        setGravity(glm::vec3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
         setDefaultBroadphaseCallback();
         m_worldData->world->setWorldUserInfo(this);

@@ -7,7 +7,7 @@
 #plugin <Jopnal/DefaultLighting/Structures>
 
     // Material
-	struct Material
+    struct Material
     {
         vec4 ambient;
         vec4 diffuse;
@@ -18,10 +18,10 @@
         float reflectivity;
     };
 
-	// Point lights
+    // Point lights
     struct PointLightInfo
     {
-		// Is this light enabled? Only used on GLES 2.0
+        // Is this light enabled? Only used on GLES 2.0
         bool enabled;
 
         // Position
@@ -43,7 +43,7 @@
         float farPlane;     ///< The light's far plane
     };
 
-	// Spot lights
+    // Spot lights
     struct SpotLightInfo
     {
         bool enabled;
@@ -68,7 +68,7 @@
         mat4 lsMatrix;
     };
 
-	// Directional lights
+    // Directional lights
     struct DirectionalLightInfo
     {
         bool enabled;

@@ -87,8 +87,8 @@ namespace jop
           m_attributes      (),
           m_shininess       (1.f),
           m_maps            (),
-		  m_shader		    (),
-		  m_updateShader    (true)
+          m_shader            (),
+          m_updateShader    (true)
     {}
 
     Material::Material(const Material& other, const std::string& newName)
@@ -276,7 +276,7 @@ namespace jop
         return ((m_attributes & LightingAttribs) && (ref[0].alpha * ref[1].alpha * ref[2].alpha < 1.f)) ||
                ((m_attributes & (1ull << castEnum(Map::Opacity))) && getMap(Map::Opacity))              ||
                ((m_attributes & (1ull << castEnum(Map::Diffuse0))) && getMap(Map::Diffuse0) && getMap(Map::Diffuse0)->getPixelDepth() > 3);
-	}
+    }
 
     //////////////////////////////////////////////
 
@@ -293,15 +293,15 @@ namespace jop
         return *defMat;
     }
 
-	//////////////////////////////////////////////
+    //////////////////////////////////////////////
 
-	ShaderProgram& Material::getShader() const
-	{
-		if (m_updateShader || m_shader.expired())
-		{
-			m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getAttributes()).getReference());
-			m_updateShader = false;
-		}
+    ShaderProgram& Material::getShader() const
+    {
+        if (m_updateShader || m_shader.expired())
+        {
+            m_shader = static_ref_cast<ShaderProgram>(ShaderAssembler::getShader(getAttributes()).getReference());
+            m_updateShader = false;
+        }
 
         return *m_shader;
     }

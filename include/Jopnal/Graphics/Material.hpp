@@ -289,11 +289,11 @@ namespace jop
         ///
         bool hasAlpha() const;
 
-		/// \brief Get the shader for this material
-		///
-		/// \return Reference to the shader
-		///
-		ShaderProgram& getShader() const;
+        /// \brief Get the shader for this material
+        ///
+        /// \return Reference to the shader
+        ///
+        ShaderProgram& getShader() const;
 
         /// \brief Get the internal attribute field
         ///
@@ -317,13 +317,13 @@ namespace jop
         static std::string getShaderPreprocessorDef(const uint64 attributes);
 
 
-		std::array<Color, 4> m_reflection;				///< The reflection values
-		MapArray m_maps;								///< An array with the bound maps
-		mutable WeakReference<ShaderProgram> m_shader;	///< Shader
-		uint64 m_attributes;							///< The attribute bit field
-		float m_reflectivity;							///< The reflectivity value
-		float m_shininess;								///< The shininess factor
-		mutable bool m_updateShader;				    ///< Does the shader need updating?
+        std::array<Color, 4> m_reflection;              ///< The reflection values
+        MapArray m_maps;                                ///< An array with the bound maps
+        mutable WeakReference<ShaderProgram> m_shader;  ///< Shader
+        uint64 m_attributes;                            ///< The attribute bit field
+        float m_reflectivity;                           ///< The reflectivity value
+        float m_shininess;                              ///< The shininess factor
+        mutable bool m_updateShader;                    ///< Does the shader need updating?
     };
 }
 
