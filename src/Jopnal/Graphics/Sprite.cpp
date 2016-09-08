@@ -26,7 +26,12 @@
 
     #include <Jopnal/Graphics/Sprite.hpp>
 
+    #include <Jopnal/Core/Object.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
+    #include <Jopnal/Graphics/ShaderAssembler.hpp>
+    #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
 
 #endif
 
@@ -63,7 +68,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Sprite::draw(const ProjectionInfo& proj, const LightContainer& lights) const
+    void Sprite::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
         // Uniforms
         {
@@ -72,23 +77,10 @@ namespace jop
             auto& shdr = getShader();
             auto& modelMat = getObject()->getTransform().getMatrix();
 
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
-            shdr.setUniform("a_MMatrix", modelMat);
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * proj.viewMatrix * modelMat);
             shdr.setUniform("u_DiffuseMap", tex, static_cast<unsigned int>(Material::Map::Diffuse0));
 
             glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
-
-        #ifdef JOP_DEBUG_MODE
-
-            {
-                static const DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
-
-                if (validateSetting.value && !shdr.validate())
-                    return;
-            }
-
-        #endif
         }
 
         m_mesh.draw();

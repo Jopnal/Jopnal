@@ -75,7 +75,7 @@
             diffuse = diff * l.diffuse * vec3(u_Material.diffuse);
 
             // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_Position);
+            vec3 viewDir = normalize(-vf_Position);
 
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);
@@ -146,7 +146,7 @@
             diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
 
             // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_Position);
+            vec3 viewDir = normalize(-vf_Position);
 
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);
@@ -227,7 +227,7 @@
             diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
 
             // Direction from fragment to eye
-            vec3 viewDir = normalize(u_CameraPosition - vf_Position);
+            vec3 viewDir = normalize(-vf_Position);
 
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);

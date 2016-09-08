@@ -35,9 +35,6 @@ uniform bool u_ReceiveLights;
 // Does the object receive shadows?
 uniform bool u_ReceiveShadows;
 
-// Camera position
-uniform vec3 u_CameraPosition;
-
 // Vertex attribute data
 JOP_VARYING_IN vec3 vf_Position;
 JOP_VARYING_IN vec2 vf_TexCoords;
@@ -72,7 +69,7 @@ void main()
 
     #ifdef JMAT_ENVIRONMENTMAP
 
-        vec3 refl = vec3(JOP_TEXTURE_CUBE(u_EnvironmentMap, reflect(normalize(vf_Position - u_CameraPosition), normalize(vf_Normal))))
+        vec3 refl = vec3(JOP_TEXTURE_CUBE(u_EnvironmentMap, reflect(normalize(vf_Position), normalize(vf_Normal))))
 
         #ifdef JMAT_REFLECTIONMAP
             * JOP_TEXTURE_2D(u_ReflectionMap, vf_TexCoords).a

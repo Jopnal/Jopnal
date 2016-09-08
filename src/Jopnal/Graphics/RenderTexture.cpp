@@ -627,7 +627,7 @@ namespace jop
 
             for (std::size_t i = 0; i < m_attachments.size(); ++i)
             {
-                auto& att = m_attachments[i];
+                auto att = &m_attachments[i];
 
             #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 
@@ -646,13 +646,13 @@ namespace jop
 
             #endif
 
-                if (std::get<0>(att))
+                if (std::get<0>(*att))
                 {
-                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_RENDERBUFFER, std::get<0>(att)));
+                    glCheck(glFramebufferRenderbuffer(GL_FRAMEBUFFER, ns_attachmentPoint[i], GL_RENDERBUFFER, std::get<0>(*att)));
                 }
-                else if (std::get<1>(att) && std::get<1>(att)->isValid())
+                else if (std::get<1>(*att) && std::get<1>(*att)->isValid())
                 {
-                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[i], std::get<2>(att) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D, std::get<1>(att)->getHandle(), 0));
+                    glCheck(glFramebufferTexture2D(GL_FRAMEBUFFER, ns_attachmentPoint[i], std::get<2>(*att) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D, std::get<1>(*att)->getHandle(), 0));
                 }
             }
 

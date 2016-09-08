@@ -177,9 +177,8 @@ namespace jop
         /// \brief Send this material to a shader
         ///
         /// \param shader Reference to the shader to send this material to
-        /// \param camPos The camera position, may be nullptr
         ///
-        void sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const;
+        void sendToShader(ShaderProgram& shader) const;
 
         /// \brief Set the lighting model
         ///

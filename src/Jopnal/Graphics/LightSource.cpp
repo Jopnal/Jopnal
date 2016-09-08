@@ -37,6 +37,7 @@
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
     #include <Jopnal/Utility/Assert.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
@@ -136,7 +137,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    LightSource& LightSource::setCastShadows(const bool castShadows, const glm::uvec2& resolution)
+    LightSource& LightSource::setCastShadows(const bool castShadows, const glm::uvec2& /*resolution*/)
     {
         if (castsShadows() != castShadows)
         {/*
@@ -491,7 +492,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void LightContainer::sendToShader(ShaderProgram& shader, const Drawable& drawable) const
+    void LightContainer::sendToShader(ShaderProgram& shader, const Drawable& drawable, const glm::mat4& viewMatrix) const
     {
         const bool receiveLights = drawable.hasFlag(Drawable::ReceiveLights);
         const bool receiveShadows = drawable.hasFlag(Drawable::ReceiveShadows);
@@ -617,7 +618,7 @@ namespace jop
                 auto& cache = strCache[static_cast<int>(LS::Type::Point)][i];
 
                 // Position
-                shader.setUniform(cache[0], li.getObject()->getGlobalPosition());
+                shader.setUniform(cache[0], glm::vec3(viewMatrix * glm::vec4(li.getObject()->getGlobalPosition(), 1.f)));
 
                 // Intensity
                 shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).colors);
@@ -670,7 +671,7 @@ namespace jop
                 auto& cache = strCache[static_cast<int>(LS::Type::Spot)][i];
 
                 // Position
-                shader.setUniform(cache[0], li.getObject()->getGlobalPosition());
+                shader.setUniform(cache[0], glm::vec3(viewMatrix * glm::vec4(li.getObject()->getGlobalPosition(), 1.f)));
 
                 // Direction
                 shader.setUniform(cache[1], li.getObject()->getGlobalFront());

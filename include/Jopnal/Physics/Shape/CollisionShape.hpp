@@ -25,6 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Resource.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 
 //////////////////////////////////////////////

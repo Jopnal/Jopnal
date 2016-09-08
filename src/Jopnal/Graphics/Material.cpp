@@ -33,6 +33,8 @@
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
+    #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
+    #include <typeinfo>
 
 #endif
 
@@ -41,7 +43,7 @@
 
 namespace
 {
-    template<typename T, typename Ret = std::underlying_type<T>::type>
+    template<typename T, typename Ret = typename std::underlying_type<T>::type>
     inline Ret castEnum(const T map)
     {
         return static_cast<Ret>(map);
@@ -102,7 +104,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Material::sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const
+    void Material::sendToShader(ShaderProgram& shader) const
     {
         if (shader.bind())
         {
@@ -123,10 +125,6 @@ namespace jop
                 /* 12 */ "u_EnvironmentMap",
                 /* 13 */ "u_ReflectionMap"
             };
-
-            // Send camera position to shader
-            if (camPos && (m_attributes & (LightingAttribs | 1ull << castEnum(Map::Environment))))
-                shader.setUniform(strCache[0], *camPos);
 
             if (m_attributes & LightingAttribs)
             {

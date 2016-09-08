@@ -342,8 +342,9 @@ namespace jop
         ///
         /// \param shader The shader to send the lights to
         /// \param drawable The drawable
+        /// \param viewMatrix The current view matrix
         ///
-        void sendToShader(ShaderProgram& shader, const Drawable& drawable) const;
+        void sendToShader(ShaderProgram& shader, const Drawable& drawable, const glm::mat4& viewMatrix) const;
 
         /// \brief Access the individual containers for each light type
         ///

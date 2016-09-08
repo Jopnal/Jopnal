@@ -30,6 +30,7 @@
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Physics/Detail/WorldImpl.hpp>
     #include <Jopnal/Physics/ContactListener.hpp>
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
     #include <Jopnal/Core/DebugHandler.hpp>
 
     #pragma warning(push)

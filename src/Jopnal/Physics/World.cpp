@@ -77,7 +77,7 @@ namespace jop
         {
         private:
 
-            friend class World;
+            friend class ::jop::World;
 
             typedef std::vector<std::pair<btVector3, btVector3>> LineVec;
 

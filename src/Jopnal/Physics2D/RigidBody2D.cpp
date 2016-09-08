@@ -29,6 +29,7 @@
     #include <Jopnal/Core/Object.hpp>   
     #include <Jopnal/Physics2D/World2D.hpp>
     #include <Jopnal/Physics2D/Shape/CompoundShape2D.hpp>
+    #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Box2D/Dynamics/b2Body.h>
     #include <Box2D/Dynamics/b2Fixture.h>
     #include <Box2D/Dynamics/b2World.h>

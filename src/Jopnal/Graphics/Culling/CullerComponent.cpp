@@ -24,6 +24,12 @@
 
 #ifndef JOP_PRECOMPILED_HEADER
 
+    #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
+
+    #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/STL.hpp>
+    #include <BulletCollision/CollisionShapes/btEmptyShape.h>
+
 #endif
 
 //////////////////////////////////////////////

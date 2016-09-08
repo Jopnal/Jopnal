@@ -30,6 +30,7 @@
     #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/Material.hpp>
     #include <cctype>
 
 #endif

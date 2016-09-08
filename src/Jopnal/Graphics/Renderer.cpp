@@ -28,6 +28,7 @@
 
     #include <Jopnal/Core/Engine.hpp>
     #include <Jopnal/Core/Object.hpp>
+    #include <Jopnal/Core/Scene.hpp>
     #include <Jopnal/Graphics/Camera.hpp>
     #include <Jopnal/Graphics/LightSource.hpp>
     #include <Jopnal/Graphics/EnvironmentRecorder.hpp>

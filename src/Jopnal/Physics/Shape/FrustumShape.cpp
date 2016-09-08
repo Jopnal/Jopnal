@@ -26,6 +26,8 @@
 
     #include <Jopnal/Physics/Shape/FrustumShape.hpp>
 
+    #include <glm/gtx/rotate_vector.hpp>
+
 #endif
 
 //////////////////////////////////////////////

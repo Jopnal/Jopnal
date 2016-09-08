@@ -76,10 +76,9 @@ namespace jop
 
         // Uniforms
         {
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * glm::mat4(glm::mat3(proj.viewMatrix)));
 
-            mat.sendToShader(shdr, nullptr);
+            mat.sendToShader(shdr);
 
             glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }

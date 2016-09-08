@@ -125,25 +125,18 @@ namespace jop
         {
             auto& shdr = getShader();
             auto& modelMat = getObject()->getTransform().getMatrix();
+            const auto VMMatrix = proj.viewMatrix * modelMat;
 
-            shdr.setUniform("u_PMatrix", proj.projectionMatrix);
-            shdr.setUniform("u_VMatrix", proj.viewMatrix);
-            shdr.setUniform("a_MMatrix", modelMat);
-
-            //const auto MM = Mesh::VertexIndex::ModelMatrix;
-            //
-            //glCheck(glVertexAttrib4fv(MM + 0, glm::value_ptr(modelMat[0])));
-            //glCheck(glVertexAttrib4fv(MM + 1, glm::value_ptr(modelMat[1])));
-            //glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
-            //glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
+            shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * VMMatrix);
 
             if (mat.getAttributes() & Material::LightingAttribs)
             {
-                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
-                lights.sendToShader(shdr, *this);
+                shdr.setUniform("u_VMMatrix", VMMatrix);
+                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(VMMatrix))));
+                lights.sendToShader(shdr, *this, proj.viewMatrix);
             }
 
-            mat.sendToShader(shdr, &proj.cameraPosition);
+            mat.sendToShader(shdr);
 
             if (!mesh.hasVertexComponent(Mesh::Color))
             {

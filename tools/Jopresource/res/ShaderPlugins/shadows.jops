@@ -33,7 +33,7 @@
                 const float bias = 0.15;
                 const int samples = 20;
 
-                float viewDistance = length(u_CameraPosition - vf_Position);
+                float viewDistance = length(-vf_Position);
                 float diskRadius = (1.0 + (viewDistance / farPlane)) / 25.0;
                 for (int i = 0; i < samples; ++i)
                 {
