@@ -33,7 +33,7 @@ void main()
 	#endif
 					  a_Position).xyz;
     vf_TexCoords    = a_TexCoords;
-    vf_Normal       = u_NMatrix * a_Normal;
+    vf_Normal       = normalize(u_NMatrix * a_Normal);
     vf_Color        = a_Color;
 
     // Calculate and assign position

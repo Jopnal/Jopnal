@@ -148,6 +148,9 @@ namespace jop
             Opacity,
 
             /// The value of this map will be multiplied with the shininess value
+            ///
+            /// Not available when using vertex-based lighting models.
+            ///
             Gloss,
             
             /// For internal use. Never use this

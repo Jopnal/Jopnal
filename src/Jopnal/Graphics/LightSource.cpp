@@ -674,7 +674,7 @@ namespace jop
                 shader.setUniform(cache[0], glm::vec3(viewMatrix * glm::vec4(li.getObject()->getGlobalPosition(), 1.f)));
 
                 // Direction
-                shader.setUniform(cache[1], li.getObject()->getGlobalFront());
+                shader.setUniform(cache[1], glm::normalize(li.getObject()->getGlobalFront()));
 
                 // Intensity
                 shader.setUniform(cache[2], li.getIntensity(LS::Intensity::Ambient).colors);
@@ -730,7 +730,7 @@ namespace jop
                 auto& cache = strCache[static_cast<int>(LS::Type::Directional)][i];
 
                 // Direction
-                shader.setUniform(cache[0], li.getObject()->getGlobalFront());
+                shader.setUniform(cache[0], glm::normalize(li.getObject()->getGlobalFront()));
                 
                 // Intensity
                 shader.setUniform(cache[1], li.getIntensity(LS::Intensity::Ambient).colors);

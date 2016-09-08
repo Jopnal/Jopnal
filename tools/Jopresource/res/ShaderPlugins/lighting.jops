@@ -46,7 +46,7 @@
     #if JMAT_MAX_POINT_LIGHTS > 0
         
         // Point light calculation
-        void jop_CalculatePointLight(const in int index, out vec3 ambient, out vec3 diffuse, out vec3 specular)
+        void jop_CalculatePointLight(const in int index, const in float shininessMult, out vec3 ambient, out vec3 diffuse, out vec3 specular)
         {
             PointLightInfo l = u_PointLights[index];
 
@@ -61,18 +61,8 @@
 
             #endif
 
-            // Ambient impact
-            ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
             // Direction from fragment to light
             vec3 lightDir = normalize(l.position - vf_Position);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            diffuse = diff * l.diffuse * vec3(u_Material.diffuse);
 
             // Direction from fragment to eye
             vec3 viewDir = normalize(-vf_Position);
@@ -80,36 +70,22 @@
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);
 
-            float shininess = max(1.0, u_Material.shininess
+            // Ambient impact
+            ambient = l.ambient * vec3(u_Material.ambient);
 
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
+            // Diffuse impact
+            float diff = max(dot(vf_Normal, lightDir), 0.0);
+            diffuse = diff * l.diffuse * vec3(u_Material.diffuse);
 
             // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
+            float shininess = max(1.0, u_Material.shininess * shininessMult);
+            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(vf_Normal, reflectDir), 0.0), shininess);
+            specular = l.specular * spec * vec3(u_Material.specular);
 
             // Attenuation
             float dist = length(l.position - vf_Position);
             float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
             ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-            {
-                float shadow = jop_CalculatePointShadow(lightDir, l.farPlane, u_PointLightShadowMaps[index]);
-
-                diffuse *= (1.0 - shadow);
-                specular *= (1.0 - shadow);
-            }
         }
 
     #endif
@@ -117,7 +93,7 @@
     #if JMAT_MAX_SPOT_LIGHTS > 0
 
         // Spot light calculation
-        void jop_CalculateSpotLight(const in int index, out vec3 ambient, out vec3 diffuse, out vec3 specular)
+        void jop_CalculateSpotLight(const in int index, const in float shininessMult, out vec3 ambient, out vec3 diffuse, out vec3 specular)
         {
             SpotLightInfo l = u_SpotLights[index];
 
@@ -132,18 +108,8 @@
 
             #endif
 
-            // Ambient impact
-            ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
             // Direction from fragment to light
             vec3 lightDir = normalize(l.position - vf_Position);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
 
             // Direction from fragment to eye
             vec3 viewDir = normalize(-vf_Position);
@@ -151,25 +117,20 @@
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);
 
-            float shininess = max(1.0, u_Material.shininess
+            // Ambient impact
+            ambient = l.ambient * vec3(u_Material.ambient);
 
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
+            // Diffuse impact
+            float diff = max(dot(vf_Normal, lightDir), 0.0);
+            diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
 
             // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
+            float shininess = max(1.0, u_Material.shininess * shininessMult);
+            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(vf_Normal, reflectDir), 0.0), shininess);
+            specular = l.specular * spec * vec3(u_Material.specular);
 
             // Spotlight soft edges
-            float theta = dot(lightDir, normalize(-l.direction));
+            float theta = dot(lightDir, -l.direction);
             float epsilon = (l.cutoff.x - l.cutoff.y);
             float intensity = clamp((theta - l.cutoff.y) / epsilon, 0.0, 1.0);
             ambient *= intensity; diffuse *= intensity; specular *= intensity;
@@ -178,17 +139,6 @@
             float dist = length(l.position - vf_Position);
             float attenuation = 1.0 / (l.attenuation.x + l.attenuation.y * dist + l.attenuation.z * (dist * dist));
             ambient *= attenuation; diffuse *= attenuation; specular *= attenuation;
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-            {
-                vec4 tempCoords = l.lsMatrix * vec4(vf_Position, 1.0);
-
-                float shadow = jop_CalculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, norm, lightDir, u_SpotLightShadowMaps[index]);
-
-                diffuse *= (1.0 - shadow);
-                specular *= (1.0 - shadow);
-            }
         }
 
     #endif
@@ -196,7 +146,7 @@
     #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
 
         // Directional light calculation
-        void jop_CalculateDirectionalLight(const in int index, out vec3 ambient, out vec3 diffuse, out vec3 specular)
+        void jop_CalculateDirectionalLight(const in int index, const in float shininessMult, out vec3 ambient, out vec3 diffuse, out vec3 specular)
         {
             DirectionalLightInfo l = u_DirectionalLights[index];
 
@@ -211,20 +161,10 @@
 
             #endif
 
-            // Ambient impact
-            ambient = l.ambient * vec3(u_Material.ambient);
-
-            // Normal vector
-            vec3 norm = normalize(vf_Normal);
-
             // Direction from light to fragment.
             // Directional light shines infinitely in the same direction,
             // so no need to take fragment position into account
-            vec3 lightDir = normalize(-l.direction);
-
-            // Diffuse impact
-            float diff = max(dot(norm, lightDir), 0.0);
-            diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
+            vec3 lightDir = -l.direction;
 
             // Direction from fragment to eye
             vec3 viewDir = normalize(-vf_Position);
@@ -232,34 +172,20 @@
             // Calculate reflection direction (use a half-way vector)
             vec3 reflectDir = normalize(lightDir + viewDir);
 
-            float shininess = max(1.0, u_Material.shininess
+            // Ambient impact
+            ambient = l.ambient * vec3(u_Material.ambient);
 
-            #ifdef JMAT_GLOSSMAP
-                * JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-            #endif
-            );
+            // Diffuse impact
+            float diff = max(dot(vf_Normal, lightDir), 0.0);
+            diffuse = l.diffuse * diff * vec3(u_Material.diffuse);
 
             // Specular impact
-            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(norm, reflectDir), 0.0), shininess);
-
-            specular = l.specular * spec * vec3(u_Material.specular)
-
-            #ifdef JMAT_SPECULARMAP
-                * vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords))
-            #endif
-            ;
+            float shininess = max(1.0, u_Material.shininess * shininessMult);
+            float spec = (8.0 + shininess) / (8.0 * 3.14159265) * pow(max(dot(vf_Normal, reflectDir), 0.0), shininess);
+            specular = l.specular * spec * vec3(u_Material.specular);
 
             // No attenuation calculations here
             // Directional Light is infinite, Directional Light is eternal
-
-            // Shadow calculation
-            if (l.castShadow && u_ReceiveShadows)
-            {
-                float shadow = jop_CalculateDirSpotShadow(vec3(l.lsMatrix * vec4(vf_Position, 1.0)) * 0.5 + 0.5, norm, lightDir, u_DirectionalLightShadowMaps[index]);
-
-                diffuse *= (1.0 - shadow);
-                specular *= (1.0 - shadow);
-            }
         }
 
     #endif
