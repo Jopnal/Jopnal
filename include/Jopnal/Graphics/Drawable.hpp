@@ -51,6 +51,8 @@ namespace jop
 
         JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
+        friend class ShaderAssembler;
+
     public:
     
         /// Drawable flags
@@ -233,13 +235,6 @@ namespace jop
         ///
         bool hasFlag(const uint32 flag) const;
 
-        /// \brief Get a shader pre-processor string
-        ///
-        /// \param attribs The drawable attributes
-        /// \param str The string to write into
-        ///
-        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
-
         /// \brief Get the current shader
         ///
         /// \return Reference to the shader
@@ -266,48 +261,28 @@ namespace jop
         ///
         bool hasOverrideShader() const;
 
-        /// \brief Check if this drawable has a certain attribute
+        /// \copydoc Material::getAttributes()
         ///
-        /// \param attribute The attribute to check
-        ///
-        /// \return True if this drawable has the attribute
-        ///
-        bool hasAttribute(const uint64 attribute) const;
+        uint64 getAttributes() const;
 
 	protected:
-
-		/// \brief Set attributes
-		///
-		/// \param attributes The attributes to set
-		///
-		/// \return Reference to self
-		///
-		Drawable& setAttributes(const uint64 attributes);
-
-		/// \brief Add attributes
-		///
-		/// \param attributes The attributes to add
-		///
-		/// \return Reference to self
-		///
-		Drawable& addAttributes(const uint64 attributes);
-
-		/// \brief Get the attribute field
-		///
-		/// \return The attribute field
-		///
-		uint64 getAttributes() const;
 
         /// \copydoc Component::receiveMessage()
         ///
         virtual Message::Result receiveMessage(const Message& message) override;
 
+    protected:
+
+        uint64 m_attributes;                            ///< Attribute flags
+
     private:
+
+        static std::string getShaderPreprocessorDef(const uint64 attributes);
+
 
         Color m_color;                                  ///< Color specific to this drawable
         Model m_model;                                  ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader (override)
-        uint64 m_attributes;                            ///< Attribute flags
         Renderer& m_rendererRef;                        ///< Reference to the renderer
         const RenderPass::Pass m_pass;                  ///< The render pass
         uint32 m_flags;                                 ///< Property flags

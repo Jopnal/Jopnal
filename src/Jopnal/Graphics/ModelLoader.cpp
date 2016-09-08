@@ -128,7 +128,8 @@ namespace jop
 
                 for (auto& mat : doc["materials"])
                 {
-                    auto& m = ResourceManager::getEmpty<Material>("jop_material_" + getHex(), true);
+                    auto& m = ResourceManager::getEmpty<Material>("jop_material_" + getHex());
+                    m.setLightingModel(Material::LightingModel::Default);
 
                     if (mat.HasMember("reflection") && mat["reflection"].IsArray() && mat["reflection"].Size() >= 16)
                     {

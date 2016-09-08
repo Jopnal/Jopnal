@@ -52,6 +52,10 @@ namespace jop
         Sprite(Object& object, RenderPass& pass, const bool cull = true);
 
 
+        /// \copydoc Drawable::draw()
+        ///
+        virtual void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
+
         /// \brief Set the texture
         ///
         /// \param texture The texture to bind
@@ -63,9 +67,9 @@ namespace jop
 
         /// \brief Get the texture
         ///
-        /// \return Pointer to the texture. nullptr if none bound
+        /// \return Reference to the texture
         ///
-        const Texture* getTexture() const;
+        const Texture2D& getTexture() const;
 
         /// \brief Set the size
         ///
@@ -83,8 +87,8 @@ namespace jop
 
     private:
 
-        Material m_material;    ///< Material
-        RectangleMesh m_mesh;   ///< Mesh
+        mutable WeakReference<const Texture2D> m_texture;   ///< Texture
+        RectangleMesh m_mesh;                               ///< Mesh
     };
 }
 

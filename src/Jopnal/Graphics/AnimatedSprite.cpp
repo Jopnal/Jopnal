@@ -40,7 +40,7 @@ namespace jop
         : Drawable          (object, renderer, pass, cull),
           m_atlas           (),
           m_mesh            (""),
-          m_material        ("", true),
+          m_material        (""),
           m_animationRange  (),
           m_frameTime       (0.f),
           m_timer           (0.f),
@@ -55,7 +55,7 @@ namespace jop
         : Drawable          (object, pass, cull),
           m_atlas           (),
           m_mesh            (""),
-          m_material        ("", true),
+          m_material        (""),
           m_animationRange  (),
           m_frameTime       (0.f),
           m_timer           (0.f),
@@ -136,7 +136,7 @@ namespace jop
     AnimatedSprite& AnimatedSprite::setAtlas(const AnimationAtlas& atlas)
     {
         m_atlas = static_ref_cast<const AnimationAtlas>(atlas.getReference());
-        m_material.setMap(Material::Map::Diffuse, atlas.getTexture());
+        m_material.setMap(Material::Map::Diffuse0, atlas.getTexture());
 
         const auto coords = m_atlas->getCoordinates(0);
         m_mesh.load(m_atlas->getFrameSize().x, coords.first, coords.second);

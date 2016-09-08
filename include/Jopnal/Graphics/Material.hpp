@@ -45,78 +45,69 @@ namespace jop
 
         Material(const Material& other, const std::string& newName);
 
+        friend class ShaderAssembler;
+
     public:
 
-        /// Bit values to describe a material's attributes
-        ///
-        struct Attribute
+        enum class LightingModel : uint64
         {
-            enum : uint64
-            {
-                /// No attributes, use this if you only want to use
-                /// Drawable::setColor()
-                None            = 0,
+            None        = 0ull, ///< No lighting
 
-                // Maps
+            /// Vertex-base lighting. Lighting is calculated for each vertex
+            /// before interpolating it for each pixel.
+            ///
+            /// This model is much faster on GPU's where pixel fill rate is
+            /// the bottleneck.
+            ///
+            /// This model is the default for mobile.
+            ///
+            Gouraud     = 1ull << 63,
 
-                DiffuseMap      = 1 << 1,   ///< \see Map::Diffuse
-                SpecularMap     = 1 << 2,   ///< \see Map::Specular
-                EmissionMap     = 1 << 3,   ///< \see Map::Emission
-                EnvironmentMap  = 1 << 4,   ///< \see Map::Environment
-                ReflectionMap   = 1 << 5,   ///< \see Map::Reflection
-                OpacityMap      = 1 << 6,   ///< \see Map::Opacity
-                GlossMap        = 1 << 7,   ///< \see Map::Gloss
+            /// Flat lighting, disables normal interpolation between vertices,
+            /// which results in a single polygon having a uniform color.
+            ///
+            /// \warning Not available on GLES 2.0, Gouraud model will be used instead
+            ///
+            Flat        = Gouraud | Gouraud >> 1,
 
-                // Lighting models
+            /// Fragment-based phong lighting model. The lighting value
+            /// is calculated for each pixel individually.
+            ///
+            /// This is the most expensive lighting model, and thus is not
+            /// recommended to be used in mobile environments.
+            ///
+            /// \see Gouraud
+            ///
+            Phong       = Gouraud >> 2,
 
-                /// Fragment-based phong lighting model. The lighting value
-                /// is calculated for each pixel individually.
-                ///
-                /// This is the most expensive lighting model, and thus is not
-                /// recommended to be used in mobile environments.
-                ///
-                /// \see Gouraud
-                ///
-                Phong           = 1 << 18,
+            /// Slightly modified version of Phong. This uses a half-way
+            /// normal reflection vector to calculate the specular highlight,
+            /// which makes it slightly stronger.
+            ///
+            /// This model is marginally faster than Phong.
+            ///
+            /// This model is the default for desktop.
+            ///
+            BlinnPhong  = Phong | Phong >> 1,
 
-                /// Slightly modified version of Phong. This uses a half-way
-                /// normal reflection vector to calculate the specular highlight,
-                /// which makes it slightly stronger.
-                ///
-                /// This model is marginally faster than Phong.
-                ///
-                /// This model is the default for desktop.
-                ///
-                BlinnPhong      = Phong | Phong << 1,
+            // To be implemented
+            //
+            // Toon
+            // Fresnel?
+            // CookTorrace?
+            // OrenNyar?
+            // Minnaert?
 
-                /// Vertex-base lighting. Lighting is calculated for each vertex
-                /// before interpolating it for each pixel.
-                ///
-                /// This model is much faster on GPU's where pixel fill rate is
-                /// the bottleneck.
-                ///
-                /// This model is the default for mobile.
-                ///
-                Gouraud         = Phong << 2,
-
-                /// Flat lighting, disables normal interpolation between vertices,
-                /// which results in a single polygon having a uniform color.
-                ///
-                /// \warning Not available on GLES 2.0, Gouraud model will be used instead
-                ///
-                Flat            = Phong << 3,
-
-                // Bundles
-                DefaultLighting =
-                #ifdef JOP_OPENGL_ES
-                    Gouraud,
-                #else
-                    BlinnPhong,
-                #endif
-
-                /// For internal functionality, do not use
-                __Lighting      = BlinnPhong | Gouraud | Flat
-            };
+            /// Default lighting mode
+            ///
+            /// Gouraud on GLES, BlinnPhong elsewhere.
+            ///
+            Default     =
+            #ifdef JOP_OPENGL_ES
+                Gouraud
+            #else
+                BlinnPhong
+            #endif
         };
 
         /// The reflection attribute
@@ -133,10 +124,10 @@ namespace jop
 
         /// The map attribute
         ///
-        enum class Map
+        enum class Map : uint64
         {
             /// Essentially the "base" texture for an object
-            Diffuse,
+            Diffuse0,
 
             /// The specular highlight value will be multiplied by this texture's value
             Specular,
@@ -163,21 +154,24 @@ namespace jop
             __Last
         };
 
+        /// All the lighting model attributes combined
+        ///
+        /// For internal use only.
+        ///
+        static const uint64 LightingAttribs;
+
     private:
 
         typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::__Last) - 1> MapArray;
 
     public:
 
-        /// \brief Default constructor
+        /// \copydoc Resource::Resource(const std::string&)
         ///
-        /// If autoAttributes is true, the attribute DiffuseMap will be enabled, and
-        /// the default texture will be used.
+        /// By default the material defines no functionality (only Drawable's
+        /// color will be used in rendering).
         ///
-        /// \param name Name of this material
-        /// \param autoAttributes Set attributes automatically? See setAutoAttributes()
-        ///
-        Material(const std::string& name, const bool autoAttributes);
+        Material(const std::string& name);
         
 
         /// \brief Send this material to a shader
@@ -187,12 +181,19 @@ namespace jop
         ///
         void sendToShader(ShaderProgram& shader, const glm::vec3* const camPos) const;
 
-        /// \brief Get a shader pre-processor string
+        /// \brief Set the lighting model
         ///
-        /// \param attribs The material attributes
-        /// \param str The string to write into
+        /// \param model The lighting model to set
         ///
-        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
+        /// \return Reference to self
+        ///
+        Material& setLightingModel(const LightingModel model);
+
+        /// \brief Get the lighting model
+        ///
+        /// \return The lighting model
+        ///
+        LightingModel getLightingModel() const;
 
         /// \brief Set a reflection value
         ///
@@ -201,7 +202,7 @@ namespace jop
         ///
         /// \return Reference to self
         ///
-        Material& setReflection(const Reflection reflection, const Color color);
+        Material& setReflection(const Reflection reflection, const Color& color);
 
         /// \brief Set the reflection values
         ///
@@ -280,94 +281,25 @@ namespace jop
         ///
         const Texture* getMap(const Map map) const;
 
-        /// \brief Set the attribute bit field
-        ///
-        /// \param attribs The attributes to set
-        ///
-        /// \return Reference to self
-        ///
-        Material& setAttributes(const uint64 attribs);
-
-        /// \brief Get the attribute bit field
-        ///
-        /// \return The attribute bit field
-        ///
-        uint64 getAttributes() const;
-
-        /// \brief Check if this material has a specific attribute
-        ///
-        /// \param attrib The attribute to check
-        ///
-        /// \return True if does have the attribute
-        ///
-        bool hasAttribute(const uint64 attrib) const;
-
-        /// \brief Check if this material has a set of attributes
-        ///
-        /// \param attribs The attributes to check
-        ///
-        /// \return True if does have the attributes
-        ///
-        bool hasAttributes(const uint64 attribs) const;
-
-        /// \brief Check if this material has a specific attribute set
-        ///
-        /// \param attribs The attributes to compare
-        ///
-        /// \return True if the attributes match
-        ///
-        bool compareAttributes(const uint64 attribs) const;
-
-        /// \brief Add attributes
-        ///
-        /// \param attribs Attributes to add
-        ///
-        /// \return Reference to self
-        ///
-        Material& addAttributes(const uint64 attribs);
-
-        /// \brief Remove attributes
-        ///
-        /// \param attribs Attributes to remove
-        ///
-        /// \return Reference to self
-        ///
-        Material& removeAttributes(const uint64 attribs);
-
         /// \brief Check if this material has potential transparency
         ///
         /// \return True if this material has potential transparency
         ///
         bool hasAlpha() const;
 
-		/// \brief Set this material to use automatic attributes
-		///
-		/// Automatic attributes are meant to simplify using materials. Enabling this
-		/// will cause the material to set up its attributes automatically, depending
-		/// on what methods are called. The rules are as follows:
-		///
-		///   - setReflection() and setShininess() will enable the default lighting model
-		///   - setReflectivity() will enable the environment map
-		///   - setMap() will enable the respective map
-		///   - removeMap() will disable the respective map
-		///
-		/// \param autoAttribs True to enable automatic attributes
-		///
-		/// \return Reference to self
-		///
-		Material& setAutoAttributes(const bool autoAttribs);
-
-		/// \brief Check if this material is using automatic attributes
-		///
-		/// \return True if using automatic attributes
-		///
-		bool hasAutoAttributes() const;
-
 		/// \brief Get the shader for this material
 		///
 		/// \return Reference to the shader
 		///
 		ShaderProgram& getShader() const;
+
+        /// \brief Get the internal attribute field
+        ///
+        /// This is for internal use only.
+        ///
+        /// \return The attribute field
+        ///
+        uint64 getAttributes() const;
 
         /// \brief Get the default material
         ///
@@ -380,13 +312,15 @@ namespace jop
 
     private:
 
+        static std::string getShaderPreprocessorDef(const uint64 attributes);
+
+
 		std::array<Color, 4> m_reflection;				///< The reflection values
 		MapArray m_maps;								///< An array with the bound maps
 		mutable WeakReference<ShaderProgram> m_shader;	///< Shader
 		uint64 m_attributes;							///< The attribute bit field
 		float m_reflectivity;							///< The reflectivity value
 		float m_shininess;								///< The shininess factor
-		bool m_autoAttribs;								///< Use automatic attributes?
 		mutable bool m_updateShader;				    ///< Does the shader need updating?
     };
 }

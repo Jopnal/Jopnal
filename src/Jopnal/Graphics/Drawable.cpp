@@ -137,7 +137,7 @@ namespace jop
             //glCheck(glVertexAttrib4fv(MM + 2, glm::value_ptr(modelMat[2])));
             //glCheck(glVertexAttrib4fv(MM + 3, glm::value_ptr(modelMat[3])));
 
-            if (mat.hasAttribute(Material::Attribute::__Lighting))
+            if (mat.getAttributes() & Material::LightingAttribs)
             {
                 shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(modelMat))));
                 lights.sendToShader(shdr, *this);
@@ -277,42 +277,9 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setAttributes(const uint64 attributes)
-    {
-        m_attributes = attributes;
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    Drawable& Drawable::addAttributes(const uint64 attributes)
-    {
-        return setAttributes(m_attributes | attributes);
-    }
-
-    //////////////////////////////////////////////
-
     uint64 Drawable::getAttributes() const
     {
         return m_attributes;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Drawable::hasAttribute(const uint64 attribute) const
-    {
-        return (m_attributes & attribute) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    void Drawable::getShaderPreprocessorDef(const uint64 attribs, std::string& str)
-    {
-        if (attribs & Attribute::__SkyBox)
-            str += "#define JDRW_SKYBOX\n";
-
-        if (attribs & Attribute::__SkySphere)
-            str += "#define JDRW_SKYSPHERE\n";
     }
 
     //////////////////////////////////////////////
@@ -351,5 +318,20 @@ namespace jop
     bool Drawable::hasOverrideShader() const
     {
         return !m_shader.expired();
+    }
+
+    //////////////////////////////////////////////
+
+    std::string Drawable::getShaderPreprocessorDef(const uint64 attributes)
+    {
+        std::string str;
+
+        if (attributes & Attribute::__SkyBox)
+            str += "#define JDRW_SKYBOX\n";
+
+        if (attributes & Attribute::__SkySphere)
+            str += "#define JDRW_SKYSPHERE\n";
+
+        return str;
     }
 }

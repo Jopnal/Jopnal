@@ -45,14 +45,14 @@ namespace jop
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
         : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, false),
           m_mesh        (""),
-          m_material    ("", false)
+          m_material    ("")
     {
-        m_material.setAttributes(Material::Attribute::EnvironmentMap);
+        m_material.setMap(Material::Map::Environment, Cubemap::getDefault());
         m_mesh.load(glm::vec3(size));
 
         setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
-        addAttributes(Attribute::__SkyBox);
+        m_attributes |= Attribute::__SkyBox;
 
         setOverrideShader(ShaderAssembler::getShader(m_material.getAttributes(), getAttributes()));
     }

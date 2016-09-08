@@ -41,11 +41,16 @@
 
 namespace
 {
-    template<typename T>
-    inline int castIndex(const T map)
+    template<typename T, typename Ret = std::underlying_type<T>::type>
+    inline Ret castEnum(const T map)
     {
-        return static_cast<int>(map);
+        return static_cast<Ret>(map);
     }
+    
+    bool checkMap(const jop::uint64 attr, const jop::Material::Map map)
+    {
+        return (attr & (1ull << castEnum(map))) != 0;
+    };
 
     const std::array<jop::Color, 4>& getDefaultColors()
     {
@@ -65,30 +70,34 @@ namespace
 
 namespace jop
 {
-    Material::Material(const std::string& name, const bool autoAttributes)
-        : Resource              (name),
-          m_reflection          (getDefaultColors()),
-          m_reflectivity        (0.5f),
-          m_attributes          (),
-          m_shininess           (1.f),
-          m_maps                (),
-		  m_shader				(),
-          m_autoAttribs         (autoAttributes),
-		  m_updateShader		(true)
-    {
-        setMap(Map::Diffuse, Texture2D::getDefault());
-    }
+    const uint64 Material::LightingAttribs =
+        static_cast<jop::uint64>(jop::Material::LightingModel::Gouraud) |
+        static_cast<jop::uint64>(jop::Material::LightingModel::Flat) |
+        static_cast<jop::uint64>(jop::Material::LightingModel::Phong) |
+        static_cast<jop::uint64>(jop::Material::LightingModel::BlinnPhong);
+
+    //////////////////////////////////////////////
+
+    Material::Material(const std::string& name)
+        : Resource          (name),
+          m_reflection      (getDefaultColors()),
+          m_reflectivity    (0.f),
+          m_attributes      (),
+          m_shininess       (1.f),
+          m_maps            (),
+		  m_shader		    (),
+		  m_updateShader    (true)
+    {}
 
     Material::Material(const Material& other, const std::string& newName)
-        : Resource              (newName),
-          m_reflection          (other.m_reflection),
-          m_reflectivity        (other.m_reflectivity),
-          m_attributes          (other.m_attributes),
-          m_shininess           (other.m_shininess),
-          m_maps                (other.m_maps),
-          m_shader              (other.m_shader),
-          m_autoAttribs         (other.m_autoAttribs),
-          m_updateShader        (other.m_updateShader)
+        : Resource          (newName),
+          m_reflection      (other.m_reflection),
+          m_reflectivity    (other.m_reflectivity),
+          m_attributes      (other.m_attributes),
+          m_shininess       (other.m_shininess),
+          m_maps            (other.m_maps),
+          m_shader          (other.m_shader),
+          m_updateShader    (other.m_updateShader)
     {}
 
     //////////////////////////////////////////////
@@ -116,132 +125,84 @@ namespace jop
             };
 
             // Send camera position to shader
-            if (camPos && hasAttribute(Attribute::__Lighting | Attribute::EnvironmentMap))
+            if (camPos && (m_attributes & (LightingAttribs | 1ull << castEnum(Map::Environment))))
                 shader.setUniform(strCache[0], *camPos);
 
-            if (hasAttribute(Attribute::__Lighting))
+            if (m_attributes & LightingAttribs)
             {
-                shader.setUniform(strCache[1], m_reflection[castIndex(Reflection::Ambient)].asRGBAVector());
-                shader.setUniform(strCache[2], m_reflection[castIndex(Reflection::Diffuse)].asRGBAVector());
-                shader.setUniform(strCache[3], m_reflection[castIndex(Reflection::Specular)].asRGBAVector());
-                shader.setUniform(strCache[4], m_reflection[castIndex(Reflection::Emission)].asRGBAVector());
+                shader.setUniform(strCache[1], m_reflection[castEnum(Reflection::Ambient)].asRGBAVector());
+                shader.setUniform(strCache[2], m_reflection[castEnum(Reflection::Diffuse)].asRGBAVector());
+                shader.setUniform(strCache[3], m_reflection[castEnum(Reflection::Specular)].asRGBAVector());
+                shader.setUniform(strCache[4], m_reflection[castEnum(Reflection::Emission)].asRGBAVector());
                 shader.setUniform(strCache[5], m_shininess);
 
-                if (hasAttribute(Attribute::EnvironmentMap))
+                if (checkMap(m_attributes, Map::Environment))
                     shader.setUniform(strCache[6], m_reflectivity);
             }
 
-            if (hasAttribute(Attribute::DiffuseMap) && getMap(Map::Diffuse))
-                shader.setUniform(strCache[7], *getMap(Material::Map::Diffuse), castIndex(Map::Diffuse));
+            if (checkMap(m_attributes, Map::Diffuse0) && getMap(Map::Diffuse0))
+                shader.setUniform(strCache[7], *getMap(Material::Map::Diffuse0), castEnum<Map, unsigned int>(Map::Diffuse0));
 
-            if (hasAttribute(Attribute::SpecularMap) && getMap(Map::Specular))
-                shader.setUniform(strCache[8], *getMap(Map::Specular), castIndex(Map::Specular));
+            if (checkMap(m_attributes, Map::Specular) && getMap(Map::Specular))
+                shader.setUniform(strCache[8], *getMap(Map::Specular), castEnum<Map, unsigned int>(Map::Specular));
 
-            if (hasAttribute(Attribute::EmissionMap) && getMap(Map::Emission))
-                shader.setUniform(strCache[9], *getMap(Map::Emission), castIndex(Map::Emission));
+            if (checkMap(m_attributes, Map::Emission) && getMap(Map::Emission))
+                shader.setUniform(strCache[9], *getMap(Map::Emission), castEnum<Map, unsigned int>(Map::Emission));
 
-            if (hasAttribute(Attribute::OpacityMap) && getMap(Map::Opacity))
-                shader.setUniform(strCache[10], *getMap(Map::Opacity), castIndex(Map::Opacity));
+            if (checkMap(m_attributes, Map::Opacity) && getMap(Map::Opacity))
+                shader.setUniform(strCache[10], *getMap(Map::Opacity), castEnum<Map, unsigned int>(Map::Opacity));
 
-            if (hasAttribute(Attribute::GlossMap) && getMap(Map::Gloss))
-                shader.setUniform(strCache[11], *getMap(Map::Gloss), castIndex(Map::Gloss));
+            if (checkMap(m_attributes, Map::Gloss) && getMap(Map::Gloss))
+                shader.setUniform(strCache[11], *getMap(Map::Gloss), castEnum<Map, unsigned int>(Map::Gloss));
 
-            if (hasAttribute(Attribute::EnvironmentMap) && getMap(Material::Map::Environment))
+            if (checkMap(m_attributes, Map::Environment) && getMap(Map::Environment))
             {
-                shader.setUniform(strCache[12], *getMap(Material::Map::Environment), castIndex(Map::Environment));
+                shader.setUniform(strCache[12], *getMap(Map::Environment), castEnum<Map, unsigned int>(Map::Environment));
 
-                if (hasAttribute(Attribute::ReflectionMap) && getMap(Map::Reflection))
-                    shader.setUniform(strCache[13], *getMap(Material::Map::Reflection), castIndex(Map::Reflection));
+                if (checkMap(m_attributes, Map::Reflection) && getMap(Map::Reflection))
+                    shader.setUniform(strCache[13], *getMap(Map::Reflection), castEnum<Map, unsigned int>(Map::Reflection));
             }
         }
     }
 
     //////////////////////////////////////////////
 
-    void Material::getShaderPreprocessorDef(const uint64 attribs, std::string& str)
+    Material& Material::setLightingModel(const LightingModel model)
     {
-        using m = Material::Attribute;
-
-        // Diffuse map
-        if (attribs & m::DiffuseMap)
-            str += "#define JMAT_DIFFUSEMAP\n";
-
-        // Specular map
-        if (attribs & m::SpecularMap)
-            str += "#define JMAT_SPECULARMAP\n";
-
-        // Emission map
-        if (attribs & m::EmissionMap)
-            str += "#define JMAT_EMISSIONMAP\n";
-
-        // Environment map
-        if (attribs & m::EnvironmentMap)
-            str += "#define JMAT_ENVIRONMENTMAP\n";
-
-        // Reflection map
-        if (attribs & m::ReflectionMap)
-            str += "#define JMAT_REFLECTIONMAP\n";
-
-        // Reflection map
-        if (attribs & m::OpacityMap)
-            str += "#define JMAT_OPACITYMAP\n";
-
-        // Gloss map
-        if (attribs & m::GlossMap)
-            str += "#define JMAT_GLOSSMAP\n";
-
-        // Lighting
-        if (attribs & m::__Lighting)
+        if (model != getLightingModel())
         {
-            str += "#define JMAT_LIGHTING\n";
-
-            static const std::string maxLights =
-                "#define JMAT_MAX_POINT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
-                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
-                "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
-
-            // Phong model
-            if (attribs & m::Phong)
-            {
-                str += "#define JMAT_PHONG\n" + maxLights;
-
-                // Blinn-phong model
-                if (attribs & m::BlinnPhong)
-                    str += "#define JMAT_BLINNPHONG\n";
-            }
-            else if (attribs & m::Gouraud)
-                str += "#define JMAT_GOURAUD\n";
-
-            else if (attribs & m::Flat)
-                str += "#define JMAT_FLAT\n";
-
-        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
-
-            // Should the shadow map be unpacked?
-            if (gl::getVersionMajor() < 3 && !JOP_CHECK_GL_EXTENSION(OES_depth_texture))
-                str += "#define JOP_UNPACK_DEPTH\n";
-
-        #endif
+            (m_attributes &= ~(LightingAttribs)) |= castEnum(model);
+            m_updateShader = true;
         }
+
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    Material& Material::setReflection(const Reflection reflection, const Color color)
+    Material::LightingModel Material::getLightingModel() const
+    {
+        return static_cast<LightingModel>(m_attributes & LightingAttribs);
+    }
+
+    //////////////////////////////////////////////
+
+    Material& Material::setReflection(const Reflection reflection, const Color& color)
     {
         m_reflection[static_cast<int>(reflection)] = color;
-        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     Material& Material::setReflection(const Color& ambient, const Color& diffuse, const Color& specular, const Color& emission)
     {
+        m_reflection[0] = ambient;
         m_reflection[1] = diffuse;
         m_reflection[2] = specular;
         m_reflection[3] = emission;
 
-        return setReflection(Reflection::Ambient, ambient);
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -256,8 +217,7 @@ namespace jop
     Material& Material::setShininess(const float value)
     {
         m_shininess = std::max(1.f, value);
-
-        return addAttributes(Attribute::DefaultLighting * m_autoAttribs);
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -272,8 +232,7 @@ namespace jop
     Material& Material::setReflectivity(const float reflectivity)
     {
         m_reflectivity = reflectivity;
-
-        return addAttributes(Attribute::EnvironmentMap * m_autoAttribs);
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -285,36 +244,22 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    namespace detail
-    {
-        static const int mapAttribs[] =
-        {
-            Material::Attribute::DiffuseMap,
-            Material::Attribute::SpecularMap,
-            Material::Attribute::EmissionMap,
-            Material::Attribute::EnvironmentMap,
-            Material::Attribute::ReflectionMap,
-            Material::Attribute::OpacityMap,
-            Material::Attribute::GlossMap
-        };
-    }
-
     Material& Material::setMap(const Map map, const Texture& tex)
     {
-        const int mapIndex = static_cast<int>(map);
-        m_maps[mapIndex] = static_ref_cast<const Texture>(tex.getReference());
+        m_maps[static_cast<int>(map)] = static_ref_cast<const Texture>(tex.getReference());
+        m_attributes |= (1ull << castEnum(map));
 
-        return addAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
+        return *this;
     }
 
     //////////////////////////////////////////////
 
     Material& Material::removeMap(const Map map)
     {
-        const int mapIndex = static_cast<int>(map);
-        m_maps[mapIndex].reset();
+        m_maps[static_cast<int>(map)].reset();
+        m_attributes &= ~(1 << castEnum(map));
 
-        return removeAttributes(detail::mapAttribs[mapIndex] * m_autoAttribs);
+        return *this;
     }
 
     //////////////////////////////////////////////
@@ -326,80 +271,13 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Material& Material::setAttributes(const uint64 attribs)
-    {
-        m_attributes = attribs;
-        m_updateShader = true;
-
-        return *this;
-    }
-
-    //////////////////////////////////////////////
-
-    uint64 Material::getAttributes() const
-    {
-        return m_attributes;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Material::hasAttribute(const uint64 attrib) const
-    {
-        return (m_attributes & attrib) != 0;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Material::hasAttributes(const uint64 attribs) const
-    {
-        return (m_attributes & attribs) == attribs;
-    }
-
-    //////////////////////////////////////////////
-
-    bool Material::compareAttributes(const uint64 attribs) const
-    {
-        return m_attributes == attribs;
-    }
-
-    //////////////////////////////////////////////
-
-    Material& Material::addAttributes(const uint64 attribs)
-    {
-        return setAttributes(getAttributes() | attribs);
-    }
-
-    //////////////////////////////////////////////
-
-    Material& Material::removeAttributes(const uint64 attribs)
-    {
-        return setAttributes(getAttributes() & ~attribs);
-    }
-
-    //////////////////////////////////////////////
-
     bool Material::hasAlpha() const
     {
         auto& ref = m_reflection;
 
-        return (hasAttributes(Attribute::__Lighting) && (ref[0].alpha < 1.f || ref[1].alpha < 1.f || ref[2].alpha < 1.f))   ||
-               (hasAttributes(Attribute::OpacityMap) && getMap(Map::Opacity))                                               ||
-               (hasAttributes(Attribute::DiffuseMap) && getMap(Map::Diffuse) && getMap(Map::Diffuse)->getPixelDepth() > 3);
-	}
-
-	//////////////////////////////////////////////
-
-	Material& Material::setAutoAttributes(const bool autoAttribs)
-	{
-		m_autoAttribs = autoAttribs;
-		return *this;
-	}
-
-	//////////////////////////////////////////////
-
-	bool Material::hasAutoAttributes() const
-	{
-		return m_autoAttribs;
+        return ((m_attributes & LightingAttribs) && (ref[0].alpha * ref[1].alpha * ref[2].alpha < 1.f)) ||
+               ((m_attributes & (1ull << castEnum(Map::Opacity))) && getMap(Map::Opacity))              ||
+               ((m_attributes & (1ull << castEnum(Map::Diffuse0))) && getMap(Map::Diffuse0) && getMap(Map::Diffuse0)->getPixelDepth() > 3);
 	}
 
     //////////////////////////////////////////////
@@ -410,7 +288,7 @@ namespace jop
 
         if (defMat.expired())
         {
-            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material", false).getReference());
+            defMat = static_ref_cast<Material>(ResourceManager::getEmpty<Material>("jop_default_material").getReference());
             defMat->setPersistence(0);
         }
 
@@ -428,5 +306,85 @@ namespace jop
 		}
 
         return *m_shader;
-	}
+    }
+
+    //////////////////////////////////////////////
+
+    uint64 Material::getAttributes() const
+    {
+        return m_attributes;
+    }
+
+    //////////////////////////////////////////////
+
+    std::string Material::getShaderPreprocessorDef(const uint64 attributes)
+    {
+        std::string str;
+
+        // Diffuse map
+        if (checkMap(attributes, Map::Diffuse0))
+            str += "#define JMAT_DIFFUSEMAP\n";
+
+        // Specular map
+        if (checkMap(attributes, Map::Specular))
+            str += "#define JMAT_SPECULARMAP\n";
+
+        // Emission map
+        if (checkMap(attributes, Map::Emission))
+            str += "#define JMAT_EMISSIONMAP\n";
+
+        // Environment map
+        if (checkMap(attributes, Map::Environment))
+            str += "#define JMAT_ENVIRONMENTMAP\n";
+
+        // Reflection map
+        if (checkMap(attributes, Map::Reflection))
+            str += "#define JMAT_REFLECTIONMAP\n";
+
+        // Reflection map
+        if (checkMap(attributes, Map::Opacity))
+            str += "#define JMAT_OPACITYMAP\n";
+
+        // Gloss map
+        if (checkMap(attributes, Map::Gloss))
+            str += "#define JMAT_GLOSSMAP\n";
+
+        // Lighting
+        if (attributes & LightingAttribs)
+        {
+            str += "#define JMAT_LIGHTING\n";
+
+            static const std::string maxLights =
+                "#define JMAT_MAX_POINT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Point)) +
+                "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
+                "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
+
+            // Phong model
+            if (attributes & castEnum(LightingModel::Phong))
+            {
+                str += "#define JMAT_PHONG\n" + maxLights;
+
+                // Blinn-phong model
+                if (attributes & castEnum(LightingModel::BlinnPhong))
+                    str += "#define JMAT_BLINNPHONG\n";
+            }
+            else if (attributes & castEnum(LightingModel::Gouraud))
+            {
+                str += "#define JMAT_GOURAUD\n";
+
+                if (attributes & castEnum(LightingModel::Flat))
+                    str += "#define JMAT_FLAT\n";
+            }
+
+        #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
+
+            // Should the shadow map be unpacked?
+            if (gl::getVersionMajor() < 3 && !JOP_CHECK_GL_EXTENSION(OES_depth_texture))
+                str += "#define JOP_UNPACK_DEPTH\n";
+
+        #endif
+        }
+
+        return str;
+    }
 }
