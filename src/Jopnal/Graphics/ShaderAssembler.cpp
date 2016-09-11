@@ -117,7 +117,7 @@ namespace jop
             }
 
             // Needed so that different samplers don't all point to zero
-            if ((materialAttribs & Material::LightingAttribs) != 0)
+            if ((materialAttribs & Material::FragLightingAttribs) != 0)
             {
                 static const int maxUnits = Texture::getMaxTextureUnits();
 

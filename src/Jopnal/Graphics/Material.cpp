@@ -73,8 +73,10 @@ namespace
 namespace jop
 {
     const uint64 Material::LightingAttribs =
-        static_cast<jop::uint64>(jop::Material::LightingModel::Flat) |
-        static_cast<jop::uint64>(jop::Material::LightingModel::BlinnPhong);
+        static_cast<uint64>(Material::LightingModel::Flat) |
+        static_cast<uint64>(Material::LightingModel::BlinnPhong);
+
+    const glm::uint64 Material::FragLightingAttribs = static_cast<uint64>(Material::LightingModel::BlinnPhong);
 
     //////////////////////////////////////////////
 
@@ -85,7 +87,7 @@ namespace jop
           m_attributes      (),
           m_shininess       (1.f),
           m_maps            (),
-          m_shader            (),
+          m_shader          (),
           m_updateShader    (true)
     {}
 
@@ -343,10 +345,12 @@ namespace jop
                 "\n#define JMAT_MAX_DIRECTIONAL_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Directional)) +
                 "\n#define JMAT_MAX_SPOT_LIGHTS " + std::to_string(LightSource::getMaximumLights(LightSource::Type::Spot)) + "\n";
 
+            str += maxLights;
+
             // Phong model
             if (attributes & castEnum(LightingModel::Phong))
             {
-                str += "#define JMAT_PHONG\n" + maxLights;
+                str += "#define JMAT_PHONG\n";
 
                 // Blinn-phong model
                 if ((attributes & LightingAttribs) == castEnum(LightingModel::BlinnPhong))

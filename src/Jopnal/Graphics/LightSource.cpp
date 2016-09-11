@@ -508,10 +508,10 @@ namespace jop
                 return;
         }
 
-        const auto fragLighting = static_cast<uint64>(Material::LightingModel::BlinnPhong);
-
-        const bool shadows = (drawable.getModel().getMaterial()->getAttributes() & fragLighting) != 0;
-        shader.setUniform("u_ReceiveShadows", receiveShadows);
+        const bool shadows = (drawable.getModel().getMaterial()->getAttributes() & Material::FragLightingAttribs) != 0;
+        
+        if (shadows)
+            shader.setUniform("u_ReceiveShadows", receiveShadows);
 
         typedef LightSource LS;
 
