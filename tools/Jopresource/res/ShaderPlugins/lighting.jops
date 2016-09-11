@@ -15,7 +15,6 @@
     #if JMAT_MAX_POINT_LIGHTS > 0
 
         uniform PointLightInfo u_PointLights[JMAT_MAX_POINT_LIGHTS];
-        uniform samplerCube u_PointLightShadowMaps[JMAT_MAX_POINT_LIGHTS];
         uniform int u_NumPointLights;
 
     #endif
@@ -23,7 +22,6 @@
     #if JMAT_MAX_SPOT_LIGHTS > 0
 
         uniform SpotLightInfo u_SpotLights[JMAT_MAX_SPOT_LIGHTS];
-        uniform sampler2D u_SpotLightShadowMaps[JMAT_MAX_SPOT_LIGHTS];
         uniform int u_NumSpotLights;
 
     #endif
@@ -31,7 +29,6 @@
     #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
 
         uniform DirectionalLightInfo u_DirectionalLights[JMAT_MAX_DIRECTIONAL_LIGHTS];
-        uniform sampler2D u_DirectionalLightShadowMaps[JMAT_MAX_DIRECTIONAL_LIGHTS];
         uniform int u_NumDirectionalLights;
 
     #endif
@@ -188,6 +185,16 @@
             // Directional Light is infinite, Directional Light is eternal
         }
 
+    #endif
+
+    #if __VERSION__ >= 300
+        #define JOP_POINT_LIMIT u_NumPointLights
+        #define JOP_DIR_LIMIT u_NumDirectionalLights
+        #define JOP_SPOT_LIMIT u_NumSpotLights
+    #else
+        #define JOP_POINT_LIMIT JMAT_MAX_POINT_LIGHTS
+        #define JOP_DIR_LIMIT JMAT_MAX_DIRECTIONAL_LIGHTS
+        #define JOP_SPOT_LIMIT JMAT_MAX_SPOT_LIGHTS
     #endif
 
 #pluginend

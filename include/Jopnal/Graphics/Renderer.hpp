@@ -132,7 +132,7 @@ namespace jop
 
         void bind(const Camera* camera);
 
-        void bind(const Drawable* drawable, const RenderPass::Pass pass);
+        void bind(const Drawable* drawable, const RenderPass::Pass pass, const uint32 weight);
 
         void bind(const EnvironmentRecorder* envRecorder);
 
@@ -140,7 +140,7 @@ namespace jop
 
         void unbind(const Camera* camera);
 
-        void unbind(const Drawable* drawable, const RenderPass::Pass pass);
+        void unbind(const Drawable* drawable, const RenderPass::Pass pass, const uint32 weight);
 
         void unbind(const EnvironmentRecorder* envRecorder);
 

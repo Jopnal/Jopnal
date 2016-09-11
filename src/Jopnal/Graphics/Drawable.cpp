@@ -65,7 +65,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
+    Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : CullerComponent   (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable, cull),
           m_color           (),
           m_model           (Mesh::getDefault(), Material::getDefault()),
@@ -73,24 +73,11 @@ namespace jop
           m_attributes      (0),
           m_rendererRef     (renderer),
           m_pass            (pass),
+          m_weight          (weight),
           m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
           m_renderGroup     (0)
     {
-        renderer.bind(this, pass);
-    }
-
-    Drawable::Drawable(Object& object, RenderPass& pass, const bool cull)
-        : CullerComponent   (object, pass.getRenderer().getCullingWorld(), CullerComponent::Type::Drawable, cull),
-          m_color           (),
-          m_model           (Mesh::getDefault(), Material::getDefault()),
-          m_shader          (),
-          m_attributes      (0),
-          m_rendererRef     (pass.getRenderer()),
-          m_pass            (pass.getPass()),
-          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup     (0)
-    {
-        pass.bind(this);
+        renderer.bind(this, pass, weight);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
@@ -100,15 +87,16 @@ namespace jop
           m_shader          (other.m_shader),
           m_rendererRef     (other.m_rendererRef),
           m_pass            (other.m_pass),
+          m_weight          (other.m_weight),
           m_renderGroup     (other.m_renderGroup),
           m_flags           (other.m_flags)
     {
-        m_rendererRef.bind(this, m_pass);
+        m_rendererRef.bind(this, m_pass, m_weight);
     }
 
     Drawable::~Drawable()
     {
-        m_rendererRef.unbind(this, m_pass);
+        m_rendererRef.unbind(this, m_pass, m_weight);
     }
 
     //////////////////////////////////////////////

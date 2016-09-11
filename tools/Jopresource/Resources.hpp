@@ -18,9 +18,9 @@ extern const unsigned char defaultShaderFrag[266];
 
 extern const unsigned char defaultShaderVert[466];
 
-extern const unsigned char defaultUberShaderFrag[5816];
+extern const unsigned char defaultUberShaderFrag[6147];
 
-extern const unsigned char defaultUberShaderVert[1137];
+extern const unsigned char defaultUberShaderVert[2845];
 
 extern const unsigned char depthRecordShaderFrag[811];
 
@@ -38,13 +38,13 @@ extern const unsigned char postProcessVert[400];
 
 extern const unsigned char brightFilter[1632];
 
-extern const unsigned char compatibilityPlugins[2001];
+extern const unsigned char compatibilityPlugins[2059];
 
-extern const unsigned char lightingPlugins[6782];
+extern const unsigned char lightingPlugins[6920];
 
 extern const unsigned char structurePlugins[1640];
 
-extern const unsigned char shadowPlugins[3958];
+extern const unsigned char shadowPlugins[4319];
 
 }
 #endif

@@ -35,9 +35,11 @@
     #if defined(GL_ES) && __VERSION__ < 300
         #define JOP_VARYING_IN  varying
         #define JOP_VARYING_OUT varying
+        #define JOP_FLAT 
     #else
         #define JOP_VARYING_IN  in
         #define JOP_VARYING_OUT out
+        #define JOP_FLAT flat
     #endif
 
 #pluginend

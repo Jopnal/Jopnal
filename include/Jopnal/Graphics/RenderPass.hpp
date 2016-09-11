@@ -102,6 +102,30 @@ namespace jop
         ///
         Pass getPass() const;
 
+        /// \brief Set the default render pass type
+        ///
+        /// \param pass The default pass type
+        ///
+        static void setDefaultType(const Pass pass);
+
+        /// \brief Set the default render pass weight
+        ///
+        /// \param weight The default weight
+        ///
+        static void setDefaultWeight(const uint32 weight);
+
+        /// \brief Get the default pass type
+        ///
+        /// \return Default pass type
+        ///
+        static Pass getDefaultType();
+
+        /// \brief Get the default pass weight
+        ///
+        /// \return Default pass weight
+        ///
+        static uint32 getDefaultWeight();
+
     protected:
 
         /// \brief Virtual draw function

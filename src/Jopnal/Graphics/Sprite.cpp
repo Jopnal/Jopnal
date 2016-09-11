@@ -40,17 +40,8 @@
 
 namespace jop
 {
-    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
-        : Drawable      (object, renderer, pass, cull),
-          m_texture     (),
-          m_mesh        ("")
-    {
-        setTexture(Texture2D::getDefault(), true);
-        setOverrideShader(ShaderAssembler::getShader(1 << static_cast<uint64>(Material::Map::Diffuse0), 0));
-    }
-
-    Sprite::Sprite(Object& object, RenderPass& pass, const bool cull)
-        : Drawable      (object, pass, cull),
+    Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
+        : Drawable      (object, renderer, pass, weight, cull),
           m_texture     (),
           m_mesh        ("")
     {

@@ -103,18 +103,14 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
-        /// \param cull Should this drawable be culled?
-        /// \param pass The render pass
-        ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
-
-        /// \brief Overloaded constructor
-        ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param pass The render pass to bind this drawable into
+        /// \param pass The render pass type
+        /// \param weight The render pass weight
         /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, RenderPass& pass, const bool cull = true);
+        Drawable(Object& object, Renderer& renderer,
+                 const RenderPass::Pass pass = RenderPass::getDefaultType(),
+                 const uint32 weight = RenderPass::getDefaultWeight(),
+                 const bool cull = true);
 
         /// \brief Virtual destructor
         ///
@@ -284,7 +280,8 @@ namespace jop
         Model m_model;                                  ///< The bound model
         mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader (override)
         Renderer& m_rendererRef;                        ///< Reference to the renderer
-        const RenderPass::Pass m_pass;                  ///< The render pass
+        const RenderPass::Pass m_pass;                  ///< The render pass type
+        const uint32 m_weight;                          ///< Render pass weight
         uint32 m_flags;                                 ///< Property flags
         uint8 m_renderGroup;                            ///< The render group
     };

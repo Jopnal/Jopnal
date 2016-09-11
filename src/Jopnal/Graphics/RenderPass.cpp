@@ -88,6 +88,36 @@ namespace jop
         return m_pass;
     }
 
+    //////////////////////////////////////////////
+
+    RenderPass::Pass ns_defPass = RenderPass::Pass::BeforePost;
+    uint32 ns_defWeight = RenderPass::DefaultWeight;
+
+    void RenderPass::setDefaultType(const Pass pass)
+    {
+        ns_defPass = pass;
+    }
+
+    //////////////////////////////////////////////
+
+    void RenderPass::setDefaultWeight(const uint32 weight)
+    {
+        ns_defWeight = weight;
+    }
+
+    //////////////////////////////////////////////
+
+    RenderPass::Pass RenderPass::getDefaultType()
+    {
+        return ns_defPass;
+    }
+
+    //////////////////////////////////////////////
+
+    uint32 RenderPass::getDefaultWeight()
+    {
+        return ns_defWeight;
+    }
 
     //////////////////////////////////////////////
 

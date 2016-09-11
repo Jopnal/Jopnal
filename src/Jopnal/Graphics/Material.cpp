@@ -73,9 +73,7 @@ namespace
 namespace jop
 {
     const uint64 Material::LightingAttribs =
-        static_cast<jop::uint64>(jop::Material::LightingModel::Gouraud) |
         static_cast<jop::uint64>(jop::Material::LightingModel::Flat) |
-        static_cast<jop::uint64>(jop::Material::LightingModel::Phong) |
         static_cast<jop::uint64>(jop::Material::LightingModel::BlinnPhong);
 
     //////////////////////////////////////////////
@@ -136,22 +134,22 @@ namespace jop
 
                 if (checkMap(m_attributes, Map::Environment))
                     shader.setUniform(strCache[6], m_reflectivity);
+
+                if (checkMap(m_attributes, Map::Gloss) && getMap(Map::Gloss))
+                    shader.setUniform(strCache[11], *getMap(Map::Gloss), castEnum<Map, unsigned int>(Map::Gloss));
+
+                if (checkMap(m_attributes, Map::Specular) && getMap(Map::Specular))
+                    shader.setUniform(strCache[8], *getMap(Map::Specular), castEnum<Map, unsigned int>(Map::Specular));
+
+                if (checkMap(m_attributes, Map::Emission) && getMap(Map::Emission))
+                    shader.setUniform(strCache[9], *getMap(Map::Emission), castEnum<Map, unsigned int>(Map::Emission));
             }
 
             if (checkMap(m_attributes, Map::Diffuse0) && getMap(Map::Diffuse0))
                 shader.setUniform(strCache[7], *getMap(Material::Map::Diffuse0), castEnum<Map, unsigned int>(Map::Diffuse0));
 
-            if (checkMap(m_attributes, Map::Specular) && getMap(Map::Specular))
-                shader.setUniform(strCache[8], *getMap(Map::Specular), castEnum<Map, unsigned int>(Map::Specular));
-
-            if (checkMap(m_attributes, Map::Emission) && getMap(Map::Emission))
-                shader.setUniform(strCache[9], *getMap(Map::Emission), castEnum<Map, unsigned int>(Map::Emission));
-
             if (checkMap(m_attributes, Map::Opacity) && getMap(Map::Opacity))
                 shader.setUniform(strCache[10], *getMap(Map::Opacity), castEnum<Map, unsigned int>(Map::Opacity));
-
-            if (checkMap(m_attributes, Map::Gloss) && getMap(Map::Gloss))
-                shader.setUniform(strCache[11], *getMap(Map::Gloss), castEnum<Map, unsigned int>(Map::Gloss));
 
             if (checkMap(m_attributes, Map::Environment) && getMap(Map::Environment))
             {
@@ -323,14 +321,6 @@ namespace jop
         if (checkMap(attributes, Map::Diffuse0))
             str += "#define JMAT_DIFFUSEMAP\n";
 
-        // Specular map
-        if (checkMap(attributes, Map::Specular))
-            str += "#define JMAT_SPECULARMAP\n";
-
-        // Emission map
-        if (checkMap(attributes, Map::Emission))
-            str += "#define JMAT_EMISSIONMAP\n";
-
         // Environment map
         if (checkMap(attributes, Map::Environment))
             str += "#define JMAT_ENVIRONMENTMAP\n";
@@ -342,10 +332,6 @@ namespace jop
         // Reflection map
         if (checkMap(attributes, Map::Opacity))
             str += "#define JMAT_OPACITYMAP\n";
-
-        // Gloss map
-        if (checkMap(attributes, Map::Gloss))
-            str += "#define JMAT_GLOSSMAP\n";
 
         // Lighting
         if (attributes & LightingAttribs)
@@ -363,16 +349,28 @@ namespace jop
                 str += "#define JMAT_PHONG\n" + maxLights;
 
                 // Blinn-phong model
-                if (attributes & castEnum(LightingModel::BlinnPhong))
+                if ((attributes & LightingAttribs) == castEnum(LightingModel::BlinnPhong))
                     str += "#define JMAT_BLINNPHONG\n";
             }
             else if (attributes & castEnum(LightingModel::Gouraud))
             {
                 str += "#define JMAT_GOURAUD\n";
 
-                if (attributes & castEnum(LightingModel::Flat))
+                if ((attributes & LightingAttribs) == castEnum(LightingModel::Flat))
                     str += "#define JMAT_FLAT\n";
             }
+
+            // Gloss map
+            if (checkMap(attributes, Map::Gloss))
+                str += "#define JMAT_GLOSSMAP\n";
+
+            // Specular map
+            if (checkMap(attributes, Map::Specular))
+                str += "#define JMAT_SPECULARMAP\n";
+
+            // Emission map
+            if (checkMap(attributes, Map::Emission))
+                str += "#define JMAT_EMISSIONMAP\n";
 
         #if defined(JOP_OPENGL_ES) && JOP_MIN_OPENGL_ES_VERSION < 300
 

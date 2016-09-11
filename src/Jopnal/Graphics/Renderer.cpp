@@ -89,9 +89,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::bind(const Drawable* drawable, const RenderPass::Pass pass)
+    void Renderer::bind(const Drawable* drawable, const RenderPass::Pass pass, const uint32 weight)
     {
-        m_passes[static_cast<int>(pass)][RenderPass::DefaultWeight]->bind(drawable);
+        auto& passArr = m_passes[static_cast<int>(pass)];
+        auto passItr = passArr.find(weight);
+
+        if (passItr != passArr.end())
+            passItr->second->bind(drawable);
+        else
+            passArr[RenderPass::DefaultWeight]->bind(drawable);
     }
 
     //////////////////////////////////////////////
@@ -117,9 +123,15 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void Renderer::unbind(const Drawable* drawable, const RenderPass::Pass pass)
+    void Renderer::unbind(const Drawable* drawable, const RenderPass::Pass pass, const uint32 weight)
     {
-        m_passes[static_cast<int>(pass)][RenderPass::DefaultWeight]->unbind(drawable);
+        auto& passArr = m_passes[static_cast<int>(pass)];
+        auto passItr = passArr.find(weight);
+        
+        if (passItr != passArr.end())
+            passItr->second->unbind(drawable);
+        else
+            passArr[RenderPass::DefaultWeight]->unbind(drawable);
     }
 
     //////////////////////////////////////////////
@@ -133,6 +145,12 @@ namespace jop
 
     void Renderer::removeRenderPass(const RenderPass::Pass pass, const uint32 weight)
     {
+        if (weight == RenderPass::DefaultWeight)
+        {
+            JOP_DEBUG_ERROR("The render pass with the default weight " << std::hex << RenderPass::DefaultWeight << " must not be removed. You may replace it using createRenderPass()");
+            return;
+        }
+
         m_passes[static_cast<int>(pass)].erase(weight);
     }
 
@@ -140,8 +158,8 @@ namespace jop
 
     void Renderer::draw(const RenderPass::Pass pass)
     {
-        //if (pass == RenderPass::Pass::BeforePost)
-        //{
+        if (pass == RenderPass::Pass::BeforePost)
+        {
             // Render shadow maps
             for (auto light : m_lights)
                 light->drawShadowMap();
@@ -152,7 +170,7 @@ namespace jop
             if (envmap->isActive() && (m_mask & envmap->getRenderMask()) != 0)
             envmap->record();
             }*/
-        //}
+        }
 
         // Render objects
         for (auto& i : m_passes[static_cast<int>(pass)])

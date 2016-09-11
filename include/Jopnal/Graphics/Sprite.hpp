@@ -45,11 +45,10 @@ namespace jop
 
         /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
         ///
-        Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
-
-        /// \copydoc Drawable::Drawable(Object&, RenderPass&)
-        ///
-        Sprite(Object& object, RenderPass& pass, const bool cull = true);
+        Sprite(Object& object, Renderer& renderer,
+               const RenderPass::Pass pass = RenderPass::getDefaultType(),
+               const uint32 weight = RenderPass::getDefaultWeight(),
+               const bool cull = true);
 
 
         /// \copydoc Drawable::draw()
