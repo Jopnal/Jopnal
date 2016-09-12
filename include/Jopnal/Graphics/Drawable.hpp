@@ -103,14 +103,16 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
-        /// \param pass The render pass type
-        /// \param weight The render pass weight
         /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, Renderer& renderer,
-                 const RenderPass::Pass pass = RenderPass::getDefaultType(),
-                 const uint32 weight = RenderPass::getDefaultWeight(),
-                 const bool cull = true);
+        Drawable(Object& object, Renderer& renderer, const bool cull = true);
+
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const bool)
+        ///
+        /// \param pass The render pass type
+        /// \param weight The render pass weight
+        ///
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
         /// \brief Virtual destructor
         ///

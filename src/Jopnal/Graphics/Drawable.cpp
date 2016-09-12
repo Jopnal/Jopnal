@@ -65,6 +65,10 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    Drawable::Drawable(Object& object, Renderer& renderer, const bool cull)
+        : Drawable(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
+
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : CullerComponent   (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable, cull),
           m_color           (),

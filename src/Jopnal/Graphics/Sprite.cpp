@@ -40,6 +40,10 @@
 
 namespace jop
 {
+    Sprite::Sprite(Object& object, Renderer& renderer, const bool cull)
+        : Sprite(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
+
     Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : Drawable      (object, renderer, pass, weight, cull),
           m_texture     (),

@@ -36,6 +36,10 @@
 
 namespace jop
 {
+    Text::Text(Object& object, Renderer& renderer, const bool cull)
+        : Text(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
+
     Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : Drawable              (object, renderer, pass, weight, cull),
           m_material            (""),

@@ -36,6 +36,10 @@
 
 namespace jop
 {
+    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const bool cull)
+        : AnimatedSprite(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
+
     AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : Drawable          (object, renderer, pass, weight, cull),
           m_atlas           (),
@@ -143,5 +147,12 @@ namespace jop
     int AnimatedSprite::getRemainingRepeats() const
     {
         return m_repeats;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int AnimatedSprite::getCurrentFrame() const
+    {
+        return m_currentFrame;
     }
 }
