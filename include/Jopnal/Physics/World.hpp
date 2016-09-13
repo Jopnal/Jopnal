@@ -62,6 +62,10 @@ namespace jop
 
         struct BroadphaseCallback
         {
+			JOP_DISALLOW_COPY_MOVE(BroadphaseCallback);
+
+		public:
+
             BroadphaseCallback(World& world);
 
             virtual ~BroadphaseCallback();

@@ -127,7 +127,7 @@ namespace jop
 
         struct FunctionEnabler : SettingCallback<bool>
         {
-            const uint32 func;
+            uint32 func;
 
             FunctionEnabler(const char* str, const uint32 function, const bool def)
                 : SettingCallback   (),

@@ -276,6 +276,8 @@ namespace jop
 
         class BroadPhaseCallback : public btOverlapFilterCallback
         {
+			JOP_DISALLOW_COPY_MOVE(BroadPhaseCallback);
+
             const World::BroadphaseCallback& m_cb;
 
         public:
