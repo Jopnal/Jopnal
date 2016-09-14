@@ -30,6 +30,8 @@
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Physics/World.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
+    #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
+    #include <Jopnal/Physics/Collider.hpp>
 
 #endif
 
@@ -47,13 +49,39 @@ namespace jop
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullingBroadphaseCallback : public World::BroadphaseCallback
+        {
+        public:
+
+            CullingBroadphaseCallback(World& worldRef)
+                : World::BroadphaseCallback(worldRef)
+            {}
+
+            bool collide(const Collider& c0, const Collider& c1) const override
+            {
+                auto& st = static_cast<const CullerComponent&>(c0);
+                auto& nd = static_cast<const CullerComponent&>(c1);
+
+                return st.shouldCollide(nd) || nd.shouldCollide(st);
+            }
+        };
+    }
+
+    //////////////////////////////////////////////
+
     Scene::Scene(const std::string& ID)
-        : Object            (ID),
-          m_renderer        (std::make_unique<Renderer>(Engine::getMainRenderTarget(), *this)),
-          m_worlds          (nullptr, nullptr),
-          m_deltaScale      (1.f),
-          m_cullingWorld    (*this, *m_renderer)
-    {}
+        : Object                (ID),
+          m_renderer            (std::make_unique<Renderer>(Engine::getMainRenderTarget(), *this)),
+          m_worlds              (nullptr, nullptr),
+          m_deltaScale          (1.f),
+          m_cullingWorld        (*this, *m_renderer),
+          m_broadphaseCallback  (std::make_unique<detail::CullingBroadphaseCallback>(m_cullingWorld))
+    {
+        m_cullingWorld.setBroadphaseBallback(*m_broadphaseCallback);
+        m_cullingWorld.setDebugMode(true);
+    }
 
     Scene::~Scene()
     {
@@ -121,11 +149,12 @@ namespace jop
             if (Engine::getState() == Engine::State::Running)
                 Object::update(dt);
 
-            if (Engine::getState() == Engine::State::Running)
-            {
-                postUpdate(dt);
+            
+            if (detail::CullerComponent::cullingEnabled() && Engine::getState() < Engine::State::Frozen)
                 m_cullingWorld.update(1.f / 60.f);
-            }
+
+            if (Engine::getState() == Engine::State::Running)
+                postUpdate(dt);
         }
     }
 

@@ -50,7 +50,6 @@ namespace jop
         m_material.setMap(Material::Map::Diffuse0, Texture2D::getDefault());
         m_mesh.load(radius, 20, true);
 
-        setModel(Model(m_mesh, m_material));
         setFlags(Reflected);
         m_attributes |= Attribute::__SkySphere;
 
@@ -67,18 +66,13 @@ namespace jop
 
     void SkySphere::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-        if (!getModel().isValid())
-            return;
-
         auto& shdr = getShader();
-        auto& mat = *getModel().getMaterial();
-        auto& msh = *getModel().getMesh();
 
         // Uniforms
         {
             shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * glm::mat4(glm::mat3(proj.viewMatrix)));
 
-            mat.sendToShader(shdr);
+            m_material.sendToShader(shdr);
 
             glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
         }
@@ -86,7 +80,7 @@ namespace jop
         GlState::setDepthTest(true, GlState::DepthFunc::LessEqual);
         GlState::setFaceCull(true, GlState::FaceCull::Front);
 
-        msh.draw();
+        m_mesh.draw();
 
         GlState::setDepthTest(true);
         GlState::setFaceCull(true);

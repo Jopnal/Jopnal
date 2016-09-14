@@ -88,6 +88,36 @@ namespace jop
         return m_pass;
     }
 
+    //////////////////////////////////////////////
+
+    RenderPass::Pass ns_defPass = RenderPass::Pass::BeforePost;
+    uint32 ns_defWeight = RenderPass::DefaultWeight;
+
+    void RenderPass::setDefaultType(const Pass pass)
+    {
+        ns_defPass = pass;
+    }
+
+    //////////////////////////////////////////////
+
+    void RenderPass::setDefaultWeight(const uint32 weight)
+    {
+        ns_defWeight = weight;
+    }
+
+    //////////////////////////////////////////////
+
+    RenderPass::Pass RenderPass::getDefaultType()
+    {
+        return ns_defPass;
+    }
+
+    //////////////////////////////////////////////
+
+    uint32 RenderPass::getDefaultWeight()
+    {
+        return ns_defWeight;
+    }
 
     //////////////////////////////////////////////
 
@@ -113,7 +143,6 @@ namespace jop
 
         for (auto cam : cameras)
         {
-            const auto camMask = cam->getRenderMask();
             if (!cam->isActive() || !cam->getRenderMask())
                 continue;
 
@@ -133,12 +162,12 @@ namespace jop
 
             for (auto d : m_drawables)
             {
-                if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask) || !d->getModel().isValid())
+                if (!d->isActive() || !cam->inView(*d))
                     continue;
 
                 static const uint64 skyAttrib = Drawable::Attribute::__SkyBox | Drawable::Attribute::__SkySphere;
 
-                sorted[std::min(2, (d->getColor().alpha < 1.f || d->getModel().getMaterial()->hasAlpha()) + ((d->getAttributes() & skyAttrib) != 0) * 2)].push_back(d);
+                sorted[std::min(2, d->hasAlpha() + ((d->getAttributes() & skyAttrib) != 0) * 2)].push_back(d);
             }
 
             std::sort(sorted[0].begin(), sorted[0].end(), [&projInfo](const Drawable* left, const Drawable* right) -> bool

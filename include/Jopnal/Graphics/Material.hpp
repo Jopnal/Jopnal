@@ -163,6 +163,13 @@ namespace jop
         ///
         static const uint64 LightingAttribs;
 
+        /// All lighting model attributes that are
+        /// fragment based.
+        ///
+        /// For internal use only.
+        ///
+        static const uint64 FragLightingAttribs;
+
     private:
 
         typedef std::array<WeakReference<const Texture>, static_cast<int>(Map::__Last) - 1> MapArray;

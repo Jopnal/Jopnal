@@ -7,6 +7,8 @@
 
     #if JMAT_MAX_POINT_LIGHTS > 0
 
+        uniform samplerCube u_PointLightShadowMaps[JMAT_MAX_POINT_LIGHTS];
+
         #if __VERSION__ >= 300
         
             // Offset directions for sampling point shadows
@@ -69,6 +71,13 @@
     #endif
 
     #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0 || JMAT_MAX_SPOT_LIGHTS > 0
+
+        #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
+            uniform sampler2D u_DirectionalLightShadowMaps[JMAT_MAX_DIRECTIONAL_LIGHTS];
+        #endif
+        #if JMAT_MAX_SPOT_LIGHTS > 0
+            uniform sampler2D u_SpotLightShadowMaps[JMAT_MAX_SPOT_LIGHTS];
+        #endif
 
         // Shadow calculation for directional and spot lights
         float jop_CalculateDirSpotShadow(const in vec3 projCoords, const in vec3 norm, const in vec3 lightDir, const in sampler2D samp)

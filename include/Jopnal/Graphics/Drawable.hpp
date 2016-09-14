@@ -26,9 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
-#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -40,12 +38,18 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullerComponent;
+    }
     class ShaderProgram;
     class LightSource;
     class LightContainer;
     class Renderer;
+    class Material;
+    class Mesh;
 
-    class JOP_API Drawable : public CullerComponent
+    class JOP_API Drawable : public Component
     {
     protected:
 
@@ -104,22 +108,22 @@ namespace jop
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
         /// \param cull Should this drawable be culled?
-        /// \param pass The render pass
         ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
+        Drawable(Object& object, Renderer& renderer, const bool cull = true);
 
-        /// \brief Overloaded constructor
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const bool)
         ///
-        /// \param object Reference to the object this drawable will be bound to
-        /// \param pass The render pass to bind this drawable into
-        /// \param cull Should this drawable be culled?
+        /// \param pass The render pass type
+        /// \param weight The render pass weight
         ///
-        Drawable(Object& object, RenderPass& pass, const bool cull = true);
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
         /// \brief Virtual destructor
         ///
         virtual ~Drawable() override;
 
+
+        void update(const float deltaTime) override;
 
         /// \brief Draw function
         /// 
@@ -156,27 +160,44 @@ namespace jop
         ///
         uint8 getRenderGroup() const;
 
-        /// \brief Set the model
+        /// \brief Set the model (mesh & material)
         ///
-        /// The model will be copied.
-        ///
-        /// \param model Reference to the model
+        /// \param mesh Reference to the mesh
+        /// \param material Reference to the material
         ///
         /// \return Reference to self
         ///
         /// \comm setModel
         ///
-        Drawable& setModel(const Model& model);
+        Drawable& setModel(const Mesh& mesh, const Material& material);
 
-        /// \brief Get the model
+        /// \brief Set the mesh
         ///
-        /// \return Reference to the model
+        /// \param mesh Reference to the mesh
         ///
-        Model& getModel();
+        /// \return Reference to self
+        ///
+        Drawable& setMesh(const Mesh& mesh);
 
-        /// \copydoc getModel()
+        /// \brief Set the material
         ///
-        const Model& getModel() const;
+        /// \param material Reference to the material
+        ///
+        /// \return Reference to self
+        ///
+        Drawable& setMaterial(const Material& material);
+
+        /// \brief Get the mesh
+        ///
+        /// \return Reference to the mesh. nullptr if none bound
+        ///
+        const Mesh* getMesh() const;
+
+        /// \brief Get the material
+        ///
+        /// \return Reference to the material. nullptr if none bound
+        ///
+        const Material* getMaterial() const;
 
         /// \brief Set the color
         ///
@@ -265,6 +286,18 @@ namespace jop
         ///
         uint64 getAttributes() const;
 
+        /// \brief Check if this drawable is translucent
+        ///
+        /// \return True if translucent
+        ///
+        bool hasAlpha() const;
+
+        /// \brief Check is culling has been turned on for this drawable
+        ///
+        /// \return True if culling is enabled
+        ///
+        bool isCulled() const;
+
     protected:
 
         /// \copydoc Component::receiveMessage()
@@ -280,13 +313,16 @@ namespace jop
         static std::string getShaderPreprocessorDef(const uint64 attributes);
 
 
-        Color m_color;                                  ///< Color specific to this drawable
-        Model m_model;                                  ///< The bound model
-        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader (override)
-        Renderer& m_rendererRef;                        ///< Reference to the renderer
-        const RenderPass::Pass m_pass;                  ///< The render pass
-        uint32 m_flags;                                 ///< Property flags
-        uint8 m_renderGroup;                            ///< The render group
+        Color m_color;                                      ///< Color specific to this drawable
+        WeakReference<const Mesh> m_mesh;                   ///< The bound mesh
+        WeakReference<const Material> m_material;           ///< The bound material
+        mutable WeakReference<ShaderProgram> m_shader;      ///< The bound shader (override)
+        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
+        Renderer& m_rendererRef;                            ///< Reference to the renderer
+        const RenderPass::Pass m_pass;                      ///< The render pass type
+        const uint32 m_weight;                              ///< Render pass weight
+        uint32 m_flags;                                     ///< Property flags
+        uint8 m_renderGroup;                                ///< The render group
     };
 }
 

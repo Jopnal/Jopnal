@@ -36,8 +36,12 @@
 
 namespace jop
 {
-    Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
-        : Drawable              (object, renderer, pass, cull),
+    Text::Text(Object& object, Renderer& renderer, const bool cull)
+        : Text(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
+
+    Text::Text(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
+        : Drawable              (object, renderer, pass, weight, cull),
           m_material            (""),
           m_font                (),
           m_string              (),
@@ -48,22 +52,7 @@ namespace jop
           m_mesh                ("")
     {
         setFont(Font::getDefault());
-        setModel(Model(m_mesh, m_material));
-    }
-
-    Text::Text(Object& object, RenderPass& pass, const bool cull)
-        : Drawable              (object, pass, cull),
-          m_material            (""),
-          m_font                (),
-          m_string              (),
-          m_style               (jop::Text::Default),
-          m_lastFontSize        (0),
-          m_geometryNeedsUpdate (false),
-          m_bounds              ({ 0, 0, 0, 0 }),
-          m_mesh                ("")
-    {
-        setFont(Font::getDefault());
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     Text::Text(const Text& other, Object& newObj)
@@ -77,7 +66,7 @@ namespace jop
           m_bounds              (other.m_bounds),
           m_mesh                ("")
     {
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     //////////////////////////////////////////////

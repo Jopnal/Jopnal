@@ -45,6 +45,11 @@ namespace jop
           m_shape   ()
     {}
 
+    CollisionShape::CollisionShape(const CollisionShape& other, const std::string& newName)
+        : Resource  (other, newName),
+          m_shape   ()
+    {}
+
     CollisionShape::~CollisionShape()
     {}
 

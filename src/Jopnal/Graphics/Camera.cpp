@@ -33,6 +33,8 @@
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
+    #include <Jopnal/Physics/Shape/FrustumShape.hpp>
     #include <glm/gtc/matrix_transform.hpp>
 
 #endif
@@ -58,8 +60,11 @@ namespace jop
 {
     Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
         : Component                 (object, 0),
-          m_renderTexture           (),
           m_projectionMatrix        (),
+          m_renderTexture           (),
+          m_drawables               (),
+          m_lights                  (),
+          m_culler                  (),
           m_viewPort                (glm::vec2(0.f), glm::vec2(1.f)),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
@@ -80,8 +85,15 @@ namespace jop
         else
         {
             setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 1000.f));
-            setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFovYRad", glm::radians(55.f)));
+            setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFoV", glm::radians(55.f)));
             setSize(Engine::getMainRenderTarget().getSize());
+        }
+
+        if (detail::CullerComponent::cullingEnabled())
+        {
+            m_culler = std::make_unique<detail::CullerComponent>(object, renderer.getCullingWorld(), detail::CullerComponent::Type::Camera, this);
+            m_shape = std::make_unique<FrustumShape>("");
+            updateShape();
         }
 
         renderer.bind(this);
@@ -91,6 +103,9 @@ namespace jop
         : Component                 (other, newObj),
           m_projectionMatrix        (other.m_projectionMatrix),
           m_renderTexture           (),
+          m_drawables               (),
+          m_lights                  (),
+          m_culler                  (),
           m_viewPort                (other.m_viewPort),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),
@@ -99,12 +114,27 @@ namespace jop
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
     {
+        if (other.m_culler)
+        {
+            m_culler = std::make_unique<detail::CullerComponent>(*other.m_culler, newObj, this);
+            m_shape = std::make_unique<FrustumShape>("");
+            updateShape();
+        }
+
         m_rendererRef.bind(this);
     }
     
     Camera::~Camera()
     {
         m_rendererRef.unbind(this);
+    }
+
+    //////////////////////////////////////////////
+
+    void Camera::update(const float deltaTime)
+    {
+        if (m_culler)
+            m_culler->update(deltaTime);
     }
 
     //////////////////////////////////////////////
@@ -159,7 +189,7 @@ namespace jop
         m_mode = mode;
         m_projectionNeedUpdate = true;
 
-        return *this;
+        return updateShape();
     }
 
     //////////////////////////////////////////////
@@ -176,7 +206,7 @@ namespace jop
         m_clippingPlanes = ClippingPlanes(clipNear, clipFar);
         m_projectionNeedUpdate = true;
 
-        return *this;
+        return updateShape();
     }
 
     //////////////////////////////////////////////
@@ -206,7 +236,7 @@ namespace jop
         else
             setAspectRatio(x / y);
 
-        return *this;
+        return updateShape();
     }
 
     //////////////////////////////////////////////
@@ -223,7 +253,7 @@ namespace jop
         m_projData.perspective.aspectRatio = ratio;
         m_projectionNeedUpdate = true;
 
-        return *this;
+        return updateShape();
     }
 
     //////////////////////////////////////////////
@@ -240,7 +270,7 @@ namespace jop
         m_projData.perspective.fov = fovY;
         m_projectionNeedUpdate = true;
 
-        return *this;
+        return updateShape();
     }
 
     //////////////////////////////////////////////
@@ -307,11 +337,35 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Camera::inView(const Drawable& drawable) const
+    {
+        return !detail::CullerComponent::cullingEnabled() || m_drawables.find(&drawable) != m_drawables.end();
+    }
+
+    //////////////////////////////////////////////
+
     Message::Result Camera::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(Camera, message.getString(), this) == Message::Result::Escape)
             return Message::Result::Escape;
 
         return Component::receiveMessage(message); 
+    }
+
+    //////////////////////////////////////////////
+
+    Camera& Camera::updateShape()
+    {
+        if (m_culler)
+        {
+            if (getProjectionMode() == Projection::Perspective)
+                m_shape->load(getClippingPlanes(), getFieldOfView(), getAspectRatio(), glm::quat());
+            else
+                m_shape->load(getClippingPlanes(), getSize(), glm::quat());
+
+            m_culler->updateWorldBounds();
+        }
+
+        return *this;
     }
 }

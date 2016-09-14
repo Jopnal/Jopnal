@@ -129,7 +129,7 @@ namespace jop
 
         /// \brief Register a listener for this collider
         ///
-        /// Single collider can have multiple listeners
+        /// Single collider can have multiple listeners.
         ///
         /// \param listener Reference to the listener which is to be registered for this collider 
         ///

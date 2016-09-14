@@ -176,6 +176,8 @@ namespace jop
             glCheck(glDetachShader(m_programID, i.second->getHandle()));
         }
 
+        m_shaders.clear();
+
         return true;
     }
 

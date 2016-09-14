@@ -50,7 +50,11 @@ namespace jop
 
     bool SphereShape::load(const float radius)
     {
-        m_shape = std::make_unique<btSphereShape>(radius);
+        if (!m_shape)
+            m_shape = std::make_unique<btSphereShape>(radius);
+        else
+            new (&static_cast<btSphereShape&>(*m_shape)) btSphereShape(radius);
+
         m_shape->setUserPointer(this);
         
         return true;

@@ -508,7 +508,10 @@ namespace jop
                 return;
         }
 
-        shader.setUniform("u_ReceiveShadows", receiveShadows);
+        const bool shadows = (drawable.getMaterial()->getAttributes() & Material::FragLightingAttribs) != 0;
+        
+        if (shadows)
+            shader.setUniform("u_ReceiveShadows", receiveShadows);
 
         typedef LightSource LS;
 
@@ -629,7 +632,7 @@ namespace jop
                 shader.setUniform(cache[4], li.getAttenuation());
 
                 // Shadow map
-                if (receiveShadows)
+                if (receiveShadows && shadows)
                 {
                     shader.setUniform(cache[5], li.castsShadows());
 
@@ -688,7 +691,7 @@ namespace jop
                 shader.setUniform(cache[6], glm::vec2(std::cos(li.getCutoff().x), std::cos(li.getCutoff().y)));
 
                 // Shadow map
-                if (receiveShadows)
+                if (receiveShadows && shadows)
                 {
                     shader.setUniform(cache[7], li.castsShadows());
 
@@ -738,7 +741,7 @@ namespace jop
                 shader.setUniform(cache[3], li.getIntensity(LS::Intensity::Specular).colors);
 
                 // Shadow map
-                if (receiveShadows)
+                if (receiveShadows && shadows)
                 {
                     shader.setUniform(cache[4], li.castsShadows());
 

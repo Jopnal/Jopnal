@@ -36,23 +36,12 @@
 
 namespace jop
 {
-    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const bool cull)
-        : Drawable          (object, renderer, pass, cull),
-          m_atlas           (),
-          m_mesh            (""),
-          m_material        (""),
-          m_animationRange  (),
-          m_frameTime       (0.f),
-          m_timer           (0.f),
-          m_status          (Status::Stopped),
-          m_currentFrame    (0),
-          m_repeats         (0)
-    {
-        setModel(Model(m_mesh, m_material));
-    }
+    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const bool cull)
+        : AnimatedSprite(object, renderer, RenderPass::getDefaultType(), RenderPass::getDefaultWeight(), cull)
+    {}
 
-    AnimatedSprite::AnimatedSprite(Object& object, RenderPass& pass, const bool cull)
-        : Drawable          (object, pass, cull),
+    AnimatedSprite::AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
+        : Drawable          (object, renderer, pass, weight, cull),
           m_atlas           (),
           m_mesh            (""),
           m_material        (""),
@@ -63,7 +52,7 @@ namespace jop
           m_currentFrame    (0),
           m_repeats         (0)
     {
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     AnimatedSprite::~AnimatedSprite()
@@ -158,5 +147,12 @@ namespace jop
     int AnimatedSprite::getRemainingRepeats() const
     {
         return m_repeats;
+    }
+
+    //////////////////////////////////////////////
+
+    unsigned int AnimatedSprite::getCurrentFrame() const
+    {
+        return m_currentFrame;
     }
 }

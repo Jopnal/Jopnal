@@ -50,13 +50,13 @@ namespace jop
 
     public:
 
-        /// \copydoc Drawable::Drawable(Object&, Renderer&, const RenderPass::Pass)
+        /// \copydoc Drawable::Drawable(Object&, Renderer&,const bool)
         ///
-        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost, const bool cull = true);
+        AnimatedSprite(Object& object, Renderer& renderer, const bool cull = true);
 
-        /// \copydoc Drawable::Drawable(Object&, RenderPass&)
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass,const uint32,const bool)
         ///
-        AnimatedSprite(Object& object, RenderPass& pass, const bool cull = true);
+        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
         /// \brief Destructor
         ///
@@ -121,6 +121,12 @@ namespace jop
         /// \return Remaining repeats. Negative if infinite
         ///
         int getRemainingRepeats() const;
+
+        /// \brief Get the current animation frame
+        ///
+        /// \return The current frame
+        ///
+        unsigned int getCurrentFrame() const;
 
     private:
 

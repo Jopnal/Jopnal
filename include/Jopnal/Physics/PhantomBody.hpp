@@ -36,11 +36,9 @@ namespace jop
 
     class JOP_API PhantomBody : public Collider
     {
-    protected:
+    public:
 
         JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
-
-        friend class CullerComponent;
 
     public:
     
@@ -49,8 +47,10 @@ namespace jop
         /// \param object The object to bind this component into
         /// \param world The physics world
         ///
-        PhantomBody(Object& object, World& world, CollisionShape& shape, const bool attachToWorld);
+        PhantomBody(Object& object, World& world, CollisionShape& shape);
 
+        /// \brief Destructor
+        ///
         virtual ~PhantomBody() override;
 
 
@@ -73,10 +73,6 @@ namespace jop
         /// \return The number of overlapping colliders
         ///
         unsigned int getOverlapAmount() const;
-
-    private:
-
-        const bool m_attached;
     };
 }
 

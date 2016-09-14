@@ -45,8 +45,25 @@ JOP_VARYING_IN vec4 vf_Color;
 #ifdef JMAT_LIGHTING
 
     #include <Jopnal/DefaultLighting/Uniforms>
-    #include <Jopnal/DefaultLighting/Shadows>
-    #include <Jopnal/DefaultLighting/Lighting>
+
+    #ifdef JMAT_PHONG
+
+        #include <Jopnal/DefaultLighting/Shadows>
+        #include <Jopnal/DefaultLighting/Lighting>
+
+    #else
+
+        #ifdef JMAT_FLAT
+            JOP_FLAT
+        #endif
+        JOP_VARYING_IN vec3 vf_AmbDiffLight;
+
+        #ifdef JMAT_FLAT
+            JOP_FLAT
+        #endif
+        JOP_VARYING_IN vec3 vf_SpecLight;
+
+    #endif
 
 #endif
 
@@ -86,93 +103,94 @@ void main()
     // Do lighting calculations
     #ifdef JMAT_LIGHTING
 
-        #if __VERSION__ >= 300
-            #define JOP_POINT_LIMIT u_NumPointLights
-            #define JOP_DIR_LIMIT u_NumDirectionalLights
-            #define JOP_SPOT_LIMIT u_NumSpotLights
-        #else
-            #define JOP_POINT_LIMIT JMAT_MAX_POINT_LIGHTS
-            #define JOP_DIR_LIMIT JMAT_MAX_DIRECTIONAL_LIGHTS
-            #define JOP_SPOT_LIMIT JMAT_MAX_SPOT_LIGHTS
-        #endif
-
         vec3 tempLight[3];
-        tempLight[0] = vec3(0.0);
-        tempLight[1] = vec3(0.0);
-        tempLight[2] = vec3(0.0);
 
-        float shininessMult =
-        #ifdef JMAT_GLOSSMAP
-            JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
-        #else
-            1.0
-        #endif
-        ;
+        #ifdef JMAT_PHONG
 
-        if (u_ReceiveLights)
-        {
-            vec3 light[3];
+            tempLight[0] = vec3(0.0);
+            tempLight[1] = vec3(0.0);
+            tempLight[2] = vec3(0.0);
 
-        #if JMAT_MAX_POINT_LIGHTS > 0
+            float shininessMult =
+            #ifdef JMAT_GLOSSMAP
+                JOP_TEXTURE_2D(u_GlossMap, vf_TexCoords).a
+            #else
+                1.0
+            #endif
+            ;
 
-            // Point lights
-            for (int i = 0; i < JOP_POINT_LIMIT; ++i)
+            if (u_ReceiveLights)
             {
-                jop_CalculatePointLight(i, shininessMult, light[0], light[1], light[2]);
+                vec3 light[3];
 
-                // Shadow calculation
-                float shadow = 1.0;
-                if (u_PointLights[i].castShadow && u_ReceiveShadows)
-                    shadow -= jop_CalculatePointShadow(u_PointLights[i].position - vf_Position, u_PointLights[i].farPlane, u_PointLightShadowMaps[i]);
+            #if JMAT_MAX_POINT_LIGHTS > 0
 
-                tempLight[0] += light[0];
-                tempLight[1] += light[1] * shadow;
-                tempLight[2] += light[2] * shadow;
-            }
-
-        #endif
-        
-        #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
-
-            // Directional lights
-            for (int i = 0; i < JOP_DIR_LIMIT; ++i)
-            {
-                jop_CalculateDirectionalLight(i, shininessMult, light[0], light[1], light[2]);
-
-                // Shadow calculation
-                float shadow = 1.0;
-                if (u_DirectionalLights[i].castShadow && u_ReceiveShadows)
-                    shadow -= jop_CalculateDirSpotShadow(vec3(u_DirectionalLights[i].lsMatrix * vec4(vf_Position, 1.0)) * 0.5 + 0.5, vf_Normal, -u_DirectionalLights[i].direction, u_DirectionalLightShadowMaps[i]);
-
-                tempLight[0] += light[0];
-                tempLight[1] += light[1] * shadow;
-                tempLight[2] += light[2] * shadow;
-            }
-
-        #endif
-                
-        #if JMAT_MAX_SPOT_LIGHTS > 0
-
-            // Spot lights
-            for (int i = 0; i < JOP_SPOT_LIMIT; ++i)
-            {
-                jop_CalculateSpotLight(i, shininessMult, light[0], light[1], light[2]);
-
-                // Shadow calculation
-                float shadow = 1.0;
-                if (u_SpotLights[i].castShadow && u_ReceiveShadows)
+                // Point lights
+                for (int i = 0; i < JOP_POINT_LIMIT; ++i)
                 {
-                    vec4 tempCoords = u_SpotLights[i].lsMatrix * vec4(vf_Position, 1.0);
-                    shadow -= jop_CalculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, vf_Normal, u_SpotLights[i].position - vf_Position, u_SpotLightShadowMaps[i]);
+                    jop_CalculatePointLight(i, shininessMult, light[0], light[1], light[2]);
+
+                    // Shadow calculation
+                    float shadow = 1.0;
+                    if (u_PointLights[i].castShadow && u_ReceiveShadows)
+                        shadow -= jop_CalculatePointShadow(u_PointLights[i].position - vf_Position, u_PointLights[i].farPlane, u_PointLightShadowMaps[i]);
+
+                    tempLight[0] += light[0];
+                    tempLight[1] += light[1] * shadow;
+                    tempLight[2] += light[2] * shadow;
                 }
-                
-                tempLight[0] += light[0];
-                tempLight[1] += light[1] * shadow;
-                tempLight[2] += light[2] * shadow;
+
+            #endif
+            
+            #if JMAT_MAX_DIRECTIONAL_LIGHTS > 0
+
+                // Directional lights
+                for (int i = 0; i < JOP_DIR_LIMIT; ++i)
+                {
+                    jop_CalculateDirectionalLight(i, shininessMult, light[0], light[1], light[2]);
+
+                    // Shadow calculation
+                    float shadow = 1.0;
+                    if (u_DirectionalLights[i].castShadow && u_ReceiveShadows)
+                        shadow -= jop_CalculateDirSpotShadow(vec3(u_DirectionalLights[i].lsMatrix * vec4(vf_Position, 1.0)) * 0.5 + 0.5, vf_Normal, -u_DirectionalLights[i].direction,  u_DirectionalLightShadowMaps[i]);
+
+                    tempLight[0] += light[0];
+                    tempLight[1] += light[1] * shadow;
+                    tempLight[2] += light[2] * shadow;
+                }
+
+            #endif
+                    
+            #if JMAT_MAX_SPOT_LIGHTS > 0
+
+                // Spot lights
+                for (int i = 0; i < JOP_SPOT_LIMIT; ++i)
+                {
+                    jop_CalculateSpotLight(i, shininessMult, light[0], light[1], light[2]);
+
+                    // Shadow calculation
+                    float shadow = 1.0;
+                    if (u_SpotLights[i].castShadow && u_ReceiveShadows)
+                    {
+                        vec4 tempCoords = u_SpotLights[i].lsMatrix * vec4(vf_Position, 1.0);
+                        shadow -= jop_CalculateDirSpotShadow((tempCoords.xyz / tempCoords.w) * 0.5 + 0.5, vf_Normal, u_SpotLights[i].position - vf_Position, u_SpotLightShadowMaps[i]);
+                    }
+                    
+                    tempLight[0] += light[0];
+                    tempLight[1] += light[1] * shadow;
+                    tempLight[2] += light[2] * shadow;
+                }
+
+            #endif
             }
 
-        #endif
-        }
+        #else
+
+            tempLight[0] = vf_AmbDiffLight;
+            tempLight[1] = vec3(0.0);
+            tempLight[2] = vf_SpecLight;
+
+        #endif //JMAT_PHONG
 
         #ifdef JMAT_SPECULARMAP
             tempLight[2] *= vec3(JOP_TEXTURE_2D(u_SpecularMap, vf_TexCoords));

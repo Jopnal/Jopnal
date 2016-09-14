@@ -45,16 +45,20 @@ namespace jop
         : Resource              (name),
           m_vertexbuffer        (Buffer::Type::ArrayBuffer),
           m_indexbuffer         (Buffer::Type::ElementArrayBuffer),
+          m_shape               (""),
           m_bounds              (),
           m_vertexComponents    (0),
           m_elementSize         (0),
           m_vertexSize          (0)
-    {}
+    {
+        m_shape.load(glm::vec3(1.f));
+    }
 
     Mesh::Mesh(const Mesh& other, const std::string& newName)
         : Resource              (other, newName),
           m_vertexbuffer        (other.m_vertexbuffer),
           m_indexbuffer         (other.m_indexbuffer),
+          m_shape               (other.m_shape, ""),
           m_bounds              (other.m_bounds),
           m_vertexComponents    (other.m_vertexComponents),
           m_elementSize         (other.m_elementSize),
@@ -63,7 +67,7 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned short indexSize, const unsigned int indexAmount)
+    bool Mesh::load(const void* vertexData, const unsigned int vertexBytes, const uint32 vertexComponents, const void* indexData, const unsigned short indexSize, const unsigned int indexAmount, const bool calculateBounds)
     {
         m_vertexbuffer.destroy();
         m_indexbuffer.destroy();
@@ -77,14 +81,26 @@ namespace jop
         if (indexData && m_elementSize && indexAmount)
             m_indexbuffer.setData(indexData, m_elementSize * indexAmount);
 
+        if (calculateBounds)
+        {
+            const auto vs = getVertexSize();
+            const uint8* binData = reinterpret_cast<const uint8*>(vertexData);
+
+            for (std::size_t i = 0; i < vertexBytes; i += vs)
+            {
+                m_bounds.first = glm::min(m_bounds.first, *reinterpret_cast<const glm::vec3*>(binData[i]));
+                m_bounds.second = glm::max(m_bounds.second, *reinterpret_cast<const glm::vec3*>(binData[i]));
+            }
+        }
+
         return true;
     }
 
     //////////////////////////////////////////////
 
-    bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray)
+    bool Mesh::load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray, const bool calculateBounds)
     {
-        return load(vertexArray.data(), vertexArray.size() * sizeof(Vertex), Position | TexCoords | Normal, indexArray.data(), sizeof(unsigned int), indexArray.size());
+        return load(vertexArray.data(), vertexArray.size() * sizeof(Vertex), Position | TexCoords | Normal, indexArray.data(), sizeof(unsigned int), indexArray.size(), calculateBounds);
     }
 
     //////////////////////////////////////////////
@@ -224,6 +240,15 @@ namespace jop
     {
         m_bounds.first = min;
         m_bounds.second = max;
+
+        m_shape.load(max - min);
+    }
+
+    //////////////////////////////////////////////
+
+    BoxShape& Mesh::getCullingShape() const
+    {
+        return m_shape;
     }
 
     //////////////////////////////////////////////

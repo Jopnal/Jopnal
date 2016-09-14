@@ -57,13 +57,13 @@ namespace jop
 
     public:
 
-        /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass)
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const bool)
         ///
-        Text(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::AfterPost, const bool cull = true);
+        Text(Object& object, Renderer& renderer, const bool cull = true);
 
-        /// \copydoc Drawable::Drawable(Object&,RenderPass&)
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass,const uint32,const bool)
         ///
-        Text(Object& object, RenderPass& pass, const bool cull = true);
+        Text(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
 
         /// \brief Set string that is displayed
