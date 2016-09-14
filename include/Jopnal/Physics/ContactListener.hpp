@@ -42,10 +42,20 @@ namespace jop
 
     public:
 
+        /// \brief Constructor
+        ///
+        ContactListener();
+
         /// \brief Virtual destructor
+        ///
+        /// Calls unregisterSelf().
         ///
         virtual ~ContactListener() = 0;
 
+
+        /// \brief Unregister this listener from the collider it's bound to
+        ///
+        void unregisterSelf();
 
         /// \brief Begin contact callback
         ///
@@ -75,7 +85,6 @@ namespace jop
     private:
 
         Collider* m_collider; ///< Pointer to the collider which this listener is registered for
-
     };
 }
 

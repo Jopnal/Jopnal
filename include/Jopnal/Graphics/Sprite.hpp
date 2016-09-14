@@ -85,10 +85,26 @@ namespace jop
         ///
         const glm::vec2& getSize() const;
 
+        /// \brief Set the texture coordinates
+        ///
+        /// \param min The minimum coordinates
+        /// \param max The maximum coordinates
+        ///
+        /// \return Reference to self
+        ///
+        Sprite& setTextureCoordinates(const glm::vec2& min, const glm::vec2& max);
+
+        /// \brief Get the texture coordinates
+        ///
+        /// \return The texture coordinates. First = min, second = max
+        ///
+        const std::pair<glm::vec2, glm::vec2>& getTextureCoordinates() const;
+
     private:
 
         mutable WeakReference<const Texture2D> m_texture;   ///< Texture
         RectangleMesh m_mesh;                               ///< Mesh
+        std::pair<glm::vec2, glm::vec2> m_texCoords;        ///< Texture coordinates
     };
 }
 

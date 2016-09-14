@@ -26,7 +26,12 @@
 
     #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 
+    #include <Jopnal/Core/SettingManager.hpp>
     #include <Jopnal/Physics/Shape/CollisionShape.hpp>
+    #include <Jopnal/Graphics/Camera.hpp>
+    #include <Jopnal/Graphics/Drawable.hpp>
+    #include <Jopnal/Graphics/LightSource.hpp>
+    #include <Jopnal/Graphics/EnvironmentRecorder.hpp>
     #include <Jopnal/STL.hpp>
     #include <BulletCollision/CollisionShapes/btEmptyShape.h>
 
@@ -35,38 +40,147 @@
 //////////////////////////////////////////////
 
 
-namespace jop
+namespace jop { namespace detail
 {
-    namespace detail
+    class DummyShape : public CollisionShape
     {
-        class DummyShape : public CollisionShape
-        {
-        public:
+    public:
 
-            DummyShape()
-                : CollisionShape("")
+        DummyShape()
+            : CollisionShape("")
+        {
+            m_shape = std::make_unique<btEmptyShape>();
+        }
+    };
+
+    DummyShape& getDummyShape()
+    {
+        static DummyShape shape;
+        return shape;
+    }
+
+    //////////////////////////////////////////////
+
+    CullerComponent::CullerComponent(Object& object, World& world, const Type type, void* component)
+        : PhantomBody       (object, world, getDummyShape()),
+          ContactListener   (),
+          m_type            (type),
+          m_component       (component)
+    {
+        registerListener(*this);
+    }
+
+    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj, void* newComp)
+        : PhantomBody       (other, newObj),
+          ContactListener   (),
+          m_type            (other.m_type),
+          m_component       (newComp)
+    {
+        registerListener(*this);
+    }
+
+    //////////////////////////////////////////////
+
+    CullerComponent::Type CullerComponent::getType() const
+    {
+        return m_type;
+    }
+
+    //////////////////////////////////////////////
+
+    bool CullerComponent::shouldCollide(const CullerComponent& other) const
+    {
+        switch (getType())
+        {
+            case Type::Camera:
             {
-                m_shape = std::make_unique<btEmptyShape>();
-            }
-        };
+                if (other.getType() == Type::Drawable)
+                    return (static_cast<const Camera*>(m_component)->getRenderMask() & 1 << static_cast<const Drawable*>(other.m_component)->getRenderGroup()) != 0;
 
-        DummyShape& getDummyShape()
+                else if (other.getType() == Type::LightSource)
+                    return true;
+            }
+
+            case Type::LightSource:
+                return other.getType() == Type::Drawable &&
+                      (static_cast<const LightSource*>(m_component)->getRenderMask() & 1 << static_cast<const Drawable*>(other.m_component)->getRenderGroup()) != 0;
+
+            //case Type::EnvironmentRecorder:
+            //    return other.getType() == Type::Drawable;
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////
+
+    bool CullerComponent::cullingEnabled()
+    {
+        static const bool culling = SettingManager::get<bool>("engine@Graphics|bCulling", false);
+        return culling;
+    }
+
+    //////////////////////////////////////////////
+
+    void CullerComponent::beginOverlap(Collider& collider)
+    {
+        switch (getType())
         {
-            static DummyShape shape;
-            return shape;
+            case Type::Camera:
+            {
+                auto cam = static_cast<Camera*>(m_component);
+                auto& other = static_cast<CullerComponent&>(collider);
+
+                switch (other.getType())
+                {
+                    case Type::Drawable:
+                        cam->m_drawables.insert(static_cast<const Drawable*>(other.m_component));
+                        break;
+                    case Type::LightSource:
+                        cam->m_lights.insert(static_cast<const LightSource*>(other.m_component));
+                }
+
+                break;
+            }
+            case Type::LightSource:
+            {
+                break;
+            }
+            //case Type::EnvironmentRecorder:
+            //{
+            //}
         }
     }
 
-    CullerComponent::CullerComponent(Object& object, World& world, const Type type, const bool cull)
-        : PhantomBody   (object, world, detail::getDummyShape(), cull),
-          m_type        (type)
-    {
+    //////////////////////////////////////////////
 
-    }
-
-    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj)
-        : PhantomBody   (other, newObj),
-          m_type        (other.m_type)
+    void CullerComponent::endOverlap(Collider& collider)
     {
+        switch (getType())
+        {
+            case Type::Camera:
+            {
+                auto cam = static_cast<Camera*>(m_component);
+                auto& other = static_cast<CullerComponent&>(collider);
+
+                switch (other.getType())
+                {
+                    case Type::Drawable:
+                        cam->m_drawables.erase(static_cast<const Drawable*>(other.m_component));
+                        break;
+                    case Type::LightSource:
+                        cam->m_lights.erase(static_cast<const LightSource*>(other.m_component));
+                }
+
+                break;
+            }
+            case Type::LightSource:
+            {
+                break;
+            }
+            case Type::EnvironmentRecorder:
+            {
+            }
+        }
     }
-}
+}}

@@ -52,7 +52,7 @@ namespace jop
           m_currentFrame    (0),
           m_repeats         (0)
     {
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     AnimatedSprite::~AnimatedSprite()

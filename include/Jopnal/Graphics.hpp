@@ -39,7 +39,6 @@
 #include <Jopnal/Graphics/MainRenderTarget.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
-#include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
 #include <Jopnal/Graphics/PostProcessor.hpp>
 #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
@@ -57,7 +56,6 @@
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/ShaderPreprocessor.hpp>
 #include <Jopnal/Graphics/ShaderProgram.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/Image.hpp>

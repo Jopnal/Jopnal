@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Resource.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
+#include <Jopnal/Physics/Shape/BoxShape.hpp>
 #include <vector>
 
 //////////////////////////////////////////////
@@ -102,19 +103,21 @@ namespace jop
         /// \param indexData Pointer to the index data
         /// \param indexSize Size of a **single** index in bytes
         /// \param indexAmount Amount of indices
+        /// \param calculateBounds Automatically calculate the bounds?
         ///
         /// \return True if loaded successfully
         /// 
-        bool load(const void* vertexData, const uint32 vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const uint16 indexSize = 0, const uint32 indexAmount = 0);
+        bool load(const void* vertexData, const uint32 vertexBytes, const uint32 vertexComponents, const void* indexData = nullptr, const uint16 indexSize = 0, const uint32 indexAmount = 0, const bool calculateBounds = false);
 
         /// \brief Load mesh from memory using default vertex format
         ///
         /// \param vertexArray Container holding the vertex data
         /// \param indexArray Container holding index data
+        /// \param calculateBounds Automatically calculate the bounds?
         ///
         /// \return True if successfully loaded
         ///
-        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray);
+        bool load(const std::vector<Vertex>& vertexArray, const std::vector<unsigned int>& indexArray, const bool calculateBounds = false);
 
         /// \brief Draw this mesh
         ///
@@ -209,6 +212,12 @@ namespace jop
         ///
         void updateBounds(const glm::vec3& min, const glm::vec3& max);
 
+        /// \brief Get the culling shape
+        ///
+        /// \return Reference to the internal shape
+        ///
+        BoxShape& getCullingShape() const;
+
         /// \brief Get the size of a vertex with the given format
         ///
         /// \param components Vertex components
@@ -232,6 +241,7 @@ namespace jop
 
         VertexBuffer m_vertexbuffer;                ///< The vertex buffer
         VertexBuffer m_indexbuffer;                 ///< The index buffer
+        mutable BoxShape m_shape;                   ///< Culling shape
         std::pair<glm::vec3, glm::vec3> m_bounds;   ///< Mesh bounds
         uint32 m_vertexComponents;                  ///< Vertex components this mesh has
         uint16 m_elementSize;                       ///< Element size

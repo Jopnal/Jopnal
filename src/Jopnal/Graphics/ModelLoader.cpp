@@ -33,7 +33,6 @@
     #include <Jopnal/Graphics/Color.hpp>
     #include <Jopnal/Graphics/Drawable.hpp>
     #include <Jopnal/Graphics/Material.hpp>
-    #include <Jopnal/Graphics/Model.hpp>
     #include <Jopnal/Graphics/Texture/Texture2D.hpp>
     #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
     #include <Jopnal/Graphics/Mesh/Mesh.hpp>
@@ -276,7 +275,7 @@ namespace jop
                 for (auto& i : val["meshes"])
                 {
                     if (i.IsUint())
-                        object->createComponent<Drawable>(rend).setModel(Model(*meshes[i.GetUint()].first, *mats[meshes[i.GetUint()].second]));
+                        object->createComponent<Drawable>(rend).setModel(*meshes[i.GetUint()].first, *mats[meshes[i.GetUint()].second]);
                 }
             }
 

@@ -24,6 +24,7 @@
 
 // Headers
 #include <Jopnal/Header.hpp>
+#include <Jopnal/Physics/ContactListener.hpp>
 #include <Jopnal/Physics/PhantomBody.hpp>
 
 //////////////////////////////////////////////
@@ -31,31 +32,47 @@
 
 namespace jop
 {
-    class JOP_API CullerComponent : public PhantomBody
+    class Object;
+    class World;
+
+    namespace detail
     {
-    protected:
-
-        JOP_GENERIC_COMPONENT_CLONE(CullerComponent);
-
-    protected:
-
-        enum class Type
+        class CullerComponent final : public PhantomBody, public ContactListener
         {
-            Drawable,
-            Camera,
-            LightSource,
-            EnvironmentRecorder
+        public:
+
+            enum class Type
+            {
+                Drawable,
+                Camera,
+                LightSource,
+                EnvironmentRecorder
+            };
+
+        public:
+
+            CullerComponent(Object& object, World& world, const Type type, void* component);
+
+            CullerComponent(const CullerComponent& other, Object& newObj, void* newComp);
+
+
+            Type getType() const;
+
+            bool shouldCollide(const CullerComponent& other) const;
+
+            static bool cullingEnabled();
+
+        private:
+
+            void beginOverlap(Collider& collider) override;
+
+            void endOverlap(Collider& collider) override;
+
+
+            const Type m_type;
+            void* m_component;
         };
-
-    protected:
-
-        CullerComponent(Object& object, World& world, const Type type, const bool attach);
-
-
-    private:
-
-        const Type m_type;
-    };
+    }
 }
 
 /// \class jop::CullerComponent

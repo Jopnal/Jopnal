@@ -69,8 +69,8 @@ namespace jop
     {
         const auto halfFov = fov * 0.5f;
 
-        const glm::vec3 nearHalf = glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.first), halfFov), halfFov * aspectRatio);
-        const glm::vec3 farHalf = glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.second), halfFov), halfFov * aspectRatio);
+        const glm::vec3 nearHalf = glm::abs(glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.first), halfFov), halfFov * aspectRatio));
+        const glm::vec3 farHalf = glm::abs(glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.second), halfFov), halfFov * aspectRatio));
 
         const std::vector<glm::vec3> points =
         {

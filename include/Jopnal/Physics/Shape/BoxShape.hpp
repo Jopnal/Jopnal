@@ -42,6 +42,10 @@ namespace jop
         ///
         BoxShape(const std::string& name);
 
+        /// \brief Copy constructor
+        ///
+        BoxShape(const BoxShape& other, const std::string& newName);
+
 
         /// \brief Load this shape
         ///

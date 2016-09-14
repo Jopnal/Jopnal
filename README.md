@@ -22,7 +22,7 @@ All the included [3rd party libraries](https://github.com/DrJonki/Jopnal/wiki/Cr
 
 Copyright (c) 2016 Team Jopnal, All Rights Reserved  
 
-[Contributors & Third parties](https://github.com/DrJonki/Jopnal/wiki/Credits)
+[Contributors](https://github.com/DrJonki/Jopnal/wiki/Credits)
 
 Jopnal Engine uses the following external libraries:  
   - [Box2D](http://box2d.org/) (zlib)

@@ -26,11 +26,28 @@
 
 namespace jop
 {
+
+    ContactListener::ContactListener()
+        : m_collider(nullptr)
+    {}
+
     ContactListener::~ContactListener()
     {
-        if (m_collider)
-            m_collider->m_listeners.erase(this);
+        unregisterSelf();
     }
+
+    //////////////////////////////////////////////
+
+    void ContactListener::unregisterSelf()
+    {
+        if (m_collider)
+        {
+            m_collider->m_listeners.erase(this);
+            m_collider = nullptr;
+        }
+    }
+
+    //////////////////////////////////////////////
 
     void ContactListener::beginContact(Collider&, const ContactInfo&)
     {}

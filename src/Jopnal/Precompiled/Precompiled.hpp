@@ -122,5 +122,6 @@
 #include <Jopnal/Audio/AudioReader.hpp>
 #include <Jopnal/Window/SensorManager.hpp>
 #include <Jopnal/Window/InputEnumsImpl.hpp>
+#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 
 #endif

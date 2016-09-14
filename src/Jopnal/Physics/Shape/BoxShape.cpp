@@ -46,6 +46,13 @@ namespace jop
         : CollisionShape(name)
     {}
 
+    BoxShape::BoxShape(const BoxShape& other, const std::string& newName)
+        : CollisionShape(other, newName)
+    {
+        if (other.m_shape)
+            m_shape = std::make_unique<btBoxShape>(static_cast<const btBoxShape&>(*other.m_shape));
+    }
+
     //////////////////////////////////////////////
 
     bool BoxShape::load(const float size)
@@ -57,7 +64,11 @@ namespace jop
 
     bool BoxShape::load(const glm::vec3& extents)
     {
-        m_shape = std::make_unique<btBoxShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
+        if (!m_shape)
+            m_shape = std::make_unique<btBoxShape>(btVector3(extents.x, extents.y, extents.z) * 0.5f);
+        else
+            new (&static_cast<btBoxShape&>(*m_shape)) btBoxShape(btVector3(extents.x, extents.y, extents.z) * 0.5f);
+
         m_shape->setUserPointer(this);
 
         return true;

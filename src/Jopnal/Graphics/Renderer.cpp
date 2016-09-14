@@ -41,12 +41,12 @@
 namespace jop
 {
     Renderer::Renderer(const RenderTarget& mainTarget, Scene& sceneRef)
-        : m_lights          (),
-          m_cameras         (),
-          m_passes          (),
-          m_envRecorders    (),
-          m_target          (mainTarget),
-          m_sceneRef        (sceneRef)
+        : m_lights              (),
+          m_cameras             (),
+          m_passes              (),
+          m_envRecorders        (),
+          m_target              (mainTarget),
+          m_sceneRef            (sceneRef)
     {
         createRenderPass<SortedRenderPass>(RenderPass::Pass::BeforePost, RenderPass::DefaultWeight);
         createRenderPass<OrderedRenderPass>(RenderPass::Pass::AfterPost, RenderPass::DefaultWeight);

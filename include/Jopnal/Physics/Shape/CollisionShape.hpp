@@ -52,6 +52,10 @@ namespace jop
         ///
         CollisionShape(const std::string& name);
 
+        /// \copydoc Resource::Resource(const Resource&, const std::string&)
+        ///
+        CollisionShape(const CollisionShape& other, const std::string& newName);
+
     public:
 
         /// \brief Virtual destructor

@@ -47,7 +47,8 @@ namespace jop
     Sprite::Sprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
         : Drawable      (object, renderer, pass, weight, cull),
           m_texture     (),
-          m_mesh        ("")
+          m_mesh        (""),
+          m_texCoords   (glm::vec2(0.f), glm::vec2(1.f))
     {
         setTexture(Texture2D::getDefault(), true);
         setOverrideShader(ShaderAssembler::getShader(1 << static_cast<uint64>(Material::Map::Diffuse0), 0));
@@ -56,7 +57,8 @@ namespace jop
     Sprite::Sprite(const Sprite& other, Object& newObj)
         : Drawable      (other, newObj),
           m_texture     (),
-          m_mesh        ("")
+          m_mesh        (""),
+          m_texCoords   (other.m_texCoords)
     {
         setTexture(Texture2D::getDefault(), true);
     }
@@ -107,7 +109,7 @@ namespace jop
 
     Sprite& Sprite::setSize(const glm::vec2& size)
     {
-        m_mesh.load(size);
+        m_mesh.load(size, m_texCoords.first, m_texCoords.second);
         return *this;
     }
 
@@ -116,5 +118,22 @@ namespace jop
     const glm::vec2& Sprite::getSize() const
     {
         return m_mesh.getSize();
+    }
+
+    //////////////////////////////////////////////
+
+    Sprite& Sprite::setTextureCoordinates(const glm::vec2& min, const glm::vec2& max)
+    {
+        m_texCoords.first = min;
+        m_texCoords.second = max;
+
+        return setSize(getSize());
+    }
+
+    //////////////////////////////////////////////
+
+    const std::pair<glm::vec2, glm::vec2>& Sprite::getTextureCoordinates() const
+    {
+        return m_texCoords;
     }
 }

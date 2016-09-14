@@ -52,7 +52,7 @@ namespace jop
           m_mesh                ("")
     {
         setFont(Font::getDefault());
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     Text::Text(const Text& other, Object& newObj)
@@ -66,7 +66,7 @@ namespace jop
           m_bounds              (other.m_bounds),
           m_mesh                ("")
     {
-        setModel(Model(m_mesh, m_material));
+        setModel(m_mesh, m_material);
     }
 
     //////////////////////////////////////////////

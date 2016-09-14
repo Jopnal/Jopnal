@@ -27,20 +27,30 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <glm/vec3.hpp>
+#include <set>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullerComponent;
+    }
     class Renderer;
     class RenderTarget;
+    class Drawable;
+    class LightSource;
+    class FrustumShape;
 
     class JOP_API Camera : public Component
     {
     private:
 
         JOP_GENERIC_COMPONENT_CLONE(Camera);
+
+        friend class detail::CullerComponent;
 
     public:
 
@@ -86,6 +96,8 @@ namespace jop
         ///
         ~Camera() override;
 
+
+        void update(const float deltaTime) override;
 
         /// \brief Get the projection matrix
         ///
@@ -275,6 +287,12 @@ namespace jop
         ///
         glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
 
+        /// \brief Check if a drawable is in view
+        ///
+        /// \return True if in view
+        ///
+        bool inView(const Drawable& drawable) const;
+
     protected:
 
         /// \copydoc Component::receiveMessage()
@@ -283,15 +301,22 @@ namespace jop
 
     private:
 
-        mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
-        RenderTexture m_renderTexture;          ///< RenderTexture used for off-screen rendering
-        ViewPort m_viewPort;                    ///< Viewport in relative coordinates
-        ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
-        ClippingPlanes m_clippingPlanes;        ///< The clipping planes
-        Renderer& m_rendererRef;                ///< Reference to the renderer
-        uint32 m_renderMask;                    ///< The render mask
-        Projection m_mode;                      ///< Projection mode
-        mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
+        Camera& updateShape();
+
+
+        mutable glm::mat4 m_projectionMatrix;               ///< The projection matrix
+        RenderTexture m_renderTexture;                      ///< RenderTexture used for off-screen rendering
+        std::set<const Drawable*> m_drawables;              ///< Drawables currently in view
+        std::set<const LightSource*> m_lights;              ///< Lights currently in view
+        std::unique_ptr<FrustumShape> m_shape;              ///< CUlling shape
+        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
+        ViewPort m_viewPort;                                ///< Viewport in relative coordinates
+        ProjectionData m_projData;                          ///< Union with data for orthographic and perspective projections
+        ClippingPlanes m_clippingPlanes;                    ///< The clipping planes
+        Renderer& m_rendererRef;                            ///< Reference to the renderer
+        uint32 m_renderMask;                                ///< The render mask
+        Projection m_mode;                                  ///< Projection mode
+        mutable bool m_projectionNeedUpdate;                ///< Flag to mark if the projection needs to be updated
     };
 }
 

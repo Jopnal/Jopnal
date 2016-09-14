@@ -508,7 +508,7 @@ namespace jop
                 return;
         }
 
-        const bool shadows = (drawable.getModel().getMaterial()->getAttributes() & Material::FragLightingAttribs) != 0;
+        const bool shadows = (drawable.getMaterial()->getAttributes() & Material::FragLightingAttribs) != 0;
         
         if (shadows)
             shader.setUniform("u_ReceiveShadows", receiveShadows);

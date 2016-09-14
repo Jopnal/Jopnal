@@ -31,12 +31,12 @@
     #include <Jopnal/Graphics/LightSource.hpp>
     #include <Jopnal/Graphics/Material.hpp>
     #include <Jopnal/Graphics/Mesh/Mesh.hpp>
-    #include <Jopnal/Graphics/Model.hpp>
     #include <Jopnal/Graphics/Renderer.hpp>
     #include <Jopnal/Graphics/ShaderProgram.hpp>
     #include <Jopnal/Graphics/ShaderAssembler.hpp>
     #include <Jopnal/Graphics/OpenGL/OpenGL.hpp>
     #include <Jopnal/Graphics/OpenGL/GlCheck.hpp>
+    #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
     #include <Jopnal/Utility/CommandHandler.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
@@ -70,10 +70,12 @@ namespace jop
     {}
 
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
-        : CullerComponent   (object, renderer.getCullingWorld(), CullerComponent::Type::Drawable, cull),
+        : Component         (object, 0),
           m_color           (),
-          m_model           (Mesh::getDefault(), Material::getDefault()),
+          m_mesh            (),
+          m_material        (),
           m_shader          (),
+          m_culler          (),
           m_attributes      (0),
           m_rendererRef     (renderer),
           m_pass            (pass),
@@ -81,14 +83,20 @@ namespace jop
           m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
           m_renderGroup     (0)
     {
+        setModel(Mesh::getDefault(), Material::getDefault());
         renderer.bind(this, pass, weight);
+
+        if (cull && detail::CullerComponent::cullingEnabled())
+            m_culler = std::make_unique<detail::CullerComponent>(object, renderer.getCullingWorld(), detail::CullerComponent::Type::Drawable, this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : CullerComponent   (other, newObj),
+        : Component         (other, newObj),
           m_color           (other.m_color),
-          m_model           (other.m_model),
+          m_mesh            (other.m_mesh),
+          m_material        (other.m_material),
           m_shader          (other.m_shader),
+          m_culler          (),
           m_rendererRef     (other.m_rendererRef),
           m_pass            (other.m_pass),
           m_weight          (other.m_weight),
@@ -96,6 +104,9 @@ namespace jop
           m_flags           (other.m_flags)
     {
         m_rendererRef.bind(this, m_pass, m_weight);
+
+        if (other.isCulled() && detail::CullerComponent::cullingEnabled())
+            m_culler = std::make_unique<detail::CullerComponent>(*other.m_culler, newObj, this);
     }
 
     Drawable::~Drawable()
@@ -105,30 +116,27 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    void Drawable::update(const float deltaTime)
+    {
+        if (m_culler)
+            m_culler->update(deltaTime);
+    }
+
+    //////////////////////////////////////////////
+
     void Drawable::draw(const ProjectionInfo& proj, const LightContainer& lights) const
     {
-        if (!m_model.isValid())
+        if (m_mesh.expired())
             return;
 
-        auto& mesh = *getModel().getMesh();
-        auto& mat = *getModel().getMaterial();
+        auto& mesh = *getMesh();
 
-        // Uniforms
         {
             auto& shdr = getShader();
             auto& modelMat = getObject()->getTransform().getMatrix();
             const auto VMMatrix = proj.viewMatrix * modelMat;
 
             shdr.setUniform("u_PVMMatrix", proj.projectionMatrix * VMMatrix);
-
-            if (mat.getAttributes() & Material::LightingAttribs)
-            {
-                shdr.setUniform("u_VMMatrix", VMMatrix);
-                shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(VMMatrix))));
-                lights.sendToShader(shdr, *this, proj.viewMatrix);
-            }
-
-            mat.sendToShader(shdr);
 
             if (!mesh.hasVertexComponent(Mesh::Color))
             {
@@ -137,16 +145,22 @@ namespace jop
                 glCheck(glVertexAttrib4fv(Mesh::VertexIndex::Color, &getColor().colors[0]));
             }
 
-        #ifdef JOP_DEBUG_MODE
-
+            if (getMaterial())
             {
-                static const DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
+                auto& mat = *getMaterial();
+                if (mat.getAttributes() & Material::LightingAttribs)
+                {
+                    shdr.setUniform("u_VMMatrix", VMMatrix);
+                    shdr.setUniform("u_NMatrix", glm::transpose(glm::inverse(glm::mat3(VMMatrix))));
+                    lights.sendToShader(shdr, *this, proj.viewMatrix);
+                }
 
-                if (validateSetting.value && !shdr.validate())
-                    return;
+                mat.sendToShader(shdr);
             }
+            static const DynamicSetting<bool> validateSetting("engine@Debug|bValidateShaders", false);
 
-        #endif
+            if (validateSetting.value && !shdr.validate())
+                return;
         }
 
         mesh.draw();
@@ -183,24 +197,46 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    Drawable& Drawable::setModel(const Model& model)
+    Drawable& Drawable::setModel(const Mesh& mesh, const Material& material)
     {
-        m_model = model;
+        return setMesh(mesh).setMaterial(material);
+    }
+
+    //////////////////////////////////////////////
+
+    Drawable& Drawable::setMesh(const Mesh& mesh)
+    {
+        m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
+
+        if (m_culler)
+        {
+            m_culler->setCollisionShape(mesh.getCullingShape());
+            m_culler->updateWorldBounds();
+        }
+
         return *this;
     }
 
     //////////////////////////////////////////////
 
-    const Model& Drawable::getModel() const
+    Drawable& Drawable::setMaterial(const Material& material)
     {
-        return m_model;
+        m_material = static_ref_cast<const Material>(material.getReference());
+        return *this;
     }
 
     //////////////////////////////////////////////
 
-    Model& Drawable::getModel()
+    const Mesh* Drawable::getMesh() const
     {
-        return m_model;
+        return m_mesh.get();
+    }
+
+    //////////////////////////////////////////////
+
+    const Material* Drawable::getMaterial() const
+    {
+        return m_material.get();
     }
 
     //////////////////////////////////////////////
@@ -222,8 +258,8 @@ namespace jop
 
     const std::pair<glm::vec3, glm::vec3>& Drawable::getLocalBounds() const
     {
-        if (getModel().getMesh())
-            return getModel().getMesh()->getBounds();
+        if (getMesh())
+            return getMesh()->getBounds();
 
         static const auto dummy = std::make_pair(glm::vec3(), glm::vec3());
 
@@ -234,7 +270,7 @@ namespace jop
 
     std::pair<glm::vec3, glm::vec3> Drawable::getGlobalBounds() const
     {
-        if (getModel().getMesh())
+        if (getMesh())
         {
             auto bounds = getLocalBounds();
             getObject()->getTransform().transformBounds(bounds.first, bounds.second);
@@ -269,6 +305,20 @@ namespace jop
 
     //////////////////////////////////////////////
 
+    bool Drawable::hasAlpha() const
+    {
+        return getColor().alpha < 1.0 || (getMaterial() && getMaterial()->hasAlpha());
+    }
+
+    //////////////////////////////////////////////
+
+    bool Drawable::isCulled() const
+    {
+        return m_culler.operator bool();
+    }
+
+    //////////////////////////////////////////////
+
     Message::Result Drawable::receiveMessage(const Message& message)
     {
         if (JOP_EXECUTE_COMMAND(Drawable, message.getString(), this) == Message::Result::Escape)
@@ -281,7 +331,7 @@ namespace jop
 
     ShaderProgram& Drawable::getShader() const
     {
-        return m_shader.expired() ? (getModel().getMaterial() ? getModel().getMaterial()->getShader() : ShaderProgram::getError()) : *m_shader;
+        return m_shader.expired() ? (getMaterial() ? getMaterial()->getShader() : ShaderProgram::getDefault()) : *m_shader;
     }
 
     //////////////////////////////////////////////

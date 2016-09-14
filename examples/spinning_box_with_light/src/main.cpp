@@ -32,7 +32,7 @@ public:
 
         // To modify the drawable's material, we must create a new one to replace the default.
         auto& newMaterial = jop::ResourceManager::getEmpty<jop::Material>("newMaterial");
-        drawable->getModel().setMaterial(newMaterial);
+        drawable->setMaterial(newMaterial);
 
         // Set the lighting model to use. By default a material will have no lighting.
         newMaterial.setLightingModel(jop::Material::LightingModel::Default);
