@@ -64,7 +64,7 @@ namespace jop
                 auto& st = static_cast<const CullerComponent&>(c0);
                 auto& nd = static_cast<const CullerComponent&>(c1);
 
-                return st.shouldCollide(nd) || nd.shouldCollide(st);
+                return (st.isActive() && st.shouldCollide(nd)) || (nd.isActive() && nd.shouldCollide(st));
             }
         };
     }

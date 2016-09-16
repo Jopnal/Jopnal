@@ -267,7 +267,7 @@ namespace jop
 
             for (auto d : m_drawables)
             {
-                if (!d->isActive() || !((1 << d->getRenderGroup()) & camMask))
+                if (!d->isActive() || !cam->inView(*d))
                     continue;
 
                 d->draw(projInfo, ns_dummyLightCont);

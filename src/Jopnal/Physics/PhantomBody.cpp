@@ -53,13 +53,13 @@ namespace jop
         auto ghost = std::make_unique<btGhostObject>();
 
         ghost->setCollisionShape(shape.m_shape.get());
-        ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        ghost->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        ghost->setActivationState(DISABLE_DEACTIVATION);
+        ghost->setUserPointer(this);
 
         m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
 
-        ghost->setUserPointer(this);
         m_body = std::move(ghost);
-
     }
 
     PhantomBody::PhantomBody(const PhantomBody& other, Object& newObj)
@@ -68,8 +68,10 @@ namespace jop
         auto otherGhost = static_cast<const btGhostObject*>(other.m_body.get());
 
         auto ghost = std::make_unique<btGhostObject>(*otherGhost);
-
         ghost->setUserPointer(this);
+
+        m_worldRef.m_worldData->world->addCollisionObject(ghost.get());
+
         m_body = std::move(ghost);
     }
 

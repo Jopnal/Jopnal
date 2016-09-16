@@ -62,21 +62,23 @@ namespace jop { namespace detail
     //////////////////////////////////////////////
 
     CullerComponent::CullerComponent(Object& object, World& world, const Type type, void* component)
-        : PhantomBody       (object, world, getDummyShape()),
+        : RigidBody         (object, world, RigidBody::ConstructInfo(getDummyShape(), RigidBody::Type::KinematicSensor)),
           ContactListener   (),
           m_type            (type),
           m_component       (component)
     {
-        registerListener(*this);
+        if (type != Type::Drawable)
+            registerListener(*this);
     }
 
     CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj, void* newComp)
-        : PhantomBody       (other, newObj),
+        : RigidBody         (other, newObj),
           ContactListener   (),
           m_type            (other.m_type),
           m_component       (newComp)
     {
-        registerListener(*this);
+        if (m_type != Type::Drawable)
+            registerListener(*this);
     }
 
     //////////////////////////////////////////////
@@ -122,7 +124,7 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void CullerComponent::beginOverlap(Collider& collider)
+    void CullerComponent::beginContact(Collider& collider, const ContactInfo& ci)
     {
         switch (getType())
         {
@@ -154,7 +156,7 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void CullerComponent::endOverlap(Collider& collider)
+    void CullerComponent::endContact(Collider& collider)
     {
         switch (getType())
         {

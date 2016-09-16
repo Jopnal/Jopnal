@@ -43,7 +43,7 @@
 namespace jop
 {
     SkyBox::SkyBox(Object& obj, Renderer& renderer, const float size)
-        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, false),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, RenderPass::DefaultWeight, false),
           m_mesh        (""),
           m_material    ("")
     {

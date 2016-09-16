@@ -134,7 +134,7 @@ namespace jop
 
         auto rb = std::make_unique<btRigidBody>(constInfo);
 
-        int flags = rb->getCollisionFlags();
+        int flags = 0;
         
         if (m_type == Type::Kinematic || m_type == Type::KinematicSensor)
             flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
@@ -146,6 +146,9 @@ namespace jop
         // Remove contact response if body is a sensor
         if (m_type > Type::Kinematic)
             flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
+
+        if (m_type == Type::Static || m_type == Type::StaticSensor)
+            flags |= btCollisionObject::CF_STATIC_OBJECT;
 
         rb->setCollisionFlags(flags);
         rb->setUserPointer(this);

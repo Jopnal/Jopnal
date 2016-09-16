@@ -93,7 +93,10 @@ namespace jop
         {
             m_culler = std::make_unique<detail::CullerComponent>(object, renderer.getCullingWorld(), detail::CullerComponent::Type::Camera, this);
             m_shape = std::make_unique<FrustumShape>("");
+            m_shape->setMargin(0.f);
             updateShape();
+            m_culler->setCollisionShape(*m_shape);
+            m_culler->updateWorldBounds();
         }
 
         renderer.bind(this);
@@ -118,7 +121,10 @@ namespace jop
         {
             m_culler = std::make_unique<detail::CullerComponent>(*other.m_culler, newObj, this);
             m_shape = std::make_unique<FrustumShape>("");
+            m_shape->setMargin(0.f);
             updateShape();
+            m_culler->setCollisionShape(*m_shape);
+            m_culler->updateWorldBounds();
         }
 
         m_rendererRef.bind(this);
@@ -134,7 +140,7 @@ namespace jop
     void Camera::update(const float deltaTime)
     {
         if (m_culler)
-            m_culler->update(deltaTime);
+            m_culler->Collider::update(deltaTime);
     }
 
     //////////////////////////////////////////////
@@ -339,7 +345,7 @@ namespace jop
 
     bool Camera::inView(const Drawable& drawable) const
     {
-        return !detail::CullerComponent::cullingEnabled() || m_drawables.find(&drawable) != m_drawables.end();
+        return !detail::CullerComponent::cullingEnabled() || !drawable.isCulled() || m_drawables.find(&drawable) != m_drawables.end();
     }
 
     //////////////////////////////////////////////
@@ -359,7 +365,7 @@ namespace jop
         if (m_culler)
         {
             if (getProjectionMode() == Projection::Perspective)
-                m_shape->load(getClippingPlanes(), getFieldOfView(), getAspectRatio(), glm::quat());
+                m_shape->load(getClippingPlanes(), getAspectRatio(), glm::quat());
             else
                 m_shape->load(getClippingPlanes(), getSize(), glm::quat());
 

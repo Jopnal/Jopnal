@@ -59,13 +59,12 @@ namespace jop
         /// This will create a shape for a perspective projection.
         ///
         /// \param clip The clipping planes
-        /// \param size The vertical field of view in radians
         /// \param aspectRatio The aspect ratio (x / y)
         /// \param rotation Local rotation to apply
         ///
         /// \return True if successful
         ///
-        bool load(const Camera::ClippingPlanes& clip, const float fov, const float aspectRatio, const glm::quat& rotation);
+        bool load(const Camera::ClippingPlanes& clip, const float aspectRatio, const glm::quat& rotation);
     };
 }
 

@@ -43,7 +43,7 @@ namespace jop
 
     class JOP_API RigidBody : public Collider
     {
-    private:
+    protected:
 
         JOP_GENERIC_COMPONENT_CLONE(RigidBody);
 

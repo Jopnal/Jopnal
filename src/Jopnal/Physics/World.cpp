@@ -258,6 +258,9 @@ namespace jop
                 for (auto& i : a->m_listeners)
                     i->beginContact(*b, ci);
 
+                for (auto& i : b->m_listeners)
+                    i->beginContact(*a, ci);
+
                 return true;
             }
 
@@ -267,6 +270,9 @@ namespace jop
 
                 for (auto& i : cd->A->m_listeners)
                     i->endContact(*cd->B);
+
+                for (auto& i : cd->B->m_listeners)
+                    i->endContact(*cd->A);
 
                 delete cd;
 
@@ -291,7 +297,7 @@ namespace jop
                 auto btColl0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
                 auto btColl1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
 
-                return !(btColl0->isStaticObject() && btColl1->isStaticObject())                    &&
+                return (!btColl0->isStaticObject() || !btColl1->isStaticObject())                   &&
                          m_cb.collide(*static_cast<const Collider*>(btColl0->getUserPointer()),
                                       *static_cast<const Collider*>(btColl1->getUserPointer()))     &&
                         (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0       &&

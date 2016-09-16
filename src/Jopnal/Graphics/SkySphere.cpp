@@ -43,7 +43,7 @@
 namespace jop
 {
     SkySphere::SkySphere(Object& obj, Renderer& renderer, const float radius)
-        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, false),
+        : Drawable      (obj, renderer, RenderPass::Pass::BeforePost, RenderPass::DefaultWeight, false),
           m_mesh        (""),
           m_material    ("")
     {

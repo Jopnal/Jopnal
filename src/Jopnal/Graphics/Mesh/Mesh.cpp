@@ -85,12 +85,15 @@ namespace jop
         {
             const auto vs = getVertexSize();
             const uint8* binData = reinterpret_cast<const uint8*>(vertexData);
+            glm::vec3 min(FLT_MAX), max(-FLT_MAX);
 
             for (std::size_t i = 0; i < vertexBytes; i += vs)
             {
-                m_bounds.first = glm::min(m_bounds.first, *reinterpret_cast<const glm::vec3*>(binData[i]));
-                m_bounds.second = glm::max(m_bounds.second, *reinterpret_cast<const glm::vec3*>(binData[i]));
+                min = glm::min(m_bounds.first, *reinterpret_cast<const glm::vec3*>(binData[i]));
+                max = glm::max(m_bounds.second, *reinterpret_cast<const glm::vec3*>(binData[i]));
             }
+
+            updateBounds(min, max);
         }
 
         return true;
@@ -242,6 +245,7 @@ namespace jop
         m_bounds.second = max;
 
         m_shape.load(max - min);
+        m_shape.setMargin(0.f);
     }
 
     //////////////////////////////////////////////

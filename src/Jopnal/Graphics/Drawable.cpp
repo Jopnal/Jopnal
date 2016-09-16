@@ -119,7 +119,7 @@ namespace jop
     void Drawable::update(const float deltaTime)
     {
         if (m_culler)
-            m_culler->update(deltaTime);
+            m_culler->Collider::update(deltaTime);
     }
 
     //////////////////////////////////////////////

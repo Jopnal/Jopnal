@@ -79,6 +79,8 @@ namespace jop
         virtual ~Collider() override = 0;
 
 
+    public:
+
         /// \brief Update
         ///
         /// \param deltaTime The delta time
@@ -96,8 +98,6 @@ namespace jop
         /// \return True if allowed
         ///
         bool isSleepAllowed() const;
-
-    public:
 
         /// \brief Check if this collider overlaps with another
         ///

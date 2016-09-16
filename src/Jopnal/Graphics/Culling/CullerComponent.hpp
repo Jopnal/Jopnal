@@ -25,7 +25,7 @@
 // Headers
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Physics/ContactListener.hpp>
-#include <Jopnal/Physics/PhantomBody.hpp>
+#include <Jopnal/Physics/RigidBody.hpp>
 
 //////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ namespace jop
 
     namespace detail
     {
-        class CullerComponent final : public PhantomBody, public ContactListener
+        class CullerComponent final : public RigidBody, public ContactListener
         {
         public:
 
@@ -64,9 +64,9 @@ namespace jop
 
         private:
 
-            void beginOverlap(Collider& collider) override;
+            void beginContact(Collider& collider, const ContactInfo& ci) override;
 
-            void endOverlap(Collider& collider) override;
+            void endContact(Collider& collider) override;
 
 
             const Type m_type;

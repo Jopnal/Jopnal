@@ -65,26 +65,45 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    bool FrustumShape::load(const Camera::ClippingPlanes& clip, const float fov, const float aspectRatio, const glm::quat& rotation)
+    bool FrustumShape::load(const Camera::ClippingPlanes& clip, const float aspectRatio, const glm::quat& rotation)
     {
-        const auto halfFov = fov * 0.5f;
+        const float planesFraction = clip.second / clip.first;
+        const float center = (clip.second - clip.first) * 0.5f;
 
-        const glm::vec3 nearHalf = glm::abs(glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.first), halfFov), halfFov * aspectRatio));
-        const glm::vec3 farHalf = glm::abs(glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -clip.second), halfFov), halfFov * aspectRatio));
+        float nearLeft, nearRight, nearBottom, nearTop;
+
+        if (aspectRatio > 1.f)
+        {
+            nearLeft = -aspectRatio;
+            nearRight = aspectRatio;
+            nearBottom = -1.f;
+            nearTop = 1.f;
+        }
+        else
+        {
+            nearLeft = -1.f;
+            nearRight = 1.f;
+            nearBottom = -aspectRatio;
+            nearTop = aspectRatio;
+        }
+
+        const float farLeft = nearLeft * planesFraction;
+        const float farRight = nearRight * planesFraction;
+        const float farBottom = nearBottom * planesFraction;
+        const float farTop = nearTop * planesFraction;
 
         const std::vector<glm::vec3> points =
         {
-            // Near
-            rotation * glm::vec3(-nearHalf.x, -nearHalf.y, -clip.first),   // Lower left
-            rotation * glm::vec3( nearHalf.x, -nearHalf.y, -clip.first),   // Lower right
-            rotation * glm::vec3( nearHalf.x,  nearHalf.y, -clip.first),   // Upper right
-            rotation * glm::vec3(-nearHalf.x,  nearHalf.y, -clip.first),   // Upper left
+            // Near plane
+            rotation * glm::vec3(nearLeft,  nearTop,    -clip.first),
+            rotation * glm::vec3(nearRight, nearTop,    -clip.first),
+            rotation * glm::vec3(nearLeft,  nearBottom, -clip.first),
+            rotation * glm::vec3(nearRight, nearBottom, -clip.first),
 
-            // Far
-            rotation * glm::vec3(-farHalf.x, -farHalf.y, -clip.second),    // Lower left
-            rotation * glm::vec3( farHalf.x, -farHalf.y, -clip.second),    // Lower right
-            rotation * glm::vec3( farHalf.x,  farHalf.y, -clip.second),    // Upper right
-            rotation * glm::vec3(-farHalf.x,  farHalf.y, -clip.second),    // Upper left
+            rotation * glm::vec3(farLeft,  farTop,    -clip.second),
+            rotation * glm::vec3(farRight, farTop,    -clip.second),
+            rotation * glm::vec3(farLeft,  farBottom, -clip.second),
+            rotation * glm::vec3(farRight, farBottom, -clip.second),
         };
 
         return ConvexHullShape::load(points);
