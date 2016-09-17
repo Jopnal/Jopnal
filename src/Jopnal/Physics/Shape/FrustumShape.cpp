@@ -68,7 +68,6 @@ namespace jop
     bool FrustumShape::load(const Camera::ClippingPlanes& clip, const float aspectRatio, const glm::quat& rotation)
     {
         const float planesFraction = clip.second / clip.first;
-        const float center = (clip.second - clip.first) * 0.5f;
 
         float nearLeft, nearRight, nearBottom, nearTop;
 

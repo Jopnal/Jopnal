@@ -124,7 +124,7 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void CullerComponent::beginContact(Collider& collider, const ContactInfo& ci)
+    void CullerComponent::beginContact(Collider& collider, const ContactInfo&)
     {
         switch (getType())
         {

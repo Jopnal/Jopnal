@@ -254,7 +254,6 @@ namespace jop
 
         for (auto cam : cameras)
         {
-            const auto camMask = cam->getRenderMask();
             if (!cam->isActive() || !cam->getRenderMask())
                 continue;
 

@@ -40,7 +40,7 @@ extern const unsigned char brightFilter[1632];
 
 extern const unsigned char compatibilityPlugins[2059];
 
-extern const unsigned char lightingPlugins[6920];
+extern const unsigned char lightingPlugins[6898];
 
 extern const unsigned char structurePlugins[1640];
 

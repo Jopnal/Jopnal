@@ -130,7 +130,7 @@
             float theta = dot(lightDir, -l.direction);
             float epsilon = (l.cutoff.x - l.cutoff.y);
             float intensity = clamp((theta - l.cutoff.y) / epsilon, 0.0, 1.0);
-            ambient *= intensity; diffuse *= intensity; specular *= intensity;
+            diffuse *= intensity; specular *= intensity;
 
             // Attenuation
             float dist = length(l.position - vf_Position);
