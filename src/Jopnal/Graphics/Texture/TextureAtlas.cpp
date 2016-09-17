@@ -234,7 +234,6 @@ namespace jop
             JOP_DEBUG_ERROR("Failed to pack texture into atlas: Atlas full or texture too large");
             return 0;
         }
-
     }
 
     //////////////////////////////////////////////
@@ -249,7 +248,11 @@ namespace jop
     unsigned int TextureAtlas::addTexture(const std::string& texturePath)
     {
         Image img;
-        return img.load(texturePath, false) && addTexture(img) != 0;
+
+        if (img.load(texturePath, false))
+            return addTexture(img);
+
+        return 0;
     }
 
     //////////////////////////////////////////////
