@@ -266,6 +266,8 @@ namespace jop
 
             static bool contactDestroyedCallback(void* userPersistentData)
             {
+                // This function won't be called if userPersistentData is null.
+
                 ContactData* cd = static_cast<ContactData*>(userPersistentData);
 
                 for (auto& i : cd->A->m_listeners)
@@ -280,47 +282,18 @@ namespace jop
             }
         };
 
-        class BroadPhaseCallback : public btOverlapFilterCallback
+        struct BroadPhaseCallback : btOverlapFilterCallback
         {
-			JOP_DISALLOW_COPY_MOVE(BroadPhaseCallback);
-
-            const World::BroadphaseCallback& m_cb;
-
-        public:
-
-            BroadPhaseCallback(const World::BroadphaseCallback& cb)
-                : m_cb(cb)
-            {}
-
             bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
             {
-                auto btColl0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
-                auto btColl1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+                auto btColl0 = static_cast<const btCollisionObject*>(proxy0->m_clientObject);
+                auto btColl1 = static_cast<const btCollisionObject*>(proxy1->m_clientObject);
 
                 return (!btColl0->isStaticObject() || !btColl1->isStaticObject())                   &&
-                         m_cb.collide(*static_cast<const Collider*>(btColl0->getUserPointer()),
-                                      *static_cast<const Collider*>(btColl1->getUserPointer()))     &&
                         (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0       &&
                         (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0;
             }
         };
-    }
-
-    //////////////////////////////////////////////
-
-
-    World::BroadphaseCallback::BroadphaseCallback(World& world)
-        : m_worldRef(world)
-    {}
-
-    World::BroadphaseCallback::~BroadphaseCallback()
-    {
-        m_worldRef.setDefaultBroadphaseCallback();
-    }
-
-    bool World::BroadphaseCallback::collide(const Collider& c0, const Collider& c1) const
-    {
-        return c0.isActive() && c1.isActive();
     }
 
     //////////////////////////////////////////////
@@ -330,15 +303,14 @@ namespace jop
           m_worldData           (std::make_unique<detail::WorldImpl>(new detail::DebugDrawer)),
           m_ghostCallback       (std::make_unique<detail::GhostCallback>()),
           m_contactListener     (std::make_unique<detail::ContactListenerImpl>()),
-          m_bpCallback          (),
-          m_defaultBpCallback   (*this)
+          m_bpCallback          (std::make_unique<detail::BroadPhaseCallback>())
     {
         static const float gravity = SettingManager::get<float>("engine@Physics|DefaultWorld|fGravity", -9.81f);
 
         setGravity(glm::vec3(0.f, gravity, 0.f));
         m_worldData->world->getPairCache()->setInternalGhostPairCallback(m_ghostCallback.get());
-        setDefaultBroadphaseCallback();
         m_worldData->world->setWorldUserInfo(this);
+        m_worldData->world->getPairCache()->setOverlapFilterCallback(m_bpCallback.get());
         gContactProcessedCallback = m_contactListener->contactProcessedCallback;
         gContactDestroyedCallback = m_contactListener->contactDestroyedCallback;
         
@@ -363,37 +335,19 @@ namespace jop
 
     void World::update(const float deltaTime)
     {
-        static const char* const str = "engine@Physics|uUpdateFrequency";
-        static float timeStep = 1.f / SettingManager::get<unsigned int>(str, 50);
-
-        static struct Callback : SettingCallback<unsigned int>
-        {
-            float* val;
-            Callback(float* _val, const char* str) : val(_val)
-            {SettingManager::registerCallback(str, *this);}
-            void valueChanged(const unsigned int& value) override
-            {*val = 1.f / value;}
-
-        } cb(&timeStep, str);
-        
-        m_worldData->world->stepSimulation(deltaTime, 10, timeStep);
+        static const DynamicSetting<unsigned int> freq("engine@Physics|uUpdateFrequency", 60);
+        m_worldData->world->stepSimulation(deltaTime, 10, 1.f / freq.value);
     }
 
     //////////////////////////////////////////////
 
     void World::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-    #ifdef JOP_DEBUG_MODE
-
         if (m_worldData->world->getDebugDrawer()->getDebugMode())
         {
             static_cast<detail::DebugDrawer*>(m_worldData->world->getDebugDrawer())->m_proj = &proj;
             m_worldData->world->debugDrawWorld();
         }
-
-    #else
-        camera;
-    #endif
     }
 
     //////////////////////////////////////////////
@@ -413,25 +367,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    void World::setBroadphaseBallback(const BroadphaseCallback& callback)
-    {
-        m_bpCallback = std::make_unique<detail::BroadPhaseCallback>(callback);
-        m_worldData->world->getPairCache()->setOverlapFilterCallback(m_bpCallback.get());
-    }
-
-    //////////////////////////////////////////////
-
-    void World::setDefaultBroadphaseCallback()
-    {
-        setBroadphaseBallback(m_defaultBpCallback);
-    }
-
-    //////////////////////////////////////////////
-
     void World::setDebugMode(const bool enable)
     {
-    #ifdef JOP_DEBUG_MODE
-
         static const int debugField = btIDebugDraw::DBG_DrawAabb
                                     | btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE
                                     | btIDebugDraw::DBG_DrawConstraints
@@ -439,21 +376,13 @@ namespace jop
                                     ;
 
         m_worldData->world->getDebugDrawer()->setDebugMode(enable * debugField);
-
-    #else
-        enable;
-    #endif
     }
 
     //////////////////////////////////////////////
 
     bool World::debugMode() const
     {
-    #ifdef JOP_DEBUG_MODE
         return m_worldData->world->getDebugDrawer()->getDebugMode() != btIDebugDraw::DBG_NoDebug;
-    #else
-        return false;
-    #endif
     }
 
     //////////////////////////////////////////////

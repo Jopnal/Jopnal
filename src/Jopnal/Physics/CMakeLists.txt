@@ -13,7 +13,6 @@ set(__INC_PHYSICS
     ${__INCDIR_PHYSICS}/Collider.hpp
     ${__INCDIR_PHYSICS}/ContactInfo.hpp
     ${__INCDIR_PHYSICS}/ContactListener.hpp
-    ${__INCDIR_PHYSICS}/PhantomBody.hpp
     ${__INCDIR_PHYSICS}/RayInfo.hpp
     ${__INCDIR_PHYSICS}/RigidBody.hpp
     ${__INCDIR_PHYSICS}/World.hpp
@@ -64,7 +63,6 @@ set(__SRC_PHYSICS
     ${__SRCDIR_PHYSICS}/Collider.cpp
     ${__SRCDIR_PHYSICS}/ContactInfo.cpp
     ${__SRCDIR_PHYSICS}/ContactListener.cpp
-    ${__SRCDIR_PHYSICS}/PhantomBody.cpp
     ${__SRCDIR_PHYSICS}/RayInfo.cpp
     ${__SRCDIR_PHYSICS}/RigidBody.cpp
     ${__SRCDIR_PHYSICS}/World.cpp

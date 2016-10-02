@@ -124,7 +124,7 @@ namespace jop
 
         /// \brief Get the culling world
         ///
-        World& getCullingWorld();
+        detail::CullingWorld* getCullingWorld();
 
     private:
 

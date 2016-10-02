@@ -27,6 +27,7 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
+#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -38,10 +39,6 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        class CullerComponent;
-    }
     class ShaderProgram;
     class LightSource;
     class LightContainer;
@@ -49,13 +46,15 @@ namespace jop
     class Material;
     class Mesh;
 
-    class JOP_API Drawable : public Component
+    class JOP_API Drawable : public Component, detail::CullerComponent
     {
     protected:
 
         JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
         friend class ShaderAssembler;
+        friend class Camera;
+        friend class detail::CullingWorld;
 
     public:
     
@@ -306,7 +305,7 @@ namespace jop
 
     protected:
 
-        uint64 m_attributes;                            ///< Attribute flags
+        uint64 m_attributes;                                ///< Attribute flags
 
     private:
 
@@ -317,7 +316,6 @@ namespace jop
         WeakReference<const Mesh> m_mesh;                   ///< The bound mesh
         WeakReference<const Material> m_material;           ///< The bound material
         mutable WeakReference<ShaderProgram> m_shader;      ///< The bound shader (override)
-        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
         Renderer& m_rendererRef;                            ///< Reference to the renderer
         const RenderPass::Pass m_pass;                      ///< The render pass type
         const uint32 m_weight;                              ///< Render pass weight

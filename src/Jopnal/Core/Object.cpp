@@ -712,7 +712,7 @@ namespace jop
     {
         m_ID = ID;
 
-    #ifdef JOP_DEBUG_MODE   
+    #if JOP_CONSOLE_VERBOSITY >= 1   
     
         if (ID.find('>') != std::string::npos)
             JOP_DEBUG_WARNING_ONCE("Forbidden character '>' found in object ID \"" << ID << "\". Object searches might not work correctly");

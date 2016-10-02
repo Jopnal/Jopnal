@@ -19,63 +19,44 @@
 
 //////////////////////////////////////////////
 
-#ifndef JOP_CULLERCOMPONENT_HPP
-#define JOP_CULLERCOMPONENT_HPP
+#ifndef JOP_CULLINGWORLD_HPP
+#define JOP_CULLINGWORLD_HPP
 
 // Headers
 #include <Jopnal/Header.hpp>
-#include <Jopnal/Physics/ContactListener.hpp>
-#include <Jopnal/Physics/RigidBody.hpp>
+#include <Jopnal/Physics/World.hpp>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
-    class Object;
-    class World;
-
     namespace detail
     {
-        class CullerComponent final : public RigidBody, public ContactListener
+        class CullerComponent;
+
+        class CullingWorld : public World
         {
-        public:
+        private:
 
-            enum class Type
-            {
-                Drawable,
-                Camera,
-                LightSource,
-                EnvironmentRecorder
-            };
+            friend class ::jop::Camera;
 
         public:
 
-            CullerComponent(Object& object, World& world, const Type type, void* component);
-
-            CullerComponent(const CullerComponent& other, Object& newObj, void* newComp);
+            CullingWorld(Object& object, Renderer& renderer);
 
 
-            Type getType() const;
+            void update(const float deltaTime) override;
 
-            bool shouldCollide(const CullerComponent& other) const;
+            void bind(::jop::detail::CullerComponent* comp);
 
-            static bool cullingEnabled();
+            void unbind(::jop::detail::CullerComponent* comp);
 
         private:
 
-            void beginContact(Collider& collider, const ContactInfo& ci) override;
-
-            void endContact(Collider& collider) override;
-
-
-            const Type m_type;
-            void* m_component;
+            std::array<std::set<::jop::detail::CullerComponent*>, 4> m_cullerComps;
         };
     }
 }
-
-/// \class jop::CullerComponent
-/// \ingroup graphics
 
 #endif

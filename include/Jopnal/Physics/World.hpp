@@ -32,12 +32,14 @@
 //////////////////////////////////////////////
 
 
+struct btOverlapFilterCallback;
+class btGhostPairCallback;
+
 namespace jop
 {
     namespace detail
     {
         struct WorldImpl;
-        class BroadPhaseCallback;
         struct GhostCallback;
         struct ContactListenerImpl;
     }
@@ -54,28 +56,9 @@ namespace jop
         friend class Joint;
         friend class Renderer;
         friend class RigidBody;
-        friend class PhantomBody;
+        friend class detail::CullerComponent;
 
         World* clone(Object&) const override;
-
-    public:
-
-        struct BroadphaseCallback
-        {
-			JOP_DISALLOW_COPY_MOVE(BroadphaseCallback);
-
-		public:
-
-            BroadphaseCallback(World& world);
-
-            virtual ~BroadphaseCallback();
-
-            virtual bool collide(const Collider& c0, const Collider& c1) const;
-
-        private:
-
-            World& m_worldRef;
-        };
 
     public:
 
@@ -165,17 +148,6 @@ namespace jop
         ///
         glm::vec3 getGravity() const;
 
-        /// \brief Set the broad phase callback
-        /// \brief Get gravity for world
-        ///
-        /// \param callback Reference to the callback object
-        ///
-        void setBroadphaseBallback(const BroadphaseCallback& callback);
-
-        /// \brief Restore the default broad phase callback
-        ///
-        void setDefaultBroadphaseCallback();
-
     protected:
 
         /// \copydoc Component::receiveMessage()
@@ -184,13 +156,9 @@ namespace jop
 
 
         std::unique_ptr<detail::WorldImpl> m_worldData;                 ///< The world data
-        std::unique_ptr<detail::GhostCallback> m_ghostCallback;         ///< Internal ghost callback
+        std::unique_ptr<btGhostPairCallback> m_ghostCallback;           ///< Internal ghost callback
         std::unique_ptr<detail::ContactListenerImpl> m_contactListener; ///< Contact listener implementation
-        std::unique_ptr<detail::BroadPhaseCallback> m_bpCallback;       ///< Broad phase callback
-
-    private:
-
-        BroadphaseCallback m_defaultBpCallback;
+        std::unique_ptr<btOverlapFilterCallback> m_bpCallback;          ///< Broad phase callback
     };
 }
 

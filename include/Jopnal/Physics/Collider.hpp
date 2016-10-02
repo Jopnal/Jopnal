@@ -46,7 +46,7 @@ namespace jop
     class Joint;
     class World;
     
-    class JOP_API Collider : public Component, public SafeReferenceable<Collider>
+    class JOP_API Collider : public Component
     {
     private:
 
@@ -62,7 +62,7 @@ namespace jop
         /// \brief Constructor
         ///
         /// \param object Reference to the object
-        /// \param world Reference to the physics world
+        /// \param world Pointer to the physics world, must not be nullptr
         /// \param ID Id of this component
         ///
         Collider(Object& object, World& world, const uint32 ID);
@@ -80,12 +80,6 @@ namespace jop
 
 
     public:
-
-        /// \brief Update
-        ///
-        /// \param deltaTime The delta time
-        ///
-        void update(const float deltaTime) override;
 
         /// \brief Set whether the collider is allowed to sleep
         ///
@@ -181,7 +175,7 @@ namespace jop
     protected:
 
         std::unique_ptr<btCollisionObject> m_body;          ///< Body data
-        World& m_worldRef;                                  ///< Reference to the world
+        World& m_worldRef;                                  ///< Pointer to the world
         std::set<ContactListener*> m_listeners;             ///< Listeners registered for this collider
         bool m_detached;                                    ///< Is this body detached from the world?
         bool m_allowSleep;                                  ///< Is sleep allowed?

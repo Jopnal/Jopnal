@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
+#include <Jopnal/Graphics/Culling/CullerComponent.hpp>
 #include <glm/vec3.hpp>
 #include <set>
 
@@ -34,23 +35,20 @@
 
 namespace jop
 {
-    namespace detail
-    {
-        class CullerComponent;
-    }
     class Renderer;
     class RenderTarget;
     class Drawable;
     class LightSource;
     class FrustumShape;
 
-    class JOP_API Camera : public Component
+    class JOP_API Camera : public Component, detail::CullerComponent
     {
     private:
 
         JOP_GENERIC_COMPONENT_CLONE(Camera);
 
         friend class detail::CullerComponent;
+        friend class detail::CullingWorld;
 
     public:
 
@@ -97,7 +95,7 @@ namespace jop
         ~Camera() override;
 
 
-        void update(const float deltaTime) override;
+        void update();
 
         /// \brief Get the projection matrix
         ///
@@ -303,13 +301,14 @@ namespace jop
 
         Camera& updateShape();
 
+        bool shouldCollide(const CullerComponent& other) const override;
+
 
         mutable glm::mat4 m_projectionMatrix;               ///< The projection matrix
         RenderTexture m_renderTexture;                      ///< RenderTexture used for off-screen rendering
         std::set<const Drawable*> m_drawables;              ///< Drawables currently in view
         std::set<const LightSource*> m_lights;              ///< Lights currently in view
         std::unique_ptr<FrustumShape> m_shape;              ///< CUlling shape
-        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
         ViewPort m_viewPort;                                ///< Viewport in relative coordinates
         ProjectionData m_projData;                          ///< Union with data for orthographic and perspective projections
         ClippingPlanes m_clippingPlanes;                    ///< The clipping planes

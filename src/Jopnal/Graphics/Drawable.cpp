@@ -70,56 +70,60 @@ namespace jop
     {}
 
     Drawable::Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull)
-        : Component         (object, 0),
-          m_color           (),
-          m_mesh            (),
-          m_material        (),
-          m_shader          (),
-          m_culler          (),
-          m_attributes      (0),
-          m_rendererRef     (renderer),
-          m_pass            (pass),
-          m_weight          (weight),
-          m_flags           (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
-          m_renderGroup     (0)
+        : Component                 (object, 0),
+          detail::CullerComponent   (object, cull ? renderer.getCullingWorld() : nullptr, detail::CullerComponent::Type::Drawable),
+          m_color                   (),
+          m_mesh                    (),
+          m_material                (),
+          m_shader                  (),
+          m_attributes              (0),
+          m_rendererRef             (renderer),
+          m_pass                    (pass),
+          m_weight                  (weight),
+          m_flags                   (ReceiveLights | ReceiveShadows | CastShadows | Reflected),
+          m_renderGroup             (0)
     {
         setModel(Mesh::getDefault(), Material::getDefault());
+
         renderer.bind(this, pass, weight);
 
-        if (cull && detail::CullerComponent::cullingEnabled())
-            m_culler = std::make_unique<detail::CullerComponent>(object, renderer.getCullingWorld(), detail::CullerComponent::Type::Drawable, this);
+        if (cull)
+            renderer.getCullingWorld()->bind(this);
     }
 
     Drawable::Drawable(const Drawable& other, Object& newObj)
-        : Component         (other, newObj),
-          m_color           (other.m_color),
-          m_mesh            (other.m_mesh),
-          m_material        (other.m_material),
-          m_shader          (other.m_shader),
-          m_culler          (),
-          m_rendererRef     (other.m_rendererRef),
-          m_pass            (other.m_pass),
-          m_weight          (other.m_weight),
-          m_renderGroup     (other.m_renderGroup),
-          m_flags           (other.m_flags)
+        : Component                 (other, newObj),
+          detail::CullerComponent   (other, newObj),
+          m_color                   (other.m_color),
+          m_mesh                    (other.m_mesh),
+          m_material                (other.m_material),
+          m_shader                  (other.m_shader),
+          m_attributes              (other.m_attributes),
+          m_rendererRef             (other.m_rendererRef),
+          m_pass                    (other.m_pass),
+          m_weight                  (other.m_weight),
+          m_renderGroup             (other.m_renderGroup),
+          m_flags                   (other.m_flags)
     {
         m_rendererRef.bind(this, m_pass, m_weight);
 
-        if (other.isCulled() && detail::CullerComponent::cullingEnabled())
-            m_culler = std::make_unique<detail::CullerComponent>(*other.m_culler, newObj, this);
+        if (isCulled())
+            m_rendererRef.getCullingWorld()->bind(this);
     }
 
     Drawable::~Drawable()
     {
         m_rendererRef.unbind(this, m_pass, m_weight);
+
+        if (isCulled())
+            m_rendererRef.getCullingWorld()->unbind(this);
     }
 
     //////////////////////////////////////////////
 
     void Drawable::update(const float deltaTime)
     {
-        if (m_culler)
-            m_culler->Collider::update(deltaTime);
+        
     }
 
     //////////////////////////////////////////////
@@ -208,10 +212,10 @@ namespace jop
     {
         m_mesh = static_ref_cast<const Mesh>(mesh.getReference());
 
-        if (m_culler)
+        if (isCulled())
         {
-            m_culler->setCollisionShape(mesh.getCullingShape());
-            m_culler->updateWorldBounds();
+            setCollisionShape(mesh.getCullingShape());
+            updateWorldBounds();
         }
 
         return *this;
@@ -314,7 +318,7 @@ namespace jop
 
     bool Drawable::isCulled() const
     {
-        return m_culler.operator bool();
+        return m_worldRef != nullptr;
     }
 
     //////////////////////////////////////////////

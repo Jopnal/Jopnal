@@ -86,7 +86,7 @@ namespace jop
 
     bool Shader::compile(const Type type, const bool preprocess)
     {
-        #ifdef JOP_OPENGL_ES
+    #ifdef JOP_OPENGL_ES
 
         if (type == Type::Geometry && (gl::getVersionMajor() < 3 || gl::getVersionMinor() < 2) && !JOP_CHECK_GL_EXTENSION(GL_EXT_geometry_shader))
         {
@@ -94,7 +94,7 @@ namespace jop
             return false;
         }
 
-        #endif
+    #endif
 
         if (m_handle)
         {
@@ -260,10 +260,6 @@ namespace jop
 
             return false;
         }
-       
-       
-    #ifdef JOP_DEBUG_MODE
-
         else
         {
             GLint len;
@@ -278,8 +274,6 @@ namespace jop
                     JOP_DEBUG_WARNING((type == Type::Vertex ? "Vertex" : (type == Type::Geometry ? "Geometry" : "Fragment")) << " shader compilation produced warnings:\n" << log);
             }
         }
-
-    #endif
 
         // Clear sources after shader is compiled
         m_sources.clear();

@@ -41,9 +41,6 @@
 ///  2 - Info
 ///  3 - Diagnostic
 
-// Debug
-#define JOP_DEBUG_MODE
-
 // Version
 #define JOP_VERSION_MAJOR 0
 #define JOP_VERSION_MINOR 4

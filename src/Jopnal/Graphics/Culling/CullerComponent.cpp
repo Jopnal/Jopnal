@@ -42,43 +42,97 @@
 
 namespace jop { namespace detail
 {
-    class DummyShape : public CollisionShape
+    btEmptyShape& getDummyShape()
     {
-    public:
-
-        DummyShape()
-            : CollisionShape("")
-        {
-            m_shape = std::make_unique<btEmptyShape>();
-        }
-    };
-
-    DummyShape& getDummyShape()
-    {
-        static DummyShape shape;
+        static btEmptyShape shape;
         return shape;
     }
 
     //////////////////////////////////////////////
 
-    CullerComponent::CullerComponent(Object& object, World& world, const Type type, void* component)
-        : RigidBody         (object, world, RigidBody::ConstructInfo(getDummyShape(), RigidBody::Type::KinematicSensor)),
-          ContactListener   (),
-          m_type            (type),
-          m_component       (component)
+    inline short getMaskBits(const CullerComponent::Type type)
     {
-        if (type != Type::Drawable)
-            registerListener(*this);
+        using Type = CullerComponent::Type;
+
+        switch (type)
+        {
+            case Type::Drawable:
+                return SHRT_MAX & ~(1 << static_cast<short>(Type::Drawable));
+            case Type::Camera:
+                return (SHRT_MAX & ~(1 << static_cast<short>(Type::Camera))) * CullerComponent::cullingEnabled();
+        }
+
+        return 0;
     }
 
-    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj, void* newComp)
-        : RigidBody         (other, newObj),
-          ContactListener   (),
-          m_type            (other.m_type),
-          m_component       (newComp)
+    inline short getGroupBit(const CullerComponent::Type type)
     {
-        if (m_type != Type::Drawable)
-            registerListener(*this);
+        return 1 << static_cast<short>(type);
+    }
+
+    //////////////////////////////////////////////
+
+    CullerComponent::CullerComponent(Object& obj, CullingWorld* world, const Type type)
+        : m_objRef      (obj),
+          m_worldRef    (world),
+          m_body        (),
+          m_type        (type)
+    {
+        if (world)
+        {
+            if (type == Type::Drawable)
+                m_body = std::make_unique<btCollisionObject>();
+            else
+                m_body = std::make_unique<btPairCachingGhostObject>();
+
+            m_body->setCollisionShape(&getDummyShape());
+            m_body->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            m_body->setUserPointer(this);
+            m_body->setActivationState(ACTIVE_TAG);
+
+            world->m_worldData->world->addCollisionObject(m_body.get(), getGroupBit(type), getMaskBits(type));
+        }
+    }
+
+    CullerComponent::CullerComponent(const CullerComponent& other, Object& newObj)
+        : m_objRef      (newObj),
+          m_worldRef    (other.m_worldRef),
+          m_body        (),
+          m_type        (other.m_type)
+    {
+        if (other.m_worldRef)
+        {
+            if (m_type == Type::Drawable)
+                m_body = std::make_unique<btCollisionObject>();
+            else
+                m_body = std::make_unique<btPairCachingGhostObject>();
+
+            m_body->setCollisionShape(other.m_body->getCollisionShape());
+            m_body->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            m_body->setUserPointer(this);
+            m_body->setActivationState(ACTIVE_TAG);
+
+            m_worldRef->m_worldData->world->addCollisionObject(m_body.get(), getGroupBit(m_type), getMaskBits(m_type));
+        }
+    }
+
+    CullerComponent::~CullerComponent()
+    {
+        if (m_worldRef)
+            m_worldRef->m_worldData->world->removeCollisionObject(m_body.get());
+    }
+
+    //////////////////////////////////////////////
+
+    void CullerComponent::updateTransform()
+    {
+        if (m_worldRef)
+        {
+            auto& pos = m_objRef->getGlobalPosition();
+            auto& rot = m_objRef->getGlobalRotation();
+
+            m_body->setWorldTransform(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z)));
+        }
     }
 
     //////////////////////////////////////////////
@@ -90,28 +144,17 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    bool CullerComponent::shouldCollide(const CullerComponent& other) const
+    void CullerComponent::setCollisionShape(CollisionShape& shape)
     {
-        switch (getType())
-        {
-            case Type::Camera:
-            {
-                if (other.getType() == Type::Drawable)
-                    return (static_cast<const Camera*>(m_component)->getRenderMask() & 1 << static_cast<const Drawable*>(other.m_component)->getRenderGroup()) != 0;
+        m_body->setCollisionShape(shape.m_shape.get());
+    }
 
-                else if (other.getType() == Type::LightSource)
-                    return true;
-            }
+    //////////////////////////////////////////////
 
-            case Type::LightSource:
-                return other.getType() == Type::Drawable &&
-                      (static_cast<const LightSource*>(m_component)->getRenderMask() & 1 << static_cast<const Drawable*>(other.m_component)->getRenderGroup()) != 0;
-
-            //case Type::EnvironmentRecorder:
-            //    return other.getType() == Type::Drawable;
-        }
-
-        return false;
+    void CullerComponent::updateWorldBounds()
+    {
+        m_body->setCollisionShape(m_body->getCollisionShape());
+        m_worldRef->m_worldData->world->updateSingleAabb(m_body.get());
     }
 
     //////////////////////////////////////////////
@@ -124,65 +167,8 @@ namespace jop { namespace detail
 
     //////////////////////////////////////////////
 
-    void CullerComponent::beginContact(Collider& collider, const ContactInfo&)
+    bool CullerComponent::shouldCollide(const CullerComponent&) const
     {
-        switch (getType())
-        {
-            case Type::Camera:
-            {
-                auto cam = static_cast<Camera*>(m_component);
-                auto& other = static_cast<CullerComponent&>(collider);
-
-                switch (other.getType())
-                {
-                    case Type::Drawable:
-                        cam->m_drawables.insert(static_cast<const Drawable*>(other.m_component));
-                        break;
-                    case Type::LightSource:
-                        cam->m_lights.insert(static_cast<const LightSource*>(other.m_component));
-                }
-
-                break;
-            }
-            case Type::LightSource:
-            {
-                break;
-            }
-            //case Type::EnvironmentRecorder:
-            //{
-            //}
-        }
-    }
-
-    //////////////////////////////////////////////
-
-    void CullerComponent::endContact(Collider& collider)
-    {
-        switch (getType())
-        {
-            case Type::Camera:
-            {
-                auto cam = static_cast<Camera*>(m_component);
-                auto& other = static_cast<CullerComponent&>(collider);
-
-                switch (other.getType())
-                {
-                    case Type::Drawable:
-                        cam->m_drawables.erase(static_cast<const Drawable*>(other.m_component));
-                        break;
-                    case Type::LightSource:
-                        cam->m_lights.erase(static_cast<const LightSource*>(other.m_component));
-                }
-
-                break;
-            }
-            case Type::LightSource:
-            {
-                break;
-            }
-            case Type::EnvironmentRecorder:
-            {
-            }
-        }
+        return false;
     }
 }}

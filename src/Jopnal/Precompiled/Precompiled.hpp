@@ -123,5 +123,6 @@
 #include <Jopnal/Window/SensorManager.hpp>
 #include <Jopnal/Window/InputEnumsImpl.hpp>
 #include <Jopnal/Graphics/Culling/CullerComponent.hpp>
+#include <Jopnal/Graphics/Culling/CullingWorld.hpp>
 
 #endif

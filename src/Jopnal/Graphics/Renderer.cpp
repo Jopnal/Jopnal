@@ -179,8 +179,8 @@ namespace jop
 
     //////////////////////////////////////////////
 
-    World& Renderer::getCullingWorld()
+    detail::CullingWorld* Renderer::getCullingWorld()
     {
-        return m_sceneRef.m_cullingWorld;
+        return m_sceneRef.m_cullingWorld.get();
     }
 }

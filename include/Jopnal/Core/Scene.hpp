@@ -38,7 +38,7 @@ namespace jop
 {
     namespace detail
     {
-        class CullingBroadphaseCallback;
+        class CullingWorld;
     }
     class Renderer;
     class World;
@@ -256,8 +256,7 @@ namespace jop
         std::unique_ptr<Renderer> m_renderer;   ///< The renderer
         float m_deltaScale;                     ///< Delta time scalar
         std::tuple<World2D*, World*> m_worlds;  ///< 2D and 3D worlds
-        World m_cullingWorld;
-        std::unique_ptr<detail::CullingBroadphaseCallback> m_broadphaseCallback;
+        std::unique_ptr<detail::CullingWorld> m_cullingWorld;
     };
 
     // Include the template implementation file

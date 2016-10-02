@@ -267,7 +267,7 @@ namespace jop
           m_mutex           (),
           m_fileHandles     ()
     {
-    #ifdef JOP_DEBUG_MODE
+    #if JOP_CONSOLE_VERBOSITY >= 0
         setEnabled(true);
     #endif
     }

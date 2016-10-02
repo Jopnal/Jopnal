@@ -45,6 +45,7 @@ namespace jop
         friend class PhantomBody;
         friend class CompoundShape;
         friend class Collider;
+        friend class detail::CullerComponent;
 
     protected:
 

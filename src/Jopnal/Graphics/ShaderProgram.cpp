@@ -151,9 +151,6 @@ namespace jop
 
             return false;
         }
-
-    #ifdef JOP_DEBUG_MODE
-
         else
         {
             glCheck(glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &status));
@@ -167,8 +164,6 @@ namespace jop
                     JOP_DEBUG_WARNING("Shader program linking produced warnings:\n" << log);
             }
         }
-
-    #endif
 
         // Detach shaders from program after linking
         for (auto& i : m_shaders)

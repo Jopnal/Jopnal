@@ -60,7 +60,7 @@ namespace jop
 
         #endif
 
-        #if defined(JOP_DEBUG_MODE) && defined(JOP_COMPILER_MSVC)
+        #ifdef JOP_COMPILER_MSVC
             // An assertion failed. There's a break here so you can traverse the call stack
             DebugBreak();
         #endif

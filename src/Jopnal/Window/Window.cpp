@@ -249,7 +249,20 @@ namespace jop
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-        ns_eventsPolled = false;
+        // Only poll the events if they haven't yet been during this frame.
+        // We care about this because we don't want to invoke controller
+        // callbacks multiple times.
+        if (!ns_eventsPolled)
+        {
+            static const bool controllers = SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1) > 0;
+
+            pollEvents();
+
+            if (controllers && m_eventHandler)
+                m_eventHandler->handleControllerInput();
+
+            ns_eventsPolled = true;
+        }
     }
 
     //////////////////////////////////////////////
@@ -267,21 +280,7 @@ namespace jop
     void Window::draw()
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-        // Only poll the events if they haven't yet been during this frame.
-        // We care about this because we don't want to invoke controller
-        // callbacks multiple times.
-        if (!ns_eventsPolled)
-        {
-            static const bool controllers = SettingManager::get<unsigned int>("engine@Input|Controller|uMaxControllers", 1) > 0;
-
-            pollEvents();
-
-            if (controllers && m_eventHandler)
-                m_eventHandler->handleControllerInput();
-
-            ns_eventsPolled = true;
-        }
+        ns_eventsPolled = false;
     }
 
     //////////////////////////////////////////////

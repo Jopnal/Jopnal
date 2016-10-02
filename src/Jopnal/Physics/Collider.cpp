@@ -48,7 +48,6 @@ namespace jop
 {
     Collider::Collider(Object& object, World& world, const uint32 ID)
         : Component                     (object, ID),
-          SafeReferenceable<Collider>   (this),
           m_body                        (),
           m_worldRef                    (world),
           m_detached                    (false),
@@ -57,7 +56,6 @@ namespace jop
 
     Collider::Collider(const Collider& other, Object& newObj)
         : Component                     (other, newObj),
-          SafeReferenceable<Collider>   (this),
           m_body                        (),
           m_worldRef                    (other.m_worldRef),
           m_detached                    (other.m_detached),
@@ -68,25 +66,6 @@ namespace jop
     {
         for (auto& i : m_listeners)
             i->m_collider = nullptr;
-    }
-
-    //////////////////////////////////////////////
-
-    void Collider::update(const float)
-    {
-        if (m_detached)
-            return;
-
-        const bool active = isActive();
-
-        if (m_body->isActive() != active)
-        {
-            if (m_body->isKinematicObject() || !m_allowSleep)
-                m_body->setActivationState(active ? DISABLE_DEACTIVATION : DISABLE_SIMULATION);
-
-            else
-                m_body->setActivationState(active ? ACTIVE_TAG : DISABLE_SIMULATION);
-        }
     }
 
     //////////////////////////////////////////////
@@ -127,11 +106,11 @@ namespace jop
 
         } cb(m_body->getBroadphaseHandle()->m_clientObject);
 
-        auto& bp = *m_worldRef.m_worldData->world->getBroadphase();
+        auto bp = m_worldRef.m_worldData->world->getBroadphase();
 
         btVector3 min, max;
-        bp.getAabb(other.m_body->getBroadphaseHandle(), min, max);
-        bp.aabbTest(min, max, cb);
+        bp->getAabb(other.m_body->getBroadphaseHandle(), min, max);
+        bp->aabbTest(min, max, cb);
         
         return cb.hit;
     }

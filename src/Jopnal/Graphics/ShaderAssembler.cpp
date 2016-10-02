@@ -145,7 +145,7 @@ namespace jop
 
         std::lock_guard<std::recursive_mutex> lock(m_instance->m_mutex);
 
-    #ifdef JOP_DEBUG_MODE
+    #if JOP_CONSOLE_VERBOSITY >= 1
 
         if (m_instance->m_plugins.find(name) != m_instance->m_plugins.end())
             JOP_DEBUG_WARNING("Shader plugin \"" << name << "\" overwritten")

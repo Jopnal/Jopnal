@@ -60,11 +60,12 @@ namespace jop
 {
     Camera::Camera(Object& object, Renderer& renderer, const Projection mode)
         : Component                 (object, 0),
+          detail::CullerComponent   (object, cullingEnabled() ? renderer.getCullingWorld() : nullptr, Type::Camera),
           m_projectionMatrix        (),
           m_renderTexture           (),
           m_drawables               (),
           m_lights                  (),
-          m_culler                  (),
+          m_shape                   (),
           m_viewPort                (glm::vec2(0.f), glm::vec2(1.f)),
           m_projData                ({{0.f, 0.f}}),
           m_clippingPlanes          (0.f, 0.f),
@@ -77,38 +78,32 @@ namespace jop
 
         if (mode == Projection::Orthographic)
         {
-            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
+            m_clippingPlanes = ClippingPlanes(SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipNear", -1.f), SM::get<float>("engine@Graphics|DefaultOrthographicCamera|fClipFar", 1.f));
 
             const glm::vec2 size(Engine::getMainWindow().getSize());
             setSize(2.f, size.y / size.x * 2.f);
         }
         else
         {
-            setClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 1000.f));
-            setFieldOfView(SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFoV", glm::radians(55.f)));
+            m_clippingPlanes = ClippingPlanes(SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipNear", 1.f), SM::get<float>("engine@Graphics|DefaultPerspectiveCamera|fClipFar", 1000.f));
+            m_projData.perspective.fov = SettingManager::get<float>("engine@Graphics|DefaultPerspectiveCamera|fFoV", glm::radians(55.f));
             setSize(Engine::getMainRenderTarget().getSize());
         }
 
-        if (detail::CullerComponent::cullingEnabled())
-        {
-            m_culler = std::make_unique<detail::CullerComponent>(object, renderer.getCullingWorld(), detail::CullerComponent::Type::Camera, this);
-            m_shape = std::make_unique<FrustumShape>("");
-            m_shape->setMargin(0.f);
-            updateShape();
-            m_culler->setCollisionShape(*m_shape);
-            m_culler->updateWorldBounds();
-        }
+        if (cullingEnabled())
+            renderer.getCullingWorld()->bind(this);
 
         renderer.bind(this);
     }
 
     Camera::Camera(const Camera& other, Object& newObj)
         : Component                 (other, newObj),
+          detail::CullerComponent   (other, newObj),
           m_projectionMatrix        (other.m_projectionMatrix),
           m_renderTexture           (),
           m_drawables               (),
           m_lights                  (),
-          m_culler                  (),
+          m_shape                   (),
           m_viewPort                (other.m_viewPort),
           m_projData                (other.m_projData),
           m_clippingPlanes          (other.m_clippingPlanes),
@@ -117,14 +112,10 @@ namespace jop
           m_mode                    (other.m_mode),
           m_projectionNeedUpdate    (other.m_projectionNeedUpdate)
     {
-        if (other.m_culler)
+        if (cullingEnabled())
         {
-            m_culler = std::make_unique<detail::CullerComponent>(*other.m_culler, newObj, this);
-            m_shape = std::make_unique<FrustumShape>("");
-            m_shape->setMargin(0.f);
             updateShape();
-            m_culler->setCollisionShape(*m_shape);
-            m_culler->updateWorldBounds();
+            m_rendererRef.getCullingWorld()->bind(this);
         }
 
         m_rendererRef.bind(this);
@@ -132,15 +123,63 @@ namespace jop
     
     Camera::~Camera()
     {
+        if (cullingEnabled())
+            m_rendererRef.getCullingWorld()->unbind(this);
+
         m_rendererRef.unbind(this);
     }
 
     //////////////////////////////////////////////
 
-    void Camera::update(const float deltaTime)
+    void Camera::update()
     {
-        if (m_culler)
-            m_culler->Collider::update(deltaTime);
+        if (cullingEnabled())
+        {
+            m_drawables.clear();
+
+            auto& w = m_worldRef->m_worldData->world;
+            auto  b = static_cast<btPairCachingGhostObject*>(m_body.get());
+
+            w->getDispatcher()->dispatchAllCollisionPairs(b->getOverlappingPairCache(), w->getDispatchInfo(), w->getDispatcher());
+
+            auto& pairArray = b->getOverlappingPairCache()->getOverlappingPairArray();
+            btManifoldArray manifoldArray;
+            
+            for (int i = 0; i < pairArray.size(); ++i)
+            {
+                manifoldArray.clear();
+            
+                auto& pair = pairArray[i];
+            
+                if (pair.m_algorithm)
+                    pair.m_algorithm->getAllContactManifolds(manifoldArray);
+                
+                for (int m = 0; m < manifoldArray.size(); ++m)
+                {
+                    auto manifold = manifoldArray[m];
+                
+                    for (int cp = 0; cp < manifold->getNumContacts(); ++cp)
+                    {
+                        if (manifold->getContactPoint(cp).getDistance() < 0.f)
+                        {
+                            auto cullComp = static_cast<const CullerComponent*>((manifold->getBody0() == m_body.get() ? manifold->getBody1() : manifold->getBody0())->getUserPointer());
+                
+                            switch (cullComp->getType())
+                            {
+                                case Type::Drawable:
+                                    m_drawables.insert(static_cast<const Drawable*>(cullComp));
+                                    goto NextObject;
+                            }
+                        }
+                    }
+                
+                    {
+                        NextObject:
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
     //////////////////////////////////////////////
@@ -362,16 +401,36 @@ namespace jop
 
     Camera& Camera::updateShape()
     {
-        if (m_culler)
+        if (cullingEnabled())
         {
+            if (!m_shape)
+            {
+                m_shape = std::make_unique<FrustumShape>("");
+                m_shape->setMargin(0.f);
+            }
+
             if (getProjectionMode() == Projection::Perspective)
                 m_shape->load(getClippingPlanes(), getAspectRatio(), glm::quat());
             else
                 m_shape->load(getClippingPlanes(), getSize(), glm::quat());
 
-            m_culler->updateWorldBounds();
+            setCollisionShape(*m_shape);
+            updateWorldBounds();
         }
 
         return *this;
+    }
+
+    //////////////////////////////////////////////
+
+    bool Camera::shouldCollide(const CullerComponent& other) const
+    {
+        switch (other.getType())
+        {
+            case Type::Drawable:
+                return (getRenderMask() & (1 << static_cast<const Drawable&>(other).getRenderGroup())) > 0;
+        }
+
+        return false;
     }
 }

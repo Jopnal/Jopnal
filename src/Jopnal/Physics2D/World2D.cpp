@@ -293,20 +293,12 @@ namespace jop
 
     void World2D::draw(const ProjectionInfo& proj, const LightContainer&) const
     {
-    #ifdef JOP_DEBUG_MODE
-
         if (debugMode())
         {
             m_dd->m_proj = &proj;
             m_worldData2D->DrawDebugData();
             m_dd->flushLines();
         }
-
-    #else
-
-        camera;
-
-    #endif
     }
 
     //////////////////////////////////////////////
@@ -328,22 +320,14 @@ namespace jop
 
     void World2D::setDebugMode(const bool enable)
     {
-    #ifdef JOP_DEBUG_MODE
         m_dd->SetFlags(enable * (b2Draw::e_shapeBit | b2Draw::e_aabbBit | b2Draw::e_jointBit | b2Draw::e_pairBit | b2Draw::e_centerOfMassBit));
-    #else
-        enable;
-    #endif
     }
 
     //////////////////////////////////////////////
 
     bool World2D::debugMode() const
     {
-    #ifdef JOP_DEBUG_MODE
         return m_dd->GetFlags() != 0;
-    #else
-        return false;
-    #endif
     }
 
     //////////////////////////////////////////////
