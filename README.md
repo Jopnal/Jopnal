@@ -1,5 +1,5 @@
-<p align="center"><img src="http://s20.postimg.org/bqljj922l/Jopnal_v19_png.png" width="333" height="333"></p>
 <h1 align="center">Jopnal Engine</h1>
+https://www.youtube.com/watch?v=E88Kp8uGrZ0
 
 ### Description
 
